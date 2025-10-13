@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       '10m'
     );
 
-    // Return HTML page that redirects with token in fragment
+    // Step 5: Return HTML page that redirects with token in fragment
     const html = `
 <!DOCTYPE html>
 <html>
@@ -123,16 +123,10 @@ export async function GET(request: NextRequest) {
     (function() {
       const redirectUri = ${JSON.stringify(redirectUri)};
       const state = ${JSON.stringify(state)};
-      const idToken = ${JSON.stringify(jwt)};
+      const jwt = ${JSON.stringify(jwt)};
       
-      // Build the redirect URL with token in fragment
-      const url = redirectUri + '#id_token=' + encodeURIComponent(idToken) + '&state=' + encodeURIComponent(state);
-      
-      // Log for debugging (remove in production)
-      console.log('Redirecting to:', url);
-      
-      // Redirect immediately
-      window.location.href = url;
+      // Set window.location with token in fragment
+      window.location = redirectUri + '#id_token=' + encodeURIComponent(jwt) + '&state=' + encodeURIComponent(state);
     })();
   </script>
 </body>
