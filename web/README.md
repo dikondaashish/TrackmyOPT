@@ -166,6 +166,201 @@ Make sure to set all required env vars in your hosting platform:
 - Vercel: Project Settings → Environment Variables
 - Docker: Pass via `-e` flag or `.env` file
 
+## 🧪 Local End-to-End Testing
+
+Follow these steps to test the complete authentication flow locally:
+
+### 1. Configure Environment Variables
+
+Make sure `web/.env.local` has all required variables:
+
+```env
+# Site Configuration
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_APP_NAME=OPT Hub
+
+# Supabase Configuration (from your Supabase project)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# JWT Signing Secret (generate with: openssl rand -hex 64)
+JWT_SIGNING_SECRET=your-generated-secret-here
+
+# Google OAuth (from Supabase dashboard)
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+```
+
+**Generate a strong JWT secret:**
+```bash
+openssl rand -hex 64
+```
+
+### 2. Configure Supabase Authentication
+
+#### Enable Google Provider
+
+1. Go to **Supabase Dashboard → Authentication → Providers**
+2. Find **Google** and click to configure
+3. Enable the provider
+4. Add **Authorized redirect URLs**:
+   ```
+   http://localhost:3000/auth/extension/callback
+   ```
+5. For production, also add:
+   ```
+   https://your-production-domain.com/auth/extension/callback
+   ```
+6. Save changes
+
+#### Configure URL Settings
+
+1. Go to **Supabase Dashboard → Authentication → URL Configuration**
+2. Set **Site URL** to:
+   ```
+   http://localhost:3000
+   ```
+3. For production, change to your production domain
+
+#### Disable Email Confirmations (Development Only)
+
+For faster development, disable email confirmations:
+
+1. Go to **Supabase Dashboard → Authentication → Email Auth**
+2. Find **Enable email confirmations**
+3. **Toggle OFF** (for development only)
+4. This allows manual signup to work immediately without email verification
+
+⚠️ **Important:** Re-enable email confirmations in production!
+
+### 3. Run Database Migration
+
+1. Open **Supabase Dashboard → SQL Editor**
+2. Click **New Query**
+3. Copy contents from `web/supabase/migrations/001_initial_schema.sql`
+4. Paste and click **Run**
+5. Verify tables in **Table Editor**:
+   - ✅ `profiles`
+   - ✅ `opt_status`
+   - ✅ `employment_spans`
+
+### 4. Start Development Servers
+
+```bash
+# Terminal 1: Web app
+pnpm dev:web
+
+# Terminal 2: Extension
+pnpm dev:ext
+```
+
+### 5. Load Extension in Chrome
+
+1. Open `chrome://extensions/`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select `extension/dist` directory
+5. Copy the **Extension ID** (e.g., `abcdefghij...`)
+
+### 6. Test Google OAuth Flow
+
+1. Click the **OPT Hub** extension icon
+2. Click **"Sign in or create account"**
+3. Browser opens to `http://localhost:3000/auth/extension?redirect_uri=...&state=...`
+4. Click **"Continue with Google"** tab
+5. Sign in with your Google account
+6. Authorize the app
+7. You'll be redirected back to `/auth/extension/callback`
+8. Callback mints JWT and redirects to extension
+9. Extension stores token and fetches `/api/me`
+10. ✅ Extension popup shows "Sign in or create account" button (first time)
+
+### 7. Test Manual Sign Up Flow
+
+1. Click extension icon
+2. Click **"Sign in or create account"**
+3. Switch to **"Manual"** tab
+4. Click **"Create Account"** sub-tab
+5. Fill in the form:
+   - First Name, Last Name
+   - Email, Password
+   - Program End Date (e.g., `05/15/2024`)
+   - OPT EAD End Date (e.g., `05/15/2025`)
+   - OPT Start Date (e.g., `06/01/2024`)
+   - Optional: DSO Recommendation Date, STEM Start Date
+   - Check "I'm STEM-eligible" if applicable
+6. Click **"Create Account"**
+7. Callback mints JWT and redirects to extension
+8. ✅ Extension shows your OPT data!
+
+### 8. Test Manual Sign In Flow
+
+1. Click extension icon (if already signed in, sign out first)
+2. Click **"Sign in or create account"**
+3. Switch to **"Manual"** tab
+4. Stay on **"Sign In"** sub-tab
+5. Enter your email and password
+6. Click **"Sign In"**
+7. ✅ Extension shows your OPT data!
+
+### 9. Verify Data in Supabase
+
+Check that data was saved correctly:
+
+1. Go to **Supabase Dashboard → Table Editor**
+2. View `profiles` table - should see your user
+3. View `opt_status` table - should see your OPT dates
+4. All dates should be in `YYYY-MM-DD` format
+
+### 10. Test API Endpoint
+
+Test the `/api/me` endpoint directly:
+
+```bash
+# Get your JWT token from extension (inspect popup console)
+# Or use the callback URL to capture it
+
+curl http://localhost:3000/api/me \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+Expected response:
+```json
+{
+  "profile": {
+    "timezone": "America/New_York",
+    "is_stem_eligible": true
+  },
+  "status": {
+    "program_end_date": "2024-05-15",
+    "dso_recommendation_date": null,
+    "opt_ead_end_date": "2025-05-15",
+    "opt_start_date": "2024-06-01",
+    "stem_start_date": null
+  }
+}
+```
+
+## 🎯 Troubleshooting
+
+### Extension won't auth
+- Check `redirect_uri` is whitelisted in Supabase
+- Verify `NEXT_PUBLIC_SITE_URL` matches your dev server
+- Check browser console for errors
+
+### "Invalid token" error
+- Token expires after 10 minutes
+- Sign in again to get a new token
+
+### Database insert fails
+- Verify tables exist (run migration)
+- Check RLS policies are enabled
+- View Supabase logs for details
+
+### Email confirmation required
+- Disable in Supabase → Authentication → Email Auth
+- Or check your email for confirmation link
+
 ## 📄 License
 
 MIT
