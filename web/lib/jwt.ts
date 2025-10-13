@@ -25,6 +25,44 @@ export interface JWTPayload {
   iat?: number;
   iss?: string;
   aud?: string;
+  sub?: string; // Standard JWT subject claim
+}
+
+/**
+ * Decoded JWT token result
+ */
+export interface DecodedToken {
+  sub: string;
+  email: string;
+  userId: string;
+}
+
+/**
+ * Sign a JWT token (alias for mintToken for convenience)
+ * 
+ * @param payload - User information to encode
+ * @param expiresIn - Expiration time (e.g., '10m', '1h', '7d')
+ * @returns Signed JWT token
+ */
+export async function signToken(
+  payload: { userId: string; email: string },
+  expiresIn: string = '10m'
+): Promise<string> {
+  const secret = getSecretKey();
+  
+  const token = await new SignJWT({ 
+    userId: payload.userId,
+    email: payload.email,
+    sub: payload.userId, // Standard 'sub' claim for user ID
+  })
+    .setProtectedHeader({ alg: JWT_ALGORITHM })
+    .setIssuedAt()
+    .setIssuer(JWT_ISSUER)
+    .setAudience(JWT_AUDIENCE)
+    .setExpirationTime(expiresIn)
+    .sign(secret);
+
+  return token;
 }
 
 /**
@@ -55,9 +93,9 @@ export async function mintToken(
  * Verify and decode a JWT token
  * 
  * @param token - JWT token to verify
- * @returns Decoded payload if valid, null otherwise
+ * @returns Decoded payload with userId and email, or null if invalid
  */
-export async function verifyToken(token: string): Promise<JWTPayload | null> {
+export async function verifyToken(token: string): Promise<DecodedToken | null> {
   try {
     const secret = getSecretKey();
     
@@ -66,8 +104,14 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
       audience: JWT_AUDIENCE,
     });
 
-    // Cast through unknown to satisfy TypeScript
-    return payload as unknown as JWTPayload;
+    // Extract standard claims
+    const decoded: DecodedToken = {
+      sub: payload.sub as string,
+      email: (payload as any).email || '',
+      userId: (payload as any).userId || payload.sub as string,
+    };
+
+    return decoded;
   } catch (error) {
     console.error('JWT verification failed:', error);
     return null;
