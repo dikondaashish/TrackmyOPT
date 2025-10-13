@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
-import { env } from './env';
+import { getServerSideEnv } from './env';
 
 const JWT_ALGORITHM = 'HS256';
 const JWT_ISSUER = 'trackmyopt-web';
@@ -7,8 +7,10 @@ const JWT_AUDIENCE = 'trackmyopt-extension';
 
 /**
  * Get the secret key for JWT signing
+ * Only call this on the server!
  */
 function getSecretKey() {
+  const env = getServerSideEnv();
   const secret = new TextEncoder().encode(env.JWT_SIGNING_SECRET);
   return secret;
 }
