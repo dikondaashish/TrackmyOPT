@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { mmddyyyyToISO } from '@/lib/date';
 import Link from 'next/link';
 
 type AuthMode = 'google' | 'manual';
@@ -44,15 +45,6 @@ export default function ExtensionAuthPage() {
       );
     }
   }, [redirectUri, state]);
-
-  // Convert MM/DD/YYYY to YYYY-MM-DD
-  const convertDateFormat = (mmddyyyy: string): string | null => {
-    if (!mmddyyyy) return null;
-    const parts = mmddyyyy.split('/');
-    if (parts.length !== 3) return null;
-    const [month, day, year] = parts;
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  };
 
   const handleGoogleSignIn = async () => {
     if (!redirectUri || !state) {
@@ -165,13 +157,13 @@ export default function ExtensionAuthPage() {
       // Step 3: Insert OPT status
       const { error: optError } = await supabase.from('opt_status').insert({
         user_id: data.user.id,
-        program_end_date: convertDateFormat(programEndDate),
+        program_end_date: mmddyyyyToISO(programEndDate),
         dso_recommendation_date: dsoRecommendationDate
-          ? convertDateFormat(dsoRecommendationDate)
+          ? mmddyyyyToISO(dsoRecommendationDate)
           : null,
-        opt_ead_end_date: convertDateFormat(optEadEndDate),
-        opt_start_date: convertDateFormat(optStartDate),
-        stem_start_date: stemStartDate ? convertDateFormat(stemStartDate) : null,
+        opt_ead_end_date: mmddyyyyToISO(optEadEndDate),
+        opt_start_date: mmddyyyyToISO(optStartDate),
+        stem_start_date: stemStartDate ? mmddyyyyToISO(stemStartDate) : null,
       });
 
       if (optError) {
