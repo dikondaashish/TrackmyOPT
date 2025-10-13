@@ -68,14 +68,28 @@ pnpm format:check
 ## 🌐 Running the Web App
 
 1. Install dependencies: `pnpm install`
-2. Start dev server: `pnpm dev:web`
-3. Open [http://localhost:3000](http://localhost:3000) in your browser
+2. Set up environment variables:
+   ```bash
+   cd web
+   cp .env.local.example .env.local
+   # Edit .env.local with your Supabase credentials
+   ```
+3. Start dev server: `pnpm dev:web`
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 The web app uses:
 - **Next.js 14** with App Router
 - **TypeScript** for type safety
 - **Tailwind CSS** for styling
+- **Supabase** for authentication & database
+- **jose** for JWT token management
+- **Zod** for environment validation
 - **ESLint** for code quality
+
+### Pages
+- `/` - Marketing landing page with features
+- `/auth/extension` - Unified authentication (sign in/sign up tabs)
+- `/auth/callback` - OAuth callback handler
 
 ## 🧩 Loading the Chrome Extension
 
@@ -93,6 +107,9 @@ For development, use `pnpm dev:ext` to watch for changes and rebuild automatical
 - **Framework:** Next.js 14 (App Router)
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS
+- **Database:** Supabase (PostgreSQL + Auth)
+- **JWT:** jose (HS256)
+- **Validation:** Zod
 - **Linting:** ESLint
 
 ### Extension (`extension/`)
