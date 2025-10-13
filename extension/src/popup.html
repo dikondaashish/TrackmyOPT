@@ -18,39 +18,43 @@
           'Helvetica Neue', Arial, sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-      }
-
-      .container {
         padding: 24px;
       }
 
-      .header {
-        text-align: center;
-        margin-bottom: 24px;
+      #root {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
 
-      .header h1 {
+      h3 {
         font-size: 24px;
         font-weight: 600;
         margin-bottom: 8px;
       }
 
-      .header p {
+      p {
         font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 8px;
+      }
+
+      div {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      strong {
+        display: inline-block;
+        min-width: 180px;
         opacity: 0.9;
       }
 
-      /* Not signed in view */
-      .not-signed-in {
-        display: none;
-        text-align: center;
-      }
-
-      .not-signed-in.active {
-        display: block;
-      }
-
-      .sign-in-btn {
+      button {
         width: 100%;
         padding: 14px 24px;
         font-size: 16px;
@@ -63,209 +67,20 @@
         transition: transform 0.2s, box-shadow 0.2s;
       }
 
-      .sign-in-btn:hover {
+      button:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       }
 
-      .sign-in-btn:active {
+      button:active {
         transform: translateY(0);
-      }
-
-      .sign-in-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-
-      /* Signed in view */
-      .signed-in {
-        display: none;
-      }
-
-      .signed-in.active {
-        display: block;
-      }
-
-      .dashboard-btn {
-        width: 100%;
-        padding: 12px 24px;
-        font-size: 15px;
-        font-weight: 600;
-        color: #667eea;
-        background: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        margin-bottom: 16px;
-        transition: transform 0.2s;
-      }
-
-      .dashboard-btn:hover {
-        transform: translateY(-1px);
-      }
-
-      .opt-info {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 16px;
-      }
-
-      .opt-info h3 {
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 12px;
-        opacity: 0.9;
-      }
-
-      .info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        font-size: 13px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .info-row:last-child {
-        border-bottom: none;
-      }
-
-      .info-label {
-        opacity: 0.8;
-      }
-
-      .info-value {
-        font-weight: 600;
-      }
-
-      .sign-out-btn {
-        width: 100%;
-        padding: 10px 24px;
-        font-size: 14px;
-        color: white;
-        background: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-
-      .sign-out-btn:hover {
-        background: rgba(255, 255, 255, 0.25);
-      }
-
-      /* Loading state */
-      .loading {
-        display: none;
-        text-align: center;
-        padding: 20px;
-      }
-
-      .loading.active {
-        display: block;
-      }
-
-      .spinner {
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-top: 3px solid white;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 12px;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      /* Error state */
-      .error {
-        display: none;
-        background: rgba(239, 68, 68, 0.2);
-        border: 1px solid rgba(239, 68, 68, 0.5);
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 16px;
-        font-size: 13px;
-      }
-
-      .error.active {
-        display: block;
-      }
-
-      .countdown {
-        text-align: center;
-        margin-bottom: 16px;
-      }
-
-      .countdown-value {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 4px;
-      }
-
-      .countdown-label {
-        font-size: 12px;
-        opacity: 0.9;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>🎓 OPT Hub</h1>
-        <p>Track your OPT timeline</p>
-      </div>
-
-      <!-- Loading State -->
-      <div id="loading" class="loading">
-        <div class="spinner"></div>
-        <p>Loading...</p>
-      </div>
-
-      <!-- Error State -->
-      <div id="error" class="error"></div>
-
-      <!-- Not Signed In View -->
-      <div id="not-signed-in" class="not-signed-in">
-        <button id="sign-in-btn" class="sign-in-btn">
-          Sign In or Create Account
-        </button>
-      </div>
-
-      <!-- Signed In View -->
-      <div id="signed-in" class="signed-in">
-        <button id="dashboard-btn" class="dashboard-btn">
-          Open Dashboard
-        </button>
-
-        <div id="countdown" class="countdown">
-          <div class="countdown-value" id="countdown-value">--</div>
-          <div class="countdown-label">Days Remaining</div>
-        </div>
-
-        <div class="opt-info">
-          <h3>OPT Information</h3>
-          <div id="opt-data">
-            <div class="info-row">
-              <span class="info-label">Loading...</span>
-              <span class="info-value"></span>
-            </div>
-          </div>
-        </div>
-
-        <button id="sign-out-btn" class="sign-out-btn">Sign Out</button>
-      </div>
+    <div id="root">
+      <p>Loading...</p>
     </div>
-
     <script src="popup.js"></script>
   </body>
 </html>
