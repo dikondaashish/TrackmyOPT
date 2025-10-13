@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { mintToken } from '@/lib/jwt';
+import { signToken } from '@/lib/jwt';
 import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
+  
+  // Step 4: Read redirect_uri and state from search params
   const redirectUri = requestUrl.searchParams.get('redirect_uri');
   const state = requestUrl.searchParams.get('state');
 
@@ -18,7 +20,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Create Supabase client with cookies
+    // Step 1: Retrieve the Supabase session
     const cookieStore = cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,12 +40,12 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    // Get the current session
     const {
       data: { session },
       error: sessionError,
     } = await supabase.auth.getSession();
 
+    // Step 2: If no session, redirect to /auth/extension with error
     if (sessionError || !session || !session.user) {
       console.error('Session error:', sessionError);
       return NextResponse.redirect(
@@ -57,13 +59,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Mint JWT token (10 minutes expiry)
-    const jwt = await mintToken(
+    // Step 3: Mint a short-lived JWT (10 minutes)
+    const jwt = await signToken(
       {
         userId: session.user.id,
         email: session.user.email || '',
       },
-      600 // 10 minutes
+      '10m'
     );
 
     // Return HTML page that redirects with token in fragment
