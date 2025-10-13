@@ -155,8 +155,8 @@ async function signIn() {
   try {
     const response = await chrome.runtime.sendMessage({ type: 'BEGIN_AUTH' });
 
-    if (response.error) {
-      throw new Error(response.error);
+    if (!response.ok) {
+      throw new Error(response.err || 'Authentication failed');
     }
 
     // Auth successful, reload popup state
@@ -172,11 +172,13 @@ async function signIn() {
 
 // Sign out
 async function signOut() {
-  await chrome.runtime.sendMessage({ type: 'SIGN_OUT' });
-  signedIn = false;
-  idToken = null;
-  notSignedInEl.classList.add('active');
-  signedInEl.classList.remove('active');
+  const response = await chrome.runtime.sendMessage({ type: 'SIGN_OUT' });
+  if (response.ok) {
+    signedIn = false;
+    idToken = null;
+    notSignedInEl.classList.add('active');
+    signedInEl.classList.remove('active');
+  }
 }
 
 // Open dashboard
