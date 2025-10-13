@@ -45,10 +45,16 @@ const buildOptions = {
   outdir: 'dist',
   platform: 'browser',
   target: 'es2020',
+  format: 'iife',
   loader: {
     '.html': 'copy',
   },
   logLevel: 'info',
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(
+      process.env.NODE_ENV || 'development'
+    ),
+  },
 };
 
 if (isWatch) {

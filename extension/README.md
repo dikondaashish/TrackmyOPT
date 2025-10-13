@@ -1,42 +1,228 @@
-# TrackMyOPT Chrome Extension
+# OPT Hub Chrome Extension
 
-## Development
+Track your OPT timeline directly from your browser with real-time countdown and status updates.
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
 
 ```bash
-# Install dependencies
+cd extension
 pnpm install
+```
 
-# Watch mode (rebuilds on file changes)
+### 2. Build the Extension
+
+```bash
+# Development build with watch mode
 pnpm dev
 
-# Production build
+# Or production build (one-time)
 pnpm build
 ```
 
-## Loading in Chrome
+### 3. Load in Chrome
 
-1. Run `pnpm build` to build the extension
-2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable "Developer mode" (toggle in top right)
-4. Click "Load unpacked"
-5. Select the `extension/dist` directory
+1. Open Chrome and navigate to `chrome://extensions/`
+2. Enable **Developer mode** (toggle in top right corner)
+3. Click **Load unpacked**
+4. Select the `extension/dist` directory
+5. The OPT Hub extension should now appear in your extensions list
 
-## Project Structure
+### 4. Note Your Extension ID
+
+⚠️ **IMPORTANT**: After loading the extension, you'll see an **Extension ID** like:
+```
+abcdefghijklmnopqrstuvwxyz123456
+```
+
+**Copy this ID!** You'll need to:
+1. Update `extension/src/config.ts` with your production website URL
+2. Ensure your website allows the redirect URL: `https://<EXTENSION_ID>.chromiumapp.org/*`
+
+## 📁 Project Structure
 
 ```
 extension/
 ├── src/
-│   ├── background.ts    # Service worker
-│   ├── popup.ts         # Popup script
-│   └── popup.html       # Popup UI
+│   ├── background.ts    # OAuth flow & message handling
+│   ├── popup.ts         # Popup logic
+│   ├── popup.html       # Popup UI
+│   └── config.ts        # Configuration (website URL)
 ├── public/
-│   └── icons/           # Extension icons
-├── manifest.json        # Extension manifest
-└── esbuild.config.js    # Build configuration
+│   └── icons/           # Extension icons (16, 48, 128)
+├── dist/                # Built extension (load this in Chrome)
+├── manifest.json        # Extension manifest (MV3)
+├── esbuild.config.js    # Build configuration
+├── package.json         # Dependencies & scripts
+└── README.md            # This file
 ```
 
-## Notes
+## 🔧 Development
 
-- Place your extension icons (16x16, 48x48, 128x128) in `public/icons/`
-- The build process automatically copies manifest.json and public/ to dist/
+### Watch Mode
+
+Automatically rebuilds when you change files:
+
+```bash
+pnpm dev
+```
+
+After making changes:
+1. Go to `chrome://extensions/`
+2. Click the **refresh icon** on your extension
+3. Reopen the popup to see changes
+
+### Production Build
+
+Build once for production:
+
+```bash
+pnpm build
+```
+
+## 🎯 Features
+
+- **OAuth Authentication**: Secure sign-in flow with your web app
+- **Real-time Countdown**: See days remaining in your OPT period
+- **OPT Status Display**: View all your important dates at a glance
+- **Dashboard Link**: Quick access to your web dashboard
+- **Sync Across Devices**: Uses `chrome.storage.sync` for cross-device sync
+
+## 🔐 Authentication Flow
+
+1. User clicks "Sign In or Create Account"
+2. Extension opens web auth flow via `chrome.identity.launchWebAuthFlow`
+3. User authenticates on your website
+4. Website redirects back with JWT token in URL fragment
+5. Extension stores token securely in `chrome.storage.sync`
+6. Extension uses token to call `/api/me` endpoint
+
+## 🌐 Configuration
+
+### Update Website URL
+
+Edit `src/config.ts`:
+
+```typescript
+export const WEBSITE_URL = 'https://your-production-site.com';
+```
+
+### Update Manifest Permissions
+
+Edit `manifest.json` to add your production domain:
+
+```json
+{
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://your-domain.com/*"
+  ]
+}
+```
+
+## 📝 Extension ID & Redirect URI
+
+After loading the extension, Chrome assigns it a unique ID. This ID is used in the OAuth redirect URI:
+
+**Format**: `https://<EXTENSION_ID>.chromiumapp.org/oauth2`
+
+**Example**: `https://abcdefghijklmnopqrstuvwxyz123456.chromiumapp.org/oauth2`
+
+### Finding Your Extension ID
+
+1. Go to `chrome://extensions/`
+2. Find "OPT Hub" in the list
+3. Look for **ID:** under the extension name
+4. Copy the long alphanumeric string
+
+### Testing Locally
+
+The extension works with `localhost:3000` by default. To test:
+
+1. Start your web app: `pnpm dev:web`
+2. Load the extension in Chrome
+3. Click the extension icon
+4. Click "Sign In or Create Account"
+5. Complete authentication flow
+
+## 🐛 Debugging
+
+### View Extension Console
+
+**Background Script:**
+1. Go to `chrome://extensions/`
+2. Find OPT Hub
+3. Click "service worker" (blue link)
+4. Console opens with background script logs
+
+**Popup Script:**
+1. Right-click extension icon
+2. Select "Inspect popup"
+3. DevTools opens for popup
+
+### Common Issues
+
+**"Failed to load extension"**
+- Make sure you built the extension: `pnpm build`
+- Check that `dist/` folder exists
+- Verify all required files are in `dist/`
+
+**"OAuth error" or "No response"**
+- Check that web app is running
+- Verify `WEBSITE_URL` in `config.ts` is correct
+- Check `host_permissions` in `manifest.json`
+
+**"Token expired"**
+- Tokens expire after 10 minutes
+- Sign in again to get a new token
+- Consider implementing token refresh
+
+**"Failed to fetch user data"**
+- Check web app `/api/me` endpoint is working
+- Verify token is being sent in Authorization header
+- Check browser console for CORS errors
+
+## 📦 Publishing
+
+### Before Publishing to Chrome Web Store
+
+1. Update version in `manifest.json`
+2. Build for production: `pnpm build`
+3. Test thoroughly in multiple scenarios
+4. Update `WEBSITE_URL` to production domain
+5. Add high-quality icons (128x128 required)
+6. Prepare promotional images and description
+7. Create a zip of the `dist/` folder
+8. Submit to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+
+### Production Checklist
+
+- [ ] Update `src/config.ts` with production URL
+- [ ] Update `manifest.json` host_permissions
+- [ ] Test OAuth flow end-to-end
+- [ ] Test on fresh Chrome profile
+- [ ] Verify all icons display correctly
+- [ ] Test sign in, data fetch, and sign out
+- [ ] Check for console errors
+- [ ] Verify data persists after browser restart
+
+## 📚 Resources
+
+- [Chrome Extension Manifest V3](https://developer.chrome.com/docs/extensions/mv3/intro/)
+- [chrome.identity API](https://developer.chrome.com/docs/extensions/reference/identity/)
+- [chrome.storage API](https://developer.chrome.com/docs/extensions/reference/storage/)
+- [Publishing Extensions](https://developer.chrome.com/docs/webstore/publish/)
+
+## 🆘 Support
+
+For issues or questions:
+1. Check the debugging section above
+2. Review console logs (background & popup)
+3. Verify website `/api/me` endpoint works
+4. Check authentication flow in web app
+
+---
+
+**Made with 💙 for international students tracking their OPT timeline**
 
