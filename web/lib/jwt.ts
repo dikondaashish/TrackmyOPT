@@ -66,7 +66,8 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
       audience: JWT_AUDIENCE,
     });
 
-    return payload as JWTPayload;
+    // Cast through unknown to satisfy TypeScript
+    return payload as unknown as JWTPayload;
   } catch (error) {
     console.error('JWT verification failed:', error);
     return null;
