@@ -134,31 +134,53 @@ export default function ExtensionAuthPage() {
     setError(null);
     
     try {
-      const res = await fetch('/api/manual/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      
-      if (!data.ok || !data.token) {
-        throw new Error(data.error || 'Login failed');
-      }
-      
-      // Save email if "Remember me" is checked
-      if (rememberMe) {
-        localStorage.setItem('trackmyopt_remember_email', email);
+      if (isExtensionFlow) {
+        // Extension flow: get JWT and redirect through completing page
+        const res = await fetch('/api/manual/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        
+        if (!data.ok || !data.token) {
+          throw new Error(data.error || 'Login failed');
+        }
+        
+        // Save email if "Remember me" is checked
+        if (rememberMe) {
+          localStorage.setItem('trackmyopt_remember_email', email);
+        } else {
+          localStorage.removeItem('trackmyopt_remember_email');
+        }
+        
+        // Redirect to intermediate page that will handle the extension redirect
+        const completingUrl = new URL('/auth/completing', window.location.origin);
+        completingUrl.searchParams.set('token', data.token);
+        completingUrl.searchParams.set('state', state!);
+        completingUrl.searchParams.set('redirect_uri', redirectUri!);
+        completingUrl.searchParams.set('redirect', '/dashboard');
+        
+        window.location.href = completingUrl.toString();
       } else {
-        localStorage.removeItem('trackmyopt_remember_email');
+        // Web flow: use Supabase session and redirect to dashboard
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        // Save email if "Remember me" is checked
+        if (rememberMe) {
+          localStorage.setItem('trackmyopt_remember_email', email);
+        } else {
+          localStorage.removeItem('trackmyopt_remember_email');
+        }
+
+        // Redirect to dashboard
+        window.location.href = redirect;
       }
-      
-      // Redirect to intermediate page that will handle the extension redirect
-      const completingUrl = new URL('/auth/completing', window.location.origin);
-      completingUrl.searchParams.set('token', data.token);
-      completingUrl.searchParams.set('state', state);
-      completingUrl.searchParams.set('redirect_uri', redirectUri);
-      
-      window.location.href = completingUrl.toString();
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
@@ -232,16 +254,34 @@ export default function ExtensionAuthPage() {
         throw new Error(data.error || 'Invalid verification code');
       }
       
-      // Close modal and redirect to intermediate page
+      // Close modal
       setShowOTPModal(false);
       
-      // Redirect to intermediate page that will handle the extension redirect
-      const completingUrl = new URL('/auth/completing', window.location.origin);
-      completingUrl.searchParams.set('token', data.token);
-      completingUrl.searchParams.set('state', state);
-      completingUrl.searchParams.set('redirect_uri', redirectUri);
-      
-      window.location.href = completingUrl.toString();
+      if (isExtensionFlow) {
+        // Extension flow: redirect through completing page
+        const completingUrl = new URL('/auth/completing', window.location.origin);
+        completingUrl.searchParams.set('token', data.token);
+        completingUrl.searchParams.set('state', state!);
+        completingUrl.searchParams.set('redirect_uri', redirectUri!);
+        completingUrl.searchParams.set('redirect', '/dashboard');
+        
+        window.location.href = completingUrl.toString();
+      } else {
+        // Web flow: sign in with the created account and redirect
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          console.error('Auto sign-in error:', error);
+          // Even if auto sign-in fails, redirect to login page
+          window.location.href = '/auth/extension?redirect=' + encodeURIComponent(redirect);
+        } else {
+          // Success! Redirect to dashboard
+          window.location.href = redirect;
+        }
+      }
     } catch (err: any) {
       setOtpError(err.message || 'Invalid verification code. Please try again.');
       setOtpLoading(false);
