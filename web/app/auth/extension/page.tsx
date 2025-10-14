@@ -17,6 +17,8 @@ export default function ExtensionAuthPage() {
   const [showSignIn, setShowSignIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(errorParam);
+  const [signInError, setSignInError] = useState<string | null>(null);
+  const [signUpError, setSignUpError] = useState<string | null>(null);
 
   // Sign In
   const [email, setEmail] = useState('');
@@ -69,9 +71,12 @@ export default function ExtensionAuthPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
           <div className="text-center">
             <div className="text-6xl mb-4">⚠️</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Request</h1>
-            <p className="text-gray-600">
-              This page must be accessed from the OPT Hub extension.
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Login Link</h1>
+            <p className="text-gray-600 mb-4">
+              This authentication page must be accessed from the OPT Hub extension.
+            </p>
+            <p className="text-sm text-gray-500">
+              Missing required parameters: redirect_uri or state
             </p>
           </div>
         </div>
@@ -98,7 +103,9 @@ export default function ExtensionAuthPage() {
   const handleManualSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setSignInError(null);
     setError(null);
+    
     try {
       const res = await fetch('/api/manual/login', {
         method: 'POST',
@@ -106,10 +113,14 @@ export default function ExtensionAuthPage() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!data.ok) throw new Error(data.error || 'Login failed');
+      
+      if (!data.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+      
       window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
-      setError(err.message || 'Sign in failed');
+      setSignInError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
     }
   };
@@ -117,6 +128,7 @@ export default function ExtensionAuthPage() {
   const handleManualSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setSignUpError(null);
     setError(null);
 
     // Validate dates
@@ -127,7 +139,7 @@ export default function ExtensionAuthPage() {
     const v5 = validateDate(stemStart, 'stemStart', false);
 
     if (!v1 || !v3 || !v4) {
-      setError('Please fix date errors');
+      setSignUpError('Please fix date errors above');
       setLoading(false);
       return;
     }
@@ -150,10 +162,14 @@ export default function ExtensionAuthPage() {
         }),
       });
       const data = await res.json();
-      if (!data.ok) throw new Error(data.error || 'Signup failed');
+      
+      if (!data.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
+      
       window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
-      setError(err.message || 'Sign up failed');
+      setSignUpError(err.message || 'Sign up failed. Please try again.');
       setLoading(false);
     }
   };
@@ -179,7 +195,8 @@ export default function ExtensionAuthPage() {
         <div className="flex gap-3 mb-8">
           <button
             onClick={() => setTab('google')}
-            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition ${
+            disabled={loading}
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${
               tab === 'google'
                 ? 'bg-blue-600 text-white shadow-lg'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -189,7 +206,8 @@ export default function ExtensionAuthPage() {
           </button>
           <button
             onClick={() => setTab('manual')}
-            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition ${
+            disabled={loading}
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${
               tab === 'manual'
                 ? 'bg-blue-600 text-white shadow-lg'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -205,27 +223,36 @@ export default function ExtensionAuthPage() {
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full py-4 px-6 bg-white border-2 border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition disabled:opacity-50 flex items-center justify-center gap-3 text-lg shadow-sm"
+              className="w-full py-4 px-6 bg-white border-2 border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg shadow-sm"
             >
-              <svg className="w-6 h-6" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              Continue with Google
+              {loading ? (
+                <>
+                  <span className="animate-spin">⏳</span>
+                  Redirecting...
+                </>
+              ) : (
+                <>
+                  <svg className="w-6 h-6" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  Continue with Google
+                </>
+              )}
             </button>
           </div>
         )}
@@ -237,7 +264,8 @@ export default function ExtensionAuthPage() {
             <div className="border-2 border-gray-200 rounded-xl overflow-hidden">
               <button
                 onClick={() => setShowSignIn(!showSignIn)}
-                className="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 transition flex items-center justify-between font-semibold text-gray-900"
+                disabled={loading}
+                className="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900"
               >
                 <span>Sign In</span>
                 <span className="text-xl">{showSignIn ? '−' : '+'}</span>
@@ -253,7 +281,8 @@ export default function ExtensionAuthPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={loading}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -266,13 +295,19 @@ export default function ExtensionAuthPage() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={loading}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                     />
                   </div>
+                  
+                  {signInError && (
+                    <p className="text-red-500 text-sm">{signInError}</p>
+                  )}
+                  
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 shadow-lg"
+                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                   >
                     {loading ? 'Signing in...' : 'Sign In'}
                   </button>
@@ -284,7 +319,8 @@ export default function ExtensionAuthPage() {
             <div className="border-2 border-gray-200 rounded-xl overflow-hidden">
               <button
                 onClick={() => setShowSignUp(!showSignUp)}
-                className="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 transition flex items-center justify-between font-semibold text-gray-900"
+                disabled={loading}
+                className="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900"
               >
                 <span>Create Account</span>
                 <span className="text-xl">{showSignUp ? '−' : '+'}</span>
@@ -301,7 +337,8 @@ export default function ExtensionAuthPage() {
                         required
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={loading}
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                       />
                     </div>
                     <div>
@@ -313,7 +350,8 @@ export default function ExtensionAuthPage() {
                         required
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={loading}
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                       />
                     </div>
                   </div>
@@ -326,7 +364,8 @@ export default function ExtensionAuthPage() {
                       required
                       value={signUpEmail}
                       onChange={(e) => setSignUpEmail(e.target.value)}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={loading}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -339,7 +378,8 @@ export default function ExtensionAuthPage() {
                       required
                       value={signUpPassword}
                       onChange={(e) => setSignUpPassword(e.target.value)}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={loading}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                     />
                   </div>
 
@@ -358,7 +398,8 @@ export default function ExtensionAuthPage() {
                           value={programEnd}
                           onChange={(e) => setProgramEnd(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(programEnd, 'programEnd', true)}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          disabled={loading}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
@@ -375,7 +416,8 @@ export default function ExtensionAuthPage() {
                           value={dsoReco}
                           onChange={(e) => setDsoReco(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(dsoReco, 'dsoReco', false)}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          disabled={loading}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
@@ -393,7 +435,8 @@ export default function ExtensionAuthPage() {
                           value={optEadEnd}
                           onChange={(e) => setOptEadEnd(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(optEadEnd, 'optEadEnd', true)}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          disabled={loading}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
@@ -411,7 +454,8 @@ export default function ExtensionAuthPage() {
                           value={optStart}
                           onChange={(e) => setOptStart(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(optStart, 'optStart', true)}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          disabled={loading}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
@@ -428,7 +472,8 @@ export default function ExtensionAuthPage() {
                           value={stemStart}
                           onChange={(e) => setStemStart(formatDateInput(e.target.value))}
                           onBlur={() => validateDate(stemStart, 'stemStart', false)}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          disabled={loading}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                           placeholder="MM/DD/YYYY"
                           maxLength={10}
                         />
@@ -442,7 +487,8 @@ export default function ExtensionAuthPage() {
                           id="isStem"
                           checked={isStem}
                           onChange={(e) => setIsStem(e.target.checked)}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          disabled={loading}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50"
                         />
                         <label htmlFor="isStem" className="ml-2 text-sm text-gray-700">
                           I'm STEM-eligible
@@ -457,10 +503,14 @@ export default function ExtensionAuthPage() {
                     </div>
                   </div>
 
+                  {signUpError && (
+                    <p className="text-red-500 text-sm">{signUpError}</p>
+                  )}
+
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 shadow-lg"
+                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                   >
                     {loading ? 'Creating account...' : 'Create Account'}
                   </button>
