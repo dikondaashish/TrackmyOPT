@@ -234,14 +234,6 @@ export default function ExtensionAuthPage() {
     <div className="min-h-screen flex bg-gray-50">
       {/* Left Side - Images Carousel */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden p-16">
-        {/* Logo */}
-        <div className="absolute top-8 left-8 z-10">
-          <div className="text-white">
-            <h1 className="text-3xl font-bold">TrackMyOPT</h1>
-            <p className="text-blue-200 text-sm mt-1">Your OPT Timeline Companion</p>
-          </div>
-        </div>
-
         {/* Sliding Image Cards */}
         <div className="flex-1 flex items-center justify-center relative">
           {images.map((img, index) => (
