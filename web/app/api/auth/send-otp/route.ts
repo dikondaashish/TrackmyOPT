@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     );
 
     // Send OTP using Supabase's built-in functionality
+    // This will create a temporary user that we'll update with password later
     const { data, error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {
@@ -26,9 +27,10 @@ export async function POST(req: NextRequest) {
         data: {
           firstName: firstName || '',
           lastName: lastName || '',
+          pendingPasswordSetup: true, // Flag to indicate password needs to be set
         },
-        // Don't create session yet - we'll do that after OTP verification
-        shouldCreateUser: false,
+        // Allow user creation - we'll set password after OTP verification
+        shouldCreateUser: true,
       },
     });
 
