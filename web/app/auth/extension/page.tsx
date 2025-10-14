@@ -10,12 +10,12 @@ export default function ExtensionAuthPage() {
   const searchParams = useSearchParams();
   const redirectUri = searchParams.get('redirect_uri');
   const state = searchParams.get('state');
-  const webRedirect = searchParams.get('redirect') || '/dashboard'; // Web-only redirect
+  const redirect = searchParams.get('redirect') || '/dashboard'; // For web-only flow
   const errorParam = searchParams.get('error');
-  
+
   // Determine if this is an extension flow or web-only flow
   const isExtensionFlow = !!(redirectUri && state);
-  const isWebFlow = !redirectUri && !state;
+  const isWebFlow = !!redirect && !redirectUri;
 
   const [mode, setMode] = useState<Mode>('signin');
   const [loading, setLoading] = useState(false);
@@ -78,23 +78,37 @@ export default function ExtensionAuthPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Both extension and web flows are allowed
-  // Extension flow: has redirectUri + state
-  // Web flow: no redirectUri/state, uses redirect parameter
+  // Only show error if it's not a valid extension flow OR web flow
+  if (!isExtensionFlow && !isWebFlow) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+          <div className="text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Login Link</h1>
+            <p className="text-gray-600 mb-4">
+              This authentication page requires proper authentication parameters.
+            </p>
+            <p className="text-sm text-gray-500 mb-4">
+              Please access this page from the TrackMyOPT extension or with a valid redirect URL.
+            </p>
+            <a 
+              href="/?redirect=/dashboard" 
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-6 py-3 transition"
+            >
+              Go to Home
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
     try {
-      let callbackUrl: string;
-      
-      if (isExtensionFlow) {
-        // Extension flow: redirect to callback with extension params
-        callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri!)}&state=${encodeURIComponent(state!)}`;
-      } else {
-        // Web-only flow: redirect directly to web destination
-        callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}${webRedirect}`;
-      }
+      const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
       
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -138,19 +152,13 @@ export default function ExtensionAuthPage() {
         localStorage.removeItem('trackmyopt_remember_email');
       }
       
-      if (isExtensionFlow) {
-        // Extension flow: Go to completing page with extension params
-        const completingUrl = new URL('/auth/completing', window.location.origin);
-        completingUrl.searchParams.set('token', data.token);
-        completingUrl.searchParams.set('state', state!);
-        completingUrl.searchParams.set('redirect_uri', redirectUri!);
-        completingUrl.searchParams.set('redirect', webRedirect);
-        
-        window.location.href = completingUrl.toString();
-      } else {
-        // Web-only flow: Redirect directly to dashboard or specified redirect
-        window.location.href = webRedirect;
-      }
+      // Redirect to intermediate page that will handle the extension redirect
+      const completingUrl = new URL('/auth/completing', window.location.origin);
+      completingUrl.searchParams.set('token', data.token);
+      completingUrl.searchParams.set('state', state);
+      completingUrl.searchParams.set('redirect_uri', redirectUri);
+      
+      window.location.href = completingUrl.toString();
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
@@ -224,22 +232,16 @@ export default function ExtensionAuthPage() {
         throw new Error(data.error || 'Invalid verification code');
       }
       
-      // Close modal and redirect
+      // Close modal and redirect to intermediate page
       setShowOTPModal(false);
       
-      if (isExtensionFlow) {
-        // Extension flow: Go to completing page with extension params
-        const completingUrl = new URL('/auth/completing', window.location.origin);
-        completingUrl.searchParams.set('token', data.token);
-        completingUrl.searchParams.set('state', state!);
-        completingUrl.searchParams.set('redirect_uri', redirectUri!);
-        completingUrl.searchParams.set('redirect', webRedirect);
-        
-        window.location.href = completingUrl.toString();
-      } else {
-        // Web-only flow: Redirect directly to dashboard or specified redirect
-        window.location.href = webRedirect;
-      }
+      // Redirect to intermediate page that will handle the extension redirect
+      const completingUrl = new URL('/auth/completing', window.location.origin);
+      completingUrl.searchParams.set('token', data.token);
+      completingUrl.searchParams.set('state', state);
+      completingUrl.searchParams.set('redirect_uri', redirectUri);
+      
+      window.location.href = completingUrl.toString();
     } catch (err: any) {
       setOtpError(err.message || 'Invalid verification code. Please try again.');
       setOtpLoading(false);
