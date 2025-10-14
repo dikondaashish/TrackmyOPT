@@ -286,6 +286,27 @@ export default function ExtensionAuthPage() {
     setResetError(null);
 
     try {
+      // First, check if user exists
+      const checkRes = await fetch('/api/auth/check-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+      const checkData = await checkRes.json();
+
+      if (!checkData.ok) {
+        throw new Error('Failed to verify email address');
+      }
+
+      if (!checkData.exists) {
+        setResetError(
+          "This email is not registered with TrackMyOPT. Please create an account first by clicking 'create account' below."
+        );
+        setResetLoading(false);
+        return;
+      }
+
+      // User exists, send password reset email
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
         redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`,
       });
@@ -696,7 +717,19 @@ export default function ExtensionAuthPage() {
 
                 {resetError && (
                   <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                    {resetError}
+                    <p>{resetError}</p>
+                    {resetError.includes('not registered') && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          closeResetModal();
+                          setMode('signup');
+                        }}
+                        className="mt-3 w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition text-sm"
+                      >
+                        Create Account Now
+                      </button>
+                    )}
                   </div>
                 )}
 
