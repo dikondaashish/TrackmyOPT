@@ -140,7 +140,6 @@ export default function ExtensionAuthPage() {
         localStorage.removeItem('trackmyopt_remember_email');
       }
       
-      // Show success message briefly, then redirect
       // Display success state - will stay visible until tab closes
       const successMessage = document.createElement('div');
       successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-[9999]';
