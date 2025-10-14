@@ -141,21 +141,22 @@ export default function ExtensionAuthPage() {
       }
       
       // Show success message briefly, then redirect
+      // Display success state - will stay visible until tab closes
       const successMessage = document.createElement('div');
-      successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-50';
+      successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-[9999]';
+      successMessage.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;';
       successMessage.innerHTML = `
         <div class="text-center p-8">
           <div class="text-6xl mb-4">✅</div>
           <h2 class="text-2xl font-bold text-gray-900 mb-2">Signed In!</h2>
-          <p class="text-gray-600 mb-4">Redirecting to extension...</p>
+          <p class="text-gray-600 mb-4">Completing sign-in...</p>
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
         </div>
       `;
       document.body.appendChild(successMessage);
       
-      setTimeout(() => {
-        window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
-      }, 1000);
+      // Redirect immediately, success message will stay visible
+      window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
@@ -232,21 +233,22 @@ export default function ExtensionAuthPage() {
       // Close modal and show success
       setShowOTPModal(false);
       
+      // Display success state - will stay visible until tab closes
       const successMessage = document.createElement('div');
-      successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-50';
+      successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-[9999]';
+      successMessage.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;';
       successMessage.innerHTML = `
         <div class="text-center p-8">
           <div class="text-6xl mb-4">✅</div>
           <h2 class="text-2xl font-bold text-gray-900 mb-2">Account Created!</h2>
-          <p class="text-gray-600 mb-4">Signing you in to the extension...</p>
+          <p class="text-gray-600 mb-4">Completing sign-in...</p>
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
         </div>
       `;
       document.body.appendChild(successMessage);
       
-      setTimeout(() => {
-        window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
-      }, 1000);
+      // Redirect immediately, success message will stay visible
+      window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
       setOtpError(err.message || 'Invalid verification code. Please try again.');
       setOtpLoading(false);
