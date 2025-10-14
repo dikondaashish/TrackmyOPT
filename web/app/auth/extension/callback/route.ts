@@ -48,17 +48,22 @@ export async function GET(req: NextRequest) {
 
     // If we have a code, exchange it for a session
     if (code) {
-      console.log('Exchanging code for session');
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      console.log('Exchanging code for session, code length:', code.length);
+      const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) {
-        console.error('Code exchange error:', exchangeError);
+        console.error('Code exchange error:', {
+          message: exchangeError.message,
+          status: exchangeError.status,
+          name: exchangeError.name,
+        });
         return NextResponse.redirect(
           new URL(
-            `/auth/extension?error=code_exchange_failed&redirect_uri=${encodeURIComponent(redirect_uri)}&state=${encodeURIComponent(state)}`, 
+            `/auth/extension?error=code_exchange_failed&error_description=${encodeURIComponent(exchangeError.message)}&redirect_uri=${encodeURIComponent(redirect_uri)}&state=${encodeURIComponent(state)}`, 
             req.url
           )
         );
       }
+      console.log('Code exchange successful, user:', sessionData?.user?.id);
     }
 
     // Get the user from the session
