@@ -20,13 +20,22 @@ async function beginAuth(){
   url.searchParams.set('redirect_uri', redirectUri);
   url.searchParams.set('state', state);
 
+  console.log('Starting OAuth flow, redirect_uri:', redirectUri);
+  
   const responseUrl = await chrome.identity.launchWebAuthFlow({ url: url.toString(), interactive: true });
+  console.log('OAuth response URL:', responseUrl);
+  
   const hash = new URL(responseUrl).hash.substring(1);
   const params = new URLSearchParams(hash);
   const token = params.get('id_token');
   const gotState = params.get('state');
   const { oauth_state } = await chrome.storage.session.get('oauth_state');
+  
+  console.log('Token received:', token ? `${token.substring(0, 20)}...` : 'null');
+  console.log('State match:', gotState === oauth_state);
+  
   if (!token || gotState !== oauth_state) throw new Error('Auth failed');
 
   await chrome.storage.sync.set({ idToken: token, signedIn: true, signedInAt: Date.now() });
+  console.log('Token stored successfully');
 }

@@ -9,7 +9,10 @@ export async function GET(request: NextRequest) {
     // Extract Bearer token from Authorization header
     const authHeader = request.headers.get('Authorization');
     
+    console.log('/api/me - Authorization header:', authHeader ? `Bearer ${authHeader.substring(7, 30)}...` : 'missing');
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('/api/me - Missing or invalid Authorization header');
       return NextResponse.json(
         { error: 'Missing or invalid Authorization header' },
         { status: 401 }
@@ -21,7 +24,10 @@ export async function GET(request: NextRequest) {
     // Verify JWT token
     const decoded = await verifyToken(token);
     
+    console.log('/api/me - Token decoded:', decoded ? `user: ${decoded.sub}` : 'null');
+    
     if (!decoded) {
+      console.error('/api/me - Token verification failed');
       return NextResponse.json(
         { error: 'Invalid or expired token' },
         { status: 401 }
@@ -29,6 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = decoded.userId || decoded.sub;
+    console.log('/api/me - userId:', userId);
 
     // Create Supabase client for server-side queries
     const cookieStore = cookies();

@@ -2,6 +2,8 @@ async function init(){
   const s = await chrome.storage.sync.get(['signedIn','idToken']);
   const root = document.getElementById('root')!;
   
+  console.log('Init - signedIn:', s.signedIn, 'hasToken:', !!s.idToken);
+  
   if (!s.signedIn) {
     renderSignInView(root);
     return;
@@ -10,11 +12,18 @@ async function init(){
   showLoading(root);
   
   try {
+    console.log('Fetching /api/me with token:', s.idToken ? `${s.idToken.substring(0, 30)}...` : 'null');
+    
     const r = await fetch('http://localhost:3000/api/me', { 
       headers: { Authorization: 'Bearer ' + s.idToken }
     });
     
+    console.log('API response status:', r.status);
+    
     if (!r.ok) {
+      const errorText = await r.text();
+      console.error('API error response:', errorText);
+      
       if (r.status === 401 || r.status === 403) {
         // Token expired or invalid
         await handleSessionExpired(root);
@@ -24,6 +33,7 @@ async function init(){
     }
     
     const data = await r.json();
+    console.log('API data received:', data);
     renderData(root, data);
   } catch (error) {
     console.error('Fetch error:', error);
