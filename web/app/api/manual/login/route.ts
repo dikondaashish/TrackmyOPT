@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     // Customize error message for better UX
     let errorMessage = error?.message ?? "Login failed";
     if (errorMessage.includes("Invalid login credentials")) {
-      errorMessage = "Incorrect email or password";
+      errorMessage = "Incorrect Email or Password";
     }
     return NextResponse.json({ ok: false, error: errorMessage }, { status: 400 });
   }

@@ -18,6 +18,13 @@ export default function ExtensionAuthPage() {
   const [error, setError] = useState<string | null>(errorParam);
   const [rememberMe, setRememberMe] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Password Reset States
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
 
   // Sign In/Up Fields
   const [email, setEmail] = useState('');
@@ -60,6 +67,15 @@ export default function ExtensionAuthPage() {
     setDateErrors((prev) => ({ ...prev, [field]: '' }));
     return true;
   };
+
+  // Load saved email on mount (Remember me functionality)
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('trackmyopt_remember_email');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   // Auto-scroll images
   useEffect(() => {
@@ -127,6 +143,13 @@ export default function ExtensionAuthPage() {
       
       if (!data.ok || !data.token) {
         throw new Error(data.error || 'Login failed');
+      }
+      
+      // Save email if "Remember me" is checked
+      if (rememberMe) {
+        localStorage.setItem('trackmyopt_remember_email', email);
+      } else {
+        localStorage.removeItem('trackmyopt_remember_email');
       }
       
       // Show success message briefly, then redirect
@@ -210,6 +233,43 @@ export default function ExtensionAuthPage() {
       setError(err.message || 'Sign up failed. Please try again.');
       setLoading(false);
     }
+  };
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+    setResetError(null);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setResetSuccess(true);
+      setResetLoading(false);
+    } catch (err: any) {
+      setResetError(err.message || 'Failed to send reset email. Please try again.');
+      setResetLoading(false);
+    }
+  };
+
+  const handleForgotPasswordClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setResetEmail(email); // Pre-fill with current email if available
+    setShowResetModal(true);
+    setResetSuccess(false);
+    setResetError(null);
+  };
+
+  const closeResetModal = () => {
+    setShowResetModal(false);
+    setResetEmail('');
+    setResetSuccess(false);
+    setResetError(null);
   };
 
   const images = [
@@ -357,9 +417,13 @@ export default function ExtensionAuthPage() {
                   />
                   <span className="ml-2 text-sm text-gray-700">Remember me</span>
                 </label>
-                <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                <button
+                  type="button"
+                  onClick={handleForgotPasswordClick}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                >
                   Forgot password?
-                </a>
+                </button>
               </div>
 
               <button
@@ -564,6 +628,90 @@ export default function ExtensionAuthPage() {
           </div>
         </div>
       </div>
+
+      {/* Password Reset Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+            {!resetSuccess ? (
+              <>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Reset Password</h2>
+                  <button
+                    onClick={closeResetModal}
+                    className="text-gray-400 hover:text-gray-600 text-2xl"
+                    aria-label="Close modal"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <p className="text-gray-600 mb-6">
+                  Enter your email address and we'll send you a link to reset your password.
+                </p>
+
+                {resetError && (
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                    {resetError}
+                  </div>
+                )}
+
+                <form onSubmit={handlePasswordReset} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      required
+                      disabled={resetLoading}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={closeResetModal}
+                      disabled={resetLoading}
+                      className="flex-1 py-3 px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={resetLoading}
+                      className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {resetLoading ? 'Sending...' : 'Send Reset Link'}
+                    </button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <>
+                <div className="text-center">
+                  <div className="text-6xl mb-4">📧</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
+                  <p className="text-gray-600 mb-6">
+                    We've sent a password reset link to <strong>{resetEmail}</strong>. 
+                    Please check your inbox and follow the instructions to reset your password.
+                  </p>
+                  <button
+                    onClick={closeResetModal}
+                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition"
+                  >
+                    Got it!
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
