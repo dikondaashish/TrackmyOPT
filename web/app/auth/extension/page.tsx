@@ -233,59 +233,67 @@ export default function ExtensionAuthPage() {
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Left Side - Images Carousel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-purple-700 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-            backgroundSize: '40px 40px'
-          }}></div>
-        </div>
-
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden p-16">
         {/* Logo */}
         <div className="absolute top-8 left-8 z-10">
           <div className="text-white">
             <h1 className="text-3xl font-bold">TrackMyOPT</h1>
-            <p className="text-blue-100 text-sm mt-1">Your OPT Timeline Companion</p>
+            <p className="text-blue-200 text-sm mt-1">Your OPT Timeline Companion</p>
           </div>
         </div>
 
-        {/* Sliding Images */}
-        <div className="flex-1 flex items-center justify-center p-12 relative">
+        {/* Sliding Image Cards */}
+        <div className="flex-1 flex items-center justify-center relative">
           {images.map((img, index) => (
             <div
               key={index}
-              className={`absolute inset-0 flex flex-col items-center justify-center p-12 transition-all duration-1000 ${
+              className={`absolute w-full max-w-lg transition-all duration-1000 ${
                 index === currentImageIndex
-                  ? 'opacity-100 transform translate-x-0'
+                  ? 'opacity-100 transform translate-x-0 scale-100'
                   : index < currentImageIndex
-                  ? 'opacity-0 transform -translate-x-full'
-                  : 'opacity-0 transform translate-x-full'
+                  ? 'opacity-0 transform -translate-x-full scale-95'
+                  : 'opacity-0 transform translate-x-full scale-95'
               }`}
             >
-              <div className={`w-64 h-64 rounded-full bg-gradient-to-br ${img.gradient} opacity-20 mb-8 animate-pulse`}></div>
-              
-              <div className="text-center text-white space-y-4 max-w-md">
-                <h2 className="text-4xl font-bold">{img.title}</h2>
-                <p className="text-xl text-blue-100">{img.description}</p>
+              {/* Image Card with Border and Padding */}
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-12 shadow-2xl">
+                {/* Icon/Illustration with Border */}
+                <div className="relative mb-12">
+                  <div className={`w-full aspect-square max-w-sm mx-auto rounded-2xl bg-gradient-to-br ${img.gradient} opacity-30 shadow-xl`}></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className={`w-32 h-32 rounded-full bg-gradient-to-br ${img.gradient} animate-pulse shadow-2xl`}></div>
+                  </div>
+                </div>
+                
+                {/* Text Content */}
+                <div className="text-center text-white space-y-4">
+                  <h2 className="text-3xl font-bold">{img.title}</h2>
+                  <p className="text-lg text-blue-100 leading-relaxed">{img.description}</p>
+                </div>
               </div>
             </div>
           ))}
 
           {/* Dots Indicator */}
-          <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-3">
             {images.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
+                className={`h-2 rounded-full transition-all duration-300 ${
                   index === currentImageIndex
-                    ? 'bg-white w-8'
-                    : 'bg-white/50'
+                    ? 'bg-white w-12 shadow-lg'
+                    : 'bg-white/40 w-2 hover:bg-white/60'
                 }`}
+                aria-label={`Go to slide ${index + 1}`}
               />
             ))}
           </div>
+        </div>
+
+        {/* Bottom Text */}
+        <div className="absolute bottom-8 left-8 right-8 text-center">
+          <p className="text-white/60 text-sm">Private, secure, and reliable.</p>
         </div>
       </div>
 
