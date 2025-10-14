@@ -87,12 +87,24 @@ export function renderHome(root: HTMLElement): void {
     });
   });
 
-  // Theme button (placeholder for now)
+  // Theme button - toggle between light and dark mode
   const themeBtn = root.querySelector('.theme-btn');
   if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-      // TODO: Implement theme toggle in future version
-      console.log('Theme toggle - coming soon');
+    themeBtn.addEventListener('click', async () => {
+      const body = document.body;
+      const isLightMode = body.classList.contains('light-mode');
+      
+      if (isLightMode) {
+        // Switch to dark mode
+        body.classList.remove('light-mode');
+        await chrome.storage.sync.set({ theme: 'dark' });
+        console.log('Switched to dark mode');
+      } else {
+        // Switch to light mode
+        body.classList.add('light-mode');
+        await chrome.storage.sync.set({ theme: 'light' });
+        console.log('Switched to light mode');
+      }
     });
   }
 
