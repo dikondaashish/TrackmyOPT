@@ -7,28 +7,43 @@ export default function CompletingAuthPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Get token and state from URL params
+    // Get parameters from URL
     const token = searchParams.get('token');
     const state = searchParams.get('state');
     const redirectUri = searchParams.get('redirect_uri');
+    const webRedirect = searchParams.get('redirect') || '/dashboard';
 
-    console.log('Completing authentication...');
+    console.log('🔄 Completing authentication...');
     console.log('Token:', token ? 'present' : 'missing');
     console.log('State:', state ? 'present' : 'missing');
     console.log('Redirect URI:', redirectUri);
+    console.log('Web Redirect:', webRedirect);
 
     if (token && state && redirectUri) {
-      // Redirect to extension with hash params after a brief moment
+      // EXTENSION FLOW: Complete OAuth AND navigate to dashboard
       const extensionUrl = `${redirectUri}#id_token=${encodeURIComponent(token)}&state=${encodeURIComponent(state)}`;
       
-      console.log('Redirecting to extension:', extensionUrl);
+      console.log('📱 Extension flow detected');
+      console.log('🔗 Extension URL:', extensionUrl);
       
-      // Use setTimeout to ensure this page is fully rendered first
+      // Complete extension handshake
+      window.location.replace(extensionUrl);
+      
+      // After extension captures token (800ms), navigate main tab to dashboard
+      // Extension background script should NOT close the tab anymore
       setTimeout(() => {
-        window.location.replace(extensionUrl);
-      }, 100);
+        console.log('🌐 Navigating to dashboard:', webRedirect);
+        window.location.replace(webRedirect);
+      }, 800);
+      
+    } else if (token) {
+      // WEBSITE-ONLY FLOW: Go straight to dashboard
+      console.log('🌐 Website-only flow detected');
+      console.log('➡️ Redirecting to:', webRedirect);
+      window.location.replace(webRedirect);
+      
     } else {
-      console.error('Missing required parameters');
+      console.error('❌ Missing required parameters');
     }
   }, [searchParams]);
 
@@ -41,7 +56,7 @@ export default function CompletingAuthPage() {
         <div className="flex justify-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
         </div>
-        <p className="text-sm text-gray-500 mt-8">This window will close automatically</p>
+        <p className="text-sm text-gray-500 mt-8">Taking you to your dashboard...</p>
       </div>
     </div>
   );

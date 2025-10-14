@@ -73,20 +73,12 @@ async function beginAuth(){
         
         if (!token) {
           console.error('❌ No token found in URL');
-          // Close the tab even if there's an error
-          setTimeout(() => {
-            chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
-          }, 500);
           reject(new Error('No token in response'));
           return;
         }
         
         if (gotState !== oauth_state) {
           console.error('❌ State mismatch - CSRF protection triggered');
-          // Close the tab even if there's an error
-          setTimeout(() => {
-            chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
-          }, 500);
           reject(new Error('State mismatch'));
           return;
         }
@@ -100,18 +92,13 @@ async function beginAuth(){
         console.log('💾 Token stored successfully!');
         console.log('✅ Authentication complete!');
         
-        // Close the auth tab now that token is stored
-        setTimeout(() => {
-          chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
-        }, 500);
+        // DON'T close the tab - let it navigate to /dashboard
+        // The /auth/completing page will redirect to /dashboard after 800ms
+        console.log('📄 Tab will navigate to dashboard (not closing)');
         
         resolve(undefined);
       } catch (error) {
         console.error('❌ Error processing auth response:', error);
-        // Close the tab even if there's an error
-        setTimeout(() => {
-          chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
-        }, 500);
         reject(error);
       }
     };
