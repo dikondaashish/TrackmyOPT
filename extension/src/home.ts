@@ -3,7 +3,7 @@
  */
 export function renderHome(root: HTMLElement, onNavigate: (page: string) => void): void {
   root.innerHTML = `
-    <div class="header" role="region" aria-label="OPT Hub header">
+    <div class="header" role="region" aria-label="TrackMyOPT header">
       <div class="header-buttons">
         <button class="theme-btn" title="Toggle theme" aria-label="Toggle theme">
           <span>☀️</span>
@@ -12,7 +12,7 @@ export function renderHome(root: HTMLElement, onNavigate: (page: string) => void
           <span>🚪</span>
         </button>
       </div>
-      <h1 class="title">OPT Hub</h1>
+      <h1 class="title">TrackMyOPT</h1>
       <p class="subtitle">Your complete toolkit for managing OPT requirements</p>
     </div>
 

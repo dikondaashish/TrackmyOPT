@@ -76,7 +76,7 @@ ID: abcdefghijklmnopqrstuvwxyz123456
 
 ## Step 6: Test Authentication (1 min)
 
-1. Click the OPT Hub extension icon in Chrome
+1. Click the TrackMyOPT extension icon in Chrome
 2. Click "Sign In or Create Account"
 3. Choose "Sign in with Google" or "Manual"
 4. Complete authentication

@@ -73,7 +73,7 @@ export default function ExtensionAuthPage() {
             <div className="text-6xl mb-4">⚠️</div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Login Link</h1>
             <p className="text-gray-600 mb-4">
-              This authentication page must be accessed from the OPT Hub extension.
+              This authentication page must be accessed from the TrackMyOPT extension.
             </p>
             <p className="text-sm text-gray-500">
               Missing required parameters: redirect_uri or state

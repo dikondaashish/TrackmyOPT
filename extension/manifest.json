@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "OPT Hub",
+  "name": "TrackMyOPT",
   "version": "0.1.0",
   "description": "Track your OPT timeline with precision",
   "permissions": ["identity", "storage", "tabs"],

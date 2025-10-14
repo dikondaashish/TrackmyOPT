@@ -140,7 +140,7 @@ JWT_SIGNING_SECRET=your_32_char_secret
 
 # Site
 NEXT_PUBLIC_SITE_URL=http://localhost:3000  # Change to production URL
-NEXT_PUBLIC_APP_NAME=OPT Hub
+NEXT_PUBLIC_APP_NAME=TrackMyOPT
 
 # Google OAuth
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=561201157955-fiibv7irokcogh6s65jl5acquvedkd2i.apps.googleusercontent.com

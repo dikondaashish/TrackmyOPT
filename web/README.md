@@ -177,7 +177,7 @@ Make sure `web/.env.local` has all required variables:
 ```env
 # Site Configuration
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_APP_NAME=OPT Hub
+NEXT_PUBLIC_APP_NAME=TrackMyOPT
 
 # Supabase Configuration (from your Supabase project)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -264,7 +264,7 @@ pnpm dev:ext
 
 ### 6. Test Google OAuth Flow
 
-1. Click the **OPT Hub** extension icon
+1. Click the **TrackMyOPT** extension icon
 2. Click **"Sign in or create account"**
 3. Browser opens to `http://localhost:3000/auth/extension?redirect_uri=...&state=...`
 4. Click **"Continue with Google"** tab

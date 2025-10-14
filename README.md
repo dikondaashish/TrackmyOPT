@@ -130,7 +130,7 @@ https://<EXTENSION_ID>.chromiumapp.org/oauth2
 
 ### Step 7: Test the Flow
 
-1. Click the **OPT Hub** extension icon in Chrome
+1. Click the **TrackMyOPT** extension icon in Chrome
 2. Click "Sign in or create account"
 3. Choose **Google** or **Manual** authentication
 4. Complete the flow

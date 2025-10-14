@@ -1,4 +1,4 @@
-# OPT Hub Chrome Extension
+# TrackMyOPT Chrome Extension
 
 Track your OPT timeline directly from your browser with real-time countdown and status updates.
 
@@ -27,7 +27,7 @@ pnpm build
 2. Enable **Developer mode** (toggle in top right corner)
 3. Click **Load unpacked**
 4. Select the `extension/dist` directory
-5. The OPT Hub extension should now appear in your extensions list
+5. The TrackMyOPT extension should now appear in your extensions list
 
 ### 4. Note Your Extension ID
 
@@ -132,7 +132,7 @@ After loading the extension, Chrome assigns it a unique ID. This ID is used in t
 ### Finding Your Extension ID
 
 1. Go to `chrome://extensions/`
-2. Find "OPT Hub" in the list
+2. Find "TrackMyOPT" in the list
 3. Look for **ID:** under the extension name
 4. Copy the long alphanumeric string
 
@@ -152,7 +152,7 @@ The extension works with `localhost:3000` by default. To test:
 
 **Background Script:**
 1. Go to `chrome://extensions/`
-2. Find OPT Hub
+2. Find TrackMyOPT
 3. Click "service worker" (blue link)
 4. Console opens with background script logs
 
@@ -246,7 +246,7 @@ pnpm dev:ext
 
 ### Step 4: Start Authentication
 
-1. Click the **OPT Hub** extension icon in Chrome toolbar
+1. Click the **TrackMyOPT** extension icon in Chrome toolbar
 2. Click **"Sign in or create account"**
 3. Browser opens to `http://localhost:3000/auth/extension?redirect_uri=...&state=...`
 
@@ -300,7 +300,7 @@ If popup shows "-" for dates:
 ⚠️ **IMPORTANT for Production:**
 
 1. Go to `chrome://extensions/`
-2. Find **OPT Hub**
+2. Find **TrackMyOPT**
 3. Copy the **Extension ID** (e.g., `abcdefghij...`)
 4. Save this for production deployment:
    - Redirect URI: `https://<EXTENSION_ID>.chromiumapp.org/*`
@@ -311,7 +311,7 @@ If popup shows "-" for dates:
 
 **When Signed In:**
 ```
-OPT Hub
+TrackMyOPT
 Signed in.
 
 Program End: 2024-05-15

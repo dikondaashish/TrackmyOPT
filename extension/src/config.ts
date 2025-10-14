@@ -1,5 +1,5 @@
 /**
- * Configuration for the OPT Hub Chrome Extension
+ * Configuration for the TrackMyOPT Chrome Extension
  * 
  * Update WEBSITE_URL before deploying to production!
  */

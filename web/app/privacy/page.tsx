@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | OPT Hub',
-  description: 'Privacy Policy for OPT Hub - OPT & STEM OPT Toolkit',
+  title: 'Privacy Policy | TrackMyOPT',
+  description: 'Privacy Policy for TrackMyOPT - OPT & STEM OPT Toolkit',
 };
 
 export default function PrivacyPage() {
@@ -18,7 +18,7 @@ export default function PrivacyPage() {
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <h2>Introduction</h2>
           <p>
-            OPT Hub ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Chrome extension and web application.
+            TrackMyOPT ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Chrome extension and web application.
           </p>
 
           <h2>Information We Collect</h2>
@@ -135,12 +135,12 @@ export default function PrivacyPage() {
 
           <h2>Children's Privacy</h2>
           <p>
-            OPT Hub is intended for F-1 students (typically 18+). We do not knowingly collect information from anyone under 13.
+            TrackMyOPT is intended for F-1 students (typically 18+). We do not knowingly collect information from anyone under 13.
           </p>
 
           <h2>International Users</h2>
           <p>
-            Your data is stored in the United States. By using OPT Hub, you consent to the transfer of your information to the U.S.
+            Your data is stored in the United States. By using TrackMyOPT, you consent to the transfer of your information to the U.S.
           </p>
 
           <h2>Changes to This Privacy Policy</h2>
@@ -164,7 +164,7 @@ export default function PrivacyPage() {
           <hr className="my-8" />
 
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            By using OPT Hub, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.
+            By using TrackMyOPT, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.
           </p>
         </div>
       </div>

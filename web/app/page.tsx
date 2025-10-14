@@ -77,7 +77,7 @@ export default function HomePage() {
               Install the Extension
             </h2>
             <p className="text-gray-600">
-              Get OPT Hub directly in your Chrome browser
+              Get TrackMyOPT directly in your Chrome browser
             </p>
           </div>
 
@@ -91,7 +91,7 @@ export default function HomePage() {
                   Install from Chrome Web Store
                 </h3>
                 <p className="text-gray-600 mb-3">
-                  Click the button below to add OPT Hub to Chrome
+                  Click the button below to add TrackMyOPT to Chrome
                 </p>
                 <a
                   href="https://chrome.google.com/webstore"

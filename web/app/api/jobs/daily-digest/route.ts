@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
                 <p><strong>Days until program end:</strong> ${daysUntilProgramEnd} days</p>
                 <p><strong>Program End Date:</strong> ${programEndDate.toLocaleDateString()}</p>
                 <p>Remember: You can apply for OPT up to 90 days before your program end date and no later than 60 days after.</p>
-                <p>Visit <a href="${process.env.NEXT_PUBLIC_SITE_URL}">OPT Hub</a> to track your timeline.</p>
+                <p>Visit <a href="${process.env.NEXT_PUBLIC_SITE_URL}">TrackMyOPT</a> to track your timeline.</p>
               `,
             });
             emailsSent.push(`program_end: ${email} (${daysUntilProgramEnd} days)`);
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
                 <p><strong>Days until OPT ends:</strong> ${daysUntilOptEnd} days</p>
                 <p><strong>OPT EAD End Date:</strong> ${optEadEndDate.toLocaleDateString()}</p>
                 <p>Make sure you have plans for your status after OPT expires. Consider STEM extension if eligible, H1-B, or other visa options.</p>
-                <p>Visit <a href="${process.env.NEXT_PUBLIC_SITE_URL}">OPT Hub</a> to track your timeline.</p>
+                <p>Visit <a href="${process.env.NEXT_PUBLIC_SITE_URL}">TrackMyOPT</a> to track your timeline.</p>
               `,
             });
             emailsSent.push(`opt_ead_end: ${email} (${daysUntilOptEnd} days)`);
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
                 <p><strong>Days until OPT starts:</strong> ${daysUntilOptStart} days</p>
                 <p><strong>OPT Start Date:</strong> ${optStartDate.toLocaleDateString()}</p>
                 <p>Make sure you're ready to start work or actively seeking employment. Remember the 90-day unemployment limit!</p>
-                <p>Visit <a href="${process.env.NEXT_PUBLIC_SITE_URL}">OPT Hub</a> to track your timeline.</p>
+                <p>Visit <a href="${process.env.NEXT_PUBLIC_SITE_URL}">TrackMyOPT</a> to track your timeline.</p>
               `,
             });
             emailsSent.push(`opt_start: ${email} (${daysUntilOptStart} days)`);
@@ -181,7 +181,7 @@ async function sendEmail({
 }) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'OPT Hub <noreply@opt-tracker.ashishdikonda.com>',
+      from: 'TrackMyOPT <noreply@opt-tracker.ashishdikonda.com>',
       to: [to],
       subject: subject,
       html: `
@@ -225,8 +225,8 @@ async function sendEmail({
           <body>
             ${body}
             <div class="footer">
-              <p>This is an automated reminder from OPT Hub. To manage your notification preferences, visit your dashboard.</p>
-              <p>© ${new Date().getFullYear()} OPT Hub. All rights reserved.</p>
+              <p>This is an automated reminder from TrackMyOPT. To manage your notification preferences, visit your dashboard.</p>
+              <p>© ${new Date().getFullYear()} TrackMyOPT. All rights reserved.</p>
             </div>
           </body>
         </html>

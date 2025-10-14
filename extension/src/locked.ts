@@ -9,7 +9,7 @@ export function renderLocked(root: HTMLElement): void {
           <span>☀️</span>
         </button>
       </div>
-      <h1 class="title">OPT Hub</h1>
+      <h1 class="title">TrackMyOPT</h1>
       <p class="subtitle">Sign in to unlock all features</p>
     </div>
     
