@@ -13,9 +13,11 @@
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.39.0",
     "jose": "^5.2.0",
+    "lucide-react": "^0.545.0",
     "next": "^14.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
+    "recharts": "^3.2.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
