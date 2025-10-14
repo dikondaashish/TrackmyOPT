@@ -89,7 +89,7 @@ export default function ExtensionAuthPage() {
     setError(null);
     try {
       const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { 
           redirectTo: callbackUrl,
@@ -97,9 +97,11 @@ export default function ExtensionAuthPage() {
             access_type: 'offline',
             prompt: 'consent',
           },
+          skipBrowserRedirect: false,
         },
       });
       if (oauthError) throw oauthError;
+      // Supabase will automatically redirect
     } catch (err: any) {
       setError(err.message || 'Google sign-in failed');
       setLoading(false);
