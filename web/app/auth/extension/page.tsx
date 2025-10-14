@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
 type Tab = 'google' | 'manual';
-type ManualMode = 'signin' | 'signup';
 
 export default function ExtensionAuthPage() {
   const searchParams = useSearchParams();
@@ -14,7 +13,8 @@ export default function ExtensionAuthPage() {
   const errorParam = searchParams.get('error');
 
   const [tab, setTab] = useState<Tab>('google');
-  const [manualMode, setManualMode] = useState<ManualMode>('signin');
+  const [showSignUp, setShowSignUp] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(errorParam);
 
@@ -38,6 +38,13 @@ export default function ExtensionAuthPage() {
   const [dateErrors, setDateErrors] = useState<Record<string, string>>({});
 
   const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+
+  const formatDateInput = (value: string): string => {
+    const nums = value.replace(/\D/g, '');
+    if (nums.length <= 2) return nums;
+    if (nums.length <= 4) return nums.slice(0, 2) + '/' + nums.slice(2);
+    return nums.slice(0, 2) + '/' + nums.slice(2, 4) + '/' + nums.slice(4, 8);
+  };
 
   const validateDate = (val: string, field: string, required = false) => {
     if (!val && !required) {
@@ -152,11 +159,14 @@ export default function ExtensionAuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full">
+        {/* Page Title */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">OPT Hub</h1>
-          <p className="text-gray-600">Sign in to continue</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Sign in or Create account
+          </h1>
+          <p className="text-gray-600">Choose your preferred method to continue</p>
         </div>
 
         {error && (
@@ -166,12 +176,12 @@ export default function ExtensionAuthPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-3 mb-8">
           <button
             onClick={() => setTab('google')}
-            className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition ${
               tab === 'google'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-blue-600 text-white shadow-lg'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -179,9 +189,9 @@ export default function ExtensionAuthPage() {
           </button>
           <button
             onClick={() => setTab('manual')}
-            className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition ${
               tab === 'manual'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-blue-600 text-white shadow-lg'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -195,7 +205,7 @@ export default function ExtensionAuthPage() {
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full py-4 px-6 bg-white border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 flex items-center justify-center gap-3 text-lg"
+              className="w-full py-4 px-6 bg-white border-2 border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition disabled:opacity-50 flex items-center justify-center gap-3 text-lg shadow-sm"
             >
               <svg className="w-6 h-6" viewBox="0 0 24 24">
                 <path
@@ -222,236 +232,241 @@ export default function ExtensionAuthPage() {
 
         {/* Manual Tab */}
         {tab === 'manual' && (
-          <div>
-            {/* Manual sub-tabs */}
-            <div className="flex gap-2 mb-6">
+          <div className="space-y-4">
+            {/* Sign In Collapsible */}
+            <div className="border-2 border-gray-200 rounded-xl overflow-hidden">
               <button
-                onClick={() => setManualMode('signin')}
-                className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition ${
-                  manualMode === 'signin'
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                }`}
+                onClick={() => setShowSignIn(!showSignIn)}
+                className="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 transition flex items-center justify-between font-semibold text-gray-900"
               >
-                Sign In
+                <span>Sign In</span>
+                <span className="text-xl">{showSignIn ? '−' : '+'}</span>
               </button>
-              <button
-                onClick={() => setManualMode('signup')}
-                className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition ${
-                  manualMode === 'signup'
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                Create Account
-              </button>
+              {showSignIn && (
+                <form onSubmit={handleManualSignIn} className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 shadow-lg"
+                  >
+                    {loading ? 'Signing in...' : 'Sign In'}
+                  </button>
+                </form>
+              )}
             </div>
 
-            {/* Sign In Form */}
-            {manualMode === 'signin' && (
-              <form onSubmit={handleManualSignIn} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="you@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 text-lg"
-                >
-                  {loading ? 'Signing in...' : 'Sign In'}
-                </button>
-              </form>
-            )}
-
-            {/* Sign Up Form */}
-            {manualMode === 'signup' && (
-              <form onSubmit={handleManualSignUp} className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                <div className="grid grid-cols-2 gap-4">
+            {/* Create Account Collapsible */}
+            <div className="border-2 border-gray-200 rounded-xl overflow-hidden">
+              <button
+                onClick={() => setShowSignUp(!showSignUp)}
+                className="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 transition flex items-center justify-between font-semibold text-gray-900"
+              >
+                <span>Create Account</span>
+                <span className="text-xl">{showSignUp ? '−' : '+'}</span>
+              </button>
+              {showSignUp && (
+                <form onSubmit={handleManualSignUp} className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      First Name
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email
                     </label>
                     <input
-                      type="text"
+                      type="email"
                       required
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={signUpEmail}
+                      onChange={(e) => setSignUpEmail(e.target.value)}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="you@example.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Last Name
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Password
                     </label>
                     <input
-                      type="text"
+                      type="password"
                       required
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={signUpPassword}
+                      onChange={(e) => setSignUpPassword(e.target.value)}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={signUpEmail}
-                    onChange={(e) => setSignUpEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="you@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    value={signUpPassword}
-                    onChange={(e) => setSignUpPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
 
-                <div className="pt-4 border-t border-gray-200">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">
-                    OPT Information
-                  </h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Program End Date <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={programEnd}
-                        onChange={(e) => setProgramEnd(e.target.value)}
-                        onBlur={() => validateDate(programEnd, 'programEnd', true)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="MM/DD/YYYY"
-                      />
-                      {dateErrors.programEnd && (
-                        <p className="text-xs text-red-600 mt-1">{dateErrors.programEnd}</p>
-                      )}
+                  <div className="pt-4 border-t-2 border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                      OPT Information
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Program End Date <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={programEnd}
+                          onChange={(e) => setProgramEnd(formatDateInput(e.target.value))}
+                          onBlur={() => validateDate(programEnd, 'programEnd', true)}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="MM/DD/YYYY"
+                          maxLength={10}
+                        />
+                        {dateErrors.programEnd && (
+                          <p className="text-xs text-red-600 mt-1">{dateErrors.programEnd}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          DSO Recommendation Date
+                        </label>
+                        <input
+                          type="text"
+                          value={dsoReco}
+                          onChange={(e) => setDsoReco(formatDateInput(e.target.value))}
+                          onBlur={() => validateDate(dsoReco, 'dsoReco', false)}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="MM/DD/YYYY"
+                          maxLength={10}
+                        />
+                        {dateErrors.dsoReco && (
+                          <p className="text-xs text-red-600 mt-1">{dateErrors.dsoReco}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          OPT EAD End Date <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={optEadEnd}
+                          onChange={(e) => setOptEadEnd(formatDateInput(e.target.value))}
+                          onBlur={() => validateDate(optEadEnd, 'optEadEnd', true)}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="MM/DD/YYYY"
+                          maxLength={10}
+                        />
+                        {dateErrors.optEadEnd && (
+                          <p className="text-xs text-red-600 mt-1">{dateErrors.optEadEnd}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          OPT Start Date <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={optStart}
+                          onChange={(e) => setOptStart(formatDateInput(e.target.value))}
+                          onBlur={() => validateDate(optStart, 'optStart', true)}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="MM/DD/YYYY"
+                          maxLength={10}
+                        />
+                        {dateErrors.optStart && (
+                          <p className="text-xs text-red-600 mt-1">{dateErrors.optStart}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          STEM Start Date
+                        </label>
+                        <input
+                          type="text"
+                          value={stemStart}
+                          onChange={(e) => setStemStart(formatDateInput(e.target.value))}
+                          onBlur={() => validateDate(stemStart, 'stemStart', false)}
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="MM/DD/YYYY"
+                          maxLength={10}
+                        />
+                        {dateErrors.stemStart && (
+                          <p className="text-xs text-red-600 mt-1">{dateErrors.stemStart}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="isStem"
+                          checked={isStem}
+                          onChange={(e) => setIsStem(e.target.checked)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <label htmlFor="isStem" className="ml-2 text-sm text-gray-700">
+                          I'm STEM-eligible
+                        </label>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        DSO Recommendation Date
-                      </label>
-                      <input
-                        type="text"
-                        value={dsoReco}
-                        onChange={(e) => setDsoReco(e.target.value)}
-                        onBlur={() => validateDate(dsoReco, 'dsoReco', false)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="MM/DD/YYYY"
-                      />
-                      {dateErrors.dsoReco && (
-                        <p className="text-xs text-red-600 mt-1">{dateErrors.dsoReco}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        OPT EAD End Date <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={optEadEnd}
-                        onChange={(e) => setOptEadEnd(e.target.value)}
-                        onBlur={() => validateDate(optEadEnd, 'optEadEnd', true)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="MM/DD/YYYY"
-                      />
-                      {dateErrors.optEadEnd && (
-                        <p className="text-xs text-red-600 mt-1">{dateErrors.optEadEnd}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        OPT Start Date <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={optStart}
-                        onChange={(e) => setOptStart(e.target.value)}
-                        onBlur={() => validateDate(optStart, 'optStart', true)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="MM/DD/YYYY"
-                      />
-                      {dateErrors.optStart && (
-                        <p className="text-xs text-red-600 mt-1">{dateErrors.optStart}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        STEM Start Date
-                      </label>
-                      <input
-                        type="text"
-                        value={stemStart}
-                        onChange={(e) => setStemStart(e.target.value)}
-                        onBlur={() => validateDate(stemStart, 'stemStart', false)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="MM/DD/YYYY"
-                      />
-                      {dateErrors.stemStart && (
-                        <p className="text-xs text-red-600 mt-1">{dateErrors.stemStart}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="isStem"
-                        checked={isStem}
-                        onChange={(e) => setIsStem(e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <label htmlFor="isStem" className="ml-2 text-sm text-gray-700">
-                        I'm STEM-eligible
-                      </label>
+
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs text-blue-900">
+                        💡 You can edit these dates later in the dashboard
+                      </p>
                     </div>
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 text-lg"
-                >
-                  {loading ? 'Creating account...' : 'Create Account'}
-                </button>
-              </form>
-            )}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 shadow-lg"
+                  >
+                    {loading ? 'Creating account...' : 'Create Account'}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         )}
       </div>

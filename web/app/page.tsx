@@ -1,90 +1,168 @@
 import Link from 'next/link';
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="w-full max-w-4xl px-6 py-12">
-        <div className="text-center space-y-8">
-          {/* Logo/Brand */}
-          <div className="inline-block">
-            <div className="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              TrackMyOPT
-            </div>
-          </div>
-
-          {/* Headline */}
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             Track Your OPT Timeline
-            <br />
-            <span className="text-slate-600 dark:text-slate-300">
-              With Precision & Confidence
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              With Precision
             </span>
           </h1>
-
-          {/* Description */}
-          <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Never miss a deadline. Stay compliant. Manage your Optional
-            Practical Training period with our intuitive Chrome extension and
-            web dashboard.
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Never miss an important OPT deadline. Get real-time countdown, date tracking, and alerts right in your browser.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/auth/extension"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-xl"
             >
-              Sign In or Create Account
+              Get Started →
             </Link>
             <a
-              href="#features"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-md"
+              href="#install"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-700 bg-white rounded-xl hover:bg-gray-50 transition shadow-lg"
             >
-              Learn More
+              How to Install
             </a>
-          </div>
-
-          {/* Features */}
-          <div
-            id="features"
-            className="grid md:grid-cols-3 gap-6 pt-16 text-left"
-          >
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md">
-              <div className="text-3xl mb-3">⏱️</div>
-              <h3 className="text-xl font-semibold mb-2 text-slate-900 dark:text-white">
-                Real-Time Countdown
-              </h3>
-              <p className="text-slate-600 dark:text-slate-400">
-                Track every day, hour, and minute of your OPT period with
-                precision timing.
-              </p>
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md">
-              <div className="text-3xl mb-3">🔔</div>
-              <h3 className="text-xl font-semibold mb-2 text-slate-900 dark:text-white">
-                Smart Reminders
-              </h3>
-              <p className="text-slate-600 dark:text-slate-400">
-                Get notified before critical deadlines to stay compliant with
-                regulations.
-              </p>
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md">
-              <div className="text-3xl mb-3">🔒</div>
-              <h3 className="text-xl font-semibold mb-2 text-slate-900 dark:text-white">
-                Secure & Private
-              </h3>
-              <p className="text-slate-600 dark:text-slate-400">
-                Your data is encrypted and stored securely. We respect your
-                privacy.
-              </p>
-            </div>
           </div>
         </div>
       </div>
-    </main>
+
+      {/* Features Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <div className="text-4xl mb-4">⏱️</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Real-Time Countdown
+            </h3>
+            <p className="text-gray-600">
+              Track days remaining on your OPT with precision. Never lose track of critical deadlines.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <div className="text-4xl mb-4">📅</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              All Your Dates
+            </h3>
+            <p className="text-gray-600">
+              Store program end date, DSO recommendation, OPT EAD end date, and STEM extension dates.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <div className="text-4xl mb-4">🔒</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Secure & Private
+            </h3>
+            <p className="text-gray-600">
+              Your data is encrypted and protected with industry-standard security practices.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Installation Section */}
+      <div id="install" className="container mx-auto px-4 py-16">
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8 md:p-12">
+          <div className="text-center mb-8">
+            <div className="text-5xl mb-4">🧩</div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Install the Extension
+            </h2>
+            <p className="text-gray-600">
+              Get OPT Hub directly in your Chrome browser
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                1
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  Install from Chrome Web Store
+                </h3>
+                <p className="text-gray-600 mb-3">
+                  Click the button below to add OPT Hub to Chrome
+                </p>
+                <a
+                  href="https://chrome.google.com/webstore"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition shadow-lg"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.423-4.395 9.818-9.818 9.818-5.423 0-9.818-4.395-9.818-9.818 0-5.423 4.395-9.818 9.818-9.818z" />
+                  </svg>
+                  Add to Chrome
+                  <span className="text-xs opacity-80">(Coming Soon)</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                2
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  Sign in or Create Account
+                </h3>
+                <p className="text-gray-600">
+                  Click the extension icon and authenticate with Google or email
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                3
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  Enter Your OPT Dates
+                </h3>
+                <p className="text-gray-600">
+                  Add your program end date, OPT dates, and optional STEM extension dates
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                4
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  Track Your Timeline
+                </h3>
+                <p className="text-gray-600">
+                  View your OPT countdown anytime by clicking the extension icon
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-900">
+              💡 <strong>Tip:</strong> Pin the extension to your toolbar for quick access
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="container mx-auto px-4 py-8 text-center text-gray-600">
+        <p>Made with 💙 for international students</p>
+      </div>
+    </div>
   );
 }
-
