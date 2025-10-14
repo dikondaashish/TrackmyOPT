@@ -108,20 +108,37 @@ export default function ExtensionAuthPage() {
     setLoading(true);
     setError(null);
     try {
-      const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
-      
-      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { 
-          redirectTo: callbackUrl,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+      if (isExtensionFlow) {
+        // Extension flow: use callback with redirect_uri and state
+        const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback/server?redirect_uri=${encodeURIComponent(redirectUri!)}&state=${encodeURIComponent(state!)}`;
+        
+        const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { 
+            redirectTo: callbackUrl,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            },
+            skipBrowserRedirect: false,
           },
-          skipBrowserRedirect: false,
-        },
-      });
-      if (oauthError) throw oauthError;
+        });
+        if (oauthError) throw oauthError;
+      } else {
+        // Web flow: redirect directly to dashboard after Google auth
+        const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}${redirect}`,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            },
+            skipBrowserRedirect: false,
+          },
+        });
+        if (oauthError) throw oauthError;
+      }
     } catch (err: any) {
       setError(err.message || 'Google sign-in failed');
       setLoading(false);
