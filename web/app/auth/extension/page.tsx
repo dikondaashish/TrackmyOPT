@@ -10,7 +10,12 @@ export default function ExtensionAuthPage() {
   const searchParams = useSearchParams();
   const redirectUri = searchParams.get('redirect_uri');
   const state = searchParams.get('state');
+  const webRedirect = searchParams.get('redirect') || '/dashboard'; // Web-only redirect
   const errorParam = searchParams.get('error');
+  
+  // Determine if this is an extension flow or web-only flow
+  const isExtensionFlow = !!(redirectUri && state);
+  const isWebFlow = !redirectUri && !state;
 
   const [mode, setMode] = useState<Mode>('signin');
   const [loading, setLoading] = useState(false);
@@ -73,30 +78,23 @@ export default function ExtensionAuthPage() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!redirectUri || !state) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
-          <div className="text-center">
-            <div className="text-6xl mb-4">⚠️</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Login Link</h1>
-            <p className="text-gray-600 mb-4">
-              This authentication page must be accessed from the TrackMyOPT extension.
-            </p>
-            <p className="text-sm text-gray-500">
-              Missing required parameters: redirect_uri or state
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Both extension and web flows are allowed
+  // Extension flow: has redirectUri + state
+  // Web flow: no redirectUri/state, uses redirect parameter
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
     try {
-      const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+      let callbackUrl: string;
+      
+      if (isExtensionFlow) {
+        // Extension flow: redirect to callback with extension params
+        callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri!)}&state=${encodeURIComponent(state!)}`;
+      } else {
+        // Web-only flow: redirect directly to web destination
+        callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}${webRedirect}`;
+      }
       
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -220,16 +218,22 @@ export default function ExtensionAuthPage() {
         throw new Error(data.error || 'Invalid verification code');
       }
       
-      // Close modal and redirect to intermediate page
+      // Close modal and redirect
       setShowOTPModal(false);
       
-      // Redirect to intermediate page that will handle the extension redirect
-      const completingUrl = new URL('/auth/completing', window.location.origin);
-      completingUrl.searchParams.set('token', data.token);
-      completingUrl.searchParams.set('state', state);
-      completingUrl.searchParams.set('redirect_uri', redirectUri);
-      
-      window.location.href = completingUrl.toString();
+      if (isExtensionFlow) {
+        // Extension flow: Go to completing page with extension params
+        const completingUrl = new URL('/auth/completing', window.location.origin);
+        completingUrl.searchParams.set('token', data.token);
+        completingUrl.searchParams.set('state', state!);
+        completingUrl.searchParams.set('redirect_uri', redirectUri!);
+        completingUrl.searchParams.set('redirect', webRedirect);
+        
+        window.location.href = completingUrl.toString();
+      } else {
+        // Web-only flow: Redirect directly to dashboard or specified redirect
+        window.location.href = webRedirect;
+      }
     } catch (err: any) {
       setOtpError(err.message || 'Invalid verification code. Please try again.');
       setOtpLoading(false);
