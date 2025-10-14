@@ -1,550 +1,460 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import { mmddyyyyToISO } from '@/lib/date';
-import Link from 'next/link';
 
-type AuthMode = 'google' | 'manual';
-type ManualTab = 'signin' | 'signup';
+type Tab = 'google' | 'manual';
+type ManualMode = 'signin' | 'signup';
 
 export default function ExtensionAuthPage() {
   const searchParams = useSearchParams();
-  const [authMode, setAuthMode] = useState<AuthMode>('google');
-  const [manualTab, setManualTab] = useState<ManualTab>('signin');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-
-  // Get required params
   const redirectUri = searchParams.get('redirect_uri');
   const state = searchParams.get('state');
+  const errorParam = searchParams.get('error');
 
-  // Sign In Form
-  const [signInEmail, setSignInEmail] = useState('');
-  const [signInPassword, setSignInPassword] = useState('');
+  const [tab, setTab] = useState<Tab>('google');
+  const [manualMode, setManualMode] = useState<ManualMode>('signin');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(errorParam);
 
-  // Sign Up Form
+  // Sign In
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  // Sign Up
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
-  const [programEndDate, setProgramEndDate] = useState('');
-  const [dsoRecommendationDate, setDsoRecommendationDate] = useState('');
-  const [optEadEndDate, setOptEadEndDate] = useState('');
-  const [optStartDate, setOptStartDate] = useState('');
-  const [stemStartDate, setStemStartDate] = useState('');
-  const [isStemEligible, setIsStemEligible] = useState(false);
+  const [programEnd, setProgramEnd] = useState('');
+  const [dsoReco, setDsoReco] = useState('');
+  const [optEadEnd, setOptEadEnd] = useState('');
+  const [optStart, setOptStart] = useState('');
+  const [stemStart, setStemStart] = useState('');
+  const [isStem, setIsStem] = useState(false);
 
-  // Validate required params on mount
-  useEffect(() => {
-    if (!redirectUri || !state) {
-      setError(
-        'Missing required parameters. This page must be accessed from the extension.'
-      );
+  // Date validation errors
+  const [dateErrors, setDateErrors] = useState<Record<string, string>>({});
+
+  const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+
+  const validateDate = (val: string, field: string, required = false) => {
+    if (!val && !required) {
+      setDateErrors((prev) => ({ ...prev, [field]: '' }));
+      return true;
     }
-  }, [redirectUri, state]);
+    if (!val && required) {
+      setDateErrors((prev) => ({ ...prev, [field]: 'Required' }));
+      return false;
+    }
+    if (!dateRegex.test(val)) {
+      setDateErrors((prev) => ({ ...prev, [field]: 'Use MM/DD/YYYY' }));
+      return false;
+    }
+    setDateErrors((prev) => ({ ...prev, [field]: '' }));
+    return true;
+  };
+
+  if (!redirectUri || !state) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+          <div className="text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Request</h1>
+            <p className="text-gray-600">
+              This page must be accessed from the OPT Hub extension.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleGoogleSignIn = async () => {
-    if (!redirectUri || !state) {
-      setError('Missing redirect_uri or state');
-      return;
-    }
-
     setLoading(true);
     setError(null);
-
     try {
-      const callbackUrl = new URL(
-        '/auth/extension/callback',
-        window.location.origin
-      );
-      callbackUrl.searchParams.set('redirect_uri', redirectUri);
-      callbackUrl.searchParams.set('state', state);
-
-      const { error: signInError } = await supabase.auth.signInWithOAuth({
+      const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: callbackUrl.toString(),
-        },
+        options: { redirectTo: callbackUrl },
       });
-
-      if (signInError) throw signInError;
-      // Redirect will happen automatically
+      if (oauthError) throw oauthError;
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+      setError(err.message || 'Google sign-in failed');
       setLoading(false);
     }
   };
 
   const handleManualSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!redirectUri || !state) return;
-
     setLoading(true);
     setError(null);
-
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword(
-        {
-          email: signInEmail,
-          password: signInPassword,
-        }
-      );
-
-      if (signInError) throw signInError;
-
-      if (data.session) {
-        // Redirect to callback
-        const callbackUrl = new URL(
-          '/auth/extension/callback',
-          window.location.origin
-        );
-        callbackUrl.searchParams.set('redirect_uri', redirectUri);
-        callbackUrl.searchParams.set('state', state);
-        window.location.href = callbackUrl.toString();
-      }
+      const res = await fetch('/api/manual/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Login failed');
+      window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+      setError(err.message || 'Sign in failed');
       setLoading(false);
     }
   };
 
   const handleManualSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!redirectUri || !state) return;
-
     setLoading(true);
     setError(null);
 
+    // Validate dates
+    const v1 = validateDate(programEnd, 'programEnd', true);
+    const v2 = validateDate(dsoReco, 'dsoReco', false);
+    const v3 = validateDate(optEadEnd, 'optEadEnd', true);
+    const v4 = validateDate(optStart, 'optStart', true);
+    const v5 = validateDate(stemStart, 'stemStart', false);
+
+    if (!v1 || !v3 || !v4) {
+      setError('Please fix date errors');
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Validate required fields
-      if (!programEndDate || !optEadEndDate || !optStartDate) {
-        throw new Error('Please fill in all required OPT dates');
-      }
-
-      // Step 1: Sign up user
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: signUpEmail,
-        password: signUpPassword,
-        options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-          },
-        },
+      const res = await fetch('/api/manual/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email: signUpEmail,
+          password: signUpPassword,
+          programEnd,
+          dsoReco,
+          optEadEnd,
+          optStart,
+          stemStart,
+          isStem,
+        }),
       });
-
-      if (signUpError) throw signUpError;
-
-      if (!data.user) {
-        throw new Error('User creation failed');
-      }
-
-      // Step 2: Insert profile
-      const { error: profileError } = await supabase.from('profiles').insert({
-        user_id: data.user.id,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        is_stem_eligible: isStemEligible,
-      });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        throw new Error('Failed to create profile');
-      }
-
-      // Step 3: Insert OPT status
-      const { error: optError } = await supabase.from('opt_status').insert({
-        user_id: data.user.id,
-        program_end_date: mmddyyyyToISO(programEndDate),
-        dso_recommendation_date: dsoRecommendationDate
-          ? mmddyyyyToISO(dsoRecommendationDate)
-          : null,
-        opt_ead_end_date: mmddyyyyToISO(optEadEndDate),
-        opt_start_date: mmddyyyyToISO(optStartDate),
-        stem_start_date: stemStartDate ? mmddyyyyToISO(stemStartDate) : null,
-      });
-
-      if (optError) {
-        console.error('OPT status creation error:', optError);
-        throw new Error('Failed to save OPT information');
-      }
-
-      // Step 4: Redirect to callback
-      if (data.session) {
-        const callbackUrl = new URL(
-          '/auth/extension/callback',
-          window.location.origin
-        );
-        callbackUrl.searchParams.set('redirect_uri', redirectUri);
-        callbackUrl.searchParams.set('state', state);
-        window.location.href = callbackUrl.toString();
-      } else {
-        setSuccess(
-          'Account created! Please check your email to confirm your account, then sign in.'
-        );
-        setAuthMode('manual');
-        setManualTab('signin');
-      }
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Signup failed');
+      window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+      setError(err.message || 'Sign up failed');
       setLoading(false);
     }
   };
 
-  // Show error if required params are missing
-  if (!redirectUri || !state) {
-    return (
-      <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
-        <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8">
-            <div className="text-center">
-              <div className="text-6xl mb-4">⚠️</div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                Invalid Access
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
-                This page must be accessed from the TrackMyOPT extension.
-              </p>
-              <Link
-                href="/"
-                className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-              >
-                Go to Home
-              </Link>
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
         <div className="text-center mb-8">
-          <Link href="/">
-            <div className="inline-block text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 cursor-pointer">
-              TrackMyOPT
-            </div>
-          </Link>
-          <p className="text-slate-600 dark:text-slate-400">
-            Connect your extension to your account
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">OPT Hub</h1>
+          <p className="text-gray-600">Sign in to continue</p>
         </div>
 
-        {/* Auth Card */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8">
-          {/* Mode Tabs */}
-          <div className="flex gap-2 mb-6 bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setTab('google')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
+              tab === 'google'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Google
+          </button>
+          <button
+            onClick={() => setTab('manual')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
+              tab === 'manual'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Manual
+          </button>
+        </div>
+
+        {/* Google Tab */}
+        {tab === 'google' && (
+          <div>
             <button
-              onClick={() => setAuthMode('google')}
-              className={`flex-1 py-2 px-4 rounded-md font-semibold transition-all ${
-                authMode === 'google'
-                  ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-              }`}
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="w-full py-4 px-6 bg-white border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 flex items-center justify-center gap-3 text-lg"
             >
-              Sign in with Google
-            </button>
-            <button
-              onClick={() => setAuthMode('manual')}
-              className={`flex-1 py-2 px-4 rounded-md font-semibold transition-all ${
-                authMode === 'manual'
-                  ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-              }`}
-            >
-              Manual
+              <svg className="w-6 h-6" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              Continue with Google
             </button>
           </div>
+        )}
 
-          {/* Error/Success Messages */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400 text-sm">
-              {success}
-            </div>
-          )}
-
-          {/* Google Auth Mode */}
-          {authMode === 'google' && (
-            <div>
+        {/* Manual Tab */}
+        {tab === 'manual' && (
+          <div>
+            {/* Manual sub-tabs */}
+            <div className="flex gap-2 mb-6">
               <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-                className="w-full py-3 px-4 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 dark:text-white font-semibold rounded-lg transition-colors shadow-sm hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-3"
+                onClick={() => setManualMode('signin')}
+                className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition ${
+                  manualMode === 'signin'
+                    ? 'bg-indigo-100 text-indigo-700'
+                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                }`}
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                {loading ? 'Redirecting...' : 'Continue with Google'}
+                Sign In
               </button>
-
-              <p className="mt-4 text-xs text-center text-slate-500 dark:text-slate-400">
-                You'll be redirected to Google to sign in securely
-              </p>
+              <button
+                onClick={() => setManualMode('signup')}
+                className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition ${
+                  manualMode === 'signup'
+                    ? 'bg-indigo-100 text-indigo-700'
+                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                Create Account
+              </button>
             </div>
-          )}
 
-          {/* Manual Auth Mode */}
-          {authMode === 'manual' && (
-            <div>
-              {/* Manual Sub-tabs */}
-              <div className="flex gap-2 mb-6 border-b border-slate-200 dark:border-slate-700">
+            {/* Sign In Form */}
+            {manualMode === 'signin' && (
+              <form onSubmit={handleManualSignIn} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="you@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
                 <button
-                  onClick={() => setManualTab('signin')}
-                  className={`flex-1 py-2 px-4 font-semibold transition-all ${
-                    manualTab === 'signin'
-                      ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                  }`}
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 text-lg"
                 >
-                  Sign In
+                  {loading ? 'Signing in...' : 'Sign In'}
                 </button>
-                <button
-                  onClick={() => setManualTab('signup')}
-                  className={`flex-1 py-2 px-4 font-semibold transition-all ${
-                    manualTab === 'signup'
-                      ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                  }`}
-                >
-                  Create Account
-                </button>
-              </div>
+              </form>
+            )}
 
-              {/* Sign In Form */}
-              {manualTab === 'signin' && (
-                <form onSubmit={handleManualSignIn} className="space-y-4">
+            {/* Sign Up Form */}
+            {manualMode === 'signup' && (
+              <form onSubmit={handleManualSignUp} className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Email
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      First Name
                     </label>
                     <input
-                      type="email"
-                      value={signInEmail}
-                      onChange={(e) => setSignInEmail(e.target.value)}
+                      type="text"
                       required
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
-                      placeholder="you@example.com"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Password
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Last Name
                     </label>
                     <input
-                      type="password"
-                      value={signInPassword}
-                      onChange={(e) => setSignInPassword(e.target.value)}
+                      type="text"
                       required
-                      minLength={6}
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
-                      placeholder="••••••••"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={signUpEmail}
+                    onChange={(e) => setSignUpEmail(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="you@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={signUpPassword}
+                    onChange={(e) => setSignUpPassword(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Signing in...' : 'Sign In'}
-                  </button>
-                </form>
-              )}
-
-              {/* Sign Up Form */}
-              {manualTab === 'signup' && (
-                <form onSubmit={handleManualSignUp} className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="pt-4 border-t border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                    OPT Information
+                  </h3>
+                  <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        First Name
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Program End Date <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
                         required
-                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
+                        value={programEnd}
+                        onChange={(e) => setProgramEnd(e.target.value)}
+                        onBlur={() => validateDate(programEnd, 'programEnd', true)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="MM/DD/YYYY"
                       />
+                      {dateErrors.programEnd && (
+                        <p className="text-xs text-red-600 mt-1">{dateErrors.programEnd}</p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Last Name
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        DSO Recommendation Date
                       </label>
                       <input
                         type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
+                        value={dsoReco}
+                        onChange={(e) => setDsoReco(e.target.value)}
+                        onBlur={() => validateDate(dsoReco, 'dsoReco', false)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="MM/DD/YYYY"
                       />
+                      {dateErrors.dsoReco && (
+                        <p className="text-xs text-red-600 mt-1">{dateErrors.dsoReco}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        OPT EAD End Date <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={optEadEnd}
+                        onChange={(e) => setOptEadEnd(e.target.value)}
+                        onBlur={() => validateDate(optEadEnd, 'optEadEnd', true)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="MM/DD/YYYY"
+                      />
+                      {dateErrors.optEadEnd && (
+                        <p className="text-xs text-red-600 mt-1">{dateErrors.optEadEnd}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        OPT Start Date <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={optStart}
+                        onChange={(e) => setOptStart(e.target.value)}
+                        onBlur={() => validateDate(optStart, 'optStart', true)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="MM/DD/YYYY"
+                      />
+                      {dateErrors.optStart && (
+                        <p className="text-xs text-red-600 mt-1">{dateErrors.optStart}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        STEM Start Date
+                      </label>
+                      <input
+                        type="text"
+                        value={stemStart}
+                        onChange={(e) => setStemStart(e.target.value)}
+                        onBlur={() => validateDate(stemStart, 'stemStart', false)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="MM/DD/YYYY"
+                      />
+                      {dateErrors.stemStart && (
+                        <p className="text-xs text-red-600 mt-1">{dateErrors.stemStart}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="isStem"
+                        checked={isStem}
+                        onChange={(e) => setIsStem(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label htmlFor="isStem" className="ml-2 text-sm text-gray-700">
+                        I'm STEM-eligible
+                      </label>
                     </div>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={signUpEmail}
-                      onChange={(e) => setSignUpEmail(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
-                      placeholder="you@example.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      value={signUpPassword}
-                      onChange={(e) => setSignUpPassword(e.target.value)}
-                      required
-                      minLength={6}
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
-                      placeholder="••••••••"
-                    />
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      At least 6 characters
-                    </p>
-                  </div>
-
-                  <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-6">
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">
-                      OPT Information
-                    </h3>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          Program End Date <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={programEndDate}
-                          onChange={(e) => setProgramEndDate(e.target.value)}
-                          required
-                          placeholder="MM/DD/YYYY"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          DSO Recommendation Date
-                        </label>
-                        <input
-                          type="text"
-                          value={dsoRecommendationDate}
-                          onChange={(e) => setDsoRecommendationDate(e.target.value)}
-                          placeholder="MM/DD/YYYY (optional)"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          Current OPT EAD End Date <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={optEadEndDate}
-                          onChange={(e) => setOptEadEndDate(e.target.value)}
-                          required
-                          placeholder="MM/DD/YYYY"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          OPT Start Date <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={optStartDate}
-                          onChange={(e) => setOptStartDate(e.target.value)}
-                          required
-                          placeholder="MM/DD/YYYY"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          STEM OPT Start Date
-                        </label>
-                        <input
-                          type="text"
-                          value={stemStartDate}
-                          onChange={(e) => setStemStartDate(e.target.value)}
-                          placeholder="MM/DD/YYYY (optional)"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white"
-                        />
-                      </div>
-
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id="stemEligible"
-                          checked={isStemEligible}
-                          onChange={(e) => setIsStemEligible(e.target.checked)}
-                          className="w-4 h-4 text-blue-600 bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-blue-500"
-                        />
-                        <label
-                          htmlFor="stemEligible"
-                          className="ml-2 text-sm text-slate-700 dark:text-slate-300"
-                        >
-                          I'm STEM-eligible
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Creating account...' : 'Create Account'}
-                  </button>
-                </form>
-              )}
-            </div>
-          )}
-        </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 text-lg"
+                >
+                  {loading ? 'Creating account...' : 'Create Account'}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   );
 }
