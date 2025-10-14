@@ -7,12 +7,24 @@ const alg = "HS256";
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const url = new URL(req.url);
+    const { searchParams } = url;
     const redirect_uri = searchParams.get("redirect_uri");
     const state = searchParams.get("state");
-    const code = searchParams.get("code"); // OAuth code from Supabase
+    const code = searchParams.get("code"); // OAuth code from Supabase (PKCE flow)
+    
+    // For implicit flow, tokens come in the hash (which we can't read server-side)
+    // So we need to handle this client-side, or use access_token from query if available
+    const access_token = searchParams.get("access_token");
+    const refresh_token = searchParams.get("refresh_token");
 
-    console.log('Callback params:', { redirect_uri, state, hasCode: !!code });
+    console.log('Callback params:', { 
+      redirect_uri, 
+      state, 
+      hasCode: !!code,
+      hasAccessToken: !!access_token,
+      hasRefreshToken: !!refresh_token
+    });
 
     if (!redirect_uri || !state) {
       return new NextResponse("Missing redirect_uri or state", { status: 400 });
@@ -46,9 +58,9 @@ export async function GET(req: NextRequest) {
       }
     );
 
-    // If we have a code, exchange it for a session
+    // Handle PKCE flow (code in query params)
     if (code) {
-      console.log('Exchanging code for session, code length:', code.length);
+      console.log('PKCE flow: Exchanging code for session, code length:', code.length);
       const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) {
         console.error('Code exchange error:', {
@@ -64,6 +76,25 @@ export async function GET(req: NextRequest) {
         );
       }
       console.log('Code exchange successful, user:', sessionData?.user?.id);
+    }
+    
+    // Handle implicit flow (tokens in query params - moved from hash by client)
+    else if (access_token && refresh_token) {
+      console.log('Implicit flow: Setting session from access token');
+      const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+        access_token,
+        refresh_token,
+      });
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        return NextResponse.redirect(
+          new URL(
+            `/auth/extension?error=session_failed&error_description=${encodeURIComponent(sessionError.message)}&redirect_uri=${encodeURIComponent(redirect_uri)}&state=${encodeURIComponent(state)}`,
+            req.url
+          )
+        );
+      }
+      console.log('Session set successfully, user:', sessionData?.user?.id);
     }
 
     // Get the user from the session
