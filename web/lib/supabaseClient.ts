@@ -1,13 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
-import { clientEnv } from './env';
 
 /**
  * Supabase client for client-side usage
  * Uses the anonymous key and respects RLS policies
  */
 export const supabase = createClient(
-  clientEnv.NEXT_PUBLIC_SUPABASE_URL,
-  clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   {
     auth: {
       persistSession: true,
