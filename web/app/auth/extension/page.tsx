@@ -25,6 +25,13 @@ export default function ExtensionAuthPage() {
   const [resetSuccess, setResetSuccess] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
 
+  // OTP Verification States
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpSent, setOtpSent] = useState(false);
+
   // Sign In/Up Fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -175,21 +182,55 @@ export default function ExtensionAuthPage() {
     }
 
     try {
-      const res = await fetch('/api/manual/signup', {
+      // Send OTP to email
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      
+      if (!data.ok) {
+        throw new Error(data.error || 'Failed to send verification code');
+      }
+      
+      // Show OTP modal
+      setLoading(false);
+      setShowOTPModal(true);
+      setOtpSent(true);
+      setOtpError(null);
+      setOtpCode('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send verification code. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    setOtpLoading(true);
+    setOtpError(null);
+
+    try {
+      // Verify OTP and create account
+      const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          email,
+          otp: otpCode,
           firstName,
           lastName,
-          email,
           password,
         }),
       });
       const data = await res.json();
       
       if (!data.ok || !data.token) {
-        throw new Error(data.error || 'Signup failed');
+        throw new Error(data.error || 'Invalid verification code');
       }
+      
+      // Close modal and show success
+      setShowOTPModal(false);
       
       const successMessage = document.createElement('div');
       successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-50';
@@ -207,8 +248,35 @@ export default function ExtensionAuthPage() {
         window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
       }, 1000);
     } catch (err: any) {
-      setError(err.message || 'Sign up failed. Please try again.');
-      setLoading(false);
+      setOtpError(err.message || 'Invalid verification code. Please try again.');
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setOtpLoading(true);
+    setOtpError(null);
+
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      
+      if (!data.ok) {
+        throw new Error(data.error || 'Failed to resend code');
+      }
+      
+      setOtpError(null);
+      setOtpCode('');
+      setOtpLoading(false);
+      // Show success feedback
+      alert('Verification code resent to your email!');
+    } catch (err: any) {
+      setOtpError(err.message || 'Failed to resend code. Please try again.');
+      setOtpLoading(false);
     }
   };
 
@@ -688,6 +756,73 @@ export default function ExtensionAuthPage() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* OTP Verification Modal */}
+      {showOTPModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+            <div className="text-center">
+              <div className="text-6xl mb-4">📧</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify Your Email</h2>
+              <p className="text-gray-600 mb-6">
+                We've sent a 6-digit verification code to <strong>{email}</strong>. 
+                Please check your inbox and enter the code below.
+              </p>
+
+              {otpError && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {otpError}
+                </div>
+              )}
+
+              <div className="mb-6">
+                <input
+                  type="text"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="Enter 6-digit code"
+                  maxLength={6}
+                  disabled={otpLoading}
+                  className="w-full px-4 py-3 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 tracking-widest"
+                  autoFocus
+                />
+                <p className="text-xs text-gray-500 mt-2">Code expires in 10 minutes</p>
+              </div>
+
+              <button
+                onClick={handleVerifyOTP}
+                disabled={otpLoading || otpCode.length !== 6}
+                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed mb-3"
+              >
+                {otpLoading ? 'Verifying...' : 'Verify & Create Account'}
+              </button>
+
+              <div className="flex items-center justify-between text-sm">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOTPModal(false);
+                    setOtpCode('');
+                    setOtpError(null);
+                  }}
+                  disabled={otpLoading}
+                  className="text-gray-600 hover:text-gray-800 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={otpLoading}
+                  className="text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50"
+                >
+                  Resend Code
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
