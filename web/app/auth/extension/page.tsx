@@ -109,8 +109,8 @@ export default function ExtensionAuthPage() {
     setError(null);
     try {
       if (isExtensionFlow) {
-        // Extension flow: use callback with redirect_uri and state
-        const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback/server?redirect_uri=${encodeURIComponent(redirectUri!)}&state=${encodeURIComponent(state!)}`;
+        // Extension flow: use client callback to capture hash tokens and forward to server
+        const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback/client?redirect_uri=${encodeURIComponent(redirectUri!)}&state=${encodeURIComponent(state!)}`;
         
         const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
           provider: 'google',

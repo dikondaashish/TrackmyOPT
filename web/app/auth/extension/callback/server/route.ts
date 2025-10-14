@@ -58,8 +58,6 @@ export async function GET(req: NextRequest) {
       }
     );
 
-    let user = null;
-    
     // Handle PKCE flow (code in query params)
     if (code) {
       console.log('PKCE flow: Exchanging code for session, code length:', code.length);
@@ -78,7 +76,6 @@ export async function GET(req: NextRequest) {
         );
       }
       console.log('Code exchange successful, user:', sessionData?.user?.id);
-      user = sessionData?.user || null;
     }
     
     // Handle implicit flow (tokens in query params - moved from hash by client)
@@ -98,15 +95,12 @@ export async function GET(req: NextRequest) {
         );
       }
       console.log('Session set successfully, user:', sessionData?.user?.id);
-      user = sessionData?.user || null;
     }
+
+    // Get the user from the session
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    // If no code or tokens, try to get user from existing session
-    else {
-      const { data: { user: existingUser }, error: userError } = await supabase.auth.getUser();
-      console.log('No code/tokens, checking existing session. User:', existingUser ? existingUser.id : 'none');
-      user = existingUser;
-    }
+    console.log('Callback - User:', user ? user.id : 'none', 'Error:', userError?.message);
     
     if (!user) {
       console.error('No user found in callback, redirecting back to auth');
@@ -117,8 +111,6 @@ export async function GET(req: NextRequest) {
         )
       );
     }
-    
-    console.log('Callback - User authenticated:', user.id);
 
     // Create JWT token using the signToken helper (includes issuer and audience)
     const jwt = await signToken(
