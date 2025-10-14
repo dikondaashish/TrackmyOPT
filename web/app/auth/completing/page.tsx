@@ -21,37 +21,16 @@ export default function CompletingAuthPage() {
     console.log('Web Redirect:', webRedirect);
 
     if (token && state && redirectUri) {
-      // EXTENSION FLOW: Complete OAuth in iframe AND navigate to dashboard
+      // EXTENSION FLOW: Navigate to extension URL
+      // Extension background script will capture token and navigate to dashboard
       const extensionUrl = `${redirectUri}#id_token=${encodeURIComponent(token)}&state=${encodeURIComponent(state)}`;
       
       console.log('📱 Extension flow detected');
       console.log('🔗 Extension URL:', extensionUrl);
+      console.log('🌐 Extension will navigate to dashboard after capturing token');
       
-      // Create hidden iframe to complete extension handshake
-      // This allows the extension to capture the token without navigating away
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = extensionUrl;
-      document.body.appendChild(iframe);
-      
-      console.log('📦 Extension handshake iframe created');
-      
-      // After extension captures token (1 second), navigate main tab to dashboard
-      setTimeout(() => {
-        console.log('🌐 Navigating to dashboard:', webRedirect);
-        window.location.href = webRedirect;
-      }, 1000);
-      
-      // Update countdown
-      const countdownInterval = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 0) {
-            clearInterval(countdownInterval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      // Navigate to extension URL - extension will handle the rest
+      window.location.href = extensionUrl;
       
     } else if (token) {
       // WEBSITE-ONLY FLOW: Go straight to dashboard

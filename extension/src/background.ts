@@ -92,9 +92,13 @@ async function beginAuth(){
         console.log('💾 Token stored successfully!');
         console.log('✅ Authentication complete!');
         
-        // DON'T close the tab - let it navigate to /dashboard
-        // The /auth/completing page will redirect to /dashboard after 800ms
-        console.log('📄 Tab will navigate to dashboard (not closing)');
+        // Navigate the tab to dashboard after capturing token
+        const dashboardUrl = process.env.NODE_ENV === 'production' 
+          ? 'https://trackmyopt.com/dashboard'
+          : 'http://localhost:3000/dashboard';
+        
+        console.log('🌐 Navigating tab to dashboard:', dashboardUrl);
+        await chrome.tabs.update(tab.id, { url: dashboardUrl });
         
         resolve(undefined);
       } catch (error) {
