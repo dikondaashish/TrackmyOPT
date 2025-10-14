@@ -7,9 +7,21 @@ async function init(){
   console.log('Init - signedIn:', s.signedIn, 'hasToken:', !!s.idToken);
   
   if (!s.signedIn) {
-    renderSignInView(root);
+    // Show the default locked state from HTML (nothing to render)
+    // Just hook up the sign-in button
+    const signinBtn = document.getElementById('signin-btn');
+    if (signinBtn) {
+      signinBtn.addEventListener('click', () => {
+        chrome.runtime.sendMessage({ type: 'BEGIN_AUTH' });
+      });
+    }
     return;
   }
+  
+  // User is signed in - hide locked state, show root
+  document.querySelector('.container')!.style.display = 'none';
+  document.querySelector('.footer')!.style.display = 'none';
+  root.style.display = 'block';
   
   showLoading(root);
   

@@ -39,16 +39,12 @@ const buildOptions = {
   entryPoints: [
     'src/background.ts',
     'src/popup.ts',
-    'src/popup.html',
   ],
   bundle: true,
   outdir: 'dist',
   platform: 'browser',
   target: 'es2020',
   format: 'iife',
-  loader: {
-    '.html': 'copy',
-  },
   logLevel: 'info',
   define: {
     'process.env.NODE_ENV': JSON.stringify(
