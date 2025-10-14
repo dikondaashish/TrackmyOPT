@@ -182,11 +182,11 @@ export default function ExtensionAuthPage() {
     }
 
     try {
-      // Send OTP to email
+      // Send OTP to email via Supabase
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, firstName, lastName }),
       });
       const data = await res.json();
       
