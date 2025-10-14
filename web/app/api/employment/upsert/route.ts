@@ -14,7 +14,12 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { id, employer_name, start_date, end_date } = body;
+    const { id, employer_name, start_date, end_date } = body as {
+      id?: string;
+      employer_name?: string;
+      start_date?: string;
+      end_date?: string;
+    };
 
     // Validate required fields
     if (!employer_name || !start_date) {
@@ -25,17 +30,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Convert dates from MM/DD/YYYY to YYYY-MM-DD
-    let startDateISO: string;
-    let endDateISO: string | null = null;
+    const startDateISO = mmddyyyyToISO(start_date);
+    const endDateISO = end_date ? mmddyyyyToISO(end_date) : null;
 
-    try {
-      startDateISO = mmddyyyyToISO(start_date);
-      if (end_date) {
-        endDateISO = mmddyyyyToISO(end_date);
-      }
-    } catch (error) {
+    if (!startDateISO) {
       return NextResponse.json(
-        { ok: false, error: 'Invalid date format. Must be MM/DD/YYYY' },
+        { ok: false, error: 'Invalid start_date format. Must be MM/DD/YYYY' },
+        { status: 400 }
+      );
+    }
+
+    if (end_date && !endDateISO) {
+      return NextResponse.json(
+        { ok: false, error: 'Invalid end_date format. Must be MM/DD/YYYY' },
         { status: 400 }
       );
     }

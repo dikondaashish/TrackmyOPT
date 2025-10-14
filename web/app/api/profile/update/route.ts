@@ -33,25 +33,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Convert dates from MM/DD/YYYY to YYYY-MM-DD
-    let programEndISO: string;
-    let optEadEndISO: string;
-    let optStartISO: string;
-    let dsoRecISO: string | null = null;
-    let stemStartISO: string | null = null;
+    const programEndISO = mmddyyyyToISO(program_end_date);
+    const optEadEndISO = mmddyyyyToISO(opt_ead_end_date);
+    const optStartISO = mmddyyyyToISO(opt_start_date);
+    const dsoRecISO = dso_recommendation_date ? mmddyyyyToISO(dso_recommendation_date) : null;
+    const stemStartISO = (stem_start_date && is_stem_eligible) ? mmddyyyyToISO(stem_start_date) : null;
 
-    try {
-      programEndISO = mmddyyyyToISO(program_end_date);
-      optEadEndISO = mmddyyyyToISO(opt_ead_end_date);
-      optStartISO = mmddyyyyToISO(opt_start_date);
-      
-      if (dso_recommendation_date) {
-        dsoRecISO = mmddyyyyToISO(dso_recommendation_date);
-      }
-      
-      if (stem_start_date && is_stem_eligible) {
-        stemStartISO = mmddyyyyToISO(stem_start_date);
-      }
-    } catch (error) {
+    if (!programEndISO || !optEadEndISO || !optStartISO) {
       return NextResponse.json(
         { ok: false, error: 'invalid_dates', details: 'Date must be in MM/DD/YYYY format' },
         { status: 400 }

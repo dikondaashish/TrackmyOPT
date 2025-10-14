@@ -1,6 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import DashboardClient from '@/components/dashboard/DashboardClient';
 
 export const metadata = {
   title: 'Dashboard | TrackMyOPT',
@@ -20,12 +21,30 @@ export default async function DashboardPage() {
   // Fetch user data
   const userId = session.user.id;
 
-  // Fetch profile
-  const { data: profile } = await supabase
+  // Fetch profile (or create if doesn't exist)
+  let { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
+
+  // Create profile if it doesn't exist
+  if (!profile) {
+    await supabase.from('profiles').insert({
+      user_id: userId,
+      timezone: 'America/New_York',
+      is_stem_eligible: false,
+    });
+    
+    // Fetch again
+    const { data: newProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    
+    profile = newProfile;
+  }
 
   // Fetch OPT status
   const { data: optStatus } = await supabase
@@ -109,7 +128,7 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* Welcome / Empty State */}
+        {/* Welcome / Empty State OR Dashboard Content */}
         {!hasOptData ? (
           <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 text-center">
             <div className="text-6xl mb-4">🎉</div>
@@ -136,125 +155,59 @@ export default async function DashboardPage() {
                 </ul>
               </div>
             </div>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 py-3 transition">
-              Get Started →
-            </button>
           </div>
-        ) : (
-          <>
-            {/* Summary Row (4 cards) */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              {/* Card 1: OPT Filing Window */}
-              <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 hover:shadow-md transition">
-                <div className="text-2xl mb-2">📝</div>
-                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                  OPT Filing Window
-                </h3>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">
-                  Coming soon
-                </p>
-                <button className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                  See details
-                </button>
-              </div>
+        ) : null}
 
-              {/* Card 2: Next Deadline */}
-              <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 hover:shadow-md transition">
-                <div className="text-2xl mb-2">⏰</div>
-                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                  Next Deadline
-                </h3>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">
-                  Coming soon
-                </p>
-                <button className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                  View timeline
-                </button>
-              </div>
+        {/* Dashboard Client Component */}
+        <DashboardClient 
+          profile={profile!}
+          optStatus={optStatus}
+          employmentSpans={employmentSpans || []}
+          userEmail={session.user.email!}
+        />
 
-              {/* Card 3: Unemployment Clock */}
-              <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 hover:shadow-md transition">
-                <div className="text-2xl mb-2">⏱️</div>
-                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                  Unemployment Clock
-                </h3>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">
-                  0 / 90 days
-                </p>
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 mt-2">
-                  ✅ OK
-                </span>
-              </div>
+        {/* Quick Action Tiles (2x2 grid) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200 dark:border-blue-800 p-6 cursor-pointer hover:scale-[1.02] transition">
+            <div className="text-3xl mb-3">📝</div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              OPT Apply Start Dates
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Calculate when you can start applying for OPT
+            </p>
+          </div>
 
-              {/* Card 4: STEM Status */}
-              <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 hover:shadow-md transition">
-                <div className="text-2xl mb-2">🎒</div>
-                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                  STEM Status
-                </h3>
-                <p className="text-sm text-gray-900 dark:text-white">
-                  {profile?.is_stem_eligible ? 'Eligible' : 'Not eligible'}
-                </p>
-                <button className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                  View details
-                </button>
-              </div>
-            </div>
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200 dark:border-blue-800 p-6 cursor-pointer hover:scale-[1.02] transition">
+            <div className="text-3xl mb-3">🎒</div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              STEM OPT Apply Start Dates
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Calculate STEM OPT extension application dates
+            </p>
+          </div>
 
-            {/* Quick Action Tiles (2x2 grid) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200 dark:border-blue-800 p-6 cursor-pointer hover:scale-[1.02] transition">
-                <div className="text-3xl mb-3">📝</div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                  OPT Apply Start Dates
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Calculate when you can start applying for OPT
-                </p>
-              </div>
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200 dark:border-blue-800 p-6 cursor-pointer hover:scale-[1.02] transition">
+            <div className="text-3xl mb-3">⏱️</div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              OPT Clock Tracker
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Track your unemployment days in real-time
+            </p>
+          </div>
 
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200 dark:border-blue-800 p-6 cursor-pointer hover:scale-[1.02] transition">
-                <div className="text-3xl mb-3">🎒</div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                  STEM OPT Apply Start Dates
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Calculate STEM OPT extension application dates
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200 dark:border-blue-800 p-6 cursor-pointer hover:scale-[1.02] transition">
-                <div className="text-3xl mb-3">⏱️</div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                  OPT Clock Tracker
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Track your unemployment days in real-time
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200 dark:border-blue-800 p-6 cursor-pointer hover:scale-[1.02] transition opacity-75">
-                <div className="text-3xl mb-3">📅</div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                  More Tools Coming
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Stay tuned for additional OPT resources
-                </p>
-              </div>
-            </div>
-
-            {/* Your Dates Card - Coming Soon */}
-            <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                ✏️ Your Dates
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Edit your OPT information (coming soon in Phase 3)
-              </p>
-            </div>
-          </>
-        )}
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200 dark:border-blue-800 p-6 cursor-pointer hover:scale-[1.02] transition opacity-75">
+            <div className="text-3xl mb-3">📅</div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              More Tools Coming
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Stay tuned for additional OPT resources
+            </p>
+          </div>
+        </div>
 
         {/* Notice Card */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
