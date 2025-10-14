@@ -520,7 +520,7 @@ SELECT * FROM opt_status WHERE user_id = 'user-b-id';
 ```
 ✅ JWT_SIGNING_SECRET=d4e4b723797bc32030d8a1e9fd2beb7ad70ca272...
 ✅ NEXT_PUBLIC_SITE_URL=https://trackmyopt.com
-✅ RESEND_API_KEY=re_iYxDmDxh_NxZDWcV5YE4EzN248gjwz7Vg
+✅ RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 ---
