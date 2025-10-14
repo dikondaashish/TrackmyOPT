@@ -24,12 +24,34 @@ export async function POST(req: NextRequest) {
     // Store OTP (in production, use Redis with TTL)
     otpStore.set(email, otp, 10 * 60 * 1000); // 10 minutes
 
+    // Log OTP in development mode
+    if (process.env.NODE_ENV === 'development') {
+      console.log('='.repeat(60));
+      console.log('📧 OTP VERIFICATION CODE (DEVELOPMENT MODE)');
+      console.log('='.repeat(60));
+      console.log(`Email: ${email}`);
+      console.log(`Code: ${otp}`);
+      console.log(`Expires: ${new Date(Date.now() + 10 * 60 * 1000).toLocaleString()}`);
+      console.log('='.repeat(60));
+    }
+
     // Send OTP via email using Resend
     try {
-      const resend = new Resend(process.env.RESEND_API_KEY_ONBOARDING);
+      const resendApiKey = process.env.RESEND_API_KEY_ONBOARDING;
       
-      await resend.emails.send({
-        from: 'TrackMyOPT <noreply@trackmyopt.com>',
+      if (!resendApiKey) {
+        console.warn('⚠️  RESEND_API_KEY_ONBOARDING not configured. Email will not be sent.');
+        console.log('📧 OTP Code (email not sent):', otp);
+        // In development, still return success so user can see OTP in console
+        if (process.env.NODE_ENV === 'development') {
+          return NextResponse.json({ ok: true });
+        }
+      }
+      
+      const resend = new Resend(resendApiKey);
+      
+      const result = await resend.emails.send({
+        from: 'TrackMyOPT <onboarding@resend.dev>', // Using Resend's test domain
         to: email,
         subject: 'Your TrackMyOPT Verification Code',
         html: `
@@ -89,13 +111,25 @@ export async function POST(req: NextRequest) {
         `,
       });
 
-      console.log(`OTP sent to ${email}: ${otp}`); // For development/debugging
+      console.log(`✅ OTP email sent successfully to ${email}`);
+      console.log('📧 Resend response:', result);
       
       return NextResponse.json({ ok: true });
-    } catch (emailError) {
-      console.error('Failed to send email:', emailError);
-      // Still return success to prevent email enumeration attacks
-      // In production, you might want to handle this differently
+    } catch (emailError: any) {
+      console.error('❌ Failed to send OTP email:', emailError);
+      console.error('Error details:', emailError.message, emailError.statusCode);
+      
+      // In development, show the actual error
+      if (process.env.NODE_ENV === 'development') {
+        console.log('💡 Using development mode - OTP is logged above. You can enter it manually.');
+        return NextResponse.json({ 
+          ok: true, 
+          devMode: true,
+          message: 'OTP logged to console (development mode)' 
+        });
+      }
+      
+      // In production, still return success to prevent email enumeration attacks
       return NextResponse.json({ ok: true });
     }
   } catch (error) {
