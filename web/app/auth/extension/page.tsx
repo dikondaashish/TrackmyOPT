@@ -181,7 +181,7 @@ export default function ExtensionAuthPage() {
         window.location.href = completingUrl.toString();
       } else {
         // Web flow: use Supabase session and redirect to dashboard
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -195,8 +195,9 @@ export default function ExtensionAuthPage() {
           localStorage.removeItem('trackmyopt_remember_email');
         }
 
-        // Redirect to dashboard
-        window.location.href = redirect;
+        // Wait for session to be fully established, then force a full page reload
+        await new Promise(resolve => setTimeout(resolve, 500));
+        window.location.replace(redirect);
       }
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
@@ -285,7 +286,7 @@ export default function ExtensionAuthPage() {
         window.location.href = completingUrl.toString();
       } else {
         // Web flow: sign in with the created account and redirect
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -293,10 +294,11 @@ export default function ExtensionAuthPage() {
         if (error) {
           console.error('Auto sign-in error:', error);
           // Even if auto sign-in fails, redirect to login page
-          window.location.href = '/auth/extension?redirect=' + encodeURIComponent(redirect);
+          window.location.replace('/auth/extension?redirect=' + encodeURIComponent(redirect));
         } else {
-          // Success! Redirect to dashboard
-          window.location.href = redirect;
+          // Wait for session to be fully established, then force a full page reload
+          await new Promise(resolve => setTimeout(resolve, 500));
+          window.location.replace(redirect);
         }
       }
     } catch (err: any) {
