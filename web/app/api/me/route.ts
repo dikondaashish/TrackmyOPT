@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/jwt';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
@@ -59,7 +60,14 @@ export async function GET(request: NextRequest) {
     // If profile doesn't exist (new Google OAuth user), create it
     if (profileError && profileError.code === 'PGRST116') {
       console.log('Creating new profile for user:', userId);
-      const { data: newProfile, error: insertError } = await supabase
+      
+      // Use service role key to bypass RLS for initial profile creation
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      
+      const { data: newProfile, error: insertError } = await supabaseAdmin
         .from('profiles')
         .insert({
           user_id: userId,
