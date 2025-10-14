@@ -1,12 +1,12 @@
 /**
  * Renders the locked state when user is not signed in
  */
-export function renderLocked(root: HTMLElement): void {
+export async function renderLocked(root: HTMLElement): Promise<void> {
   root.innerHTML = `
     <div class="header">
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn-locked" title="Toggle theme" aria-label="Toggle theme">
-          <span>☀️</span>
+          <span id="theme-icon-locked">🌙</span>
         </button>
       </div>
       <h1 class="title">TrackMyOPT</h1>
@@ -50,6 +50,14 @@ export function renderLocked(root: HTMLElement): void {
 
   // Theme button for locked state
   const themeBtnLocked = document.getElementById('theme-btn-locked');
+  const themeIconLocked = document.getElementById('theme-icon-locked');
+  
+  // Set initial icon based on current theme
+  const { theme } = await chrome.storage.sync.get('theme');
+  if (themeIconLocked) {
+    themeIconLocked.textContent = theme === 'dark' ? '☀️' : '🌙';
+  }
+  
   if (themeBtnLocked) {
     themeBtnLocked.addEventListener('click', async () => {
       const body = document.body;
@@ -58,10 +66,12 @@ export function renderLocked(root: HTMLElement): void {
       if (isDarkMode) {
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
+        if (themeIconLocked) themeIconLocked.textContent = '🌙';
         console.log('Switched to light mode');
       } else {
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
+        if (themeIconLocked) themeIconLocked.textContent = '☀️';
         console.log('Switched to dark mode');
       }
     });

@@ -25,7 +25,7 @@ export function renderPageHeader(root: HTMLElement, title: string, subtitle: str
       </button>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn-page" title="Toggle theme" aria-label="Toggle theme">
-          <span>☀️</span>
+          <span id="theme-icon-page">🌙</span>
         </button>
         <button class="logout-btn" id="logout-btn-page" title="Sign out" aria-label="Sign out">
           <span>🚪</span>
@@ -63,7 +63,7 @@ export function renderComingSoon(root: HTMLElement, message: string): void {
 /**
  * Setup common button handlers (theme, logout, back)
  */
-export function setupPageHandlers(onBack: () => void): void {
+export async function setupPageHandlers(onBack: () => void): Promise<void> {
   // Back button
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
@@ -72,6 +72,14 @@ export function setupPageHandlers(onBack: () => void): void {
 
   // Theme button
   const themeBtn = document.getElementById('theme-btn-page');
+  const themeIconPage = document.getElementById('theme-icon-page');
+  
+  // Set initial icon based on current theme
+  const { theme } = await chrome.storage.sync.get('theme');
+  if (themeIconPage) {
+    themeIconPage.textContent = theme === 'dark' ? '☀️' : '🌙';
+  }
+  
   if (themeBtn) {
     themeBtn.addEventListener('click', async () => {
       const body = document.body;
@@ -80,9 +88,11 @@ export function setupPageHandlers(onBack: () => void): void {
       if (isDarkMode) {
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
+        if (themeIconPage) themeIconPage.textContent = '🌙';
       } else {
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
+        if (themeIconPage) themeIconPage.textContent = '☀️';
       }
     });
   }

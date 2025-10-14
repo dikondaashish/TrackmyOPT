@@ -1,12 +1,12 @@
 /**
  * Renders the signed-in home screen with tool tiles
  */
-export function renderHome(root: HTMLElement, onNavigate: (page: string) => void): void {
+export async function renderHome(root: HTMLElement, onNavigate: (page: string) => void): Promise<void> {
   root.innerHTML = `
     <div class="header" role="region" aria-label="TrackMyOPT header">
       <div class="header-buttons">
-        <button class="theme-btn" title="Toggle theme" aria-label="Toggle theme">
-          <span>☀️</span>
+        <button class="theme-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
+          <span id="theme-icon">🌙</span>
         </button>
         <button class="logout-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
           <span>🚪</span>
@@ -89,6 +89,14 @@ export function renderHome(root: HTMLElement, onNavigate: (page: string) => void
 
   // Theme button - toggle between light and dark mode
   const themeBtn = root.querySelector('.theme-btn');
+  const themeIcon = root.querySelector('#theme-icon');
+  
+  // Set initial icon based on current theme
+  const { theme } = await chrome.storage.sync.get('theme');
+  if (themeIcon) {
+    themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+  }
+  
   if (themeBtn) {
     themeBtn.addEventListener('click', async () => {
       const body = document.body;
@@ -98,11 +106,13 @@ export function renderHome(root: HTMLElement, onNavigate: (page: string) => void
         // Switch to light mode (default)
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
+        if (themeIcon) themeIcon.textContent = '🌙';
         console.log('Switched to light mode');
       } else {
         // Switch to dark mode
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
+        if (themeIcon) themeIcon.textContent = '☀️';
         console.log('Switched to dark mode');
       }
     });

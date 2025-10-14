@@ -124,11 +124,11 @@ body.dark-mode .logout-btn {
 }
 
 .theme-btn {
-  color: #f59e0b;
+  color: #6366f1; /* Indigo for moon icon in light mode */
 }
 
 body.dark-mode .theme-btn {
-  color: #facc15;
+  color: #fbbf24; /* Amber for sun icon in dark mode */
 }
 
 .logout-btn {
