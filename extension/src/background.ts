@@ -24,20 +24,50 @@ async function beginAuth(){
 
   console.log('Starting OAuth flow, redirect_uri:', redirectUri);
   
-  const responseUrl = await chrome.identity.launchWebAuthFlow({ url: url.toString(), interactive: true });
-  console.log('OAuth response URL:', responseUrl);
+  // Open in a new tab instead of popup window
+  const tab = await chrome.tabs.create({ url: url.toString() });
   
-  const hash = new URL(responseUrl).hash.substring(1);
-  const params = new URLSearchParams(hash);
-  const token = params.get('id_token');
-  const gotState = params.get('state');
-  const { oauth_state } = await chrome.storage.session.get('oauth_state');
-  
-  console.log('Token received:', token ? `${token.substring(0, 20)}...` : 'null');
-  console.log('State match:', gotState === oauth_state);
-  
-  if (!token || gotState !== oauth_state) throw new Error('Auth failed');
+  // Listen for the tab to navigate to our redirect URI
+  return new Promise((resolve, reject) => {
+    const listener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+      if (tabId !== tab.id || !changeInfo.url) return;
+      
+      const responseUrl = changeInfo.url;
+      
+      // Check if this is our redirect URI
+      if (!responseUrl.startsWith(redirectUri)) return;
+      
+      console.log('OAuth response URL:', responseUrl);
+      
+      // Remove the listener
+      chrome.tabs.onUpdated.removeListener(listener);
+      
+      // Close the auth tab
+      chrome.tabs.remove(tabId);
+      
+      try {
+        const hash = new URL(responseUrl).hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const token = params.get('id_token');
+        const gotState = params.get('state');
+        const { oauth_state } = await chrome.storage.session.get('oauth_state');
+        
+        console.log('Token received:', token ? `${token.substring(0, 20)}...` : 'null');
+        console.log('State match:', gotState === oauth_state);
+        
+        if (!token || gotState !== oauth_state) {
+          reject(new Error('Auth failed'));
+          return;
+        }
 
-  await chrome.storage.sync.set({ idToken: token, signedIn: true, signedInAt: Date.now() });
-  console.log('Token stored successfully');
+        await chrome.storage.sync.set({ idToken: token, signedIn: true, signedInAt: Date.now() });
+        console.log('Token stored successfully');
+        resolve(undefined);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    
+    chrome.tabs.onUpdated.addListener(listener);
+  });
 }
