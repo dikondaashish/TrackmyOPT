@@ -12,6 +12,9 @@ export const supabase = createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
+      flowType: 'pkce', // Use PKCE flow (code in query params) instead of implicit (tokens in hash)
+      detectSessionInUrl: true,
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     },
   }
 );
