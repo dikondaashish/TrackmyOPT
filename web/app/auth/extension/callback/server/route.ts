@@ -116,71 +116,15 @@ export async function GET(req: NextRequest) {
       '10m'
     );
 
-    console.log('Generated JWT for user:', user.id);
+        console.log('Generated JWT for user:', user.id);
 
-    // Return HTML that redirects to extension with token
-    const html = `
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Returning to Extension…</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      text-align: center;
-    }
-    .container {
-      padding: 2rem;
-    }
-    .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid white;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 2rem;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="spinner"></div>
-    <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Authentication Successful!</h1>
-    <p style="opacity: 0.9;">Redirecting back to extension...</p>
-  </div>
-  <script>
-    (function() {
-      const ru = ${JSON.stringify(redirect_uri)};
-      const st = ${JSON.stringify(state)};
-      const token = ${JSON.stringify(jwt)};
-      
-      console.log('Redirecting to extension with token');
-      
-      // Set window.location with token in fragment
-      window.location = ru + "#id_token=" + encodeURIComponent(token) + "&state=" + encodeURIComponent(st);
-    })();
-  </script>
-</body>
-</html>`;
-    
-    return new NextResponse(html, { 
-      headers: { 
-        "Content-Type": "text/html; charset=utf-8" 
-      } 
-    });
+        // Redirect to intermediate completing page
+        const completingUrl = new URL('/auth/completing', req.url);
+        completingUrl.searchParams.set('token', jwt);
+        completingUrl.searchParams.set('state', state);
+        completingUrl.searchParams.set('redirect_uri', redirect_uri);
+        
+        return NextResponse.redirect(completingUrl);
     
   } catch (error) {
     console.error('Callback error:', error);

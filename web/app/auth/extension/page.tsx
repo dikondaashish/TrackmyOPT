@@ -140,22 +140,13 @@ export default function ExtensionAuthPage() {
         localStorage.removeItem('trackmyopt_remember_email');
       }
       
-      // Display success state - will stay visible until tab closes
-      const successMessage = document.createElement('div');
-      successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-[9999]';
-      successMessage.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;';
-      successMessage.innerHTML = `
-        <div class="text-center p-8">
-          <div class="text-6xl mb-4">✅</div>
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Signed In!</h2>
-          <p class="text-gray-600 mb-4">Completing sign-in...</p>
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        </div>
-      `;
-      document.body.appendChild(successMessage);
+      // Redirect to intermediate page that will handle the extension redirect
+      const completingUrl = new URL('/auth/completing', window.location.origin);
+      completingUrl.searchParams.set('token', data.token);
+      completingUrl.searchParams.set('state', state);
+      completingUrl.searchParams.set('redirect_uri', redirectUri);
       
-      // Redirect immediately, success message will stay visible
-      window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
+      window.location.href = completingUrl.toString();
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
@@ -229,25 +220,16 @@ export default function ExtensionAuthPage() {
         throw new Error(data.error || 'Invalid verification code');
       }
       
-      // Close modal and show success
+      // Close modal and redirect to intermediate page
       setShowOTPModal(false);
       
-      // Display success state - will stay visible until tab closes
-      const successMessage = document.createElement('div');
-      successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-[9999]';
-      successMessage.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;';
-      successMessage.innerHTML = `
-        <div class="text-center p-8">
-          <div class="text-6xl mb-4">✅</div>
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Account Created!</h2>
-          <p class="text-gray-600 mb-4">Completing sign-in...</p>
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        </div>
-      `;
-      document.body.appendChild(successMessage);
+      // Redirect to intermediate page that will handle the extension redirect
+      const completingUrl = new URL('/auth/completing', window.location.origin);
+      completingUrl.searchParams.set('token', data.token);
+      completingUrl.searchParams.set('state', state);
+      completingUrl.searchParams.set('redirect_uri', redirectUri);
       
-      // Redirect immediately, success message will stay visible
-      window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
+      window.location.href = completingUrl.toString();
     } catch (err: any) {
       setOtpError(err.message || 'Invalid verification code. Please try again.');
       setOtpLoading(false);
