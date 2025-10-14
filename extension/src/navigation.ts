@@ -75,14 +75,14 @@ export function setupPageHandlers(onBack: () => void): void {
   if (themeBtn) {
     themeBtn.addEventListener('click', async () => {
       const body = document.body;
-      const isLightMode = body.classList.contains('light-mode');
+      const isDarkMode = body.classList.contains('dark-mode');
       
-      if (isLightMode) {
-        body.classList.remove('light-mode');
-        await chrome.storage.sync.set({ theme: 'dark' });
-      } else {
-        body.classList.add('light-mode');
+      if (isDarkMode) {
+        body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
+      } else {
+        body.classList.add('dark-mode');
+        await chrome.storage.sync.set({ theme: 'dark' });
       }
     });
   }

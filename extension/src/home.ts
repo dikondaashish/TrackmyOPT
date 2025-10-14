@@ -92,18 +92,18 @@ export function renderHome(root: HTMLElement, onNavigate: (page: string) => void
   if (themeBtn) {
     themeBtn.addEventListener('click', async () => {
       const body = document.body;
-      const isLightMode = body.classList.contains('light-mode');
+      const isDarkMode = body.classList.contains('dark-mode');
       
-      if (isLightMode) {
-        // Switch to dark mode
-        body.classList.remove('light-mode');
-        await chrome.storage.sync.set({ theme: 'dark' });
-        console.log('Switched to dark mode');
-      } else {
-        // Switch to light mode
-        body.classList.add('light-mode');
+      if (isDarkMode) {
+        // Switch to light mode (default)
+        body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
         console.log('Switched to light mode');
+      } else {
+        // Switch to dark mode
+        body.classList.add('dark-mode');
+        await chrome.storage.sync.set({ theme: 'dark' });
+        console.log('Switched to dark mode');
       }
     });
   }

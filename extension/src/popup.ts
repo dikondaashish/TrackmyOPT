@@ -18,12 +18,17 @@ async function isSignedIn(): Promise<boolean> {
  */
 async function applyTheme(): Promise<void> {
   const { theme } = await chrome.storage.sync.get('theme');
-  if (theme === 'light') {
-    document.body.classList.add('light-mode');
+  
+  // Default to light mode if no theme is saved
+  if (theme === 'dark') {
+    document.body.classList.add('dark-mode');
+    document.body.classList.remove('light-mode');
   } else {
+    // Light mode is default (no class needed for light mode)
+    document.body.classList.remove('dark-mode');
     document.body.classList.remove('light-mode');
   }
-  console.log('Applied theme:', theme || 'dark');
+  console.log('Applied theme:', theme || 'light (default)');
 }
 
 /**
