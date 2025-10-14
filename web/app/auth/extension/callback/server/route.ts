@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { SignJWT } from "jose";
-
-const alg = "HS256";
+import { signToken } from "@/lib/jwt";
 
 export async function GET(req: NextRequest) {
   try {
@@ -112,13 +110,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Create JWT token
-    const secret = new TextEncoder().encode(process.env.JWT_SIGNING_SECRET!);
-    const jwt = await new SignJWT({ sub: user.id, email: user.email })
-      .setProtectedHeader({ alg })
-      .setIssuedAt()
-      .setExpirationTime("10m")
-      .sign(secret);
+    // Create JWT token using the signToken helper (includes issuer and audience)
+    const jwt = await signToken(
+      { userId: user.id, email: user.email || '' },
+      '10m'
+    );
 
     console.log('Generated JWT for user:', user.id);
 
