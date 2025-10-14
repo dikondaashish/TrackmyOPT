@@ -32,12 +32,12 @@ async function beginAuth(){
   
   // Listen for the tab to navigate to our redirect URI
   return new Promise((resolve, reject) => {
-    const listener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
+    const listener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, currentTab: chrome.tabs.Tab) => {
       console.log('🔄 Tab updated:', tabId, 'Status:', changeInfo.status, 'URL:', changeInfo.url);
       
       if (tabId !== tab.id) return;
       
-      const responseUrl = changeInfo.url || tab.url;
+      const responseUrl = changeInfo.url || currentTab.url;
       if (!responseUrl) return;
       
       // Check if this is our redirect URI (check both with and without hash)
