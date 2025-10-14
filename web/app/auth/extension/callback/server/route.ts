@@ -120,11 +120,12 @@ export async function GET(req: NextRequest) {
 
         console.log('Generated JWT for user:', user.id);
 
-        // Redirect to intermediate completing page
+        // Redirect to intermediate completing page with dashboard redirect
         const completingUrl = new URL('/auth/completing', req.url);
         completingUrl.searchParams.set('token', jwt);
         completingUrl.searchParams.set('state', state);
         completingUrl.searchParams.set('redirect_uri', redirect_uri);
+        completingUrl.searchParams.set('redirect', '/dashboard'); // Add dashboard redirect
         
         return NextResponse.redirect(completingUrl);
     
