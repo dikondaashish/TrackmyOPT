@@ -292,8 +292,8 @@ export default function ExtensionAuthPage() {
         </div>
 
         {/* Bottom Text */}
-        <div className="absolute bottom-8 left-8 right-8 text-center">
-          <p className="text-white/60 text-sm">Private, secure, and reliable.</p>
+        <div className="absolute bottom-6 left-8 right-8 text-center">
+          <p className="text-white/60 text-sm">  Private, secure, and reliable.</p>
         </div>
       </div>
 
@@ -309,12 +309,10 @@ export default function ExtensionAuthPage() {
           {/* Welcome Message */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {mode === 'signin' ? 'Welcome Back!' : 'Create Account'}
+              TrackMyOPT
             </h2>
             <p className="text-gray-600">
-              {mode === 'signin' 
-                ? 'Calculate filing windows, track unemployment days, and get reminders.'
-                : 'Join TrackMyOPT to never miss an OPT deadline'}
+              Calculate filing windows, track unemployment days, and get reminders.
             </p>
           </div>
 
