@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from './config';
+
 async function init(){
   const s = await chrome.storage.sync.get(['signedIn','idToken']);
   const root = document.getElementById('root')!;
@@ -14,7 +16,7 @@ async function init(){
   try {
     console.log('Fetching /api/me with token:', s.idToken ? `${s.idToken.substring(0, 30)}...` : 'null');
     
-    const r = await fetch('http://localhost:3000/api/me', { 
+    const r = await fetch(API_ENDPOINTS.ME, { 
       headers: { Authorization: 'Bearer ' + s.idToken }
     });
     

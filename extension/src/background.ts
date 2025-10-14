@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from './config';
+
 function randomString(len=32){
   const bytes = new Uint8Array(len);
   crypto.getRandomValues(bytes);
@@ -16,7 +18,7 @@ async function beginAuth(){
   const state = randomString(16);
   await chrome.storage.session.set({ oauth_state: state });
 
-  const url = new URL('http://localhost:3000/auth/extension');
+  const url = new URL(API_ENDPOINTS.AUTH);
   url.searchParams.set('redirect_uri', redirectUri);
   url.searchParams.set('state', state);
 
