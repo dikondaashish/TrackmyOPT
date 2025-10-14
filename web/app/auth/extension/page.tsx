@@ -376,13 +376,16 @@ export default function ExtensionAuthPage() {
 
           {/* Sign In Form */}
           {mode === 'signin' && (
-            <form onSubmit={handleManualSignIn} className="space-y-4">
+            <form onSubmit={handleManualSignIn} className="space-y-4" method="post">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Enter your email address
                 </label>
                 <input
                   type="email"
+                  name="email"
+                  id="email"
+                  autoComplete="username email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -398,6 +401,9 @@ export default function ExtensionAuthPage() {
                 </label>
                 <input
                   type="password"
+                  name="password"
+                  id="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -473,7 +479,7 @@ export default function ExtensionAuthPage() {
 
           {/* Sign Up Form */}
           {mode === 'signup' && (
-            <form onSubmit={handleManualSignUp} className="space-y-4">
+            <form onSubmit={handleManualSignUp} className="space-y-4" method="post">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -481,6 +487,8 @@ export default function ExtensionAuthPage() {
                   </label>
                   <input
                     type="text"
+                    name="firstName"
+                    autoComplete="given-name"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
@@ -495,6 +503,8 @@ export default function ExtensionAuthPage() {
                   </label>
                   <input
                     type="text"
+                    name="lastName"
+                    autoComplete="family-name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
@@ -509,6 +519,9 @@ export default function ExtensionAuthPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
                   type="email"
+                  name="email"
+                  id="signup-email"
+                  autoComplete="username email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -522,6 +535,9 @@ export default function ExtensionAuthPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input
                   type="password"
+                  name="password"
+                  id="signup-password"
+                  autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -656,13 +672,16 @@ export default function ExtensionAuthPage() {
                   </div>
                 )}
 
-                <form onSubmit={handlePasswordReset} className="space-y-4">
+                <form onSubmit={handlePasswordReset} className="space-y-4" method="post">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Email Address
                     </label>
                     <input
                       type="email"
+                      name="email"
+                      id="reset-email"
+                      autoComplete="email"
                       value={resetEmail}
                       onChange={(e) => setResetEmail(e.target.value)}
                       required
