@@ -55,11 +55,6 @@ async function beginAuth(){
       // Remove the listener
       chrome.tabs.onUpdated.removeListener(listener);
       
-      // Close the auth tab after a short delay to ensure we get the full URL
-      setTimeout(() => {
-        chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
-      }, 500);
-      
       try {
         // Parse hash from URL
         const urlObj = new URL(responseUrl);
@@ -78,16 +73,25 @@ async function beginAuth(){
         
         if (!token) {
           console.error('❌ No token found in URL');
+          // Close the tab even if there's an error
+          setTimeout(() => {
+            chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
+          }, 500);
           reject(new Error('No token in response'));
           return;
         }
         
         if (gotState !== oauth_state) {
           console.error('❌ State mismatch - CSRF protection triggered');
+          // Close the tab even if there's an error
+          setTimeout(() => {
+            chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
+          }, 500);
           reject(new Error('State mismatch'));
           return;
         }
 
+        // Store the token and sign-in status
         await chrome.storage.sync.set({ 
           idToken: token, 
           signedIn: true, 
@@ -95,9 +99,19 @@ async function beginAuth(){
         });
         console.log('💾 Token stored successfully!');
         console.log('✅ Authentication complete!');
+        
+        // Close the auth tab now that token is stored
+        setTimeout(() => {
+          chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
+        }, 500);
+        
         resolve(undefined);
       } catch (error) {
         console.error('❌ Error processing auth response:', error);
+        // Close the tab even if there's an error
+        setTimeout(() => {
+          chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
+        }, 500);
         reject(error);
       }
     };
