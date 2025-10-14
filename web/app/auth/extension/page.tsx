@@ -90,8 +90,8 @@ export default function ExtensionAuthPage() {
     try {
       const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
       
-      // For extension OAuth flow, we need to use implicit flow instead of PKCE
-      // because chrome.identity.launchWebAuthFlow doesn't preserve cookies
+      // For extension OAuth flow, we use implicit flow (configured globally in supabaseClient.ts)
+      // because chrome.identity.launchWebAuthFlow doesn't preserve cookies needed for PKCE
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { 
@@ -101,8 +101,6 @@ export default function ExtensionAuthPage() {
             prompt: 'consent',
           },
           skipBrowserRedirect: false,
-          // Force implicit flow for extension by skipping PKCE
-          flowType: 'implicit',
         },
       });
       if (oauthError) throw oauthError;
