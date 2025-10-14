@@ -214,6 +214,118 @@ The extension works with `localhost:3000` by default. To test:
 - [chrome.storage API](https://developer.chrome.com/docs/extensions/reference/storage/)
 - [Publishing Extensions](https://developer.chrome.com/docs/webstore/publish/)
 
+## 🧪 Complete Testing Flow
+
+Follow these steps to test the entire authentication flow end-to-end:
+
+### Step 1: Start the Web App
+
+```bash
+# From project root
+pnpm dev:web
+```
+
+✅ Web app running at http://localhost:3000
+
+### Step 2: Build the Extension
+
+```bash
+# From project root (in a new terminal)
+pnpm dev:ext
+```
+
+✅ Extension built to `extension/dist` (watch mode)
+
+### Step 3: Load Extension in Chrome
+
+1. Open Chrome: `chrome://extensions/`
+2. Enable **Developer mode** (top right toggle)
+3. Click **Load unpacked**
+4. Select `extension/dist` directory
+5. ✅ Extension loaded!
+
+### Step 4: Start Authentication
+
+1. Click the **OPT Hub** extension icon in Chrome toolbar
+2. Click **"Sign in or create account"**
+3. Browser opens to `http://localhost:3000/auth/extension?redirect_uri=...&state=...`
+
+### Step 5: Choose Auth Method
+
+#### Option A: Google OAuth
+
+1. Click **"Google"** tab
+2. Click **"Continue with Google"**
+3. Sign in with your Google account
+4. Authorize the app
+5. You'll see "Returning to Extension…" page (quick redirect)
+6. ✅ Popup shows your OPT dates (if already saved)
+
+#### Option B: Manual Sign Up
+
+1. Click **"Manual"** tab
+2. Click **"Create Account"** sub-tab
+3. Fill in the form:
+   - First Name, Last Name
+   - Email, Password
+   - **Program End Date**: `05/15/2024` (mm/dd/yyyy)
+   - **OPT EAD End Date**: `05/15/2025` (mm/dd/yyyy)
+   - **OPT Start Date**: `06/01/2024` (mm/dd/yyyy)
+   - Optional: DSO Recommendation Date, STEM Start Date
+   - Check "I'm STEM-eligible" if applicable
+4. Click **"Create Account"**
+5. You'll see "Returning to Extension…" page
+6. ✅ Popup shows your saved OPT dates!
+
+#### Option C: Manual Sign In
+
+1. Click **"Manual"** tab
+2. Stay on **"Sign In"** sub-tab
+3. Enter your email and password
+4. Click **"Sign In"**
+5. ✅ Popup shows your OPT dates!
+
+### Step 6: Verify Data
+
+If popup shows "-" for dates:
+
+1. Go to **Supabase Dashboard → Table Editor**
+2. Check `opt_status` table
+3. Verify your row exists with correct `user_id`
+4. Check date format is `YYYY-MM-DD`
+5. Fix any validation errors in the web form and retry
+
+### Step 7: Copy Extension ID
+
+⚠️ **IMPORTANT for Production:**
+
+1. Go to `chrome://extensions/`
+2. Find **OPT Hub**
+3. Copy the **Extension ID** (e.g., `abcdefghij...`)
+4. Save this for production deployment:
+   - Redirect URI: `https://<EXTENSION_ID>.chromiumapp.org/*`
+   - Add to Supabase → Authentication → Authorized Redirect URLs
+   - Update `extension/src/config.ts` for production URL
+
+### Expected Results
+
+**When Signed In:**
+```
+OPT Hub
+Signed in.
+
+Program End: 2024-05-15
+DSO Rec: -
+OPT EAD End: 2025-05-15
+OPT Start: 2024-06-01
+STEM Start: -
+```
+
+**When Not Signed In:**
+```
+[Sign in or create account]
+```
+
 ## 🆘 Support
 
 For issues or questions:
@@ -221,6 +333,8 @@ For issues or questions:
 2. Review console logs (background & popup)
 3. Verify website `/api/me` endpoint works
 4. Check authentication flow in web app
+5. Ensure dates are in MM/DD/YYYY format
+6. Verify JWT token hasn't expired (10 min lifetime)
 
 ---
 
