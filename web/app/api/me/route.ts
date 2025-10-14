@@ -50,13 +50,35 @@ export async function GET(request: NextRequest) {
     );
 
     // Query user profile
-    const { data: profile, error: profileError } = await supabase
+    let { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('timezone, is_stem_eligible')
       .eq('user_id', userId)
       .single();
 
-    if (profileError) {
+    // If profile doesn't exist (new Google OAuth user), create it
+    if (profileError && profileError.code === 'PGRST116') {
+      console.log('Creating new profile for user:', userId);
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: userId,
+          timezone: 'America/New_York',
+          is_stem_eligible: false,
+        })
+        .select('timezone, is_stem_eligible')
+        .single();
+      
+      if (insertError) {
+        console.error('Failed to create profile:', insertError);
+        return NextResponse.json(
+          { error: 'Failed to create user profile' },
+          { status: 500 }
+        );
+      }
+      
+      profile = newProfile;
+    } else if (profileError) {
       console.error('Profile query error:', profileError);
       return NextResponse.json(
         { error: 'Failed to fetch profile' },
