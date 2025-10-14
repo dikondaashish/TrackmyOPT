@@ -22,52 +22,87 @@ async function beginAuth(){
   url.searchParams.set('redirect_uri', redirectUri);
   url.searchParams.set('state', state);
 
-  console.log('Starting OAuth flow, redirect_uri:', redirectUri);
+  console.log('🔐 Starting OAuth flow');
+  console.log('📍 Redirect URI:', redirectUri);
+  console.log('🔑 State:', state);
   
   // Open in a new tab instead of popup window
   const tab = await chrome.tabs.create({ url: url.toString() });
+  console.log('📂 Opened auth tab:', tab.id);
   
   // Listen for the tab to navigate to our redirect URI
   return new Promise((resolve, reject) => {
-    const listener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
-      if (tabId !== tab.id || !changeInfo.url) return;
+    const listener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
+      console.log('🔄 Tab updated:', tabId, 'Status:', changeInfo.status, 'URL:', changeInfo.url);
       
-      const responseUrl = changeInfo.url;
+      if (tabId !== tab.id) return;
       
-      // Check if this is our redirect URI
-      if (!responseUrl.startsWith(redirectUri)) return;
+      const responseUrl = changeInfo.url || tab.url;
+      if (!responseUrl) return;
       
-      console.log('OAuth response URL:', responseUrl);
+      // Check if this is our redirect URI (check both with and without hash)
+      const isRedirectUri = responseUrl.startsWith(redirectUri) || 
+                           responseUrl.includes('.chromiumapp.org/oauth2');
+      
+      if (!isRedirectUri) {
+        console.log('❌ Not redirect URI, ignoring:', responseUrl.substring(0, 50));
+        return;
+      }
+      
+      console.log('✅ Detected redirect URI!');
+      console.log('📄 Full URL:', responseUrl);
       
       // Remove the listener
       chrome.tabs.onUpdated.removeListener(listener);
       
-      // Close the auth tab
-      chrome.tabs.remove(tabId);
+      // Close the auth tab after a short delay to ensure we get the full URL
+      setTimeout(() => {
+        chrome.tabs.remove(tabId).catch(err => console.log('Tab already closed:', err));
+      }, 500);
       
       try {
-        const hash = new URL(responseUrl).hash.substring(1);
+        // Parse hash from URL
+        const urlObj = new URL(responseUrl);
+        const hash = urlObj.hash.substring(1);
+        console.log('🔍 Hash params:', hash);
+        
         const params = new URLSearchParams(hash);
         const token = params.get('id_token');
         const gotState = params.get('state');
         const { oauth_state } = await chrome.storage.session.get('oauth_state');
         
-        console.log('Token received:', token ? `${token.substring(0, 20)}...` : 'null');
-        console.log('State match:', gotState === oauth_state);
+        console.log('🎫 Token received:', token ? `${token.substring(0, 30)}...` : 'null');
+        console.log('🔐 State from URL:', gotState);
+        console.log('🔐 State from storage:', oauth_state);
+        console.log('✅ State match:', gotState === oauth_state);
         
-        if (!token || gotState !== oauth_state) {
-          reject(new Error('Auth failed'));
+        if (!token) {
+          console.error('❌ No token found in URL');
+          reject(new Error('No token in response'));
+          return;
+        }
+        
+        if (gotState !== oauth_state) {
+          console.error('❌ State mismatch - CSRF protection triggered');
+          reject(new Error('State mismatch'));
           return;
         }
 
-        await chrome.storage.sync.set({ idToken: token, signedIn: true, signedInAt: Date.now() });
-        console.log('Token stored successfully');
+        await chrome.storage.sync.set({ 
+          idToken: token, 
+          signedIn: true, 
+          signedInAt: Date.now() 
+        });
+        console.log('💾 Token stored successfully!');
+        console.log('✅ Authentication complete!');
         resolve(undefined);
       } catch (error) {
+        console.error('❌ Error processing auth response:', error);
         reject(error);
       }
     };
     
     chrome.tabs.onUpdated.addListener(listener);
+    console.log('👂 Listener attached, waiting for redirect...');
   });
 }
