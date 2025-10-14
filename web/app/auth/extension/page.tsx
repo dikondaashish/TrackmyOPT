@@ -138,13 +138,19 @@ export default function ExtensionAuthPage() {
         localStorage.removeItem('trackmyopt_remember_email');
       }
       
-      // Redirect to intermediate page that will handle the extension redirect
-      const completingUrl = new URL('/auth/completing', window.location.origin);
-      completingUrl.searchParams.set('token', data.token);
-      completingUrl.searchParams.set('state', state);
-      completingUrl.searchParams.set('redirect_uri', redirectUri);
-      
-      window.location.href = completingUrl.toString();
+      if (isExtensionFlow) {
+        // Extension flow: Go to completing page with extension params
+        const completingUrl = new URL('/auth/completing', window.location.origin);
+        completingUrl.searchParams.set('token', data.token);
+        completingUrl.searchParams.set('state', state!);
+        completingUrl.searchParams.set('redirect_uri', redirectUri!);
+        completingUrl.searchParams.set('redirect', webRedirect);
+        
+        window.location.href = completingUrl.toString();
+      } else {
+        // Web-only flow: Redirect directly to dashboard or specified redirect
+        window.location.href = webRedirect;
+      }
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
