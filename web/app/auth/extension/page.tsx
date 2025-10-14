@@ -180,13 +180,18 @@ export default function ExtensionAuthPage() {
         
         window.location.href = completingUrl.toString();
       } else {
-        // Web flow: use Supabase session and redirect to dashboard
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        // Web flow: establish server-side session via API route
+        const sessionRes = await fetch('/api/auth/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
         });
 
-        if (error) throw error;
+        const sessionData = await sessionRes.json();
+
+        if (!sessionData.ok) {
+          throw new Error(sessionData.error || 'Failed to establish session');
+        }
 
         // Save email if "Remember me" is checked
         if (rememberMe) {
@@ -195,9 +200,8 @@ export default function ExtensionAuthPage() {
           localStorage.removeItem('trackmyopt_remember_email');
         }
 
-        // Wait for session to be fully established, then force a full page reload
-        await new Promise(resolve => setTimeout(resolve, 500));
-        window.location.replace(redirect);
+        // Session is now established on server, redirect to dashboard
+        window.location.href = redirect;
       }
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
@@ -285,20 +289,22 @@ export default function ExtensionAuthPage() {
         
         window.location.href = completingUrl.toString();
       } else {
-        // Web flow: sign in with the created account and redirect
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        // Web flow: establish server-side session for the new account
+        const sessionRes = await fetch('/api/auth/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
         });
 
-        if (error) {
-          console.error('Auto sign-in error:', error);
-          // Even if auto sign-in fails, redirect to login page
-          window.location.replace('/auth/extension?redirect=' + encodeURIComponent(redirect));
+        const sessionData = await sessionRes.json();
+
+        if (!sessionData.ok) {
+          console.error('Auto sign-in error:', sessionData.error);
+          // If auto sign-in fails, redirect to login page
+          window.location.href = '/auth/extension?redirect=' + encodeURIComponent(redirect);
         } else {
-          // Wait for session to be fully established, then force a full page reload
-          await new Promise(resolve => setTimeout(resolve, 500));
-          window.location.replace(redirect);
+          // Session established, redirect to dashboard
+          window.location.href = redirect;
         }
       }
     } catch (err: any) {
