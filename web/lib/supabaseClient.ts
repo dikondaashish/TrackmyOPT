@@ -12,7 +12,9 @@ export const supabase = createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      flowType: 'pkce', // Use PKCE flow (code in query params) instead of implicit (tokens in hash)
+      // Use implicit flow for extension compatibility (chrome.identity.launchWebAuthFlow)
+      // PKCE requires cookies which aren't preserved in extension OAuth flow
+      flowType: 'implicit',
       detectSessionInUrl: true,
       storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     },
