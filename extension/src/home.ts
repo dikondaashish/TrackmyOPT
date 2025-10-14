@@ -4,9 +4,14 @@
 export function renderHome(root: HTMLElement): void {
   root.innerHTML = `
     <div class="header" role="region" aria-label="OPT Hub header">
-      <button class="theme-btn" title="Toggle theme" aria-label="Toggle theme">
-        <span>☀️</span>
-      </button>
+      <div class="header-buttons">
+        <button class="theme-btn" title="Toggle theme" aria-label="Toggle theme">
+          <span>☀️</span>
+        </button>
+        <button class="logout-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
+          <span>🚪</span>
+        </button>
+      </div>
       <h1 class="title">OPT Hub</h1>
       <p class="subtitle">Your complete toolkit for managing OPT requirements</p>
     </div>
@@ -88,6 +93,24 @@ export function renderHome(root: HTMLElement): void {
     themeBtn.addEventListener('click', () => {
       // TODO: Implement theme toggle in future version
       console.log('Theme toggle - coming soon');
+    });
+  }
+
+  // Logout button
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to sign out?')) {
+        // Clear all stored data
+        await chrome.storage.sync.clear();
+        await chrome.storage.session.clear();
+        
+        console.log('User signed out');
+        
+        // Trigger re-render by dispatching storage change
+        // The popup.ts listener will catch this and re-render
+        window.location.reload();
+      }
     });
   }
 }

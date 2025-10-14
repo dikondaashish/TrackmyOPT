@@ -46,10 +46,17 @@ body {
   line-height: 1.4;
 }
 
-.theme-btn {
-  position: absolute; 
-  right: 12px; 
-  top: 12px; 
+.header-buttons {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.theme-btn,
+.logout-btn {
   width: 32px; 
   height: 32px;
   border-radius: 999px; 
@@ -57,15 +64,29 @@ body {
   place-items: center; 
   border: 1px solid #2b3441;
   background: #0f1115; 
-  color: #facc15; 
   cursor: pointer;
   font-size: 16px;
   transition: all 0.2s ease;
 }
 
-.theme-btn:hover {
+.theme-btn {
+  color: #facc15;
+}
+
+.logout-btn {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.theme-btn:hover,
+.logout-btn:hover {
   background: #1b1f27;
   transform: scale(1.05);
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
 }
 
 .banner {
