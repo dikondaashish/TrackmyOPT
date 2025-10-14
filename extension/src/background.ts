@@ -92,9 +92,11 @@ async function beginAuth(){
         console.log('💾 Token stored successfully!');
         console.log('✅ Authentication complete!');
         
-        // DON'T close the tab - let it navigate to /dashboard
-        // The /auth/completing page will redirect to /dashboard after 800ms
-        console.log('📄 Tab will navigate to dashboard (not closing)');
+        // Navigate the tab to the dashboard
+        const dashboardUrl = `${API_ENDPOINTS.BASE}/dashboard`;
+        console.log('📄 Navigating tab to dashboard:', dashboardUrl);
+        
+        await chrome.tabs.update(tab.id!, { url: dashboardUrl });
         
         resolve(undefined);
       } catch (error) {
