@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import { mmddyyyyToISO } from '@/lib/date';
 
 type Mode = 'signin' | 'signup';
 
@@ -29,44 +28,26 @@ export default function ExtensionAuthPage() {
   // Sign In/Up Fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   
-  // Sign Up OPT Fields
-  const [programEnd, setProgramEnd] = useState('');
-  const [dsoReco, setDsoReco] = useState('');
-  const [optEadEnd, setOptEadEnd] = useState('');
-  const [optStart, setOptStart] = useState('');
-  const [stemStart, setStemStart] = useState('');
-  const [isStem, setIsStem] = useState(false);
-
-  // Date validation
-  const [dateErrors, setDateErrors] = useState<Record<string, string>>({});
-  const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-
-  const formatDateInput = (value: string): string => {
-    const nums = value.replace(/\D/g, '');
-    if (nums.length <= 2) return nums;
-    if (nums.length <= 4) return nums.slice(0, 2) + '/' + nums.slice(2);
-    return nums.slice(0, 2) + '/' + nums.slice(2, 4) + '/' + nums.slice(4, 8);
+  // Password validation
+  const [showPasswordCriteria, setShowPasswordCriteria] = useState(false);
+  
+  const validatePassword = (pwd: string) => {
+    return {
+      minLength: pwd.length >= 8,
+      hasUpperCase: /[A-Z]/.test(pwd),
+      hasLowerCase: /[a-z]/.test(pwd),
+      hasNumber: /[0-9]/.test(pwd),
+      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+    };
   };
 
-  const validateDate = (val: string, field: string, required = false) => {
-    if (!val && !required) {
-      setDateErrors((prev) => ({ ...prev, [field]: '' }));
-      return true;
-    }
-    if (!val && required) {
-      setDateErrors((prev) => ({ ...prev, [field]: 'Required' }));
-      return false;
-    }
-    if (!dateRegex.test(val)) {
-      setDateErrors((prev) => ({ ...prev, [field]: 'Use MM/DD/YYYY' }));
-      return false;
-    }
-    setDateErrors((prev) => ({ ...prev, [field]: '' }));
-    return true;
-  };
+  const passwordCriteria = validatePassword(password);
+  const isPasswordValid = Object.values(passwordCriteria).every(Boolean);
+  const doPasswordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
   // Load saved email on mount (Remember me functionality)
   useEffect(() => {
@@ -179,14 +160,16 @@ export default function ExtensionAuthPage() {
     setLoading(true);
     setError(null);
 
-    const v1 = validateDate(programEnd, 'programEnd', true);
-    const v2 = validateDate(dsoReco, 'dsoReco', false);
-    const v3 = validateDate(optEadEnd, 'optEadEnd', true);
-    const v4 = validateDate(optStart, 'optStart', true);
-    const v5 = validateDate(stemStart, 'stemStart', false);
+    // Validate password
+    if (!isPasswordValid) {
+      setError('Password does not meet all security criteria');
+      setLoading(false);
+      return;
+    }
 
-    if (!v1 || !v3 || !v4) {
-      setError('Please fix date errors above');
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
       setLoading(false);
       return;
     }
@@ -200,12 +183,6 @@ export default function ExtensionAuthPage() {
           lastName,
           email,
           password,
-          programEnd,
-          dsoReco,
-          optEadEnd,
-          optStart,
-          stemStart,
-          isStem,
         }),
       });
       const data = await res.json();
@@ -540,80 +517,63 @@ export default function ExtensionAuthPage() {
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setShowPasswordCriteria(true)}
                   required
                   disabled={loading}
-                  minLength={6}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Program End Date <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={programEnd}
-                  onChange={(e) => setProgramEnd(formatDateInput(e.target.value))}
-                  onBlur={() => validateDate(programEnd, 'programEnd', true)}
-                  disabled={loading}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="MM/DD/YYYY"
-                  maxLength={10}
-                />
-                {dateErrors.programEnd && (
-                  <p className="text-xs text-red-600 mt-1">{dateErrors.programEnd}</p>
+                
+                {/* Password Criteria */}
+                {showPasswordCriteria && password.length > 0 && (
+                  <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p className="text-xs font-semibold text-gray-700 mb-2">Password must contain:</p>
+                    <ul className="space-y-1 text-xs">
+                      <li className={`flex items-center ${passwordCriteria.minLength ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className="mr-2">{passwordCriteria.minLength ? '✓' : '○'}</span>
+                        At least 8 characters
+                      </li>
+                      <li className={`flex items-center ${passwordCriteria.hasUpperCase ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className="mr-2">{passwordCriteria.hasUpperCase ? '✓' : '○'}</span>
+                        One uppercase letter (A-Z)
+                      </li>
+                      <li className={`flex items-center ${passwordCriteria.hasLowerCase ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className="mr-2">{passwordCriteria.hasLowerCase ? '✓' : '○'}</span>
+                        One lowercase letter (a-z)
+                      </li>
+                      <li className={`flex items-center ${passwordCriteria.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className="mr-2">{passwordCriteria.hasNumber ? '✓' : '○'}</span>
+                        One number (0-9)
+                      </li>
+                      <li className={`flex items-center ${passwordCriteria.hasSpecialChar ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className="mr-2">{passwordCriteria.hasSpecialChar ? '✓' : '○'}</span>
+                        One special character (!@#$%^&*...)
+                      </li>
+                    </ul>
+                  </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  OPT EAD End Date <span className="text-red-500">*</span>
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
                 <input
-                  type="text"
-                  value={optEadEnd}
-                  onChange={(e) => setOptEadEnd(formatDateInput(e.target.value))}
-                  onBlur={() => validateDate(optEadEnd, 'optEadEnd', true)}
+                  type="password"
+                  name="confirm-password"
+                  id="signup-confirm-password"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
                   disabled={loading}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="MM/DD/YYYY"
-                  maxLength={10}
+                  placeholder="••••••••"
                 />
-                {dateErrors.optEadEnd && (
-                  <p className="text-xs text-red-600 mt-1">{dateErrors.optEadEnd}</p>
+                {confirmPassword.length > 0 && (
+                  <p className={`text-xs mt-1 ${doPasswordsMatch ? 'text-green-600' : 'text-red-600'}`}>
+                    {doPasswordsMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
+                  </p>
                 )}
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  OPT Start Date <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={optStart}
-                  onChange={(e) => setOptStart(formatDateInput(e.target.value))}
-                  onBlur={() => validateDate(optStart, 'optStart', true)}
-                  disabled={loading}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="MM/DD/YYYY"
-                  maxLength={10}
-                />
-                {dateErrors.optStart && (
-                  <p className="text-xs text-red-600 mt-1">{dateErrors.optStart}</p>
-                )}
-              </div>
-
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={isStem}
-                  onChange={(e) => setIsStem(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">I'm STEM-eligible</span>
-              </label>
 
               <button
                 type="submit"
