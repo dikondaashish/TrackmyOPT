@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { mmddyyyyToISO } from "@/lib/date";
+import { signToken } from "@/lib/jwt";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -32,5 +33,12 @@ export async function POST(req: NextRequest) {
   }
 
   await supabase.from("opt_status").upsert(payload);
-  return NextResponse.json({ ok:true });
+  
+  // Generate JWT token for extension authentication
+  const jwt = await signToken(
+    { userId: uid, email: email },
+    '10m'
+  );
+  
+  return NextResponse.json({ ok: true, token: jwt });
 }

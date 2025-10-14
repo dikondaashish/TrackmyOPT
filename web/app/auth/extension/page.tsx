@@ -125,11 +125,12 @@ export default function ExtensionAuthPage() {
       });
       const data = await res.json();
       
-      if (!data.ok) {
+      if (!data.ok || !data.token) {
         throw new Error(data.error || 'Login failed');
       }
       
-      window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+      // Redirect with token in hash (like implicit OAuth flow)
+      window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
       setSignInError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
@@ -174,11 +175,12 @@ export default function ExtensionAuthPage() {
       });
       const data = await res.json();
       
-      if (!data.ok) {
+      if (!data.ok || !data.token) {
         throw new Error(data.error || 'Signup failed');
       }
       
-      window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+      // Redirect with token in hash (like implicit OAuth flow)
+      window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
       setSignUpError(err.message || 'Sign up failed. Please try again.');
       setLoading(false);
