@@ -129,8 +129,27 @@ export default function ExtensionAuthPage() {
         throw new Error(data.error || 'Login failed');
       }
       
-      // Redirect with token in hash (like implicit OAuth flow)
-      window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
+      // Show success message briefly, then redirect
+      setSignInError(null);
+      setLoading(false);
+      
+      // Display success state
+      const successMessage = document.createElement('div');
+      successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-50';
+      successMessage.innerHTML = `
+        <div class="text-center p-8">
+          <div class="text-6xl mb-4">✅</div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Signed In!</h2>
+          <p class="text-gray-600 mb-4">Redirecting to extension...</p>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      `;
+      document.body.appendChild(successMessage);
+      
+      // Wait 1 second to show success message, then redirect
+      setTimeout(() => {
+        window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
+      }, 1000);
     } catch (err: any) {
       setSignInError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
@@ -179,8 +198,27 @@ export default function ExtensionAuthPage() {
         throw new Error(data.error || 'Signup failed');
       }
       
-      // Redirect with token in hash (like implicit OAuth flow)
-      window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
+      // Show success message briefly, then redirect
+      setSignUpError(null);
+      setLoading(false);
+      
+      // Display success state
+      const successMessage = document.createElement('div');
+      successMessage.className = 'fixed inset-0 bg-white flex items-center justify-center z-50';
+      successMessage.innerHTML = `
+        <div class="text-center p-8">
+          <div class="text-6xl mb-4">✅</div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Account Created!</h2>
+          <p class="text-gray-600 mb-4">Signing you in to the extension...</p>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      `;
+      document.body.appendChild(successMessage);
+      
+      // Wait 1 second to show success message, then redirect
+      setTimeout(() => {
+        window.location.href = `${redirectUri}#id_token=${encodeURIComponent(data.token)}&state=${encodeURIComponent(state)}`;
+      }, 1000);
     } catch (err: any) {
       setSignUpError(err.message || 'Sign up failed. Please try again.');
       setLoading(false);
