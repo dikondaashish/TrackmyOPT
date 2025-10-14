@@ -1,7 +1,7 @@
 /**
  * Renders the signed-in home screen with tool tiles
  */
-export function renderHome(root: HTMLElement): void {
+export function renderHome(root: HTMLElement, onNavigate: (page: string) => void): void {
   root.innerHTML = `
     <div class="header" role="region" aria-label="OPT Hub header">
       <div class="header-buttons">
@@ -21,19 +21,19 @@ export function renderHome(root: HTMLElement): void {
     </div>
 
     <div class="grid" role="list">
-      <div class="tile blue" role="button" tabindex="0" aria-label="OPT Apply Start Dates - Calculate when you can start applying for OPT" data-nav="opt-apply.html">
+      <div class="tile blue" role="button" tabindex="0" aria-label="OPT Apply Start Dates - Calculate when you can start applying for OPT" data-page="opt-apply">
         <div class="icon">📝</div>
         <h3 class="t">OPT Apply Start Dates</h3>
         <p class="s">Calculate when you can start applying for OPT</p>
       </div>
 
-      <div class="tile green" role="button" tabindex="0" aria-label="STEM OPT Apply Start Dates - Calculate STEM OPT extension application dates" data-nav="stem-apply.html">
+      <div class="tile green" role="button" tabindex="0" aria-label="STEM OPT Apply Start Dates - Calculate STEM OPT extension application dates" data-page="stem-apply">
         <div class="icon">🎒</div>
         <h3 class="t">STEM OPT Apply Start Dates</h3>
         <p class="s">Calculate STEM OPT extension application dates</p>
       </div>
 
-      <div class="tile purple" role="button" tabindex="0" aria-label="OPT Clock Tracker - Track your OPT unemployment days in real-time" data-nav="clock.html">
+      <div class="tile purple" role="button" tabindex="0" aria-label="OPT Clock Tracker - Track your OPT unemployment days in real-time" data-page="clock">
         <div class="icon">⏱️</div>
         <h3 class="t">OPT Clock Tracker</h3>
         <p class="s">Track your OPT unemployment days in real-time</p>
@@ -63,13 +63,13 @@ export function renderHome(root: HTMLElement): void {
   // Hook up tile navigation
   const tiles = root.querySelectorAll<HTMLElement>('.tile');
   tiles.forEach(tile => {
-    const page = tile.dataset.nav;
+    const page = tile.dataset.page;
     const href = tile.dataset.link;
     
     const navigate = () => {
       if (page) {
-        // Open extension page in new tab
-        chrome.tabs.create({ url: chrome.runtime.getURL(page) });
+        // Navigate within popup
+        onNavigate(page);
       } else if (href) {
         // Open external link in new tab
         chrome.tabs.create({ url: href });
