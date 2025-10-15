@@ -7,6 +7,7 @@ import { Header } from "@/components/dashboard/Header";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [darkMode, setDarkMode] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -14,10 +15,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [darkMode]);
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Fixed Sidebar */}
+      <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+      
+      {/* Main Content Area - shifts based on sidebar state */}
+      <div 
+        className={`transition-all duration-300 ${
+          sidebarCollapsed ? 'ml-20' : 'ml-64'
+        }`}
+      >
+        {/* Fixed Header */}
         <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+        
+        {/* Scrollable Content */}
         <main className="px-6 py-6">{children}</main>
       </div>
     </div>
