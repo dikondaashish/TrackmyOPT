@@ -299,37 +299,37 @@ export function renderStemClock(root: HTMLElement, onBack: () => void): void {
   // STEM EAD Start Date card (Orange)
   const startDateCard = document.createElement('div');
   startDateCard.style.cssText = `
-    padding: 16px;
-    border-radius: 18px;
+    padding: 14px;
+    border-radius: 16px;
     background: linear-gradient(135deg, #f97316, #ea580c);
     color: white;
-    margin-bottom: 12px;
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3);
+    margin-bottom: 10px;
+    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3);
     position: relative;
   `;
   startDateCard.innerHTML = `
-    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
-      <div style="flex-shrink: 0; width: 50px; height: 50px; border-radius: 14px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 24px;">
+    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+      <div style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 20px;">
         📅
       </div>
       <div style="flex: 1;">
-        <div style="font-weight: 800; font-size: 18px;">STEM EAD Start Date</div>
+        <div style="font-weight: 700; font-size: 15px;">STEM EAD Start Date</div>
       </div>
     </div>
     <div style="position: relative;">
       <input 
         type="text" 
         id="stem-ead-start-date" 
-        placeholder="10/17/2025"
+        placeholder="10/01/2025"
         style="
           width: 100%;
-          padding: 14px 50px 14px 16px;
+          padding: 12px 46px 12px 14px;
           border: 0;
-          border-radius: 12px;
+          border-radius: 10px;
           background: rgba(255,255,255,0.2);
           backdrop-filter: blur(10px);
           color: white;
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 600;
           outline: none;
           font-family: inherit;
@@ -339,17 +339,17 @@ export function renderStemClock(root: HTMLElement, onBack: () => void): void {
         id="stem-start-date-picker-btn"
         style="
           position: absolute;
-          right: 10px;
+          right: 8px;
           top: 50%;
           transform: translateY(-50%);
-          width: 36px;
-          height: 36px;
+          width: 32px;
+          height: 32px;
           border: 0;
-          border-radius: 10px;
+          border-radius: 8px;
           background: rgba(255,255,255,0.25);
           color: white;
           cursor: pointer;
-          font-size: 18px;
+          font-size: 16px;
           display: grid;
           place-items: center;
           transition: all 0.2s;
@@ -362,33 +362,34 @@ export function renderStemClock(root: HTMLElement, onBack: () => void): void {
   // STEM OPT Days Info card (Green)
   const optDaysCard = document.createElement('div');
   optDaysCard.style.cssText = `
-    padding: 24px;
-    border-radius: 18px;
+    padding: 18px;
+    border-radius: 16px;
     background: linear-gradient(135deg, #22c55e, #16a34a);
     color: white;
-    margin-bottom: 12px;
-    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+    margin-bottom: 10px;
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
     text-align: center;
   `;
   optDaysCard.innerHTML = `
-    <div style="font-size: 72px; font-weight: 800; line-height: 1; margin-bottom: 8px;">60</div>
-    <div style="font-size: 16px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px;">TOTAL UNEMPLOYMENT DAYS</div>
-    <div style="font-size: 13px; opacity: 0.95;">60 days for STEM OPT</div>
+    <div style="font-size: 56px; font-weight: 800; line-height: 1; margin-bottom: 6px;">60</div>
+    <div style="font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px;">TOTAL UNEMPLOYMENT DAYS</div>
+    <div style="font-size: 11px; opacity: 0.95;">60 days for STEM OPT</div>
   `;
   content.appendChild(optDaysCard);
   
   // Ready message (Blue)
   const readyMessage = document.createElement('div');
   readyMessage.style.cssText = `
-    padding: 18px;
-    border-radius: 16px;
+    padding: 14px;
+    border-radius: 14px;
     background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: white;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
     text-align: center;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 700;
+    line-height: 1.3;
   `;
   readyMessage.textContent = 'Ready to track your STEM OPT unemployment period!';
   content.appendChild(readyMessage);
@@ -396,23 +397,23 @@ export function renderStemClock(root: HTMLElement, onBack: () => void): void {
   // Save & Go button (Orange)
   const saveBtn = document.createElement('button');
   saveBtn.innerHTML = `
-    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-      <span style="font-size: 20px;">💾</span>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <span style="font-size: 18px;">💾</span>
       <span>Save & Go</span>
     </div>
   `;
   saveBtn.style.cssText = `
     width: 100%;
-    padding: 16px;
+    padding: 14px;
     border: 0;
-    border-radius: 16px;
+    border-radius: 14px;
     background: linear-gradient(135deg, #f97316, #ea580c);
     color: white;
     font-weight: 800;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3);
     font-family: inherit;
   `;
   content.appendChild(saveBtn);
