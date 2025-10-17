@@ -30,12 +30,14 @@ body.dark-mode {
 .header {
   position: relative; 
   border-radius: 14px; 
-  padding: 12px;
-  padding-left: 48px;
+  padding: 10px 12px;
   background: linear-gradient(180deg, #ffffff, #f9fafb);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e5e7eb;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 body.dark-mode .header {
@@ -44,40 +46,51 @@ body.dark-mode .header {
   border: 1px solid #2b3441;
 }
 
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
 .title {
   font-size: 18px; 
   font-weight: 800; 
-  letter-spacing: 0.2px;
+  letter-spacing: -0.3px;
   background: linear-gradient(90deg, #60a5fa, #a78bfa);
   -webkit-background-clip: text; 
   background-clip: text; 
   color: transparent;
-  margin: 0 0 2px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .subtitle { 
   margin: 0; 
   color: #9aa4b2; 
   font-size: 10px; 
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 .header-buttons {
-  position: absolute;
-  right: 10px;
-  top: 10px;
   display: flex;
   gap: 6px;
   align-items: center;
 }
 
 .back-btn {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -88,6 +101,7 @@ body.dark-mode .header {
   font-size: 16px;
   font-weight: 700;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 body.dark-mode .back-btn {
@@ -98,7 +112,7 @@ body.dark-mode .back-btn {
 
 .back-btn:hover {
   background: #f9fafb;
-  transform: translateY(-50%) scale(1.05);
+  transform: scale(1.05);
 }
 
 body.dark-mode .back-btn:hover {
@@ -115,8 +129,9 @@ body.dark-mode .back-btn:hover {
   border: 1px solid #e5e7eb;
   background: #ffffff; 
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 body.dark-mode .theme-btn,
@@ -126,11 +141,11 @@ body.dark-mode .logout-btn {
 }
 
 .theme-btn {
-  color: #6366f1; /* Indigo for moon icon in light mode */
+  color: #6366f1;
 }
 
 body.dark-mode .theme-btn {
-  color: #fbbf24; /* Amber for sun icon in dark mode */
+  color: #fbbf24;
 }
 
 .logout-btn {
@@ -147,11 +162,6 @@ body.dark-mode .theme-btn {
 body.dark-mode .theme-btn:hover,
 body.dark-mode .logout-btn:hover {
   background: #1b1f27;
-}
-
-.logout-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
 }
 
 .banner {

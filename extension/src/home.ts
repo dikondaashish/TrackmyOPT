@@ -4,15 +4,19 @@
 export async function renderHome(root: HTMLElement, onNavigate: (page: string) => void): Promise<void> {
   root.innerHTML = `
     <div class="header" role="region" aria-label="TrackMyOPT header">
-      <div class="header-buttons">
-        <button class="theme-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
-          <span id="theme-icon">🌙</span>
-        </button>
-        <button class="logout-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
-          <span>⏻</span>
-        </button>
+      <div class="header-top">
+        <div class="header-left">
+          <h1 class="title">TrackMyOPT</h1>
+        </div>
+        <div class="header-buttons">
+          <button class="theme-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
+            <span id="theme-icon">🌙</span>
+          </button>
+          <button class="logout-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
+            <span>⎙</span>
+          </button>
+        </div>
       </div>
-      <h1 class="title">TrackMyOPT</h1>
       <p class="subtitle">Your complete toolkit for managing OPT requirements</p>
     </div>
 
