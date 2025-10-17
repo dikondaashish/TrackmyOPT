@@ -182,6 +182,17 @@ export async function renderOptCountdown(
       <div id="time-message" style="text-align: center; font-size: 14px; font-weight: 600; opacity: 0.95;">You have plenty of time remaining</div>
     </div>
     
+    <!-- Dynamic Tip -->
+    <div style="background: rgba(255,255,255,0.1); border-left: 3px solid rgba(255,255,255,0.5); border-radius: 10px; padding: 12px; margin-bottom: 10px; backdrop-filter: blur(10px);">
+      <div style="display: flex; gap: 10px; align-items: start;">
+        <div style="font-size: 18px; flex-shrink: 0;">💡</div>
+        <div>
+          <div style="font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 4px;">Pro Tip</div>
+          <div id="dynamic-tip" style="font-size: 11px; line-height: 1.4; color: rgba(255,255,255,0.85);">Loading tip...</div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Email Reminders Section -->
     <div style="background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 20px; padding: 16px; color: white; margin-bottom: 10px; box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3); position: relative; overflow: hidden;">
       ${!isPremium ? `
@@ -397,6 +408,26 @@ export async function renderOptCountdown(
         messageEl.textContent = '⚠️ Less than two weeks remaining!';
       } else {
         messageEl.textContent = '🚨 URGENT: Apply immediately!';
+      }
+    }
+    
+    // Update dynamic tip based on days remaining
+    const tipEl = content.querySelector('#dynamic-tip');
+    if (tipEl) {
+      if (remaining.days > 60) {
+        tipEl.textContent = 'Start gathering your documents early. You\'ll need transcripts, I-20, and passport copies.';
+      } else if (remaining.days > 45) {
+        tipEl.textContent = 'Begin filling out Form I-765. Take your time to ensure all information is accurate.';
+      } else if (remaining.days > 30) {
+        tipEl.textContent = 'Schedule an appointment with your DSO soon. They need time to review and sign your I-20.';
+      } else if (remaining.days > 21) {
+        tipEl.textContent = 'Get your passport-style photos taken. You\'ll need 2 identical photos for your application.';
+      } else if (remaining.days > 14) {
+        tipEl.textContent = 'Double-check all forms and documents. Make copies of everything before mailing.';
+      } else if (remaining.days > 7) {
+        tipEl.textContent = '⚠️ Send your application with expedited shipping and tracking. Keep all receipts!';
+      } else {
+        tipEl.textContent = '🚨 URGENT: Submit TODAY! USCIS processing can take 3-5 months. Don\'t miss your window!';
       }
     }
     
