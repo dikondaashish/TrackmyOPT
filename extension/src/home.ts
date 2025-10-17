@@ -6,10 +6,10 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     <div class="header" role="region" aria-label="TrackMyOPT header">
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
-          <span id="theme-icon" style="font-size: 16px; line-height: 1; display: block;">🌙</span>
+          <span id="theme-icon">🌙</span>
         </button>
         <button class="logout-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
-          <span style="font-size: 16px; line-height: 1; display: block;">🚪</span>
+          <span>🚪</span>
         </button>
       </div>
       <h1 class="title">TrackMyOPT</h1>
@@ -22,42 +22,32 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
 
     <div class="grid" role="list">
       <div class="tile blue" role="button" tabindex="0" aria-label="OPT Apply Start Dates - Calculate when you can start applying for OPT" data-page="opt-apply">
-        <div class="icon">
-          <span style="font-size: 24px; line-height: 1; display: block;">📝</span>
-        </div>
-        <h3 class="t">OPT Apply Start Dates</h3>
-        <p class="s">Calculate when you can start applying for OPT</p>
+        <div class="icon">📝</div>
+        <h3 class="t">OPT Apply Dates</h3>
+        <p class="s">Calculate when you can apply for OPT</p>
       </div>
 
       <div class="tile purple" role="button" tabindex="0" aria-label="OPT Clock Tracker - Track your OPT unemployment days in real-time" data-page="clock">
-        <div class="icon">
-          <span style="font-size: 24px; line-height: 1; display: block;">⏱️</span>
-        </div>
+        <div class="icon">⏱️</div>
         <h3 class="t">OPT Clock Tracker</h3>
-        <p class="s">Track your OPT unemployment days in real-time</p>
+        <p class="s">Track your unemployment days</p>
       </div>
 
       <div class="tile green" role="button" tabindex="0" aria-label="STEM OPT Apply Start Dates - Calculate STEM OPT extension application dates" data-page="stem-apply">
-        <div class="icon">
-          <span style="font-size: 24px; line-height: 1; display: block;">🎒</span>
-        </div>
-        <h3 class="t">STEM OPT Apply Start Dates</h3>
-        <p class="s">Calculate STEM OPT extension application dates</p>
+        <div class="icon">🎒</div>
+        <h3 class="t">STEM Apply Dates</h3>
+        <p class="s">Calculate STEM OPT dates</p>
       </div>
 
       <div class="tile orange" role="button" tabindex="0" aria-label="STEM OPT Clock Tracker - Track your STEM OPT unemployment days" data-page="stem-clock">
-        <div class="icon">
-          <span style="font-size: 24px; line-height: 1; display: block;">🔶</span>
-        </div>
-        <h3 class="t">STEM OPT Clock Tracker</h3>
-        <p class="s">Track your STEM OPT unemployment days</p>
+        <div class="icon">🔶</div>
+        <h3 class="t">STEM Clock Tracker</h3>
+        <p class="s">Track STEM unemployment</p>
       </div>
     </div>
 
     <div class="notice">
-      <div class="dot">
-        <span style="font-size: 20px; line-height: 1; display: block;">🛡️</span>
-      </div>
+      <div class="dot">🛡️</div>
       <div>
         <div style="font-weight:800; margin-bottom: 4px;">Stay Compliant</div>
         <div>All tools are designed to help you track and manage your OPT requirements. Always consult with your DSO for official guidance.</div>
