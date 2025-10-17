@@ -516,13 +516,6 @@ async function saveDatesToAPI(
       }),
     });
 
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      console.warn('API returned non-JSON response, may be offline');
-      return false;
-    }
-
     const result = await response.json();
     if (result.ok) {
       console.log('✅ Dates saved successfully');
