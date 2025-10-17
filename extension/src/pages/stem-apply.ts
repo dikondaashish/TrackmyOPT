@@ -300,6 +300,13 @@ async function loadSavedData(): Promise<any> {
 
     if (!response.ok) return null;
     
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.warn('API returned non-JSON response');
+      return null;
+    }
+    
     const result = await response.json();
     return result.ok ? result.data : null;
   } catch (error) {
