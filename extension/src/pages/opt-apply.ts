@@ -11,6 +11,341 @@ function formatDate(date: Date): string {
 }
 
 /**
+ * Get month name
+ */
+function getMonthName(month: number): string {
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                  'July', 'August', 'September', 'October', 'November', 'December'];
+  return months[month];
+}
+
+/**
+ * Get days in month
+ */
+function getDaysInMonth(year: number, month: number): number {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+/**
+ * Get first day of month (0 = Sunday, 6 = Saturday)
+ */
+function getFirstDayOfMonth(year: number, month: number): number {
+  return new Date(year, month, 1).getDay();
+}
+
+/**
+ * Create date picker calendar
+ */
+function createDatePicker(
+  inputId: string, 
+  onSelect: (date: Date) => void
+): HTMLElement {
+  const today = new Date();
+  let currentYear = today.getFullYear();
+  let currentMonth = today.getMonth();
+  
+  const picker = document.createElement('div');
+  picker.style.cssText = `
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    padding: 14px;
+    z-index: 1000;
+    animation: slideDown 0.2s ease;
+  `;
+  
+  // Add animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  function renderCalendar() {
+    picker.innerHTML = '';
+    
+    // Header with month/year and navigation
+    const header = document.createElement('div');
+    header.style.cssText = `
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e5e7eb;
+    `;
+    
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '↑';
+    prevBtn.style.cssText = `
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 8px;
+      background: #f3f4f6;
+      color: #374151;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+      transition: all 0.2s;
+    `;
+    prevBtn.addEventListener('mouseenter', () => {
+      prevBtn.style.background = '#e5e7eb';
+    });
+    prevBtn.addEventListener('mouseleave', () => {
+      prevBtn.style.background = '#f3f4f6';
+    });
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      renderCalendar();
+    });
+    
+    const monthYear = document.createElement('div');
+    monthYear.style.cssText = `
+      font-weight: 700;
+      font-size: 14px;
+      color: #111827;
+    `;
+    monthYear.innerHTML = `${getMonthName(currentMonth)} ${currentYear} <span style="font-size: 12px; color: #6b7280;">▼</span>`;
+    
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '↓';
+    nextBtn.style.cssText = `
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 8px;
+      background: #f3f4f6;
+      color: #374151;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+      transition: all 0.2s;
+    `;
+    nextBtn.addEventListener('mouseenter', () => {
+      nextBtn.style.background = '#e5e7eb';
+    });
+    nextBtn.addEventListener('mouseleave', () => {
+      nextBtn.style.background = '#f3f4f6';
+    });
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar();
+    });
+    
+    header.appendChild(prevBtn);
+    header.appendChild(monthYear);
+    header.appendChild(nextBtn);
+    picker.appendChild(header);
+    
+    // Day headers
+    const dayHeaders = document.createElement('div');
+    dayHeaders.style.cssText = `
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+    `;
+    
+    ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(day => {
+      const dayHeader = document.createElement('div');
+      dayHeader.textContent = day;
+      dayHeader.style.cssText = `
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: #6b7280;
+        padding: 4px 0;
+      `;
+      dayHeaders.appendChild(dayHeader);
+    });
+    picker.appendChild(dayHeaders);
+    
+    // Days grid
+    const daysGrid = document.createElement('div');
+    daysGrid.style.cssText = `
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    `;
+    
+    const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
+    const daysInMonth = getDaysInMonth(currentYear, currentMonth);
+    const prevMonthDays = currentMonth === 0 
+      ? getDaysInMonth(currentYear - 1, 11) 
+      : getDaysInMonth(currentYear, currentMonth - 1);
+    
+    // Previous month's trailing days
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const dayBtn = document.createElement('button');
+      dayBtn.textContent = String(prevMonthDays - i);
+      dayBtn.style.cssText = `
+        width: 100%;
+        aspect-ratio: 1;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #d1d5db;
+        font-size: 12px;
+        cursor: pointer;
+      `;
+      daysGrid.appendChild(dayBtn);
+    }
+    
+    // Current month's days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayBtn = document.createElement('button');
+      dayBtn.textContent = String(day);
+      
+      const isToday = 
+        day === today.getDate() && 
+        currentMonth === today.getMonth() && 
+        currentYear === today.getFullYear();
+      
+      dayBtn.style.cssText = `
+        width: 100%;
+        aspect-ratio: 1;
+        border: 0;
+        border-radius: 8px;
+        background: ${isToday ? '#3b82f6' : 'transparent'};
+        color: ${isToday ? 'white' : '#111827'};
+        font-size: 12px;
+        font-weight: ${isToday ? '700' : '500'};
+        cursor: pointer;
+        transition: all 0.15s;
+      `;
+      
+      dayBtn.addEventListener('mouseenter', () => {
+        if (!isToday) {
+          dayBtn.style.background = '#f3f4f6';
+        }
+      });
+      
+      dayBtn.addEventListener('mouseleave', () => {
+        if (!isToday) {
+          dayBtn.style.background = 'transparent';
+        }
+      });
+      
+      const selectedDate = new Date(currentYear, currentMonth, day);
+      dayBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onSelect(selectedDate);
+        picker.remove();
+      });
+      
+      daysGrid.appendChild(dayBtn);
+    }
+    
+    // Next month's leading days
+    const remainingCells = 42 - (firstDay + daysInMonth);
+    for (let i = 1; i <= remainingCells; i++) {
+      const dayBtn = document.createElement('button');
+      dayBtn.textContent = String(i);
+      dayBtn.style.cssText = `
+        width: 100%;
+        aspect-ratio: 1;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #d1d5db;
+        font-size: 12px;
+        cursor: pointer;
+      `;
+      daysGrid.appendChild(dayBtn);
+    }
+    
+    picker.appendChild(daysGrid);
+    
+    // Footer with Clear and Today buttons
+    const footer = document.createElement('div');
+    footer.style.cssText = `
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
+    `;
+    
+    const clearBtn = document.createElement('button');
+    clearBtn.textContent = 'Clear';
+    clearBtn.style.cssText = `
+      padding: 6px 12px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #3b82f6;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    `;
+    clearBtn.addEventListener('mouseenter', () => {
+      clearBtn.style.background = '#eff6ff';
+    });
+    clearBtn.addEventListener('mouseleave', () => {
+      clearBtn.style.background = 'transparent';
+    });
+    clearBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const input = document.getElementById(inputId) as HTMLInputElement;
+      if (input) input.value = '';
+      picker.remove();
+    });
+    
+    const todayBtn = document.createElement('button');
+    todayBtn.textContent = 'Today';
+    todayBtn.style.cssText = `
+      padding: 6px 12px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #3b82f6;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    `;
+    todayBtn.addEventListener('mouseenter', () => {
+      todayBtn.style.background = '#eff6ff';
+    });
+    todayBtn.addEventListener('mouseleave', () => {
+      todayBtn.style.background = 'transparent';
+    });
+    todayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      onSelect(today);
+      picker.remove();
+    });
+    
+    footer.appendChild(clearBtn);
+    footer.appendChild(todayBtn);
+    picker.appendChild(footer);
+  }
+  
+  renderCalendar();
+  return picker;
+}
+
+/**
  * Parse mm/dd/yyyy to Date
  */
 function parseDate(dateStr: string): Date | null {
@@ -101,6 +436,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     color: white;
     margin-bottom: 12px;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    position: relative;
   `;
   programCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
@@ -112,23 +448,45 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
         <div style="font-size: 11px; opacity: 0.9;">From your I-20</div>
       </div>
     </div>
-    <input 
-      type="text" 
-      id="program-end-date" 
-      placeholder="mm/dd/yyyy"
-      style="
-        width: 100%;
-        padding: 10px 12px;
-        border: 0;
-        border-radius: 10px;
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(10px);
-        color: white;
-        font-size: 14px;
-        outline: none;
-        font-family: inherit;
-      "
-    />
+    <div style="position: relative;">
+      <input 
+        type="text" 
+        id="program-end-date" 
+        placeholder="mm/dd/yyyy"
+        style="
+          width: 100%;
+          padding: 10px 40px 10px 12px;
+          border: 0;
+          border-radius: 10px;
+          background: rgba(255,255,255,0.15);
+          backdrop-filter: blur(10px);
+          color: white;
+          font-size: 14px;
+          outline: none;
+          font-family: inherit;
+        "
+      />
+      <button 
+        id="program-date-picker-btn"
+        style="
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 32px;
+          height: 32px;
+          border: 0;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.2);
+          color: white;
+          cursor: pointer;
+          font-size: 16px;
+          display: grid;
+          place-items: center;
+          transition: all 0.2s;
+        "
+      >📅</button>
+    </div>
   `;
   content.appendChild(programCard);
   
@@ -141,6 +499,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     color: white;
     margin-bottom: 12px;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    position: relative;
   `;
   dsoCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
@@ -152,23 +511,45 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
         <div style="font-size: 11px; opacity: 0.9;">Optional - When DSO signed your I-20</div>
       </div>
     </div>
-    <input 
-      type="text" 
-      id="dso-recommendation-date" 
-      placeholder="mm/dd/yyyy"
-      style="
-        width: 100%;
-        padding: 10px 12px;
-        border: 0;
-        border-radius: 10px;
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(10px);
-        color: white;
-        font-size: 14px;
-        outline: none;
-        font-family: inherit;
-      "
-    />
+    <div style="position: relative;">
+      <input 
+        type="text" 
+        id="dso-recommendation-date" 
+        placeholder="mm/dd/yyyy"
+        style="
+          width: 100%;
+          padding: 10px 40px 10px 12px;
+          border: 0;
+          border-radius: 10px;
+          background: rgba(255,255,255,0.15);
+          backdrop-filter: blur(10px);
+          color: white;
+          font-size: 14px;
+          outline: none;
+          font-family: inherit;
+        "
+      />
+      <button 
+        id="dso-date-picker-btn"
+        style="
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 32px;
+          height: 32px;
+          border: 0;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.2);
+          color: white;
+          cursor: pointer;
+          font-size: 16px;
+          display: grid;
+          place-items: center;
+          transition: all 0.2s;
+        "
+      >📅</button>
+    </div>
   `;
   content.appendChild(dsoCard);
   
@@ -198,6 +579,84 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   content.appendChild(resultsContainer);
   
   root.appendChild(content);
+  
+  // Date picker event handlers
+  const programDatePickerBtn = document.getElementById('program-date-picker-btn');
+  const dsoDatePickerBtn = document.getElementById('dso-date-picker-btn');
+  
+  let activePicker: HTMLElement | null = null;
+  
+  // Close picker when clicking outside
+  document.addEventListener('click', (e) => {
+    if (activePicker && !activePicker.contains(e.target as Node)) {
+      const pickerButtons = [programDatePickerBtn, dsoDatePickerBtn];
+      const isPickerButton = pickerButtons.some(btn => btn?.contains(e.target as Node));
+      if (!isPickerButton) {
+        activePicker.remove();
+        activePicker = null;
+      }
+    }
+  });
+  
+  programDatePickerBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    
+    // Close any existing picker
+    if (activePicker) {
+      activePicker.remove();
+      activePicker = null;
+    }
+    
+    const picker = createDatePicker('program-end-date', (date) => {
+      const input = document.getElementById('program-end-date') as HTMLInputElement;
+      if (input) {
+        input.value = formatDate(date);
+      }
+      activePicker = null;
+    });
+    
+    const container = programDatePickerBtn.closest('div[style*="position: relative"]');
+    if (container) {
+      container.appendChild(picker);
+      activePicker = picker;
+    }
+  });
+  
+  dsoDatePickerBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    
+    // Close any existing picker
+    if (activePicker) {
+      activePicker.remove();
+      activePicker = null;
+    }
+    
+    const picker = createDatePicker('dso-recommendation-date', (date) => {
+      const input = document.getElementById('dso-recommendation-date') as HTMLInputElement;
+      if (input) {
+        input.value = formatDate(date);
+      }
+      activePicker = null;
+    });
+    
+    const container = dsoDatePickerBtn.closest('div[style*="position: relative"]');
+    if (container) {
+      container.appendChild(picker);
+      activePicker = picker;
+    }
+  });
+  
+  // Hover effects for calendar buttons
+  [programDatePickerBtn, dsoDatePickerBtn].forEach(btn => {
+    if (btn) {
+      btn.addEventListener('mouseenter', () => {
+        btn.style.background = 'rgba(255,255,255,0.3)';
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.background = 'rgba(255,255,255,0.2)';
+      });
+    }
+  });
   
   // Event handlers
   calculateBtn.addEventListener('click', () => {
