@@ -144,7 +144,7 @@ export async function renderStemCountdown(
     </div>
     
     <!-- Countdown Display -->
-    <div style="background: linear-gradient(135deg, #dc2626, #b91c1c); border-radius: 20px; padding: 16px; color: white; margin-bottom: 10px; box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);">
+    <div id="countdown-container" style="border-radius: 20px; padding: 16px; color: white; margin-bottom: 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); transition: all 0.5s ease;">
       <div id="days-left-text" style="font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 12px;">-- days left</div>
       
       <!-- Time Boxes -->
@@ -289,34 +289,91 @@ export async function renderStemCountdown(
   
   root.appendChild(content);
   
-  // Update countdown every second
+  // Store previous values for flip animation
+  let previousValues = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  
+  // Update countdown every second with flip animation and dynamic colors
   function updateCountdown() {
     const remaining = calculateTimeRemaining(results.latestEnd);
     
     const daysLeftText = content.querySelector('#days-left-text');
-    const daysEl = content.querySelector('#countdown-days');
-    const hoursEl = content.querySelector('#countdown-hours');
-    const minutesEl = content.querySelector('#countdown-minutes');
-    const secondsEl = content.querySelector('#countdown-seconds');
+    const daysEl = content.querySelector('#countdown-days') as HTMLElement;
+    const hoursEl = content.querySelector('#countdown-hours') as HTMLElement;
+    const minutesEl = content.querySelector('#countdown-minutes') as HTMLElement;
+    const secondsEl = content.querySelector('#countdown-seconds') as HTMLElement;
     const messageEl = content.querySelector('#time-message');
+    const containerEl = content.querySelector('#countdown-container') as HTMLElement;
+    
+    // Determine color based on days remaining (Apple colors)
+    let gradient = '';
+    if (remaining.days > 60) {
+      gradient = 'linear-gradient(135deg, #34C759, #30D158)'; // Green
+    } else if (remaining.days > 30) {
+      gradient = 'linear-gradient(135deg, #007AFF, #5AC8FA)'; // Blue
+    } else if (remaining.days > 14) {
+      gradient = 'linear-gradient(135deg, #FF9500, #FF9F0A)'; // Orange
+    } else if (remaining.days > 7) {
+      gradient = 'linear-gradient(135deg, #FF9500, #FF3B30)'; // Deep Orange
+    } else {
+      gradient = 'linear-gradient(135deg, #FF3B30, #FF453A)'; // Red
+    }
+    
+    if (containerEl) containerEl.style.background = gradient;
+    
+    // Flip animation function
+    function flipElement(element: HTMLElement, newValue: string) {
+      if (!element) return;
+      element.style.transform = 'rotateX(90deg)';
+      element.style.opacity = '0';
+      setTimeout(() => {
+        element.textContent = newValue;
+        element.style.transform = 'rotateX(0deg)';
+        element.style.opacity = '1';
+      }, 150);
+    }
+    
+    const currentDays = String(remaining.days).padStart(2, '0');
+    const currentHours = String(remaining.hours).padStart(2, '0');
+    const currentMinutes = String(remaining.minutes).padStart(2, '0');
+    const currentSeconds = String(remaining.seconds).padStart(2, '0');
     
     if (daysLeftText) daysLeftText.textContent = `${remaining.days} days left`;
-    if (daysEl) daysEl.textContent = String(remaining.days).padStart(2, '0');
-    if (hoursEl) hoursEl.textContent = String(remaining.hours).padStart(2, '0');
-    if (minutesEl) minutesEl.textContent = String(remaining.minutes).padStart(2, '0');
-    if (secondsEl) secondsEl.textContent = String(remaining.seconds).padStart(2, '0');
+    
+    if (daysEl && currentDays !== String(previousValues.days).padStart(2, '0')) {
+      flipElement(daysEl, currentDays);
+    } else if (daysEl) {
+      daysEl.textContent = currentDays;
+    }
+    
+    if (hoursEl && currentHours !== String(previousValues.hours).padStart(2, '0')) {
+      flipElement(hoursEl, currentHours);
+    } else if (hoursEl) {
+      hoursEl.textContent = currentHours;
+    }
+    
+    if (minutesEl && currentMinutes !== String(previousValues.minutes).padStart(2, '0')) {
+      flipElement(minutesEl, currentMinutes);
+    } else if (minutesEl) {
+      minutesEl.textContent = currentMinutes;
+    }
+    
+    if (secondsEl) flipElement(secondsEl, currentSeconds);
     
     if (messageEl) {
       if (remaining.days > 60) {
         messageEl.textContent = 'You have plenty of time remaining';
       } else if (remaining.days > 30) {
         messageEl.textContent = 'Time is moving along, stay prepared';
+      } else if (remaining.days > 14) {
+        messageEl.textContent = '⚠️ Getting closer to the deadline!';
       } else if (remaining.days > 7) {
-        messageEl.textContent = '⚠️ Less than a month remaining!';
+        messageEl.textContent = '⚠️ Less than two weeks remaining!';
       } else {
         messageEl.textContent = '🚨 URGENT: Apply immediately!';
       }
     }
+    
+    previousValues = { days: remaining.days, hours: remaining.hours, minutes: remaining.minutes, seconds: remaining.seconds };
   }
   
   updateCountdown();

@@ -303,23 +303,78 @@ export function renderClockTracker(
   
   root.appendChild(content);
   
-  // Update countdown every second
+  // Store previous values for flip animation
+  let previousValues = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  
+  // Update countdown every second with flip animation and dynamic colors
   let countdownInterval: number | null = setInterval(() => {
     const remaining = calculateTimeRemaining(endDate);
     
-    const daysEl = document.getElementById('countdown-days');
-    const hoursEl = document.getElementById('countdown-hours');
-    const minutesEl = document.getElementById('countdown-minutes');
-    const secondsEl = document.getElementById('countdown-seconds');
+    const daysEl = document.getElementById('countdown-days') as HTMLElement;
+    const hoursEl = document.getElementById('countdown-hours') as HTMLElement;
+    const minutesEl = document.getElementById('countdown-minutes') as HTMLElement;
+    const secondsEl = document.getElementById('countdown-seconds') as HTMLElement;
     const messageEl = document.getElementById('countdown-message');
     const daysLeftEl = document.getElementById('days-left-text');
+    const containerEl = document.getElementById('countdown-container') as HTMLElement;
     
-    if (daysEl) daysEl.textContent = String(remaining.days).padStart(2, '0');
-    if (hoursEl) hoursEl.textContent = String(remaining.hours).padStart(2, '0');
-    if (minutesEl) minutesEl.textContent = String(remaining.minutes).padStart(2, '0');
-    if (secondsEl) secondsEl.textContent = String(remaining.seconds).padStart(2, '0');
+    // Determine color based on days remaining (Apple colors)
+    let gradient = '';
+    if (remaining.days > 60) {
+      gradient = 'linear-gradient(135deg, #34C759, #30D158)'; // Green
+    } else if (remaining.days > 30) {
+      gradient = 'linear-gradient(135deg, #007AFF, #5AC8FA)'; // Blue
+    } else if (remaining.days > 14) {
+      gradient = 'linear-gradient(135deg, #FF9500, #FF9F0A)'; // Orange
+    } else if (remaining.days > 7) {
+      gradient = 'linear-gradient(135deg, #FF9500, #FF3B30)'; // Deep Orange
+    } else {
+      gradient = 'linear-gradient(135deg, #FF3B30, #FF453A)'; // Red
+    }
+    
+    if (containerEl) containerEl.style.background = gradient;
+    
+    // Flip animation function
+    function flipElement(element: HTMLElement, newValue: string) {
+      if (!element) return;
+      element.style.transform = 'rotateX(90deg)';
+      element.style.opacity = '0';
+      setTimeout(() => {
+        element.textContent = newValue;
+        element.style.transform = 'rotateX(0deg)';
+        element.style.opacity = '1';
+      }, 150);
+    }
+    
+    const currentDays = String(remaining.days).padStart(2, '0');
+    const currentHours = String(remaining.hours).padStart(2, '0');
+    const currentMinutes = String(remaining.minutes).padStart(2, '0');
+    const currentSeconds = String(remaining.seconds).padStart(2, '0');
+    
+    if (daysEl && currentDays !== String(previousValues.days).padStart(2, '0')) {
+      flipElement(daysEl, currentDays);
+    } else if (daysEl) {
+      daysEl.textContent = currentDays;
+    }
+    
+    if (hoursEl && currentHours !== String(previousValues.hours).padStart(2, '0')) {
+      flipElement(hoursEl, currentHours);
+    } else if (hoursEl) {
+      hoursEl.textContent = currentHours;
+    }
+    
+    if (minutesEl && currentMinutes !== String(previousValues.minutes).padStart(2, '0')) {
+      flipElement(minutesEl, currentMinutes);
+    } else if (minutesEl) {
+      minutesEl.textContent = currentMinutes;
+    }
+    
+    if (secondsEl) flipElement(secondsEl, currentSeconds);
+    
     if (messageEl) messageEl.textContent = remaining.message;
     if (daysLeftEl) daysLeftEl.textContent = `${remaining.days} days left`;
+    
+    previousValues = { days: remaining.days, hours: remaining.hours, minutes: remaining.minutes, seconds: remaining.seconds };
     
     if (remaining.total <= 0 && countdownInterval) {
       clearInterval(countdownInterval);
