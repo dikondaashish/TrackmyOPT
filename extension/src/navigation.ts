@@ -69,7 +69,7 @@ export function renderPageHeader(root: HTMLElement, title: string, subtitle: str
           <span id="theme-icon-page">🌙</span>
         </button>
         <button class="logout-btn" id="logout-btn-page" title="Sign out" aria-label="Sign out">
-          <span>🚪</span>
+          <span>⏻</span>
         </button>
       </div>
       <h1 class="title">${title}</h1>

@@ -9,7 +9,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
           <span id="theme-icon">🌙</span>
         </button>
         <button class="logout-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
-          <span>🚪</span>
+          <span>⏻</span>
         </button>
       </div>
       <h1 class="title">TrackMyOPT</h1>
