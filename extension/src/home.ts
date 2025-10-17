@@ -27,16 +27,16 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         <p class="s">Calculate when you can start applying for OPT</p>
       </div>
 
-      <div class="tile green" role="button" tabindex="0" aria-label="STEM OPT Apply Start Dates - Calculate STEM OPT extension application dates" data-page="stem-apply">
-        <div class="icon">🎒</div>
-        <h3 class="t">STEM OPT Apply Start Dates</h3>
-        <p class="s">Calculate STEM OPT extension application dates</p>
-      </div>
-
       <div class="tile purple" role="button" tabindex="0" aria-label="OPT Clock Tracker - Track your OPT unemployment days in real-time" data-page="clock">
         <div class="icon">⏱️</div>
         <h3 class="t">OPT Clock Tracker</h3>
         <p class="s">Track your OPT unemployment days in real-time</p>
+      </div>
+
+            <div class="tile green" role="button" tabindex="0" aria-label="STEM OPT Apply Start Dates - Calculate STEM OPT extension application dates" data-page="stem-apply">
+        <div class="icon">🎒</div>
+        <h3 class="t">STEM OPT Apply Start Dates</h3>
+        <p class="s">Calculate STEM OPT extension application dates</p>
       </div>
 
       <div class="tile orange" role="button" tabindex="0" aria-label="STEM OPT Clock Tracker - Track your STEM OPT unemployment days" data-page="stem-clock">
