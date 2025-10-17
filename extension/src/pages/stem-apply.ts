@@ -309,6 +309,55 @@ async function loadSavedData(): Promise<any> {
 }
 
 /**
+ * Save Current OPT EAD End Date to API
+ */
+async function saveOptEadEndDate(optEadEndDate: string | null): Promise<boolean> {
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (!idToken) {
+      console.log('No auth token, skipping save');
+      return false;
+    }
+
+    // Get current program end date (required field)
+    const response = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+      },
+    });
+
+    const result = await response.json();
+    let programEndDate = result.data?.program_end_date || optEadEndDate;
+
+    // Save with opt_ead_end_date
+    const saveResponse = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        program_end_date: programEndDate,
+        opt_ead_end_date: optEadEndDate,
+      }),
+    });
+
+    const saveResult = await saveResponse.json();
+    if (saveResult.ok) {
+      console.log('✅ OPT EAD end date saved successfully');
+      return true;
+    } else {
+      console.error('Failed to save OPT EAD end date:', saveResult.error);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error saving OPT EAD end date:', error);
+    return false;
+  }
+}
+
+/**
  * Render STEM OPT Apply Start Dates page
  */
 export function renderStemApply(root: HTMLElement, onBack: () => void): void {
@@ -500,8 +549,13 @@ export function renderStemApply(root: HTMLElement, onBack: () => void): void {
     optEndInput.addEventListener('focus', (e) => {
       (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.25)';
     });
-    optEndInput.addEventListener('blur', (e) => {
+    optEndInput.addEventListener('blur', async (e) => {
       (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.15)';
+      // Auto-save on blur
+      const date = parseDate(optEndInput.value);
+      if (date) {
+        await saveOptEadEndDate(formatDate(date));
+      }
     });
   }
   

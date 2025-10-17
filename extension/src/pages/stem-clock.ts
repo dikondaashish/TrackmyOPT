@@ -286,6 +286,55 @@ async function loadSavedData(): Promise<any> {
 }
 
 /**
+ * Save STEM EAD start date to API (stored as opt_ead_end_date)
+ */
+async function saveStemEadStartDate(stemEadStartDate: string | null): Promise<boolean> {
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (!idToken) {
+      console.log('No auth token, skipping save');
+      return false;
+    }
+
+    // Get current program end date (required field)
+    const response = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+      },
+    });
+
+    const result = await response.json();
+    let programEndDate = result.data?.program_end_date || stemEadStartDate;
+
+    // Save with opt_ead_end_date (this is the Current OPT EAD End Date / STEM Start Date)
+    const saveResponse = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        program_end_date: programEndDate,
+        opt_ead_end_date: stemEadStartDate,
+      }),
+    });
+
+    const saveResult = await saveResponse.json();
+    if (saveResult.ok) {
+      console.log('✅ STEM EAD start date saved successfully');
+      return true;
+    } else {
+      console.error('Failed to save STEM EAD start date:', saveResult.error);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error saving STEM EAD start date:', error);
+    return false;
+  }
+}
+
+/**
  * Render STEM OPT Clock Tracker page
  */
 export function renderStemClock(root: HTMLElement, onBack: () => void): void {
@@ -490,8 +539,13 @@ export function renderStemClock(root: HTMLElement, onBack: () => void): void {
     startDateInput.addEventListener('focus', (e) => {
       (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.3)';
     });
-    startDateInput.addEventListener('blur', (e) => {
+    startDateInput.addEventListener('blur', async (e) => {
       (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.2)';
+      // Auto-save on blur
+      const date = parseDate(startDateInput.value);
+      if (date) {
+        await saveStemEadStartDate(formatDate(date));
+      }
     });
   }
   
