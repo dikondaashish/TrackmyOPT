@@ -61,24 +61,18 @@ export async function getPageData(page: Page): Promise<any> {
 export function renderPageHeader(root: HTMLElement, title: string, subtitle: string): void {
   const headerHTML = `
     <div class="header" role="region" aria-label="${title}">
-      <div class="header-top">
-        <div class="header-left">
-          <button class="back-btn" id="back-btn" title="Back to home" aria-label="Back to home">
-            <span>←</span>
-          </button>
-          <div style="flex: 1; min-width: 0;">
-            <h1 class="title">${title}</h1>
-          </div>
-        </div>
-        <div class="header-buttons">
-          <button class="theme-btn" id="theme-btn-page" title="Toggle theme" aria-label="Toggle theme">
-            <span id="theme-icon-page">🌙</span>
-          </button>
-          <button class="logout-btn" id="logout-btn-page" title="Sign out" aria-label="Sign out">
-            <span>⎙</span>
-          </button>
-        </div>
+      <button class="back-btn" id="back-btn" title="Back to home" aria-label="Back to home">
+        <span>←</span>
+      </button>
+      <div class="header-buttons">
+        <button class="theme-btn" id="theme-btn-page" title="Toggle theme" aria-label="Toggle theme">
+          <span id="theme-icon-page">🌙</span>
+        </button>
+        <button class="logout-btn" id="logout-btn-page" title="Sign out" aria-label="Sign out">
+          <span>⏻</span>
+        </button>
       </div>
+      <h1 class="title">${title}</h1>
       <p class="subtitle">${subtitle}</p>
     </div>
   `;
