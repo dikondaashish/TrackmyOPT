@@ -23,26 +23,34 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     <div class="grid" role="list">
       <div class="tile blue" role="button" tabindex="0" aria-label="OPT Apply Start Dates - Calculate when you can start applying for OPT" data-page="opt-apply">
         <div class="icon">📝</div>
-        <h3 class="t">OPT Apply Dates</h3>
-        <p class="s">Calculate when you can apply for OPT</p>
+        <div>
+          <h3 class="t">OPT Apply Dates</h3>
+          <p class="s">Calculate when you can apply for OPT</p>
+        </div>
       </div>
 
       <div class="tile purple" role="button" tabindex="0" aria-label="OPT Clock Tracker - Track your OPT unemployment days in real-time" data-page="clock">
         <div class="icon">⏱️</div>
-        <h3 class="t">OPT Clock Tracker</h3>
-        <p class="s">Track your unemployment days</p>
+        <div>
+          <h3 class="t">OPT Clock Tracker</h3>
+          <p class="s">Track your unemployment days</p>
+        </div>
       </div>
 
       <div class="tile green" role="button" tabindex="0" aria-label="STEM OPT Apply Start Dates - Calculate STEM OPT extension application dates" data-page="stem-apply">
         <div class="icon">🎒</div>
-        <h3 class="t">STEM Apply Dates</h3>
-        <p class="s">Calculate STEM OPT dates</p>
+        <div>
+          <h3 class="t">STEM Apply Dates</h3>
+          <p class="s">Calculate STEM OPT dates</p>
+        </div>
       </div>
 
       <div class="tile orange" role="button" tabindex="0" aria-label="STEM OPT Clock Tracker - Track your STEM OPT unemployment days" data-page="stem-clock">
         <div class="icon">🔶</div>
-        <h3 class="t">STEM Clock Tracker</h3>
-        <p class="s">Track STEM unemployment</p>
+        <div>
+          <h3 class="t">STEM Clock Tracker</h3>
+          <p class="s">Track STEM unemployment</p>
+        </div>
       </div>
     </div>
 
