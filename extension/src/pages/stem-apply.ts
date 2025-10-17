@@ -11,6 +11,83 @@ function formatDate(date: Date): string {
 }
 
 /**
+ * Validate and filter date input - only allow valid mm/dd/yyyy
+ */
+function validateDateInput(input: string): string {
+  // Remove any non-digit and non-slash characters
+  let cleaned = input.replace(/[^\d/]/g, '');
+  
+  // Limit to 10 characters (mm/dd/yyyy)
+  cleaned = cleaned.substring(0, 10);
+  
+  // Parse the parts
+  const parts = cleaned.split('/');
+  
+  if (parts.length >= 1 && parts[0].length > 0) {
+    // Validate month (01-12)
+    let month = parseInt(parts[0]);
+    if (month > 12) {
+      parts[0] = '12';
+    } else if (parts[0].length === 2 && month === 0) {
+      parts[0] = '01';
+    }
+    // Limit month to 2 digits
+    parts[0] = parts[0].substring(0, 2);
+  }
+  
+  if (parts.length >= 2 && parts[1].length > 0) {
+    // Validate day based on month
+    let month = parseInt(parts[0]) || 1;
+    let day = parseInt(parts[1]);
+    
+    // Get max days for the month (assume non-leap year for Feb)
+    const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const maxDay = daysInMonth[month - 1] || 31;
+    
+    if (day > maxDay) {
+      parts[1] = String(maxDay).padStart(2, '0');
+    } else if (parts[1].length === 2 && day === 0) {
+      parts[1] = '01';
+    }
+    // Limit day to 2 digits
+    parts[1] = parts[1].substring(0, 2);
+  }
+  
+  if (parts.length >= 3) {
+    // Limit year to 4 digits
+    parts[2] = parts[2].substring(0, 4);
+  }
+  
+  return parts.join('/');
+}
+
+/**
+ * Add real-time validation to date input
+ */
+function addDateInputValidation(inputElement: HTMLInputElement): void {
+  inputElement.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    const cursorPosition = target.selectionStart || 0;
+    const oldValue = target.value;
+    const newValue = validateDateInput(oldValue);
+    
+    if (newValue !== oldValue) {
+      target.value = newValue;
+      // Restore cursor position
+      target.setSelectionRange(cursorPosition, cursorPosition);
+    }
+  });
+  
+  inputElement.addEventListener('keypress', (e) => {
+    const char = e.key;
+    // Only allow numbers and forward slash
+    if (!/[\d/]/.test(char) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+      e.preventDefault();
+    }
+  });
+}
+
+/**
  * Get month name
  */
 function getMonthName(month: number): string {
@@ -546,6 +623,9 @@ export function renderStemApply(root: HTMLElement, onBack: () => void): void {
   const optEndInput = document.getElementById('current-opt-end-date') as HTMLInputElement;
   
   if (optEndInput) {
+    // Add real-time date validation
+    addDateInputValidation(optEndInput);
+    
     optEndInput.addEventListener('focus', (e) => {
       (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.25)';
     });
