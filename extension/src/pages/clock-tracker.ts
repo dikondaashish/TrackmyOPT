@@ -98,6 +98,12 @@ export function renderClockTracker(
 ): void {
   root.innerHTML = '';
   
+  // Save page state for persistence
+  import('../navigation.js').then(({ setCurrentPage, savePageData }) => {
+    setCurrentPage('clock-tracker');
+    savePageData('clock-tracker', { startDate: startDate.toISOString() });
+  });
+  
   renderPageHeader(root, 'OPT Clock Tracker', 'Track your OPT timeline with precision');
   
   const content = document.createElement('div');

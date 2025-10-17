@@ -1,4 +1,4 @@
-import { renderPageHeader, setupPageHandlers } from '../navigation.js';
+import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -97,6 +97,15 @@ export async function renderOptCountdown(
   }
 ): Promise<void> {
   root.innerHTML = '';
+  
+  // Save page state for persistence
+  setCurrentPage('opt-countdown');
+  savePageData('opt-countdown', { results: {
+    earliestStart: results.earliestStart.toISOString(),
+    latestEnd: results.latestEnd.toISOString(),
+    uscisDeadline: results.uscisDeadline?.toISOString() || null,
+    programEndDate: results.programEndDate.toISOString()
+  }});
   
   renderPageHeader(root, 'OPT Filing Window', 'Your personalized countdown');
   

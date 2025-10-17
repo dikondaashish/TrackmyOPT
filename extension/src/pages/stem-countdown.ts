@@ -1,4 +1,4 @@
-import { renderPageHeader, setupPageHandlers } from '../navigation.js';
+import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
 
 /**
  * Get formatted date for card display
@@ -86,6 +86,14 @@ export async function renderStemCountdown(
   }
 ): Promise<void> {
   root.innerHTML = '';
+  
+  // Save page state for persistence
+  setCurrentPage('stem-countdown');
+  savePageData('stem-countdown', { results: {
+    earliestStart: results.earliestStart.toISOString(),
+    latestEnd: results.latestEnd.toISOString(),
+    currentOptEndDate: results.currentOptEndDate.toISOString()
+  }});
   
   renderPageHeader(root, 'STEM OPT Filing Window', 'Your personalized countdown');
   

@@ -2,7 +2,7 @@
  * Navigation state management for extension popup
  */
 
-type Page = 'home' | 'opt-apply' | 'stem-apply' | 'clock';
+type Page = 'home' | 'opt-apply' | 'stem-apply' | 'clock' | 'opt-countdown' | 'stem-countdown' | 'clock-tracker';
 
 let currentPage: Page = 'home';
 
@@ -12,6 +12,47 @@ export function getCurrentPage(): Page {
 
 export function setCurrentPage(page: Page): void {
   currentPage = page;
+  // Save page state to storage for persistence
+  chrome.storage.local.set({ lastPage: page }).catch(err => {
+    console.error('Failed to save page state:', err);
+  });
+}
+
+/**
+ * Get the last visited page from storage
+ */
+export async function getLastPage(): Promise<Page | null> {
+  try {
+    const { lastPage } = await chrome.storage.local.get('lastPage');
+    return lastPage || null;
+  } catch (err) {
+    console.error('Failed to get last page:', err);
+    return null;
+  }
+}
+
+/**
+ * Save page data (like dates for countdown pages)
+ */
+export async function savePageData(page: Page, data: any): Promise<void> {
+  try {
+    await chrome.storage.local.set({ [`${page}_data`]: data });
+  } catch (err) {
+    console.error('Failed to save page data:', err);
+  }
+}
+
+/**
+ * Get saved page data
+ */
+export async function getPageData(page: Page): Promise<any> {
+  try {
+    const result = await chrome.storage.local.get(`${page}_data`);
+    return result[`${page}_data`] || null;
+  } catch (err) {
+    console.error('Failed to get page data:', err);
+    return null;
+  }
 }
 
 /**

@@ -3,7 +3,7 @@ import { renderLocked } from './locked.js';
 import { renderOptApply } from './pages/opt-apply.js';
 import { renderStemApply } from './pages/stem-apply.js';
 import { renderClock } from './pages/clock.js';
-import { getCurrentPage, setCurrentPage } from './navigation.js';
+import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
 
 /**
  * Check if user is signed in
@@ -34,7 +34,7 @@ async function applyTheme(): Promise<void> {
 /**
  * Navigate to a specific page
  */
-function navigateToPage(page: string): void {
+async function navigateToPage(page: string, data?: any): Promise<void> {
   const root = document.getElementById('root');
   if (!root) return;
 
@@ -50,6 +50,47 @@ function navigateToPage(page: string): void {
     case 'clock':
       setCurrentPage('clock');
       renderClock(root, () => navigateToPage('home'));
+      break;
+    case 'opt-countdown':
+      if (data && data.results) {
+        setCurrentPage('opt-countdown');
+        const { renderOptCountdown } = await import('./pages/opt-countdown.js');
+        // Convert ISO strings back to Date objects
+        const results = {
+          earliestStart: new Date(data.results.earliestStart),
+          latestEnd: new Date(data.results.latestEnd),
+          uscisDeadline: data.results.uscisDeadline ? new Date(data.results.uscisDeadline) : null,
+          programEndDate: new Date(data.results.programEndDate)
+        };
+        renderOptCountdown(root, () => navigateToPage('opt-apply'), results);
+      } else {
+        navigateToPage('opt-apply');
+      }
+      break;
+    case 'stem-countdown':
+      if (data && data.results) {
+        setCurrentPage('stem-countdown');
+        const { renderStemCountdown } = await import('./pages/stem-countdown.js');
+        // Convert ISO strings back to Date objects
+        const results = {
+          earliestStart: new Date(data.results.earliestStart),
+          latestEnd: new Date(data.results.latestEnd),
+          currentOptEndDate: new Date(data.results.currentOptEndDate)
+        };
+        renderStemCountdown(root, () => navigateToPage('stem-apply'), results);
+      } else {
+        navigateToPage('stem-apply');
+      }
+      break;
+    case 'clock-tracker':
+      if (data && data.startDate) {
+        setCurrentPage('clock-tracker');
+        const { renderClockTracker } = await import('./pages/clock-tracker.js');
+        const startDate = new Date(data.startDate);
+        renderClockTracker(root, () => navigateToPage('clock'), startDate);
+      } else {
+        navigateToPage('clock');
+      }
       break;
     case 'home':
     default:
@@ -76,7 +117,20 @@ async function render(): Promise<void> {
   console.log('Popup render - signedIn:', signedIn);
 
   if (signedIn) {
-    navigateToPage('home');
+    // Try to restore last page
+    const lastPage = await getLastPage();
+    console.log('Last page:', lastPage);
+    
+    if (lastPage && lastPage !== 'home') {
+      // Get saved page data
+      const pageData = await getPageData(lastPage);
+      console.log('Restoring page:', lastPage, 'with data:', pageData);
+      
+      // Navigate to last page with data
+      await navigateToPage(lastPage, pageData);
+    } else {
+      await navigateToPage('home');
+    }
   } else {
     renderLocked(root);
   }
