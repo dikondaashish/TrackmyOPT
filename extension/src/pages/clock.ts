@@ -477,8 +477,9 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
       return;
     }
     
-    // TODO: Save to database and navigate to tracking page
-    alert(`✅ OPT Start Date saved: ${formatDate(optStartDate)}\n\nClock tracker will be available soon!`);
+    // Navigate to clock tracker page
+    const { renderClockTracker } = await import('./clock-tracker.js');
+    renderClockTracker(root, onBack, optStartDate);
   });
   
   // Input styling on focus
