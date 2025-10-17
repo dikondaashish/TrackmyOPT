@@ -3,6 +3,7 @@ import { renderLocked } from './locked.js';
 import { renderOptApply } from './pages/opt-apply.js';
 import { renderStemApply } from './pages/stem-apply.js';
 import { renderClock } from './pages/clock.js';
+import { renderStemClock } from './pages/stem-clock.js';
 import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
 
 /**
@@ -51,6 +52,10 @@ async function navigateToPage(page: string, data?: any): Promise<void> {
       setCurrentPage('clock');
       renderClock(root, () => navigateToPage('home'));
       break;
+    case 'stem-clock':
+      setCurrentPage('stem-clock');
+      renderStemClock(root, () => navigateToPage('home'));
+      break;
     case 'opt-countdown':
       if (data && data.results) {
         setCurrentPage('opt-countdown');
@@ -90,6 +95,16 @@ async function navigateToPage(page: string, data?: any): Promise<void> {
         renderClockTracker(root, () => navigateToPage('clock'), startDate);
       } else {
         navigateToPage('clock');
+      }
+      break;
+    case 'stem-clock-tracker':
+      if (data && data.startDate) {
+        setCurrentPage('stem-clock-tracker');
+        const { renderStemClockTracker } = await import('./pages/stem-clock-tracker.js');
+        const startDate = new Date(data.startDate);
+        renderStemClockTracker(root, () => navigateToPage('stem-clock'), startDate);
+      } else {
+        navigateToPage('stem-clock');
       }
       break;
     case 'home':

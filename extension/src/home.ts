@@ -39,10 +39,10 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         <p class="s">Track your OPT unemployment days in real-time</p>
       </div>
 
-      <div class="tile orange" role="button" tabindex="0" aria-label="More Tools Coming - Stay tuned for additional OPT resources" data-link="http://localhost:3000">
-        <div class="icon">📅</div>
-        <h3 class="t">More Tools Coming</h3>
-        <p class="s">Stay tuned for additional OPT resources</p>
+      <div class="tile orange" role="button" tabindex="0" aria-label="STEM OPT Clock Tracker - Track your STEM OPT unemployment days" data-page="stem-clock">
+        <div class="icon">🔶</div>
+        <h3 class="t">STEM OPT Clock Tracker</h3>
+        <p class="s">Track your STEM OPT unemployment days</p>
       </div>
     </div>
 
