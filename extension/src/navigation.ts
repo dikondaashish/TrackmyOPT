@@ -64,16 +64,18 @@ export function renderPageHeader(root: HTMLElement, title: string, subtitle: str
       <button class="back-btn" id="back-btn" title="Back to home" aria-label="Back to home">
         <span>←</span>
       </button>
+      <div class="header-content">
+        <h1 class="title">${title}</h1>
+        <p class="subtitle">${subtitle}</p>
+      </div>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn-page" title="Toggle theme" aria-label="Toggle theme">
           <span id="theme-icon-page">🌙</span>
         </button>
         <button class="logout-btn" id="logout-btn-page" title="Sign out" aria-label="Sign out">
-          <span>⏻</span>
+          <span>⎋</span>
         </button>
       </div>
-      <h1 class="title">${title}</h1>
-      <p class="subtitle">${subtitle}</p>
     </div>
   `;
   
