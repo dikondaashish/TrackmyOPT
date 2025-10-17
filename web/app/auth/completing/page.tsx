@@ -21,6 +21,7 @@ export default function CompletingAuthPage() {
     console.log('Web Redirect:', webRedirect);
 
     if (token && state && redirectUri) {
+
       // EXTENSION FLOW: Navigate to extension URL
       // Extension background script will capture token and navigate to dashboard
       const extensionUrl = `${redirectUri}#id_token=${encodeURIComponent(token)}&state=${encodeURIComponent(state)}`;
