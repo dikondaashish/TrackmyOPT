@@ -240,28 +240,6 @@ export function renderClockTracker(
   
   content.appendChild(countdownCard);
   
-  // Dynamic Tip Card
-  const tipCard = document.createElement('div');
-  tipCard.style.cssText = `
-    background: rgba(255,255,255,0.1);
-    border-left: 3px solid rgba(255,255,255,0.5);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-    backdrop-filter: blur(10px);
-    color: white;
-  `;
-  tipCard.innerHTML = `
-    <div style="display: flex; gap: 10px; align-items: start;">
-      <div style="font-size: 18px; flex-shrink: 0;">💡</div>
-      <div>
-        <div style="font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 4px;">Pro Tip</div>
-        <div id="unemployment-tip" style="font-size: 11px; line-height: 1.4; color: rgba(255,255,255,0.85);">Loading tip...</div>
-      </div>
-    </div>
-  `;
-  content.appendChild(tipCard);
-  
   // Email reminders card (Premium feature)
   const remindersCard = document.createElement('div');
   remindersCard.id = 'reminders-card';
@@ -395,26 +373,6 @@ export function renderClockTracker(
     
     if (messageEl) messageEl.textContent = remaining.message;
     if (daysLeftEl) daysLeftEl.textContent = `${remaining.days} days left`;
-    
-    // Update dynamic tip based on unemployment days used
-    const tipEl = document.getElementById('unemployment-tip');
-    if (tipEl) {
-      if (remaining.days > 75) {
-        tipEl.textContent = 'You have 90 days total. Start applying for jobs now - finding employment takes time!';
-      } else if (remaining.days > 60) {
-        tipEl.textContent = 'Update your resume and LinkedIn. Network with alumni and attend career fairs regularly.';
-      } else if (remaining.days > 45) {
-        tipEl.textContent = 'Apply to multiple jobs daily. Consider internships or contract roles to stay employed.';
-      } else if (remaining.days > 30) {
-        tipEl.textContent = 'Track all applications. Follow up with recruiters. Consider widening your job search area.';
-      } else if (remaining.days > 20) {
-        tipEl.textContent = '⚠️ Time is running out! Accept reasonable offers. Unemployment gaps can affect future applications.';
-      } else if (remaining.days > 10) {
-        tipEl.textContent = '🚨 URGENT: Consider any job in your field. You can switch later, but you need employment NOW!';
-      } else {
-        tipEl.textContent = '🚨 CRITICAL: Accept ANY offer in your field immediately! Contact your DSO about options!';
-      }
-    }
     
     previousValues = { days: remaining.days, hours: remaining.hours, minutes: remaining.minutes, seconds: remaining.seconds };
     

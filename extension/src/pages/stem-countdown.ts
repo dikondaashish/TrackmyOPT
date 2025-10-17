@@ -170,17 +170,6 @@ export async function renderStemCountdown(
       <div id="time-message" style="text-align: center; font-size: 14px; font-weight: 600; opacity: 0.95;">You have plenty of time remaining</div>
     </div>
     
-    <!-- Dynamic Tip -->
-    <div style="background: rgba(255,255,255,0.1); border-left: 3px solid rgba(255,255,255,0.5); border-radius: 10px; padding: 12px; margin-bottom: 10px; backdrop-filter: blur(10px);">
-      <div style="display: flex; gap: 10px; align-items: start;">
-        <div style="font-size: 18px; flex-shrink: 0;">💡</div>
-        <div>
-          <div style="font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 4px;">Pro Tip</div>
-          <div id="dynamic-tip" style="font-size: 11px; line-height: 1.4; color: rgba(255,255,255,0.85);">Loading tip...</div>
-        </div>
-      </div>
-    </div>
-    
     <!-- Email Reminders Section -->
     <div style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 20px; padding: 16px; color: white; margin-bottom: 10px; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); position: relative; overflow: hidden;">
       ${!isPremium ? `
@@ -381,26 +370,6 @@ export async function renderStemCountdown(
         messageEl.textContent = '⚠️ Less than two weeks remaining!';
       } else {
         messageEl.textContent = '🚨 URGENT: Apply immediately!';
-      }
-    }
-    
-    // Update dynamic tip based on days remaining
-    const tipEl = content.querySelector('#dynamic-tip');
-    if (tipEl) {
-      if (remaining.days > 60) {
-        tipEl.textContent = 'Start early! Gather employer letter confirming your STEM position and updated resume.';
-      } else if (remaining.days > 45) {
-        tipEl.textContent = 'Fill out Form I-983 with your employer. This training plan is crucial for STEM OPT approval.';
-      } else if (remaining.days > 30) {
-        tipEl.textContent = 'Schedule DSO appointment. They must recommend STEM extension on your I-20 within 60 days of OPT end.';
-      } else if (remaining.days > 21) {
-        tipEl.textContent = 'Get new passport photos and check your current OPT EAD card hasn\'t expired yet.';
-      } else if (remaining.days > 14) {
-        tipEl.textContent = 'Review everything carefully. Ensure your degree is on the STEM list and employer is E-Verified.';
-      } else if (remaining.days > 7) {
-        tipEl.textContent = '⚠️ Mail application with tracking! Apply before your current OPT expires to avoid gaps.';
-      } else {
-        tipEl.textContent = '🚨 CRITICAL: Submit NOW! A gap in your work authorization could jeopardize your status!';
       }
     }
     

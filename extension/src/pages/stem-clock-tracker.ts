@@ -240,28 +240,6 @@ export function renderStemClockTracker(
   
   content.appendChild(countdownCard);
   
-  // Dynamic Tip Card
-  const tipCard = document.createElement('div');
-  tipCard.style.cssText = `
-    background: rgba(255,255,255,0.1);
-    border-left: 3px solid rgba(255,255,255,0.5);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-    backdrop-filter: blur(10px);
-    color: white;
-  `;
-  tipCard.innerHTML = `
-    <div style="display: flex; gap: 10px; align-items: start;">
-      <div style="font-size: 18px; flex-shrink: 0;">💡</div>
-      <div>
-        <div style="font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 4px;">Pro Tip</div>
-        <div id="unemployment-tip" style="font-size: 11px; line-height: 1.4; color: rgba(255,255,255,0.85);">Loading tip...</div>
-      </div>
-    </div>
-  `;
-  content.appendChild(tipCard);
-  
   // Email reminders card (Premium feature) - Orange theme for STEM
   const remindersCard = document.createElement('div');
   remindersCard.id = 'reminders-card';
@@ -395,24 +373,6 @@ export function renderStemClockTracker(
     
     if (messageEl) messageEl.textContent = remaining.message;
     if (daysLeftEl) daysLeftEl.textContent = `${remaining.days} days left`;
-    
-    // Update dynamic tip based on unemployment days used (STEM has 60 days total)
-    const tipEl = document.getElementById('unemployment-tip');
-    if (tipEl) {
-      if (remaining.days > 50) {
-        tipEl.textContent = 'STEM OPT allows 60 unemployment days. Secure a job quickly - you have less buffer than regular OPT!';
-      } else if (remaining.days > 40) {
-        tipEl.textContent = 'Apply aggressively to STEM roles. Your employer MUST be E-Verified for STEM OPT compliance.';
-      } else if (remaining.days > 30) {
-        tipEl.textContent = 'Report all employment to your DSO within 10 days. Keep detailed records of your job search.';
-      } else if (remaining.days > 20) {
-        tipEl.textContent = '⚠️ Time is critical! Consider contract or part-time STEM work. Any employment helps!';
-      } else if (remaining.days > 10) {
-        tipEl.textContent = '🚨 URGENT: You have HALF your unemployment days used! Accept any STEM offer immediately!';
-      } else {
-        tipEl.textContent = '🚨 EMERGENCY: Contact DSO NOW! Very few days left. Accept ANY STEM position today!';
-      }
-    }
     
     previousValues = { days: remaining.days, hours: remaining.hours, minutes: remaining.minutes, seconds: remaining.seconds };
     
