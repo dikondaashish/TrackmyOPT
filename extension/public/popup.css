@@ -10,11 +10,11 @@
 
 /* Light mode (default) */
 body {
-  width: 300px; 
+  width: 360px; 
   margin: 0; 
-  padding: 10px 10px 12px;
+  padding: 14px 14px 16px;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   background: #f3f4f6;
   color: #111827;
@@ -29,10 +29,10 @@ body.dark-mode {
 
 .header {
   position: relative; 
-  border-radius: 14px; 
-  padding: 12px;
-  padding-left: 48px;
-  padding-right: 84px;
+  border-radius: 16px; 
+  padding: 14px;
+  padding-left: 52px;
+  padding-right: 92px;
   background: linear-gradient(180deg, #ffffff, #f9fafb);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e5e7eb;
@@ -50,48 +50,48 @@ body.dark-mode .header {
 }
 
 .title {
-  font-size: 20px; 
+  font-size: 22px; 
   font-weight: 800; 
   letter-spacing: 0.2px;
   background: linear-gradient(90deg, #60a5fa, #a78bfa);
   -webkit-background-clip: text; 
   background-clip: text; 
   color: transparent;
-  margin: 0 0 4px;
+  margin: 0 0 5px;
 }
 
 .subtitle { 
   margin: 0; 
   color: #9aa4b2; 
-  font-size: 11px; 
+  font-size: 12px; 
   line-height: 1.3;
 }
 
 .header-buttons {
   position: absolute;
-  right: 12px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
 }
 
 .back-btn {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: grid;
   place-items: center;
   border: 1px solid #e5e7eb;
   background: #ffffff;
   color: #2563eb;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   transition: all 0.2s ease;
 }
@@ -113,15 +113,15 @@ body.dark-mode .back-btn:hover {
 
 .theme-btn,
 .logout-btn {
-  width: 32px; 
-  height: 32px;
-  border-radius: 8px; 
+  width: 36px; 
+  height: 36px;
+  border-radius: 10px; 
   display: grid; 
   place-items: center; 
   border: 1px solid #e5e7eb;
   background: #ffffff; 
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   transition: all 0.2s ease;
 }
 
@@ -161,13 +161,13 @@ body.dark-mode .logout-btn:hover {
 }
 
 .banner {
-  margin: 10px 0 8px; 
-  padding: 10px 12px; 
-  border-radius: 12px;
+  margin: 12px 0 10px; 
+  padding: 12px 14px; 
+  border-radius: 14px;
   background: linear-gradient(135deg, #7c3aed, #2563eb);
   text-align: center; 
   font-weight: 600;
-  font-size: 11px;
+  font-size: 12px;
   color: white;
   line-height: 1.3;
   box-shadow: 0 2px 12px rgba(124, 58, 237, 0.25);
@@ -176,15 +176,15 @@ body.dark-mode .logout-btn:hover {
 .grid { 
   display: grid; 
   grid-template-columns: 1fr 1fr; 
-  gap: 8px; 
+  gap: 10px; 
 }
 
 .tile {
   position: relative; 
-  border-radius: 16px; 
-  padding: 14px; 
-  padding-top: 58px;
-  min-height: 112px;
+  border-radius: 18px; 
+  padding: 16px; 
+  padding-top: 64px;
+  min-height: 120px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   display: flex; 
   flex-direction: column; 
@@ -211,15 +211,15 @@ body.dark-mode .logout-btn:hover {
 }
 
 .tile .t { 
-  font-size: 13px; 
+  font-size: 14px; 
   font-weight: 700; 
-  margin: 0 0 4px; 
+  margin: 0 0 5px; 
   line-height: 1.2;
   letter-spacing: -0.2px;
 }
 
 .tile .s { 
-  font-size: 11px; 
+  font-size: 12px; 
   color: rgba(255, 255, 255, 0.85); 
   margin: 0; 
   line-height: 1.3;
@@ -228,16 +228,16 @@ body.dark-mode .logout-btn:hover {
 
 .tile .icon {
   position: absolute; 
-  left: 14px; 
-  top: 12px; 
-  width: 32px; 
-  height: 32px;
-  border-radius: 9px; 
+  left: 16px; 
+  top: 14px; 
+  width: 36px; 
+  height: 36px;
+  border-radius: 10px; 
   background: rgba(255, 255, 255, 0.15); 
   backdrop-filter: blur(10px);
   display: grid; 
   place-items: center;
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
@@ -254,18 +254,18 @@ body.dark-mode .logout-btn:hover {
 .orange { background: linear-gradient(180deg, #ea580c, #f97316); }
 
 .notice {
-  margin-top: 10px; 
-  padding: 10px; 
-  border-radius: 14px; 
+  margin-top: 12px; 
+  padding: 12px; 
+  border-radius: 16px; 
   border: 1px solid rgba(229, 231, 235, 0.5);
   background: rgba(255, 255, 255, 0.8); 
   backdrop-filter: blur(10px);
   color: #374151;
   display: grid; 
-  grid-template-columns: 36px 1fr; 
-  gap: 8px; 
+  grid-template-columns: 40px 1fr; 
+  gap: 10px; 
   align-items: center;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.4;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -278,13 +278,13 @@ body.dark-mode .notice {
 }
 
 .notice .dot { 
-  width: 36px; 
-  height: 36px; 
-  border-radius: 10px; 
+  width: 40px; 
+  height: 40px; 
+  border-radius: 12px; 
   background: linear-gradient(135deg, #dbeafe, #e0e7ff); 
   display: grid; 
   place-items: center; 
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   transition: all 0.3s ease;
   box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
@@ -295,11 +295,11 @@ body.dark-mode .notice .dot {
 }
 
 .footer { 
-  margin-top: 8px; 
-  padding-top: 2px;
+  margin-top: 12px; 
+  padding-top: 4px;
   text-align: center; 
   color: #9ca3af; 
-  font-size: 10px; 
+  font-size: 11px; 
   font-weight: 500;
   letter-spacing: 0.2px;
   transition: color 0.3s ease;
