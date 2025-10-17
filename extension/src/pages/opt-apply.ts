@@ -392,6 +392,81 @@ function calculateFilingWindow(programEndDate: Date, dsoRecommendationDate: Date
 }
 
 /**
+ * Get API base URL
+ */
+function getApiBaseUrl(): string {
+  return process.env.NODE_ENV === 'production'
+    ? 'https://trackmyopt.com'
+    : 'http://localhost:3000';
+}
+
+/**
+ * Load saved OPT data from API
+ */
+async function loadSavedData(): Promise<any> {
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (!idToken) return null;
+
+    const response = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) return null;
+    
+    const result = await response.json();
+    return result.ok ? result.data : null;
+  } catch (error) {
+    console.error('Error loading saved data:', error);
+    return null;
+  }
+}
+
+/**
+ * Save OPT data to API
+ */
+async function saveDatesToAPI(
+  programEndDate: string | null,
+  dsoRecommendationDate: string | null
+): Promise<boolean> {
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (!idToken) {
+      console.log('No auth token, skipping save');
+      return false;
+    }
+
+    const response = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        program_end_date: programEndDate,
+        dso_recommendation_date: dsoRecommendationDate,
+      }),
+    });
+
+    const result = await response.json();
+    if (result.ok) {
+      console.log('✅ Dates saved successfully');
+      return true;
+    } else {
+      console.error('Failed to save dates:', result.error);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error saving dates:', error);
+    return false;
+  }
+}
+
+/**
  * Render OPT Apply Start Dates page
  */
 export function renderOptApply(root: HTMLElement, onBack: () => void): void {
@@ -658,8 +733,22 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     }
   });
   
+  // Auto-save dates when they change
+  const autoSaveDates = () => {
+    const programEndInput = document.getElementById('program-end-date') as HTMLInputElement;
+    const dsoRecommendationInput = document.getElementById('dso-recommendation-date') as HTMLInputElement;
+    
+    const programEnd = programEndInput.value.trim();
+    const dsoRec = dsoRecommendationInput.value.trim();
+    
+    // Only save if program end date is valid
+    if (programEnd && parseDate(programEnd)) {
+      saveDatesToAPI(programEnd, dsoRec || null);
+    }
+  };
+
   // Event handlers
-  calculateBtn.addEventListener('click', () => {
+  calculateBtn.addEventListener('click', async () => {
     const programEndInput = document.getElementById('program-end-date') as HTMLInputElement;
     const dsoRecommendationInput = document.getElementById('dso-recommendation-date') as HTMLInputElement;
     
@@ -685,6 +774,12 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       `;
       return;
     }
+    
+    // Save dates to database
+    await saveDatesToAPI(
+      programEndInput.value.trim(),
+      dsoRecommendationInput.value.trim() || null
+    );
     
     const results = calculateFilingWindow(programEndDate, dsoRecommendationDate);
     
@@ -747,6 +842,37 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   calculateBtn.addEventListener('mouseleave', () => {
     calculateBtn.style.transform = 'translateY(0)';
     calculateBtn.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+  });
+  
+  // Add blur event listeners to auto-save when user finishes entering dates
+  const programEndInput = document.getElementById('program-end-date') as HTMLInputElement;
+  const dsoRecommendationInput = document.getElementById('dso-recommendation-date') as HTMLInputElement;
+  
+  if (programEndInput) {
+    programEndInput.addEventListener('blur', () => {
+      // Delay to allow calendar selection to complete
+      setTimeout(autoSaveDates, 300);
+    });
+  }
+  
+  if (dsoRecommendationInput) {
+    dsoRecommendationInput.addEventListener('blur', () => {
+      setTimeout(autoSaveDates, 300);
+    });
+  }
+  
+  // Load saved data on page load
+  loadSavedData().then(savedData => {
+    if (savedData && programEndInput) {
+      if (savedData.program_end_date) {
+        programEndInput.value = savedData.program_end_date;
+      }
+      if (savedData.dso_recommendation_date && dsoRecommendationInput) {
+        dsoRecommendationInput.value = savedData.dso_recommendation_date;
+      }
+      
+      console.log('✅ Loaded saved OPT dates');
+    }
   });
   
   setupPageHandlers(onBack);
