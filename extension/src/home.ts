@@ -61,7 +61,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   `;
 
   // Hook up tile navigation
-  const tiles = root.querySelectorAll<HTMLElement>('.tile');
+  const tiles = root.querySelectorAll<HTMLElement>('.glass-tile');
   tiles.forEach(tile => {
     const page = tile.dataset.page;
     const href = tile.dataset.link;
@@ -88,7 +88,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   });
 
   // Theme button - toggle between light and dark mode
-  const themeBtn = root.querySelector('.theme-btn');
+  const themeBtn = root.querySelector('.glass-btn#theme-btn');
   const themeIcon = root.querySelector('#theme-icon');
   
   // Set initial icon based on current theme
