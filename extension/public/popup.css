@@ -53,7 +53,7 @@ body.dark-mode .header {
   font-size: 22px; 
   font-weight: 800; 
   letter-spacing: 0.2px;
-  background: linear-gradient(90deg, #60a5fa, #a78bfa);
+  background: linear-gradient(90deg, #007AFF, #5856D6);
   -webkit-background-clip: text; 
   background-clip: text; 
   color: transparent;
@@ -89,7 +89,7 @@ body.dark-mode .header {
   place-items: center;
   border: 1px solid #e5e7eb;
   background: #ffffff;
-  color: #2563eb;
+  color: #007AFF;
   cursor: pointer;
   font-size: 20px;
   font-weight: 700;
@@ -99,7 +99,7 @@ body.dark-mode .header {
 body.dark-mode .back-btn {
   background: #0f1115;
   border-color: #2b3441;
-  color: #60a5fa;
+  color: #0A84FF;
 }
 
 .back-btn:hover {
@@ -132,16 +132,16 @@ body.dark-mode .logout-btn {
 }
 
 .theme-btn {
-  color: #6366f1; /* Indigo for moon icon in light mode */
+  color: #5856D6; /* Apple Purple for moon icon in light mode */
 }
 
 body.dark-mode .theme-btn {
-  color: #fbbf24; /* Amber for sun icon in dark mode */
+  color: #FFD60A; /* Apple Yellow for sun icon in dark mode */
 }
 
 .logout-btn {
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.3);
+  color: #FF3B30;
+  border-color: rgba(255, 59, 48, 0.3);
 }
 
 .theme-btn:hover,
@@ -156,21 +156,21 @@ body.dark-mode .logout-btn:hover {
 }
 
 .logout-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
+  background: rgba(255, 59, 48, 0.1);
+  border-color: #FF3B30;
 }
 
 .banner {
   margin: 12px 0 10px; 
   padding: 12px 14px; 
   border-radius: 14px;
-  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  background: linear-gradient(135deg, #007AFF, #5856D6);
   text-align: center; 
   font-weight: 600;
   font-size: 12px;
   color: white;
   line-height: 1.3;
-  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.25);
+  box-shadow: 0 2px 12px rgba(0, 122, 255, 0.25);
 }
 
 .grid { 
@@ -248,10 +248,10 @@ body.dark-mode .logout-btn:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.blue   { background: linear-gradient(180deg, #1d4ed8, #2563eb); }
-.green  { background: linear-gradient(180deg, #059669, #10b981); }
-.purple { background: linear-gradient(180deg, #7c3aed, #a855f7); }
-.orange { background: linear-gradient(180deg, #ea580c, #f97316); }
+.blue   { background: linear-gradient(135deg, #007AFF, #5AC8FA); }
+.green  { background: linear-gradient(135deg, #34C759, #30D158); }
+.purple { background: linear-gradient(135deg, #5856D6, #AF52DE); }
+.orange { background: linear-gradient(135deg, #FF9500, #FF9F0A); }
 
 .notice {
   margin-top: 12px; 
@@ -281,13 +281,13 @@ body.dark-mode .notice {
   width: 40px; 
   height: 40px; 
   border-radius: 12px; 
-  background: linear-gradient(135deg, #dbeafe, #e0e7ff); 
+  background: linear-gradient(135deg, #E5F5FF, #EBF0FF); 
   display: grid; 
   place-items: center; 
   font-size: 20px;
   line-height: 1;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.15);
 }
 
 body.dark-mode .notice .dot {
@@ -310,13 +310,13 @@ body.dark-mode .footer {
 }
 
 .link { 
-  color: #2563eb; 
+  color: #007AFF; 
   text-decoration: none; 
   transition: color 0.3s ease;
 }
 
 body.dark-mode .link {
-  color: #60a5fa;
+  color: #0A84FF;
 }
 
 .link:hover { 
