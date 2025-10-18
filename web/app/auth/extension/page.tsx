@@ -254,10 +254,11 @@ export default function ExtensionAuthPage() {
         // Redirect to intermediate page that will handle the extension redirect
         const completingUrl = new URL('/auth/completing', window.location.origin);
         completingUrl.searchParams.set('token', data.token);
-        completingUrl.searchParams.set('state', state!);
-        completingUrl.searchParams.set('redirect_uri', redirectUri!);
+        if (state) completingUrl.searchParams.set('state', state);
+        if (redirectUri) completingUrl.searchParams.set('redirect_uri', redirectUri);
         completingUrl.searchParams.set('redirect', '/dashboard');
         
+        console.log('Manual login - redirecting to completing page:', completingUrl.toString());
         window.location.href = completingUrl.toString();
       } else {
         // Web flow: establish server-side session via API route
