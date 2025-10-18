@@ -159,6 +159,11 @@ export default function ExtensionAuthPage() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
+    
+    console.log('=== GOOGLE SIGN IN STARTED ===');
+    console.log('Flow detection:', { isExtensionFlow, isWebFlow });
+    console.log('URL parameters:', { redirectUri, state, redirect });
+    
     try {
       if (isExtensionFlow) {
         // Extension flow: use client callback to capture hash tokens and forward to server
@@ -195,6 +200,7 @@ export default function ExtensionAuthPage() {
               prompt: 'consent',
             },
             skipBrowserRedirect: false,
+            scopes: 'openid email profile',
           },
         });
         if (oauthError) throw oauthError;
