@@ -75,6 +75,12 @@ CREATE TABLE IF NOT EXISTS email_preferences (
 -- Enable RLS
 ALTER TABLE email_preferences ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (for re-running migration)
+DROP POLICY IF EXISTS "Users can view own email preferences" ON email_preferences;
+DROP POLICY IF EXISTS "Users can update own email preferences" ON email_preferences;
+DROP POLICY IF EXISTS "Users can insert own email preferences" ON email_preferences;
+DROP POLICY IF EXISTS "Users can delete own email preferences" ON email_preferences;
+
 -- RLS Policies
 CREATE POLICY "Users can view own email preferences"
   ON email_preferences FOR SELECT
@@ -126,6 +132,9 @@ CREATE TABLE IF NOT EXISTS email_queue (
 -- Enable RLS (service role will bypass this)
 ALTER TABLE email_queue ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (for re-running migration)
+DROP POLICY IF EXISTS "Users can view own email history" ON email_queue;
+
 -- RLS Policy - users can view their own email history
 CREATE POLICY "Users can view own email history"
   ON email_queue FOR SELECT
@@ -167,6 +176,9 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
 
 -- Enable RLS
 ALTER TABLE payment_transactions ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (for re-running migration)
+DROP POLICY IF EXISTS "Users can view own transactions" ON payment_transactions;
 
 -- RLS Policy - users can view their own transactions
 CREATE POLICY "Users can view own transactions"
