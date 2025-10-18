@@ -5,9 +5,9 @@
  */
 
 // Development: Use localhost
-// Production: Use your deployed URL (e.g., https://trackmyopt.vercel.app)
+// Production: Use your deployed URL
 export const WEBSITE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://trackmyopt.vercel.app'  // TODO: Update to your production domain
+  ? 'https://www.trackmyopt.com'
   : 'http://localhost:3000';
 
 export const API_ENDPOINTS = {
