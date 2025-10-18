@@ -123,84 +123,16 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       if (confirm('Are you sure you want to sign out?')) {
-        console.log('🚪 Starting logout process...');
-        
-        // Step 1: Directly clear all website cookies using Chrome Cookies API
-        console.log('🍪 Clearing website cookies directly...');
-        try {
-          const websiteUrl = 'https://www.trackmyopt.com';
-          
-          // Get all cookies for the website
-          const cookies = await chrome.cookies.getAll({ url: websiteUrl });
-          console.log(`📋 Found ${cookies.length} cookies to clear:`, cookies.map(c => c.name));
-          
-          // Delete each cookie
-          for (const cookie of cookies) {
-            const url = `${websiteUrl}${cookie.path}`;
-            await chrome.cookies.remove({
-              url: url,
-              name: cookie.name,
-              storeId: cookie.storeId
-            });
-            console.log(`🗑️ Deleted cookie: ${cookie.name}`);
-          }
-          
-          console.log('✅ All website cookies cleared directly');
-        } catch (error) {
-          console.error('❌ Error clearing cookies directly:', error);
-        }
-        
-        // Step 2: Also call the signout API for server-side cleanup
-        console.log('🔓 Calling website signout API...');
-        try {
-          const signoutTab = await chrome.tabs.create({ 
-            url: 'https://www.trackmyopt.com/auth/signout?from=extension',
-            active: false
-          });
-          
-          console.log('📂 Opened signout tab:', signoutTab.id);
-          
-          // Wait for signout to complete
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          // Close the signout tab
-          if (signoutTab.id) {
-            await chrome.tabs.remove(signoutTab.id).catch((err) => {
-              console.error('Error closing signout tab:', err);
-            });
-            console.log('✅ Signout tab closed');
-          }
-          
-          console.log('✅ Website signout completed');
-        } catch (error) {
-          console.error('❌ Error calling signout API:', error);
-        }
-        
-        // Step 3: Clear all extension stored data
-        console.log('🗑️ Clearing extension storage...');
+        // Clear all stored data
         await chrome.storage.sync.clear();
         await chrome.storage.session.clear();
-        await chrome.storage.local.clear();
         
-        console.log('✅ Extension storage cleared');
+        console.log('User signed out');
         
-        // Step 4: Verify cookies are cleared
-        console.log('🔍 Verifying cookies are cleared...');
-        try {
-          const remainingCookies = await chrome.cookies.getAll({ url: 'https://www.trackmyopt.com' });
-          if (remainingCookies.length === 0) {
-            console.log('✅ Verified: All cookies cleared successfully');
-          } else {
-            console.warn('⚠️ Warning: Some cookies still remain:', remainingCookies.map(c => c.name));
-          }
-        } catch (error) {
-          console.error('❌ Error verifying cookies:', error);
-        }
-        
-        console.log('🎉 Logout complete!');
-        
-        // Step 5: Reload the popup to show locked state
-        window.location.reload();
+        // Navigate to locked page instead of reloading
+        // Import renderLocked dynamically
+        const { renderLocked } = await import('./locked');
+        renderLocked(root);
       }
     });
   }

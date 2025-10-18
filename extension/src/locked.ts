@@ -36,13 +36,26 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
   // Hook up sign-in button to trigger OAuth flow
   const signinBtn = document.getElementById('signin-btn');
   if (signinBtn) {
-    signinBtn.addEventListener('click', () => {
+    signinBtn.addEventListener('click', async () => {
       console.log('Initiating OAuth flow...');
+      
+      // Show loading state
+      if (signinBtn) {
+        signinBtn.textContent = 'Opening authentication...';
+        signinBtn.disabled = true;
+      }
+      
       chrome.runtime.sendMessage({ type: 'BEGIN_AUTH' }, (response) => {
         if (chrome.runtime.lastError) {
           console.error('Auth message error:', chrome.runtime.lastError);
+          if (signinBtn) {
+            signinBtn.textContent = 'Sign in or create account';
+            signinBtn.disabled = false;
+          }
         } else {
           console.log('Auth initiated:', response);
+          // Close the popup after opening auth tab
+          window.close();
         }
       });
     });
