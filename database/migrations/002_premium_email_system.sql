@@ -25,13 +25,34 @@ ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT;
 ALTER TABLE profiles 
 ADD COLUMN IF NOT EXISTS stripe_payment_intent_id TEXT;
 
--- Create index for faster premium user queries
+-- Add user info columns (needed for email system)
+ALTER TABLE profiles 
+ADD COLUMN IF NOT EXISTS email TEXT;
+
+ALTER TABLE profiles 
+ADD COLUMN IF NOT EXISTS first_name TEXT;
+
+ALTER TABLE profiles 
+ADD COLUMN IF NOT EXISTS last_name TEXT;
+
+-- Create indexes for faster queries
 CREATE INDEX IF NOT EXISTS idx_profiles_premium_status ON profiles(premium_status);
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON profiles(email);
+
+-- Backfill existing users' emails from auth.users
+UPDATE profiles p
+SET email = au.email
+FROM auth.users au
+WHERE p.user_id = au.id
+  AND p.email IS NULL;
 
 COMMENT ON COLUMN profiles.premium_status IS 'Whether user has purchased premium access';
 COMMENT ON COLUMN profiles.premium_purchased_at IS 'Timestamp when premium was purchased';
 COMMENT ON COLUMN profiles.stripe_customer_id IS 'Stripe customer ID for this user';
 COMMENT ON COLUMN profiles.stripe_payment_intent_id IS 'Last successful payment intent ID';
+COMMENT ON COLUMN profiles.email IS 'User email address (synced from auth.users)';
+COMMENT ON COLUMN profiles.first_name IS 'User first name for personalization';
+COMMENT ON COLUMN profiles.last_name IS 'User last name for personalization';
 
 -- =====================================================
 -- 2. CREATE EMAIL_PREFERENCES TABLE
@@ -224,6 +245,28 @@ $$ LANGUAGE plpgsql;
 
 COMMENT ON FUNCTION upgrade_user_to_premium IS 'Upgrades a user to premium status after successful payment';
 
+-- Function to handle new user signup (updates existing trigger)
+-- This ensures email is copied from auth.users to profiles on signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (user_id, email)
+  VALUES (new.id, new.email)
+  ON CONFLICT (user_id) DO UPDATE
+  SET email = EXCLUDED.email;
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+COMMENT ON FUNCTION public.handle_new_user IS 'Automatically creates profile with email on user signup';
+
+-- Ensure trigger exists (recreate if needed)
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW 
+  EXECUTE FUNCTION public.handle_new_user();
+
 -- =====================================================
 -- 6. CREATE VIEWS FOR ANALYTICS
 -- =====================================================
@@ -336,4 +379,32 @@ BEGIN
   RAISE NOTICE '  4. Set up email service';
   RAISE NOTICE '';
 END $$;
+
+-- =====================================================
+-- VERIFICATION QUERY
+-- =====================================================
+-- Run this to verify migration was successful
+
+SELECT 
+  'Profiles Table' as check_name,
+  COUNT(*) as total_profiles,
+  COUNT(email) as profiles_with_email,
+  COUNT(premium_status) as profiles_with_premium_column,
+  COUNT(*) FILTER (WHERE premium_status = TRUE) as premium_users
+FROM profiles;
+
+SELECT 
+  'Email Preferences Table' as check_name,
+  COUNT(*) as total_records
+FROM email_preferences;
+
+SELECT 
+  'Payment Transactions Table' as check_name,
+  COUNT(*) as total_records
+FROM payment_transactions;
+
+SELECT 
+  'Email Queue Table' as check_name,
+  COUNT(*) as total_records
+FROM email_queue;
 
