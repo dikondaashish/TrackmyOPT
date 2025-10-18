@@ -1,3 +1,4 @@
+import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 
 /**
@@ -351,13 +352,6 @@ function calculateStemFilingWindow(currentOptEndDate: Date) {
 }
 
 /**
- * Get API base URL
- */
-function getApiBaseUrl(): string {
-  return process.env.NODE_ENV === 'production'
-    ? 'https://trackmyopt.com'
-    : 'http://localhost:3000';
-}
 
 /**
  * Load saved STEM OPT data from API
@@ -367,7 +361,7 @@ async function loadSavedData(): Promise<any> {
     const { idToken } = await chrome.storage.sync.get('idToken');
     if (!idToken) return null;
 
-    const response = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${idToken}`,
@@ -397,7 +391,7 @@ async function saveOptEadEndDate(optEadEndDate: string | null): Promise<boolean>
     }
 
     // Get current program end date (required field)
-    const response = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${idToken}`,
@@ -408,7 +402,7 @@ async function saveOptEadEndDate(optEadEndDate: string | null): Promise<boolean>
     let programEndDate = result.data?.program_end_date || optEadEndDate;
 
     // Save with opt_ead_end_date
-    const saveResponse = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+    const saveResponse = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${idToken}`,

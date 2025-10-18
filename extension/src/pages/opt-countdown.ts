@@ -1,4 +1,5 @@
 import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
+import { WEBSITE_URL } from '../config.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -49,15 +50,6 @@ function calculateTimeRemaining(targetDate: Date): {
 }
 
 /**
- * Get API base URL
- */
-function getApiBaseUrl(): string {
-  return process.env.NODE_ENV === 'production'
-    ? 'https://trackmyopt.com'
-    : 'http://localhost:3000';
-}
-
-/**
  * Check if user has premium access
  */
 async function checkPremiumStatus(): Promise<boolean> {
@@ -65,7 +57,7 @@ async function checkPremiumStatus(): Promise<boolean> {
     const { idToken } = await chrome.storage.sync.get('idToken');
     if (!idToken) return false;
 
-    const response = await fetch(`${getApiBaseUrl()}/api/premium/status`, {
+    const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${idToken}`,
@@ -450,7 +442,7 @@ export async function renderOptCountdown(
         // Open Stripe checkout
         const { idToken } = await chrome.storage.sync.get('idToken');
         if (idToken) {
-          const checkoutUrl = `${getApiBaseUrl()}/premium/checkout`;
+          const checkoutUrl = `${WEBSITE_URL}/premium/checkout`;
           chrome.tabs.create({ url: checkoutUrl });
         } else {
           alert('Please sign in to upgrade to premium');

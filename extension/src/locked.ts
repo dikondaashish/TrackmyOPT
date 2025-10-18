@@ -28,8 +28,8 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
     </div>
 
     <div class="footer" style="margin-top: 12px;">
-      <a class="link" target="_blank" rel="noreferrer" href="http://localhost:3000/privacy">Privacy</a> ·
-      <a class="link" target="_blank" rel="noreferrer" href="http://localhost:3000/terms">Terms</a>
+      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/privacy">Privacy</a> ·
+      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/terms">Terms</a>
     </div>
   `;
 

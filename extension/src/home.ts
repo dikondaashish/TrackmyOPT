@@ -55,8 +55,8 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     </div>
 
     <div class="footer">
-      <a class="link" target="_blank" rel="noreferrer" href="http://localhost:3000/privacy">Privacy</a> ·
-      <a class="link" target="_blank" rel="noreferrer" href="http://localhost:3000/terms">Terms</a>
+      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/privacy">Privacy</a> ·
+      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/terms">Terms</a>
     </div>
   `;
 

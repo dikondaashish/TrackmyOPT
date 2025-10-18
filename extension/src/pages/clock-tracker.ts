@@ -1,3 +1,4 @@
+import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 
 /**

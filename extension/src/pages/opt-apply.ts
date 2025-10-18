@@ -1,3 +1,4 @@
+import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 
 /**
@@ -514,7 +515,7 @@ async function checkPremiumStatus(): Promise<boolean> {
     const { idToken } = await chrome.storage.sync.get('idToken');
     if (!idToken) return false;
 
-    const response = await fetch(`${getApiBaseUrl()}/api/premium/status`, {
+    const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${idToken}`,
@@ -533,13 +534,6 @@ async function checkPremiumStatus(): Promise<boolean> {
 }
 
 /**
- * Get API base URL
- */
-function getApiBaseUrl(): string {
-  return process.env.NODE_ENV === 'production'
-    ? 'https://trackmyopt.com'
-    : 'http://localhost:3000';
-}
 
 /**
  * Load saved OPT data from API
@@ -549,7 +543,7 @@ async function loadSavedData(): Promise<any> {
     const { idToken } = await chrome.storage.sync.get('idToken');
     if (!idToken) return null;
 
-    const response = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${idToken}`,
@@ -581,7 +575,7 @@ async function saveDatesToAPI(
       return false;
     }
 
-    const response = await fetch(`${getApiBaseUrl()}/api/opt/calculator`, {
+    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${idToken}`,

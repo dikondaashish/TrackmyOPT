@@ -95,7 +95,7 @@ async function beginAuth(){
         // Navigate the tab to dashboard after capturing token
         const dashboardUrl = process.env.NODE_ENV === 'production' 
           ? 'https://trackmyopt.com/dashboard'
-          : 'http://localhost:3000/dashboard';
+          : 'https://www.trackmyopt.com/dashboard';
         
         console.log('🌐 Navigating tab to dashboard:', dashboardUrl);
         await chrome.tabs.update(tab.id, { url: dashboardUrl });
