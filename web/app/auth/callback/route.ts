@@ -103,8 +103,8 @@ export async function GET(req: NextRequest) {
       
       // Check if there's already a session (from client-side processing)
       const { data: sessionData } = await supabase.auth.getSession();
-      if (sessionData.session && sessionData.user) {
-        console.log('Found existing session, user:', sessionData.user.id);
+      if (sessionData.session && sessionData.session.user) {
+        console.log('Found existing session, user:', sessionData.session.user.id);
         // Session exists, proceed with redirect
       } else {
         console.error('No session found, redirecting back to auth');
