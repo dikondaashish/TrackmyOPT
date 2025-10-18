@@ -69,7 +69,9 @@ export async function GET(req: NextRequest) {
     // Get the user from the session
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    console.log('Callback - User:', user ? user.id : 'none', 'Error:', userError?.message);
+    console.log('General callback - User:', user ? user.id : 'none', 'Error:', userError?.message);
+    console.log('General callback - User email:', user?.email);
+    console.log('General callback - Redirect to:', redirect);
     
     if (!user) {
       console.error('No user found in callback, redirecting back to auth');
