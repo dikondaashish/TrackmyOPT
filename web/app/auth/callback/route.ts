@@ -10,15 +10,23 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get('code');
   const redirect = searchParams.get('redirect') || '/dashboard';
   
+  // Check for tokens in hash (implicit flow)
+  const hash = url.hash.substring(1); // Remove the # character
+  const hashParams = new URLSearchParams(hash);
+  const accessToken = hashParams.get('access_token');
+  const refreshToken = hashParams.get('refresh_token');
+  
   try {
     
     console.log('General auth callback:', { 
       hasCode: !!code,
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
       redirect: redirect
     });
 
-    if (!code) {
-      console.error('No code provided in callback');
+    if (!code && !accessToken) {
+      console.error('No code or access token provided in callback');
       return NextResponse.redirect(new URL('/auth/extension?error=no_code', req.url));
     }
 
@@ -50,22 +58,38 @@ export async function GET(req: NextRequest) {
       }
     );
 
-    // Exchange code for session
-    console.log('Exchanging code for session, code length:', code.length);
-    const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-    
-    if (exchangeError) {
-      console.error('Code exchange error:', {
-        message: exchangeError.message,
-        status: exchangeError.status,
-        name: exchangeError.name,
-      });
-      return NextResponse.redirect(
-        new URL(`/auth/extension?error=code_exchange_failed&redirect=${encodeURIComponent(redirect)}`, req.url)
-      );
+    // Handle PKCE flow (code in query params)
+    if (code) {
+      console.log('PKCE flow: Exchanging code for session, code length:', code.length);
+      const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      if (exchangeError) {
+        console.error('Code exchange error:', {
+          message: exchangeError.message,
+          status: exchangeError.status,
+          name: exchangeError.name,
+        });
+        return NextResponse.redirect(
+          new URL(`/auth/extension?error=code_exchange_failed&redirect=${encodeURIComponent(redirect)}`, req.url)
+        );
+      }
+      console.log('Code exchange successful, user:', sessionData?.user?.id);
     }
     
-    console.log('Code exchange successful, user:', sessionData?.user?.id);
+    // Handle implicit flow (tokens in hash)
+    else if (accessToken && refreshToken) {
+      console.log('Implicit flow: Setting session from access token');
+      const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        return NextResponse.redirect(
+          new URL(`/auth/extension?error=session_failed&redirect=${encodeURIComponent(redirect)}`, req.url)
+        );
+      }
+      console.log('Session set successfully, user:', sessionData?.user?.id);
+    }
 
     // Get the user from the session
     const { data: { user }, error: userError } = await supabase.auth.getUser();
