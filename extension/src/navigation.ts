@@ -147,28 +147,50 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
       if (confirm('Are you sure you want to sign out?')) {
         console.log('🔓 Starting logout process...');
         
-        // Clear all extension stored data first
+        // Open website signout page and wait for it to complete
+        try {
+          const tab = await chrome.tabs.create({ 
+            url: 'https://www.trackmyopt.com/auth/signout',
+            active: true // Open in foreground to ensure signout completes
+          });
+          console.log('🌐 Opened website signout page');
+          
+          // Wait for signout to complete and redirect to homepage
+          await new Promise((resolve) => {
+            const listener = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+              if (tabId === tab.id && changeInfo.url && changeInfo.url.includes('www.trackmyopt.com')) {
+                // Check if redirected to homepage or auth page (signout complete)
+                if (!changeInfo.url.includes('/auth/signout')) {
+                  console.log('✅ Website signout complete, URL:', changeInfo.url);
+                  chrome.tabs.onUpdated.removeListener(listener);
+                  
+                  // Close the signout tab
+                  chrome.tabs.remove(tab.id!).catch(console.error);
+                  resolve(undefined);
+                }
+              }
+            };
+            
+            chrome.tabs.onUpdated.addListener(listener);
+            
+            // Fallback: close after 3 seconds if redirect doesn't happen
+            setTimeout(() => {
+              chrome.tabs.onUpdated.removeListener(listener);
+              chrome.tabs.remove(tab.id!).catch(console.error);
+              resolve(undefined);
+            }, 3000);
+          });
+          
+          console.log('✅ Signout tab closed');
+        } catch (error) {
+          console.error('❌ Website signout error:', error);
+        }
+        
+        // Clear all extension stored data AFTER website signout
         await chrome.storage.sync.clear();
         await chrome.storage.session.clear();
         await chrome.storage.local.clear();
         console.log('✅ Extension storage cleared');
-        
-        // Open website signout in background to clear website session
-        try {
-          const tab = await chrome.tabs.create({ 
-            url: 'https://www.trackmyopt.com/auth/signout',
-            active: false // Open in background
-          });
-          console.log('🌐 Opening website signout in background');
-          
-          // Close the tab after signout is complete (2 seconds)
-          setTimeout(() => {
-            chrome.tabs.remove(tab.id!).catch(console.error);
-            console.log('✅ Signout tab closed');
-          }, 2000);
-        } catch (error) {
-          console.error('❌ Website signout error:', error);
-        }
         
         console.log('✅ User signed out completely');
         
