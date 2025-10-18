@@ -193,6 +193,7 @@ export default function ExtensionAuthPage() {
         console.log('NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL);
         console.log('Site URL used:', siteUrl);
         console.log('Redirect parameter:', redirect);
+        console.log('About to call signInWithOAuth with redirectTo:', callbackUrl);
         
         const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
           provider: 'google',
@@ -207,8 +208,10 @@ export default function ExtensionAuthPage() {
           },
         });
         if (oauthError) throw oauthError;
+        console.log('OAuth call completed successfully');
       }
     } catch (err: any) {
+      console.error('OAuth error:', err);
       setError(err.message || 'Google sign-in failed');
       setLoading(false);
     }
