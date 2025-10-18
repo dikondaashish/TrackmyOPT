@@ -96,11 +96,19 @@ export default function ExtensionAuthPage() {
           setError('Authentication failed');
           setLoading(false);
         }
+      } else if (errorParam === 'no_code') {
+        // Handle the case where OAuth redirects to extension page with no_code error
+        console.log('OAuth redirected to extension page with no_code error');
+        console.log('This suggests Supabase is configured to redirect to /auth/extension instead of /auth/callback');
+        console.log('Please check Supabase URL Configuration');
+        
+        // Clear the error and show a helpful message
+        setError('OAuth configuration issue. Please check Supabase settings.');
       }
     };
     
     handleHashTokens();
-  }, [redirect]);
+  }, [redirect, errorParam]);
   
   const validatePassword = (pwd: string) => {
     return {
