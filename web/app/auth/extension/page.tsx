@@ -125,13 +125,11 @@ export default function ExtensionAuthPage() {
         });
         if (oauthError) throw oauthError;
       } else {
-        // Web flow: redirect to client-side callback (handles hash-based tokens)
-        const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback/client?redirect=${encodeURIComponent(redirect)}`;
-        
+        // Web flow: redirect directly to dashboard after Google auth
         const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: callbackUrl,
+            redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}${redirect}`,
             queryParams: {
               access_type: 'offline',
               prompt: 'consent',

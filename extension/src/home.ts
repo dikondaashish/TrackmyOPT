@@ -129,10 +129,9 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         
         console.log('User signed out');
         
-        // Navigate to locked page instead of reloading
-        // Import renderLocked dynamically
-        const { renderLocked } = await import('./locked');
-        renderLocked(root);
+        // Trigger re-render by dispatching storage change
+        // The popup.ts listener will catch this and re-render
+        window.location.reload();
       }
     });
   }

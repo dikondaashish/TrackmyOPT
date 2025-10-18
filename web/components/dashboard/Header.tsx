@@ -8,48 +8,44 @@ interface HeaderProps {
 
 export function Header({ darkMode, setDarkMode }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-8 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          {/* Theme Toggle */}
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="relative w-10 h-10 rounded-lg bg-muted hover:bg-accent transition-all duration-200 flex items-center justify-center group"
-            aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
-          >
-            <div className="relative w-5 h-5">
-              <Sun 
-                className={`absolute inset-0 w-5 h-5 transition-all duration-300 ${
-                  darkMode 
-                    ? 'rotate-90 scale-0 opacity-0' 
-                    : 'rotate-0 scale-100 opacity-100'
-                }`} 
-              />
-              <Moon 
-                className={`absolute inset-0 w-5 h-5 transition-all duration-300 ${
-                  darkMode 
-                    ? 'rotate-0 scale-100 opacity-100' 
-                    : '-rotate-90 scale-0 opacity-0'
-                }`} 
-              />
-            </div>
-          </button>
-          
-          {/* User Profile */}
-          <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
-              DA
-            </div>
-            <div className="hidden sm:block">
-              <p className="text-sm font-medium text-foreground">dikondaashish@gmail.com</p>
-              <p className="text-xs text-muted-foreground">Premium User</p>
+    <header className="sticky top-0 z-10 border-b border-border/50 backdrop-blur-xl bg-background/80 px-8 py-4">
+      <div className="flex items-center justify-end">
+        {/* Apple-style theme toggle */}
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          className="group relative w-16 h-8 rounded-full bg-muted hover:bg-accent transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {/* Toggle track */}
+          <div className="absolute inset-0 rounded-full overflow-hidden">
+            <div
+              className={`absolute inset-0 transition-transform duration-300 ease-out ${
+                darkMode ? 'translate-x-0' : 'translate-x-full'
+              }`}
+            >
+              <div className="w-full h-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20" />
             </div>
           </div>
-        </div>
+          
+          {/* Toggle thumb */}
+          <div
+            className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white dark:bg-card shadow-lg flex items-center justify-center transition-transform duration-300 ease-out ${
+              darkMode ? 'translate-x-8' : 'translate-x-0'
+            }`}
+          >
+            {darkMode ? (
+              <Moon className="w-4 h-4 text-primary" />
+            ) : (
+              <Sun className="w-4 h-4 text-amber-500" />
+            )}
+          </div>
+          
+          {/* Icons in track */}
+          <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none">
+            <Sun className={`w-3.5 h-3.5 transition-opacity duration-200 ${darkMode ? 'opacity-30' : 'opacity-0'}`} />
+            <Moon className={`w-3.5 h-3.5 transition-opacity duration-200 ${darkMode ? 'opacity-0' : 'opacity-30'}`} />
+          </div>
+        </button>
       </div>
     </header>
   );

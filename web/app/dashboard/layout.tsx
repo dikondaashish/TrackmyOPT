@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
@@ -24,10 +24,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const savedMode = localStorage.getItem('tmo_dark_mode');
     if (savedMode !== null) {
       setDarkMode(savedMode === 'true');
-    } else {
-      // Default to system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setDarkMode(prefersDark);
     }
   }, []);
 
@@ -51,7 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Header darkMode={darkMode} setDarkMode={handleDarkModeToggle} />
         
         {/* Scrollable Content */}
-        <main className="px-6 py-6 scrollbar-thin">{children}</main>
+        <main className="px-6 py-6">{children}</main>
       </div>
     </div>
   );

@@ -100,15 +100,6 @@ async function beginAuth(){
         console.log('🌐 Navigating tab to dashboard:', dashboardUrl);
         await chrome.tabs.update(tab.id, { url: dashboardUrl });
         
-        // Show a notification that authentication was successful
-        chrome.notifications.create({
-          type: 'basic',
-          iconUrl: 'icon-128.png',
-          title: 'TrackMyOPT',
-          message: 'Successfully signed in! You can now close this tab and open the extension.',
-          priority: 2
-        });
-        
         resolve(undefined);
       } catch (error) {
         console.error('❌ Error processing auth response:', error);

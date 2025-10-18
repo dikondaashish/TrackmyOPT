@@ -3,7 +3,7 @@
   "name": "TrackMyOPT",
   "version": "0.1.0",
   "description": "Track your OPT timeline with precision",
-  "permissions": ["identity", "storage", "tabs", "notifications"],
+  "permissions": ["identity", "storage", "tabs"],
   "host_permissions": ["http://localhost:3000/*", "https://*.vercel.app/*"],
   "action": {
     "default_popup": "popup.html",
