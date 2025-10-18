@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
-export async function POST(request: Request) {
+async function signOut(request: Request) {
   const cookieStore = cookies();
   
   // Create Supabase client with proper cookie handling
@@ -37,5 +37,13 @@ export async function POST(request: Request) {
 
   // Redirect to home page
   return NextResponse.redirect(new URL('/', request.url));
+}
+
+export async function POST(request: Request) {
+  return signOut(request);
+}
+
+export async function GET(request: Request) {
+  return signOut(request);
 }
 
