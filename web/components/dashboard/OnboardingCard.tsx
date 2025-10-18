@@ -139,7 +139,6 @@ export function OnboardingCard() {
             id="stemEligible"
             checked={stemEligible}
             onCheckedChange={(checked) => setStemEligible(!!checked)}
-            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
           />
           <div className="flex items-center gap-2">
             <GraduationCap className="w-4 h-4 text-primary" />
