@@ -5,11 +5,12 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const { searchParams } = url;
+  const code = searchParams.get('code');
+  const redirect = searchParams.get('redirect') || '/dashboard';
+  
   try {
-    const url = new URL(req.url);
-    const { searchParams } = url;
-    const code = searchParams.get('code');
-    const redirect = searchParams.get('redirect') || '/dashboard';
     
     console.log('General auth callback:', { 
       hasCode: !!code,
