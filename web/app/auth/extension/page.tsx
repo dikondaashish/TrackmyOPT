@@ -84,9 +84,12 @@ export default function ExtensionAuthPage() {
             return;
           }
           
-          console.log('Session set successfully from hash tokens, redirecting to:', redirect);
-          // Redirect to the intended destination
-          window.location.href = redirect;
+          console.log('Session set successfully from hash tokens');
+          
+          // Instead of redirecting directly, redirect to callback route to establish server-side session
+          const callbackUrl = `/auth/callback?redirect=${encodeURIComponent(redirect)}`;
+          console.log('Redirecting to callback route:', callbackUrl);
+          window.location.href = callbackUrl;
           
         } catch (err: any) {
           console.error('Error processing hash tokens:', err);

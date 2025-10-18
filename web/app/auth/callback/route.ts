@@ -99,10 +99,19 @@ export async function GET(req: NextRequest) {
     console.log('General callback - Redirect to:', redirect);
     
     if (!user) {
-      console.error('No user found in callback, redirecting back to auth');
-      return NextResponse.redirect(
-        new URL(`/auth/extension?error=not_signed_in&redirect=${encodeURIComponent(redirect)}`, req.url)
-      );
+      console.error('No user found in callback, checking if session exists...');
+      
+      // Check if there's already a session (from client-side processing)
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData.session && sessionData.user) {
+        console.log('Found existing session, user:', sessionData.user.id);
+        // Session exists, proceed with redirect
+      } else {
+        console.error('No session found, redirecting back to auth');
+        return NextResponse.redirect(
+          new URL(`/auth/extension?error=not_signed_in&redirect=${encodeURIComponent(redirect)}`, req.url)
+        );
+      }
     }
 
     // Redirect to the intended destination
