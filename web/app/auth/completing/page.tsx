@@ -47,14 +47,13 @@ export default function CompletingAuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="text-center p-12 bg-white rounded-2xl shadow-xl max-w-md">
-        <div className="text-6xl mb-6">✅</div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-3">Success!</h2>
-        <p className="text-gray-600 text-lg mb-6">Authentication complete!</p>
+        <h2 className="text-3xl font-bold text-gray-900 mb-3">Authentication Complete</h2>
+        <p className="text-gray-600 text-lg mb-6">Please wait while we redirect you...</p>
         <div className="flex justify-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
         </div>
         <p className="text-sm text-gray-500 mt-8">
-          Redirecting to dashboard{countdown > 0 ? ` in ${countdown}s` : ''}...
+          Redirecting{countdown > 0 ? ` in ${countdown}s` : ''}...
         </p>
       </div>
     </div>
