@@ -4,6 +4,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 async function signOut(request: Request) {
   try {
+    console.log('🚪 Signout route called');
     const cookieStore = cookies();
     
     // Create Supabase client with proper cookie handling
@@ -17,6 +18,7 @@ async function signOut(request: Request) {
           },
           set(name: string, value: string, options: CookieOptions) {
             try {
+              console.log('🗑️ Removing cookie:', name);
               cookieStore.set({ name, value, ...options });
             } catch (error) {
               console.error('Cookie set error:', error);
@@ -24,6 +26,7 @@ async function signOut(request: Request) {
           },
           remove(name: string, options: CookieOptions) {
             try {
+              console.log('🗑️ Clearing cookie:', name);
               cookieStore.set({ name, value: '', ...options });
             } catch (error) {
               console.error('Cookie remove error:', error);
@@ -33,17 +36,40 @@ async function signOut(request: Request) {
       }
     );
 
-    // Sign out from Supabase
+    // Sign out from Supabase - this clears all auth cookies
+    console.log('🔓 Calling Supabase signOut...');
     const { error } = await supabase.auth.signOut();
     
     if (error) {
-      console.error('Supabase signout error:', error);
+      console.error('❌ Supabase signout error:', error);
+    } else {
+      console.log('✅ Supabase signout successful');
     }
 
-    // Redirect to home page
+    // Check if this is from the extension (no redirect needed)
+    const url = new URL(request.url);
+    const fromExtension = url.searchParams.get('from') === 'extension';
+    
+    if (fromExtension) {
+      // For extension, just return success message
+      console.log('📱 Signout from extension - returning success');
+      return NextResponse.json({ ok: true, message: 'Signed out successfully' });
+    }
+
+    // For web, redirect to home page
+    console.log('🌐 Signout from web - redirecting to home');
     return NextResponse.redirect(new URL('/', request.url));
   } catch (error) {
-    console.error('Signout route error:', error);
+    console.error('❌ Signout route error:', error);
+    
+    // Check if this is from the extension
+    const url = new URL(request.url);
+    const fromExtension = url.searchParams.get('from') === 'extension';
+    
+    if (fromExtension) {
+      return NextResponse.json({ ok: true, message: 'Signed out (with errors)' });
+    }
+    
     // Even if there's an error, redirect to home
     return NextResponse.redirect(new URL('/', request.url));
   }

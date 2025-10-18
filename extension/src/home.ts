@@ -123,29 +123,46 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       if (confirm('Are you sure you want to sign out?')) {
-        console.log('🔓 Starting logout process...');
+        console.log('🚪 Starting logout process...');
         
-        // Log current storage before clearing
-        const beforeSync = await chrome.storage.sync.get(null);
-        const beforeLocal = await chrome.storage.local.get(null);
-        console.log('📊 Storage before logout:', { sync: beforeSync, local: beforeLocal });
+        // Step 1: Clear website session by opening signout page in background
+        console.log('🔓 Clearing website session...');
+        try {
+          // Open the website's signout route in a hidden tab to clear cookies
+          const signoutTab = await chrome.tabs.create({ 
+            url: 'https://www.trackmyopt.com/auth/signout?from=extension',
+            active: false // Don't focus on this tab
+          });
+          
+          console.log('📂 Opened signout tab:', signoutTab.id);
+          
+          // Wait for signout to complete
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Close the signout tab
+          if (signoutTab.id) {
+            await chrome.tabs.remove(signoutTab.id).catch((err) => {
+              console.error('Error closing signout tab:', err);
+            });
+            console.log('✅ Signout tab closed');
+          }
+          
+          console.log('✅ Website session cleared');
+        } catch (error) {
+          console.error('❌ Error clearing website session:', error);
+          // Continue with logout even if this fails
+        }
         
-        // Clear all stored data
+        // Step 2: Clear all extension stored data
         console.log('🗑️ Clearing extension storage...');
         await chrome.storage.sync.clear();
         await chrome.storage.session.clear();
         await chrome.storage.local.clear();
         
-        // Verify storage is cleared
-        const afterSync = await chrome.storage.sync.get(null);
-        const afterLocal = await chrome.storage.local.get(null);
-        console.log('📊 Storage after logout:', { sync: afterSync, local: afterLocal });
-        
         console.log('✅ Extension storage cleared');
-        console.log('🔓 User signed out from extension');
+        console.log('🎉 Logout complete!');
         
-        // Reload to show locked screen
-        console.log('🔄 Reloading popup...');
+        // Step 3: Reload the popup to show locked state
         window.location.reload();
       }
     });

@@ -145,29 +145,8 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       if (confirm('Are you sure you want to sign out?')) {
-        console.log('🔓 Starting logout process...');
-        
-        // Log current storage before clearing
-        const beforeSync = await chrome.storage.sync.get(null);
-        const beforeLocal = await chrome.storage.local.get(null);
-        console.log('📊 Storage before logout:', { sync: beforeSync, local: beforeLocal });
-        
-        // Clear all stored data
-        console.log('🗑️ Clearing extension storage...');
         await chrome.storage.sync.clear();
         await chrome.storage.session.clear();
-        await chrome.storage.local.clear();
-        
-        // Verify storage is cleared
-        const afterSync = await chrome.storage.sync.get(null);
-        const afterLocal = await chrome.storage.local.get(null);
-        console.log('📊 Storage after logout:', { sync: afterSync, local: afterLocal });
-        
-        console.log('✅ Extension storage cleared');
-        console.log('🔓 User signed out from extension');
-        
-        // Reload to show locked screen
-        console.log('🔄 Reloading popup...');
         window.location.reload();
       }
     });
