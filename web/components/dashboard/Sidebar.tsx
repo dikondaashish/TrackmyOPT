@@ -16,6 +16,30 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     { icon: HelpCircle, label: "Help", active: false },
   ];
 
+  const handleSignOut = async () => {
+    try {
+      const response = await fetch('/auth/signout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // Redirect to home page
+        window.location.href = '/';
+      } else {
+        console.error('Sign out failed');
+        // Fallback: redirect anyway
+        window.location.href = '/';
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Fallback: redirect anyway
+      window.location.href = '/';
+    }
+  };
+
   return (
     <div 
       className={`fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 z-20 ${
@@ -92,18 +116,16 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             </div>
           )}
         </div>
-        <form action="/auth/signout" method="POST" className="w-full">
-          <button 
-            type="submit"
-            className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-all duration-200 group ${
-              collapsed ? 'justify-center' : ''
-            }`}
-            title={collapsed ? "Sign Out" : undefined}
-          >
-            <LogOut className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
-            {!collapsed && <span className="text-sm font-medium">Sign Out</span>}
-          </button>
-        </form>
+        <button 
+          onClick={handleSignOut}
+          className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-all duration-200 group ${
+            collapsed ? 'justify-center' : ''
+          }`}
+          title={collapsed ? "Sign Out" : undefined}
+        >
+          <LogOut className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
+          {!collapsed && <span className="text-sm font-medium">Sign Out</span>}
+        </button>
       </div>
     </div>
   );
