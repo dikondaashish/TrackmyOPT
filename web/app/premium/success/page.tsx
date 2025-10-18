@@ -9,7 +9,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-function SuccessContent() {
+function PremiumSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
@@ -140,7 +140,7 @@ export default function PremiumSuccess() {
         </div>
       </div>
     }>
-      <SuccessContent />
+      <PremiumSuccessContent />
     </Suspense>
   );
 }
