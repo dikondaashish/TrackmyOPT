@@ -47,6 +47,47 @@ export default function ExtensionAuthPage() {
   // Password validation
   const [showPasswordCriteria, setShowPasswordCriteria] = useState(false);
   
+  // Handle OAuth tokens in hash (fallback for when OAuth redirects to extension page)
+  useEffect(() => {
+    const handleHashTokens = async () => {
+      const hash = window.location.hash.substring(1); // Remove the # character
+      const hashParams = new URLSearchParams(hash);
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      
+      if (accessToken && refreshToken) {
+        console.log('Found OAuth tokens in hash, processing...');
+        setLoading(true);
+        
+        try {
+          // Set session with the tokens
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          
+          if (error) {
+            console.error('Error setting session from hash tokens:', error);
+            setError('Failed to complete authentication');
+            setLoading(false);
+            return;
+          }
+          
+          console.log('Session set successfully from hash tokens, redirecting to:', redirect);
+          // Redirect to the intended destination
+          window.location.href = redirect;
+          
+        } catch (err: any) {
+          console.error('Error processing hash tokens:', err);
+          setError('Authentication failed');
+          setLoading(false);
+        }
+      }
+    };
+    
+    handleHashTokens();
+  }, [redirect]);
+  
   const validatePassword = (pwd: string) => {
     return {
       minLength: pwd.length >= 8,
