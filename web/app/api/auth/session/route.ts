@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
           },
           set(name: string, value: string, options: CookieOptions) {
             try {
-              console.log('📝 Setting cookie:', name, options);
+              console.log('📝 Setting cookie:', name, 'with options:', JSON.stringify(options, null, 2));
               cookieStore.set({ name, value, ...options });
             } catch (error) {
               console.error('❌ Cookie set error:', name, error);

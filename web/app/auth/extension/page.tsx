@@ -282,6 +282,11 @@ export default function ExtensionAuthPage() {
         }
 
         // Session is now established on server, redirect to dashboard
+        console.log('✅ Session established, redirecting to:', redirect);
+        
+        // Small delay to ensure cookies are set before redirect
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         window.location.href = redirect;
       }
     } catch (err: any) {
@@ -364,13 +369,15 @@ export default function ExtensionAuthPage() {
         // Extension flow: redirect through completing page
         const completingUrl = new URL('/auth/completing', window.location.origin);
         completingUrl.searchParams.set('token', data.token);
-        completingUrl.searchParams.set('state', state!);
-        completingUrl.searchParams.set('redirect_uri', redirectUri!);
+        if (state) completingUrl.searchParams.set('state', state);
+        if (redirectUri) completingUrl.searchParams.set('redirect_uri', redirectUri);
         completingUrl.searchParams.set('redirect', '/dashboard');
         
+        console.log('Signup - redirecting to completing page:', completingUrl.toString());
         window.location.href = completingUrl.toString();
       } else {
         // Web flow: establish server-side session for the new account
+        console.log('Signup - establishing session for:', email);
         const sessionRes = await fetch('/api/auth/session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -384,6 +391,11 @@ export default function ExtensionAuthPage() {
           // If auto sign-in fails, redirect to login page
           window.location.href = '/auth/extension?redirect=' + encodeURIComponent(redirect);
         } else {
+          console.log('✅ Session established, redirecting to:', redirect);
+          
+          // Small delay to ensure cookies are set before redirect
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
           // Session established, redirect to dashboard
           window.location.href = redirect;
         }
