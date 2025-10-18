@@ -1,5 +1,6 @@
 "use client";
 import { LayoutDashboard, Calendar, Clock, FileText, Settings, HelpCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -7,6 +8,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", active: true },
     { icon: Calendar, label: "OPT Dates", active: false },
@@ -15,6 +18,34 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     { icon: Settings, label: "Settings", active: false },
     { icon: HelpCircle, label: "Help", active: false },
   ];
+  
+  const handleSignOut = async () => {
+    if (isSigningOut) return; // Prevent double-clicks
+    
+    setIsSigningOut(true);
+    try {
+      // Call signout API
+      await fetch('/auth/signout', { 
+        method: 'POST',
+        credentials: 'include', // Include cookies
+      });
+      
+      // Clear any client-side storage
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Could not clear storage:', e);
+      }
+      
+      // Redirect to home
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out failed:', error);
+      // Force redirect anyway to ensure user is logged out
+      window.location.href = '/';
+    }
+  };
 
   return (
     <div 
@@ -84,18 +115,17 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             </div>
           )}
         </div>
-        <form action="/auth/signout" method="POST" className="w-full">
-          <button 
-            type="submit"
-            className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors ${
-              collapsed ? 'justify-center' : ''
-            }`}
-            title={collapsed ? "Sign Out" : undefined}
-          >
-            <LogOut className="w-4 h-4 flex-shrink-0" />
-            {!collapsed && <span className="text-sm">Sign Out</span>}
-          </button>
-        </form>
+        <button 
+          onClick={handleSignOut}
+          disabled={isSigningOut}
+          className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            collapsed ? 'justify-center' : ''
+          }`}
+          title={collapsed ? "Sign Out" : undefined}
+        >
+          <LogOut className={`w-4 h-4 flex-shrink-0 ${isSigningOut ? 'animate-spin' : ''}`} />
+          {!collapsed && <span className="text-sm">{isSigningOut ? 'Signing out...' : 'Sign Out'}</span>}
+        </button>
       </div>
     </div>
   );

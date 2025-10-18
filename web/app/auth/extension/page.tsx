@@ -14,8 +14,13 @@ export default function ExtensionAuthPage() {
   const errorParam = searchParams.get('error');
 
   // Determine if this is an extension flow or web-only flow
-  const isExtensionFlow = !!(redirectUri && state);
-  const isWebFlow = !!redirect && !redirectUri;
+  // Extension flow: Must have redirect_uri AND it must be a chrome extension URL
+  const isExtensionFlow = !!(
+    redirectUri && 
+    state && 
+    (redirectUri.includes('chromiumapp.org') || redirectUri.includes('chrome-extension://'))
+  );
+  const isWebFlow = !!redirect && !isExtensionFlow;
 
   const [mode, setMode] = useState<Mode>('signin');
   const [loading, setLoading] = useState(false);
@@ -183,8 +188,11 @@ export default function ExtensionAuthPage() {
         // Web flow: establish server-side session via API route
         const sessionRes = await fetch('/api/auth/session', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({ email, password }),
+          credentials: 'include', // CRITICAL: Ensure cookies are included in request/response
         });
 
         const sessionData = await sessionRes.json();
@@ -200,8 +208,12 @@ export default function ExtensionAuthPage() {
           localStorage.removeItem('trackmyopt_remember_email');
         }
 
+        // Wait for cookies to be fully set before redirecting
+        await new Promise(resolve => setTimeout(resolve, 300));
+
         // Session is now established on server, redirect to dashboard
-        window.location.href = redirect;
+        // Use replace to avoid back button issues
+        window.location.replace(redirect);
       }
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
@@ -294,6 +306,7 @@ export default function ExtensionAuthPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
+          credentials: 'include', // CRITICAL: Ensure cookies are included
         });
 
         const sessionData = await sessionRes.json();
@@ -303,8 +316,12 @@ export default function ExtensionAuthPage() {
           // If auto sign-in fails, redirect to login page
           window.location.href = '/auth/extension?redirect=' + encodeURIComponent(redirect);
         } else {
+          // Wait for cookies to be fully set before redirecting
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
           // Session established, redirect to dashboard
-          window.location.href = redirect;
+          // Use replace to avoid back button issues
+          window.location.replace(redirect);
         }
       }
     } catch (err: any) {
