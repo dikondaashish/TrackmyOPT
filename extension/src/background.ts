@@ -31,14 +31,12 @@ async function beginAuth(){
   // Listen for the tab to navigate to dashboard (success) or back to auth (failure)
   return new Promise((resolve, reject) => {
     const listener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, currentTab: chrome.tabs.Tab) => {
-      console.log('🔄 Tab updated:', tabId, 'Status:', changeInfo.status, 'URL:', changeInfo.url);
-      
       if (tabId !== tab.id) return;
       
       const responseUrl = changeInfo.url || currentTab.url;
       if (!responseUrl) return;
       
-      console.log('📄 Current URL:', responseUrl);
+      console.log('🔄 Tab URL changed:', responseUrl);
       
       // Check if user successfully reached dashboard
       if (responseUrl.includes('/dashboard')) {
@@ -47,7 +45,7 @@ async function beginAuth(){
         // Remove the listener
         chrome.tabs.onUpdated.removeListener(listener);
         
-        // Set signed in status
+        // Set signed in status - the website has the session, extension just needs to know user is logged in
         await chrome.storage.sync.set({ 
           signedIn: true, 
           signedInAt: Date.now() 
@@ -55,13 +53,18 @@ async function beginAuth(){
         console.log('💾 Signed in status stored!');
         console.log('✅ Authentication complete!');
         
+        // Close the auth tab after a short delay
+        setTimeout(() => {
+          chrome.tabs.remove(tab.id!).catch(console.error);
+        }, 1000);
+        
         resolve(undefined);
         return;
       }
       
-      // Check if user is back at auth page (likely failed)
-      if (responseUrl.includes('/auth/extension')) {
-        console.log('⚠️ Back at auth page, checking for errors...');
+      // Check if user is back at auth page with error
+      if (responseUrl.includes('/auth/extension') && responseUrl.includes('error=')) {
+        console.log('⚠️ Back at auth page with error');
         
         // Check if there's an error in the URL
         const urlObj = new URL(responseUrl);
@@ -80,6 +83,6 @@ async function beginAuth(){
     };
     
     chrome.tabs.onUpdated.addListener(listener);
-    console.log('👂 Listener attached, waiting for dashboard or error...');
+    console.log('👂 Listener attached, waiting for dashboard redirect...');
   });
 }
