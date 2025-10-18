@@ -16,17 +16,6 @@ export default function ExtensionAuthPage() {
   // Determine if this is an extension flow or web-only flow
   const isExtensionFlow = !!(redirectUri && state);
   const isWebFlow = !!redirect && !redirectUri;
-  
-  console.log('Auth page - Flow detection:', {
-    isExtensionFlow,
-    isWebFlow,
-    redirectUri,
-    state,
-    redirect,
-    hasRedirectUri: !!redirectUri,
-    hasState: !!state,
-    hasRedirect: !!redirect
-  });
 
   const [mode, setMode] = useState<Mode>('signin');
   const [loading, setLoading] = useState(false);
@@ -57,58 +46,6 @@ export default function ExtensionAuthPage() {
   
   // Password validation
   const [showPasswordCriteria, setShowPasswordCriteria] = useState(false);
-  
-  // Handle OAuth tokens in hash (fallback for when OAuth redirects to extension page)
-  useEffect(() => {
-    const handleHashTokens = async () => {
-      const hash = window.location.hash.substring(1); // Remove the # character
-      const hashParams = new URLSearchParams(hash);
-      const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
-      
-      if (accessToken && refreshToken) {
-        console.log('Found OAuth tokens in hash, processing...');
-        setLoading(true);
-        
-        try {
-          // Set session with the tokens
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          
-          if (error) {
-            console.error('Error setting session from hash tokens:', error);
-            setError('Failed to complete authentication');
-            setLoading(false);
-            return;
-          }
-          
-          console.log('Session set successfully from hash tokens');
-          
-          // Instead of redirecting directly, redirect to callback route to establish server-side session
-          const callbackUrl = `/auth/callback?redirect=${encodeURIComponent(redirect)}`;
-          console.log('Redirecting to callback route:', callbackUrl);
-          window.location.href = callbackUrl;
-          
-        } catch (err: any) {
-          console.error('Error processing hash tokens:', err);
-          setError('Authentication failed');
-          setLoading(false);
-        }
-      } else if (errorParam === 'no_code') {
-        // Handle the case where OAuth redirects to extension page with no_code error
-        console.log('OAuth redirected to extension page with no_code error');
-        console.log('This suggests Supabase is configured to redirect to /auth/extension instead of /auth/callback');
-        console.log('Please check Supabase URL Configuration');
-        
-        // Clear the error and show a helpful message with specific instructions
-        setError('OAuth configuration issue. Please update Supabase settings: Go to Supabase Dashboard → Authentication → URL Configuration → Remove /auth/extension URLs and keep only /auth/callback');
-      }
-    };
-    
-    handleHashTokens();
-  }, [redirect, errorParam]);
   
   const validatePassword = (pwd: string) => {
     return {
@@ -170,11 +107,6 @@ export default function ExtensionAuthPage() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
-    
-    console.log('=== GOOGLE SIGN IN STARTED ===');
-    console.log('Flow detection:', { isExtensionFlow, isWebFlow });
-    console.log('URL parameters:', { redirectUri, state, redirect });
-    
     try {
       if (isExtensionFlow) {
         // Extension flow: use client callback to capture hash tokens and forward to server
@@ -193,15 +125,8 @@ export default function ExtensionAuthPage() {
         });
         if (oauthError) throw oauthError;
       } else {
-        // Web flow: redirect to general auth callback
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com';
-        const callbackUrl = `${siteUrl}/auth/callback?redirect=${encodeURIComponent(redirect)}`;
-        
-        console.log('Web flow - OAuth redirect URL:', callbackUrl);
-        console.log('NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL);
-        console.log('Site URL used:', siteUrl);
-        console.log('Redirect parameter:', redirect);
-        console.log('About to call signInWithOAuth with redirectTo:', callbackUrl);
+        // Web flow: redirect to client-side callback (handles hash-based tokens)
+        const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback/client?redirect=${encodeURIComponent(redirect)}`;
         
         const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
           provider: 'google',
@@ -212,14 +137,11 @@ export default function ExtensionAuthPage() {
               prompt: 'consent',
             },
             skipBrowserRedirect: false,
-            scopes: 'openid email profile',
           },
         });
         if (oauthError) throw oauthError;
-        console.log('OAuth call completed successfully');
       }
     } catch (err: any) {
-      console.error('OAuth error:', err);
       setError(err.message || 'Google sign-in failed');
       setLoading(false);
     }
@@ -254,11 +176,10 @@ export default function ExtensionAuthPage() {
         // Redirect to intermediate page that will handle the extension redirect
         const completingUrl = new URL('/auth/completing', window.location.origin);
         completingUrl.searchParams.set('token', data.token);
-        if (state) completingUrl.searchParams.set('state', state);
-        if (redirectUri) completingUrl.searchParams.set('redirect_uri', redirectUri);
+        completingUrl.searchParams.set('state', state!);
+        completingUrl.searchParams.set('redirect_uri', redirectUri!);
         completingUrl.searchParams.set('redirect', '/dashboard');
         
-        console.log('Manual login - redirecting to completing page:', completingUrl.toString());
         window.location.href = completingUrl.toString();
       } else {
         // Web flow: establish server-side session via API route
@@ -282,11 +203,6 @@ export default function ExtensionAuthPage() {
         }
 
         // Session is now established on server, redirect to dashboard
-        console.log('✅ Session established, redirecting to:', redirect);
-        
-        // Small delay to ensure cookies are set before redirect
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
         window.location.href = redirect;
       }
     } catch (err: any) {
@@ -369,15 +285,13 @@ export default function ExtensionAuthPage() {
         // Extension flow: redirect through completing page
         const completingUrl = new URL('/auth/completing', window.location.origin);
         completingUrl.searchParams.set('token', data.token);
-        if (state) completingUrl.searchParams.set('state', state);
-        if (redirectUri) completingUrl.searchParams.set('redirect_uri', redirectUri);
+        completingUrl.searchParams.set('state', state!);
+        completingUrl.searchParams.set('redirect_uri', redirectUri!);
         completingUrl.searchParams.set('redirect', '/dashboard');
         
-        console.log('Signup - redirecting to completing page:', completingUrl.toString());
         window.location.href = completingUrl.toString();
       } else {
         // Web flow: establish server-side session for the new account
-        console.log('Signup - establishing session for:', email);
         const sessionRes = await fetch('/api/auth/session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -391,11 +305,6 @@ export default function ExtensionAuthPage() {
           // If auto sign-in fails, redirect to login page
           window.location.href = '/auth/extension?redirect=' + encodeURIComponent(redirect);
         } else {
-          console.log('✅ Session established, redirecting to:', redirect);
-          
-          // Small delay to ensure cookies are set before redirect
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
           // Session established, redirect to dashboard
           window.location.href = redirect;
         }
