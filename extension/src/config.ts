@@ -8,7 +8,7 @@
 // Production: Use your deployed URL
 export const WEBSITE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://www.trackmyopt.com'
-  : 'http://localhost:3000';
+  : 'https://www.trackmyopt.com';
 
 export const API_ENDPOINTS = {
   ME: `${WEBSITE_URL}/api/me`,
