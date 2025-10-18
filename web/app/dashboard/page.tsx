@@ -33,13 +33,13 @@ export default async function DashboardPage() {
     }
   );
 
-  const { data } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
   
   console.log('Dashboard auth check:', {
     hasUser: !!data.user,
     userId: data.user?.id,
     email: data.user?.email,
-    error: data.error?.message
+    error: error?.message
   });
   
   if (!data.user) {
