@@ -16,6 +16,17 @@ export default function ExtensionAuthPage() {
   // Determine if this is an extension flow or web-only flow
   const isExtensionFlow = !!(redirectUri && state);
   const isWebFlow = !!redirect && !redirectUri;
+  
+  console.log('Auth page - Flow detection:', {
+    isExtensionFlow,
+    isWebFlow,
+    redirectUri,
+    state,
+    redirect,
+    hasRedirectUri: !!redirectUri,
+    hasState: !!state,
+    hasRedirect: !!redirect
+  });
 
   const [mode, setMode] = useState<Mode>('signin');
   const [loading, setLoading] = useState(false);
@@ -167,7 +178,13 @@ export default function ExtensionAuthPage() {
         if (oauthError) throw oauthError;
       } else {
         // Web flow: redirect to general auth callback
-        const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirect=${encodeURIComponent(redirect)}`;
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com';
+        const callbackUrl = `${siteUrl}/auth/callback?redirect=${encodeURIComponent(redirect)}`;
+        
+        console.log('Web flow - OAuth redirect URL:', callbackUrl);
+        console.log('NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL);
+        console.log('Site URL used:', siteUrl);
+        console.log('Redirect parameter:', redirect);
         
         const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
           provider: 'google',
