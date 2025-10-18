@@ -53,38 +53,46 @@ export async function GET(req: NextRequest) {
     }
 
     if (!userId) {
-      return NextResponse.json({ isPremium: false }, { status: 200 });
+      return NextResponse.json({ 
+        isPremium: false,
+        error: 'Not authenticated'
+      }, { status: 200 });
     }
 
-    // TODO: Check premium status from database
-    // For now, return false (no one has premium yet)
-    // Later: Check `premium_users` table or `profiles.is_premium` column
-    
+    // Check premium status from profiles table
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
     const { data, error } = await supabase
-      .from('premium_users')
-      .select('user_id, expires_at')
+      .from('profiles')
+      .select('premium_status, premium_purchased_at, stripe_customer_id')
       .eq('user_id', userId)
       .single();
 
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
       console.error('Error checking premium status:', error);
-      return NextResponse.json({ isPremium: false }, { status: 200 });
+      return NextResponse.json({ 
+        isPremium: false,
+        error: error.message
+      }, { status: 200 });
     }
 
-    // If no premium record found, user is not premium
-    if (!data) {
-      return NextResponse.json({ isPremium: false }, { status: 200 });
+    // If no profile found or premium_status is false
+    if (!data || !data.premium_status) {
+      return NextResponse.json({ 
+        isPremium: false,
+        purchasedAt: null
+      }, { status: 200 });
     }
 
-    // Check if premium is still valid (lifetime means expires_at is null)
-    const isPremium = data.expires_at === null || new Date(data.expires_at) > new Date();
-
-    return NextResponse.json({ isPremium }, { status: 200 });
+    // User has premium (lifetime access)
+    return NextResponse.json({ 
+      isPremium: true,
+      purchasedAt: data.premium_purchased_at,
+      customerId: data.stripe_customer_id
+    }, { status: 200 });
   } catch (error: any) {
     console.error('GET /api/premium/status error:', error);
     return NextResponse.json(
