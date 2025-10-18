@@ -7,7 +7,7 @@
 ## ✅ **ISSUE #1: Sign-Out Testing**
 
 ### **Setup**
-1. Open web app: `http://localhost:3000/dashboard`
+1. Open web app: `https://www.trackmyopt.com/dashboard`
 2. Make sure you're logged in
 
 ### **Test Cases**
@@ -46,7 +46,7 @@
 
 ### **Setup**
 1. Make sure you're signed out
-2. Open: `http://localhost:3000/auth/extension?redirect=/dashboard`
+2. Open: `https://www.trackmyopt.com/auth/extension?redirect=/dashboard`
 3. Prepare valid login credentials
 
 ### **Test Cases**
@@ -92,7 +92,7 @@
 
 #### **Setup**
 1. Open in regular browser (no extension installed)
-2. Go to: `http://localhost:3000/auth/extension?redirect=/dashboard`
+2. Go to: `https://www.trackmyopt.com/auth/extension?redirect=/dashboard`
 3. Click "Create account" tab
 
 #### **Test 3.1: OTP Flow**
@@ -115,7 +115,7 @@
    - Dashboard loads
    - User is logged in
 8. **Verify:**
-   - URL should be `http://localhost:3000/dashboard`
+   - URL should be `https://www.trackmyopt.com/dashboard`
    - NO chrome-extension URL
    - Check DevTools → Network for redirect flow
 
