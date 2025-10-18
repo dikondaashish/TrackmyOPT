@@ -102,8 +102,8 @@ export default function ExtensionAuthPage() {
         console.log('This suggests Supabase is configured to redirect to /auth/extension instead of /auth/callback');
         console.log('Please check Supabase URL Configuration');
         
-        // Clear the error and show a helpful message
-        setError('OAuth configuration issue. Please check Supabase settings.');
+        // Clear the error and show a helpful message with specific instructions
+        setError('OAuth configuration issue. Please update Supabase settings: Go to Supabase Dashboard → Authentication → URL Configuration → Remove /auth/extension URLs and keep only /auth/callback');
       }
     };
     
