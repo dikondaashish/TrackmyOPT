@@ -6,6 +6,18 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
+// CORS headers for Chrome extension
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Extract Bearer token from Authorization header

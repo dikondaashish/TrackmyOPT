@@ -6,6 +6,18 @@ import { verifyToken } from '@/lib/jwt';
 
 export const dynamic = 'force-dynamic';
 
+// CORS headers for Chrome extension
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
+
 /**
  * GET - Check if user has premium access
  */
@@ -56,7 +68,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ 
         isPremium: false,
         error: 'Not authenticated'
-      }, { status: 200 });
+      }, { 
+        status: 200,
+        headers: corsHeaders
+      });
     }
 
     // Check premium status from profiles table
@@ -76,7 +91,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ 
         isPremium: false,
         error: error.message
-      }, { status: 200 });
+      }, { 
+        status: 200,
+        headers: corsHeaders
+      });
     }
 
     // If no profile found or premium_status is false
@@ -84,7 +102,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ 
         isPremium: false,
         purchasedAt: null
-      }, { status: 200 });
+      }, { 
+        status: 200,
+        headers: corsHeaders
+      });
     }
 
     // User has premium (lifetime access)
@@ -92,12 +113,18 @@ export async function GET(req: NextRequest) {
       isPremium: true,
       purchasedAt: data.premium_purchased_at,
       customerId: data.stripe_customer_id
-    }, { status: 200 });
+    }, { 
+      status: 200,
+      headers: corsHeaders
+    });
   } catch (error: any) {
     console.error('GET /api/premium/status error:', error);
     return NextResponse.json(
       { isPremium: false },
-      { status: 200 } // Return 200 with false to avoid breaking the UI
+      { 
+        status: 200,
+        headers: corsHeaders
+      }
     );
   }
 }

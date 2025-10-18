@@ -6,6 +6,18 @@ import { verifyToken } from '@/lib/jwt';
 
 export const dynamic = 'force-dynamic';
 
+// CORS headers for Chrome extension
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
+
 /**
  * Get user ID from either JWT token or session
  */
@@ -55,7 +67,7 @@ export async function GET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
     // Use service role client to bypass RLS
@@ -73,7 +85,7 @@ export async function GET(req: NextRequest) {
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
       console.error('Error fetching opt_status:', error);
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
     }
 
     // Format dates to mm/dd/yyyy
@@ -111,7 +123,7 @@ export async function POST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
     // Use service role client to bypass RLS
@@ -173,7 +185,7 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('Error upserting opt_status:', error);
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
     }
 
     return NextResponse.json({ ok: true });
