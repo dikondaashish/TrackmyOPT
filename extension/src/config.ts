@@ -12,5 +12,7 @@ export const WEBSITE_URL = process.env.NODE_ENV === 'production'
 
 export const API_ENDPOINTS = {
   ME: `${WEBSITE_URL}/api/me`,
-  AUTH: `${WEBSITE_URL}/auth/extension`,
+  AUTH: process.env.NODE_ENV === 'production' 
+    ? 'https://www.trackmyopt.com/login'
+    : 'https://www.trackmyopt.com/login',
 };
