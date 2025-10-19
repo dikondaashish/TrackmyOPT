@@ -130,7 +130,7 @@ export default function ExtensionAuthPage() {
         });
         if (oauthError) throw oauthError;
       } else {
-        // Web flow: redirect to callback route which will then redirect to dashboard
+        // Web flow: redirect to client callback page which handles hash tokens
         const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(redirect)}`;
         
         console.log('🌐 Web OAuth flow - Callback URL:', callbackUrl);
