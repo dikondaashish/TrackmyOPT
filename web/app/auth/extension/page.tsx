@@ -131,7 +131,7 @@ export default function ExtensionAuthPage() {
         if (oauthError) throw oauthError;
       } else {
         // Web flow: redirect to client callback page which handles hash tokens
-        const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(redirect)}`;
+        const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback/client?redirect=${encodeURIComponent(redirect)}`;
         
         console.log('🌐 Web OAuth flow - Callback URL:', callbackUrl);
         
