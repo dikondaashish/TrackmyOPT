@@ -53,16 +53,8 @@ function LoginPageContent() {
     return () => clearInterval(interval);
   }, []);
 
-  // Check if already logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        router.replace('/dashboard');
-      }
-    };
-    checkAuth();
-  }, [router]);
+  // Don't auto-redirect if already logged in - let user choose
+  // This prevents redirect loops if session check is inconsistent
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
