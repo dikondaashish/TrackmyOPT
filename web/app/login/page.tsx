@@ -117,12 +117,8 @@ function LoginPageContent() {
       } else {
         localStorage.removeItem('trackmyopt_remember_email');
       }
-
-      // Wait a moment for session to be fully established
-      console.log('⏳ Waiting for session to sync...');
-      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Redirect to dashboard with full page reload to ensure cookies are sent
+      // Redirect to dashboard - session is now in cookies
       console.log('↗️ Redirecting to dashboard...');
       window.location.href = '/dashboard';
     } catch (err: any) {

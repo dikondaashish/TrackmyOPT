@@ -20,38 +20,9 @@ export async function OPTIONS() {
 
 export async function GET(request: NextRequest) {
   try {
-    // Extract Bearer token from Authorization header
-    const authHeader = request.headers.get('Authorization');
+    console.log('🔍 /api/me - Checking authentication...');
     
-    console.log('/api/me - Authorization header:', authHeader ? `Bearer ${authHeader.substring(7, 30)}...` : 'missing');
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.error('/api/me - Missing or invalid Authorization header');
-      return NextResponse.json(
-        { error: 'Missing or invalid Authorization header' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
-    // Verify JWT token
-    const decoded = await verifyToken(token);
-    
-    console.log('/api/me - Token decoded:', decoded ? `user: ${decoded.sub}` : 'null');
-    
-    if (!decoded) {
-      console.error('/api/me - Token verification failed');
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
-
-    const userId = decoded.userId || decoded.sub;
-    console.log('/api/me - userId:', userId);
-
-    // Create Supabase client for server-side queries
+    // First, try to get user from Supabase session cookies (primary method)
     const cookieStore = cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,14 +33,61 @@ export async function GET(request: NextRequest) {
             return cookieStore.get(name)?.value;
           },
           set(name: string, value: string, options: CookieOptions) {
-            cookieStore.set({ name, value, ...options });
+            try {
+              cookieStore.set({ name, value, ...options });
+            } catch (error) {
+              // Cookie setting can fail in middleware
+            }
           },
           remove(name: string, options: CookieOptions) {
-            cookieStore.set({ name, value: '', ...options });
+            try {
+              cookieStore.set({ name, value: '', ...options });
+            } catch (error) {
+              // Cookie removal can fail in middleware
+            }
           },
         },
       }
     );
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    let userId: string;
+    
+    if (user) {
+      // Session found via cookies (primary method)
+      userId = user.id;
+      console.log('✅ /api/me - User authenticated via session cookies:', user.email);
+    } else {
+      // Fallback: Try JWT token from Authorization header (for backwards compatibility)
+      const authHeader = request.headers.get('Authorization');
+      
+      console.log('/api/me - No session cookies, trying JWT. Auth header:', authHeader ? 'present' : 'missing');
+      
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.error('❌ /api/me - No session cookies and no JWT token');
+        return NextResponse.json(
+          { error: 'Not authenticated', user: null },
+          { status: 401, headers: corsHeaders }
+        );
+      }
+
+      const token = authHeader.substring(7);
+      const decoded = await verifyToken(token);
+      
+      if (!decoded) {
+        console.error('❌ /api/me - JWT token verification failed');
+        return NextResponse.json(
+          { error: 'Invalid or expired token', user: null },
+          { status: 401, headers: corsHeaders }
+        );
+      }
+
+      userId = decoded.userId || decoded.sub;
+      console.log('✅ /api/me - User authenticated via JWT token');
+    }
+
+    // Supabase client already created above for user authentication
 
     // Query user profile
     let { data: profile, error: profileError } = await supabase
@@ -140,16 +158,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Get user data from Supabase
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+
     // Return combined data
     return NextResponse.json({
+      user: currentUser,
       profile,
       status,
-    });
+    }, { headers: corsHeaders });
   } catch (error) {
     console.error('API /me error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

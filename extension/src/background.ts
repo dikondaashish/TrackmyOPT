@@ -45,31 +45,45 @@ async function beginAuth(){
         // Wait a moment for cookies to settle, then check session
         setTimeout(async () => {
           try {
+            console.log('🔍 Extension: Verifying session via /api/me...');
             const response = await fetch(API_ENDPOINTS.ME, {
-              credentials: 'include',
+              credentials: 'include', // Important: include cookies
+              headers: {
+                'Content-Type': 'application/json',
+              },
             });
             
             if (response.ok) {
               const userData = await response.json();
-              console.log('✅ Session verified:', userData.user?.email);
+              console.log('✅ Extension: Session verified!', userData.user?.email);
+              console.log('👤 Extension: User data:', userData);
               resolve();
             } else {
-              console.log('⚠️ Dashboard reached but no session yet, waiting...');
-              // Give it another moment
+              console.log('⚠️ Extension: Dashboard reached but no session yet, waiting...');
+              // Give it another moment for cookies to sync
               setTimeout(async () => {
-                const retry = await fetch(API_ENDPOINTS.ME, { credentials: 'include' });
+                const retry = await fetch(API_ENDPOINTS.ME, { 
+                  credentials: 'include',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                });
                 if (retry.ok) {
+                  const userData = await retry.json();
+                  console.log('✅ Extension: Session verified on retry!', userData.user?.email);
                   resolve();
                 } else {
+                  const errorText = await retry.text();
+                  console.error('❌ Extension: Session verification failed:', errorText);
                   reject(new Error('Could not verify session'));
                 }
-              }, 1000);
+              }, 1500);
             }
           } catch (err) {
-            console.error('❌ Error verifying session:', err);
+            console.error('❌ Extension: Error verifying session:', err);
             reject(err);
           }
-        }, 500);
+        }, 1000);
         return;
       }
       
