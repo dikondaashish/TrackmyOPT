@@ -8,7 +8,9 @@ export const dynamic = 'force-dynamic';
  * OAuth Callback Route for Web-Only Flows
  * 
  * This route handles Google OAuth callbacks for web users (not extension).
- * It exchanges the OAuth code for a session and redirects to the dashboard.
+ * Supports both:
+ * - PKCE flow: code in query params (server-side)
+ * - Implicit flow: tokens in hash fragment (requires client-side redirect)
  */
 export async function GET(req: NextRequest) {
   try {
@@ -24,11 +26,15 @@ export async function GET(req: NextRequest) {
     console.log('Refresh token present:', !!refresh_token);
     console.log('Next destination:', next);
 
-    // Check if we have either code (PKCE flow) or tokens (implicit flow)
+    // If no code and no tokens in query, this might be implicit flow with tokens in hash
+    // We need to redirect to a client-side page to extract hash tokens
     if (!code && !access_token) {
-      console.error('❌ No OAuth code or tokens in callback');
+      console.log('⚠️ No code or tokens in query - likely implicit flow with hash tokens');
+      console.log('Redirecting to client-side hash handler...');
+      
+      // Redirect to client page that can read hash and send tokens back
       return NextResponse.redirect(
-        new URL('/auth/extension?error=no_code&redirect=/dashboard', req.url)
+        new URL(`/auth/callback/client?next=${encodeURIComponent(next)}`, req.url)
       );
     }
 
@@ -70,7 +76,7 @@ export async function GET(req: NextRequest) {
       sessionData = result.data;
       exchangeError = result.error;
     } else if (access_token && refresh_token) {
-      // Implicit flow: Set session directly from tokens
+      // Implicit flow: Set session directly from tokens (forwarded from client)
       console.log('🔐 Implicit flow: Setting session from tokens...');
       const result = await supabase.auth.setSession({
         access_token,

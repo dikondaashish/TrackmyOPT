@@ -66,6 +66,26 @@ export default function ExtensionAuthPage() {
   const isPasswordValid = Object.values(passwordCriteria).every(Boolean);
   const doPasswordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
+  // Check for OAuth tokens in hash fragment (implicit flow)
+  useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+      const hashParams = new URLSearchParams(hash);
+      const access_token = hashParams.get('access_token');
+      const refresh_token = hashParams.get('refresh_token');
+      
+      if (access_token && refresh_token) {
+        console.log('🔍 Detected OAuth tokens in hash fragment');
+        console.log('Redirecting to client handler...');
+        
+        // Redirect to client handler which will process the tokens
+        const clientUrl = `/auth/callback/client?next=${encodeURIComponent(redirect)}${hash ? '#' + hash : ''}`;
+        window.location.replace(clientUrl);
+        return;
+      }
+    }
+  }, [redirect]);
+
   // Load saved email on mount (Remember me functionality)
   useEffect(() => {
     const savedEmail = localStorage.getItem('trackmyopt_remember_email');
@@ -130,7 +150,7 @@ export default function ExtensionAuthPage() {
         });
         if (oauthError) throw oauthError;
       } else {
-        // Web flow: redirect to client callback page which handles hash tokens
+        // Web flow: redirect to callback route which will then redirect to dashboard
         const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(redirect)}`;
         
         console.log('🌐 Web OAuth flow - Callback URL:', callbackUrl);
