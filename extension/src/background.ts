@@ -93,9 +93,8 @@ async function beginAuth(){
         console.log('✅ Authentication complete!');
         
         // Navigate the tab to dashboard after capturing token
-        const dashboardUrl = process.env.NODE_ENV === 'production' 
-          ? 'https://trackmyopt.com/dashboard'
-          : 'https://www.trackmyopt.com/dashboard';
+        // CRITICAL FIX: Always use www subdomain for production site
+        const dashboardUrl = 'https://www.trackmyopt.com/dashboard';
         
         console.log('🌐 Navigating tab to dashboard:', dashboardUrl);
         await chrome.tabs.update(tab.id, { url: dashboardUrl });

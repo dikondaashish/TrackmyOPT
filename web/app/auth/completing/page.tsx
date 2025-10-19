@@ -30,7 +30,10 @@ export default function CompletingAuthPage() {
       console.log('🔗 Extension URL:', extensionUrl);
       console.log('🌐 Extension will navigate to dashboard after capturing token');
       
-      // Navigate to extension URL - extension will handle the rest
+      // Navigate to extension URL - extension background script will:
+      // 1. Capture the token from URL hash
+      // 2. Store it in extension storage
+      // 3. Navigate the browser tab to dashboard
       window.location.href = extensionUrl;
       
     } else if (token) {
