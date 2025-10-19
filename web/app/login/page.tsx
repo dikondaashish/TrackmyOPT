@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
 type Mode = 'signin' | 'signup';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const searchParams = useSearchParams();
   const redirectUri = searchParams.get('redirect_uri');
   const state = searchParams.get('state');
@@ -1033,3 +1033,17 @@ export default function LoginPage() {
   );
 }
 
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginPageContent />
+    </Suspense>
+  );
+}
