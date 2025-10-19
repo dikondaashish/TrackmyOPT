@@ -14,102 +14,72 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 });
 
 async function beginAuth(){
-  const redirectUri = chrome.identity.getRedirectURL('oauth2');
-  const state = randomString(16);
-  await chrome.storage.session.set({ oauth_state: state });
-
-  const url = new URL(API_ENDPOINTS.AUTH);
-  url.searchParams.set('redirect_uri', redirectUri);
-  url.searchParams.set('state', state);
-
-  console.log('🔐 Starting OAuth flow');
-  console.log('📍 Redirect URI:', redirectUri);
-  console.log('🔑 State:', state);
+  console.log('🔐 Starting simple auth flow');
+  console.log('📍 Opening login page');
   
-  // Open in a new tab instead of popup window
-  const tab = await chrome.tabs.create({ url: url.toString() });
+  // Simple flow: Just open the login page
+  const tab = await chrome.tabs.create({ url: API_ENDPOINTS.AUTH });
   console.log('📂 Opened auth tab:', tab.id);
   
-  // Listen for the tab to navigate to our redirect URI
+  // Listen for successful login (tab navigates to dashboard)
   return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      chrome.tabs.onUpdated.removeListener(listener);
+      reject(new Error('Auth timeout'));
+    }, 5 * 60 * 1000); // 5 minute timeout
+    
     const listener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, currentTab: chrome.tabs.Tab) => {
-      console.log('🔄 Tab updated:', tabId, 'Status:', changeInfo.status, 'URL:', changeInfo.url);
-      
       if (tabId !== tab.id) return;
       
       const responseUrl = changeInfo.url || currentTab.url;
       if (!responseUrl) return;
       
-      // Check if this is our redirect URI (check both with and without hash)
-      const isRedirectUri = responseUrl.startsWith(redirectUri) || 
-                           responseUrl.includes('.chromiumapp.org/oauth2');
+      console.log('🔄 Tab updated:', changeInfo.status, 'URL:', responseUrl.substring(0, 80));
       
-      if (!isRedirectUri) {
-        console.log('❌ Not redirect URI, ignoring:', responseUrl.substring(0, 50));
+      // Check if user reached dashboard (successful login)
+      if (responseUrl.includes('/dashboard')) {
+        console.log('✅ User reached dashboard - login successful!');
+        clearTimeout(timeout);
+        chrome.tabs.onUpdated.removeListener(listener);
+        
+        // Wait a moment for cookies to settle, then check session
+        setTimeout(async () => {
+          try {
+            const response = await fetch(API_ENDPOINTS.ME, {
+              credentials: 'include',
+            });
+            
+            if (response.ok) {
+              const userData = await response.json();
+              console.log('✅ Session verified:', userData.user?.email);
+              resolve();
+            } else {
+              console.log('⚠️ Dashboard reached but no session yet, waiting...');
+              // Give it another moment
+              setTimeout(async () => {
+                const retry = await fetch(API_ENDPOINTS.ME, { credentials: 'include' });
+                if (retry.ok) {
+                  resolve();
+                } else {
+                  reject(new Error('Could not verify session'));
+                }
+              }, 1000);
+            }
+          } catch (err) {
+            console.error('❌ Error verifying session:', err);
+            reject(err);
+          }
+        }, 500);
         return;
       }
       
-      console.log('✅ Detected redirect URI!');
-      console.log('📄 Full URL:', responseUrl);
-      
-      // Remove the listener
-      chrome.tabs.onUpdated.removeListener(listener);
-      
-      try {
-        // Parse hash from URL
-        const urlObj = new URL(responseUrl);
-        const hash = urlObj.hash.substring(1);
-        console.log('🔍 Hash params:', hash);
-        
-        const params = new URLSearchParams(hash);
-        const token = params.get('id_token');
-        const gotState = params.get('state');
-        const { oauth_state } = await chrome.storage.session.get('oauth_state');
-        
-        console.log('🎫 Token received:', token ? `${token.substring(0, 30)}...` : 'null');
-        console.log('🔐 State from URL:', gotState);
-        console.log('🔐 State from storage:', oauth_state);
-        console.log('✅ State match:', gotState === oauth_state);
-        
-        if (!token) {
-          console.error('❌ No token found in URL');
-          reject(new Error('No token in response'));
-          return;
-        }
-        
-        if (gotState !== oauth_state) {
-          console.error('❌ State mismatch - CSRF protection triggered');
-          reject(new Error('State mismatch'));
-          return;
-        }
-
-        // Store the token and sign-in status
-        await chrome.storage.sync.set({ 
-          idToken: token, 
-          signedIn: true, 
-          signedInAt: Date.now() 
-        });
-        console.log('💾 Token stored successfully!');
-        console.log('✅ Authentication complete!');
-        
-        // Navigate the tab to dashboard after capturing token
-        const dashboardUrl = 'https://www.trackmyopt.com/dashboard';
-        
-        console.log('🌐 Navigating tab to dashboard:', dashboardUrl);
-        console.log('Tab ID:', tab.id);
-        
-        try {
-          const updatedTab = await chrome.tabs.update(tab.id!, { url: dashboardUrl });
-          console.log('✅ Tab navigation initiated successfully');
-          console.log('Updated tab URL:', updatedTab.url);
-        } catch (navError) {
-          console.error('❌ Error navigating tab:', navError);
-        }
-        
-        resolve(undefined);
-      } catch (error) {
-        console.error('❌ Error processing auth response:', error);
-        reject(error);
+      // If user closes the tab before logging in
+      if (changeInfo.status === 'complete' && responseUrl === 'about:blank') {
+        console.log('❌ Auth tab closed');
+        clearTimeout(timeout);
+        chrome.tabs.onUpdated.removeListener(listener);
+        reject(new Error('Auth cancelled'));
+        return;
       }
     };
     
