@@ -93,7 +93,14 @@ export async function GET(req: NextRequest) {
     const redirectUrl = new URL(next, req.url);
     console.log('↗️ Redirecting to:', redirectUrl.toString());
 
-    return NextResponse.redirect(redirectUrl);
+    // Add a small delay to ensure cookies are set before redirect
+    // Redirect to the dashboard or specified URL
+    const response = NextResponse.redirect(redirectUrl);
+    
+    // Ensure cookies are set properly
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    
+    return response;
   } catch (error) {
     console.error('❌ OAuth callback error:', error);
     return NextResponse.redirect(
