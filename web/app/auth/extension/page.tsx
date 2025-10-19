@@ -66,48 +66,6 @@ export default function ExtensionAuthPage() {
   const isPasswordValid = Object.values(passwordCriteria).every(Boolean);
   const doPasswordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
-  // Handle implicit OAuth flow: tokens in URL hash fragment
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const hash = window.location.hash?.substring(1);
-    if (!hash) return;
-
-    const hashParams = new URLSearchParams(hash);
-    const access_token = hashParams.get('access_token');
-    const refresh_token = hashParams.get('refresh_token');
-    const expires_at = hashParams.get('expires_at');
-
-    if (access_token && refresh_token) {
-      // Ignore any error param in query if we have valid tokens in hash
-      setError(null);
-      setLoading(true);
-
-      (async () => {
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token,
-          refresh_token,
-        });
-
-        if (sessionError) {
-          setLoading(false);
-          setError(sessionError.message || 'Failed to establish session');
-          return;
-        }
-
-        // Clean URL: remove hash and any error param
-        const cleanUrl = new URL(window.location.href);
-        cleanUrl.hash = '';
-        cleanUrl.searchParams.delete('error');
-        window.history.replaceState(null, '', cleanUrl.toString());
-
-        // Allow time for session propagation, then redirect
-        setTimeout(() => {
-          window.location.replace(redirect);
-        }, 200);
-      })();
-    }
-  }, [redirect]);
-
   // Load saved email on mount (Remember me functionality)
   useEffect(() => {
     const savedEmail = localStorage.getItem('trackmyopt_remember_email');

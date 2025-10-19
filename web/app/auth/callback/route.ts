@@ -8,33 +8,22 @@ export const dynamic = 'force-dynamic';
  * OAuth Callback Route for Web-Only Flows
  * 
  * This route handles Google OAuth callbacks for web users (not extension).
- * Supports both:
- * - PKCE flow: code in query params (server-side)
- * - Implicit flow: tokens in hash fragment (requires client-side redirect)
+ * It exchanges the OAuth code for a session and redirects to the dashboard.
  */
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const code = url.searchParams.get('code');
-    const access_token = url.searchParams.get('access_token');
-    const refresh_token = url.searchParams.get('refresh_token');
     const next = url.searchParams.get('next') || '/dashboard';
 
     console.log('🔄 OAuth callback for web flow');
     console.log('Code present:', !!code);
-    console.log('Access token present:', !!access_token);
-    console.log('Refresh token present:', !!refresh_token);
     console.log('Next destination:', next);
 
-    // If no code and no tokens in query, this might be implicit flow with tokens in hash
-    // We need to redirect to a client-side page to extract hash tokens
-    if (!code && !access_token) {
-      console.log('⚠️ No code or tokens in query - likely implicit flow with hash tokens');
-      console.log('Redirecting to client-side hash handler...');
-      
-      // Redirect to client page that can read hash and send tokens back
+    if (!code) {
+      console.error('❌ No OAuth code in callback');
       return NextResponse.redirect(
-        new URL(`/auth/callback/client?next=${encodeURIComponent(next)}`, req.url)
+        new URL('/auth/extension?error=no_code&redirect=/dashboard', req.url)
       );
     }
 
@@ -66,38 +55,22 @@ export async function GET(req: NextRequest) {
       }
     );
 
-    let sessionData: any;
-    let exchangeError: any;
-
-    if (code) {
-      // PKCE flow: Exchange the OAuth code for a session
-      console.log('🔐 PKCE flow: Exchanging OAuth code for session...');
-      const result = await supabase.auth.exchangeCodeForSession(code);
-      sessionData = result.data;
-      exchangeError = result.error;
-    } else if (access_token && refresh_token) {
-      // Implicit flow: Set session directly from tokens (forwarded from client)
-      console.log('🔐 Implicit flow: Setting session from tokens...');
-      const result = await supabase.auth.setSession({
-        access_token,
-        refresh_token,
-      });
-      sessionData = result.data;
-      exchangeError = result.error;
-    }
+    // Exchange the OAuth code for a session
+    console.log('🔐 Exchanging OAuth code for session...');
+    const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
-      console.error('❌ Session establishment failed:', exchangeError);
+      console.error('❌ Code exchange failed:', exchangeError);
       return NextResponse.redirect(
         new URL(
-          `/auth/extension?error=session_failed&error_description=${encodeURIComponent(exchangeError.message)}&redirect=/dashboard`,
+          `/auth/extension?error=exchange_failed&error_description=${encodeURIComponent(exchangeError.message)}&redirect=/dashboard`,
           req.url
         )
       );
     }
 
     if (!sessionData.session || !sessionData.user) {
-      console.error('❌ No session or user after authentication');
+      console.error('❌ No session or user after code exchange');
       return NextResponse.redirect(
         new URL('/auth/extension?error=no_session&redirect=/dashboard', req.url)
       );
