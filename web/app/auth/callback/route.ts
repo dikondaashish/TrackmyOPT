@@ -15,13 +15,20 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
   try {
+    console.log('🚀 OAUTH CALLBACK ROUTE HIT');
     const url = new URL(req.url);
+    console.log('Full URL:', url.toString());
+    
     const code = url.searchParams.get('code');
     const next = url.searchParams.get('next') || '/dashboard';
+    const error = url.searchParams.get('error');
+    const errorDescription = url.searchParams.get('error_description');
 
-    console.log('🔄 OAuth callback for web flow');
-    console.log('Code present:', !!code);
-    console.log('Next destination:', next);
+    console.log('📋 Callback Parameters:');
+    console.log('  - code:', code ? `${code.substring(0, 20)}...` : 'MISSING');
+    console.log('  - next:', next);
+    console.log('  - error:', error || 'none');
+    console.log('  - error_description:', errorDescription || 'none');
 
     if (!code) {
       console.error('❌ No OAuth code in callback');

@@ -68,6 +68,17 @@ export default function ExtensionAuthPage() {
 
   // Load saved email on mount (Remember me functionality)
   useEffect(() => {
+    console.log('🚀 AUTH PAGE LOADED');
+    console.log('Full URL:', window.location.href);
+    console.log('📋 URL Parameters:');
+    console.log('  - redirect_uri:', redirectUri || 'MISSING');
+    console.log('  - state:', state || 'MISSING');
+    console.log('  - redirect:', redirect);
+    console.log('  - error:', errorParam || 'none');
+    console.log('Flow Detection:');
+    console.log('  - isExtensionFlow:', isExtensionFlow);
+    console.log('  - isWebFlow:', isWebFlow);
+    
     const savedEmail = localStorage.getItem('trackmyopt_remember_email');
     if (savedEmail) {
       setEmail(savedEmail);
@@ -159,8 +170,16 @@ export default function ExtensionAuthPage() {
     setLoading(true);
     setError(null);
     
+    console.log('🔐 Manual Sign In Started');
+    console.log('Is Extension Flow:', isExtensionFlow);
+    console.log('Is Web Flow:', isWebFlow);
+    console.log('Redirect URI:', redirectUri);
+    console.log('State:', state);
+    console.log('Redirect:', redirect);
+    
     try {
       if (isExtensionFlow) {
+        console.log('📱 Processing EXTENSION manual login flow');
         // Extension flow: get JWT and redirect through completing page
         const res = await fetch('/api/manual/login', {
           method: 'POST',
@@ -187,8 +206,13 @@ export default function ExtensionAuthPage() {
         completingUrl.searchParams.set('redirect_uri', redirectUri!);
         completingUrl.searchParams.set('redirect', '/dashboard');
         
+        console.log('✅ Extension login successful, redirecting to completing page');
+        console.log('Completing URL:', completingUrl.toString());
+        
         window.location.href = completingUrl.toString();
       } else {
+        console.log('🌐 Processing WEB manual login flow');
+        
         // Web flow: establish server-side session via API route
         const sessionRes = await fetch('/api/auth/session', {
           method: 'POST',
@@ -212,9 +236,15 @@ export default function ExtensionAuthPage() {
           localStorage.removeItem('trackmyopt_remember_email');
         }
 
+        console.log('✅ Web login session established successfully');
+        console.log('User ID:', sessionData.user?.id);
+        
         // Wait for cookies to be fully set before redirecting
         await new Promise(resolve => setTimeout(resolve, 300));
 
+        console.log('🎯 REDIRECTING TO:', redirect);
+        console.log('Using window.location.replace()');
+        
         // Session is now established on server, redirect to dashboard
         // Use replace to avoid back button issues
         window.location.replace(redirect);
@@ -273,6 +303,11 @@ export default function ExtensionAuthPage() {
     setOtpLoading(true);
     setOtpError(null);
 
+    console.log('🔐 OTP Verification Started');
+    console.log('Is Extension Flow:', isExtensionFlow);
+    console.log('Is Web Flow:', isWebFlow);
+    console.log('Email:', email);
+
     try {
       // Verify OTP and create account
       const res = await fetch('/api/auth/verify-otp', {
@@ -292,10 +327,13 @@ export default function ExtensionAuthPage() {
         throw new Error(data.error || 'Invalid verification code');
       }
       
+      console.log('✅ OTP verified successfully, token received');
+      
       // Close modal
       setShowOTPModal(false);
       
       if (isExtensionFlow) {
+        console.log('📱 Processing EXTENSION account creation flow');
         // Extension flow: redirect through completing page
         const completingUrl = new URL('/auth/completing', window.location.origin);
         completingUrl.searchParams.set('token', data.token);
@@ -303,8 +341,13 @@ export default function ExtensionAuthPage() {
         completingUrl.searchParams.set('redirect_uri', redirectUri!);
         completingUrl.searchParams.set('redirect', '/dashboard');
         
+        console.log('✅ Account created successfully, redirecting to completing page');
+        console.log('Completing URL:', completingUrl.toString());
+        
         window.location.href = completingUrl.toString();
       } else {
+        console.log('🌐 Processing WEB account creation flow');
+        
         // Web flow: establish server-side session for the new account
         const sessionRes = await fetch('/api/auth/session', {
           method: 'POST',
@@ -316,12 +359,18 @@ export default function ExtensionAuthPage() {
         const sessionData = await sessionRes.json();
 
         if (!sessionData.ok) {
-          console.error('Auto sign-in error:', sessionData.error);
+          console.error('❌ Auto sign-in error:', sessionData.error);
           // If auto sign-in fails, redirect to login page
           window.location.href = '/auth/extension?redirect=' + encodeURIComponent(redirect);
         } else {
+          console.log('✅ Web account creation session established successfully');
+          console.log('User ID:', sessionData.user?.id);
+          
           // Wait for cookies to be fully set before redirecting
           await new Promise(resolve => setTimeout(resolve, 300));
+          
+          console.log('🎯 REDIRECTING TO:', redirect);
+          console.log('Using window.location.replace()');
           
           // Session established, redirect to dashboard
           // Use replace to avoid back button issues
