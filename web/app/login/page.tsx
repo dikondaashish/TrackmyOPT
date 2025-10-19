@@ -132,7 +132,7 @@ export default function LoginPage() {
     // Run after a short delay to ensure Supabase client is ready
     const timeoutId = setTimeout(handleOAuthHash, 500);
     return () => clearTimeout(timeoutId);
-  }, [isExtensionFlow, redirect]);
+  }, [isExtensionFlow, dashboardUrl]);
 
   // Only show error if it's not a valid extension flow OR web flow
   if (!isExtensionFlow && !isWebFlow) {
