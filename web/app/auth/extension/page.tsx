@@ -216,7 +216,7 @@ export default function ExtensionAuthPage() {
         await new Promise(resolve => setTimeout(resolve, 300));
 
         // Session is now established on server, redirect to dashboard
-        // Use replace to avoid back button issues
+        console.log('✅ Web flow session established, redirecting to:', redirect);
         window.location.replace(redirect);
       }
     } catch (err: any) {
@@ -324,7 +324,7 @@ export default function ExtensionAuthPage() {
           await new Promise(resolve => setTimeout(resolve, 300));
           
           // Session established, redirect to dashboard
-          // Use replace to avoid back button issues
+          console.log('✅ Web flow session established after account creation, redirecting to:', redirect);
           window.location.replace(redirect);
         }
       }
