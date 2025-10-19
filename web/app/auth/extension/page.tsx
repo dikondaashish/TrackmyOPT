@@ -94,6 +94,50 @@ export default function ExtensionAuthPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // Handle OAuth tokens in URL hash (for web flow)
+  useEffect(() => {
+    const handleOAuthHash = async () => {
+      // Only for web flow (not extension)
+      if (isExtensionFlow) return;
+      
+      const hash = window.location.hash;
+      if (!hash) return;
+      
+      // Check if hash contains OAuth tokens
+      if (hash.includes('access_token')) {
+        console.log('✅ OAuth tokens detected in URL hash (web flow)');
+        console.log('🔄 Establishing session from OAuth tokens...');
+        
+        try {
+          // Get session from hash - Supabase client will automatically parse it
+          const { data: { session }, error } = await supabase.auth.getSession();
+          
+          if (error) {
+            console.error('❌ Error getting session from hash:', error);
+            setError('Authentication failed. Please try again.');
+            return;
+          }
+          
+          if (session) {
+            console.log('✅ Session established from OAuth tokens');
+            console.log('User:', session.user.email);
+            console.log('🎯 Redirecting to dashboard...');
+            
+            // Clear the hash and redirect to dashboard
+            window.location.replace(redirect);
+          }
+        } catch (err) {
+          console.error('❌ Error handling OAuth hash:', err);
+          setError('Authentication failed. Please try again.');
+        }
+      }
+    };
+    
+    // Run after a short delay to ensure Supabase client is ready
+    const timeoutId = setTimeout(handleOAuthHash, 500);
+    return () => clearTimeout(timeoutId);
+  }, [isExtensionFlow, redirect]);
+
   // Only show error if it's not a valid extension flow OR web flow
   if (!isExtensionFlow && !isWebFlow) {
     return (

@@ -96,7 +96,15 @@ async function beginAuth(){
         const dashboardUrl = 'https://www.trackmyopt.com/dashboard';
         
         console.log('🌐 Navigating tab to dashboard:', dashboardUrl);
-        await chrome.tabs.update(tab.id!, { url: dashboardUrl });
+        console.log('Tab ID:', tab.id);
+        
+        try {
+          const updatedTab = await chrome.tabs.update(tab.id!, { url: dashboardUrl });
+          console.log('✅ Tab navigation initiated successfully');
+          console.log('Updated tab URL:', updatedTab.url);
+        } catch (navError) {
+          console.error('❌ Error navigating tab:', navError);
+        }
         
         resolve(undefined);
       } catch (error) {

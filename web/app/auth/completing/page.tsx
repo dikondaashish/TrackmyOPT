@@ -35,11 +35,21 @@ export default function CompletingAuthPage() {
       console.log('🌐 Extension will navigate to dashboard after capturing token');
       console.log('⏳ Redirecting in 100ms...');
       
-      // Small delay to ensure logs are visible
+      // Longer delay to ensure page is fully loaded and prevent DNS errors
       setTimeout(() => {
         console.log('🎯 NOW REDIRECTING TO EXTENSION URL');
-        window.location.href = extensionUrl;
-      }, 100);
+        try {
+          window.location.href = extensionUrl;
+        } catch (error) {
+          console.error('❌ Error redirecting to extension:', error);
+          // Fallback: try using location.replace
+          try {
+            window.location.replace(extensionUrl);
+          } catch (replaceError) {
+            console.error('❌ Error with replace:', replaceError);
+          }
+        }
+      }, 500);
       
     } else if (token) {
       console.log('✅ Token present but no extension params');
