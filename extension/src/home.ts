@@ -123,14 +123,31 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       if (confirm('Are you sure you want to sign out?')) {
-        // Clear all stored data
+        try {
+          console.log('🚪 Extension: Signing out...');
+          
+          // Call Supabase signout endpoint to clear session cookies
+          const response = await fetch('https://www.trackmyopt.com/auth/signout', {
+            method: 'POST',
+            credentials: 'include', // Important: send cookies to be cleared
+          });
+          
+          if (response.ok) {
+            console.log('✅ Extension: Server session cleared');
+          } else {
+            console.warn('⚠️ Extension: Server signout failed, clearing local data anyway');
+          }
+        } catch (error) {
+          console.error('❌ Extension: Error signing out:', error);
+        }
+        
+        // Clear all local stored data
         await chrome.storage.sync.clear();
         await chrome.storage.session.clear();
         
-        console.log('User signed out');
+        console.log('✅ Extension: Signed out successfully');
         
-        // Trigger re-render by dispatching storage change
-        // The popup.ts listener will catch this and re-render
+        // Reload popup to show sign in screen
         window.location.reload();
       }
     });
