@@ -35,8 +35,8 @@ export default async function DashboardPage() {
 
   const { data } = await supabase.auth.getUser();
   if (!data.user) {
-    // unified redirect: unauthenticated users go to web auth, then back here
-    redirect(`/auth/extension?redirect=/dashboard`);
+    // Redirect unauthenticated users to login page
+    redirect(`/login`);
   }
 
   return <DashboardContent />;

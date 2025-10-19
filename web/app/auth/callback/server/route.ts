@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     if (!code) {
       console.error('❌ No OAuth code in callback');
       return NextResponse.redirect(
-        new URL('/auth/extension?error=no_code&redirect=/dashboard', req.url)
+        new URL('/login?error=no_code', req.url)
       );
     }
 
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
       console.error('❌ Code exchange failed:', exchangeError);
       return NextResponse.redirect(
         new URL(
-          `/auth/extension?error=exchange_failed&error_description=${encodeURIComponent(exchangeError.message)}&redirect=/dashboard`,
+          `/login?error=exchange_failed`,
           req.url
         )
       );
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
     if (!sessionData.session || !sessionData.user) {
       console.error('❌ No session or user after code exchange');
       return NextResponse.redirect(
-        new URL('/auth/extension?error=no_session&redirect=/dashboard', req.url)
+        new URL('/login?error=no_session', req.url)
       );
     }
 
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
     console.error('❌ OAuth callback error:', error);
     return NextResponse.redirect(
       new URL(
-        `/auth/extension?error=callback_failed&error_description=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}&redirect=/dashboard`,
+        `/login?error=callback_failed`,
         req.url
       )
     );
