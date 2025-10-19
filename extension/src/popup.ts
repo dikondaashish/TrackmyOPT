@@ -7,11 +7,41 @@ import { renderStemClock } from './pages/stem-clock.js';
 import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
 
 /**
- * Check if user is signed in
+ * Check if user is signed in by calling /api/me
  */
 async function isSignedIn(): Promise<boolean> {
-  const { signedIn } = await chrome.storage.sync.get('signedIn');
-  return !!signedIn;
+  try {
+    console.log('🔍 Extension: Checking if user is signed in...');
+    
+    // Check /api/me to see if there's a valid session
+    const response = await fetch('https://www.trackmyopt.com/api/me', {
+      method: 'GET',
+      credentials: 'include', // Important: send cookies
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Extension: User is signed in!', data.user?.email);
+      
+      // Store signedIn status
+      await chrome.storage.sync.set({ signedIn: true });
+      
+      return true;
+    } else {
+      console.log('❌ Extension: User is not signed in');
+      
+      // Clear signedIn status
+      await chrome.storage.sync.set({ signedIn: false });
+      
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Extension: Error checking sign in status:', error);
+    return false;
+  }
 }
 
 /**

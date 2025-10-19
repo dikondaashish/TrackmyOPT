@@ -57,6 +57,11 @@ async function beginAuth(){
               const userData = await response.json();
               console.log('✅ Extension: Session verified!', userData.user?.email);
               console.log('👤 Extension: User data:', userData);
+              
+              // Mark as signed in
+              await chrome.storage.sync.set({ signedIn: true });
+              console.log('💾 Extension: Marked as signed in');
+              
               resolve();
             } else {
               console.log('⚠️ Extension: Dashboard reached but no session yet, waiting...');
@@ -71,6 +76,11 @@ async function beginAuth(){
                 if (retry.ok) {
                   const userData = await retry.json();
                   console.log('✅ Extension: Session verified on retry!', userData.user?.email);
+                  
+                  // Mark as signed in
+                  await chrome.storage.sync.set({ signedIn: true });
+                  console.log('💾 Extension: Marked as signed in');
+                  
                   resolve();
                 } else {
                   const errorText = await retry.text();
