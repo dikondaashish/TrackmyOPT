@@ -93,11 +93,10 @@ async function beginAuth(){
         console.log('✅ Authentication complete!');
         
         // Navigate the tab to dashboard after capturing token
-        // CRITICAL FIX: Always use www subdomain for production site
         const dashboardUrl = 'https://www.trackmyopt.com/dashboard';
         
         console.log('🌐 Navigating tab to dashboard:', dashboardUrl);
-        await chrome.tabs.update(tab.id, { url: dashboardUrl });
+        await chrome.tabs.update(tab.id!, { url: dashboardUrl });
         
         resolve(undefined);
       } catch (error) {
