@@ -83,6 +83,41 @@ export default function ExtensionAuthPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // CRITICAL FIX: Auto-redirect to dashboard after successful authentication
+  // This handles extension manual login and account creation flows
+  useEffect(() => {
+    const checkSessionAndRedirect = async () => {
+      try {
+        // Only proceed if we have a redirect parameter
+        if (!redirect) return;
+
+        // Check if user has an active session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (session && session.user) {
+          console.log('✅ Session detected, user:', session.user.id);
+          console.log('↗️ Auto-redirecting to:', redirect);
+          
+          // For extension flows, wait a moment to ensure extension received the message
+          if (isExtensionFlow) {
+            // Give extension time to capture the session (500ms)
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+          
+          // Perform automatic redirect to dashboard
+          window.location.href = redirect;
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+      }
+    };
+
+    // Run check after a short delay to allow session to be fully established
+    const timeoutId = setTimeout(checkSessionAndRedirect, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [redirect, isExtensionFlow]);
+
   // Only show error if it's not a valid extension flow OR web flow
   if (!isExtensionFlow && !isWebFlow) {
     return (
@@ -216,7 +251,7 @@ export default function ExtensionAuthPage() {
         await new Promise(resolve => setTimeout(resolve, 300));
 
         // Session is now established on server, redirect to dashboard
-        console.log('✅ Web flow session established, redirecting to:', redirect);
+        // Use replace to avoid back button issues
         window.location.replace(redirect);
       }
     } catch (err: any) {
@@ -324,7 +359,7 @@ export default function ExtensionAuthPage() {
           await new Promise(resolve => setTimeout(resolve, 300));
           
           // Session established, redirect to dashboard
-          console.log('✅ Web flow session established after account creation, redirecting to:', redirect);
+          // Use replace to avoid back button issues
           window.location.replace(redirect);
         }
       }
