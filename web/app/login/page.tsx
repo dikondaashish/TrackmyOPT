@@ -186,12 +186,34 @@ function LoginPageContent() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      // Validate email format first
+      if (!resetEmail || !resetEmail.includes('@')) {
+        throw new Error('Please enter a valid email address');
+      }
+
+      // Check if user exists in the profiles table
+      // This is safe to do as we're only checking existence, not exposing sensitive data
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', resetEmail.toLowerCase())
+        .maybeSingle();
+
+      // If no user found in profiles, they're not registered
+      if (!userProfile && !profileError) {
+        throw new Error('This email is not registered with TrackMyOPT. Please create an account first.');
+      }
+
+      // User exists, send the reset email
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(resetEmail, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
-      if (error) throw error;
+      if (resetError) {
+        throw resetError;
+      }
 
+      // Success
       setResetSuccess(true);
       setTimeout(() => {
         setShowForgotPassword(false);
@@ -199,6 +221,7 @@ function LoginPageContent() {
         setResetEmail('');
       }, 3000);
     } catch (err: any) {
+      console.error('Forgot password error:', err);
       setError(err.message || 'Failed to send reset link');
     } finally {
       setResetLoading(false);
@@ -422,7 +445,11 @@ function LoginPageContent() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative">
             <button
-              onClick={() => setShowForgotPassword(false)}
+              onClick={() => {
+                setShowForgotPassword(false);
+                setError(null);
+                setResetEmail('');
+              }}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -465,7 +492,11 @@ function LoginPageContent() {
                 <div className="flex gap-3">
                   <button
                     type="button"
-                    onClick={() => setShowForgotPassword(false)}
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setError(null);
+                      setResetEmail('');
+                    }}
                     disabled={resetLoading}
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition disabled:opacity-50"
                   >
@@ -624,6 +655,7 @@ function LoginPageContent() {
                   onClick={() => {
                     setShowForgotPassword(true);
                     setResetEmail(email); // Auto-fill with current email
+                    setError(null); // Clear any previous errors
                   }}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
