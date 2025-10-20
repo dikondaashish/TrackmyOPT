@@ -7,48 +7,37 @@ import { renderStemClock } from './pages/stem-clock.js';
 import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
 
 /**
- * Check if user is signed in - with caching for performance
+ * Check if user is signed in by calling /api/me
  */
 async function isSignedIn(): Promise<boolean> {
   try {
-    // First check cached status for instant load
-    const { signedIn: cachedStatus, lastCheck } = await chrome.storage.sync.get(['signedIn', 'lastCheck']);
-    const now = Date.now();
-    const cacheValid = lastCheck && (now - lastCheck) < 5000; // Cache for 5 seconds
-    
-    // Return cached status if valid
-    if (cacheValid && cachedStatus !== undefined) {
-      console.log('⚡ Extension: Using cached sign-in status:', cachedStatus);
-      return cachedStatus;
-    }
-    
     console.log('🔍 Extension: Checking if user is signed in...');
     
     // Check /api/me to see if there's a valid session
     const response = await fetch('https://www.trackmyopt.com/api/me', {
       method: 'GET',
-      credentials: 'include',
+      credentials: 'include', // Important: send cookies
       headers: {
         'Content-Type': 'application/json',
       },
     });
     
-    const isAuthenticated = response.ok;
-    
-    if (isAuthenticated) {
+    if (response.ok) {
       const data = await response.json();
       console.log('✅ Extension: User is signed in!', data.user?.email);
+      
+      // Store signedIn status
+      await chrome.storage.sync.set({ signedIn: true });
+      
+      return true;
     } else {
       console.log('❌ Extension: User is not signed in');
+      
+      // Clear signedIn status
+      await chrome.storage.sync.set({ signedIn: false });
+      
+      return false;
     }
-    
-    // Cache the result
-    await chrome.storage.sync.set({ 
-      signedIn: isAuthenticated,
-      lastCheck: now
-    });
-    
-    return isAuthenticated;
   } catch (error) {
     console.error('❌ Extension: Error checking sign in status:', error);
     return false;
@@ -157,7 +146,7 @@ async function navigateToPage(page: string, data?: any): Promise<void> {
 }
 
 /**
- * Main render function - optimized for speed
+ * Main render function - decides which view to show
  */
 async function render(): Promise<void> {
   const root = document.getElementById('root');
@@ -166,15 +155,10 @@ async function render(): Promise<void> {
     return;
   }
 
-  // Show loading state immediately (minimal, fast)
-  root.innerHTML = '<div style="padding:20px;text-align:center;color:#9ca3af;font-size:12px;">⚡ Loading...</div>';
+  // Apply saved theme first
+  await applyTheme();
 
-  // Apply theme and check auth in parallel for speed
-  const [, signedIn] = await Promise.all([
-    applyTheme(),
-    isSignedIn()
-  ]);
-  
+  const signedIn = await isSignedIn();
   console.log('Popup render - signedIn:', signedIn);
 
   if (signedIn) {
