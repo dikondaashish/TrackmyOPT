@@ -21,6 +21,15 @@ function LoginPageContent() {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
   
+  // OTP Verification
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [countdown, setCountdown] = useState(180); // 3 minutes = 180 seconds
+  const [canResend, setCanResend] = useState(false);
+  const [signupEmail, setSignupEmail] = useState('');
+  
   // Password visibility toggles
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -44,7 +53,7 @@ function LoginPageContent() {
   const passwordCriteria = validatePassword(password);
   const isPasswordValid = Object.values(passwordCriteria).every(Boolean);
 
-  // Load saved email
+  // Load saved email on mount
   useEffect(() => {
     const savedEmail = localStorage.getItem('trackmyopt_remember_email');
     if (savedEmail) {
@@ -52,6 +61,29 @@ function LoginPageContent() {
       setRememberMe(true);
     }
   }, []);
+
+  // Countdown timer for OTP
+  useEffect(() => {
+    if (showOTPModal && countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [showOTPModal, countdown]);
+
+  // Format countdown as MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Auto-scroll images
   useEffect(() => {
@@ -161,6 +193,65 @@ function LoginPageContent() {
     }
   };
 
+  const handleResendOTP = async () => {
+    setOtpLoading(true);
+    setOtpError('');
+
+    try {
+      // Resend OTP by calling signUp again
+      const { error } = await supabase.auth.signUp({
+        email: signupEmail,
+        password, // Use the same password
+        options: {
+          data: {
+            firstName,
+            lastName,
+            fullName: `${firstName} ${lastName}`,
+          },
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+
+      // Reset timer
+      setCountdown(180);
+      setCanResend(false);
+      setOtpError('');
+    } catch (err: any) {
+      setOtpError(err.message || 'Failed to resend code');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpLoading(true);
+    setOtpError('');
+
+    try {
+      // Verify OTP token
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: signupEmail,
+        token: otpCode,
+        type: 'signup',
+      });
+
+      if (error) throw error;
+
+      console.log('✅ OTP verified, account created!', data);
+      
+      // Redirect to dashboard
+      window.location.href = '/dashboard';
+    } catch (err: any) {
+      console.error('❌ OTP verification failed:', err);
+      setOtpError(err.message || 'Invalid or expired code. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('📝 Sign up attempt started');
@@ -201,13 +292,12 @@ function LoginPageContent() {
 
       console.log('✅ Sign up response:', data);
 
-      if (data?.user && !data?.session) {
-        setError('Please check your email to verify your account');
-        setLoading(false);
-      } else if (data?.session) {
-        console.log('↗️ Redirecting to dashboard...');
-        window.location.href = '/dashboard';
-      }
+      // Show OTP modal
+      setSignupEmail(email);
+      setShowOTPModal(true);
+      setCountdown(180); // Reset to 3 minutes
+      setCanResend(false);
+      setLoading(false);
     } catch (err: any) {
       console.error('❌ Sign up failed:', err);
       setError(err.message || 'Sign up failed. Please try again.');
@@ -235,6 +325,86 @@ function LoginPageContent() {
 
   return (
     <div className="min-h-screen flex bg-gray-50">
+      {/* OTP Verification Modal */}
+      {showOTPModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify Your Email</h2>
+              <p className="text-gray-600 text-sm">
+                We've sent a 6-digit verification code to <strong>{signupEmail}</strong>. Please check your inbox and enter the code below.
+              </p>
+            </div>
+
+            <form onSubmit={handleVerifyOTP} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  maxLength={6}
+                  required
+                  disabled={otpLoading}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-center text-2xl font-mono tracking-widest focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                  placeholder="Enter 6-digit code"
+                />
+              </div>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-500">
+                  Code expires in <span className="font-semibold text-gray-700">{formatTime(countdown)}</span>
+                </p>
+              </div>
+
+              {otpError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
+                  {otpError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={otpLoading || otpCode.length !== 6}
+                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {otpLoading ? 'Verifying...' : 'Verify & Create Account'}
+              </button>
+
+              <div className="flex items-center justify-between text-sm">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOTPModal(false);
+                    setOtpCode('');
+                    setOtpError('');
+                  }}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={!canResend || otpLoading}
+                  className={`font-medium ${
+                    canResend
+                      ? 'text-blue-600 hover:text-blue-700 cursor-pointer'
+                      : 'text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  Resend Code
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Forgot Password Modal */}
       {showForgotPassword && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -439,7 +609,10 @@ function LoginPageContent() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setShowForgotPassword(true)}
+                  onClick={() => {
+                    setShowForgotPassword(true);
+                    setResetEmail(email); // Auto-fill with current email
+                  }}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Forgot password?
