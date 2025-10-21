@@ -22,7 +22,7 @@ async function beginAuth(){
   console.log('📂 Opened auth tab:', tab.id);
   
   // Listen for successful login (tab navigates to dashboard)
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const timeout = setTimeout(() => {
       chrome.tabs.onUpdated.removeListener(listener);
       reject(new Error('Auth timeout'));
