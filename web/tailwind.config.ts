@@ -58,6 +58,11 @@ const config: Config = {
       },
       animation: {
         aurora: "aurora 60s linear infinite",
+        "fade-in": "fadeIn 0.8s ease-in-out",
+        "fade-in-up": "fadeInUp 0.8s ease-in-out",
+        "fade-in-delay-1": "fadeIn 0.6s ease-in-out 0.1s both",
+        "fade-in-delay-2": "fadeIn 0.6s ease-in-out 0.2s both",
+        "fade-in-delay-3": "fadeIn 0.6s ease-in-out 0.3s both",
       },
       keyframes: {
         aurora: {
@@ -66,6 +71,26 @@ const config: Config = {
           },
           to: {
             backgroundPosition: "350% 50%, 350% 50%",
+          },
+        },
+        fadeIn: {
+          from: {
+            opacity: "0",
+            transform: "translateY(20px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        fadeInUp: {
+          from: {
+            opacity: "0",
+            transform: "translateY(40px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
           },
         },
       },
