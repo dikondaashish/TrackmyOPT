@@ -16,7 +16,7 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
   
   // Get user initials from email or name
   const getUserInitials = () => {
-    if (!user) return "U";
+    if (!user?.email) return "?";
     
     if (user.user_metadata?.full_name) {
       const names = user.user_metadata.full_name.split(' ');
@@ -27,12 +27,18 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
     
     if (user.email) {
       const emailParts = user.email.split('@')[0].split('.');
-      return emailParts.length > 1
-        ? `${emailParts[0][0]}${emailParts[1][0]}`.toUpperCase()
-        : emailParts[0].substring(0, 2).toUpperCase();
+      if (emailParts.length > 1) {
+        return `${emailParts[0][0]}${emailParts[1][0]}`.toUpperCase();
+      }
+      // For emails like "john@gmail.com", take first 2 letters of name
+      return emailParts[0].substring(0, 2).toUpperCase();
     }
     
-    return "U";
+    return "?";
+  };
+  
+  const getUserEmail = () => {
+    return user?.email || "Loading user data...";
   };
   
   const menuItems = [
@@ -146,16 +152,18 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm truncate">{user?.email || "Loading..."}</p>
-              {isPremium ? (
-                <p className="text-xs text-muted-foreground">Premium Member</p>
-              ) : (
-                <button
-                  onClick={onUpgradeClick}
-                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  Upgrade to Pro
-                </button>
+              <p className="text-sm truncate">{getUserEmail()}</p>
+              {user && (
+                isPremium ? (
+                  <p className="text-xs text-muted-foreground">Premium Member</p>
+                ) : (
+                  <button
+                    onClick={onUpgradeClick}
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Upgrade to Pro
+                  </button>
+                )
               )}
             </div>
           )}

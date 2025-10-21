@@ -56,7 +56,7 @@ export default function PremiumCancelled() {
         {/* CTA Buttons */}
         <div className="space-y-3">
           <button
-            onClick={() => router.push('/premium/checkout')}
+            onClick={() => router.push('/dashboard?upgrade=true')}
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-4 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
           >
             Try Again →

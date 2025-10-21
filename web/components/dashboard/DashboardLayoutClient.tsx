@@ -9,16 +9,14 @@ import { User } from "@supabase/supabase-js";
 
 interface DashboardLayoutClientProps {
   children: React.ReactNode;
-  initialUser: User | null;
-  initialIsPremium: boolean;
 }
 
-export function DashboardLayoutClient({ children, initialUser, initialIsPremium }: DashboardLayoutClientProps) {
+export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) {
   const searchParams = useSearchParams();
   const [darkMode, setDarkMode] = useState(false); // Default to light
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [user] = useState<User | null>(initialUser);
-  const [isPremium] = useState(initialIsPremium);
+  const [user, setUser] = useState<User | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
 
   useEffect(() => {
@@ -44,7 +42,50 @@ export function DashboardLayoutClient({ children, initialUser, initialIsPremium 
     }
   }, []);
 
-  // User data is now passed from server-side, no need to fetch
+  // Fetch user data and premium status
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        console.log('🔍 Fetching user data...');
+        const response = await fetch('/api/me', {
+          method: 'GET',
+          credentials: 'include', // Important: include cookies
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ User data fetched:', data.user?.email);
+          setUser(data.user);
+        } else {
+          console.error('❌ Failed to fetch user data:', response.status, response.statusText);
+        }
+
+        console.log('🔍 Fetching premium status...');
+        const premiumResponse = await fetch('/api/premium/status', {
+          method: 'GET',
+          credentials: 'include', // Important: include cookies
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (premiumResponse.ok) {
+          const premiumData = await premiumResponse.json();
+          console.log('✅ Premium status fetched:', premiumData.isPremium);
+          setIsPremium(premiumData.isPremium);
+        } else {
+          console.error('❌ Failed to fetch premium status:', premiumResponse.status);
+        }
+      } catch (error) {
+        console.error('❌ Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Check for pricing modal URL parameter from extension
   useEffect(() => {
