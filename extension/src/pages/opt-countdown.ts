@@ -439,11 +439,11 @@ export async function renderOptCountdown(
     const upgradeBtn = content.querySelector('#upgrade-premium-btn');
     if (upgradeBtn) {
       upgradeBtn.addEventListener('click', async () => {
-        // Open Stripe checkout
+        // Open dashboard with upgrade parameter
         const { idToken } = await chrome.storage.sync.get('idToken');
         if (idToken) {
-          const checkoutUrl = `${WEBSITE_URL}/premium/checkout`;
-          chrome.tabs.create({ url: checkoutUrl });
+          const upgradeUrl = `${WEBSITE_URL}/dashboard?upgrade=true`;
+          chrome.tabs.create({ url: upgradeUrl });
         } else {
           alert('Please sign in to upgrade to premium');
         }

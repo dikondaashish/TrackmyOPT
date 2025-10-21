@@ -1,14 +1,53 @@
 "use client";
 import { LayoutDashboard, Calendar, Clock, FileText, Settings, HelpCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 interface SidebarProps {
   collapsed: boolean;
   setCollapsed: (value: boolean) => void;
 }
 
+interface UserProfile {
+  email: string;
+  firstName: string;
+  lastName: string;
+  isPremium: boolean;
+}
+
 export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  // Fetch user profile on mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Fetch profile data
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name, premium_status')
+          .eq('user_id', user.id)
+          .single();
+
+        if (profile) {
+          setUserProfile({
+            email: user.email || '',
+            firstName: profile.first_name || '',
+            lastName: profile.last_name || '',
+            isPremium: profile.premium_status || false,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
   
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", active: true },
@@ -18,6 +57,14 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     { icon: Settings, label: "Settings", active: false },
     { icon: HelpCircle, label: "Help", active: false },
   ];
+
+  // Get user initials
+  const getInitials = () => {
+    if (!userProfile) return 'U';
+    const first = userProfile.firstName?.[0] || '';
+    const last = userProfile.lastName?.[0] || '';
+    return (first + last).toUpperCase() || userProfile.email?.[0]?.toUpperCase() || 'U';
+  };
   
   const handleSignOut = async () => {
     if (isSigningOut) return; // Prevent double-clicks
@@ -106,12 +153,25 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
       {/* User Section */}
       <div className="p-4 border-t border-sidebar-border space-y-4">
         <div className={`flex items-center gap-3 px-2 ${collapsed ? 'justify-center' : ''}`}>
-          <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center text-sm flex-shrink-0" title={collapsed ? "dikondaashish@gmail.com" : undefined}>
-            DA
+          <div className="relative flex-shrink-0">
+            <div 
+              className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-sm font-semibold text-white" 
+              title={collapsed ? userProfile?.email : undefined}
+            >
+              {getInitials()}
+            </div>
+            {userProfile?.isPremium && (
+              <div className="absolute -bottom-1 -right-1 bg-primary dark:bg-white text-primary-foreground dark:text-primary px-1.5 py-0.5 rounded-full text-[9px] font-bold border-2 border-background">
+                PRO
+              </div>
+            )}
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm truncate">dikondaashish@gmail.com</p>
+              <p className="text-sm font-medium truncate">{userProfile?.email || 'Loading...'}</p>
+              {userProfile?.isPremium && (
+                <p className="text-xs text-muted-foreground">Premium Member</p>
+              )}
             </div>
           )}
         </div>

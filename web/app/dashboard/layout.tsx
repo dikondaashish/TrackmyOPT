@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false); // Default to light, will be updated
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
@@ -19,12 +19,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [darkMode]);
 
-  // Load dark mode preference from localStorage on mount
+  // Load dark mode preference - check user preference first, then device, then default to light
   useEffect(() => {
     const savedMode = localStorage.getItem('tmo_dark_mode');
+    
     if (savedMode !== null) {
+      // User has explicitly set a preference
       setDarkMode(savedMode === 'true');
+    } else {
+      // No user preference, check device preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(prefersDark);
     }
+
+    // Listen for device preference changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      // Only update if user hasn't set a manual preference
+      if (localStorage.getItem('tmo_dark_mode') === null) {
+        setDarkMode(e.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   const handleDarkModeToggle = (value: boolean) => {

@@ -490,7 +490,7 @@ export function renderClockTracker(
     const apiBase = process.env.NODE_ENV === 'production'
       ? 'https://trackmyopt.com'
       : 'http://localhost:3000';
-    chrome.tabs.create({ url: `${apiBase}/premium/checkout` });
+    chrome.tabs.create({ url: `${apiBase}/dashboard?upgrade=true` });
   });
   
   upgradeBtn?.addEventListener('mouseenter', () => {
