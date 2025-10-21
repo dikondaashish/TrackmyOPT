@@ -151,7 +151,7 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
             </div>
             {/* PRO Badge */}
             {isPremium && (
-              <div className="absolute -bottom-1.5 -right-0.5 bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-400 dark:to-teal-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-lg border-2 border-background uppercase">
+              <div className="absolute -bottom-3.5 -right-0.5 bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-400 dark:to-teal-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-lg border-2 border-background uppercase">
                 pro
               </div>
             )}
