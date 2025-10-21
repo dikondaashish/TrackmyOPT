@@ -159,7 +159,19 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user data from Supabase
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    let currentUser = null;
+    if (user) {
+      // If we already have user from session cookies (primary method)
+      currentUser = user;
+      console.log('✅ /api/me - Using user from session:', user.email);
+    } else {
+      // Fallback: try to get user again
+      const { data: { user: fetchedUser } } = await supabase.auth.getUser();
+      currentUser = fetchedUser;
+      console.log('✅ /api/me - Fetched user:', fetchedUser?.email);
+    }
+
+    console.log('📤 /api/me - Returning response with user:', currentUser?.email);
 
     // Return combined data
     return NextResponse.json({
