@@ -67,11 +67,7 @@ async function checkPremiumStatus(): Promise<boolean> {
     const { idToken } = await chrome.storage.sync.get('idToken');
     if (!idToken) return false;
 
-    const apiBase = process.env.NODE_ENV === 'production'
-      ? 'https://trackmyopt.com'
-      : 'http://localhost:3000';
-
-    const response = await fetch(`${apiBase}/api/premium/status`, {
+    const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${idToken}`,
@@ -487,10 +483,7 @@ export function renderStemClockTracker(
   const upgradeBtn = document.getElementById('upgrade-btn');
   
   upgradeBtn?.addEventListener('click', () => {
-    const apiBase = process.env.NODE_ENV === 'production'
-      ? 'https://trackmyopt.com'
-      : 'http://localhost:3000';
-    chrome.tabs.create({ url: `${apiBase}/dashboard?upgrade=true` });
+    chrome.tabs.create({ url: `${WEBSITE_URL}/dashboard?upgrade=true` });
   });
   
   upgradeBtn?.addEventListener('mouseenter', () => {

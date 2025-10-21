@@ -46,41 +46,29 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        console.log('🔍 Fetching user data...');
         const response = await fetch('/api/me', {
-          method: 'GET',
-          credentials: 'include', // Important: include cookies
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          credentials: 'include', // Include cookies for authentication
         });
-        
         if (response.ok) {
           const data = await response.json();
-          console.log('✅ User data fetched:', data.user?.email);
+          console.log('✅ Fetched user data:', data);
           setUser(data.user);
         } else {
-          console.error('❌ Failed to fetch user data:', response.status, response.statusText);
+          console.error('❌ Failed to fetch user data:', response.status);
         }
 
-        console.log('🔍 Fetching premium status...');
         const premiumResponse = await fetch('/api/premium/status', {
-          method: 'GET',
-          credentials: 'include', // Important: include cookies
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          credentials: 'include',
         });
-        
         if (premiumResponse.ok) {
           const premiumData = await premiumResponse.json();
-          console.log('✅ Premium status fetched:', premiumData.isPremium);
+          console.log('✅ Fetched premium status:', premiumData);
           setIsPremium(premiumData.isPremium);
         } else {
           console.error('❌ Failed to fetch premium status:', premiumResponse.status);
         }
       } catch (error) {
-        console.error('❌ Error fetching user data:', error);
+        console.error('❌ Failed to fetch user data:', error);
       }
     };
 
