@@ -44,25 +44,37 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
 
   // Fetch user data and premium status
   useEffect(() => {
+    let mounted = true;
+    
     const fetchUserData = async () => {
       try {
         console.log('🔄 Starting user data fetch...');
         const response = await fetch('/api/me', {
-          credentials: 'include', // Include cookies for authentication
-          cache: 'no-store', // Don't cache the response
+          credentials: 'include',
+          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
         
         console.log('📡 API /me response status:', response.status);
         
+        if (!mounted) return;
+        
         if (response.ok) {
           const data = await response.json();
-          console.log('✅ Full API response:', JSON.stringify(data, null, 2));
+          console.log('✅ Full API response:', data);
           console.log('👤 User object:', data.user);
           console.log('📧 User email:', data.user?.email);
           
-          if (data.user) {
+          if (data.user && mounted) {
             setUser(data.user);
-            console.log('✅ User state updated with:', data.user.email);
+            console.log('✅ User state set to:', data.user.email);
+            
+            // Force a re-render
+            setTimeout(() => {
+              console.log('🔄 Checking user state after update:', user?.email);
+            }, 100);
           } else {
             console.error('❌ No user object in response');
           }
@@ -71,19 +83,27 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
           console.error('❌ Failed to fetch user data:', response.status, errorText);
         }
 
+        // Fetch premium status
         console.log('🔄 Starting premium status fetch...');
         const premiumResponse = await fetch('/api/premium/status', {
           credentials: 'include',
           cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
         
         console.log('📡 API /premium/status response status:', premiumResponse.status);
         
+        if (!mounted) return;
+        
         if (premiumResponse.ok) {
           const premiumData = await premiumResponse.json();
-          console.log('✅ Premium status response:', JSON.stringify(premiumData, null, 2));
-          setIsPremium(premiumData.isPremium || false);
-          console.log('✅ Premium state updated:', premiumData.isPremium);
+          console.log('✅ Premium status response:', premiumData);
+          if (mounted) {
+            setIsPremium(premiumData.isPremium || false);
+            console.log('✅ Premium state set to:', premiumData.isPremium);
+          }
         } else {
           const errorText = await premiumResponse.text();
           console.error('❌ Failed to fetch premium status:', premiumResponse.status, errorText);
@@ -93,12 +113,12 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
       }
     };
 
-    // Small delay to ensure cookies are set
-    const timer = setTimeout(() => {
-      fetchUserData();
-    }, 100);
+    // Immediate fetch
+    fetchUserData();
 
-    return () => clearTimeout(timer);
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Check for pricing modal URL parameter from extension
@@ -120,6 +140,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     <div className="min-h-screen bg-background text-foreground">
       {/* Fixed Sidebar */}
       <Sidebar 
+        key={user?.email || 'no-user'} // Force re-render when user changes
         collapsed={sidebarCollapsed} 
         setCollapsed={setSidebarCollapsed}
         user={user}
