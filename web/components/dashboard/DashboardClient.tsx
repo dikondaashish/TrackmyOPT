@@ -445,8 +445,8 @@ function TimelineItem({ label, date, description, color, isRange }: TimelineItem
   };
 
   const displayDate = isRange 
-    ? date 
-    : formatDate(typeof date === 'string' ? date : date);
+    ? (typeof date === 'string' ? date : formatDate(date))
+    : formatDate(date);
 
   return (
     <div className="flex gap-4">
