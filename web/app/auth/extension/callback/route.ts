@@ -5,6 +5,9 @@ import { SignJWT } from "jose";
 
 const alg = "HS256";
 
+// Force dynamic rendering since we use request.url
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
