@@ -70,7 +70,7 @@ export function renderPageHeader(root: HTMLElement, title: string, subtitle: str
       </div>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn-page" title="Toggle theme" aria-label="Toggle theme">
-          <span id="theme-icon-page">🌙</span>
+          <span id="theme-icon-page">🌙1</span>
         </button>
         <button class="logout-btn" id="logout-btn-page" title="Sign out" aria-label="Sign out">
           <span>→</span>
