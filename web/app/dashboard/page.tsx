@@ -54,5 +54,5 @@ export default async function DashboardPage() {
   }
 
   console.log('✅ Dashboard: User authenticated, rendering dashboard');
-  return <DashboardContent />;
+  return <DashboardContent user={data.user} />;
 }

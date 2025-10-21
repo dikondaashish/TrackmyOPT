@@ -1,5 +1,4 @@
 {
-  "buildCommand": "cd web && pnpm run build",
   "installCommand": "pnpm install --no-frozen-lockfile",
   "crons": [
     {

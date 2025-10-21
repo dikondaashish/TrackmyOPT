@@ -1,25 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { MetricCards } from "./MetricCards";
 import { OnboardingCard } from "./OnboardingCard";
 import { ToolsGrid } from "./ToolsGrid";
 import { ChartsSection } from "./ChartsSection";
-import { PremiumModal } from "./PremiumModal";
+import { User } from "@supabase/supabase-js";
 
-export function DashboardContent() {
-  const searchParams = useSearchParams();
-  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+interface DashboardContentProps {
+  user: User;
+}
 
-  // Check if URL has upgrade parameter
-  useEffect(() => {
-    if (searchParams.get('upgrade') === 'true' || searchParams.get('premium') === 'true') {
-      setPremiumModalOpen(true);
-      // Clean up URL
-      window.history.replaceState({}, '', '/dashboard');
-    }
-  }, [searchParams]);
-
+export function DashboardContent({ user }: DashboardContentProps) {
   return (
     <div className="space-y-6">
       <MetricCards />
@@ -37,9 +27,6 @@ export function DashboardContent() {
         </div>
         <p>© 2025 TrackMyOPT. All rights reserved.</p>
       </footer>
-
-      {/* Premium Upgrade Modal */}
-      <PremiumModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
     </div>
   );
 }

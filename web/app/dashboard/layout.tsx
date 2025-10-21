@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import "../globals.css";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
+import { User } from "@supabase/supabase-js";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [darkMode, setDarkMode] = useState(false); // Default to light, will be updated
+  const [darkMode, setDarkMode] = useState(false); // Default to light
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
     // Apply dark mode class to html element
@@ -19,30 +22,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [darkMode]);
 
-  // Load dark mode preference - check user preference first, then device, then default to light
+  // Load dark mode preference from localStorage or system preference on mount
   useEffect(() => {
     const savedMode = localStorage.getItem('tmo_dark_mode');
-    
     if (savedMode !== null) {
-      // User has explicitly set a preference
+      // User has a saved preference
       setDarkMode(savedMode === 'true');
     } else {
-      // No user preference, check device preference
+      // No saved preference, check system preference
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setDarkMode(prefersDark);
     }
+  }, []);
 
-    // Listen for device preference changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      // Only update if user hasn't set a manual preference
-      if (localStorage.getItem('tmo_dark_mode') === null) {
-        setDarkMode(e.matches);
+  // Fetch user data and premium status
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/me');
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        }
+
+        const premiumResponse = await fetch('/api/premium/status');
+        if (premiumResponse.ok) {
+          const premiumData = await premiumResponse.json();
+          setIsPremium(premiumData.isPremium);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
       }
     };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    fetchUserData();
   }, []);
 
   const handleDarkModeToggle = (value: boolean) => {
@@ -53,7 +66,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Fixed Sidebar */}
-      <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+      <Sidebar 
+        collapsed={sidebarCollapsed} 
+        setCollapsed={setSidebarCollapsed}
+        user={user}
+        isPremium={isPremium}
+      />
       
       {/* Main Content Area - shifts based on sidebar state */}
       <div 

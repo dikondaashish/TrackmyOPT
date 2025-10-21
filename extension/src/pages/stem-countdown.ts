@@ -407,8 +407,8 @@ export async function renderStemCountdown(
       upgradeBtn.addEventListener('click', async () => {
         const { idToken } = await chrome.storage.sync.get('idToken');
         if (idToken) {
-          const upgradeUrl = `${WEBSITE_URL}/dashboard?upgrade=true`;
-          chrome.tabs.create({ url: upgradeUrl });
+          const checkoutUrl = `${WEBSITE_URL}/premium/checkout`;
+          chrome.tabs.create({ url: checkoutUrl });
         } else {
           alert('Please sign in to upgrade to premium');
         }

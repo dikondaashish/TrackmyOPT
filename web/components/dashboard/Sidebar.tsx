@@ -1,53 +1,38 @@
 "use client";
 import { LayoutDashboard, Calendar, Clock, FileText, Settings, HelpCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { useState } from "react";
+import { User } from "@supabase/supabase-js";
 
 interface SidebarProps {
   collapsed: boolean;
   setCollapsed: (value: boolean) => void;
-}
-
-interface UserProfile {
-  email: string;
-  firstName: string;
-  lastName: string;
+  user: User | null;
   isPremium: boolean;
 }
 
-export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
+export function Sidebar({ collapsed, setCollapsed, user, isPremium }: SidebarProps) {
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-
-  // Fetch user profile on mount
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        // Fetch profile data
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, premium_status')
-          .eq('user_id', user.id)
-          .single();
-
-        if (profile) {
-          setUserProfile({
-            email: user.email || '',
-            firstName: profile.first_name || '',
-            lastName: profile.last_name || '',
-            isPremium: profile.premium_status || false,
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
+  
+  // Get user initials from email or name
+  const getUserInitials = () => {
+    if (!user) return "U";
+    
+    if (user.user_metadata?.full_name) {
+      const names = user.user_metadata.full_name.split(' ');
+      return names.length > 1 
+        ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
+        : names[0][0].toUpperCase();
+    }
+    
+    if (user.email) {
+      const emailParts = user.email.split('@')[0].split('.');
+      return emailParts.length > 1
+        ? `${emailParts[0][0]}${emailParts[1][0]}`.toUpperCase()
+        : emailParts[0].substring(0, 2).toUpperCase();
+    }
+    
+    return "U";
+  };
   
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", active: true },
@@ -57,14 +42,6 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     { icon: Settings, label: "Settings", active: false },
     { icon: HelpCircle, label: "Help", active: false },
   ];
-
-  // Get user initials
-  const getInitials = () => {
-    if (!userProfile) return 'U';
-    const first = userProfile.firstName?.[0] || '';
-    const last = userProfile.lastName?.[0] || '';
-    return (first + last).toUpperCase() || userProfile.email?.[0]?.toUpperCase() || 'U';
-  };
   
   const handleSignOut = async () => {
     if (isSigningOut) return; // Prevent double-clicks
@@ -155,21 +132,21 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         <div className={`flex items-center gap-3 px-2 ${collapsed ? 'justify-center' : ''}`}>
           <div className="relative flex-shrink-0">
             <div 
-              className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-sm font-semibold text-white" 
-              title={collapsed ? userProfile?.email : undefined}
+              className="w-8 h-8 bg-muted rounded-full flex items-center justify-center text-sm font-semibold" 
+              title={collapsed ? user?.email || "User" : undefined}
             >
-              {getInitials()}
+              {getUserInitials()}
             </div>
-            {userProfile?.isPremium && (
-              <div className="absolute -bottom-1 -right-1 bg-primary dark:bg-white text-primary-foreground dark:text-primary px-1.5 py-0.5 rounded-full text-[9px] font-bold border-2 border-background">
+            {isPremium && (
+              <div className="absolute -bottom-1 -right-1 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full border-2 border-background">
                 PRO
               </div>
             )}
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{userProfile?.email || 'Loading...'}</p>
-              {userProfile?.isPremium && (
+              <p className="text-sm truncate">{user?.email || "Loading..."}</p>
+              {isPremium && (
                 <p className="text-xs text-muted-foreground">Premium Member</p>
               )}
             </div>
