@@ -63,6 +63,8 @@ const config: Config = {
         "fade-in-delay-1": "fadeIn 0.6s ease-in-out 0.1s both",
         "fade-in-delay-2": "fadeIn 0.6s ease-in-out 0.2s both",
         "fade-in-delay-3": "fadeIn 0.6s ease-in-out 0.3s both",
+        "border-spin": "borderSpin 3s linear infinite",
+        "spin-slow": "spin 8s linear infinite",
       },
       keyframes: {
         aurora: {
@@ -91,6 +93,14 @@ const config: Config = {
           to: {
             opacity: "1",
             transform: "translateY(0)",
+          },
+        },
+        borderSpin: {
+          "0%, 100%": {
+            backgroundPosition: "0% 50%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
           },
         },
       },

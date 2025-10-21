@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { AuroraBackground } from '@/components/ui/aurora-background';
 import { Button as MovingBorderButton } from '@/components/ui/moving-border';
@@ -25,10 +23,8 @@ export default function HomePage() {
               as={Link}
               href="/login"
               borderRadius="9999px"
-              duration={3000}
-              containerClassName="w-fit"
-              borderClassName="h-20 w-20 opacity-[0.8] bg-[radial-gradient(var(--blue-500)_40%,transparent_60%)]"
-              className="bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-lg font-semibold border-0"
+              className="bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
+              containerClassName="h-auto w-auto"
             >
               Get Started →
             </MovingBorderButton>
@@ -36,10 +32,8 @@ export default function HomePage() {
               as="a"
               href="#features"
               borderRadius="9999px"
-              duration={3000}
-              containerClassName="w-fit"
-              borderClassName="h-20 w-20 opacity-[0.8] bg-[radial-gradient(var(--purple-500)_40%,transparent_60%)]"
-              className="bg-transparent dark:bg-transparent border-2 border-black/20 dark:border-white/20 text-gray-900 dark:text-white px-8 py-4 text-lg font-semibold backdrop-blur-sm"
+              className="bg-transparent border-2 border-black/20 dark:border-white/20 dark:text-white text-gray-900 px-8 py-4 text-lg font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition backdrop-blur-sm"
+              containerClassName="h-auto w-auto"
             >
               How to Install
             </MovingBorderButton>
@@ -119,18 +113,21 @@ export default function HomePage() {
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
                   Click the button below to add TrackMyOPT to Chrome
                 </p>
-                <a
+                <MovingBorderButton
+                  as="a"
                   href="https://chrome.google.com/webstore"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold hover:scale-105 transition-transform shadow-lg"
+                  borderRadius="9999px"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:scale-105 transition-transform shadow-lg"
+                  containerClassName="h-auto w-auto inline-block"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.423-4.395 9.818-9.818 9.818-5.423 0-9.818-4.395-9.818-9.818 0-5.423 4.395-9.818 9.818-9.818z" />
                   </svg>
                   Add to Chrome
                   <span className="text-xs opacity-80">(Coming Soon)</span>
-                </a>
+                </MovingBorderButton>
               </div>
             </div>
 

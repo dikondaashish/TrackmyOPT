@@ -1,13 +1,5 @@
 "use client";
 import React from "react";
-import {
-  motion,
-  useAnimationFrame,
-  useMotionTemplate,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
-import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
 export function Button({
@@ -16,7 +8,6 @@ export function Button({
   as: Component = "button",
   containerClassName,
   borderClassName,
-  duration,
   className,
   ...otherProps
 }: {
@@ -25,14 +16,13 @@ export function Button({
   as?: any;
   containerClassName?: string;
   borderClassName?: string;
-  duration?: number;
   className?: string;
   [key: string]: any;
 }) {
   return (
     <Component
       className={cn(
-        "bg-transparent relative text-xl h-16 w-40 p-[1px] overflow-hidden",
+        "relative text-xl p-[2px] overflow-hidden group",
         containerClassName
       )}
       style={{
@@ -40,23 +30,27 @@ export function Button({
       }}
       {...otherProps}
     >
+      {/* Animated border gradient */}
       <div
-        className="absolute inset-0"
-        style={{ borderRadius: `calc(${borderRadius} * 0.96)` }}
+        className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{ borderRadius: borderRadius }}
       >
-        <MovingBorder duration={duration} rx="30%" ry="30%">
-          <div
-            className={cn(
-              "h-20 w-20 opacity-[0.8] bg-[radial-gradient(var(--sky-500)_40%,transparent_60%)]",
-              borderClassName
-            )}
-          />
-        </MovingBorder>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-spin-slow blur-sm" />
       </div>
+      
+      {/* Rotating border effect */}
+      <div 
+        className={cn(
+          "absolute inset-0 animate-border-spin",
+          borderClassName
+        )}
+        style={{ borderRadius: borderRadius }}
+      />
 
+      {/* Button content */}
       <div
         className={cn(
-          "relative bg-slate-900/[0.8] border border-slate-800 backdrop-blur-xl text-white flex items-center justify-center w-full h-full text-sm antialiased",
+          "relative flex items-center justify-center w-full h-full antialiased",
           className
         )}
         style={{
@@ -68,72 +62,3 @@ export function Button({
     </Component>
   );
 }
-
-export const MovingBorder = ({
-  children,
-  duration = 2000,
-  rx,
-  ry,
-  ...otherProps
-}: {
-  children: React.ReactNode;
-  duration?: number;
-  rx?: string;
-  ry?: string;
-  [key: string]: any;
-}) => {
-  const pathRef = useRef<any>();
-  const progress = useMotionValue<number>(0);
-
-  useAnimationFrame((time: number) => {
-    const length = pathRef.current?.getTotalLength();
-    if (length) {
-      const pxPerMillisecond = length / duration;
-      progress.set((time * pxPerMillisecond) % length);
-    }
-  });
-
-  const x = useTransform(
-    progress,
-    (val: number) => pathRef.current?.getPointAtLength(val).x
-  );
-  const y = useTransform(
-    progress,
-    (val: number) => pathRef.current?.getPointAtLength(val).y
-  );
-
-  const transform = useMotionTemplate`translateX(${x}px) translateY(${y}px) translateX(-50%) translateY(-50%)`;
-
-  return (
-    <>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="none"
-        className="absolute h-full w-full"
-        width="100%"
-        height="100%"
-        {...otherProps}
-      >
-        <rect
-          fill="none"
-          width="100%"
-          height="100%"
-          rx={rx}
-          ry={ry}
-          ref={pathRef}
-        />
-      </svg>
-      <motion.div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          display: "inline-block",
-          transform,
-        }}
-      >
-        {children}
-      </motion.div>
-    </>
-  );
-};
