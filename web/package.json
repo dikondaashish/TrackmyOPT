@@ -13,6 +13,8 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.39.0",
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.0",
     "jose": "^5.2.0",
     "lucide-react": "^0.545.0",
     "next": "^14.2.0",
@@ -21,6 +23,7 @@
     "recharts": "^3.2.1",
     "resend": "^6.2.0",
     "stripe": "^19.1.0",
+    "tailwind-merge": "^2.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
