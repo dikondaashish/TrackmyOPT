@@ -16,22 +16,32 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
   
   // Get user initials from email or name
   const getUserInitials = () => {
-    if (!user) return "U";
+    console.log('🔤 Getting initials for user:', user?.email);
+    
+    if (!user) {
+      console.log('⚠️ No user object');
+      return "U";
+    }
     
     if (user.user_metadata?.full_name) {
       const names = user.user_metadata.full_name.split(' ');
-      return names.length > 1 
+      const initials = names.length > 1 
         ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
         : names[0][0].toUpperCase();
+      console.log('✅ Initials from full_name:', initials);
+      return initials;
     }
     
     if (user.email) {
       const emailParts = user.email.split('@')[0].split('.');
-      return emailParts.length > 1
+      const initials = emailParts.length > 1
         ? `${emailParts[0][0]}${emailParts[1][0]}`.toUpperCase()
         : emailParts[0].substring(0, 2).toUpperCase();
+      console.log('✅ Initials from email:', initials);
+      return initials;
     }
     
+    console.log('⚠️ Could not generate initials');
     return "U";
   };
   

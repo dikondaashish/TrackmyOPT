@@ -46,33 +46,59 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        console.log('🔄 Starting user data fetch...');
         const response = await fetch('/api/me', {
           credentials: 'include', // Include cookies for authentication
+          cache: 'no-store', // Don't cache the response
         });
+        
+        console.log('📡 API /me response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
-          console.log('✅ Fetched user data:', data);
-          setUser(data.user);
+          console.log('✅ Full API response:', JSON.stringify(data, null, 2));
+          console.log('👤 User object:', data.user);
+          console.log('📧 User email:', data.user?.email);
+          
+          if (data.user) {
+            setUser(data.user);
+            console.log('✅ User state updated with:', data.user.email);
+          } else {
+            console.error('❌ No user object in response');
+          }
         } else {
-          console.error('❌ Failed to fetch user data:', response.status);
+          const errorText = await response.text();
+          console.error('❌ Failed to fetch user data:', response.status, errorText);
         }
 
+        console.log('🔄 Starting premium status fetch...');
         const premiumResponse = await fetch('/api/premium/status', {
           credentials: 'include',
+          cache: 'no-store',
         });
+        
+        console.log('📡 API /premium/status response status:', premiumResponse.status);
+        
         if (premiumResponse.ok) {
           const premiumData = await premiumResponse.json();
-          console.log('✅ Fetched premium status:', premiumData);
-          setIsPremium(premiumData.isPremium);
+          console.log('✅ Premium status response:', JSON.stringify(premiumData, null, 2));
+          setIsPremium(premiumData.isPremium || false);
+          console.log('✅ Premium state updated:', premiumData.isPremium);
         } else {
-          console.error('❌ Failed to fetch premium status:', premiumResponse.status);
+          const errorText = await premiumResponse.text();
+          console.error('❌ Failed to fetch premium status:', premiumResponse.status, errorText);
         }
       } catch (error) {
-        console.error('❌ Failed to fetch user data:', error);
+        console.error('❌ Exception during fetch:', error);
       }
     };
 
-    fetchUserData();
+    // Small delay to ensure cookies are set
+    const timer = setTimeout(() => {
+      fetchUserData();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Check for pricing modal URL parameter from extension
