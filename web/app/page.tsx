@@ -26,9 +26,9 @@ export default function HomePage() {
               href="/login"
               borderRadius="9999px"
               duration={3000}
-              containerClassName="w-auto"
-              className="bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-lg font-semibold border-none"
-              borderClassName="bg-[radial-gradient(var(--blue-500)_40%,transparent_60%)]"
+              containerClassName="w-fit"
+              borderClassName="h-20 w-20 opacity-[0.8] bg-[radial-gradient(var(--blue-500)_40%,transparent_60%)]"
+              className="bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-lg font-semibold border-0"
             >
               Get Started →
             </MovingBorderButton>
@@ -37,9 +37,9 @@ export default function HomePage() {
               href="#features"
               borderRadius="9999px"
               duration={3000}
-              containerClassName="w-auto"
-              className="bg-transparent dark:bg-transparent text-gray-900 dark:text-white px-8 py-4 text-lg font-semibold border-2 border-black/20 dark:border-white/20"
-              borderClassName="bg-[radial-gradient(var(--purple-500)_40%,transparent_60%)]"
+              containerClassName="w-fit"
+              borderClassName="h-20 w-20 opacity-[0.8] bg-[radial-gradient(var(--purple-500)_40%,transparent_60%)]"
+              className="bg-transparent dark:bg-transparent border-2 border-black/20 dark:border-white/20 text-gray-900 dark:text-white px-8 py-4 text-lg font-semibold backdrop-blur-sm"
             >
               How to Install
             </MovingBorderButton>
