@@ -145,10 +145,12 @@ export async function GET(request: NextRequest) {
     if (statusError) {
       // OPT status might not exist yet for new users
       if (statusError.code === 'PGRST116') {
+        console.log('⚠️ /api/me - No OPT status found for user, returning with user:', user?.email);
         return NextResponse.json({
+          user: user,  // Include user object!
           profile,
           status: null,
-        });
+        }, { headers: corsHeaders });
       }
 
       console.error('OPT status query error:', statusError);
