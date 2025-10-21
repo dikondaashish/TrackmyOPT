@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { AuroraBackground } from '@/components/ui/aurora-background';
+import { Button as MovingBorderButton } from '@/components/ui/moving-border';
 
 export default function HomePage() {
   return (
@@ -18,18 +21,28 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
-            <Link
+            <MovingBorderButton
+              as={Link}
               href="/login"
-              className="bg-black dark:bg-white rounded-full w-fit text-white dark:text-black px-8 py-4 text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
+              borderRadius="9999px"
+              duration={3000}
+              containerClassName="w-auto"
+              className="bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-lg font-semibold border-none"
+              borderClassName="bg-[radial-gradient(var(--blue-500)_40%,transparent_60%)]"
             >
               Get Started →
-            </Link>
-            <a
+            </MovingBorderButton>
+            <MovingBorderButton
+              as="a"
               href="#features"
-              className="bg-transparent border-2 border-black/20 dark:border-white/20 rounded-full w-fit dark:text-white text-gray-900 px-8 py-4 text-lg font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition"
+              borderRadius="9999px"
+              duration={3000}
+              containerClassName="w-auto"
+              className="bg-transparent dark:bg-transparent text-gray-900 dark:text-white px-8 py-4 text-lg font-semibold border-2 border-black/20 dark:border-white/20"
+              borderClassName="bg-[radial-gradient(var(--purple-500)_40%,transparent_60%)]"
             >
               How to Install
-            </a>
+            </MovingBorderButton>
           </div>
         </div>
       </AuroraBackground>
