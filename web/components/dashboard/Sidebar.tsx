@@ -144,7 +144,7 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
           <div className="relative flex-shrink-0">
             {/* User Avatar Circle */}
             <div 
-              className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-400 dark:to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md" 
+                className="w-10 h-10 bg-muted rounded-full flex items-center justify-center text-sm font-semibold shadow-md" 
               title={collapsed ? user?.email || "User" : undefined}
             >
               {getUserInitials()}
