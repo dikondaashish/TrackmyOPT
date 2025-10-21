@@ -9,14 +9,16 @@ import { User } from "@supabase/supabase-js";
 
 interface DashboardLayoutClientProps {
   children: React.ReactNode;
+  initialUser: User | null;
+  initialIsPremium: boolean;
 }
 
-export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) {
+export function DashboardLayoutClient({ children, initialUser, initialIsPremium }: DashboardLayoutClientProps) {
   const searchParams = useSearchParams();
   const [darkMode, setDarkMode] = useState(false); // Default to light
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isPremium, setIsPremium] = useState(false);
+  const [user] = useState<User | null>(initialUser);
+  const [isPremium] = useState(initialIsPremium);
   const [showPricingModal, setShowPricingModal] = useState(false);
 
   useEffect(() => {
@@ -42,28 +44,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     }
   }, []);
 
-  // Fetch user data and premium status
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/me');
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        }
-
-        const premiumResponse = await fetch('/api/premium/status');
-        if (premiumResponse.ok) {
-          const premiumData = await premiumResponse.json();
-          setIsPremium(premiumData.isPremium);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+  // User data is now passed from server-side, no need to fetch
 
   // Check for pricing modal URL parameter from extension
   useEffect(() => {
