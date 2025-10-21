@@ -8,9 +8,10 @@ interface SidebarProps {
   setCollapsed: (value: boolean) => void;
   user: User | null;
   isPremium: boolean;
+  onUpgradeClick?: () => void;
 }
 
-export function Sidebar({ collapsed, setCollapsed, user, isPremium }: SidebarProps) {
+export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeClick }: SidebarProps) {
   const [isSigningOut, setIsSigningOut] = useState(false);
   
   // Get user initials from email or name
@@ -146,8 +147,15 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium }: SidebarPro
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-sm truncate">{user?.email || "Loading..."}</p>
-              {isPremium && (
+              {isPremium ? (
                 <p className="text-xs text-muted-foreground">Premium Member</p>
+              ) : (
+                <button
+                  onClick={onUpgradeClick}
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Upgrade to Pro
+                </button>
               )}
             </div>
           )}

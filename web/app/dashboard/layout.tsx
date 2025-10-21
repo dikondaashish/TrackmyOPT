@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import "../globals.css";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
+import { PricingModal } from "@/components/pricing/PricingModal";
 import { User } from "@supabase/supabase-js";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const searchParams = useSearchParams();
   const [darkMode, setDarkMode] = useState(false); // Default to light
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isPremium, setIsPremium] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
 
   useEffect(() => {
     // Apply dark mode class to html element
@@ -58,6 +62,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     fetchUserData();
   }, []);
 
+  // Check for pricing modal URL parameter from extension
+  useEffect(() => {
+    const upgrade = searchParams.get('upgrade');
+    if (upgrade === 'true') {
+      setShowPricingModal(true);
+      // Clean up URL without reload
+      window.history.replaceState({}, '', '/dashboard');
+    }
+  }, [searchParams]);
+
   const handleDarkModeToggle = (value: boolean) => {
     setDarkMode(value);
     localStorage.setItem('tmo_dark_mode', String(value));
@@ -71,6 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setCollapsed={setSidebarCollapsed}
         user={user}
         isPremium={isPremium}
+        onUpgradeClick={() => setShowPricingModal(true)}
       />
       
       {/* Main Content Area - shifts based on sidebar state */}
@@ -85,6 +100,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Scrollable Content */}
         <main className="px-6 py-6">{children}</main>
       </div>
+
+      {/* Pricing Modal */}
+      <PricingModal
+        open={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
+        userEmail={user?.email}
+        isPremium={isPremium}
+      />
     </div>
   );
 }

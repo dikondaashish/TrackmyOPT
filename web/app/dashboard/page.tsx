@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { Suspense } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
 
