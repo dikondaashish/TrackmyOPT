@@ -142,15 +142,17 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
       <div className="p-4 border-t border-sidebar-border space-y-4">
         <div className={`flex items-center gap-3 px-2 ${collapsed ? 'justify-center' : ''}`}>
           <div className="relative flex-shrink-0">
+            {/* User Avatar Circle */}
             <div 
-              className="w-8 h-8 bg-muted rounded-full flex items-center justify-center text-sm font-semibold" 
+              className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-400 dark:to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md" 
               title={collapsed ? user?.email || "User" : undefined}
             >
               {getUserInitials()}
             </div>
+            {/* PRO Badge */}
             {isPremium && (
-              <div className="absolute -bottom-1 -right-1 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full border-2 border-background">
-                PRO
+              <div className="absolute -bottom-0.5 -right-0.5 bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-400 dark:to-teal-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-lg border-2 border-background uppercase">
+                pro
               </div>
             )}
           </div>
