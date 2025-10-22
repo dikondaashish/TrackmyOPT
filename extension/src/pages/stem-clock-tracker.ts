@@ -465,13 +465,56 @@ export function renderStemClockTracker(
         </button>
       `;
       
-      const saveEmailBtn = document.getElementById('save-email-btn');
+      const saveEmailBtn = document.getElementById('save-email-btn') as HTMLButtonElement;
       const stopRemindersBtn = document.getElementById('stop-reminders-btn');
       
       saveEmailBtn?.addEventListener('click', () => {
-        const emailInput = document.getElementById('reminder-email') as HTMLInputElement;
-        if (emailInput?.value) {
-          alert(`✅ Email reminders activated!\n\nYou'll receive daily reminders at ${emailInput.value}`);
+        const emailInput = document.getElementById('reminder-email-input') as HTMLInputElement;
+        const email = emailInput?.value.trim();
+        
+        if (!email) {
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon-128.png',
+            title: 'Email Required',
+            message: 'Please enter your email address'
+          });
+          return;
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon-128.png',
+            title: 'Invalid Email',
+            message: 'Please enter a valid email address'
+          });
+          return;
+        }
+        
+        // Save email (TODO: API call to save in database)
+        console.log('Saving email:', email);
+        
+        // Show success notification
+        chrome.notifications.create({
+          type: 'basic',
+          iconUrl: 'icons/icon-128.png',
+          title: '✅ Email Saved!',
+          message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
+        });
+        
+        // Change button to checkmark
+        if (saveEmailBtn) {
+          saveEmailBtn.innerHTML = '✅';
+          saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
+          
+          // Reset after 2 seconds
+          setTimeout(() => {
+            saveEmailBtn.innerHTML = '→';
+            saveEmailBtn.style.background = 'rgba(255,255,255,0.3)';
+          }, 2000);
         }
       });
       

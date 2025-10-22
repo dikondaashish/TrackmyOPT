@@ -432,13 +432,54 @@ export async function renderOptCountdown(
   
   if (isPremium) {
     // Save email button
-    const saveEmailBtn = content.querySelector('#save-email-btn');
+    const saveEmailBtn = content.querySelector('#save-email-btn') as HTMLButtonElement;
     if (saveEmailBtn) {
       saveEmailBtn.addEventListener('click', () => {
         const emailInput = content.querySelector('#reminder-email-input') as HTMLInputElement;
-        if (emailInput && emailInput.value) {
-          alert(`Email saved: ${emailInput.value}\n\nDaily reminders will be sent at 9:00 AM ET`);
+        const email = emailInput?.value.trim();
+        
+        if (!email) {
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon-128.png',
+            title: 'Email Required',
+            message: 'Please enter your email address'
+          });
+          return;
         }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon-128.png',
+            title: 'Invalid Email',
+            message: 'Please enter a valid email address'
+          });
+          return;
+        }
+        
+        // Save email (TODO: API call to save in database)
+        console.log('Saving email:', email);
+        
+        // Show success notification
+        chrome.notifications.create({
+          type: 'basic',
+          iconUrl: 'icons/icon-128.png',
+          title: '✅ Email Saved!',
+          message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
+        });
+        
+        // Change button to checkmark
+        saveEmailBtn.innerHTML = '✅';
+        saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          saveEmailBtn.innerHTML = '→';
+          saveEmailBtn.style.background = 'rgba(255,255,255,0.3)';
+        }, 2000);
       });
     }
     
