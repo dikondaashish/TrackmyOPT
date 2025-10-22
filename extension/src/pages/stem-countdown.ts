@@ -404,14 +404,10 @@ export async function renderStemCountdown(
   } else {
     const upgradeBtn = content.querySelector('#upgrade-premium-btn');
     if (upgradeBtn) {
-      upgradeBtn.addEventListener('click', async () => {
-        const { idToken } = await chrome.storage.sync.get('idToken');
-        if (idToken) {
-          const dashboardUrl = `${WEBSITE_URL}/dashboard?upgrade=true`;
-          chrome.tabs.create({ url: dashboardUrl });
-        } else {
-          alert('Please sign in to upgrade to premium');
-        }
+      upgradeBtn.addEventListener('click', () => {
+        // Open dashboard with pricing modal
+        // Dashboard will handle auth redirect if not logged in
+        chrome.tabs.create({ url: `${WEBSITE_URL}/dashboard?upgrade=true` });
       });
     }
   }
