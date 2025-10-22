@@ -321,7 +321,7 @@ export function renderStemClockTracker(
   let previousValues = { days: 0, hours: 0, minutes: 0, seconds: 0 };
   
   // Update countdown every second with flip animation and dynamic colors
-  let countdownInterval: number | null = setInterval(() => {
+  let countdownInterval: ReturnType<typeof setInterval> | null = setInterval(() => {
     const remaining = calculateTimeRemaining(endDate);
     
     const daysEl = document.getElementById('countdown-days') as HTMLElement;
