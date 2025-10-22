@@ -124,6 +124,12 @@ export async function POST(req: NextRequest) {
       console.log(`Created Stripe customer: ${customerId} for user: ${userId}`);
     }
 
+    // Get the origin from the request or use production URL
+    const origin = req.headers.get('origin') || 
+                   req.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
+                   process.env.NEXT_PUBLIC_APP_URL || 
+                   'https://www.trackmyopt.com';
+    
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -138,15 +144,15 @@ export async function POST(req: NextRequest) {
               name: 'TrackMyOPT Premium - Lifetime Access',
               description: 'Daily email reminders for your OPT deadlines (lifetime access)',
               images: [
-                `${process.env.NEXT_PUBLIC_APP_URL || 'https://trackmyopt.com'}/premium-icon.png`
+                `${origin}/premium-icon.png`
               ],
             },
           },
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/premium/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/premium/cancelled`,
+      success_url: `${origin}/premium/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/premium/cancelled`,
       metadata: {
         supabase_user_id: userId,
       },
