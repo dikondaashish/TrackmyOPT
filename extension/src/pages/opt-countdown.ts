@@ -492,11 +492,33 @@ export async function renderOptCountdown(
     }
     
     // Stop reminders button
-    const stopBtn = content.querySelector('#stop-reminders-btn');
+    const stopBtn = content.querySelector('#stop-reminders-btn') as HTMLElement;
     if (stopBtn) {
-      stopBtn.addEventListener('click', () => {
-        if (confirm('Are you sure you want to stop daily reminders?')) {
-          alert('Daily reminders have been stopped');
+      stopBtn.addEventListener('click', async () => {
+        // Remove email from storage
+        await chrome.storage.sync.remove('subscribedEmail');
+        
+        // Show notification
+        chrome.notifications.create({
+          type: 'basic',
+          iconUrl: 'icons/icon-128.png',
+          title: '🛑 Reminders Stopped',
+          message: 'Daily email reminders have been disabled'
+        });
+        
+        // Clear email input
+        const emailInput = content.querySelector('#reminder-email-input') as HTMLInputElement;
+        if (emailInput) {
+          emailInput.value = '';
+        }
+        
+        // Hide Stop Reminders button instantly
+        stopBtn.style.display = 'none';
+        
+        // Update margin on email container
+        const emailContainer = content.querySelector('#reminder-email-input')?.parentElement as HTMLElement;
+        if (emailContainer) {
+          emailContainer.style.marginBottom = '0px';
         }
       });
     }

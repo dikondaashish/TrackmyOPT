@@ -526,8 +526,33 @@ export function renderClockTracker(
         }
       });
       
-      stopRemindersBtn?.addEventListener('click', () => {
-        alert('❌ Email reminders stopped');
+      stopRemindersBtn?.addEventListener('click', async () => {
+        // Remove email from storage
+        await chrome.storage.sync.remove('subscribedEmail');
+        
+        // Show notification
+        chrome.notifications.create({
+          type: 'basic',
+          iconUrl: 'icons/icon-128.png',
+          title: '🛑 Reminders Stopped',
+          message: 'Daily email reminders have been disabled'
+        });
+        
+        // Clear email input
+        const emailInput = document.getElementById('reminder-email-input') as HTMLInputElement;
+        if (emailInput) {
+          emailInput.value = '';
+        }
+        
+        // Hide Stop Reminders button instantly
+        if (stopRemindersBtn) {
+          (stopRemindersBtn as HTMLElement).style.display = 'none';
+        }
+        
+        // Update margin on email input
+        if (emailInput) {
+          emailInput.style.marginBottom = '0px';
+        }
       });
       
       // Hover effects
