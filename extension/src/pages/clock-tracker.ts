@@ -397,9 +397,13 @@ export function renderClockTracker(
   }, 1000);
   
   // Check premium status and update UI
-  checkPremiumStatus().then(isPremium => {
+  checkPremiumStatus().then(async (isPremium) => {
     const premiumContent = document.getElementById('premium-content');
     if (!premiumContent) return;
+    
+    // Check if email is saved
+    const { savedEmail } = await chrome.storage.sync.get('savedEmail');
+    const hasEmailSaved = !!savedEmail;
     
     if (isPremium) {
       premiumContent.innerHTML = `
@@ -442,6 +446,7 @@ export function renderClockTracker(
             "
           >→</button>
         </div>
+        ${hasEmailSaved ? `
         <button id="stop-reminders-btn" style="
           width: 100%;
           padding: 10px;
@@ -463,12 +468,13 @@ export function renderClockTracker(
           <span style="font-size: 16px;">🔴</span>
           <span>Stop Reminders</span>
         </button>
+        ` : ''}
       `;
       
       const saveEmailBtn = document.getElementById('save-email-btn') as HTMLButtonElement;
       const stopRemindersBtn = document.getElementById('stop-reminders-btn');
       
-      saveEmailBtn?.addEventListener('click', () => {
+      saveEmailBtn?.addEventListener('click', async () => {
         const emailInput = document.getElementById('reminder-email-input') as HTMLInputElement;
         const email = emailInput?.value.trim();
         
@@ -494,7 +500,8 @@ export function renderClockTracker(
           return;
         }
         
-        // Save email (TODO: API call to save in database)
+        // Save email to chrome.storage
+        await chrome.storage.sync.set({ savedEmail: email });
         console.log('Saving email:', email);
         
         // Show success notification

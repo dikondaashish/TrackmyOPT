@@ -130,6 +130,10 @@ export async function renderOptCountdown(
   
   const isPremium = await checkPremiumStatus();
   
+  // Check if user has saved email
+  const { savedEmail } = await chrome.storage.sync.get('savedEmail');
+  const hasEmailSaved = !!savedEmail;
+  
   content.innerHTML = `
     <!-- Date Cards -->
     <div style="display: flex; gap: 8px; margin-bottom: 10px;">
@@ -241,6 +245,7 @@ export async function renderOptCountdown(
               "
             >→</button>
           </div>
+          ${hasEmailSaved ? `
           <button 
             id="stop-reminders-btn"
             style="
@@ -261,6 +266,7 @@ export async function renderOptCountdown(
           >
             <span style="font-size: 14px;">🛑</span> Stop Reminders
           </button>
+          ` : ''}
         ` : `
           <div style="text-align: center; padding: 16px;">
             <div style="font-size: 24px; margin-bottom: 8px;">🔒</div>
@@ -434,7 +440,7 @@ export async function renderOptCountdown(
     // Save email button
     const saveEmailBtn = content.querySelector('#save-email-btn') as HTMLButtonElement;
     if (saveEmailBtn) {
-      saveEmailBtn.addEventListener('click', () => {
+      saveEmailBtn.addEventListener('click', async () => {
         const emailInput = content.querySelector('#reminder-email-input') as HTMLInputElement;
         const email = emailInput?.value.trim();
         
@@ -460,7 +466,8 @@ export async function renderOptCountdown(
           return;
         }
         
-        // Save email (TODO: API call to save in database)
+        // Save email to chrome.storage
+        await chrome.storage.sync.set({ savedEmail: email });
         console.log('Saving email:', email);
         
         // Show success notification
