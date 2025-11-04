@@ -483,42 +483,31 @@ export async function renderOptCountdown(
         saveEmailBtn.innerHTML = '✅';
         saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
         
-        // Reset after 2 seconds
+        // Reload the page after 1 second to show "Stop Reminders" button
         setTimeout(() => {
-          saveEmailBtn.innerHTML = '→';
-          saveEmailBtn.style.background = 'rgba(255,255,255,0.3)';
-        }, 2000);
+          renderOptCountdown(root, onBack, results);
+        }, 1000);
       });
     }
     
     // Stop reminders button
-    const stopBtn = content.querySelector('#stop-reminders-btn') as HTMLElement;
+    const stopBtn = content.querySelector('#stop-reminders-btn');
     if (stopBtn) {
       stopBtn.addEventListener('click', async () => {
-        // Remove email from storage
-        await chrome.storage.sync.remove('subscribedEmail');
-        
-        // Show notification
-        chrome.notifications.create({
-          type: 'basic',
-          iconUrl: 'icons/icon-128.png',
-          title: '🛑 Reminders Stopped',
-          message: 'Daily email reminders have been disabled'
-        });
-        
-        // Clear email input
-        const emailInput = content.querySelector('#reminder-email-input') as HTMLInputElement;
-        if (emailInput) {
-          emailInput.value = '';
-        }
-        
-        // Hide Stop Reminders button instantly
-        stopBtn.style.display = 'none';
-        
-        // Update margin on email container
-        const emailContainer = content.querySelector('#reminder-email-input')?.parentElement as HTMLElement;
-        if (emailContainer) {
-          emailContainer.style.marginBottom = '0px';
+        if (confirm('Are you sure you want to stop daily reminders?')) {
+          // Remove email from storage
+          await chrome.storage.sync.remove('subscribedEmail');
+          
+          // Show notification
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon-128.png',
+            title: 'Reminders Stopped',
+            message: 'Daily email reminders have been stopped'
+          });
+          
+          // Reload the page immediately to hide the button
+          renderOptCountdown(root, onBack, results);
         }
       });
     }
