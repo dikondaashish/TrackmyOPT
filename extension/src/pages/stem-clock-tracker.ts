@@ -513,7 +513,7 @@ export function renderStemClockTracker(
           
           // Reload the page after 1 second to show "Stop Reminders" button
           setTimeout(() => {
-            renderStemClockTracker(root, onBack, results);
+            renderStemClockTracker(root, onBack, startDate);
           }, 1000);
         }
       });
@@ -532,7 +532,7 @@ export function renderStemClockTracker(
           });
           
           // Reload the page immediately to hide the button
-          renderStemClockTracker(root, onBack, results);
+          renderStemClockTracker(root, onBack, startDate);
         }
       });
       
