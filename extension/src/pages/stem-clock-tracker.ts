@@ -475,7 +475,7 @@ export function renderStemClockTracker(
         if (!email) {
           chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon-128.png',
+            iconUrl: 'icons/icon128.png',
             title: 'Email Required',
             message: 'Please enter your email address'
           });
@@ -487,7 +487,7 @@ export function renderStemClockTracker(
         if (!emailRegex.test(email)) {
           chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon-128.png',
+            iconUrl: 'icons/icon128.png',
             title: 'Invalid Email',
             message: 'Please enter a valid email address'
           });
@@ -501,7 +501,7 @@ export function renderStemClockTracker(
         // Show success notification
         chrome.notifications.create({
           type: 'basic',
-          iconUrl: 'icons/icon-128.png',
+          iconUrl: 'icons/icon128.png',
           title: '✅ Email Saved!',
           message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
         });
@@ -526,7 +526,7 @@ export function renderStemClockTracker(
           // Show notification
           chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon-128.png',
+            iconUrl: 'icons/icon128.png',
             title: 'Reminders Stopped',
             message: 'Daily email reminders have been stopped'
           });
