@@ -22,7 +22,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
 
     <div class="grid" role="list">
       <div class="tile blue" role="button" tabindex="0" aria-label="OPT Apply Start Dates - Calculate when you can start applying for OPT" data-page="opt-apply">
-        <div class="icon">📅</div>
+        <div class="icon">🗓️</div>
         <h3 class="t">OPT Apply Dates</h3>
         <p class="s">Calculate when you can apply for OPT</p>
       </div>

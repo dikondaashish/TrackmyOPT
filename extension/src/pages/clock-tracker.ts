@@ -1,6 +1,5 @@
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
-import { getTodayDateEmoji } from '../utils/dateEmoji.js';
 
 /**
  * Format date for card display (e.g., "13 OCTOBER 2025")
@@ -157,7 +156,7 @@ export function renderClockTracker(
   startCard.innerHTML = `
     <div style="margin-bottom: 8px; opacity: 0.9;">
       <div style="width: 36px; height: 36px; margin: 0 auto; background: rgba(255,255,255,0.25); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        ${getTodayDateEmoji()}
+        🗓️
       </div>
     </div>
     <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${startFormatted.day}</div>
@@ -180,7 +179,7 @@ export function renderClockTracker(
   presentCard.innerHTML = `
     <div style="margin-bottom: 8px; opacity: 0.9;">
       <div style="width: 36px; height: 36px; margin: 0 auto; background: rgba(255,255,255,0.25); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        ${getTodayDateEmoji()}
+        🗓️
       </div>
     </div>
     <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${todayFormatted.day}</div>
@@ -203,7 +202,7 @@ export function renderClockTracker(
   endCard.innerHTML = `
     <div style="margin-bottom: 8px; opacity: 0.9;">
       <div style="width: 36px; height: 36px; margin: 0 auto; background: rgba(255,255,255,0.25); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        ${getTodayDateEmoji()}
+        🗓️
       </div>
     </div>
     <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${endFormatted.day}</div>

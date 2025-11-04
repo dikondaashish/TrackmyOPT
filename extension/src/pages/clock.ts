@@ -1,6 +1,5 @@
 import { WEBSITE_URL } from '../config.js';
-import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
-import { getTodayDateEmoji } from '../utils/dateEmoji.js';
+import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -431,7 +430,7 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
   startDateCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
       <div style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 20px;">
-        📅
+        🗓️
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 15px;">Start Date</div>
@@ -475,7 +474,7 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
           place-items: center;
           transition: all 0.2s;
         "
-      >${getTodayDateEmoji()}</button>
+      >🗓️</button>
     </div>
   `;
   content.appendChild(startDateCard);

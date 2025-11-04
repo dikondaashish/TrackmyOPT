@@ -17,7 +17,7 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
       <!-- Features List -->
       <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
         <div style="display: flex; align-items: start; gap: 12px;">
-          <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px;">📅</div>
+          <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px;">🗓️</div>
           <div style="flex: 1;">
             <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">Track Your Timeline</div>
             <div style="font-size: 12px; opacity: 0.7; line-height: 1.4;">Real-time countdown to critical OPT deadlines</div>

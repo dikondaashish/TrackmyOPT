@@ -1,6 +1,5 @@
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
-import { getTodayDateEmoji } from '../utils/dateEmoji.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -479,7 +478,7 @@ export function renderStemApply(root: HTMLElement, onBack: () => void): void {
   optEndCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
       <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 18px;">
-        📅
+        🗓️
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Current OPT EAD End Date</div>
@@ -523,7 +522,7 @@ export function renderStemApply(root: HTMLElement, onBack: () => void): void {
           place-items: center;
           transition: all 0.2s;
         "
-      >${getTodayDateEmoji()}</button>
+      >🗓️</button>
     </div>
   `;
   content.appendChild(optEndCard);
