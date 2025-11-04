@@ -5,6 +5,7 @@ import { renderStemApply } from './pages/stem-apply.js';
 import { renderClock } from './pages/clock.js';
 import { renderStemClock } from './pages/stem-clock.js';
 import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
+import { WEBSITE_URL } from './config.js';
 
 /**
  * Check if user is signed in by calling /api/me
@@ -13,8 +14,16 @@ async function isSignedIn(): Promise<boolean> {
   try {
     console.log('🔍 Extension: Checking if user is signed in...');
     
-    // Check /api/me to see if there's a valid session
-    const response = await fetch('https://www.trackmyopt.com/api/me', {
+    // First check if we have an idToken (extension auth)
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (idToken) {
+      console.log('✅ Extension: Found idToken, user is signed in (extension auth)');
+      await chrome.storage.sync.set({ signedIn: true });
+      return true;
+    }
+    
+    // Fallback: Check /api/me to see if there's a valid web session
+    const response = await fetch(`${WEBSITE_URL}/api/me`, {
       method: 'GET',
       credentials: 'include', // Important: send cookies
       headers: {
@@ -24,22 +33,27 @@ async function isSignedIn(): Promise<boolean> {
     
     if (response.ok) {
       const data = await response.json();
-      console.log('✅ Extension: User is signed in!', data.user?.email);
-      
-      // Store signedIn status
-      await chrome.storage.sync.set({ signedIn: true });
-      
-      return true;
-    } else {
-      console.log('❌ Extension: User is not signed in');
-      
-      // Clear signedIn status
-      await chrome.storage.sync.set({ signedIn: false });
-      
-      return false;
+      if (data.user) {
+        console.log('✅ Extension: User is signed in via web session!', data.user?.email);
+        await chrome.storage.sync.set({ signedIn: true });
+        return true;
+      }
     }
+    
+    console.log('❌ Extension: User is not signed in');
+    await chrome.storage.sync.set({ signedIn: false });
+    return false;
+    
   } catch (error) {
     console.error('❌ Extension: Error checking sign in status:', error);
+    
+    // If fetch fails (network error, CORS, etc.), check storage as fallback
+    const { signedIn } = await chrome.storage.sync.get('signedIn');
+    if (signedIn) {
+      console.log('⚠️ Extension: Using cached sign-in status');
+      return true;
+    }
+    
     return false;
   }
 }
