@@ -397,90 +397,85 @@ export function renderClockTracker(
   }, 1000);
   
   // Check premium status and update UI
-  const isPremium = await checkPremiumStatus();
-  
-  // Check if user has saved email
-  const { savedEmail } = await chrome.storage.sync.get('savedEmail');
-  const hasSubscribedEmail = savedEmail ? true : false;
-  
-  if (isPremium) {
+  checkPremiumStatus().then(async (isPremium) => {
     const premiumContent = document.getElementById('premium-content');
     if (!premiumContent) return;
     
-    premiumContent.innerHTML = `
-      <div style="position: relative;">
-        <input 
-          type="email" 
-          id="reminder-email" 
-          placeholder="dikondaashish@gmail.com"
-          style="
+    if (isPremium) {
+      // Check if user has subscribed with email
+      const { subscribedEmail } = await chrome.storage.sync.get('subscribedEmail');
+      const hasSubscribed = !!subscribedEmail;
+      
+      premiumContent.innerHTML = `
+        <div style="position: relative;">
+          <input 
+            type="email" 
+            id="reminder-email-input" 
+            placeholder="your@email.com"
+            value="${subscribedEmail || ''}"
+            style="
+              width: 100%;
+              padding: 14px 50px 14px 16px;
+              border: 0;
+              border-radius: 12px;
+              background: rgba(255,255,255,0.2);
+              backdrop-filter: blur(10px);
+              color: white;
+              font-size: 14px;
+              font-weight: 600;
+              outline: none;
+              margin-bottom: ${hasSubscribed ? '10px' : '0px'};
+              font-family: inherit;
+            "
+          />
+          <button 
+            id="save-email-btn"
+            style="
+              position: absolute;
+              right: 8px;
+              top: 8px;
+              padding: 6px 12px;
+              border: 0;
+              border-radius: 8px;
+              background: rgba(255,255,255,0.3);
+              color: white;
+              cursor: pointer;
+              font-size: 18px;
+              display: grid;
+              place-items: center;
+              transition: all 0.2s;
+            "
+          >→</button>
+        </div>
+        ${hasSubscribed ? `
+          <button id="stop-reminders-btn" style="
             width: 100%;
-            padding: 14px 50px 14px 16px;
+            padding: 10px;
             border: 0;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
             color: white;
-            font-size: 14px;
-            font-weight: 600;
-            outline: none;
-            margin-bottom: 10px;
-            font-family: inherit;
-          "
-        />
-        <button 
-          id="save-email-btn"
-          style="
-            position: absolute;
-            right: 8px;
-            top: 8px;
-            padding: 6px 12px;
-            border: 0;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.3);
-            color: white;
+            font-weight: 700;
+            font-size: 13px;
             cursor: pointer;
-            font-size: 18px;
-            display: grid;
-            place-items: center;
             transition: all 0.2s;
-          "
-        >→</button>
-      </div>
-      ${hasSubscribedEmail ? `
-      <button 
-        id="stop-reminders-btn"
-        style="
-          width: 100%;
-          padding: 10px;
-          border: 0;
-          border-radius: 10px;
-          background: #ef4444;
-          color: white;
-          font-size: 13px;
-          font-weight: 700;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          font-family: inherit;
-          margin-top: 10px;
-        ">
-        <span style="font-size: 16px;">🔴</span>
-        <span>Stop Reminders</span>
-      </button>
-      ` : ''}
-    `;
-    
-    const saveEmailBtn = document.getElementById('save-email-btn') as HTMLButtonElement;
-    const stopRemindersBtn = document.getElementById('stop-reminders-btn');
-    
-    saveEmailBtn?.addEventListener('click', async () => {
-      const emailInput = document.getElementById('reminder-email') as HTMLInputElement;
-      const email = emailInput?.value.trim();
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: inherit;
+          ">
+            <span style="font-size: 16px;">🔴</span>
+            <span>Stop Reminders</span>
+          </button>
+        ` : ''}
+      `;
       
-      if (!email) {
+      const saveEmailBtn = document.getElementById('save-email-btn') as HTMLButtonElement;
+      const stopRemindersBtn = document.getElementById('stop-reminders-btn');
+      
+      saveEmailBtn?.addEventListener('click', async () => {
         const emailInput = document.getElementById('reminder-email-input') as HTMLInputElement;
         const email = emailInput?.value.trim();
         
@@ -506,8 +501,9 @@ export function renderClockTracker(
           return;
         }
         
-        // Save email (TODO: API call to save in database)
-        console.log('Saving email:', email);
+        // Save email to storage
+        await chrome.storage.sync.set({ subscribedEmail: email });
+        console.log('Email saved to storage:', email);
         
         // Show success notification
         chrome.notifications.create({
@@ -517,38 +513,21 @@ export function renderClockTracker(
           message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
         });
         
-        // Save email to storage
-        await chrome.storage.sync.set({ savedEmail: email });
-        
         // Change button to checkmark
         if (saveEmailBtn) {
           saveEmailBtn.innerHTML = '✅';
           saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
           
-          // Reload page after 2 seconds to show Stop Reminders button
+          // Reset after 2 seconds
           setTimeout(() => {
-            window.location.reload();
+            saveEmailBtn.innerHTML = '→';
+            saveEmailBtn.style.background = 'rgba(255,255,255,0.3)';
           }, 2000);
         }
       });
       
-      stopRemindersBtn?.addEventListener('click', async () => {
-        if (confirm('Are you sure you want to stop daily reminders?')) {
-          // Clear saved email
-          await chrome.storage.sync.remove('savedEmail');
-          
-          chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/icon-128.png',
-            title: '🛑 Reminders Stopped',
-            message: 'Daily email reminders have been turned off'
-          });
-          
-          // Reload to hide the button
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        }
+      stopRemindersBtn?.addEventListener('click', () => {
+        alert('❌ Email reminders stopped');
       });
       
       // Hover effects

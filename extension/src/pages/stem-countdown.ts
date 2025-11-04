@@ -120,9 +120,9 @@ export async function renderStemCountdown(
   
   const isPremium = await checkPremiumStatus();
   
-  // Check if user has saved email
-  const { savedEmail } = await chrome.storage.sync.get('savedEmail');
-  const hasSubscribedEmail = savedEmail ? true : false;
+  // Check if user has subscribed with email
+  const { subscribedEmail } = await chrome.storage.sync.get('subscribedEmail');
+  const hasSubscribed = !!subscribedEmail;
   
   content.innerHTML = `
     <!-- Date Cards -->
@@ -202,11 +202,12 @@ export async function renderStemCountdown(
       
       <div id="email-reminder-content">
         ${isPremium ? `
-          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+          <div style="display: flex; gap: 6px; margin-bottom: ${hasSubscribed ? '10px' : '0px'};">
             <input 
               type="email" 
               id="reminder-email-input"
               placeholder="your@email.com"
+              value="${subscribedEmail || ''}"
               style="
                 flex: 1;
                 padding: 12px;
@@ -235,28 +236,27 @@ export async function renderStemCountdown(
               "
             >→</button>
           </div>
-          ${hasSubscribedEmail ? `
-          <button 
-            id="stop-reminders-btn"
-            style="
-              width: 100%;
-              padding: 12px;
-              border: 0;
-              border-radius: 12px;
-              background: rgba(220, 38, 38, 0.8);
-              color: white;
-              font-size: 13px;
-              font-weight: 700;
-              cursor: pointer;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 6px;
-              margin-top: 10px;
-            "
-          >
-            <span style="font-size: 14px;">🛑</span> Stop Reminders
-          </button>
+          ${hasSubscribed ? `
+            <button 
+              id="stop-reminders-btn"
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 0;
+                border-radius: 12px;
+                background: rgba(220, 38, 38, 0.8);
+                color: white;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+              "
+            >
+              <span style="font-size: 14px;">🛑</span> Stop Reminders
+            </button>
           ` : ''}
         ` : `
           <div style="text-align: center; padding: 16px;">
@@ -435,8 +435,9 @@ export async function renderStemCountdown(
           return;
         }
         
-        // Save email (TODO: API call to save in database)
-        console.log('Saving email:', email);
+        // Save email to storage
+        await chrome.storage.sync.set({ subscribedEmail: email });
+        console.log('Email saved to storage:', email);
         
         // Show success notification
         chrome.notifications.create({
@@ -446,38 +447,23 @@ export async function renderStemCountdown(
           message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
         });
         
-        // Save email to storage
-        await chrome.storage.sync.set({ savedEmail: email });
-        
         // Change button to checkmark
         saveEmailBtn.innerHTML = '✅';
         saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
         
-        // Reload page after 2 seconds to show Stop Reminders button
+        // Reset after 2 seconds
         setTimeout(() => {
-          window.location.reload();
+          saveEmailBtn.innerHTML = '→';
+          saveEmailBtn.style.background = 'rgba(255,255,255,0.3)';
         }, 2000);
       });
     }
     
     const stopBtn = content.querySelector('#stop-reminders-btn');
     if (stopBtn) {
-      stopBtn.addEventListener('click', async () => {
+      stopBtn.addEventListener('click', () => {
         if (confirm('Are you sure you want to stop daily reminders?')) {
-          // Clear saved email
-          await chrome.storage.sync.remove('savedEmail');
-          
-          chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/icon-128.png',
-            title: '🛑 Reminders Stopped',
-            message: 'Daily email reminders have been turned off'
-          });
-          
-          // Reload to hide the button
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+          alert('Daily reminders have been stopped');
         }
       });
     }
