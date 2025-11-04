@@ -1,5 +1,6 @@
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
+import { getTodayDateEmoji } from '../utils/dateEmoji.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -651,7 +652,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   programCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
       <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 18px;">
-        📅
+        ${getTodayDateEmoji()}
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Program End Date</div>
@@ -714,7 +715,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   dsoCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
       <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 18px;">
-        📅
+        ${getTodayDateEmoji()}
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">DSO Recommendation Date</div>

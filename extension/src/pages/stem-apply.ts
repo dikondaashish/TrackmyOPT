@@ -1,5 +1,6 @@
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
+import { getTodayDateEmoji } from '../utils/dateEmoji.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -522,7 +523,7 @@ export function renderStemApply(root: HTMLElement, onBack: () => void): void {
           place-items: center;
           transition: all 0.2s;
         "
-      >📅</button>
+      >${getTodayDateEmoji()}</button>
     </div>
   `;
   content.appendChild(optEndCard);

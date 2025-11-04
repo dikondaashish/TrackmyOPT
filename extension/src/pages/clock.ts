@@ -1,5 +1,6 @@
 import { WEBSITE_URL } from '../config.js';
-import { renderPageHeader, setupPageHandlers } from '../navigation.js';
+import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
+import { getTodayDateEmoji } from '../utils/dateEmoji.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -429,56 +430,52 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
   `;
   startDateCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-      <div style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 10px; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); position: relative; overflow: hidden;">
-        <div style="position: absolute; top: 0; left: 0; right: 0; height: 10px; background: #dc2626;"></div>
-        <div style="color: #1f2937; font-size: 17px; font-weight: 800; line-height: 1; margin-top: 3px;">${new Date().getDate()}</div>
+      <div style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 20px;">
+        📅
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 15px;">Start Date</div>
-        <div id="start-date-display" style="font-size: 13px; opacity: 0.9; margin-top: 2px;">Not selected</div>
       </div>
     </div>
-    <div style="display: flex; gap: 6px;">
+    <div style="position: relative;">
       <input 
-        type="date" 
-        id="start-date-input"
+        type="text" 
+        id="opt-start-date" 
+        placeholder="10/17/2025"
         style="
-          flex: 1;
-          padding: 12px;
+          width: 100%;
+          padding: 12px 46px 12px 14px;
           border: 0;
           border-radius: 10px;
           background: rgba(255,255,255,0.2);
+          backdrop-filter: blur(10px);
           color: white;
-          font-size: 13px;
+          font-size: 14px;
+          font-weight: 600;
           outline: none;
           font-family: inherit;
         "
       />
       <button 
-        id="save-start-date-btn"
+        id="start-date-picker-btn"
         style="
-          width: 48px;
-          height: 48px;
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 32px;
+          height: 32px;
           border: 0;
-          border-radius: 10px;
-          background: white;
-          color: #1f2937;
-          font-size: 17px;
-          font-weight: 800;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.25);
+          color: white;
           cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+          font-size: 16px;
+          display: grid;
+          place-items: center;
           transition: all 0.2s;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-          position: relative;
-          overflow: hidden;
         "
-      >
-        <div style="position: absolute; top: 0; left: 0; right: 0; height: 12px; background: #dc2626;"></div>
-        <div style="margin-top: 4px;">${new Date().getDate()}</div>
-      </button>
+      >${getTodayDateEmoji()}</button>
     </div>
   `;
   content.appendChild(startDateCard);
