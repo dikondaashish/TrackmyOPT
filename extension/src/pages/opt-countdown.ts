@@ -132,7 +132,7 @@ export async function renderOptCountdown(
   
   // Check if user has saved email
   const { savedEmail } = await chrome.storage.sync.get('savedEmail');
-  const hasEmailSaved = !!savedEmail;
+  const hasSubscribedEmail = savedEmail ? true : false;
   
   content.innerHTML = `
     <!-- Date Cards -->
@@ -245,7 +245,7 @@ export async function renderOptCountdown(
               "
             >→</button>
           </div>
-          ${hasEmailSaved ? `
+          ${hasSubscribedEmail ? `
           <button 
             id="stop-reminders-btn"
             style="
@@ -262,6 +262,7 @@ export async function renderOptCountdown(
               align-items: center;
               justify-content: center;
               gap: 6px;
+              margin-top: 10px;
             "
           >
             <span style="font-size: 14px;">🛑</span> Stop Reminders
@@ -466,8 +467,7 @@ export async function renderOptCountdown(
           return;
         }
         
-        // Save email to chrome.storage
-        await chrome.storage.sync.set({ savedEmail: email });
+        // Save email (TODO: API call to save in database)
         console.log('Saving email:', email);
         
         // Show success notification
@@ -478,14 +478,16 @@ export async function renderOptCountdown(
           message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
         });
         
+        // Save email to storage
+        await chrome.storage.sync.set({ savedEmail: email });
+        
         // Change button to checkmark
         saveEmailBtn.innerHTML = '✅';
         saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
         
-        // Reset after 2 seconds
+        // Reload page after 2 seconds to show Stop Reminders button
         setTimeout(() => {
-          saveEmailBtn.innerHTML = '→';
-          saveEmailBtn.style.background = 'rgba(255,255,255,0.3)';
+          window.location.reload();
         }, 2000);
       });
     }
@@ -493,9 +495,22 @@ export async function renderOptCountdown(
     // Stop reminders button
     const stopBtn = content.querySelector('#stop-reminders-btn');
     if (stopBtn) {
-      stopBtn.addEventListener('click', () => {
+      stopBtn.addEventListener('click', async () => {
         if (confirm('Are you sure you want to stop daily reminders?')) {
-          alert('Daily reminders have been stopped');
+          // Clear saved email
+          await chrome.storage.sync.remove('savedEmail');
+          
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon-128.png',
+            title: '🛑 Reminders Stopped',
+            message: 'Daily email reminders have been turned off'
+          });
+          
+          // Reload to hide the button
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         }
       });
     }
