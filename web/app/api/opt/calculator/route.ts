@@ -6,11 +6,13 @@ import { verifyToken } from '@/lib/jwt';
 
 export const dynamic = 'force-dynamic';
 
-// CORS headers for Chrome extension
+// CORS headers for Chrome extension + cache control
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+  'Pragma': 'no-cache',
 };
 
 // Handle preflight requests
@@ -76,6 +78,8 @@ export async function GET(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
+    console.log('📖 Loading opt_status for user:', userId);
+
     // Fetch opt_status data - include stem_start_date
     const { data, error } = await supabase
       .from('opt_status')
@@ -84,8 +88,14 @@ export async function GET(req: NextRequest) {
       .single();
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-      console.error('Error fetching opt_status:', error);
+      console.error('❌ Error fetching opt_status:', error);
       return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
+    }
+
+    if (!data) {
+      console.log('📭 No opt_status data found for user');
+    } else {
+      console.log('✅ Loaded opt_status data:', data);
     }
 
     // Format dates to mm/dd/yyyy
@@ -209,25 +219,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Prepare data for upsert
+    const upsertData = {
+      user_id: userId,
+      program_end_date: programEndISO || defaultDate,
+      dso_recommendation_date: dsoRecISO,
+      opt_start_date: optStartISO || defaultDate,
+      opt_ead_end_date: optEadEndISO || defaultDate,
+      stem_start_date: stemStartISO,
+      updated_at: new Date().toISOString(),
+    };
+
+    console.log('📝 Upserting opt_status for user:', userId);
+    console.log('📝 Data to save:', JSON.stringify(upsertData, null, 2));
+
     // Upsert opt_status with all 5 fields
-    const { error } = await supabase
+    const { data: upsertResult, error } = await supabase
       .from('opt_status')
-      .upsert({
-        user_id: userId,
-        program_end_date: programEndISO || defaultDate,
-        dso_recommendation_date: dsoRecISO,
-        opt_start_date: optStartISO || defaultDate,
-        opt_ead_end_date: optEadEndISO || defaultDate,
-        stem_start_date: stemStartISO,
-        updated_at: new Date().toISOString(),
-      });
+      .upsert(upsertData)
+      .select();
 
     if (error) {
-      console.error('Error upserting opt_status:', error);
+      console.error('❌ Error upserting opt_status:', error);
       return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
     }
 
-    return NextResponse.json({ ok: true }, { headers: corsHeaders });
+    console.log('✅ Successfully saved opt_status:', upsertResult);
+
+    return NextResponse.json({ ok: true, data: upsertResult }, { headers: corsHeaders });
   } catch (error: any) {
     console.error('POST /api/opt/calculator error:', error);
     return NextResponse.json(
