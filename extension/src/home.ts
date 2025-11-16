@@ -33,6 +33,12 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         <p class="s">Track your unemployment days</p>
       </div>
 
+      <div class="tile cyan" role="button" tabindex="0" aria-label="OPT Dates Manager - Manage your important OPT-related dates" data-page="opt-dates">
+        <div class="icon">📅</div>
+        <h3 class="t">OPT Dates</h3>
+        <p class="s">Manage your OPT dates</p>
+      </div>
+
       <div class="tile green" role="button" tabindex="0" aria-label="STEM OPT Apply Start Dates - Calculate STEM OPT extension application dates" data-page="stem-apply">
         <div class="icon">🎓</div>
         <h3 class="t">STEM Apply Dates</h3>

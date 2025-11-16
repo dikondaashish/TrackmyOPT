@@ -2,6 +2,7 @@
 import { LayoutDashboard, Calendar, Clock, FileText, Settings, HelpCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { User } from "@supabase/supabase-js";
+import { usePathname, useRouter } from "next/navigation";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -13,6 +14,8 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeClick }: SidebarProps) {
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
   
   // Get user initials from email or name
   const getUserInitials = () => {
@@ -46,12 +49,12 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
   };
   
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", active: true },
-    { icon: Calendar, label: "OPT Dates", active: false },
-    { icon: Clock, label: "Clock Tracker", active: false },
-    { icon: FileText, label: "Documents", active: false },
-    { icon: Settings, label: "Settings", active: false },
-    { icon: HelpCircle, label: "Help", active: false },
+    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+    { icon: Calendar, label: "OPT Dates", path: "/dashboard/opt-dates" },
+    { icon: Clock, label: "Clock Tracker", path: "/dashboard/clock-tracker" },
+    { icon: FileText, label: "Documents", path: "/dashboard/documents" },
+    { icon: Settings, label: "Settings", path: "/dashboard/settings" },
+    { icon: HelpCircle, label: "Help", path: "/dashboard/help" },
   ];
   
   const handleSignOut = async () => {
@@ -122,20 +125,24 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
       
       {/* Navigation */}
       <nav className="flex-1 p-4 overflow-y-auto">
-        {menuItems.map((item, index) => (
-          <button
-            key={index}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${
-              item.active
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-            } ${collapsed ? 'justify-center' : ''}`}
-            title={collapsed ? item.label : undefined}
-          >
-            <item.icon className="w-5 h-5 flex-shrink-0" />
-            {!collapsed && <span>{item.label}</span>}
-          </button>
-        ))}
+        {menuItems.map((item, index) => {
+          const isActive = pathname === item.path;
+          return (
+            <button
+              key={index}
+              onClick={() => router.push(item.path)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${
+                isActive
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+              } ${collapsed ? 'justify-center' : ''}`}
+              title={collapsed ? item.label : undefined}
+            >
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && <span>{item.label}</span>}
+            </button>
+          );
+        })}
       </nav>
 
       {/* User Section */}

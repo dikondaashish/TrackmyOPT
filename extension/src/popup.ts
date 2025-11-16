@@ -4,6 +4,7 @@ import { renderOptApply } from './pages/opt-apply.js';
 import { renderStemApply } from './pages/stem-apply.js';
 import { renderClock } from './pages/clock.js';
 import { renderStemClock } from './pages/stem-clock.js';
+import { renderOptDates } from './pages/opt-dates.js';
 import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
 
 /**
@@ -85,6 +86,10 @@ async function navigateToPage(page: string, data?: any): Promise<void> {
     case 'stem-clock':
       setCurrentPage('stem-clock');
       renderStemClock(root, () => navigateToPage('home'));
+      break;
+    case 'opt-dates':
+      setCurrentPage('opt-dates');
+      renderOptDates(root, () => navigateToPage('home'));
       break;
     case 'opt-countdown':
       if (data && data.results) {
