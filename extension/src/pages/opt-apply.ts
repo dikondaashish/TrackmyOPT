@@ -540,23 +540,36 @@ async function checkPremiumStatus(): Promise<boolean> {
  */
 async function loadSavedData(): Promise<any> {
   try {
-    const { idToken } = await chrome.storage.sync.get('idToken');
-    if (!idToken) return null;
-
-    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+    // Try using session cookies first (if user is logged in on website)
+    let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'GET',
+      credentials: 'include', // Send cookies from website
       headers: {
-        'Authorization': `Bearer ${idToken}`,
         'Content-Type': 'application/json',
       },
     });
 
+    // If session cookies failed, try JWT token
+    if (!response.ok) {
+      const { idToken } = await chrome.storage.sync.get('idToken');
+      if (idToken) {
+        response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+    }
+
     if (!response.ok) return null;
     
     const result = await response.json();
+    console.log('📖 Extension loaded data:', result);
     return result.ok ? result.data : null;
   } catch (error) {
-    console.error('Error loading saved data:', error);
+    console.error('❌ Error loading saved data:', error);
     return null;
   }
 }
@@ -569,34 +582,46 @@ async function saveDatesToAPI(
   dsoRecommendationDate: string | null
 ): Promise<boolean> {
   try {
-    const { idToken } = await chrome.storage.sync.get('idToken');
-    if (!idToken) {
-      console.log('No auth token, skipping save');
-      return false;
-    }
+    const payload = {
+      program_end_date: programEndDate,
+      dso_recommendation_date: dsoRecommendationDate,
+    };
 
-    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+    // Try using session cookies first (if user is logged in on website)
+    let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'POST',
+      credentials: 'include', // Send cookies from website
       headers: {
-        'Authorization': `Bearer ${idToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        program_end_date: programEndDate,
-        dso_recommendation_date: dsoRecommendationDate,
-      }),
+      body: JSON.stringify(payload),
     });
+
+    // If session cookies failed, try JWT token
+    if (!response.ok) {
+      const { idToken } = await chrome.storage.sync.get('idToken');
+      if (idToken) {
+        response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+    }
 
     const result = await response.json();
     if (result.ok) {
-      console.log('✅ Dates saved successfully');
+      console.log('✅ Extension saved dates successfully');
       return true;
     } else {
-      console.error('Failed to save dates:', result.error);
+      console.error('❌ Failed to save dates:', result.error);
       return false;
     }
   } catch (error) {
-    console.error('Error saving dates:', error);
+    console.error('❌ Error saving dates:', error);
     return false;
   }
 }
