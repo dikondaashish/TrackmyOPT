@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // Fetch opt_status data
+    // Fetch opt_status data - include stem_start_date
     const { data, error } = await supabase
       .from('opt_status')
       .select('program_end_date, dso_recommendation_date, opt_start_date, opt_ead_end_date, stem_start_date')
@@ -142,17 +142,27 @@ export async function POST(req: NextRequest) {
       stem_start_date,
     } = body;
 
-    // Validate required fields
-    if (!program_end_date) {
+    // Flexible validation: at least one date must be provided
+    const dates = {
+      program_end_date,
+      dso_recommendation_date,
+      opt_start_date,
+      opt_ead_end_date,
+      stem_start_date,
+    };
+
+    const hasAtLeastOneDate = Object.values(dates).some(date => date && date.trim() !== '');
+    
+    if (!hasAtLeastOneDate) {
       return NextResponse.json(
-        { ok: false, error: 'Program end date is required' },
+        { ok: false, error: 'At least one date is required' },
         { status: 400, headers: corsHeaders }
       );
     }
 
     // Convert dates from mm/dd/yyyy to yyyy-mm-dd
     const parseDate = (dateStr: string | null): string | null => {
-      if (!dateStr) return null;
+      if (!dateStr || dateStr.trim() === '') return null;
       const parts = dateStr.split('/');
       if (parts.length !== 3) return null;
       const month = parts[0];
@@ -162,27 +172,52 @@ export async function POST(req: NextRequest) {
     };
 
     const programEndISO = parseDate(program_end_date);
-    const dsoRecISO = dso_recommendation_date ? parseDate(dso_recommendation_date) : null;
-    const optStartISO = opt_start_date ? parseDate(opt_start_date) : null;
-    const optEadEndISO = opt_ead_end_date ? parseDate(opt_ead_end_date) : null;
-    const stemStartISO = stem_start_date ? parseDate(stem_start_date) : null;
+    const dsoRecISO = parseDate(dso_recommendation_date);
+    const optStartISO = parseDate(opt_start_date);
+    const optEadEndISO = parseDate(opt_ead_end_date);
+    const stemStartISO = parseDate(stem_start_date);
 
-    if (!programEndISO) {
+    // Validate date formats for provided dates
+    const validateDate = (dateISO: string | null, fieldName: string) => {
+      if (dateISO) {
+        const date = new Date(dateISO);
+        if (isNaN(date.getTime())) {
+          throw new Error(`Invalid ${fieldName} format. Use MM/DD/YYYY`);
+        }
+      }
+    };
+
+    validateDate(programEndISO, 'program_end_date');
+    validateDate(dsoRecISO, 'dso_recommendation_date');
+    validateDate(optStartISO, 'opt_start_date');
+    validateDate(optEadEndISO, 'opt_ead_end_date');
+    validateDate(stemStartISO, 'stem_start_date');
+
+    // Determine defaults for required fields
+    // Priority: program_end_date > opt_start_date > opt_ead_end_date
+    let defaultDate = programEndISO || optStartISO || optEadEndISO;
+    
+    if (!defaultDate) {
+      // If none of the main dates are provided, use dso_recommendation_date or stem_start_date
+      defaultDate = dsoRecISO || stemStartISO;
+    }
+
+    if (!defaultDate) {
       return NextResponse.json(
-        { ok: false, error: 'Invalid program end date format. Use mm/dd/yyyy' },
+        { ok: false, error: 'Unable to determine default dates' },
         { status: 400, headers: corsHeaders }
       );
     }
 
-    // Upsert opt_status
+    // Upsert opt_status with all 5 fields
     const { error } = await supabase
       .from('opt_status')
       .upsert({
         user_id: userId,
-        program_end_date: programEndISO,
+        program_end_date: programEndISO || defaultDate,
         dso_recommendation_date: dsoRecISO,
-        opt_start_date: optStartISO || programEndISO, // Default to program end if not provided
-        opt_ead_end_date: optEadEndISO || programEndISO, // Default to program end if not provided
+        opt_start_date: optStartISO || defaultDate,
+        opt_ead_end_date: optEadEndISO || defaultDate,
         stem_start_date: stemStartISO,
         updated_at: new Date().toISOString(),
       });
@@ -197,7 +232,7 @@ export async function POST(req: NextRequest) {
     console.error('POST /api/opt/calculator error:', error);
     return NextResponse.json(
       { ok: false, error: error.message || 'Failed to save data' },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
