@@ -30,9 +30,10 @@ export function OptDatesSection() {
   const loadDates = async () => {
     try {
       setIsLoading(true);
-      // Use /api/opt/dates which includes stem_start_date
-      const response = await fetch('/api/opt/dates', {
+      // Use same endpoint as extension for perfect sync
+      const response = await fetch('/api/opt/calculator', {
         credentials: 'include',
+        cache: 'no-store', // Prevent caching to ensure fresh data
       });
 
       if (response.ok) {
@@ -79,14 +80,15 @@ export function OptDatesSection() {
       setIsSaving(true);
       setError(null);
       
-      // Use the flexible endpoint that allows any one date to be saved
-      const response = await fetch('/api/opt/dates', {
+      // Use same endpoint as extension for perfect sync
+      const response = await fetch('/api/opt/calculator', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(dates),
+        cache: 'no-store', // Prevent caching
       });
 
       const result = await response.json();
