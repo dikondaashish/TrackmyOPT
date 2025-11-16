@@ -252,7 +252,6 @@ body.dark-mode .logout-btn:hover {
 .green  { background: linear-gradient(135deg, #34C759, #30D158); }
 .purple { background: linear-gradient(135deg, #5856D6, #AF52DE); }
 .orange { background: linear-gradient(135deg, #FF9500, #FF9F0A); }
-.cyan   { background: linear-gradient(135deg, #00C7BE, #32D3CA); }
 
 .notice {
   margin-top: 12px; 

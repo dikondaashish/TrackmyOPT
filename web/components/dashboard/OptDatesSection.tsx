@@ -30,7 +30,8 @@ export function OptDatesSection() {
   const loadDates = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/opt/calculator', {
+      // Use /api/opt/dates which includes stem_start_date
+      const response = await fetch('/api/opt/dates', {
         credentials: 'include',
       });
 
@@ -78,6 +79,7 @@ export function OptDatesSection() {
       setIsSaving(true);
       setError(null);
       
+      // Use the flexible endpoint that allows any one date to be saved
       const response = await fetch('/api/opt/dates', {
         method: 'POST',
         credentials: 'include',
@@ -92,6 +94,8 @@ export function OptDatesSection() {
       if (response.ok && result.ok) {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
+        // Reload to show updated data from database
+        await loadDates();
       } else {
         setError(result.error || 'Failed to save dates');
       }
