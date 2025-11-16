@@ -53,7 +53,7 @@ function DateInput({ id, label, value, onChange, placeholder = "MM/DD/YYYY", des
         {label}
         {optional && <span className="font-normal text-muted-foreground">(Optional)</span>}
       </Label>
-      <div className="relative">
+      <div className="relative max-w-md">
         <Input
           ref={inputRef}
           id={id}
@@ -61,15 +61,15 @@ function DateInput({ id, label, value, onChange, placeholder = "MM/DD/YYYY", des
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="max-w-md pr-10"
+          className="pr-12 w-full"
         />
         <button
           type="button"
           onClick={() => setShowCalendar(!showCalendar)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           aria-label="Open calendar"
         >
-          <CalendarIcon className="w-5 h-5 text-gray-500" />
+          <CalendarIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>
         
         {showCalendar && (
