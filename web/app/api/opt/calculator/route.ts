@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
     // Fetch opt_status data
     const { data, error } = await supabase
       .from('opt_status')
-      .select('program_end_date, dso_recommendation_date, opt_start_date, opt_ead_end_date')
+      .select('program_end_date, dso_recommendation_date, opt_start_date, opt_ead_end_date, stem_start_date')
       .eq('user_id', userId)
       .single();
 
@@ -105,8 +105,9 @@ export async function GET(req: NextRequest) {
         dso_recommendation_date: formatDate(data.dso_recommendation_date),
         opt_start_date: formatDate(data.opt_start_date),
         opt_ead_end_date: formatDate(data.opt_ead_end_date),
+        stem_start_date: formatDate(data.stem_start_date),
       } : null
-    });
+    }, { headers: corsHeaders });
   } catch (error: any) {
     console.error('GET /api/opt/calculator error:', error);
     return NextResponse.json(
@@ -138,13 +139,14 @@ export async function POST(req: NextRequest) {
       dso_recommendation_date,
       opt_start_date,
       opt_ead_end_date,
+      stem_start_date,
     } = body;
 
     // Validate required fields
     if (!program_end_date) {
       return NextResponse.json(
         { ok: false, error: 'Program end date is required' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -163,11 +165,12 @@ export async function POST(req: NextRequest) {
     const dsoRecISO = dso_recommendation_date ? parseDate(dso_recommendation_date) : null;
     const optStartISO = opt_start_date ? parseDate(opt_start_date) : null;
     const optEadEndISO = opt_ead_end_date ? parseDate(opt_ead_end_date) : null;
+    const stemStartISO = stem_start_date ? parseDate(stem_start_date) : null;
 
     if (!programEndISO) {
       return NextResponse.json(
         { ok: false, error: 'Invalid program end date format. Use mm/dd/yyyy' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -180,6 +183,7 @@ export async function POST(req: NextRequest) {
         dso_recommendation_date: dsoRecISO,
         opt_start_date: optStartISO || programEndISO, // Default to program end if not provided
         opt_ead_end_date: optEadEndISO || programEndISO, // Default to program end if not provided
+        stem_start_date: stemStartISO,
         updated_at: new Date().toISOString(),
       });
 
@@ -188,12 +192,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true }, { headers: corsHeaders });
   } catch (error: any) {
     console.error('POST /api/opt/calculator error:', error);
     return NextResponse.json(
       { ok: false, error: error.message || 'Failed to save data' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

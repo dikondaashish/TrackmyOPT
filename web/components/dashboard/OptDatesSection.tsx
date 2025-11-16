@@ -30,19 +30,24 @@ export function OptDatesSection() {
   const loadDates = async () => {
     try {
       setIsLoading(true);
-      // Use /api/opt/dates which includes stem_start_date
-      const response = await fetch('/api/opt/dates', {
+      // Use the same endpoint as extension for consistency
+      console.log('📅 Dashboard: Loading dates from /api/opt/calculator...');
+      const response = await fetch('/api/opt/calculator', {
         credentials: 'include',
+        cache: 'no-store', // Prevent caching
       });
 
       if (response.ok) {
         const result = await response.json();
+        console.log('✅ Dashboard: Loaded dates:', result.data);
         if (result.ok && result.data) {
           setDates(result.data);
         }
+      } else {
+        console.error('❌ Dashboard: Failed to load dates:', response.status);
       }
     } catch (err) {
-      console.error('Error loading dates:', err);
+      console.error('❌ Dashboard: Error loading dates:', err);
     } finally {
       setIsLoading(false);
     }
@@ -79,6 +84,7 @@ export function OptDatesSection() {
       setIsSaving(true);
       setError(null);
       
+      console.log('💾 Dashboard: Saving dates...', dates);
       // Use the flexible endpoint that allows any one date to be saved
       const response = await fetch('/api/opt/dates', {
         method: 'POST',
@@ -90,18 +96,21 @@ export function OptDatesSection() {
       });
 
       const result = await response.json();
+      console.log('📤 Dashboard: Save response:', result);
 
       if (response.ok && result.ok) {
+        console.log('✅ Dashboard: Dates saved successfully');
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
         // Reload to show updated data from database
         await loadDates();
       } else {
+        console.error('❌ Dashboard: Failed to save:', result.error);
         setError(result.error || 'Failed to save dates');
       }
     } catch (err) {
       setError('An error occurred while saving');
-      console.error('Save error:', err);
+      console.error('❌ Dashboard: Save error:', err);
     } finally {
       setIsSaving(false);
     }
