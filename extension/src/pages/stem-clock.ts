@@ -462,7 +462,7 @@ export function renderStemClock(root: HTMLElement, onBack: () => void): void {
       <input 
         type="text" 
         id="stem-ead-start-date" 
-        placeholder="10/01/2025"
+        placeholder="mm/dd/yyyy"
         style="
           width: 100%;
           padding: 12px 46px 12px 14px;

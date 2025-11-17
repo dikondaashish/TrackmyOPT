@@ -462,7 +462,7 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
       <input 
         type="text" 
         id="opt-start-date" 
-        placeholder="10/17/2025"
+        placeholder="mm/dd/yyyy"
         style="
           width: 100%;
           padding: 12px 46px 12px 14px;
