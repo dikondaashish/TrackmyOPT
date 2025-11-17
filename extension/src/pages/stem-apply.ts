@@ -384,46 +384,55 @@ async function loadSavedData(): Promise<any> {
  */
 async function saveOptEadEndDate(optEadEndDate: string | null): Promise<boolean> {
   try {
-    const { idToken } = await chrome.storage.sync.get('idToken');
-    if (!idToken) {
-      console.log('No auth token, skipping save');
-      return false;
-    }
+    // First, load existing data to preserve other fields
+    const existingData = await loadSavedData();
+    
+    // Merge: only update opt_ead_end_date, preserve other fields
+    const payload = {
+      program_end_date: existingData?.program_end_date || optEadEndDate,
+      dso_recommendation_date: existingData?.dso_recommendation_date || null,
+      opt_start_date: existingData?.opt_start_date || null,
+      opt_ead_end_date: optEadEndDate,
+      stem_start_date: existingData?.stem_start_date || null,
+    };
 
-    // Get current program end date (required field)
-    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${idToken}`,
-      },
-    });
+    console.log('💾 Saving STEM Apply dates:', payload);
 
-    const result = await response.json();
-    let programEndDate = result.data?.program_end_date || optEadEndDate;
-
-    // Save with opt_ead_end_date
-    const saveResponse = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+    // Try using session cookies first (if user is logged in on website)
+    let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'Authorization': `Bearer ${idToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        program_end_date: programEndDate,
-        opt_ead_end_date: optEadEndDate,
-      }),
+      body: JSON.stringify(payload),
     });
 
-    const saveResult = await saveResponse.json();
-    if (saveResult.ok) {
+    // If session cookies failed, try JWT token
+    if (!response.ok) {
+      const { idToken } = await chrome.storage.sync.get('idToken');
+      if (idToken) {
+        response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+    }
+
+    const result = await response.json();
+    if (result.ok) {
       console.log('✅ OPT EAD end date saved successfully');
       return true;
     } else {
-      console.error('Failed to save OPT EAD end date:', saveResult.error);
+      console.error('❌ Failed to save OPT EAD end date:', result.error);
       return false;
     }
   } catch (error) {
-    console.error('Error saving OPT EAD end date:', error);
+    console.error('❌ Error saving OPT EAD end date:', error);
     return false;
   }
 }

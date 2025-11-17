@@ -361,46 +361,55 @@ async function loadSavedData(): Promise<any> {
  */
 async function saveStemEadStartDate(stemEadStartDate: string | null): Promise<boolean> {
   try {
-    const { idToken } = await chrome.storage.sync.get('idToken');
-    if (!idToken) {
-      console.log('No auth token, skipping save');
-      return false;
-    }
+    // First, load existing data to preserve other fields
+    const existingData = await loadSavedData();
+    
+    // Merge: only update stem_start_date, preserve other fields
+    const payload = {
+      program_end_date: existingData?.program_end_date || stemEadStartDate,
+      dso_recommendation_date: existingData?.dso_recommendation_date || null,
+      opt_start_date: existingData?.opt_start_date || null,
+      opt_ead_end_date: existingData?.opt_ead_end_date || null,
+      stem_start_date: stemEadStartDate,
+    };
 
-    // Get current program end date (required field)
-    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${idToken}`,
-      },
-    });
+    console.log('💾 Saving STEM Clock dates:', payload);
 
-    const result = await response.json();
-    let programEndDate = result.data?.program_end_date || stemEadStartDate;
-
-    // Save with opt_ead_end_date (this is the Current OPT EAD End Date / STEM Start Date)
-    const saveResponse = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+    // Try using session cookies first (if user is logged in on website)
+    let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'Authorization': `Bearer ${idToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        program_end_date: programEndDate,
-        opt_ead_end_date: stemEadStartDate,
-      }),
+      body: JSON.stringify(payload),
     });
 
-    const saveResult = await saveResponse.json();
-    if (saveResult.ok) {
-      console.log('✅ STEM EAD start date saved successfully');
+    // If session cookies failed, try JWT token
+    if (!response.ok) {
+      const { idToken } = await chrome.storage.sync.get('idToken');
+      if (idToken) {
+        response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+    }
+
+    const result = await response.json();
+    if (result.ok) {
+      console.log('✅ STEM start date saved successfully');
       return true;
     } else {
-      console.error('Failed to save STEM EAD start date:', saveResult.error);
+      console.error('❌ Failed to save STEM start date:', result.error);
       return false;
     }
   } catch (error) {
-    console.error('Error saving STEM EAD start date:', error);
+    console.error('❌ Error saving STEM start date:', error);
     return false;
   }
 }

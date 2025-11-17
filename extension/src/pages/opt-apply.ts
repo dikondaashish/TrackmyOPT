@@ -582,10 +582,20 @@ async function saveDatesToAPI(
   dsoRecommendationDate: string | null
 ): Promise<boolean> {
   try {
+    // First, load existing data to preserve other fields
+    const existingData = await loadSavedData();
+    
+    // Merge: only update the fields this tool manages
     const payload = {
       program_end_date: programEndDate,
       dso_recommendation_date: dsoRecommendationDate,
+      // Preserve existing values for other fields
+      opt_start_date: existingData?.opt_start_date || null,
+      opt_ead_end_date: existingData?.opt_ead_end_date || null,
+      stem_start_date: existingData?.stem_start_date || null,
     };
+
+    console.log('💾 Saving OPT Apply dates:', payload);
 
     // Try using session cookies first (if user is logged in on website)
     let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
