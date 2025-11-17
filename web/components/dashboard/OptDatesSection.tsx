@@ -249,6 +249,7 @@ export function OptDatesSection() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [lastModifiedField, setLastModifiedField] = useState<string | null>(null);
 
   // Load existing dates on mount
   useEffect(() => {
@@ -289,6 +290,7 @@ export function OptDatesSection() {
       ...prev,
       [field]: value
     }));
+    setLastModifiedField(field); // Track which field user just modified
     setError(null);
     setSuccess(false);
   };
@@ -326,9 +328,11 @@ export function OptDatesSection() {
         opt_start_date: dates.opt_start_date?.trim() || null,
         opt_ead_end_date: dates.opt_ead_end_date?.trim() || null,
         stem_start_date: dates.stem_start_date?.trim() || null,
+        _lastModifiedField: lastModifiedField, // Tell API which field was modified
       };
 
       console.log('💾 Dashboard saving dates:', payload);
+      console.log('📝 Last modified field:', lastModifiedField);
       
       // Use same endpoint as extension for perfect sync
       const response = await fetch('/api/opt/calculator', {
