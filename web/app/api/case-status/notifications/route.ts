@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
+import { verifyToken } from '@/lib/jwt';
+
+export const dynamic = 'force-dynamic';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,17 +14,52 @@ const corsHeaders = {
 };
 
 /**
+ * Get user ID from either JWT token or session
+ */
+async function getUserId(req: NextRequest): Promise<string | null> {
+  // Try JWT token first (for extension)
+  const authHeader = req.headers.get('Authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    const decoded = await verifyToken(token);
+    if (decoded) {
+      return decoded.userId || decoded.sub;
+    }
+  }
+
+  // Fall back to session cookies (for web)
+  const cookieStore = cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set({ name, value: '', ...options });
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id || null;
+}
+
+/**
  * PATCH /api/case-status/notifications
  * Toggle notification settings for user's case
  */
 export async function PATCH(req: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
-    
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const userId = await getUserId(req);
 
-    if (authError || !user) {
+    if (!userId) {
       return NextResponse.json(
         { ok: false, error: 'Unauthorized' },
         { status: 401, headers: corsHeaders }
@@ -51,7 +89,7 @@ export async function PATCH(req: NextRequest) {
         notifications_enabled,
         updated_at: new Date().toISOString(),
       })
-      .eq('user_id', user.id);
+      .eq('user_id', userId);
 
     if (updateError) {
       console.error('Error updating notifications:', updateError);
