@@ -106,9 +106,16 @@ export function DateSelector() {
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-left flex items-center justify-between hover:border-slate-400 dark:hover:border-slate-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <span className="text-slate-900 dark:text-white">
-              {selectedOption?.label || 'Select a date'}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-slate-900 dark:text-white">
+                {selectedOption?.label || 'Select a date'}
+              </span>
+              {lastUpdatedFieldFromAPI === selectedDateType && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-sm">
+                  Latest
+                </span>
+              )}
+            </div>
             <ChevronDown 
               className={`w-5 h-5 text-slate-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} 
             />
@@ -117,28 +124,20 @@ export function DateSelector() {
           {/* Dropdown Menu */}
           {isDropdownOpen && (
             <div className="absolute z-10 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden">
-              {DATE_OPTIONS.map((option) => {
-                const isLastUpdated = lastUpdatedFieldFromAPI === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => handleSelectChange(option.value)}
-                    className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-between gap-2 ${
-                      selectedDateType === option.value 
-                        ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-medium' 
-                        : 'text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    <span>{option.label}</span>
-                    {isLastUpdated && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-sm">
-                        Latest
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+              {DATE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleSelectChange(option.value)}
+                  className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
+                    selectedDateType === option.value 
+                      ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-medium' 
+                      : 'text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
           )}
         </div>
