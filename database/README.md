@@ -50,7 +50,7 @@ psql "postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:54
 - Creates `profiles` and `opt_status` tables
 - Sets up Row Level Security (RLS)
 
-### 002_premium_email_system.sql ✨ NEW
+### 002_premium_email_system.sql
 **Purpose:** Adds premium email reminder system
 
 **What it creates:**
@@ -86,6 +86,17 @@ psql "postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:54
    - `premium_stats` - Premium vs free user statistics
    - `email_delivery_stats` - Email delivery metrics
    - `revenue_stats` - Revenue and payment statistics
+
+### 003_add_most_recent_field.sql ✨ NEW
+**Purpose:** Tracks which date field was most recently updated
+
+**What it creates:**
+1. **Updates `opt_status` table:**
+   - `most_recent_field` - Stores which date field was last updated
+   - Used by the Date Selector UI to highlight recently updated fields
+   - Automatically updated by API when saving dates
+
+**Values:** `program_end_date`, `dso_recommendation_date`, `opt_start_date`, `opt_ead_end_date`, `stem_start_date`
 
 ## Verifying Migrations
 
