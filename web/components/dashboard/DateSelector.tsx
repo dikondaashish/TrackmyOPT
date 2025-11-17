@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Calendar as CalendarIcon } from "lucide-react";
 
 interface OptDatesData {
   program_end_date?: string | null;
@@ -25,6 +25,8 @@ export function DateSelector() {
   const [selectedDateType, setSelectedDateType] = useState<string>('program_end_date');
   const [isLoading, setIsLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [userHasManuallySelected, setUserHasManuallySelected] = useState(false);
 
   // Load dates from API
   useEffect(() => {
@@ -47,9 +49,13 @@ export function DateSelector() {
         if (result.ok && result.data) {
           setDates(result.data);
           
-          // If there's a last updated field, select it
-          if (result.data.last_updated_field && result.data.last_updated_field !== selectedDateType) {
+          // Only auto-select on initial load, and only if user hasn't manually selected
+          if (isInitialLoad && !userHasManuallySelected && result.data.last_updated_field) {
             setSelectedDateType(result.data.last_updated_field);
+          }
+          
+          if (isInitialLoad) {
+            setIsInitialLoad(false);
           }
         }
       }
@@ -63,6 +69,7 @@ export function DateSelector() {
   const handleSelectChange = (value: string) => {
     setSelectedDateType(value);
     setIsDropdownOpen(false);
+    setUserHasManuallySelected(true); // Mark that user manually selected
   };
 
   const selectedOption = DATE_OPTIONS.find(opt => opt.value === selectedDateType);
@@ -134,13 +141,24 @@ export function DateSelector() {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           Date value
         </label>
-        <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
-          <p className="text-lg font-semibold text-slate-900 dark:text-white">
-            {selectedDate}
-          </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            {selectedOption?.label}
-          </p>
+        <div className="relative">
+          <div className="px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <p className="text-lg font-semibold text-slate-900 dark:text-white">
+              {selectedDate}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              {selectedOption?.label}
+            </p>
+          </div>
+          
+          {/* Calendar Icon */}
+          <a
+            href="/dashboard/opt-dates"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
+            title="Edit this date"
+          >
+            <CalendarIcon className="w-5 h-5" />
+          </a>
         </div>
       </div>
     </div>
