@@ -128,19 +128,19 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
         {menuItems.map((item, index) => {
           const isActive = pathname === item.path;
           return (
-            <button
-              key={index}
+          <button
+            key={index}
               onClick={() => router.push(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${
                 isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-              } ${collapsed ? 'justify-center' : ''}`}
-              title={collapsed ? item.label : undefined}
-            >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-            </button>
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            } ${collapsed ? 'justify-center' : ''}`}
+            title={collapsed ? item.label : undefined}
+          >
+            <item.icon className="w-5 h-5 flex-shrink-0" />
+            {!collapsed && <span>{item.label}</span>}
+          </button>
           );
         })}
       </nav>

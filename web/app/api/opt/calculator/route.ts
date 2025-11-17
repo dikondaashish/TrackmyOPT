@@ -206,7 +206,7 @@ export async function POST(req: NextRequest) {
     // Determine defaults for required fields
     // Priority: program_end_date > opt_start_date > opt_ead_end_date
     let defaultDate = programEndISO || optStartISO || optEadEndISO;
-    
+
     if (!defaultDate) {
       // If none of the main dates are provided, use dso_recommendation_date or stem_start_date
       defaultDate = dsoRecISO || stemStartISO;

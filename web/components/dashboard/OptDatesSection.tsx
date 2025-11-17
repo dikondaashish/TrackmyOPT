@@ -258,6 +258,8 @@ export function OptDatesSection() {
   const loadDates = async () => {
     try {
       setIsLoading(true);
+      console.log('📖 Dashboard loading dates...');
+      
       // Use same endpoint as extension for perfect sync
       const response = await fetch('/api/opt/calculator', {
         credentials: 'include',
@@ -267,11 +269,16 @@ export function OptDatesSection() {
       if (response.ok) {
         const result = await response.json();
         if (result.ok && result.data) {
+          console.log('✅ Dashboard loaded dates:', result.data);
           setDates(result.data);
+        } else {
+          console.log('📭 No dates found');
         }
+      } else {
+        console.error('❌ Failed to load dates:', response.status);
       }
     } catch (err) {
-      console.error('Error loading dates:', err);
+      console.error('❌ Error loading dates:', err);
     } finally {
       setIsLoading(false);
     }
@@ -308,6 +315,17 @@ export function OptDatesSection() {
       setIsSaving(true);
       setError(null);
       
+      // Clean payload: convert empty strings to null
+      const payload = {
+        program_end_date: dates.program_end_date?.trim() || null,
+        dso_recommendation_date: dates.dso_recommendation_date?.trim() || null,
+        opt_start_date: dates.opt_start_date?.trim() || null,
+        opt_ead_end_date: dates.opt_ead_end_date?.trim() || null,
+        stem_start_date: dates.stem_start_date?.trim() || null,
+      };
+
+      console.log('💾 Dashboard saving dates:', payload);
+      
       // Use same endpoint as extension for perfect sync
       const response = await fetch('/api/opt/calculator', {
         method: 'POST',
@@ -315,23 +333,25 @@ export function OptDatesSection() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(dates),
+        body: JSON.stringify(payload),
         cache: 'no-store', // Prevent caching
       });
 
       const result = await response.json();
 
       if (response.ok && result.ok) {
+        console.log('✅ Dashboard saved dates successfully');
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
         // Reload to show updated data from database
         await loadDates();
       } else {
+        console.error('❌ Dashboard failed to save:', result.error);
         setError(result.error || 'Failed to save dates');
       }
     } catch (err) {
       setError('An error occurred while saving');
-      console.error('Save error:', err);
+      console.error('❌ Dashboard save error:', err);
     } finally {
       setIsSaving(false);
     }
