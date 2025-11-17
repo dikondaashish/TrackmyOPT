@@ -25,8 +25,7 @@ export function DateSelector() {
   const [selectedDateType, setSelectedDateType] = useState<string>('program_end_date');
   const [isLoading, setIsLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [userHasManuallySelected, setUserHasManuallySelected] = useState(false);
+  const [lastUpdatedFieldFromAPI, setLastUpdatedFieldFromAPI] = useState<string | null>(null);
 
   // Load dates from API
   useEffect(() => {
@@ -49,13 +48,22 @@ export function DateSelector() {
         if (result.ok && result.data) {
           setDates(result.data);
           
-          // Only auto-select on initial load, and only if user hasn't manually selected
-          if (isInitialLoad && !userHasManuallySelected && result.data.last_updated_field) {
-            setSelectedDateType(result.data.last_updated_field);
-          }
+          const newLastUpdatedField = result.data.last_updated_field;
           
-          if (isInitialLoad) {
-            setIsInitialLoad(false);
+          // Auto-select logic:
+          // 1. If we have a last_updated_field from API
+          // 2. AND it's different from what we previously had
+          // 3. THEN auto-select it (this means user saved a date on opt-dates page)
+          if (newLastUpdatedField) {
+            // If this is a NEW last_updated_field (different from before), auto-select it
+            if (lastUpdatedFieldFromAPI !== newLastUpdatedField) {
+              console.log('📊 Last updated field changed:', lastUpdatedFieldFromAPI, '→', newLastUpdatedField);
+              setSelectedDateType(newLastUpdatedField);
+              setLastUpdatedFieldFromAPI(newLastUpdatedField);
+            }
+          } else if (!lastUpdatedFieldFromAPI) {
+            // First load and no last_updated_field, set it anyway
+            setLastUpdatedFieldFromAPI(newLastUpdatedField);
           }
         }
       }
@@ -69,7 +77,7 @@ export function DateSelector() {
   const handleSelectChange = (value: string) => {
     setSelectedDateType(value);
     setIsDropdownOpen(false);
-    setUserHasManuallySelected(true); // Mark that user manually selected
+    // Don't update lastUpdatedFieldFromAPI here - we only update it from API responses
   };
 
   const selectedOption = DATE_OPTIONS.find(opt => opt.value === selectedDateType);

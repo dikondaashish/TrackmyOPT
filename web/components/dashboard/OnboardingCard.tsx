@@ -34,7 +34,7 @@ export function OnboardingCard() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-xl">📅</span>
+            <span className="text-xl">🗓️</span>
             <h3 className="text-lg font-semibold">Your Dates</h3>
           </div>
           <a
