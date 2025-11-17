@@ -151,6 +151,7 @@ export async function POST(req: NextRequest) {
       opt_start_date,
       opt_ead_end_date,
       stem_start_date,
+      _lastModifiedField, // Explicit indicator of which field was changed
     } = body;
 
     // Flexible validation: at least one date must be provided
@@ -221,15 +222,22 @@ export async function POST(req: NextRequest) {
     }
 
     // Determine which field was most recently updated
-    // Check if any field has a different value from existing data
     let lastUpdatedField = null;
     
-    // Priority order: check which field was explicitly provided and is different
-    if (program_end_date) lastUpdatedField = 'program_end_date';
-    if (dso_recommendation_date) lastUpdatedField = 'dso_recommendation_date';
-    if (opt_start_date) lastUpdatedField = 'opt_start_date';
-    if (opt_ead_end_date) lastUpdatedField = 'opt_ead_end_date';
-    if (stem_start_date) lastUpdatedField = 'stem_start_date';
+    // If dashboard explicitly tells us which field was changed, use that
+    if (_lastModifiedField) {
+      lastUpdatedField = _lastModifiedField;
+      console.log('📍 Using explicit last modified field from dashboard:', _lastModifiedField);
+    } else {
+      // Fallback: For extension, check which field was explicitly provided
+      // Priority order: stem_start_date > opt_ead_end_date > opt_start_date > dso_recommendation_date > program_end_date
+      if (program_end_date) lastUpdatedField = 'program_end_date';
+      if (dso_recommendation_date) lastUpdatedField = 'dso_recommendation_date';
+      if (opt_start_date) lastUpdatedField = 'opt_start_date';
+      if (opt_ead_end_date) lastUpdatedField = 'opt_ead_end_date';
+      if (stem_start_date) lastUpdatedField = 'stem_start_date';
+      console.log('📍 Inferred last modified field:', lastUpdatedField);
+    }
 
     // Prepare data for upsert
     const upsertData = {

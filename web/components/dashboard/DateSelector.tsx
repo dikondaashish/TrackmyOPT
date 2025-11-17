@@ -22,7 +22,7 @@ const DATE_OPTIONS = [
 
 export function DateSelector() {
   const [dates, setDates] = useState<OptDatesData>({});
-  const [selectedDateType, setSelectedDateType] = useState<string>('program_end_date');
+  const [selectedDateType, setSelectedDateType] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -45,11 +45,30 @@ export function DateSelector() {
       if (response.ok) {
         const result = await response.json();
         if (result.ok && result.data) {
+          console.log('📊 DateSelector loaded data:', result.data);
+          console.log('📍 Last updated field from API:', result.data.last_updated_field);
+          console.log('🎯 Current selected:', selectedDateType);
+          
           setDates(result.data);
           
-          // If there's a last updated field, select it
-          if (result.data.last_updated_field && result.data.last_updated_field !== selectedDateType) {
-            setSelectedDateType(result.data.last_updated_field);
+          // Auto-select logic
+          if (result.data.last_updated_field) {
+            // If we have a last_updated_field from API, use it
+            if (result.data.last_updated_field !== selectedDateType) {
+              console.log('✅ Auto-selecting last updated:', result.data.last_updated_field);
+              setSelectedDateType(result.data.last_updated_field);
+            }
+          } else if (!selectedDateType) {
+            // If no selection yet and no last_updated_field, default to first field with data
+            const firstFieldWithData = DATE_OPTIONS.find(opt => result.data[opt.value as keyof OptDatesData]);
+            if (firstFieldWithData) {
+              console.log('✅ Defaulting to first field with data:', firstFieldWithData.value);
+              setSelectedDateType(firstFieldWithData.value);
+            } else {
+              // Default to program_end_date if no data at all
+              console.log('✅ Defaulting to program_end_date');
+              setSelectedDateType('program_end_date');
+            }
           }
         }
       }
