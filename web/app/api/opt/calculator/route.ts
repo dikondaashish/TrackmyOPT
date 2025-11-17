@@ -80,10 +80,10 @@ export async function GET(req: NextRequest) {
 
     console.log('📖 Loading opt_status for user:', userId);
 
-    // Fetch opt_status data - include stem_start_date
+    // Fetch opt_status data - include stem_start_date and most_recent_field
     const { data, error } = await supabase
       .from('opt_status')
-      .select('program_end_date, dso_recommendation_date, opt_start_date, opt_ead_end_date, stem_start_date')
+      .select('program_end_date, dso_recommendation_date, opt_start_date, opt_ead_end_date, stem_start_date, most_recent_field')
       .eq('user_id', userId)
       .single();
 
@@ -116,7 +116,8 @@ export async function GET(req: NextRequest) {
         opt_start_date: formatDate(data.opt_start_date),
         opt_ead_end_date: formatDate(data.opt_ead_end_date),
         stem_start_date: formatDate(data.stem_start_date),
-      } : null
+      } : null,
+      mostRecentField: data?.most_recent_field || 'program_end_date'
     }, { headers: corsHeaders });
   } catch (error: any) {
     console.error('GET /api/opt/calculator error:', error);
@@ -219,6 +220,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Determine which field was most recently updated
+    // Priority order (reverse chronological based on what was provided in the request)
+    let mostRecentField = 'program_end_date'; // default
+    
+    if (stem_start_date && stem_start_date.trim() !== '') {
+      mostRecentField = 'stem_start_date';
+    } else if (opt_ead_end_date && opt_ead_end_date.trim() !== '') {
+      mostRecentField = 'opt_ead_end_date';
+    } else if (opt_start_date && opt_start_date.trim() !== '') {
+      mostRecentField = 'opt_start_date';
+    } else if (dso_recommendation_date && dso_recommendation_date.trim() !== '') {
+      mostRecentField = 'dso_recommendation_date';
+    } else if (program_end_date && program_end_date.trim() !== '') {
+      mostRecentField = 'program_end_date';
+    }
+
     // Prepare data for upsert
     const upsertData = {
       user_id: userId,
@@ -227,11 +244,13 @@ export async function POST(req: NextRequest) {
       opt_start_date: optStartISO || defaultDate,
       opt_ead_end_date: optEadEndISO || defaultDate,
       stem_start_date: stemStartISO,
+      most_recent_field: mostRecentField,
       updated_at: new Date().toISOString(),
     };
 
     console.log('📝 Upserting opt_status for user:', userId);
     console.log('📝 Data to save:', JSON.stringify(upsertData, null, 2));
+    console.log('📍 Most recent field:', mostRecentField);
 
     // Upsert opt_status with all 5 fields
     const { data: upsertResult, error } = await supabase
