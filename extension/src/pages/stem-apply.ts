@@ -358,23 +358,36 @@ function calculateStemFilingWindow(currentOptEndDate: Date) {
  */
 async function loadSavedData(): Promise<any> {
   try {
-    const { idToken } = await chrome.storage.sync.get('idToken');
-    if (!idToken) return null;
-
-    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+    // Try using session cookies first (if user is logged in on website)
+    let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'GET',
+      credentials: 'include', // Send cookies from website
       headers: {
-        'Authorization': `Bearer ${idToken}`,
         'Content-Type': 'application/json',
       },
     });
 
+    // If session cookies failed, try JWT token
+    if (!response.ok) {
+      const { idToken } = await chrome.storage.sync.get('idToken');
+      if (idToken) {
+        response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+    }
+
     if (!response.ok) return null;
     
     const result = await response.json();
+    console.log('📖 STEM Apply loaded data:', result);
     return result.ok ? result.data : null;
   } catch (error) {
-    console.error('Error loading saved data:', error);
+    console.error('❌ Error loading saved data:', error);
     return null;
   }
 }
