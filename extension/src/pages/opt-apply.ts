@@ -585,6 +585,16 @@ async function saveDatesToAPI(
     // First, load existing data to preserve other fields
     const existingData = await loadSavedData();
     
+    // Determine which field was most recently updated
+    let lastModifiedField = null;
+    if (dsoRecommendationDate && dsoRecommendationDate !== existingData?.dso_recommendation_date) {
+      lastModifiedField = 'dso_recommendation_date';
+    }
+    if (programEndDate && programEndDate !== existingData?.program_end_date) {
+      lastModifiedField = 'program_end_date';
+    }
+    // If both are new/changed, program_end_date takes priority (checked last)
+    
     // Merge: only update the fields this tool manages
     const payload = {
       program_end_date: programEndDate,
@@ -593,9 +603,11 @@ async function saveDatesToAPI(
       opt_start_date: existingData?.opt_start_date || null,
       opt_ead_end_date: existingData?.opt_ead_end_date || null,
       stem_start_date: existingData?.stem_start_date || null,
+      _lastModifiedField: lastModifiedField, // Tell API which field was updated
     };
 
     console.log('💾 Saving OPT Apply dates:', payload);
+    console.log('📝 Last modified field:', lastModifiedField);
 
     // Try using session cookies first (if user is logged in on website)
     let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {

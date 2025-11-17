@@ -384,9 +384,11 @@ async function saveStemEadStartDate(stemEadStartDate: string | null): Promise<bo
       opt_start_date: existingData?.opt_start_date || null,
       opt_ead_end_date: existingData?.opt_ead_end_date || null,
       stem_start_date: stemEadStartDate,
+      _lastModifiedField: 'stem_start_date', // Tell API this field was updated
     };
 
     console.log('💾 Saving STEM Clock dates:', payload);
+    console.log('📝 Last modified field: stem_start_date');
 
     // Try using session cookies first (if user is logged in on website)
     let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
