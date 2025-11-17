@@ -303,8 +303,12 @@ export function OptDatesSection() {
     }
 
     // Validate date format (MM/DD/YYYY) for filled fields
+    // Skip metadata fields like last_updated_field
     const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-    for (const [field, value] of Object.entries(dates)) {
+    const dateFields = ['program_end_date', 'dso_recommendation_date', 'opt_start_date', 'opt_ead_end_date', 'stem_start_date'];
+    
+    for (const field of dateFields) {
+      const value = dates[field as keyof OptDatesData];
       if (value && value.trim() !== '' && !dateRegex.test(value)) {
         setError(`Invalid date format for ${field.replace(/_/g, ' ')}. Use MM/DD/YYYY`);
         return;
