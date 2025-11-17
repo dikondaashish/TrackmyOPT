@@ -50,7 +50,7 @@ psql "postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:54
 - Creates `profiles` and `opt_status` tables
 - Sets up Row Level Security (RLS)
 
-### 002_premium_email_system.sql
+### 002_premium_email_system.sql ✨ NEW
 **Purpose:** Adds premium email reminder system
 
 **What it creates:**
@@ -87,16 +87,18 @@ psql "postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:54
    - `email_delivery_stats` - Email delivery metrics
    - `revenue_stats` - Revenue and payment statistics
 
-### 003_add_most_recent_field.sql ✨ NEW
-**Purpose:** Tracks which date field was most recently updated
+### 003_add_last_updated_field.sql
+**Purpose:** Adds date tracking for dashboard dropdown selector
 
 **What it creates:**
 1. **Updates `opt_status` table:**
-   - `most_recent_field` - Stores which date field was last updated
-   - Used by the Date Selector UI to highlight recently updated fields
-   - Automatically updated by API when saving dates
+   - `last_updated_field` - Tracks which date was most recently updated
+   - Allows dashboard dropdown to automatically select the most recent date
 
-**Values:** `program_end_date`, `dso_recommendation_date`, `opt_start_date`, `opt_ead_end_date`, `stem_start_date`
+**Use case:**
+- When user updates dates on `/dashboard/opt-dates` page
+- Dashboard dropdown automatically selects that date type
+- Improves UX by showing the most relevant date
 
 ## Verifying Migrations
 

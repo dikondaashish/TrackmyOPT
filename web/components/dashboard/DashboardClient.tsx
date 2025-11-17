@@ -12,7 +12,7 @@ import {
   type OPTDates,
   type EmploymentSpan,
 } from '@/lib/optCalculations';
-import { DateSelectorCard } from '@/components/dashboard/DateSelectorCard';
+import { DateSelector } from './DateSelector';
 
 interface Profile {
   user_id: string;
@@ -45,7 +45,6 @@ export default function DashboardClient({
   employmentSpans: initialSpans,
   userEmail 
 }: DashboardClientProps) {
-
   // Calculate dates if we have OPT data
   let calculated = null;
   let unemployment = null;
@@ -206,14 +205,22 @@ export default function DashboardClient({
         </div>
       )}
 
-      {/* Your Dates - Date Selector Card */}
-      <DateSelectorCard
-        programEndDate={optStatus ? isoToMMDDYYYY(optStatus.program_end_date) : undefined}
-        dsoRecommendationDate={optStatus?.dso_recommendation_date ? isoToMMDDYYYY(optStatus.dso_recommendation_date) : undefined}
-        optStartDate={optStatus ? isoToMMDDYYYY(optStatus.opt_start_date) : undefined}
-        optEadEndDate={optStatus ? isoToMMDDYYYY(optStatus.opt_ead_end_date) : undefined}
-        stemStartDate={optStatus?.stem_start_date ? isoToMMDDYYYY(optStatus.stem_start_date) : undefined}
-      />
+      {/* Your Dates - Date Selector */}
+      <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span>📅</span> Your Dates
+          </h2>
+          <a
+            href="/dashboard/opt-dates"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            Edit Dates →
+          </a>
+        </div>
+
+        <DateSelector />
+      </div>
     </>
   );
 }

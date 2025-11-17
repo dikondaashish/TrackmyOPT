@@ -289,6 +289,7 @@ export function OptDatesSection() {
       ...prev,
       [field]: value
     }));
+    setLastModifiedField(field); // Track which field was modified
     setError(null);
     setSuccess(false);
   };
