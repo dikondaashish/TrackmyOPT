@@ -62,25 +62,21 @@ This document lists all files that are not being used in the project and can be 
 
 ---
 
-### 5. `/web/components/ui/dialog.tsx`
-**Reason:** UI component not used anywhere in the project.
+### 5. `/web/components/ui/dialog.tsx` ⚠️ **KEEP - USED**
+**Status:** RESTORED - This file is actually being used!
 
-**Evidence:** No imports found for `@/components/ui/dialog`
+**Evidence:** PricingModal.tsx imports `@/components/ui/dialog`
 
-**Action:** Delete this file
-
-**Risk if kept:** Dead code in codebase
+**Action:** File has been restored
 
 ---
 
-### 6. `/web/components/ui/checkbox.tsx`
-**Reason:** UI component not used anywhere in the project.
+### 6. `/web/components/ui/checkbox.tsx` ⚠️ **KEEP - USED**
+**Status:** RESTORED - This file is actually being used!
 
-**Evidence:** No imports found for `@/components/ui/checkbox`
+**Evidence:** OnboardingCard.tsx imports `@/components/ui/checkbox`
 
-**Action:** Delete this file
-
-**Risk if kept:** Dead code in codebase
+**Action:** File has been restored
 
 ---
 
@@ -159,9 +155,9 @@ The following files were checked and ARE being used:
 ### Cleanup Actions (Medium Priority):
 5. **Delete** `/web/components/figma/` folder
 6. **Delete** unused UI components:
-   - `/web/components/ui/dialog.tsx`
-   - `/web/components/ui/checkbox.tsx`
-   - `/web/components/ui/switch.tsx`
+   - ~~`/web/components/ui/dialog.tsx`~~ ✅ RESTORED - Actually used by PricingModal
+   - ~~`/web/components/ui/checkbox.tsx`~~ ✅ RESTORED - Actually used by OnboardingCard
+   - `/web/components/ui/switch.tsx` ✅ DELETED
 
 ### Optional Cleanup (Low Priority):
 7. **Delete** `/web/scripts/verify-supabase-tables.sql` or move to `/database/`
@@ -192,13 +188,14 @@ The following files were checked and ARE being used:
 
 ## 📊 Summary
 
-| Category | Count | Action |
+| Category | Count | Status |
 |----------|-------|--------|
-| Duplicate Files | 1 | Delete immediately |
-| Deprecated APIs | 2 | Delete |
-| Unused Components | 4 | Delete |
-| Utility Files | 3 | Optional delete |
-| **Total Files to Remove** | **10** | **Clean up** |
+| Duplicate Files | 1 | ✅ DELETED |
+| Deprecated APIs | 2 | ✅ DELETED |
+| Unused Components | 2 | ✅ DELETED (2 restored as they were used) |
+| Utility Files | 3 | ✅ DELETED |
+| **Total Files Deleted** | **8** | **✅ COMPLETE** |
+| **Files Restored** | **2** | **checkbox.tsx, dialog.tsx** |
 
 **Estimated cleanup benefit:**
 - Reduced confusion about code structure
