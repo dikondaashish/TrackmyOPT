@@ -1,4 +1,5 @@
 "use client";
+import { DateSelector } from "./DateSelector";
 
 export function OnboardingCard() {
   return (
@@ -9,6 +10,23 @@ export function OnboardingCard() {
           <h2 className="text-2xl font-bold tracking-tight">Welcome to TrackMyOPT!</h2>
         </div>
         <p className="text-muted-foreground">Track your OPT status and stay compliant</p>
+      </div>
+
+      {/* Date Selector Section */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">📅</span>
+            <h3 className="text-lg font-semibold">Your Dates</h3>
+          </div>
+          <a
+            href="/dashboard/opt-dates"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
+          >
+            Edit Dates →
+          </a>
+        </div>
+        <DateSelector />
       </div>
 
       <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 border border-primary/20 rounded-lg p-6">
