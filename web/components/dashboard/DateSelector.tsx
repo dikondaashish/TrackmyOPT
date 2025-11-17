@@ -112,7 +112,7 @@ export function DateSelector() {
               </span>
               {lastUpdatedFieldFromAPI === selectedDateType && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-sm">
-                  Latest
+                  Latest Updated
                 </span>
               )}
             </div>

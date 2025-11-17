@@ -1,5 +1,5 @@
 "use client";
-import { LayoutDashboard, Calendar, Clock, FileText, Settings, HelpCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Calendar, ClipboardCheck, Clock, FileText, Settings, HelpCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { usePathname, useRouter } from "next/navigation";
@@ -51,6 +51,7 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
     { icon: Calendar, label: "OPT Dates", path: "/dashboard/opt-dates" },
+    { icon: ClipboardCheck, label: "Case Status", path: "/dashboard/case-status" },
     { icon: Clock, label: "Clock Tracker", path: "/dashboard/clock-tracker" },
     { icon: FileText, label: "Documents", path: "/dashboard/documents" },
     { icon: Settings, label: "Settings", path: "/dashboard/settings" },

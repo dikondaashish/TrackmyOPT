@@ -98,6 +98,46 @@ psql "postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:54
 **Use case:**
 - When user updates dates on `/dashboard/opt-dates` page
 - Dashboard dropdown automatically selects that date type
+
+---
+
+### 004_add_case_status_table.sql
+**Purpose:** Adds USCIS case status tracking feature
+
+**What it creates:**
+1. **`case_status` table:**
+   - `id` - Unique identifier
+   - `user_id` - Links to auth.users (with CASCADE delete)
+   - `receipt_number` - USCIS receipt number (e.g., IOE123456789)
+   - `current_status` - Latest case status from USCIS
+   - `case_type` - Type of case (I-765, I-129, I-140, etc.)
+   - `received_date` - Date USCIS received the case
+   - `last_checked_at` - Last time we checked USCIS for updates
+   - `last_status_change_at` - Last time status actually changed
+   - `status_history` - JSONB array of historical status updates
+   - `notifications_enabled` - Whether user wants notifications
+   - `created_at`, `updated_at` - Timestamps
+   
+2. **Indexes:**
+   - `idx_case_status_user_id` - Fast user lookups
+   - `idx_case_status_receipt_number` - Fast receipt number lookups
+   - `idx_case_status_last_checked` - Fast cron job queries
+   
+3. **RLS Policies:** Users can only access their own case status
+4. **Triggers:** Auto-update `updated_at` timestamp
+5. **Constraint:** One case per user (UNIQUE on user_id)
+
+**Features enabled:**
+- Users can track their USCIS case by receipt number
+- Automatic status checks every 6 hours via cron job
+- Email/SMS notifications when status changes (premium feature)
+- Historical status tracking
+- Prevents manual USCIS website checking
+
+**Use case:**
+- User enters USCIS receipt number on `/dashboard/case-status`
+- System checks status every 6 hours
+- User gets notified via email/SMS when status changes (if premium)
 - Improves UX by showing the most relevant date
 
 ## Verifying Migrations
