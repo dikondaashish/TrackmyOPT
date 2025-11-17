@@ -2,7 +2,7 @@
   "installCommand": "pnpm install --no-frozen-lockfile",
   "crons": [
     {
-      "path": "/api/jobs/daily-digest",
+      "path": "/api/cron/send-daily-reminders",
       "schedule": "0 13 * * *"
     }
   ]
