@@ -8,7 +8,7 @@ import { createClient } from '@supabase/supabase-js';
  * 1. Go to project settings → Cron Jobs
  * 2. Add new cron job:
  *    - Path: /api/cron/check-case-status
- *    - Schedule: 0 */6 * * * (every 6 hours)
+ *    - Schedule: 0 *\/6 * * * (every 6 hours)
  *    - OR: 0 0,6,12,18 * * * (at 12am, 6am, 12pm, 6pm)
  * 
  * For manual testing:
