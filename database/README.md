@@ -138,7 +138,104 @@ psql "postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:54
 - User enters USCIS receipt number on `/dashboard/case-status`
 - System checks status every 6 hours
 - User gets notified via email/SMS when status changes (if premium)
-- Improves UX by showing the most relevant date
+
+---
+
+### 005_add_document_vault_tables.sql
+**Purpose:** Premium-only secure document storage with AI analysis and expiry tracking
+
+**What it creates:**
+1. **`document_passcodes` table:**
+   - `id` - Unique identifier
+   - `user_id` - Links to auth.users
+   - `passcode_hash` - Bcrypt hashed 6-digit PIN
+   - `failed_attempts` - Track failed login attempts
+   - `locked_until` - Temporary lockout after 3 failed attempts
+   - `created_at`, `updated_at` - Timestamps
+   - **Constraint:** One passcode per user (UNIQUE on user_id)
+
+2. **`documents` table:**
+   - `id` - Unique identifier
+   - `user_id` - Links to auth.users
+   - **File info:** file_name, file_size, file_type, s3_key, s3_bucket
+   - **Classification:** document_type (passport, visa, i20, ead_card, etc.)
+   - **AI analysis:** ai_analyzed, ai_analysis_date, raw_ocr_text
+   - **Extracted metadata:** extracted_fields (JSONB with AI-extracted data)
+   - **Dates:** issue_date, expiry_date
+   - **User data:** notes, tags
+   - **Soft delete:** deleted_at (documents never hard deleted)
+
+3. **`document_reminders` table:**
+   - `id` - Unique identifier
+   - `user_id`, `document_id` - Foreign keys
+   - **Reminder details:** reminder_type, reminder_message, send_at
+   - **Status:** status (pending, sent, failed, cancelled)
+   - **Channels:** email_sent, sms_sent, notification_sent
+   - **Timestamps:** sent_at, created_at, updated_at
+
+4. **Indexes:**
+   - Fast queries by user_id, document_type, expiry_date
+   - Optimized for reminder scheduling
+   - Soft delete filtering
+
+5. **RLS Policies:** Users can only access their own documents and reminders
+
+6. **Functions:**
+   - `get_document_expiry_status(date)` - Returns expiry status (good/attention/warning/critical/expired)
+   - `create_document_reminders(user_id, document_id, name, expiry)` - Auto-generates 4 reminders (6mo, 3mo, 1mo, 7d)
+
+7. **Triggers:** Auto-update `updated_at` timestamps
+
+**Features enabled:**
+- Premium-only document vault with passcode protection
+- Upload documents to AWS S3
+- AI-powered document analysis (OpenAI)
+- Automatic metadata extraction (passport details, EAD info, SEVIS ID, etc.)
+- Document expiry tracking with color-coded status
+- Automatic reminder generation (6 months, 3 months, 1 month, 7 days before expiry)
+- Email/SMS notifications for expiring documents
+- Secure access with signed URLs (5-minute expiry)
+- Soft delete (documents never permanently deleted)
+- Full audit trail
+
+**Security features:**
+- Passcode hashed with bcrypt
+- Failed attempt tracking and temporary lockout
+- Row Level Security (RLS) ensures data isolation
+- S3 files accessed only via signed URLs
+- AES-256 encryption at rest (S3)
+- Comprehensive access logging
+
+**Document types supported:**
+- Passport
+- Visa
+- I-20 (with SEVIS ID extraction)
+- EAD Card (with category detection)
+- I-983 Training Plan
+- Offer Letter
+- Paystub
+- Receipt Notice (I-797)
+- Other
+
+**AI extraction capabilities:**
+- Full name
+- Document numbers (passport, SEVIS, USCIS, etc.)
+- Issue and expiry dates
+- Employer information
+- Visa status
+- OPT/STEM dates
+- DSO signatures
+- And more...
+
+**Use case:**
+1. Premium user clicks "Documents" tab
+2. First time: Setup 6-digit PIN
+3. Upload document (PDF/image)
+4. AI analyzes and extracts metadata
+5. Document card created with expiry status
+6. Auto-reminders generated if has expiry date
+7. User receives notifications before expiration
+8. Secure download with signed URLs
 
 ## Verifying Migrations
 
