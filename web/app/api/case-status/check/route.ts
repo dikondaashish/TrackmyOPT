@@ -52,17 +52,23 @@ export async function POST(req: NextRequest) {
     // Fetch USCIS status
     // Note: Use mockUSCISStatus for development, checkUSCISStatus for production
     const isDevelopment = process.env.NODE_ENV === 'development';
+    console.log(`🌍 Environment: ${isDevelopment ? 'development' : 'production'}`);
+    console.log(`🔍 Fetching status from ${isDevelopment ? 'mock' : 'USCIS API'}...`);
+    
     const uscisStatus = isDevelopment
       ? mockUSCISStatus(receipt_number)
       : await checkUSCISStatus(receipt_number);
 
     if (!uscisStatus) {
-      console.log(`❌ Could not fetch status for ${receipt_number}`);
+      console.error(`❌ Could not fetch status for ${receipt_number}`);
+      console.error('💡 Check USCIS API credentials and connectivity');
       return NextResponse.json(
         { ok: false, error: 'Could not fetch case status from USCIS' },
         { status: 500, headers: corsHeaders }
       );
     }
+    
+    console.log(`✅ Successfully fetched status: ${uscisStatus.status}`);
 
     // Get current case status from database
     const { data: currentCase, error: fetchError } = await supabase

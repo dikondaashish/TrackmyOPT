@@ -59,10 +59,13 @@ export function CaseStatusSection() {
         if (result.ok && result.data) {
           setCaseStatus(result.data);
           setReceiptNumber(result.data.receipt_number);
+          return result.data; // Return data for polling check
         }
       }
+      return null;
     } catch (err) {
       console.error('Error loading case status:', err);
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -102,8 +105,45 @@ export function CaseStatusSection() {
 
       if (response.ok && result.ok) {
         setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
-        await loadCaseStatus();
+        
+        // Poll for status update (USCIS check happens asynchronously)
+        console.log('✅ Receipt number saved, waiting for USCIS status check...');
+        
+        // Poll every 2 seconds for up to 20 seconds (10 attempts)
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        const pollForStatus = async () => {
+          for (let i = 0; i < maxAttempts; i++) {
+            attempts++;
+            console.log(`📡 Polling attempt ${attempts}/${maxAttempts}...`);
+            
+            // Wait 2 seconds before checking
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            const data = await loadCaseStatus();
+            
+            // Check if status has been fetched
+            const hasStatus = data?.current_status && 
+                             data.current_status !== 'Status will be fetched shortly...' &&
+                             data.last_checked_at;
+            
+            if (hasStatus) {
+              console.log('✅ Status fetched successfully!', data.current_status);
+              setSuccess(true);
+              setTimeout(() => setSuccess(false), 3000);
+              return;
+            }
+          }
+          
+          // Max attempts reached
+          console.log('⏱️ Status check is taking longer than expected. It will update soon.');
+          console.log('💡 Try clicking "Refresh Now" or check back in a minute.');
+        };
+        
+        // Run polling in background
+        pollForStatus();
+        
       } else {
         setError(result.error || 'Failed to save receipt number');
       }
