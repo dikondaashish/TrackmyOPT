@@ -4,15 +4,26 @@ import { createClient } from '@supabase/supabase-js';
 /**
  * Cron Job: Check USCIS case status every 6 hours
  * 
- * Setup in Vercel:
- * 1. Go to project settings → Cron Jobs
- * 2. Add new cron job:
- *    - Path: /api/cron/check-case-status
- *    - Schedule: 0 *\/6 * * * (every 6 hours)
- *    - OR: 0 0,6,12,18 * * * (at 12am, 6am, 12pm, 6pm)
+ * ⚠️ This endpoint is triggered by cron-job.org (external service)
+ * 
+ * Setup on cron-job.org:
+ * 1. Go to https://cron-job.org
+ * 2. Create a new cron job with these settings:
+ *    - Title: "TrackMyOPT - USCIS Status Check"
+ *    - URL: https://www.trackmyopt.com/api/cron/check-case-status
+ *    - Method: GET
+ *    - Schedule: Every 6 hours (0 */6 * * *)
+ *      OR: At 12am, 6am, 12pm, 6pm (0 0,6,12,18 * * *)
+ *    - Headers:
+ *      - Authorization: Bearer YOUR_CRON_SECRET
+ *    - Timeout: 60 seconds (some checks may take time)
+ * 
+ * Security:
+ * - Protected by CRON_SECRET environment variable
+ * - Only responds to requests with valid Bearer token
  * 
  * For manual testing:
- * curl -X GET "https://your-domain.vercel.app/api/cron/check-case-status" \
+ * curl -X GET "https://www.trackmyopt.com/api/cron/check-case-status" \
  *   -H "Authorization: Bearer YOUR_CRON_SECRET"
  */
 export async function GET(req: NextRequest) {
