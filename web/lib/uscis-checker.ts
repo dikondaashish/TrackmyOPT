@@ -53,8 +53,13 @@ async function getUSCISAccessToken(): Promise<string | null> {
     const clientSecret = process.env.USCIS_CLIENT_SECRET;
     const tokenUrl = process.env.USCIS_TOKEN_URL || 'https://api-int.uscis.gov/oauth/accesstoken';
 
+    console.log(`📊 Token URL: ${tokenUrl}`);
+    console.log(`📊 Client ID present: ${!!clientId}`);
+    console.log(`📊 Client Secret present: ${!!clientSecret}`);
+
     if (!clientId || !clientSecret) {
       console.error('❌ USCIS credentials not configured');
+      console.error('💡 Please set USCIS_CLIENT_ID and USCIS_CLIENT_SECRET in Vercel environment variables');
       return null;
     }
 
@@ -70,13 +75,18 @@ async function getUSCISAccessToken(): Promise<string | null> {
       }).toString(),
     });
 
+    console.log(`📡 OAuth response status: ${response.status}`);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`❌ USCIS OAuth failed (${response.status}):`, errorText);
+      console.error('💡 Check if Client ID and Client Secret are correct in Vercel');
       return null;
     }
 
     const data = await response.json();
+    console.log(`📊 OAuth response received:`, { has_token: !!data.access_token, expires_in: data.expires_in });
+    
     const { access_token, expires_in } = data;
 
     if (!access_token) {
@@ -121,6 +131,9 @@ export async function checkUSCISStatus(
     const baseUrl = process.env.USCIS_API_BASE_URL || 'https://api-int.uscis.gov/case-status';
     const url = `${baseUrl}/${receiptNumber}`;
 
+    console.log(`📡 Making request to: ${url}`);
+    console.log(`📡 Using token: ${accessToken.substring(0, 10)}...`);
+
     // Make GET request to USCIS API
     const response = await fetch(url, {
       method: 'GET',
@@ -129,6 +142,8 @@ export async function checkUSCISStatus(
         'Accept': 'application/json',
       },
     });
+
+    console.log(`📡 Response status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
