@@ -136,9 +136,25 @@ export function CaseStatusSection() {
             }
           }
           
-          // Max attempts reached
-          console.log('⏱️ Status check is taking longer than expected. It will update soon.');
-          console.log('💡 Try clicking "Refresh Now" or check back in a minute.');
+          // Max attempts reached - check if it's a sandbox limitation
+          console.error('⏱️ Status check is taking longer than expected.');
+          
+          // Check if user entered a real receipt number (starts with IOE, WAC, LIN, etc but not EAC9999... or SRC9999...)
+          const isStagingNumber = /^(EAC|SRC|LIN)9999\d{6}$/i.test(receiptNumber);
+          
+          if (!isStagingNumber) {
+            console.error('❌ SANDBOX MODE LIMITATION:');
+            console.error(`   Your receipt number: ${receiptNumber}`);
+            console.error(`   This appears to be a REAL receipt number.`);
+            console.error(`   Sandbox only accepts STAGING numbers like:`);
+            console.error(`   - EAC9999103403 (test number)`);
+            console.error(`   - SRC9999102777 (test number)`);
+            console.error(`💡 To check REAL receipt numbers, we need production API access.`);
+            
+            setError(`⚠️ Sandbox Mode: Cannot check real receipt numbers yet. We're currently in testing mode and can only check staging numbers like EAC9999103403. To enable real receipt tracking, we need production API access from USCIS (requires 5 days of testing). For now, check your status manually at egov.uscis.gov`);
+          } else {
+            console.log('💡 Try clicking "Refresh Now" or check back in a minute.');
+          }
         };
         
         // Run polling in background
@@ -251,6 +267,34 @@ export function CaseStatusSection() {
         </p>
       </div>
 
+      {/* Sandbox Mode Notice */}
+      <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-lg">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
+              ⚠️ Sandbox Mode (Testing)
+            </h3>
+            <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
+              We're currently in testing mode using USCIS's sandbox API. This means we can ONLY check <strong>staging/test receipt numbers</strong>, not real ones.
+            </p>
+            <div className="text-sm text-amber-800 dark:text-amber-200 space-y-1">
+              <p><strong>✅ Test numbers that work:</strong></p>
+              <ul className="list-disc list-inside ml-2 mb-2">
+                <li><code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">EAC9999103403</code> - Approved case</li>
+                <li><code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">SRC9999102777</code> - Active case</li>
+                <li><code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">LIN9999106498</code> - Pending case</li>
+              </ul>
+              <p><strong>❌ Real receipt numbers (like IOE9645083446) won't work yet.</strong></p>
+              <p className="mt-2 text-xs">
+                💡 <strong>For real receipt tracking:</strong> We're testing for 5 days, then we'll request production API access from USCIS. 
+                Check your real status at <a href="https://egov.uscis.gov" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-600">egov.uscis.gov</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Receipt Number Input */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Enter Your Receipt Number</h2>
@@ -262,7 +306,7 @@ export function CaseStatusSection() {
             <div className="flex gap-3">
               <Input
                 type="text"
-                placeholder="e.g., IOE1234567890"
+                placeholder="Try: EAC9999103403 (test number)"
                 value={receiptNumber}
                 onChange={(e) => setReceiptNumber(e.target.value.toUpperCase())}
                 className="flex-1 font-mono"
@@ -284,7 +328,7 @@ export function CaseStatusSection() {
               </Button>
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              Format: 3 letters + 10 digits (e.g., IOE1234567890, WAC1234567890)
+              <strong>Sandbox Mode:</strong> Use staging numbers like EAC9999103403, SRC9999102777, or LIN9999106498
             </p>
           </div>
 

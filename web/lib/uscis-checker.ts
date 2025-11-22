@@ -134,9 +134,22 @@ export async function checkUSCISStatus(
       const errorData = await response.json().catch(() => null);
       console.error(`❌ USCIS API returned ${response.status}:`, errorData);
       
+      // Check if using sandbox
+      const isSandbox = baseUrl.includes('api-int');
+      
       // Handle specific error codes
       if (response.status === 404) {
-        console.log(`ℹ️  Receipt number ${receiptNumber} not found in USCIS system`);
+        if (isSandbox) {
+          console.error(`❌ SANDBOX MODE: Receipt number ${receiptNumber} not found`);
+          console.error(`ℹ️  Sandbox only accepts STAGING receipt numbers like:`);
+          console.error(`   - EAC9999103403 (Approved case)`);
+          console.error(`   - SRC9999102777 (Active case)`);
+          console.error(`   - LIN9999106498 (Pending case)`);
+          console.error(`💡 For REAL receipt numbers, you need PRODUCTION access.`);
+          console.error(`📧 Request production access: developersupport@uscis.dhs.gov`);
+        } else {
+          console.log(`ℹ️  Receipt number ${receiptNumber} not found in USCIS system`);
+        }
       } else if (response.status === 422) {
         console.log(`ℹ️  Invalid receipt number format: ${receiptNumber}`);
       } else if (response.status === 429) {
