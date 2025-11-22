@@ -428,13 +428,13 @@ async function saveOptEadEndDate(optEadEndDate: string | null): Promise<boolean>
       const { idToken } = await chrome.storage.sync.get('idToken');
       if (idToken) {
         response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${idToken}`,
-            'Content-Type': 'application/json',
-          },
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
           body: JSON.stringify(payload),
-        });
+    });
       }
     }
 

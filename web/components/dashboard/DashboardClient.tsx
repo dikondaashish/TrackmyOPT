@@ -213,8 +213,8 @@ export default function DashboardClient({
           </h2>
           <a
             href="/dashboard/opt-dates"
-            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-          >
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
             Edit Dates →
           </a>
         </div>

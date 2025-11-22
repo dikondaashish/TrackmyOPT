@@ -554,12 +554,12 @@ async function loadSavedData(): Promise<any> {
       const { idToken } = await chrome.storage.sync.get('idToken');
       if (idToken) {
         response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${idToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
       }
     }
 
@@ -624,13 +624,13 @@ async function saveDatesToAPI(
       const { idToken } = await chrome.storage.sync.get('idToken');
       if (idToken) {
         response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${idToken}`,
-            'Content-Type': 'application/json',
-          },
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
           body: JSON.stringify(payload),
-        });
+    });
       }
     }
 

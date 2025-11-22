@@ -12,11 +12,11 @@ import { createClient } from '@supabase/supabase-js';
  *    - Title: "TrackMyOPT - USCIS Status Check"
  *    - URL: https://www.trackmyopt.com/api/cron/check-case-status
  *    - Method: GET
- *    - Schedule: Every 6 hours (0 */6 * * *)
+ *    - Schedule: Every 6 hours (0 *\/6 * * *)
  *      OR: At 12am, 6am, 12pm, 6pm (0 0,6,12,18 * * *)
  *    - Headers:
  *      - Authorization: Bearer YOUR_CRON_SECRET
- *    - Timeout: 60 seconds (some checks may take time)
+ *    - Timeout: 30 seconds (free tier max)
  * 
  * Security:
  * - Protected by CRON_SECRET environment variable
