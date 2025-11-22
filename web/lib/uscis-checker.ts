@@ -169,6 +169,15 @@ export async function checkUSCISStatus(
         console.log(`ℹ️  Invalid receipt number format: ${receiptNumber}`);
       } else if (response.status === 429) {
         console.log(`⚠️  Rate limit exceeded (TPS or daily quota)`);
+      } else if (response.status === 503) {
+        if (isSandbox) {
+          console.error(`⏰ SANDBOX CLOSED: The USCIS Sandbox API is offline`);
+          console.error(`📅 Operating Hours: Monday-Friday, 7:00 AM - 8:00 PM EST`);
+          console.error(`💡 Current time is outside business hours.`);
+          console.error(`🕐 Please test during: Mon-Fri 7AM-8PM EST`);
+        } else {
+          console.error(`⚠️  USCIS API temporarily unavailable (503)`);
+        }
       }
       
       return null;

@@ -278,8 +278,22 @@ export function CaseStatusSection() {
             <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
               We're currently in testing mode using USCIS's sandbox API. This means we can ONLY check <strong>staging/test receipt numbers</strong>, not real ones.
             </p>
+            
+            {/* Operating Hours Warning */}
+            <div className="mb-3 p-3 bg-amber-100 dark:bg-amber-900/40 border border-amber-400 dark:border-amber-600 rounded">
+              <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">
+                🕐 <strong>Sandbox Operating Hours:</strong>
+              </p>
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                <strong>Monday - Friday: 7:00 AM - 8:00 PM EST</strong>
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                ❌ Closed: Weekends and outside business hours (you'll get 503 errors)
+              </p>
+            </div>
+
             <div className="text-sm text-amber-800 dark:text-amber-200 space-y-1">
-              <p><strong>✅ Test numbers that work:</strong></p>
+              <p><strong>✅ Test numbers that work (during business hours):</strong></p>
               <ul className="list-disc list-inside ml-2 mb-2">
                 <li><code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">EAC9999103403</code> - Approved case</li>
                 <li><code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">SRC9999102777</code> - Active case</li>
