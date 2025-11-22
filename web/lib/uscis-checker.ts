@@ -1,6 +1,11 @@
 /**
  * USCIS Case Status Checker
- * Fetches case status from USCIS website
+ * Uses official USCIS Case Status API (developer.uscis.gov)
+ * 
+ * Authentication: OAuth 2.0 Client Credentials
+ * Rate Limits:
+ * - Sandbox: 5 TPS, 1,000 requests/day
+ * - Production: 10 TPS, 400,000 requests/day
  */
 
 export interface USCISStatus {
@@ -11,8 +16,91 @@ export interface USCISStatus {
   description: string;
 }
 
+interface USCISAPIResponse {
+  case_status: {
+    receiptNumber: string;
+    formType: string;
+    submittedDate: string;
+    modifiedDate: string;
+    current_case_status_text_en: string;
+    current_case_status_desc_en: string;
+    hist_case_status?: Array<{
+      date: string;
+      completed_text_en: string;
+    }>;
+  };
+  message: string;
+}
+
+// Token cache to avoid unnecessary OAuth requests
+let cachedToken: { token: string; expiresAt: number } | null = null;
+
 /**
- * Fetch case status from USCIS
+ * Get OAuth 2.0 access token for USCIS API
+ * Caches token until it expires to avoid unnecessary requests
+ */
+async function getUSCISAccessToken(): Promise<string | null> {
+  try {
+    // Check if we have a valid cached token
+    if (cachedToken && Date.now() < cachedToken.expiresAt) {
+      console.log('✅ Using cached USCIS access token');
+      return cachedToken.token;
+    }
+
+    console.log('🔐 Fetching new USCIS access token...');
+
+    const clientId = process.env.USCIS_CLIENT_ID;
+    const clientSecret = process.env.USCIS_CLIENT_SECRET;
+    const tokenUrl = process.env.USCIS_TOKEN_URL || 'https://api-int.uscis.gov/oauth/accesstoken';
+
+    if (!clientId || !clientSecret) {
+      console.error('❌ USCIS credentials not configured');
+      return null;
+    }
+
+    const response = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      }).toString(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ USCIS OAuth failed (${response.status}):`, errorText);
+      return null;
+    }
+
+    const data = await response.json();
+    const { access_token, expires_in } = data;
+
+    if (!access_token) {
+      console.error('❌ No access token in response');
+      return null;
+    }
+
+    // Cache token (subtract 5 minutes for safety)
+    const expiresInMs = (expires_in - 300) * 1000;
+    cachedToken = {
+      token: access_token,
+      expiresAt: Date.now() + expiresInMs,
+    };
+
+    console.log(`✅ Got USCIS access token (expires in ${expires_in}s)`);
+    return access_token;
+  } catch (error) {
+    console.error('❌ Error getting USCIS access token:', error);
+    return null;
+  }
+}
+
+/**
+ * Fetch case status from official USCIS API
  * @param receiptNumber - USCIS receipt number (e.g., IOE1234567890)
  * @returns Case status information or null if not found
  */
@@ -22,35 +110,54 @@ export async function checkUSCISStatus(
   try {
     console.log(`🔍 Checking USCIS status for: ${receiptNumber}`);
 
-    // USCIS Case Status API endpoint
-    const url = 'https://egov.uscis.gov/casestatus/mycasestatus.do';
-
-    // Make POST request to USCIS
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-      body: `appReceiptNum=${receiptNumber}&caseStatusSearchBtn=CHECK+STATUS`,
-    });
-
-    if (!response.ok) {
-      console.error(`❌ USCIS API returned ${response.status}`);
+    // Get OAuth access token
+    const accessToken = await getUSCISAccessToken();
+    if (!accessToken) {
+      console.error('❌ Failed to get access token');
       return null;
     }
 
-    const html = await response.text();
+    // USCIS API endpoint
+    const baseUrl = process.env.USCIS_API_BASE_URL || 'https://api-int.uscis.gov/case-status';
+    const url = `${baseUrl}/${receiptNumber}`;
 
-    // Parse HTML response
-    const status = parseUSCISResponse(html, receiptNumber);
+    // Make GET request to USCIS API
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json',
+      },
+    });
 
-    if (status) {
-      console.log(`✅ Found status: ${status.status}`);
-    } else {
-      console.log(`❌ Could not parse status for ${receiptNumber}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error(`❌ USCIS API returned ${response.status}:`, errorData);
+      
+      // Handle specific error codes
+      if (response.status === 404) {
+        console.log(`ℹ️  Receipt number ${receiptNumber} not found in USCIS system`);
+      } else if (response.status === 422) {
+        console.log(`ℹ️  Invalid receipt number format: ${receiptNumber}`);
+      } else if (response.status === 429) {
+        console.log(`⚠️  Rate limit exceeded (TPS or daily quota)`);
+      }
+      
+      return null;
     }
 
+    const data: USCISAPIResponse = await response.json();
+
+    // Transform API response to our format
+    const status: USCISStatus = {
+      receiptNumber: data.case_status.receiptNumber,
+      status: data.case_status.current_case_status_text_en,
+      caseType: data.case_status.formType,
+      receivedDate: parseUSCISDate(data.case_status.submittedDate),
+      description: data.case_status.current_case_status_desc_en,
+    };
+
+    console.log(`✅ Found status: ${status.status}`);
     return status;
   } catch (error) {
     console.error('❌ Error checking USCIS status:', error);
@@ -59,66 +166,34 @@ export async function checkUSCISStatus(
 }
 
 /**
- * Parse USCIS HTML response to extract status information
+ * Parse USCIS API date format (MM-DD-YYYY HH:MM:SS) to readable format
  */
-function parseUSCISResponse(html: string, receiptNumber: string): USCISStatus | null {
+function parseUSCISDate(dateString: string | null): string | null {
+  if (!dateString) return null;
+
   try {
-    // Try to extract status title (h1)
-    const titleMatch = html.match(/<h1[^>]*>(.*?)<\/h1>/i);
-    if (!titleMatch) {
-      console.log('❌ Could not find status title');
-      return null;
-    }
+    // USCIS format: "09-05-2023 14:28:46"
+    const parts = dateString.split(' ')[0].split('-');
+    if (parts.length !== 3) return null;
 
-    const status = titleMatch[1].trim().replace(/<[^>]*>/g, ''); // Remove HTML tags
+    const [month, day, year] = parts;
+    const date = new Date(`${year}-${month}-${day}`);
 
-    // Try to extract case description
-    const descMatch = html.match(/<p[^>]*>(.*?)<\/p>/i);
-    const description = descMatch
-      ? descMatch[1].trim().replace(/<[^>]*>/g, '')
-      : 'No description available';
-
-    // Extract case type from receipt number (first 3 letters)
-    const caseTypeCode = receiptNumber.substring(0, 3).toUpperCase();
-    const caseType = getCaseTypeName(caseTypeCode);
-
-    // Try to extract received date
-    const dateMatch = description.match(/(\w+ \d{1,2}, \d{4})/);
-    const receivedDate = dateMatch ? dateMatch[1] : null;
-
-    return {
-      receiptNumber,
-      status,
-      caseType,
-      receivedDate,
-      description,
-    };
-  } catch (error) {
-    console.error('❌ Error parsing USCIS response:', error);
+    // Return in "Month Day, Year" format
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
     return null;
   }
 }
 
-/**
- * Get human-readable case type name from code
- */
-function getCaseTypeName(code: string): string {
-  const caseTypes: Record<string, string> = {
-    IOE: 'ELIS',
-    WAC: 'California Service Center',
-    LIN: 'Nebraska Service Center',
-    EAC: 'Vermont Service Center',
-    SRC: 'Texas Service Center',
-    MSC: 'National Benefits Center',
-    YSC: 'Potomac Service Center',
-  };
-
-  return caseTypes[code] || code;
-}
 
 /**
  * Mock function for development/testing
- * Returns fake status data
+ * Returns fake status data matching USCIS API format
  */
 export function mockUSCISStatus(receiptNumber: string): USCISStatus {
   const statuses = [
@@ -131,15 +206,17 @@ export function mockUSCISStatus(receiptNumber: string): USCISStatus {
     'Card Was Delivered To Me By The Post Office',
   ];
 
+  const formTypes = ['I-765', 'I-130', 'I-485', 'I-140', 'I-539'];
+  
   const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-  const caseTypeCode = receiptNumber.substring(0, 3).toUpperCase();
+  const randomForm = formTypes[Math.floor(Math.random() * formTypes.length)];
 
   return {
     receiptNumber,
     status: randomStatus,
-    caseType: getCaseTypeName(caseTypeCode),
+    caseType: randomForm,
     receivedDate: 'January 15, 2024',
-    description: `On January 15, 2024, we received your Form I-765, Application for Employment Authorization, and sent you the acceptance notice. Your case is being processed at ${getCaseTypeName(caseTypeCode)}.`,
+    description: `On January 15, 2024, we received your Form ${randomForm}, and sent you the acceptance notice. Your case is being processed.`,
   };
 }
 
