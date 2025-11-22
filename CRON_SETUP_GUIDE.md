@@ -95,24 +95,56 @@ cat .env.local | grep CRON_SECRET
 Click **"Advanced"** to expand options:
 
 - **Request Method:** `GET`
-- **Request Timeout:** `60` seconds
+- **Request Timeout:** `30` seconds (maximum allowed on free tier)
 - **Follow Redirects:** ✅ Yes
 - **Save Responses:** ✅ Yes (recommended for debugging)
 
+⚠️ **Note:** Free tier max timeout is 30 seconds. With the 2-second delay between case checks, you can process ~12-15 cases per run. If you have more receipt numbers, consider upgrading to paid tier or optimizing the endpoint.
+
 **Headers:**
 Click **"Add Header"** and enter:
+
+⚠️ **IMPORTANT:** The header format must be EXACTLY as shown below:
+
 ```
-Authorization: Bearer YOUR_CRON_SECRET
+Key:   Authorization
+Value: Bearer YOUR_CRON_SECRET
 ```
-⚠️ Replace `YOUR_CRON_SECRET` with the actual value from Step 1
+
+**Example with actual secret:**
+```
+Key:   Authorization
+Value: Bearer 18az3X17miX5FgS4o4aqpg6IzZiKuju...
+```
+
+**Common Mistakes to Avoid:**
+- ❌ Key: `CRON_SECRET` → ✅ Should be: `Authorization`
+- ❌ Value: `YOUR_SECRET` → ✅ Should be: `Bearer YOUR_SECRET` (with "Bearer " prefix and space)
+- ❌ Missing space after "Bearer"
+- ❌ Extra quotes around the value
 
 **Notifications:**
 - Enable email notifications for failures (optional but recommended)
 - Add your email address
 
-#### C. Save the Cron Job
+#### C. Verify Your Settings
 
-Click **"Create cronjob"** at the bottom.
+Before saving, double-check:
+
+**Common Tab:**
+- ✅ URL ends with `/api/cron/check-case-status`
+- ✅ Schedule is "Every 6 hours" or `0 */6 * * *`
+- ✅ "Save responses" is checked
+
+**Advanced Tab:**
+- ✅ Header Key is `Authorization` (NOT `CRON_SECRET`)
+- ✅ Header Value starts with `Bearer ` (note the space!)
+- ✅ Timeout is set to 30 seconds
+- ✅ Request method is GET
+
+#### D. Save the Cron Job
+
+Click **"Create cronjob"** (or **"Save"** if editing) at the bottom.
 
 ---
 
@@ -221,14 +253,17 @@ The endpoint includes built-in rate limiting:
 
 ### Problem: "Timeout" (504 Error)
 
-**Cause:** Request taking too long (>60 seconds)
+**Cause:** Request taking too long (>30 seconds on free tier)
 
 **Solution:**
 1. Check how many cases are being checked (visible in logs)
-2. If you have many cases, consider:
-   - Increasing timeout in cron-job.org to 120 seconds
-   - Running checks more frequently (every 3 hours) with fewer cases per run
-   - Adding pagination to the endpoint
+2. The endpoint processes ~1 case per 2 seconds (with rate limiting)
+3. **With 30-second timeout, maximum ~12-15 cases can be checked per run**
+4. If you have more cases:
+   - **Option A:** Upgrade cron-job.org to paid tier (allows 60-120 second timeouts)
+   - **Option B:** Run checks more frequently (every 3 hours instead of 6)
+   - **Option C:** Optimize the endpoint to use parallel checking (requires code changes)
+   - **Option D:** Add pagination to check different batches each run
 
 ### Problem: "No cases to check" in Response
 
@@ -257,7 +292,8 @@ The endpoint includes built-in rate limiting:
 ### Daily Checks:
 1. Review cron-job.org dashboard once per day
 2. Look for consistent success rate (>95%)
-3. Check execution duration (should be <60 seconds)
+3. Check execution duration (should be <30 seconds on free tier)
+4. Monitor if any timeouts occur (indicates too many cases)
 
 ### Weekly Checks:
 1. Review Vercel function logs for patterns
@@ -316,12 +352,13 @@ After setup, verify these items:
 - [ ] Cron job appears in cron-job.org dashboard
 - [ ] Schedule is set to every 6 hours (or your preferred interval)
 - [ ] Authorization header includes correct `CRON_SECRET`
-- [ ] Request timeout is at least 60 seconds
+- [ ] Request timeout is set to 30 seconds (free tier max)
 - [ ] Email notifications are enabled (optional)
 - [ ] Test run returns 200 OK
 - [ ] Vercel logs show cron job execution
 - [ ] Cases are being checked (visible in response)
 - [ ] Status changes trigger notifications (if premium)
+- [ ] You have fewer than 15 receipt numbers (or consider upgrading for longer timeout)
 
 ---
 
