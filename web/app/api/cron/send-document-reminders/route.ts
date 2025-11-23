@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
         document_id,
         reminder_message,
         reminder_type,
-        documents!inner (
+        document:documents (
           filename,
           expiry_date,
           document_type
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
         const { error: emailError } = await resend.emails.send({
           from: 'TrackMyOPT <notifications@trackmyopt.com>',
           to: userEmail,
-          subject: `⏰ Document Expiring Soon: ${reminder.documents.filename}`,
+          subject: `⏰ Document Expiring Soon: ${reminder.document.filename}`,
           html: generateReminderEmail(reminder),
         });
 
@@ -186,7 +186,7 @@ export async function GET(request: NextRequest) {
 }
 
 function generateReminderEmail(reminder: any): string {
-  const doc = reminder.documents;
+  const doc = reminder.document;
   const expiryDate = new Date(doc.expiry_date).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
