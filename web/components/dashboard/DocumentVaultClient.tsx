@@ -49,6 +49,11 @@ export function DocumentVaultClient() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+  
+  // Email notification state
+  const [notificationEmail, setNotificationEmail] = useState('');
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [emailSaving, setEmailSaving] = useState(false);
 
   // Check premium status
   useEffect(() => {
@@ -66,8 +71,43 @@ export function DocumentVaultClient() {
   useEffect(() => {
     if (isUnlocked) {
       loadDocuments();
+      loadNotificationEmail();
     }
   }, [isUnlocked, selectedCategory, searchQuery, sortBy]);
+  
+  async function loadNotificationEmail() {
+    try {
+      const res = await fetch('/api/user/notification-email');
+      if (res.ok) {
+        const data = await res.json();
+        setNotificationEmail(data.email || '');
+      }
+    } catch (error) {
+      console.error('Error loading notification email:', error);
+    }
+  }
+  
+  async function saveNotificationEmail() {
+    setEmailSaving(true);
+    try {
+      const res = await fetch('/api/user/notification-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: notificationEmail }),
+      });
+      
+      if (res.ok) {
+        setEditingEmail(false);
+      } else {
+        throw new Error('Failed to save email');
+      }
+    } catch (error) {
+      console.error('Error saving email:', error);
+      alert('Failed to save notification email');
+    } finally {
+      setEmailSaving(false);
+    }
+  }
 
   async function checkPremiumStatus() {
     try {
@@ -186,23 +226,83 @@ export function DocumentVaultClient() {
   // Main document vault interface
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">🔐 Document Vault</h1>
-          <p className="text-gray-600 mt-1">
-            Securely store and manage your immigration documents with AI-powered analysis
+      {/* Modern Header with Email Notifications */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <span className="text-3xl">🔐</span>
+              Document Vault
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Secure storage with AI-powered document analysis
+            </p>
+          </div>
+          <button
+            onClick={handleUploadClick}
+            className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Upload
+          </button>
+        </div>
+        
+        {/* Email Notification Setup */}
+        <div className="bg-white rounded-lg p-4 border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span className="text-sm font-medium text-gray-900">Expiry Reminder Email</span>
+            </div>
+            {!editingEmail && notificationEmail && (
+              <button
+                onClick={() => setEditingEmail(true)}
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          
+          {editingEmail || !notificationEmail ? (
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={notificationEmail}
+                onChange={(e) => setNotificationEmail(e.target.value)}
+                placeholder="Enter email for document reminders"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button
+                onClick={saveNotificationEmail}
+                disabled={emailSaving || !notificationEmail}
+                className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:bg-gray-300 transition-colors font-medium"
+              >
+                {emailSaving ? 'Saving...' : 'Save'}
+              </button>
+              {notificationEmail && editingEmail && (
+                <button
+                  onClick={() => {
+                    setEditingEmail(false);
+                    loadNotificationEmail();
+                  }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600">{notificationEmail}</p>
+          )}
+          <p className="text-xs text-gray-500 mt-2">
+            📬 Get notified 30 days before your documents expire
           </p>
         </div>
-        <button
-          onClick={handleUploadClick}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 shadow-sm"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Upload Document
-        </button>
       </div>
 
       {/* Stats */}

@@ -140,44 +140,49 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
                   </div>
                 )}
 
-                {/* Key Information */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm text-gray-600">Document Type</label>
-                    <p className="font-medium capitalize">
-                      {document.documentType?.replace('_', ' ') || 'Document'}
+                {/* Key Information Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Document Type */}
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                    <label className="text-xs text-gray-500 uppercase tracking-wide">Document Type</label>
+                    <p className="font-semibold text-gray-900 capitalize mt-1">
+                      {document.documentType?.replace(/_/g, ' ') || 'Document'}
                     </p>
                   </div>
-                  <div>
-                    <label className="text-sm text-gray-600">AI Confidence</label>
-                    <p className="font-medium">{document.aiConfidence}%</p>
-                  </div>
-                  {document.issueDate && (
-                    <div>
-                      <label className="text-sm text-gray-600">📅 Issue Date</label>
-                      <p className="font-medium">
-                        {isValidDate(document.issueDate) 
-                          ? new Date(document.issueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                          : 'Unknown'}
+                  
+                  {/* Expiry Date - Prominent */}
+                  {document.expiryDate && isValidDate(document.expiryDate) ? (
+                    <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-4 border border-orange-200">
+                      <label className="text-xs text-orange-700 uppercase tracking-wide font-medium">⏰ Expires On</label>
+                      <p className="font-bold text-orange-900 mt-1">
+                        {new Date(document.expiryDate).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}
+                      </p>
+                      <p className="text-xs text-orange-700 mt-1">
+                        {Math.ceil((new Date(document.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
                       </p>
                     </div>
-                  )}
-                  {document.expiryDate && (
-                    <div>
-                      <label className="text-sm text-gray-600">⏰ Expiry Date</label>
-                      <p className="font-medium">
-                        {isValidDate(document.expiryDate) 
-                          ? new Date(document.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                          : 'Unknown'}
-                      </p>
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                      <label className="text-xs text-gray-500 uppercase tracking-wide">Expiry Date</label>
+                      <p className="font-semibold text-gray-900 mt-1">No expiry date</p>
                     </div>
                   )}
-                  <div>
-                    <label className="text-sm text-gray-600">📤 Uploaded</label>
-                    <p className="font-medium">
+                  
+                  {/* Uploaded Date */}
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                    <label className="text-xs text-gray-500 uppercase tracking-wide">📤 Uploaded</label>
+                    <p className="font-semibold text-gray-900 mt-1">
                       {isValidDate(document.uploadedAt) 
-                        ? new Date(document.uploadedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                        : 'Unknown'}
+                        ? new Date(document.uploadedAt).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })
+                        : 'Recently'}
                     </p>
                   </div>
                 </div>
