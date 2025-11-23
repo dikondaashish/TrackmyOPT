@@ -17,7 +17,6 @@ import { DocumentUploadModal } from './DocumentUploadModal';
 import { DocumentGrid } from './DocumentGrid';
 import { DocumentStats } from './DocumentStats';
 import { DocumentFilters } from './DocumentFilters';
-import { PremiumUpsellModal } from './PremiumUpsellModal';
 
 interface Document {
   id: string;
@@ -181,14 +180,18 @@ export function DocumentVaultClient() {
     setDocuments(docs => docs.filter(d => d.id !== documentId));
   }
 
-  // Show premium upsell if not premium
+  // Redirect non-premium users to pricing page
   if (isPremium === false) {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/premium/checkout';
+    }
     return (
-      <PremiumUpsellModal
-        open={true}
-        onClose={() => window.history.back()}
-        feature="Document Vault"
-      />
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to upgrade page...</p>
+        </div>
+      </div>
     );
   }
 

@@ -39,6 +39,10 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
 
   const proPlanFeatures = [
     { text: "Daily email reminders (9:00 AM ET)" },
+    { text: "Document Vault - Secure document storage" },
+    { text: "AI-powered document analysis (Gemini AI)" },
+    { text: "Automatic expiry reminders for documents" },
+    { text: "Passcode-protected document vault" },
     { text: "Priority support" },
     { text: "Lifetime access" },
     { text: "No subscription" },
