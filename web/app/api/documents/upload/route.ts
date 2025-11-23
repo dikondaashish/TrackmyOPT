@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
         ai_confidence: analysis.confidence,
         summary: analysis.summary,
       })
-      .select()
+      .select('id, filename, file_name, document_type, category, issue_date, expiry_date, summary, extracted_fields, ai_confidence, uploaded_at')
       .single();
 
     if (dbError) {
@@ -190,6 +190,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`✅ Document saved with ID: ${document.id}`);
+    console.log(`📊 Document type: ${document.document_type}`);
 
     // Step 4: Generate reminders (if expiry date exists)
     if (analysis.expiryDate) {
@@ -211,15 +212,15 @@ export async function POST(request: NextRequest) {
       success: true,
       document: {
         id: document.id,
-        filename: document.filename,
-        documentType: document.document_type,
-        category: document.category,
-        issueDate: document.issue_date,
-        expiryDate: document.expiry_date,
-        summary: document.summary,
-        extractedFields: document.extracted_fields,
-        aiConfidence: document.ai_confidence,
-        uploadedAt: document.uploaded_at,
+        filename: document.filename || document.file_name || file.name,
+        documentType: document.document_type || analysis.documentType || 'other',
+        category: document.category || analysis.documentType || 'other',
+        issueDate: document.issue_date || null,
+        expiryDate: document.expiry_date || null,
+        summary: document.summary || '',
+        extractedFields: document.extracted_fields || {},
+        aiConfidence: document.ai_confidence || analysis.confidence || 0,
+        uploadedAt: document.uploaded_at || new Date().toISOString(),
       },
     });
 

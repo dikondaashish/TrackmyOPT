@@ -42,7 +42,7 @@ export function DocumentCard({ document, onView, onDelete }: DocumentCardProps) 
             <div className="text-4xl">{icon}</div>
             <div>
               <h3 className="font-semibold text-gray-900 capitalize">
-                {document.documentType.replace('_', ' ')}
+                {document.documentType?.replace('_', ' ') || 'Document'}
               </h3>
               <p className="text-xs text-gray-500 mt-1">
                 {new Date(document.uploadedAt).toLocaleDateString()}
