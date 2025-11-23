@@ -31,6 +31,12 @@ interface DocumentViewModalProps {
   onDelete: () => void;
 }
 
+function isValidDate(dateString: string | null): boolean {
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  return date instanceof Date && !isNaN(date.getTime());
+}
+
 export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewModalProps) {
   const [viewUrl, setViewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,11 +113,30 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
             {/* Document Preview/Info */}
             {!loading && !error && (
               <>
+                {/* Document Viewer */}
+                {viewUrl && (
+                  <div className="bg-gray-100 rounded-lg overflow-hidden" style={{ height: '500px' }}>
+                    {document.filename?.toLowerCase().endsWith('.pdf') ? (
+                      <iframe
+                        src={viewUrl}
+                        className="w-full h-full"
+                        title={document.filename}
+                      />
+                    ) : (
+                      <img
+                        src={viewUrl}
+                        alt={document.filename}
+                        className="w-full h-full object-contain"
+                      />
+                    )}
+                  </div>
+                )}
+
                 {/* Summary */}
                 {document.summary && (
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Summary</h3>
-                    <p className="text-gray-700">{document.summary}</p>
+                    <h3 className="font-semibold text-gray-900 mb-2">📝 Summary</h3>
+                    <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">{document.summary}</p>
                   </div>
                 )}
 
@@ -129,24 +154,30 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
                   </div>
                   {document.issueDate && (
                     <div>
-                      <label className="text-sm text-gray-600">Issue Date</label>
+                      <label className="text-sm text-gray-600">📅 Issue Date</label>
                       <p className="font-medium">
-                        {new Date(document.issueDate).toLocaleDateString()}
+                        {isValidDate(document.issueDate) 
+                          ? new Date(document.issueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                          : 'Unknown'}
                       </p>
                     </div>
                   )}
                   {document.expiryDate && (
                     <div>
-                      <label className="text-sm text-gray-600">Expiry Date</label>
+                      <label className="text-sm text-gray-600">⏰ Expiry Date</label>
                       <p className="font-medium">
-                        {new Date(document.expiryDate).toLocaleDateString()}
+                        {isValidDate(document.expiryDate) 
+                          ? new Date(document.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                          : 'Unknown'}
                       </p>
                     </div>
                   )}
                   <div>
-                    <label className="text-sm text-gray-600">Uploaded</label>
+                    <label className="text-sm text-gray-600">📤 Uploaded</label>
                     <p className="font-medium">
-                      {new Date(document.uploadedAt).toLocaleDateString()}
+                      {isValidDate(document.uploadedAt) 
+                        ? new Date(document.uploadedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                        : 'Unknown'}
                     </p>
                   </div>
                 </div>
@@ -193,7 +224,7 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
           <button
             onClick={handleDownload}
             disabled={!viewUrl}
-            className="px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-medium"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

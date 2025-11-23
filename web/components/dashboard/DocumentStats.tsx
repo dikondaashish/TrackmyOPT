@@ -76,9 +76,9 @@ export function DocumentStats({ documents }: DocumentStatsProps) {
       <StatCard
         icon="📊"
         label="Most Common"
-        value={mostCommonType ? mostCommonType[0].replace('_', ' ') : 'None'}
-        color="cyan"
-        subtitle={mostCommonType ? `${mostCommonType[1]} documents` : undefined}
+        value={mostCommonType?.[0]?.replace(/_/g, ' ') || 'None'}
+        color="purple"
+        subtitle={mostCommonType ? `${mostCommonType[1]} document${mostCommonType[1] > 1 ? 's' : ''}` : '0 documents'}
         isText
       />
     </div>
@@ -96,7 +96,7 @@ function StatCard({
   icon: string;
   label: string;
   value: string | number;
-  color: 'blue' | 'orange' | 'red' | 'cyan';
+  color: 'blue' | 'orange' | 'red' | 'cyan' | 'purple';
   subtitle?: string;
   isText?: boolean;
 }) {
@@ -105,6 +105,7 @@ function StatCard({
     orange: 'bg-orange-50 text-orange-600 border-orange-200',
     red: 'bg-red-50 text-red-600 border-red-200',
     cyan: 'bg-cyan-50 text-cyan-600 border-cyan-200',
+    purple: 'bg-purple-50 text-purple-600 border-purple-200',
   };
 
   return (

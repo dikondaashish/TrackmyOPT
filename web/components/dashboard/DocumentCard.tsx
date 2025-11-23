@@ -34,7 +34,7 @@ export function DocumentCard({ document, onView, onDelete }: DocumentCardProps) 
   const icon = getDocumentIcon(document.documentType);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 hover:border-cyan-300 hover:shadow-md transition-all duration-200 overflow-hidden">
+    <div className="bg-white rounded-lg border border-gray-200 hover:border-blue-400 hover:shadow-lg transition-all duration-200 overflow-hidden">
       {/* Header with Icon */}
       <div className={`p-4 ${getHeaderColor(expiryStatus)}`}>
         <div className="flex items-center justify-between">
@@ -45,7 +45,7 @@ export function DocumentCard({ document, onView, onDelete }: DocumentCardProps) 
                 {document.documentType?.replace('_', ' ') || 'Document'}
               </h3>
               <p className="text-xs text-gray-500 mt-1">
-                {new Date(document.uploadedAt).toLocaleDateString()}
+                {document.uploadedAt ? new Date(document.uploadedAt).toLocaleDateString() : 'Unknown date'}
               </p>
             </div>
           </div>
@@ -81,7 +81,9 @@ export function DocumentCard({ document, onView, onDelete }: DocumentCardProps) 
               <div className="flex justify-between">
                 <span className="text-gray-500">Issued:</span>
                 <span className="font-medium">
-                  {new Date(document.issueDate).toLocaleDateString()}
+                  {isValidDate(document.issueDate) 
+                    ? new Date(document.issueDate).toLocaleDateString() 
+                    : 'Unknown'}
                 </span>
               </div>
             )}
@@ -89,7 +91,9 @@ export function DocumentCard({ document, onView, onDelete }: DocumentCardProps) 
               <div className="flex justify-between">
                 <span className="text-gray-500">Expires:</span>
                 <span className={`font-medium ${getExpiryTextColor(expiryStatus)}`}>
-                  {new Date(document.expiryDate).toLocaleDateString()}
+                  {isValidDate(document.expiryDate) 
+                    ? new Date(document.expiryDate).toLocaleDateString() 
+                    : 'Unknown'}
                 </span>
               </div>
             )}
@@ -107,7 +111,7 @@ export function DocumentCard({ document, onView, onDelete }: DocumentCardProps) 
         <div className="flex gap-2 pt-2 border-t">
           <button
             onClick={onView}
-            className="flex-1 px-3 py-2 text-sm bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+            className="flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             View
           </button>
@@ -138,6 +142,12 @@ function getDocumentIcon(type: string): string {
     other: '📁',
   };
   return icons[type] || '📁';
+}
+
+function isValidDate(dateString: string | null): boolean {
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  return date instanceof Date && !isNaN(date.getTime());
 }
 
 function getExpiryStatus(expiryDate: string | null): 'good' | 'attention' | 'warning' | 'critical' | 'expired' | 'no_expiry' {

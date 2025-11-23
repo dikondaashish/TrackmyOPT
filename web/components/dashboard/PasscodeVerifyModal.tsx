@@ -101,14 +101,14 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
       <div className="bg-white rounded-lg max-w-md w-full p-6">
         {/* Icon */}
         <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-          isLocked ? 'bg-red-100' : 'bg-cyan-100'
+          isLocked ? 'bg-red-100' : 'bg-blue-100'
         }`}>
           {isLocked ? (
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           ) : (
-            <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
             </svg>
           )}
@@ -126,24 +126,29 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
         </p>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off" data-form-type="other">
+          {/* Hidden fake inputs to trick password managers */}
+          <input type="text" name="fake-username" autoComplete="username" style={{display: 'none'}} readOnly value="" />
+          <input type="password" name="fake-password" autoComplete="current-password" style={{display: 'none'}} readOnly value="" />
+          
           {/* Passcode Input */}
           <div>
             <input
-              type="password"
+              type="text"
               inputMode="numeric"
               pattern="[0-9]*"
               maxLength={6}
               value={passcode}
               onChange={(e) => setPasscode(e.target.value.replace(/\D/g, ''))}
               disabled={isLocked || loading}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest [text-security:disc] [-webkit-text-security:disc] focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="● ● ● ● ● ●"
               autoFocus
-              autoComplete="off"
-              name="document-passcode"
+              autoComplete="one-time-code"
+              name="pin-code"
               data-lpignore="true"
               data-form-type="other"
+              data-1p-ignore="true"
               required
             />
           </div>
@@ -179,7 +184,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
             <button
               type="submit"
               disabled={loading || isLocked || passcode.length !== 6}
-              className="flex-1 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
+              className="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
