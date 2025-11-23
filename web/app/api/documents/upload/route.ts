@@ -166,7 +166,8 @@ export async function POST(request: NextRequest) {
       .from('documents')
       .insert({
         user_id: user.id,
-        filename: file.name,
+        file_name: file.name, // Original column from migration 005
+        filename: file.name, // New column from migration 006
         file_type: file.type,
         file_size: file.size,
         s3_key: s3Key,
