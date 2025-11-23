@@ -28,6 +28,12 @@ CREATE INDEX IF NOT EXISTS idx_case_status_last_checked ON case_status(last_chec
 -- Enable Row Level Security (RLS)
 ALTER TABLE case_status ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (for re-running migration)
+DROP POLICY IF EXISTS "Users can view their own case status" ON case_status;
+DROP POLICY IF EXISTS "Users can insert their own case status" ON case_status;
+DROP POLICY IF EXISTS "Users can update their own case status" ON case_status;
+DROP POLICY IF EXISTS "Users can delete their own case status" ON case_status;
+
 -- RLS Policies: Users can only access their own case status
 CREATE POLICY "Users can view their own case status"
   ON case_status FOR SELECT

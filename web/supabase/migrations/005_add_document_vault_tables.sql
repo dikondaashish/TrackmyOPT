@@ -122,6 +122,22 @@ ALTER TABLE document_passcodes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE document_reminders ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (for re-running migration)
+DROP POLICY IF EXISTS "Users can view their own passcode" ON document_passcodes;
+DROP POLICY IF EXISTS "Users can insert their own passcode" ON document_passcodes;
+DROP POLICY IF EXISTS "Users can update their own passcode" ON document_passcodes;
+DROP POLICY IF EXISTS "Users can delete their own passcode" ON document_passcodes;
+
+DROP POLICY IF EXISTS "Users can view their own documents" ON documents;
+DROP POLICY IF EXISTS "Users can insert their own documents" ON documents;
+DROP POLICY IF EXISTS "Users can update their own documents" ON documents;
+DROP POLICY IF EXISTS "Users can soft delete their own documents" ON documents;
+
+DROP POLICY IF EXISTS "Users can view their own reminders" ON document_reminders;
+DROP POLICY IF EXISTS "Users can insert their own reminders" ON document_reminders;
+DROP POLICY IF EXISTS "Users can update their own reminders" ON document_reminders;
+DROP POLICY IF EXISTS "Users can delete their own reminders" ON document_reminders;
+
 -- Document Passcodes Policies
 CREATE POLICY "Users can view their own passcode"
   ON document_passcodes FOR SELECT
