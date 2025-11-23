@@ -309,7 +309,9 @@ export function DocumentVaultClient() {
       </div>
 
       {/* Stats */}
-      <DocumentStats documents={documents} />
+      <div className="-mt-6">
+        <DocumentStats documents={documents} />
+      </div>
 
       {/* Filters */}
       <DocumentFilters
