@@ -48,11 +48,19 @@ export async function GET() {
     }
 
     // Fetch from profiles table
-    const { data: profile } = await supabase
+    const { data: profile, error: fetchError } = await supabase
       .from('profiles')
       .select('notification_email')
       .eq('id', user.id)
       .single();
+
+    // If column doesn't exist, return user's email as fallback
+    if (fetchError && (fetchError.code === '42703' || fetchError.message?.includes('column') || fetchError.message?.includes('does not exist'))) {
+      console.warn('notification_email column not found, using user email as fallback');
+      return NextResponse.json({
+        email: user.email || '',
+      });
+    }
 
     return NextResponse.json({
       email: profile?.notification_email || user.email || '',
@@ -121,16 +129,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Update profiles table
-    const { error: updateError } = await supabase
+    // Use upsert to handle both create and update cases
+    const { error: upsertError } = await supabase
       .from('profiles')
-      .update({ notification_email: email })
-      .eq('id', user.id);
+      .upsert({
+        id: user.id,
+        notification_email: email,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'id',
+      });
 
-    if (updateError) {
-      console.error('Error updating notification email:', updateError);
+    if (upsertError) {
+      console.error('Error upserting notification email:', upsertError);
+      console.error('Error details:', JSON.stringify(upsertError, null, 2));
+      
+      // Check if column doesn't exist
+      if (upsertError.code === '42703' || upsertError.message?.includes('column') || upsertError.message?.includes('does not exist')) {
+        return NextResponse.json(
+          { error: 'Database column not found. Please run migration 007_add_notification_email.sql in Supabase.' },
+          { status: 500 }
+        );
+      }
+      
       return NextResponse.json(
-        { error: 'Failed to update notification email' },
+        { error: `Failed to save notification email: ${upsertError.message || 'Unknown error'}` },
         { status: 500 }
       );
     }

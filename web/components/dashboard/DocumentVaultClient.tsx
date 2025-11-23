@@ -87,22 +87,33 @@ export function DocumentVaultClient() {
   }
   
   async function saveNotificationEmail() {
+    if (!notificationEmail || !notificationEmail.trim()) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
     setEmailSaving(true);
     try {
       const res = await fetch('/api/user/notification-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: notificationEmail }),
+        body: JSON.stringify({ email: notificationEmail.trim() }),
       });
       
-      if (res.ok) {
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
         setEditingEmail(false);
+        // Optionally show success message
+        console.log('Email saved successfully:', data.email);
       } else {
-        throw new Error('Failed to save email');
+        const errorMessage = data.error || 'Failed to save notification email';
+        console.error('Error saving email:', errorMessage);
+        alert(errorMessage);
       }
     } catch (error) {
       console.error('Error saving email:', error);
-      alert('Failed to save notification email');
+      alert(error instanceof Error ? error.message : 'Failed to save notification email. Please try again.');
     } finally {
       setEmailSaving(false);
     }
