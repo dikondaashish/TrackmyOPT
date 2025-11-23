@@ -276,7 +276,7 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
             <div className="bg-gray-50 rounded-lg p-4 text-left space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Document Type:</span>
-                <span className="font-medium capitalize">{result.documentType.replace('_', ' ')}</span>
+                <span className="font-medium capitalize">{result.documentType?.replace('_', ' ') || 'Document'}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">AI Confidence:</span>

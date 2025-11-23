@@ -73,7 +73,7 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
         <div className="p-6 border-b flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold capitalize">
-              {document.documentType.replace('_', ' ')}
+              {document.documentType?.replace('_', ' ') || 'Document'}
             </h2>
             <p className="text-gray-600 text-sm mt-1">{document.filename}</p>
           </div>
@@ -120,7 +120,7 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
                   <div>
                     <label className="text-sm text-gray-600">Document Type</label>
                     <p className="font-medium capitalize">
-                      {document.documentType.replace('_', ' ')}
+                      {document.documentType?.replace('_', ' ') || 'Document'}
                     </p>
                   </div>
                   <div>
