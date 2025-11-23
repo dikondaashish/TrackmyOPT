@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
       .from('documents')
       .insert({
         user_id: user.id,
-        filename: file.name,
+        file_name: file.name,
         file_type: file.type,
         file_size: file.size,
         s3_key: s3Key,
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
       success: true,
       document: {
         id: document.id,
-        filename: document.filename,
+        filename: document.file_name,
         documentType: document.document_type,
         category: document.category,
         issueDate: document.issue_date,

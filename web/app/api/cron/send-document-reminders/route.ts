@@ -19,7 +19,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Type definitions for reminder with document
 interface DocumentData {
-  filename: string;
+  file_name: string;
   expiry_date: string;
   document_type: string;
 }
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
         reminder_message,
         reminder_type,
         document:documents (
-          filename,
+          file_name,
           expiry_date,
           document_type
         )
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
         const { error: emailError } = await resend.emails.send({
           from: 'TrackMyOPT <notifications@trackmyopt.com>',
           to: userEmail,
-          subject: `⏰ Document Expiring Soon: ${reminder.document.filename}`,
+          subject: `⏰ Document Expiring Soon: ${reminder.document.file_name}`,
           html: generateReminderEmail(reminder),
         });
 
@@ -252,7 +252,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
                     
                     <div style="background-color: #f9fafb; border-left: 4px solid ${urgencyColor}; padding: 15px; margin: 20px 0; border-radius: 4px;">
                       <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">Document:</p>
-                      <p style="margin: 0 0 15px 0; color: #1f2937; font-size: 18px; font-weight: 600;">${doc.filename}</p>
+                      <p style="margin: 0 0 15px 0; color: #1f2937; font-size: 18px; font-weight: 600;">${doc.file_name}</p>
                       
                       <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">Document Type:</p>
                       <p style="margin: 0 0 15px 0; color: #1f2937; font-size: 16px; text-transform: capitalize;">${doc.document_type.replace('_', ' ')}</p>

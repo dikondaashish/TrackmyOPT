@@ -49,7 +49,7 @@ export async function GET(
     // Generate signed URL for viewing (5 minutes)
     const viewUrl = await generateSignedUrl(document.s3_key);
 
-    console.log(`✅ Document fetched: ${document.filename}`);
+    console.log(`✅ Document fetched: ${document.file_name}`);
 
     return NextResponse.json({
       document: {
@@ -107,7 +107,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
-    console.log(`✅ Document updated: ${document.filename}`);
+    console.log(`✅ Document updated: ${document.file_name}`);
 
     return NextResponse.json({
       success: true,
@@ -144,7 +144,7 @@ export async function DELETE(
     // Fetch document to get S3 key
     const { data: document, error: fetchError } = await supabase
       .from('documents')
-      .select('s3_key, filename')
+      .select('s3_key, file_name')
       .eq('id', id)
       .eq('user_id', user.id)
       .single();
@@ -174,7 +174,7 @@ export async function DELETE(
       throw dbError;
     }
 
-    console.log(`✅ Document deleted: ${document.filename}`);
+    console.log(`✅ Document deleted: ${document.file_name}`);
 
     return NextResponse.json({
       success: true,

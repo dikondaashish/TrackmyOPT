@@ -11,7 +11,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 // Use Gemini 1.5 Pro for best OCR and analysis results
-const MODEL_NAME = 'gemini-1.5-pro-latest';
+const MODEL_NAME = 'gemini-1.5-pro';
 
 // Document types we support
 export type DocumentType = 
