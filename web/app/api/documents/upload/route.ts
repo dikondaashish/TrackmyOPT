@@ -170,6 +170,7 @@ export async function POST(request: NextRequest) {
         file_type: file.type,
         file_size: file.size,
         s3_key: s3Key,
+        s3_bucket: process.env.AWS_S3_BUCKET!,
         category: analysis.documentType, // Use AI-detected type
         document_type: analysis.documentType,
         issue_date: analysis.issueDate,
