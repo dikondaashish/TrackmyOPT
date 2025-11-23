@@ -137,6 +137,29 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 
 ---
 
+## 🆕 Document Vault (AWS S3 + AI)
+
+### AWS S3 Storage:
+```env
+AWS_ACCESS_KEY_ID=your-aws-access-key-id
+AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your-bucket-name
+```
+
+### OpenAI (Document Analysis):
+```env
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini
+```
+
+### Megallm.io (OCR):
+```env
+MEGALLM_API_KEY=sk-mega-...
+```
+
+---
+
 ## 📊 Testing USCIS API
 
 ### Staging Receipt Numbers for Sandbox:
