@@ -1,0 +1,208 @@
+'use client';
+
+/**
+ * Document View Modal
+ * 
+ * View and download documents with:
+ * - Signed URL for secure viewing
+ * - Document metadata display
+ * - AI-extracted fields
+ * - Download button
+ */
+
+import { useState, useEffect } from 'react';
+
+interface Document {
+  id: string;
+  filename: string;
+  documentType: string;
+  category: string;
+  issueDate: string | null;
+  expiryDate: string | null;
+  summary: string;
+  extractedFields: Record<string, any>;
+  aiConfidence: number;
+  uploadedAt: string;
+}
+
+interface DocumentViewModalProps {
+  document: Document;
+  onClose: () => void;
+  onDelete: () => void;
+}
+
+export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewModalProps) {
+  const [viewUrl, setViewUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadDocument();
+  }, [document.id]);
+
+  async function loadDocument() {
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch(`/api/documents/${document.id}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to load document');
+      }
+
+      setViewUrl(data.document.viewUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load document');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleDownload() {
+    if (viewUrl) {
+      window.open(viewUrl, '_blank');
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold capitalize">
+              {document.documentType.replace('_', ' ')}
+            </h2>
+            <p className="text-gray-600 text-sm mt-1">{document.filename}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* Error */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+                {error}
+              </div>
+            )}
+
+            {/* Loading */}
+            {loading && (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+              </div>
+            )}
+
+            {/* Document Preview/Info */}
+            {!loading && !error && (
+              <>
+                {/* Summary */}
+                {document.summary && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Summary</h3>
+                    <p className="text-gray-700">{document.summary}</p>
+                  </div>
+                )}
+
+                {/* Key Information */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-gray-600">Document Type</label>
+                    <p className="font-medium capitalize">
+                      {document.documentType.replace('_', ' ')}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">AI Confidence</label>
+                    <p className="font-medium">{document.aiConfidence}%</p>
+                  </div>
+                  {document.issueDate && (
+                    <div>
+                      <label className="text-sm text-gray-600">Issue Date</label>
+                      <p className="font-medium">
+                        {new Date(document.issueDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+                  {document.expiryDate && (
+                    <div>
+                      <label className="text-sm text-gray-600">Expiry Date</label>
+                      <p className="font-medium">
+                        {new Date(document.expiryDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <label className="text-sm text-gray-600">Uploaded</label>
+                    <p className="font-medium">
+                      {new Date(document.uploadedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Extracted Fields */}
+                {Object.keys(document.extractedFields).length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Extracted Information</h3>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                      {Object.entries(document.extractedFields).map(([key, value]) => (
+                        <div key={key} className="flex justify-between text-sm">
+                          <span className="text-gray-600 capitalize">
+                            {key.replace(/_/g, ' ')}:
+                          </span>
+                          <span className="font-medium text-gray-900">{String(value)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="p-6 border-t flex gap-3">
+          <button
+            onClick={onDelete}
+            className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Delete
+          </button>
+          <div className="flex-1"></div>
+          <button
+            onClick={onClose}
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Close
+          </button>
+          <button
+            onClick={handleDownload}
+            disabled={!viewUrl}
+            className="px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
