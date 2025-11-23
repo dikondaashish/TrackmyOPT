@@ -19,6 +19,8 @@ import {
 } from '@/lib/s3';
 import { analyzeDocument, normalizeText } from '@/lib/gemini-ai';
 import { generateRemindersForDocument } from '@/lib/reminders';
+import { checkDocumentUploadRateLimit, getTimeUntilReset } from '@/lib/rate-limit';
+import { scanFileForViruses, checkSuspiciousFileType } from '@/lib/virus-scan';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -55,6 +57,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check rate limit (20 uploads per day)
+    const rateLimit = await checkDocumentUploadRateLimit(user.id);
+    
+    if (!rateLimit.allowed) {
+      console.log(`⚠️  Rate limit exceeded for user: ${user.email}`);
+      return NextResponse.json(
+        { 
+          error: 'Daily upload limit reached',
+          message: rateLimit.message,
+          resetAt: rateLimit.resetAt,
+          timeUntilReset: getTimeUntilReset(rateLimit.resetAt),
+        },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '20',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': rateLimit.resetAt.toISOString(),
+          }
+        }
+      );
+    }
+
+    console.log(`✅ Rate limit OK: ${rateLimit.remaining} uploads remaining today`);
+
     // Parse multipart form data
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -89,6 +116,32 @@ export async function POST(request: NextRequest) {
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    // Quick heuristic check for suspicious file types
+    if (checkSuspiciousFileType(file.name, file.type)) {
+      console.log('⚠️  Suspicious file type detected, rejecting upload');
+      return NextResponse.json(
+        { error: 'File type not allowed for security reasons.' },
+        { status: 400 }
+      );
+    }
+
+    // Scan for viruses (if enabled)
+    console.log('🔍 Scanning file for viruses...');
+    const virusScanResult = await scanFileForViruses(buffer, file.name);
+    
+    if (!virusScanResult.safe) {
+      console.log(`❌ Virus detected: ${virusScanResult.threat}`);
+      return NextResponse.json(
+        { 
+          error: 'File failed virus scan',
+          threat: virusScanResult.threat,
+        },
+        { status: 400 }
+      );
+    }
+    
+    console.log(`✅ Virus scan passed (${virusScanResult.scanner}, ${virusScanResult.scanTime}ms)`);
 
     // Step 1: Upload to S3
     console.log('📤 Step 1/4: Uploading to S3...');
