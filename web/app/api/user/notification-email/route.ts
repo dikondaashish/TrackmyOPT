@@ -51,7 +51,7 @@ export async function GET() {
     const { data: profile, error: fetchError } = await supabase
       .from('profiles')
       .select('notification_email')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
     // If column doesn't exist, return user's email as fallback
@@ -133,11 +133,10 @@ export async function POST(request: Request) {
     const { error: upsertError } = await supabase
       .from('profiles')
       .upsert({
-        id: user.id,
+        user_id: user.id,
         notification_email: email,
-        updated_at: new Date().toISOString(),
       }, {
-        onConflict: 'id',
+        onConflict: 'user_id',
       });
 
     if (upsertError) {
