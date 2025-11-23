@@ -228,7 +228,7 @@ export function DocumentVaultClient() {
 
   // Main document vault interface
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Modern Header with Email Notifications */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6">
         <div className="flex justify-between items-start mb-4">
@@ -309,9 +309,7 @@ export function DocumentVaultClient() {
       </div>
 
       {/* Stats */}
-      <div className="-mt-6">
-        <DocumentStats documents={documents} />
-      </div>
+      <DocumentStats documents={documents} />
 
       {/* Filters */}
       <DocumentFilters

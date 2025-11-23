@@ -15,7 +15,7 @@ export const metadata = {
 
 export default function DocumentVaultPage() {
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto px-6 pt-0 pb-6 max-w-7xl">
       <Suspense fallback={<DocumentVaultSkeleton />}>
         <DocumentVaultClient />
       </Suspense>
