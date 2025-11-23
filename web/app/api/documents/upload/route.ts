@@ -42,20 +42,22 @@ export async function POST(request: NextRequest) {
 
     console.log(`👤 User: ${user.email}`);
 
-    // Check premium status
+    // Check premium status from profiles table
     const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('is_premium')
+      .from('profiles')
+      .select('premium_status')
       .eq('user_id', user.id)
       .single();
 
-    if (!profile?.is_premium) {
+    if (!profile?.premium_status) {
       console.log('⚠️  Non-premium user attempted document upload');
       return NextResponse.json(
         { error: 'Premium feature - please upgrade' },
         { status: 403 }
       );
     }
+
+    console.log('✅ Premium user verified');
 
     // Check rate limit (20 uploads per day)
     const rateLimit = await checkDocumentUploadRateLimit(user.id);

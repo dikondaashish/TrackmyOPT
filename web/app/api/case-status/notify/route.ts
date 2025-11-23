@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     // Get user details and check if premium
     const { data: userData, error: userError } = await supabase
       .from('profiles')
-      .select('email, full_name, is_premium')
+      .select('email, full_name, premium_status')
       .eq('id', user_id)
       .single();
 
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user is premium
-    if (!userData.is_premium) {
+    if (!userData.premium_status) {
       console.log('ℹ️ User is not premium, skipping notification');
       return NextResponse.json(
         { ok: true, message: 'Notifications are a premium feature' },
