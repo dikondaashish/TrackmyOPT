@@ -60,14 +60,12 @@ export async function POST(request: NextRequest) {
     );
 
     if (lockoutStatus.isLocked) {
-      console.log(`🔒 Account locked until ${lockoutStatus.lockedUntil}`);
+      console.log(`🔒 Account locked for ${lockoutStatus.remainingTime} more minutes`);
       return NextResponse.json(
         { 
           error: 'Too many failed attempts. Please try again later.',
-          lockedUntil: lockoutStatus.lockedUntil,
-          remainingMinutes: Math.ceil(
-            (new Date(lockoutStatus.lockedUntil!).getTime() - Date.now()) / 60000
-          )
+          lockedUntil: stored.locked_until,
+          remainingMinutes: lockoutStatus.remainingTime
         },
         { status: 429 }
       );
