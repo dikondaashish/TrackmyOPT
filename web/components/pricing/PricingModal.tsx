@@ -77,8 +77,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent onClose={onClose} className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="pb-4">
+      <DialogContent onClose={onClose} className="max-w-6xl max-h-[95vh] overflow-y-auto">
+        <DialogHeader className="pb-2">
           <DialogTitle className="text-2xl font-bold text-center">
             Choose Your Plan
           </DialogTitle>
@@ -87,7 +87,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex flex-col lg:flex-row gap-4 mt-4">
           {/* Free Plan */}
           <Card className={`flex-1 ${isPremium ? '' : 'border-2 border-primary'} flex flex-col`}>
             <CardHeader className="pb-3">
