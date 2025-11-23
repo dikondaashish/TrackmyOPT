@@ -10,9 +10,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // Initialize Gemini with API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-// Use Gemini 1.5 Flash for fast and reliable OCR
-// Valid models: gemini-1.5-flash, gemini-1.5-flash-8b, gemini-1.0-pro
-const MODEL_NAME = 'gemini-1.5-flash';
+// Use Gemini 1.5 Pro for best OCR and document analysis
+// Now using paid tier with higher quality model
+// Valid models: gemini-1.5-pro, gemini-1.5-flash, gemini-1.0-pro
+const MODEL_NAME = 'gemini-1.5-pro';
 
 // Document types we support
 export type DocumentType = 
