@@ -60,6 +60,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop existing trigger if it exists (for re-running migration)
+DROP TRIGGER IF EXISTS update_case_status_updated_at_trigger ON case_status;
+
 -- Trigger to auto-update updated_at
 CREATE TRIGGER update_case_status_updated_at_trigger
   BEFORE UPDATE ON case_status

@@ -201,6 +201,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop existing triggers if they exist (for re-running migration)
+DROP TRIGGER IF EXISTS update_document_passcodes_updated_at ON document_passcodes;
+DROP TRIGGER IF EXISTS update_documents_updated_at ON documents;
+DROP TRIGGER IF EXISTS update_document_reminders_updated_at ON document_reminders;
+
 CREATE TRIGGER update_document_passcodes_updated_at
   BEFORE UPDATE ON document_passcodes
   FOR EACH ROW
