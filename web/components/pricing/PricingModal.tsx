@@ -77,49 +77,49 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent onClose={onClose} className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle className="text-3xl font-bold text-center">
+      <DialogContent onClose={onClose} className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="pb-4">
+          <DialogTitle className="text-2xl font-bold text-center">
             Choose Your Plan
           </DialogTitle>
-          <DialogDescription className="text-center text-base">
+          <DialogDescription className="text-center text-sm">
             Upgrade to unlock daily email reminders
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col md:flex-row gap-6 mt-6">
+        <div className="flex flex-col lg:flex-row gap-4">
           {/* Free Plan */}
-          <Card className={`flex-1 ${isPremium ? '' : 'border-2 border-primary'}`}>
-            <CardHeader>
+          <Card className={`flex-1 ${isPremium ? '' : 'border-2 border-primary'} flex flex-col`}>
+            <CardHeader className="pb-3">
               <CardTitle>
-                <p className="text-xl">Free</p>
+                <p className="text-lg">Free</p>
               </CardTitle>
-              <span className="text-4xl font-bold">$0</span>
-              <p className="text-muted-foreground text-sm">Forever free</p>
+              <span className="text-3xl font-bold">$0</span>
+              <p className="text-muted-foreground text-xs">Forever free</p>
             </CardHeader>
-            <CardContent>
-              <Separator className="mb-6" />
-              <ul className="space-y-4">
+            <CardContent className="flex-1 pb-3">
+              <Separator className="mb-4" />
+              <ul className="space-y-2">
                 {freePlanFeatures.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <CircleCheck className="size-4 text-primary flex-shrink-0" />
-                    <span className="text-sm">{feature.text}</span>
+                  <li key={index} className="flex items-start gap-2">
+                    <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
+                    <span className="text-xs leading-relaxed">{feature.text}</span>
                   </li>
                 ))}
               </ul>
             </CardContent>
-            <CardFooter className="mt-auto">
+            <CardFooter className="pt-3">
               {!isPremium ? (
                 <div className="w-full">
-                  <Button disabled className="w-full" variant="outline">
+                  <Button disabled className="w-full text-xs py-2" variant="outline">
                     Current Plan
                   </Button>
-                  <p className="text-xs text-center text-muted-foreground mt-2">
+                  <p className="text-xs text-center text-muted-foreground mt-1.5">
                     This is your current plan
                   </p>
                 </div>
               ) : (
-                <Button disabled className="w-full" variant="outline">
+                <Button disabled className="w-full text-xs py-2" variant="outline">
                   Basic Plan
                 </Button>
               )}
@@ -127,45 +127,45 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
           </Card>
 
           {/* Pro Plan */}
-          <Card className={`flex-1 ${isPremium ? 'border-2 border-primary' : ''} relative overflow-hidden`}>
+          <Card className={`flex-1 ${isPremium ? 'border-2 border-primary' : ''} relative overflow-hidden flex flex-col`}>
             {/* Pro badge ribbon */}
             {!isPremium && (
-              <div className="absolute top-4 -right-10 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-12 py-1 text-xs font-bold rotate-45 shadow-lg">
+              <div className="absolute top-3 -right-10 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-10 py-0.5 text-[10px] font-bold rotate-45 shadow-lg">
                 POPULAR
               </div>
             )}
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle>
                 <div className="flex items-center gap-2">
-                  <p className="text-xl">Pro</p>
-                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  <p className="text-lg">Pro</p>
+                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                     BEST VALUE
                   </span>
                 </div>
               </CardTitle>
-              <span className="text-4xl font-bold">$2.99</span>
-              <p className="text-muted-foreground text-sm">One-time payment, lifetime access</p>
+              <span className="text-3xl font-bold">$2.99</span>
+              <p className="text-muted-foreground text-xs">One-time payment, lifetime access</p>
             </CardHeader>
-            <CardContent>
-              <Separator className="mb-6" />
-              <p className="text-sm font-semibold mb-3">Everything in Free, plus:</p>
-              <ul className="space-y-4">
+            <CardContent className="flex-1 pb-3">
+              <Separator className="mb-4" />
+              <p className="text-xs font-semibold mb-2">Everything in Free, plus:</p>
+              <ul className="space-y-2">
                 {proPlanFeatures.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <CircleCheck className="size-4 text-primary flex-shrink-0" />
-                    <span className="text-sm">{feature.text}</span>
+                  <li key={index} className="flex items-start gap-2">
+                    <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
+                    <span className="text-xs leading-relaxed">{feature.text}</span>
                   </li>
                 ))}
               </ul>
             </CardContent>
-            <CardFooter className="mt-auto">
+            <CardFooter className="pt-3">
               {isPremium ? (
                 <div className="w-full">
-                  <Button disabled className="w-full">
-                    <CircleCheck className="mr-2 size-4" />
+                  <Button disabled className="w-full text-xs py-2">
+                    <CircleCheck className="mr-2 size-3.5" />
                     Active
                   </Button>
-                  <p className="text-xs text-center text-muted-foreground mt-2">
+                  <p className="text-xs text-center text-muted-foreground mt-1.5">
                     You have lifetime access
                   </p>
                 </div>
@@ -173,14 +173,14 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
                 <Button 
                   onClick={handleUpgrade} 
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-xs py-2"
                 >
                   {isLoading ? (
                     "Processing..."
                   ) : (
                     <>
                       Upgrade Now
-                      <ArrowRight className="ml-2 size-4" />
+                      <ArrowRight className="ml-2 size-3.5" />
                     </>
                   )}
                 </Button>
@@ -189,9 +189,9 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
           </Card>
         </div>
 
-        <div className="mt-6 text-center text-xs text-muted-foreground">
+        <div className="mt-4 text-center text-[10px] text-muted-foreground">
           <p>💳 Secure payment powered by Stripe</p>
-          <p className="mt-1">✨ Lifetime access • 🔒 No subscription • 💯 One-time payment</p>
+          <p className="mt-0.5">✨ Lifetime access • 🔒 No subscription • 💯 One-time payment</p>
         </div>
       </DialogContent>
     </Dialog>
