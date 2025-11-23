@@ -4,10 +4,9 @@
  * Handles multipart file upload with full AI processing pipeline:
  * 1. File validation
  * 2. S3 upload
- * 3. OCR text extraction (Megallm.io)
- * 4. AI analysis (OpenAI)
- * 5. Database storage
- * 6. Automatic reminder generation
+ * 3. Gemini AI analysis (OCR + classification + extraction)
+ * 4. Database storage
+ * 5. Automatic reminder generation
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,8 +17,7 @@ import {
   getFileExtension,
   generateS3Key 
 } from '@/lib/s3';
-import { extractTextFromDocument, normalizeOCRText } from '@/lib/megallm';
-import { analyzeDocument } from '@/lib/document-ai';
+import { analyzeDocument, normalizeText } from '@/lib/gemini-ai';
 import { generateRemindersForDocument } from '@/lib/reminders';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -93,25 +91,22 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Step 1: Upload to S3
-    console.log('📤 Step 1/5: Uploading to S3...');
+    console.log('📤 Step 1/4: Uploading to S3...');
     const s3Key = generateS3Key(user.id, file.name);
     
     await uploadToS3(buffer, s3Key, file.type);
     console.log(`✅ Uploaded to S3: ${s3Key}`);
 
-    // Step 2: Extract text with Megallm.io OCR
-    console.log('📄 Step 2/5: Extracting text with OCR...');
-    const ocrResult = await extractTextFromDocument(buffer, file.type);
-    const normalizedText = normalizeOCRText(ocrResult.text);
-    console.log(`✅ Extracted ${normalizedText.length} characters (confidence: ${ocrResult.confidence}%)`);
-
-    // Step 3: Analyze with OpenAI
-    console.log('🤖 Step 3/5: Analyzing document with AI...');
-    const analysis = await analyzeDocument(normalizedText, file.name);
+    // Step 2: Analyze with Gemini AI (OCR + Classification + Extraction)
+    console.log('🤖 Step 2/4: Analyzing document with Gemini AI...');
+    const analysis = await analyzeDocument(buffer, file.type, file.name);
+    const normalizedText = normalizeText(analysis.extractedText);
     console.log(`✅ Classified as: ${analysis.documentType} (${analysis.confidence}% confidence)`);
+    console.log(`✅ Extracted ${normalizedText.length} characters`);
+    console.log(`✅ Found ${Object.keys(analysis.extractedFields).length} metadata fields`);
 
-    // Step 4: Save to database
-    console.log('💾 Step 4/5: Saving to database...');
+    // Step 3: Save to database
+    console.log('💾 Step 3/4: Saving to database...');
     const { data: document, error: dbError } = await supabase
       .from('documents')
       .insert({
@@ -127,7 +122,6 @@ export async function POST(request: NextRequest) {
         extracted_text: normalizedText,
         extracted_fields: analysis.extractedFields,
         ai_confidence: analysis.confidence,
-        ocr_confidence: ocrResult.confidence,
         summary: analysis.summary,
       })
       .select()
@@ -140,9 +134,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Document saved with ID: ${document.id}`);
 
-    // Step 5: Generate reminders (if expiry date exists)
+    // Step 4: Generate reminders (if expiry date exists)
     if (analysis.expiryDate) {
-      console.log('⏰ Step 5/5: Generating reminders...');
+      console.log('⏰ Step 4/4: Generating reminders...');
       await generateRemindersForDocument(
         user.id,
         document.id,
@@ -168,7 +162,6 @@ export async function POST(request: NextRequest) {
         summary: document.summary,
         extractedFields: document.extracted_fields,
         aiConfidence: document.ai_confidence,
-        ocrConfidence: document.ocr_confidence,
         uploadedAt: document.uploaded_at,
       },
     });

@@ -137,7 +137,7 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 
 ---
 
-## 🆕 Document Vault (AWS S3 + AI)
+## 🆕 Document Vault (AWS S3 + Gemini AI)
 
 ### AWS S3 Storage:
 ```env
@@ -147,16 +147,15 @@ AWS_REGION=us-east-1
 AWS_S3_BUCKET=your-bucket-name
 ```
 
-### OpenAI (Document Analysis):
+### Google Gemini AI (OCR + Document Analysis):
 ```env
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=your-gemini-api-key
 ```
 
-### Megallm.io (OCR):
-```env
-MEGALLM_API_KEY=sk-mega-...
-```
+**Features:**
+- Single API for OCR and document analysis
+- Gemini 1.5 Pro model for best accuracy
+- Supports all document types (passport, visa, I-20, EAD, etc.)
 
 ---
 
