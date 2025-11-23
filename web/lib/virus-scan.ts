@@ -79,22 +79,28 @@ async function scanWithClamAV(
   filename: string,
   startTime: number
 ): Promise<VirusScanResult> {
+  // ClamAV integration is optional and requires manual setup
+  // To enable:
+  // 1. Install ClamAV: apt-get install clamav clamav-daemon
+  // 2. Install package: pnpm add clamscan
+  // 3. Set env: CLAMAV_HOST=localhost, CLAMAV_PORT=3310
+  // 4. Uncomment the implementation below
+  
+  console.log('⏭️  ClamAV not configured - skipping virus scan');
+  console.log('   To enable: Install ClamAV and clamscan package');
+  
+  return {
+    safe: true,
+    scanner: 'clamav (not configured)',
+    scanTime: Date.now() - startTime,
+  };
+  
+  /* Uncomment to enable ClamAV scanning:
+  
   try {
     console.log(`🔍 Scanning file with ClamAV: ${filename}`);
 
-    // Dynamically import clamscan (only if installed)
-    let NodeClam;
-    try {
-      NodeClam = (await import('clamscan')).default;
-    } catch (error) {
-      console.error('❌ ClamScan package not installed. Run: pnpm add clamscan');
-      // Fail open - allow file if scanner not available
-      return {
-        safe: true,
-        scanner: 'clamav (not installed)',
-        scanTime: Date.now() - startTime,
-      };
-    }
+    const { default: NodeClam } = await import('clamscan');
 
     const clamscan = await new NodeClam().init({
       clamdscan: {
@@ -118,13 +124,13 @@ async function scanWithClamAV(
 
   } catch (error) {
     console.error('❌ ClamAV scan error:', error);
-    // Fail open - allow file if scan fails
     return {
       safe: true,
       scanner: 'clamav (error)',
       scanTime: Date.now() - startTime,
     };
   }
+  */
 }
 
 /**
