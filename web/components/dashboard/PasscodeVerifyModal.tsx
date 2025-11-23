@@ -140,6 +140,10 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="● ● ● ● ● ●"
               autoFocus
+              autoComplete="off"
+              name="document-passcode"
+              data-lpignore="true"
+              data-form-type="other"
               required
             />
           </div>

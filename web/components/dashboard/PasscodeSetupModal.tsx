@@ -96,6 +96,10 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
               onChange={(e) => setPasscode(e.target.value.replace(/\D/g, ''))}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               placeholder="● ● ● ● ● ●"
+              autoComplete="off"
+              name="new-document-passcode"
+              data-lpignore="true"
+              data-form-type="other"
               required
             />
           </div>
@@ -114,6 +118,10 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
               onChange={(e) => setConfirmPasscode(e.target.value.replace(/\D/g, ''))}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               placeholder="● ● ● ● ● ●"
+              autoComplete="off"
+              name="confirm-document-passcode"
+              data-lpignore="true"
+              data-form-type="other"
               required
             />
           </div>

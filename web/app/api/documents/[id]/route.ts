@@ -54,6 +54,9 @@ export async function GET(
     return NextResponse.json({
       document: {
         ...document,
+        extractedFields: document.extracted_fields || {},
+        documentType: document.document_type || 'other',
+        aiConfidence: document.ai_confidence || 0,
         viewUrl,
       },
     });

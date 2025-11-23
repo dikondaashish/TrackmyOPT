@@ -152,7 +152,7 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
                 </div>
 
                 {/* Extracted Fields */}
-                {Object.keys(document.extractedFields).length > 0 && (
+                {document.extractedFields && Object.keys(document.extractedFields).length > 0 && (
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-3">Extracted Information</h3>
                     <div className="bg-gray-50 rounded-lg p-4 space-y-2">
