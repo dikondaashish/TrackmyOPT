@@ -232,10 +232,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Configure Next.js to handle large uploads
-export const config = {
-  api: {
-    bodyParser: false, // Disable built-in body parser for multipart/form-data
-  },
-};
+// Next.js 14 App Router configuration
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 300; // 5 minutes for AI processing
 
