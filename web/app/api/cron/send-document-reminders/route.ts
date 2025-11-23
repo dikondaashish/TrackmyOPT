@@ -17,6 +17,22 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Type definitions for reminder with document
+interface DocumentData {
+  filename: string;
+  expiry_date: string;
+  document_type: string;
+}
+
+interface ReminderWithDocument {
+  id: string;
+  user_id: string;
+  document_id: string;
+  reminder_message: string;
+  reminder_type: string;
+  document: DocumentData;
+}
+
 export async function GET(request: NextRequest) {
   console.log('🔔 Document Reminder Cron: Starting...');
   
@@ -85,7 +101,7 @@ export async function GET(request: NextRequest) {
     let sentCount = 0;
     let failedCount = 0;
 
-    for (const reminder of reminders) {
+    for (const reminder of (reminders as unknown as ReminderWithDocument[])) {
       try {
         // Get user email
         const { data: userData, error: userError } = await supabase.auth.admin.getUserById(reminder.user_id);
@@ -185,7 +201,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function generateReminderEmail(reminder: any): string {
+function generateReminderEmail(reminder: ReminderWithDocument): string {
   const doc = reminder.document;
   const expiryDate = new Date(doc.expiry_date).toLocaleDateString('en-US', {
     year: 'numeric',
