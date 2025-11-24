@@ -236,6 +236,16 @@ export function CaseStatusSection() {
     });
   };
 
+  const formatDateOnly = (dateString: string | null) => {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric'
+    });
+  };
+
   const getStatusIcon = (status: string) => {
     if (status.toLowerCase().includes('approved')) {
       return <CheckCircle2 className="w-5 h-5 text-green-500" />;
@@ -268,6 +278,68 @@ export function CaseStatusSection() {
       YSC: 'Potomac Service Center',
     };
     return centers[prefix] || 'Unknown Service Center';
+  };
+
+  const getCaseCategory = (caseType: string | null) => {
+    if (!caseType) return 'USCIS Case';
+    const categories: Record<string, string> = {
+      'I-765': 'Application for Employment Authorization',
+      'I-130': 'Petition for Alien Relative',
+      'I-140': 'Immigrant Petition for Alien Worker',
+      'I-485': 'Application to Register Permanent Residence',
+      'I-539': 'Application to Extend/Change Nonimmigrant Status',
+      'I-90': 'Application to Replace Permanent Resident Card',
+      'N-400': 'Application for Naturalization',
+      'N-600': 'Application for Certificate of Citizenship',
+    };
+    return categories[caseType] || 'USCIS Case';
+  };
+
+  const renderDescription = (description: string | undefined) => {
+    if (!description) return null;
+    
+    // Check if description contains HTML links
+    if (description.includes('<a')) {
+      // Parse HTML links and render them properly
+      const linkRegex = /<a\s+href="([^"]+)"[^>]*>([^<]+)<\/a>/g;
+      const parts: (string | JSX.Element)[] = [];
+      let lastIndex = 0;
+      let match;
+      let keyCounter = 0;
+      
+      // Reset regex lastIndex
+      linkRegex.lastIndex = 0;
+      
+      while ((match = linkRegex.exec(description)) !== null) {
+        // Add text before the link
+        if (match.index > lastIndex) {
+          parts.push(description.substring(lastIndex, match.index));
+        }
+        // Add the link
+        parts.push(
+          <a 
+            key={`link-${keyCounter++}`}
+            href={match[1]} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            {match[2]}
+          </a>
+        );
+        lastIndex = linkRegex.lastIndex;
+      }
+      
+      // Add remaining text
+      if (lastIndex < description.length) {
+        parts.push(description.substring(lastIndex));
+      }
+      
+      return parts.length > 0 ? <>{parts}</> : description;
+    }
+    
+    // No HTML, return as plain text
+    return description;
   };
 
   if (isLoading) {
@@ -413,13 +485,13 @@ export function CaseStatusSection() {
                 </div>
                 
                 <p className="text-sm text-muted-foreground mb-4">
-                  {formatDate(caseStatus.last_status_change_at || caseStatus.last_checked_at)}
+                  {formatDateOnly(caseStatus.last_status_change_at || caseStatus.last_checked_at)}
                 </p>
                 
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {caseStatus.status_history?.[0]?.description || 
-                   `Your case status is currently "${caseStatus.current_status}". This status was last updated on ${formatDate(caseStatus.last_status_change_at || caseStatus.last_checked_at)}.`}
-                </p>
+                <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {renderDescription(caseStatus.status_history?.[0]?.description) || 
+                   `Your case status is currently "${caseStatus.current_status}". This status was last updated on ${formatDateOnly(caseStatus.last_status_change_at || caseStatus.last_checked_at)}.`}
+                </div>
               </div>
             </Card>
 
@@ -430,31 +502,38 @@ export function CaseStatusSection() {
               </div>
               
               <div className="relative pl-4 border-l-2 border-slate-100 dark:border-slate-800 space-y-8">
-                {(caseStatus.status_history || []).map((item, index) => (
-                  <div key={index} className="relative">
-                    {/* Timeline dot */}
-                    <div className="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-600 ring-4 ring-white dark:ring-slate-950" />
-                    
-                    <div className="mb-1">
-                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        {formatDate(item.date).split(',')[0]} {/* Just the date part approx */}
-                      </span>
+                {(caseStatus.status_history || []).map((item, index) => {
+                  const isMostRecent = index === 0;
+                  return (
+                    <div key={index} className="relative">
+                      {/* Timeline dot - filled for most recent, hollow for others */}
+                      {isMostRecent ? (
+                        <div className="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-blue-600 ring-4 ring-white dark:ring-slate-950" />
+                      ) : (
+                        <div className="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-950 ring-2 ring-white dark:ring-slate-950" />
+                      )}
+                      
+                      <div className="mb-1">
+                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          {formatDateOnly(item.date)}
+                        </span>
+                      </div>
+                      
+                      <div className={`rounded-lg p-4 mt-2 ${isMostRecent ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800' : 'bg-slate-50 dark:bg-slate-900'}`}>
+                        <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                          {item.status}
+                        </h4>
+                        <div className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          {renderDescription(item.description) || item.status}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        {formatDate(item.date)}
+                      </div>
                     </div>
-                    
-                    <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 mt-2">
-                      <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                        {item.status}
-                      </h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                        {item.description || item.status}
-                      </p>
-                    </div>
-                    
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      {formatDate(item.date)}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
                 
                 {(!caseStatus.status_history || caseStatus.status_history.length === 0) && (
                   <div className="text-sm text-muted-foreground">No history available yet.</div>
@@ -482,9 +561,7 @@ export function CaseStatusSection() {
                 <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
                   <span className="text-sm text-muted-foreground block mb-1">Case Category</span>
                   <span className="font-medium text-sm">
-                    {caseStatus.case_type === 'I-765' 
-                      ? 'Application for Employment Authorization' 
-                      : 'USCIS Case'}
+                    {getCaseCategory(caseStatus.case_type)}
                   </span>
                 </div>
 
