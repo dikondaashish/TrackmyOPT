@@ -47,13 +47,13 @@ function DateInput({ id, label, value, onChange, placeholder = "MM/DD/YYYY", des
   };
 
   return (
-    <div className="space-y-2 relative">
-      <Label htmlFor={id} className="flex items-center gap-2">
+    <div className="space-y-2 relative w-full">
+      <Label htmlFor={id} className="flex items-center gap-2 text-sm font-medium">
         <CalendarIcon className="w-4 h-4" />
         {label}
-        {optional && <span className="font-normal text-muted-foreground">(Optional)</span>}
+        {optional && <span className="font-normal text-muted-foreground text-sm">(Optional)</span>}
       </Label>
-      <div className="relative max-w-md">
+      <div className="relative w-full">
         <Input
           ref={inputRef}
           id={id}
@@ -79,7 +79,7 @@ function DateInput({ id, label, value, onChange, placeholder = "MM/DD/YYYY", des
         )}
       </div>
       {description && (
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
       )}
     </div>
   );
@@ -374,85 +374,90 @@ export function OptDatesSection() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 px-4 sm:px-6">
+      {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">OPT Dates</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">OPT Dates</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Manage your important OPT-related dates. At least one date is required.
         </p>
       </div>
 
-      <Card className="p-6">
-        <div className="space-y-6">
-          {/* Program End Date */}
-          <DateInput
-            id="program_end_date"
-            label="Program End Date"
-            value={dates.program_end_date || ''}
-            onChange={(value) => handleDateChange('program_end_date', value)}
-            description="The date your academic program officially ends"
-          />
+      {/* Main Form Card */}
+      <Card className="p-4 sm:p-6 lg:p-8">
+        <div className="space-y-8">
+          {/* Date Fields Grid - 2 Columns on Desktop, 1 on Mobile */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Row 1 Left: Program End Date */}
+            <DateInput
+              id="program_end_date"
+              label="Program End Date"
+              value={dates.program_end_date || ''}
+              onChange={(value) => handleDateChange('program_end_date', value)}
+              description="The date your academic program officially ends"
+            />
 
-          {/* DSO Recommendation Date */}
-          <DateInput
-            id="dso_recommendation_date"
-            label="DSO Recommendation Date"
-            value={dates.dso_recommendation_date || ''}
-            onChange={(value) => handleDateChange('dso_recommendation_date', value)}
-            description="Date when your Designated School Official recommended OPT"
-            optional
-          />
+            {/* Row 1 Right: OPT EAD End Date */}
+            <DateInput
+              id="opt_ead_end_date"
+              label="OPT EAD End Date"
+              value={dates.opt_ead_end_date || ''}
+              onChange={(value) => handleDateChange('opt_ead_end_date', value)}
+              description="Employment Authorization Document expiration date for OPT"
+              optional
+            />
 
-          {/* OPT Start Date */}
-          <DateInput
-            id="opt_start_date"
-            label="OPT Start Date"
-            value={dates.opt_start_date || ''}
-            onChange={(value) => handleDateChange('opt_start_date', value)}
-            description="The start date of your OPT period"
-            optional
-          />
+            {/* Row 2 Left: DSO Recommendation Date */}
+            <DateInput
+              id="dso_recommendation_date"
+              label="DSO Recommendation Date"
+              value={dates.dso_recommendation_date || ''}
+              onChange={(value) => handleDateChange('dso_recommendation_date', value)}
+              description="Date when your Designated School Official recommended OPT"
+              optional
+            />
 
-          {/* OPT EAD End Date */}
-          <DateInput
-            id="opt_ead_end_date"
-            label="OPT EAD End Date"
-            value={dates.opt_ead_end_date || ''}
-            onChange={(value) => handleDateChange('opt_ead_end_date', value)}
-            description="Employment Authorization Document expiration date for OPT"
-            optional
-          />
+            {/* Row 2 Right: STEM Extension Start Date */}
+            <DateInput
+              id="stem_start_date"
+              label="STEM Extension Start Date"
+              value={dates.stem_start_date || ''}
+              onChange={(value) => handleDateChange('stem_start_date', value)}
+              description="Start date of STEM OPT extension (if applicable)"
+              optional
+            />
 
-          {/* STEM Start Date */}
-          <DateInput
-            id="stem_start_date"
-            label="STEM Extension Start Date"
-            value={dates.stem_start_date || ''}
-            onChange={(value) => handleDateChange('stem_start_date', value)}
-            description="Start date of STEM OPT extension (if applicable)"
-            optional
-          />
+            {/* Row 3 Left: OPT Start Date */}
+            <DateInput
+              id="opt_start_date"
+              label="OPT Start Date"
+              value={dates.opt_start_date || ''}
+              onChange={(value) => handleDateChange('opt_start_date', value)}
+              description="The start date of your OPT period"
+              optional
+            />
+          </div>
 
           {/* Error Message */}
           {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300">
               {error}
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
-              Dates saved successfully!
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300">
+              ✓ Dates saved successfully!
             </div>
           )}
 
-          {/* Save Button */}
-          <div className="flex gap-3">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
               onClick={handleSave}
               disabled={isSaving}
-              className="min-w-[120px]"
+              className="min-w-[140px]"
             >
               {isSaving ? 'Saving...' : 'Save Dates'}
             </Button>
@@ -465,20 +470,6 @@ export function OptDatesSection() {
             </Button>
           </div>
         </div>
-      </Card>
-
-      {/* Info Card */}
-      <Card className="p-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-        <h3 className="font-semibold mb-2 flex items-center gap-2">
-          <span className="text-blue-600 dark:text-blue-400">ℹ️</span>
-          Important Information
-        </h3>
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li>• All dates must be in MM/DD/YYYY format</li>
-          <li>• At least one date is required to save</li>
-          <li>• You can update these dates at any time</li>
-          <li>• These dates sync automatically with your browser extension</li>
-        </ul>
       </Card>
     </div>
   );
