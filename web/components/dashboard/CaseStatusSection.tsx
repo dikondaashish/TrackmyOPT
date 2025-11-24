@@ -236,16 +236,6 @@ export function CaseStatusSection() {
     });
   };
 
-  const formatDateOnly = (dateString: string | null) => {
-    if (!dateString) return '—';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric'
-    });
-  };
-
   const getStatusIcon = (status: string) => {
     if (status.toLowerCase().includes('approved')) {
       return <CheckCircle2 className="w-5 h-5 text-green-500" />;
@@ -254,92 +244,6 @@ export function CaseStatusSection() {
     } else {
       return <AlertCircle className="w-5 h-5 text-blue-500" />;
     }
-  };
-
-  const getDaysAgo = (dateString: string | null) => {
-    if (!dateString) return 0;
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  const getServiceCenter = (receipt: string) => {
-    const prefix = receipt.substring(0, 3).toUpperCase();
-    const centers: Record<string, string> = {
-      EAC: 'Vermont Service Center',
-      WAC: 'California Service Center',
-      LIN: 'Nebraska Service Center',
-      SRC: 'Texas Service Center',
-      MSC: 'National Benefits Center',
-      NBC: 'National Benefits Center',
-      IOE: 'USCIS Electronic Immigration System',
-      YSC: 'Potomac Service Center',
-    };
-    return centers[prefix] || 'Unknown Service Center';
-  };
-
-  const getCaseCategory = (caseType: string | null) => {
-    if (!caseType) return 'USCIS Case';
-    const categories: Record<string, string> = {
-      'I-765': 'Application for Employment Authorization',
-      'I-130': 'Petition for Alien Relative',
-      'I-140': 'Immigrant Petition for Alien Worker',
-      'I-485': 'Application to Register Permanent Residence',
-      'I-539': 'Application to Extend/Change Nonimmigrant Status',
-      'I-90': 'Application to Replace Permanent Resident Card',
-      'N-400': 'Application for Naturalization',
-      'N-600': 'Application for Certificate of Citizenship',
-    };
-    return categories[caseType] || 'USCIS Case';
-  };
-
-  const renderDescription = (description: string | undefined) => {
-    if (!description) return null;
-    
-    // Check if description contains HTML links
-    if (description.includes('<a')) {
-      // Parse HTML links and render them properly
-      const linkRegex = /<a\s+href="([^"]+)"[^>]*>([^<]+)<\/a>/g;
-      const parts: (string | JSX.Element)[] = [];
-      let lastIndex = 0;
-      let match;
-      let keyCounter = 0;
-      
-      // Reset regex lastIndex
-      linkRegex.lastIndex = 0;
-      
-      while ((match = linkRegex.exec(description)) !== null) {
-        // Add text before the link
-        if (match.index > lastIndex) {
-          parts.push(description.substring(lastIndex, match.index));
-        }
-        // Add the link
-        parts.push(
-          <a 
-            key={`link-${keyCounter++}`}
-            href={match[1]} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:underline"
-          >
-            {match[2]}
-          </a>
-        );
-        lastIndex = linkRegex.lastIndex;
-      }
-      
-      // Add remaining text
-      if (lastIndex < description.length) {
-        parts.push(description.substring(lastIndex));
-      }
-      
-      return parts.length > 0 ? <>{parts}</> : description;
-    }
-    
-    // No HTML, return as plain text
-    return description;
   };
 
   if (isLoading) {
@@ -406,7 +310,6 @@ export function CaseStatusSection() {
       </div>
 
       {/* Receipt Number Input */}
-      {!caseStatus && (
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Enter Your Receipt Number</h2>
         <div className="space-y-4">
@@ -456,176 +359,187 @@ export function CaseStatusSection() {
           )}
         </div>
       </Card>
-      )}
 
-      {/* Case Status Dashboard */}
+      {/* Current Status */}
       {caseStatus && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
-            
-            {/* 1. Recent Updated Case Message */}
-            <Card className="p-6 bg-slate-50 dark:bg-slate-900 border-none shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-lg">
-                  <Bell className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
-                </div>
-                <h2 className="text-lg font-bold">Recent Updated Case Message</h2>
+        <>
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Current Status</h2>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleNotifications}
+                  title={caseStatus.notifications_enabled ? "Notifications enabled" : "Notifications disabled"}
+                >
+                  {caseStatus.notifications_enabled ? (
+                    <>
+                      <Bell className="w-4 h-4 mr-2" />
+                      Notifications On
+                    </>
+                  ) : (
+                    <>
+                      <BellOff className="w-4 h-4 mr-2" />
+                      Notifications Off
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  Refresh Now
+                </Button>
               </div>
-              
-              <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold flex items-center gap-2">
-                    {caseStatus.current_status}
-                    {caseStatus.current_status?.toLowerCase().includes('card') && <span className="text-2xl">🎉</span>}
-                  </h3>
-                  <button onClick={() => window.open('https://egov.uscis.gov', '_blank')} className="text-sm text-blue-600 hover:underline font-medium">
-                    Check online
-                  </button>
-                </div>
-                
-                <p className="text-sm text-muted-foreground mb-4">
-                  {formatDateOnly(caseStatus.last_status_change_at || caseStatus.last_checked_at)}
-                </p>
-                
-                <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {renderDescription(caseStatus.status_history?.[0]?.description) || 
-                   `Your case status is currently "${caseStatus.current_status}". This status was last updated on ${formatDateOnly(caseStatus.last_status_change_at || caseStatus.last_checked_at)}.`}
-                </div>
-              </div>
-            </Card>
+            </div>
 
-            {/* 2. Case Message History */}
-            <Card className="p-6 border-none shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <h2 className="text-lg font-bold">Case Message History</h2>
+            <div className="space-y-4">
+              {/* Receipt Number */}
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Receipt Number</p>
+                <p className="text-lg font-mono font-semibold">{caseStatus.receipt_number}</p>
               </div>
-              
-              <div className="relative pl-4 border-l-2 border-slate-100 dark:border-slate-800 space-y-8">
-                {(caseStatus.status_history || []).map((item, index) => {
-                  const isMostRecent = index === 0;
-                  return (
-                    <div key={index} className="relative">
-                      {/* Timeline dot - filled for most recent, hollow for others */}
-                      {isMostRecent ? (
-                        <div className="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-blue-600 ring-4 ring-white dark:ring-slate-950" />
-                      ) : (
-                        <div className="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-950 ring-2 ring-white dark:ring-slate-950" />
+
+              {/* Current Status */}
+              {caseStatus.current_status ? (
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    {getStatusIcon(caseStatus.current_status)}
+                    <div className="flex-1">
+                      <p className="font-semibold text-blue-900 dark:text-blue-100">
+                        {caseStatus.current_status}
+                      </p>
+                      {caseStatus.case_type && (
+                        <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                          Case Type: {caseStatus.case_type}
+                        </p>
                       )}
-                      
-                      <div className="mb-1">
-                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          {formatDateOnly(item.date)}
-                        </span>
-                      </div>
-                      
-                      <div className={`rounded-lg p-4 mt-2 ${isMostRecent ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800' : 'bg-slate-50 dark:bg-slate-900'}`}>
-                        <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                          {item.status}
-                        </h4>
-                        <div className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                          {renderDescription(item.description) || item.status}
-                        </div>
-                      </div>
-                      
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        {formatDate(item.date)}
-                      </div>
+                      {caseStatus.received_date && (
+                        <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                          Received: {formatDate(caseStatus.received_date)}
+                        </p>
+                      )}
                     </div>
-                  );
-                })}
-                
-                {(!caseStatus.status_history || caseStatus.status_history.length === 0) && (
-                  <div className="text-sm text-muted-foreground">No history available yet.</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg">
+                  <p className="text-muted-foreground text-center">
+                    Status will be fetched shortly...
+                  </p>
+                </div>
+              )}
+
+              {/* Last Checked */}
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>
+                  Last checked: {formatDate(caseStatus.last_checked_at)}
+                </span>
+                {caseStatus.last_status_change_at && (
+                  <span>
+                    Last changed: {formatDate(caseStatus.last_status_change_at)}
+                  </span>
                 )}
               </div>
-            </Card>
-          </div>
+            </div>
+          </Card>
 
-          {/* Right Column - My Case Info */}
-          <div className="lg:col-span-1">
-            <Card className="p-6 sticky top-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-blue-600 p-2 rounded-lg">
-                  <ClipboardCheck className="w-5 h-5 text-white" />
-                </div>
-                <h2 className="text-lg font-bold">My case info</h2>
+          {/* Premium Feature Notice */}
+          <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
+                <Crown className="w-6 h-6 text-white" />
               </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-2">Premium Feature: Instant Notifications</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Get notified via email and SMS the moment your case status changes. Never miss an important update!
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground mb-4">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    Instant email notifications
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    SMS alerts (coming soon)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    Automatic checks every 6 hours
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    Detailed status history
+                  </li>
+                </ul>
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Crown className="w-4 h-4 mr-2" />
+                  Upgrade to Premium
+                </Button>
+              </div>
+            </div>
+          </Card>
 
-              <div className="space-y-6">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-sm text-muted-foreground">Case Type</span>
-                  <span className="font-semibold">{caseStatus.case_type || 'Unknown'}</span>
-                </div>
-
-                <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-sm text-muted-foreground block mb-1">Case Category</span>
-                  <span className="font-medium text-sm">
-                    {getCaseCategory(caseStatus.case_type)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-sm text-muted-foreground">Application Filing Date</span>
-                  <span className="font-semibold">
-                    {caseStatus.received_date 
-                      ? new Date(caseStatus.received_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                      : '—'}
-                  </span>
-                </div>
-
-                <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-sm text-muted-foreground block mb-1">Service Center</span>
-                  <span className="font-medium text-sm">
-                    {getServiceCenter(caseStatus.receipt_number)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-sm text-muted-foreground">Status</span>
-                  <span className="font-semibold text-right">{caseStatus.current_status}</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div>
-                    <span className="text-xs text-muted-foreground block mb-1">Total</span>
-                    <span className="font-semibold">
-                      {getDaysAgo(caseStatus.received_date)} days ago
-                    </span>
-                  </div>
-                  <div className="border-l border-slate-100 dark:border-slate-800 pl-4">
-                    <span className="text-xs text-muted-foreground block mb-1">Last update</span>
-                    <span className="font-semibold">
-                      {getDaysAgo(caseStatus.last_status_change_at || caseStatus.last_checked_at)} days ago
-                    </span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="pt-4 flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={handleRefresh}
-                    disabled={isRefreshing}
+          {/* Status History */}
+          {caseStatus.status_history && caseStatus.status_history.length > 0 && (
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Status History</h2>
+              <div className="space-y-4">
+                {caseStatus.status_history.map((item, index) => (
+                  <div 
+                    key={index} 
+                    className="flex gap-4 pb-4 border-b border-gray-200 dark:border-gray-800 last:border-0 last:pb-0"
                   >
-                    <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    Refresh
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={toggleNotifications}
-                  >
-                    {caseStatus.notifications_enabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-                  </Button>
-                </div>
+                    <div className="pt-1">
+                      {getStatusIcon(item.status)}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold">{item.status}</p>
+                      {item.description && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {item.description}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {formatDate(item.date)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </Card>
-          </div>
-        </div>
+          )}
+        </>
+      )}
+
+      {/* Help Text */}
+      {!caseStatus && (
+        <Card className="p-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <h3 className="font-semibold mb-2">How it works</h3>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 dark:text-blue-400">1.</span>
+              Enter your USCIS receipt number above
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 dark:text-blue-400">2.</span>
+              We'll automatically check your case status every 6 hours
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 dark:text-blue-400">3.</span>
+              Get notified via email when your status changes (Premium feature)
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 dark:text-blue-400">4.</span>
+              View your complete status history in one place
+            </li>
+          </ul>
+        </Card>
       )}
     </div>
   );
