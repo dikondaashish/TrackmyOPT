@@ -427,123 +427,126 @@ export function CaseStatusSection() {
             </Card>
           )}
 
-          {/* 2. Case Message History */}
+          {/* 2 & 3. Case Message History and My Case Info - Side by Side */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-6">Case Message History</h2>
-              
-              <div className="relative">
-                {/* Timeline Line */}
-                <div className="absolute left-[13px] top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-700"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left: Case Message History */}
+              <Card className="p-6">
+                <h2 className="text-lg font-bold mb-6">Case Message History</h2>
                 
-                {/* Timeline Items */}
-                <div className="space-y-8">
-                  {caseStatus.status_history.map((item, index) => (
-                    <div key={index} className="relative pl-10">
-                      {/* Timeline Dot */}
-                      <div className="absolute left-0 top-2 w-7 h-7 rounded-full bg-white dark:bg-gray-900 border-2 border-blue-500 flex items-center justify-center">
-                        <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                      </div>
-                      
-                      {/* Date */}
-                      <p className="text-sm font-semibold mb-3">
-                        {formatDateShort(item.date)}
-                      </p>
-                      
-                      {/* Status Card */}
-                      {item.description ? (
-                        <Collapsible
-                          title={item.status}
-                          defaultOpen={index === 0}
-                          className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800"
-                          titleClassName="bg-gray-100 dark:bg-gray-800/50"
-                        >
-                          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                            {item.description}
-                          </p>
-                        </Collapsible>
-                      ) : (
-                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                            {item.status}
-                          </p>
+                <div className="relative">
+                  {/* Timeline Line */}
+                  <div className="absolute left-[13px] top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-700"></div>
+                  
+                  {/* Timeline Items */}
+                  <div className="space-y-6">
+                    {caseStatus.status_history.map((item, index) => (
+                      <div key={index} className="relative pl-9">
+                        {/* Timeline Dot */}
+                        <div className="absolute left-0 top-2 w-7 h-7 rounded-full bg-white dark:bg-gray-900 border-2 border-blue-500 flex items-center justify-center">
+                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                         </div>
-                      )}
+                        
+                        {/* Date */}
+                        <p className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                          {formatDateShort(item.date)}
+                        </p>
+                        
+                        {/* Status Card */}
+                        {item.description ? (
+                          <Collapsible
+                            title={item.status}
+                            defaultOpen={index === 0}
+                            className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800"
+                            titleClassName="bg-gray-100 dark:bg-gray-800/50"
+                          >
+                            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                              {item.description}
+                            </p>
+                          </Collapsible>
+                        ) : (
+                          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                            <p className="text-xs font-medium text-blue-900 dark:text-blue-100">
+                              {item.status}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+
+              {/* Right: My Case Info */}
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h2 className="text-lg font-bold">My case info</h2>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Case Type */}
+                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Case Type</span>
+                    <span className="text-sm font-semibold text-right">
+                      {caseStatus.case_type || 'I-765'}
+                    </span>
+                  </div>
+
+                  {/* Case Category */}
+                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Case Category</span>
+                    <span className="text-sm font-medium text-right max-w-[60%]">
+                      All other applications for employment authorization
+                    </span>
+                  </div>
+
+                  {/* Application Filing Date */}
+                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Application Filing Date</span>
+                    <span className="text-sm font-semibold">
+                      {caseStatus.received_date ? formatDateShort(caseStatus.received_date) : 'Not available'}
+                    </span>
+                  </div>
+
+                  {/* Service Center */}
+                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Service Center</span>
+                    <span className="text-sm font-semibold">
+                      {getServiceCenter(caseStatus.receipt_number)}
+                    </span>
+                  </div>
+
+                  {/* Status */}
+                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Status</span>
+                    <span className="text-sm font-semibold text-right max-w-[60%]">
+                      {caseStatus.current_status || 'Fetching...'}
+                    </span>
+                  </div>
+
+                  {/* Time Information */}
+                  <div className="flex items-center justify-between pt-4 text-sm text-gray-500 dark:text-gray-400">
+                    <div>
+                      <span className="text-xs font-medium">Total</span>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        {getDaysAgo(caseStatus.received_date)}
+                      </p>
                     </div>
-                  ))}
+                    <div className="w-px h-10 bg-gray-300 dark:bg-gray-700"></div>
+                    <div className="text-right">
+                      <span className="text-xs font-medium">Last update</span>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        {getDaysAgo(caseStatus.last_status_change_at)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           )}
-
-          {/* 3. My Case Info */}
-          <Card className="p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h2 className="text-xl font-bold">My case info</h2>
-            </div>
-
-            <div className="space-y-4">
-              {/* Case Type */}
-              <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-800">
-                <span className="text-gray-600 dark:text-gray-400">Case Type</span>
-                <span className="font-semibold text-right">
-                  {caseStatus.case_type || 'Not available'}
-                </span>
-              </div>
-
-              {/* Case Category */}
-              <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-800">
-                <span className="text-gray-600 dark:text-gray-400">Case Category</span>
-                <span className="font-medium text-right text-sm max-w-md">
-                  All other applications for employment authorization
-                </span>
-              </div>
-
-              {/* Application Filing Date */}
-              <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-800">
-                <span className="text-gray-600 dark:text-gray-400">Application Filing Date</span>
-                <span className="font-semibold">
-                  {caseStatus.received_date ? formatDateShort(caseStatus.received_date) : 'Not available'}
-                </span>
-              </div>
-
-              {/* Service Center */}
-              <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-800">
-                <span className="text-gray-600 dark:text-gray-400">Service Center</span>
-                <span className="font-semibold">
-                  {getServiceCenter(caseStatus.receipt_number)}
-                </span>
-              </div>
-
-              {/* Status */}
-              <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-800">
-                <span className="text-gray-600 dark:text-gray-400">Status</span>
-                <span className="font-semibold text-right max-w-md">
-                  {caseStatus.current_status || 'Fetching...'}
-                </span>
-              </div>
-
-              {/* Time Information */}
-              <div className="flex items-center justify-between pt-3 text-sm text-gray-500 dark:text-gray-400">
-                <div>
-                  <span className="font-medium">Total</span>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100">
-                    {getDaysAgo(caseStatus.received_date)}
-                  </p>
-                </div>
-                <div className="w-px h-10 bg-gray-300 dark:border-gray-700"></div>
-                <div className="text-right">
-                  <span className="font-medium">Last update</span>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100">
-                    {getDaysAgo(caseStatus.last_status_change_at)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Card>
         </>
       )}
 

@@ -28,20 +28,20 @@ export function Collapsible({
     <div className={`rounded-lg ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg ${titleClassName}`}
+        className={`w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg ${titleClassName}`}
       >
-        <div className="flex items-center gap-3 flex-1">
+        <div className="flex items-center gap-2 flex-1">
           {icon}
-          <span className="font-semibold">{title}</span>
+          <span className="text-sm font-semibold">{title}</span>
         </div>
         <ChevronDown
-          className={`w-5 h-5 transition-transform duration-200 ${
+          className={`w-4 h-4 transition-transform duration-200 flex-shrink-0 ${
             isOpen ? "rotate-180" : ""
           }`}
         />
       </button>
       {isOpen && (
-        <div className={`p-4 pt-0 ${contentClassName}`}>
+        <div className={`px-3 pb-3 pt-2 ${contentClassName}`}>
           {children}
         </div>
       )}
