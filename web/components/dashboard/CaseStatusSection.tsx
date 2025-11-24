@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Collapsible } from "@/components/ui/collapsible";
+import { PremiumUpsellModal } from "@/components/dashboard/PremiumUpsellModal";
 import { 
   ClipboardCheck, 
   RefreshCw, 
@@ -13,7 +14,11 @@ import {
   Clock, 
   AlertCircle,
   Loader2,
-  Globe
+  Globe,
+  Mail,
+  Crown,
+  Info,
+  Edit
 } from "lucide-react";
 
 interface CaseStatus {
@@ -42,10 +47,46 @@ export function CaseStatusSection() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [notificationEmail, setNotificationEmail] = useState("");
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [nextCheckTime, setNextCheckTime] = useState<string>("");
 
   useEffect(() => {
     loadCaseStatus();
+    checkPremiumStatus();
+    loadUserEmail();
   }, []);
+
+  const checkPremiumStatus = async () => {
+    try {
+      const response = await fetch('/api/premium/status', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setIsPremium(data.isPremium || false);
+      }
+    } catch (err) {
+      console.error('Error checking premium status:', err);
+    }
+  };
+
+  const loadUserEmail = async () => {
+    try {
+      const response = await fetch('/api/user/notification-email', {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setNotificationEmail(data.email || "");
+      }
+    } catch (err) {
+      console.error('Error loading notification email:', err);
+    }
+  };
 
   const loadCaseStatus = async () => {
     try {
@@ -239,6 +280,61 @@ export function CaseStatusSection() {
     return centerMap[prefix] || 'Potomac Service Center';
   };
 
+  const getStatusExplanation = (status: string) => {
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('approved')) {
+      return { color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-green-200', explanation: 'Your case has been approved. You should receive an approval notice soon.' };
+    } else if (statusLower.includes('pending') || statusLower.includes('received')) {
+      return { color: 'text-yellow-600', bgColor: 'bg-yellow-50', borderColor: 'border-yellow-200', explanation: 'Your case is currently being reviewed by USCIS.' };
+    } else if (statusLower.includes('ready') || statusLower.includes('scheduled')) {
+      return { color: 'text-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', explanation: 'USCIS is preparing for the next step in your case.' };
+    } else if (statusLower.includes('produced') || statusLower.includes('mailed')) {
+      return { color: 'text-purple-600', bgColor: 'bg-purple-50', borderColor: 'border-purple-200', explanation: 'Your document has been produced and is being mailed to you.' };
+    }
+    return { color: 'text-gray-600', bgColor: 'bg-gray-50', borderColor: 'border-gray-200', explanation: 'Your case is being processed.' };
+  };
+
+  const calculateNextCheck = (lastCheckedAt: string | null) => {
+    if (!lastCheckedAt) return 'Checking soon...';
+    const lastCheck = new Date(lastCheckedAt);
+    const nextCheck = new Date(lastCheck.getTime() + 6 * 60 * 60 * 1000); // Add 6 hours
+    const now = new Date();
+    
+    if (nextCheck <= now) return 'Checking soon...';
+    
+    const hoursLeft = Math.floor((nextCheck.getTime() - now.getTime()) / (1000 * 60 * 60));
+    const minutesLeft = Math.floor(((nextCheck.getTime() - now.getTime()) % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hoursLeft > 0) {
+      return `Next check in ${hoursLeft}h ${minutesLeft}m`;
+    }
+    return `Next check in ${minutesLeft}m`;
+  };
+
+  const handleEmailSave = async () => {
+    if (!isPremium) {
+      setShowPremiumModal(true);
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/user/notification-email', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: notificationEmail }),
+      });
+      
+      if (response.ok) {
+        setIsEditingEmail(false);
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      }
+    } catch (err) {
+      console.error('Error saving email:', err);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -306,22 +402,27 @@ export function CaseStatusSection() {
         <h2 className="text-xl font-semibold mb-4">Enter Your Receipt Number</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label htmlFor="receipt-number-input" className="block text-sm font-medium mb-2">
               USCIS Receipt Number
             </label>
             <div className="flex gap-3">
               <Input
+                id="receipt-number-input"
                 type="text"
                 placeholder="Try: EAC9999103403 (test number)"
                 value={receiptNumber}
                 onChange={(e) => setReceiptNumber(e.target.value.toUpperCase())}
                 className="flex-1 font-mono"
                 maxLength={13}
+                aria-label="Enter your USCIS receipt number"
+                aria-describedby="receipt-number-help"
+                aria-required="true"
               />
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
                 className="min-w-[120px]"
+                aria-label="Save and track your receipt number"
               >
                 {isSaving ? (
                   <>
@@ -333,7 +434,7 @@ export function CaseStatusSection() {
                 )}
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p id="receipt-number-help" className="text-sm text-muted-foreground mt-2">
               <strong>Sandbox Mode:</strong> Use staging numbers like EAC9999103403, SRC9999102777, or LIN9999106498
             </p>
           </div>
@@ -384,6 +485,116 @@ export function CaseStatusSection() {
             </Button>
           </div>
 
+          {/* Last Check Indicator */}
+          <Card className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Last checked: {formatDate(caseStatus.last_checked_at)}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {calculateNextCheck(caseStatus.last_checked_at)} • Automatic checks every 6 hours
+                  </p>
+                </div>
+              </div>
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            </div>
+          </Card>
+
+          {/* Email Notification Settings - Premium Gated */}
+          <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                {isPremium ? <Mail className="w-6 h-6 text-purple-600 dark:text-purple-400" /> : <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />}
+              </div>
+              <div className="flex-1">
+                {isPremium ? (
+                  <>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Case Status Notifications</h3>
+                      {!isEditingEmail && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditingEmail(true)}
+                          className="flex items-center gap-2"
+                        >
+                          <Edit className="w-4 h-4" />
+                          Edit
+                        </Button>
+                      )}
+                    </div>
+                    {isEditingEmail ? (
+                      <div className="space-y-3">
+                        <Input
+                          type="email"
+                          value={notificationEmail}
+                          onChange={(e) => setNotificationEmail(e.target.value)}
+                          placeholder="your.email@example.com"
+                          className="bg-white dark:bg-gray-900"
+                          aria-label="Notification email address"
+                        />
+                        <div className="flex gap-2">
+                          <Button onClick={handleEmailSave} size="sm" className="bg-purple-600 hover:bg-purple-700">
+                            Save
+                          </Button>
+                          <Button onClick={() => setIsEditingEmail(false)} variant="outline" size="sm">
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                          {notificationEmail || 'No email set'}
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          📧 Get notified when your case status changes
+                        </p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                      Premium Feature: Instant Notifications
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      Get notified via email and SMS the moment your case status changes. Never miss an important update!
+                    </p>
+                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        Instant email notifications
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        SMS alerts (coming soon)
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        Automatic checks every 6 hours
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        Detailed status history
+                      </li>
+                    </ul>
+                    <Button
+                      onClick={() => setShowPremiumModal(true)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      <Crown className="w-4 h-4 mr-2" />
+                      Upgrade to Premium
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </Card>
+
           {/* 1. Recent Updated Case Message */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 && (
             <Card className="p-6">
@@ -394,36 +605,51 @@ export function CaseStatusSection() {
                 <h2 className="text-xl font-bold">Recent Updated Case Message</h2>
               </div>
               
-              <Collapsible
-                title={
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{caseStatus.status_history[0].status}</span>
-                    <span className="text-2xl">🎉</span>
-                  </div>
-                }
-                defaultOpen={true}
-                className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800"
-                titleClassName="bg-gray-100 dark:bg-gray-800/50"
-              >
-                <div className="space-y-3">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {formatDateShort(caseStatus.status_history[0].date)}
-                  </p>
-                  <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
-                    {caseStatus.status_history[0].description || caseStatus.current_status}
-                  </p>
-                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <a
-                      href="https://egov.uscis.gov/casestatus"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
-                    >
-                      Check online
-                    </a>
-                  </div>
-                </div>
-              </Collapsible>
+              {(() => {
+                const statusInfo = getStatusExplanation(caseStatus.status_history[0].status);
+                return (
+                  <Collapsible
+                    title={
+                      <div className="flex items-center gap-2">
+                        <span className={`text-lg ${statusInfo.color}`}>{caseStatus.status_history[0].status}</span>
+                        <span className="text-2xl">🎉</span>
+                      </div>
+                    }
+                    defaultOpen={true}
+                    className={`${statusInfo.bgColor} dark:bg-gray-900/20 border ${statusInfo.borderColor}`}
+                    titleClassName={`${statusInfo.bgColor} dark:bg-gray-800/50`}
+                  >
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {formatDateShort(caseStatus.status_history[0].date)}
+                      </p>
+                      <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
+                        {caseStatus.status_history[0].description || caseStatus.current_status}
+                      </p>
+                      {/* Status Explanation */}
+                      <div className={`p-3 rounded-lg ${statusInfo.bgColor} border ${statusInfo.borderColor}`}>
+                        <div className="flex items-start gap-2">
+                          <Info className={`w-4 h-4 mt-0.5 ${statusInfo.color}`} />
+                          <p className="text-xs text-gray-700 dark:text-gray-300">
+                            <strong>What this means:</strong> {statusInfo.explanation}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <a
+                          href="https://egov.uscis.gov/casestatus"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
+                          aria-label="Check your case status on USCIS website"
+                        >
+                          Check online
+                        </a>
+                      </div>
+                    </div>
+                  </Collapsible>
+                );
+              })()}
             </Card>
           )}
 
@@ -574,6 +800,13 @@ export function CaseStatusSection() {
           </ul>
         </Card>
       )}
+
+      {/* Premium Upsell Modal */}
+      <PremiumUpsellModal
+        open={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        feature="Case Status Notifications"
+      />
     </div>
   );
 }
