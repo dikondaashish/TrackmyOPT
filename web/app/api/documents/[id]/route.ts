@@ -50,13 +50,23 @@ export async function GET(
     const viewUrl = await generateSignedUrl(document.s3_key);
 
     console.log(`✅ Document fetched: ${document.filename}`);
+    console.log(`📅 Expiry date from DB: ${document.expiry_date}`);
 
+    // Transform snake_case to camelCase for frontend
     return NextResponse.json({
       document: {
-        ...document,
+        id: document.id,
+        filename: document.filename || document.file_name,
+        documentType: document.document_type || document.category || 'other',
+        category: document.category || document.document_type || 'other',
+        issueDate: document.issue_date || null,
+        expiryDate: document.expiry_date || null,
+        summary: document.summary || '',
         extractedFields: document.extracted_fields || {},
-        documentType: document.document_type || 'other',
         aiConfidence: document.ai_confidence || 0,
+        uploadedAt: document.uploaded_at || document.created_at,
+        fileType: document.file_type,
+        fileSize: document.file_size,
         viewUrl,
       },
     });

@@ -75,9 +75,25 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Found ${documents?.length || 0} documents`);
 
+    // Transform snake_case to camelCase for frontend
+    const transformedDocuments = (documents || []).map(doc => ({
+      id: doc.id,
+      filename: doc.filename || doc.file_name,
+      documentType: doc.document_type || doc.category || 'other',
+      category: doc.category || doc.document_type || 'other',
+      issueDate: doc.issue_date || null,
+      expiryDate: doc.expiry_date || null,
+      summary: doc.summary || '',
+      extractedFields: doc.extracted_fields || {},
+      aiConfidence: doc.ai_confidence || 0,
+      uploadedAt: doc.uploaded_at || doc.created_at,
+      fileType: doc.file_type,
+      fileSize: doc.file_size,
+    }));
+
     return NextResponse.json({
-      documents: documents || [],
-      count: documents?.length || 0,
+      documents: transformedDocuments,
+      count: transformedDocuments.length,
     });
 
   } catch (error) {
