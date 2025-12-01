@@ -941,26 +941,28 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       
       // Email save handler
       const saveEmailBtn = document.getElementById('save-email-btn');
-      const emailInput = document.getElementById('opt-apply-email') as HTMLInputElement;
-      const emailStatus = document.getElementById('email-status');
       
       saveEmailBtn?.addEventListener('click', async () => {
+        // Get elements inside the click handler to ensure they exist
+        const emailInput = document.getElementById('opt-apply-email') as HTMLInputElement;
+        const emailStatus = document.getElementById('email-status');
         const email = emailInput?.value.trim();
+        
         if (!email || !email.includes('@')) {
           if (emailStatus) emailStatus.textContent = '❌ Please enter a valid email';
           return;
         }
         
-        saveEmailBtn.textContent = 'Saving...';
+        if (saveEmailBtn) (saveEmailBtn as HTMLElement).textContent = 'Saving...';
         const success = await saveToolEmail('opt_apply', email);
         
         if (success) {
           if (emailStatus) emailStatus.textContent = '✅ Email saved! You will receive reminders.';
-          saveEmailBtn.textContent = 'Saved!';
-          setTimeout(() => { saveEmailBtn.textContent = 'Save'; }, 2000);
+          if (saveEmailBtn) (saveEmailBtn as HTMLElement).textContent = 'Saved!';
+          setTimeout(() => { if (saveEmailBtn) (saveEmailBtn as HTMLElement).textContent = 'Save'; }, 2000);
         } else {
           if (emailStatus) emailStatus.textContent = '❌ Failed to save. Try again.';
-          saveEmailBtn.textContent = 'Save';
+          if (saveEmailBtn) (saveEmailBtn as HTMLElement).textContent = 'Save';
         }
       });
       

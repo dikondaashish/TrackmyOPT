@@ -481,7 +481,7 @@ export function renderStemClockTracker(
         <div style="position: relative;">
           <input 
             type="email" 
-            id="reminder-email" 
+            id="reminder-email-input" 
             placeholder="your@email.com"
             value="${savedEmail || ''}"
             style="
