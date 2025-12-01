@@ -352,6 +352,77 @@ function calculateStemFilingWindow(currentOptEndDate: Date) {
 }
 
 /**
+ * Check if user has premium access
+ */
+async function checkPremiumStatus(): Promise<boolean> {
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (!idToken) return false;
+
+    const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) return false;
+    
+    const result = await response.json();
+    return result.isPremium || false;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Load tool email from API
+ */
+async function loadToolEmail(tool: string): Promise<string | null> {
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (!idToken) return null;
+
+    const response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) return null;
+    
+    const result = await response.json();
+    return result.email || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Save tool email to API
+ */
+async function saveToolEmail(tool: string, email: string): Promise<boolean> {
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (!idToken) return false;
+
+    const response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tool, email }),
+    });
+
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}
 
 /**
  * Load saved STEM OPT data from API
@@ -543,6 +614,107 @@ export function renderStemApply(root: HTMLElement, onBack: () => void): void {
     </div>
   `;
   content.appendChild(optEndCard);
+  
+  // Email notification card (Premium only)
+  const emailCard = document.createElement('div');
+  emailCard.id = 'email-notification-card';
+  emailCard.style.cssText = `
+    padding: 14px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+    display: none;
+  `;
+  content.appendChild(emailCard);
+  
+  // Load premium status and show email card if premium
+  checkPremiumStatus().then(async (isPremium) => {
+    if (isPremium) {
+      const savedEmail = await loadToolEmail('stem_apply');
+      emailCard.style.display = 'block';
+      emailCard.innerHTML = `
+        <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
+          <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 18px;">
+            📧
+          </div>
+          <div style="flex: 1;">
+            <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Daily Reminders (9:00 AM ET)</div>
+            <div style="font-size: 11px; opacity: 0.9;">Get email reminders for STEM OPT filing deadlines</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <input 
+            type="email" 
+            id="stem-apply-email" 
+            placeholder="your.email@example.com"
+            value="${savedEmail || ''}"
+            style="
+              flex: 1;
+              padding: 10px 12px;
+              border: 0;
+              border-radius: 10px;
+              background: rgba(255,255,255,0.15);
+              backdrop-filter: blur(10px);
+              color: white;
+              font-size: 13px;
+              outline: none;
+              font-family: inherit;
+            "
+          />
+          <button 
+            id="save-stem-email-btn"
+            style="
+              padding: 10px 16px;
+              border: 0;
+              border-radius: 10px;
+              background: rgba(255,255,255,0.25);
+              color: white;
+              font-size: 12px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s;
+            "
+          >Save</button>
+        </div>
+        <div id="stem-email-status" style="font-size: 11px; margin-top: 8px; opacity: 0.9;"></div>
+      `;
+      
+      // Email save handler
+      const saveEmailBtn = document.getElementById('save-stem-email-btn');
+      const emailInput = document.getElementById('stem-apply-email') as HTMLInputElement;
+      const emailStatus = document.getElementById('stem-email-status');
+      
+      saveEmailBtn?.addEventListener('click', async () => {
+        const email = emailInput?.value.trim();
+        if (!email || !email.includes('@')) {
+          if (emailStatus) emailStatus.textContent = '❌ Please enter a valid email';
+          return;
+        }
+        
+        saveEmailBtn.textContent = 'Saving...';
+        const success = await saveToolEmail('stem_apply', email);
+        
+        if (success) {
+          if (emailStatus) emailStatus.textContent = '✅ Email saved! You will receive reminders.';
+          saveEmailBtn.textContent = 'Saved!';
+          setTimeout(() => { saveEmailBtn.textContent = 'Save'; }, 2000);
+        } else {
+          if (emailStatus) emailStatus.textContent = '❌ Failed to save. Try again.';
+          saveEmailBtn.textContent = 'Save';
+        }
+      });
+      
+      // Hover effect
+      saveEmailBtn?.addEventListener('mouseenter', () => {
+        (saveEmailBtn as HTMLElement).style.background = 'rgba(255,255,255,0.35)';
+      });
+      saveEmailBtn?.addEventListener('mouseleave', () => {
+        (saveEmailBtn as HTMLElement).style.background = 'rgba(255,255,255,0.25)';
+      });
+    }
+  });
   
   // Calculate button
   const calculateBtn = document.createElement('button');

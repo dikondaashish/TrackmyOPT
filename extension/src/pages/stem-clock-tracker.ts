@@ -102,6 +102,54 @@ async function checkPremiumStatus(): Promise<boolean> {
 }
 
 /**
+ * Load tool email from API
+ */
+async function loadToolEmail(tool: string): Promise<string | null> {
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (!idToken) return null;
+
+    const response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) return null;
+    
+    const result = await response.json();
+    return result.email || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Save tool email to API
+ */
+async function saveToolEmail(tool: string, email: string): Promise<boolean> {
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (!idToken) return false;
+
+    const response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tool, email }),
+    });
+
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
  * Render STEM OPT Clock Tracker countdown page
  */
 export function renderStemClockTracker(
@@ -493,31 +541,46 @@ export function renderStemClockTracker(
           return;
         }
         
-        // Save email to storage
-        await chrome.storage.sync.set({ subscribedEmail: email });
+        // Save email to API (syncs with website and database)
+        const success = await saveToolEmail('stem_clock', email);
         
-        // Show success notification
-        chrome.notifications.create({
-          type: 'basic',
-          iconUrl: 'icons/icon128.png',
-          title: '✅ Email Saved!',
-          message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
-        });
-        
-        // Change button to checkmark
-        if (saveEmailBtn) {
-          saveEmailBtn.innerHTML = '✅';
-          saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
+        if (success) {
+          // Also save to local storage for quick access
+          await chrome.storage.sync.set({ subscribedEmail: email });
           
-          // Reload the page after 1 second to show "Stop Reminders" button
-          setTimeout(() => {
-            renderStemClockTracker(root, onBack, startDate);
-          }, 1000);
+          // Show success notification
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon128.png',
+            title: '✅ Email Saved!',
+            message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
+          });
+          
+          // Change button to checkmark
+          if (saveEmailBtn) {
+            saveEmailBtn.innerHTML = '✅';
+            saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
+            
+            // Reload the page after 1 second to show "Stop Reminders" button
+            setTimeout(() => {
+              renderStemClockTracker(root, onBack, startDate);
+            }, 1000);
+          }
+        } else {
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon128.png',
+            title: 'Error',
+            message: 'Failed to save email. Please try again.'
+          });
         }
       });
       
       stopRemindersBtn?.addEventListener('click', async () => {
         if (confirm('Are you sure you want to stop daily reminders?')) {
+          // Remove email from API (syncs with website and database)
+          await saveToolEmail('stem_clock', '');
+          
           // Remove email from storage
           await chrome.storage.sync.remove('subscribedEmail');
           
