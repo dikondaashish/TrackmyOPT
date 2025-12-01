@@ -357,16 +357,33 @@ function calculateStemFilingWindow(currentOptEndDate: Date) {
 async function checkPremiumStatus(): Promise<boolean> {
   try {
     const { idToken } = await chrome.storage.sync.get('idToken');
-    if (!idToken) return false;
-
+    
+    // Try with idToken first (extension auth)
+    if (idToken) {
+      const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        return result.isPremium || false;
+      }
+    }
+    
+    // Fallback: Try with cookies (web session auth)
+    // This works if user signed in via dashboard
     const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
       method: 'GET',
+      credentials: 'include',
       headers: {
-        'Authorization': `Bearer ${idToken}`,
         'Content-Type': 'application/json',
       },
     });
-
+    
     if (!response.ok) return false;
     
     const result = await response.json();
