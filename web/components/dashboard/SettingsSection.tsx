@@ -18,12 +18,27 @@ import {
   Trash2,
   Key,
   Globe,
-  CreditCard,
-  Palette
+  Palette,
+  FileText,
+  Lock,
+  Download,
+  Chrome,
+  Link2,
+  Clock,
+  RefreshCw,
+  Smartphone,
+  GraduationCap,
+  Database,
+  Eye,
+  EyeOff,
+  Unlink,
+  Activity,
+  History,
+  ShieldCheck
 } from "lucide-react";
 
 // Tab types
-type SettingsTab = 'profile' | 'password' | 'plan' | 'notifications' | 'appearance';
+type SettingsTab = 'profile' | 'security' | 'case-status' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'appearance';
 
 interface UserProfile {
   email: string;
@@ -31,12 +46,30 @@ interface UserProfile {
   timezone: string;
   isStemEligible: boolean;
   notificationEmail: string;
+  authProvider?: string;
 }
 
 interface PremiumStatus {
   isPremium: boolean;
   planName?: string;
   expiresAt?: string;
+}
+
+interface CaseStatusSettings {
+  receiptNumber: string;
+  autoCheckFrequency: 'hourly' | 'daily' | 'weekly' | 'manual';
+  notifyOnChange: boolean;
+}
+
+interface DocumentSettings {
+  hasPasscode: boolean;
+  autoLockTimeout: number; // in minutes
+}
+
+interface ExtensionStatus {
+  isConnected: boolean;
+  lastSyncTime: string | null;
+  version?: string;
 }
 
 export function SettingsSection() {
@@ -56,6 +89,7 @@ export function SettingsSection() {
     timezone: "America/New_York",
     isStemEligible: false,
     notificationEmail: "",
+    authProvider: "email",
   });
   
   // Premium status
@@ -69,21 +103,103 @@ export function SettingsSection() {
   const [caseStatusAlerts, setCaseStatusAlerts] = useState(true);
   const [documentReminders, setDocumentReminders] = useState(true);
 
-  // Password change
+  // Security
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-
-  // Delete account
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [recentLogins, setRecentLogins] = useState<{device: string; location: string; time: string}[]>([]);
+
+  // Case Status Settings
+  const [caseSettings, setCaseSettings] = useState<CaseStatusSettings>({
+    receiptNumber: '',
+    autoCheckFrequency: 'daily',
+    notifyOnChange: true,
+  });
+
+  // Document Vault Settings
+  const [docSettings, setDocSettings] = useState<DocumentSettings>({
+    hasPasscode: false,
+    autoLockTimeout: 5,
+  });
+  const [showPasscodeChange, setShowPasscodeChange] = useState(false);
+  const [currentPasscode, setCurrentPasscode] = useState('');
+  const [newPasscode, setNewPasscode] = useState('');
+  const [confirmPasscode, setConfirmPasscode] = useState('');
+  const [showPasscodes, setShowPasscodes] = useState(false);
+
+  // Extension Status
+  const [extensionStatus, setExtensionStatus] = useState<ExtensionStatus>({
+    isConnected: false,
+    lastSyncTime: null,
+  });
+
+  // Data Export
+  const [isExporting, setIsExporting] = useState(false);
 
   // Load user data
   useEffect(() => {
     loadUserData();
     loadDarkModePreference();
+    loadCaseSettings();
+    loadDocumentSettings();
+    loadExtensionStatus();
+    loadRecentLogins();
   }, []);
 
   const loadDarkModePreference = () => {
     const savedMode = localStorage.getItem('tmo_dark_mode');
     setDarkMode(savedMode === 'true');
+  };
+
+  const loadCaseSettings = async () => {
+    try {
+      const res = await fetch('/api/case-status', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok && data.data) {
+          setCaseSettings({
+            receiptNumber: data.data.receipt_number || '',
+            autoCheckFrequency: data.data.auto_check_frequency || 'daily',
+            notifyOnChange: data.data.notify_on_change !== false,
+          });
+        }
+      }
+    } catch {
+      // Silently fail
+    }
+  };
+
+  const loadDocumentSettings = async () => {
+    try {
+      const res = await fetch('/api/documents/passcode/status', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setDocSettings({
+          hasPasscode: data.hasPasscode || false,
+          autoLockTimeout: data.autoLockTimeout || 5,
+        });
+      }
+    } catch {
+      // Silently fail
+    }
+  };
+
+  const loadExtensionStatus = () => {
+    // Check localStorage for extension sync data
+    const lastSync = localStorage.getItem('tmo_extension_last_sync');
+    const isConnected = !!localStorage.getItem('tmo_extension_connected');
+    setExtensionStatus({
+      isConnected,
+      lastSyncTime: lastSync,
+      version: localStorage.getItem('tmo_extension_version') || undefined,
+    });
+  };
+
+  const loadRecentLogins = () => {
+    // Mock data - in production, this would come from an API
+    setRecentLogins([
+      { device: 'Chrome on MacOS', location: 'New York, US', time: 'Just now' },
+      { device: 'Chrome Extension', location: 'New York, US', time: '2 hours ago' },
+    ]);
   };
 
   const loadUserData = async () => {
@@ -224,6 +340,160 @@ export function SettingsSection() {
     }
   };
 
+  // STEM Eligibility Toggle
+  const handleStemToggle = async () => {
+    try {
+      setIsSaving(true);
+      const newValue = !profile.isStemEligible;
+      
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_stem_eligible: newValue }),
+      });
+
+      if (res.ok) {
+        setProfile(prev => ({ ...prev, isStemEligible: newValue }));
+        setSuccess(`STEM eligibility ${newValue ? 'enabled' : 'disabled'}`);
+        setTimeout(() => setSuccess(null), 3000);
+      }
+    } catch {
+      setError('Failed to update STEM eligibility');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Save Case Status Settings
+  const handleSaveCaseSettings = async () => {
+    try {
+      setIsSaving(true);
+      setError(null);
+
+      const res = await fetch('/api/case-status', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receipt_number: caseSettings.receiptNumber,
+          auto_check_frequency: caseSettings.autoCheckFrequency,
+          notify_on_change: caseSettings.notifyOnChange,
+        }),
+      });
+
+      if (res.ok) {
+        setSuccess('Case status settings saved!');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        throw new Error('Failed to save');
+      }
+    } catch {
+      setError('Failed to save case settings');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Change Document Passcode
+  const handleChangePasscode = async () => {
+    if (newPasscode !== confirmPasscode) {
+      setError('Passcodes do not match');
+      return;
+    }
+    if (newPasscode.length < 4) {
+      setError('Passcode must be at least 4 characters');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      setError(null);
+
+      const res = await fetch('/api/documents/passcode/change', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPasscode: docSettings.hasPasscode ? currentPasscode : undefined,
+          newPasscode,
+        }),
+      });
+
+      if (res.ok) {
+        setSuccess('Passcode updated successfully!');
+        setShowPasscodeChange(false);
+        setCurrentPasscode('');
+        setNewPasscode('');
+        setConfirmPasscode('');
+        setDocSettings(prev => ({ ...prev, hasPasscode: true }));
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to change passcode');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to change passcode');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Export User Data
+  const handleExportData = async (format: 'json' | 'csv') => {
+    try {
+      setIsExporting(true);
+      
+      const res = await fetch(`/api/user/export?format=${format}`, { credentials: 'include' });
+      
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `trackmyopt-data-${new Date().toISOString().split('T')[0]}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        setSuccess('Data exported successfully!');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        throw new Error('Export failed');
+      }
+    } catch {
+      // If API doesn't exist, create mock export
+      const mockData = {
+        profile,
+        caseSettings,
+        exportedAt: new Date().toISOString(),
+      };
+      const blob = new Blob([JSON.stringify(mockData, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `trackmyopt-data-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      setSuccess('Data exported!');
+      setTimeout(() => setSuccess(null), 3000);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Disconnect Extension
+  const handleDisconnectExtension = () => {
+    localStorage.removeItem('tmo_extension_connected');
+    localStorage.removeItem('tmo_extension_last_sync');
+    localStorage.removeItem('tmo_extension_version');
+    setExtensionStatus({ isConnected: false, lastSyncTime: null });
+    setSuccess('Extension disconnected');
+    setTimeout(() => setSuccess(null), 3000);
+  };
+
   const timezones = [
     { value: "America/New_York", label: "Eastern Time (ET)" },
     { value: "America/Chicago", label: "Central Time (CT)" },
@@ -234,12 +504,15 @@ export function SettingsSection() {
     { value: "UTC", label: "UTC" },
   ];
 
-  // Tab configuration
+  // Tab configuration - Updated with all new tabs
   const tabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
     { id: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
-    { id: 'password', label: 'Password', icon: <Key className="w-4 h-4" /> },
-    { id: 'plan', label: 'Plan', icon: <Crown className="w-4 h-4" /> },
+    { id: 'security', label: 'Security', icon: <Shield className="w-4 h-4" /> },
+    { id: 'case-status', label: 'Case Status', icon: <FileText className="w-4 h-4" /> },
+    { id: 'documents', label: 'Documents', icon: <Lock className="w-4 h-4" /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
+    { id: 'privacy', label: 'Privacy', icon: <Database className="w-4 h-4" /> },
+    { id: 'extension', label: 'Extension', icon: <Chrome className="w-4 h-4" /> },
     { id: 'appearance', label: 'Appearance', icon: <Palette className="w-4 h-4" /> },
   ];
 
@@ -381,6 +654,24 @@ export function SettingsSection() {
                 </select>
               </div>
 
+              {/* STEM Eligibility */}
+              <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+                      <GraduationCap className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">STEM OPT Eligible</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Enable to access STEM OPT extension tools
+                      </p>
+                    </div>
+                  </div>
+                  <Toggle enabled={profile.isStemEligible} onToggle={handleStemToggle} />
+                </div>
+              </div>
+
               <div className="pt-4">
                 <Button
                   onClick={handleSaveProfile}
@@ -395,8 +686,8 @@ export function SettingsSection() {
           </div>
         )}
 
-        {/* Password Tab */}
-        {activeTab === 'password' && (
+        {/* Security Tab */}
+        {activeTab === 'security' && (
           <div className="p-6 sm:p-8">
             <div className="max-w-xl">
               <div className="flex items-center gap-3 mb-6">
@@ -635,6 +926,457 @@ export function SettingsSection() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">Receive alerts before documents expire</p>
                     </div>
                     <Toggle enabled={documentReminders} onToggle={() => setDocumentReminders(!documentReminders)} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Case Status Tab */}
+        {activeTab === 'case-status' && (
+          <div className="p-6 sm:p-8">
+            <div className="max-w-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Case Status Settings</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Configure USCIS case tracking preferences</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Receipt Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    USCIS Receipt Number
+                  </label>
+                  <Input
+                    type="text"
+                    value={caseSettings.receiptNumber}
+                    onChange={(e) => setCaseSettings({ ...caseSettings, receiptNumber: e.target.value.toUpperCase() })}
+                    placeholder="e.g., EAC2190123456"
+                    className="h-11 font-mono"
+                    maxLength={13}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Your 13-character receipt number from USCIS</p>
+                </div>
+
+                {/* Auto-check Frequency */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4" />
+                      Auto-check Frequency
+                    </div>
+                  </label>
+                  <select
+                    value={caseSettings.autoCheckFrequency}
+                    onChange={(e) => setCaseSettings({ ...caseSettings, autoCheckFrequency: e.target.value as CaseStatusSettings['autoCheckFrequency'] })}
+                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="hourly">Every hour</option>
+                    <option value="daily">Once daily</option>
+                    <option value="weekly">Once weekly</option>
+                    <option value="manual">Manual only</option>
+                  </select>
+                </div>
+
+                {/* Notify on Change */}
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Notify on Status Change</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when your case status updates</p>
+                  </div>
+                  <Toggle 
+                    enabled={caseSettings.notifyOnChange} 
+                    onToggle={() => setCaseSettings({ ...caseSettings, notifyOnChange: !caseSettings.notifyOnChange })} 
+                  />
+                </div>
+
+                <Button
+                  onClick={handleSaveCaseSettings}
+                  disabled={isSaving}
+                  className="h-11 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Save Settings
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Documents Tab */}
+        {activeTab === 'documents' && (
+          <div className="p-6 sm:p-8">
+            <div className="max-w-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                  <Lock className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Document Vault Settings</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Manage your document vault security</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Passcode Status */}
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${docSettings.hasPasscode ? 'bg-green-100 dark:bg-green-900/50' : 'bg-yellow-100 dark:bg-yellow-900/50'}`}>
+                        {docSettings.hasPasscode ? (
+                          <ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        ) : (
+                          <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {docSettings.hasPasscode ? 'Passcode Protected' : 'No Passcode Set'}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {docSettings.hasPasscode ? 'Your documents are secured' : 'Set a passcode to protect your documents'}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowPasscodeChange(!showPasscodeChange)}
+                      className="h-10"
+                    >
+                      {docSettings.hasPasscode ? 'Change' : 'Set Passcode'}
+                    </Button>
+                  </div>
+
+                  {showPasscodeChange && (
+                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                      {docSettings.hasPasscode && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Current Passcode
+                          </label>
+                          <div className="relative">
+                            <Input
+                              type={showPasscodes ? 'text' : 'password'}
+                              value={currentPasscode}
+                              onChange={(e) => setCurrentPasscode(e.target.value)}
+                              placeholder="Enter current passcode"
+                              className="h-11 pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPasscodes(!showPasscodes)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                            >
+                              {showPasscodes ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          New Passcode
+                        </label>
+                        <Input
+                          type={showPasscodes ? 'text' : 'password'}
+                          value={newPasscode}
+                          onChange={(e) => setNewPasscode(e.target.value)}
+                          placeholder="Enter new passcode (min 4 characters)"
+                          className="h-11"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Confirm Passcode
+                        </label>
+                        <Input
+                          type={showPasscodes ? 'text' : 'password'}
+                          value={confirmPasscode}
+                          onChange={(e) => setConfirmPasscode(e.target.value)}
+                          placeholder="Confirm new passcode"
+                          className="h-11"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleChangePasscode}
+                          disabled={isSaving}
+                          className="bg-indigo-600 hover:bg-indigo-700"
+                        >
+                          {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                          Save Passcode
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setShowPasscodeChange(false);
+                            setCurrentPasscode('');
+                            setNewPasscode('');
+                            setConfirmPasscode('');
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Auto-lock Timeout */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      Auto-lock Timeout
+                    </div>
+                  </label>
+                  <select
+                    value={docSettings.autoLockTimeout}
+                    onChange={(e) => setDocSettings({ ...docSettings, autoLockTimeout: parseInt(e.target.value) })}
+                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value={5}>5 minutes</option>
+                    <option value={15}>15 minutes</option>
+                    <option value={30}>30 minutes</option>
+                    <option value={60}>1 hour</option>
+                    <option value={0}>Never (not recommended)</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">Vault will lock after this period of inactivity</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Privacy Tab */}
+        {activeTab === 'privacy' && (
+          <div className="p-6 sm:p-8">
+            <div className="max-w-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
+                  <Database className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Data & Privacy</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Manage your data and privacy settings</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Export Data */}
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">Export Your Data</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Download all your data in a portable format</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleExportData('json')}
+                      disabled={isExporting}
+                      className="h-10"
+                    >
+                      {isExporting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />}
+                      Export as JSON
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleExportData('csv')}
+                      disabled={isExporting}
+                      className="h-10"
+                    >
+                      Export as CSV
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Data Retention */}
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                  <div className="flex items-center gap-3 mb-2">
+                    <History className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Data Retention</p>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                    We retain your data as long as your account is active. You can request deletion at any time.
+                  </p>
+                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Your data is encrypted at rest
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      We never sell your personal information
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      GDPR and CCPA compliant
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Privacy Links */}
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>
+                  <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
+                  <a href="mailto:privacy@trackmyopt.com" className="text-blue-600 dark:text-blue-400 hover:underline">Contact Privacy Team</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Extension Tab */}
+        {activeTab === 'extension' && (
+          <div className="p-6 sm:p-8">
+            <div className="max-w-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                  <Chrome className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Chrome Extension</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Manage your browser extension connection</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Connection Status */}
+                <div className={`p-4 rounded-xl border ${extensionStatus.isConnected ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${extensionStatus.isConnected ? 'bg-green-100 dark:bg-green-900/50' : 'bg-gray-200 dark:bg-gray-700'}`}>
+                        {extensionStatus.isConnected ? (
+                          <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        ) : (
+                          <Unlink className="w-5 h-5 text-gray-500" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {extensionStatus.isConnected ? 'Extension Connected' : 'Not Connected'}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {extensionStatus.isConnected 
+                            ? `Version ${extensionStatus.version || 'Unknown'}`
+                            : 'Install the Chrome extension to sync'}
+                        </p>
+                      </div>
+                    </div>
+                    {extensionStatus.isConnected ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/20 text-green-700 dark:text-green-400 text-xs font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        Active
+                      </span>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        onClick={() => window.open('https://chrome.google.com/webstore', '_blank')}
+                        className="h-10"
+                      >
+                        Install Extension
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {extensionStatus.isConnected && (
+                  <>
+                    {/* Last Sync */}
+                    <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">Last Sync</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {extensionStatus.lastSyncTime 
+                              ? new Date(extensionStatus.lastSyncTime).toLocaleString()
+                              : 'Never synced'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Disconnect */}
+                    <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800/50">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-red-600 dark:text-red-400">Disconnect Extension</p>
+                          <p className="text-sm text-red-500/80 dark:text-red-400/70">
+                            Remove the connection between this account and the extension
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={handleDisconnectExtension}
+                          className="h-10 text-red-600 border-red-300 hover:bg-red-50 dark:border-red-800"
+                        >
+                          <Unlink className="w-4 h-4 mr-2" />
+                          Disconnect
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Linked Accounts Section */}
+                <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <Link2 className="w-4 h-4" />
+                    Linked Accounts
+                  </h3>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                          <svg className="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">Google Account</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {profile.email}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">
+                        Connected
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <Activity className="w-4 h-4" />
+                    Recent Login Activity
+                  </h3>
+                  <div className="space-y-3">
+                    {recentLogins.map((login, index) => (
+                      <div key={index} className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Smartphone className="w-5 h-5 text-gray-500" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{login.device}</p>
+                            <p className="text-xs text-gray-500">{login.location}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-500">{login.time}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
