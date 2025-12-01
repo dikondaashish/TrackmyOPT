@@ -177,21 +177,38 @@ export async function POST(req: NextRequest) {
     // Map tool name to column name
     const columnName = `${tool}_email`;
 
-    // Upsert the email
-    const { error: upsertError } = await supabase
+    // First, check if profile exists
+    const { data: existingProfile } = await supabase
       .from('profiles')
-      .upsert({
-        user_id: userId,
-        [columnName]: email || null,
-      }, {
-        onConflict: 'user_id',
-      });
+      .select('user_id')
+      .eq('user_id', userId)
+      .single();
 
-    if (upsertError) {
-      console.error('Error upserting tool email:', upsertError);
+    let error;
+    
+    if (existingProfile) {
+      // Profile exists, update the email column
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ [columnName]: email || null })
+        .eq('user_id', userId);
+      error = updateError;
+    } else {
+      // Profile doesn't exist, insert new row
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: userId,
+          [columnName]: email || null,
+        });
+      error = insertError;
+    }
+
+    if (error) {
+      console.error('Error saving tool email:', error);
       
       // Check if column doesn't exist
-      if (upsertError.message?.includes('column') || upsertError.code === '42703') {
+      if (error.message?.includes('column') || error.code === '42703') {
         return NextResponse.json(
           { error: 'Database column not found. Please run migration 008_add_tool_emails.sql in Supabase.' },
           { status: 500, headers: corsHeaders }
@@ -199,7 +216,7 @@ export async function POST(req: NextRequest) {
       }
       
       return NextResponse.json(
-        { error: `Failed to save email: ${upsertError.message}` },
+        { error: `Failed to save email: ${error.message}` },
         { status: 500, headers: corsHeaders }
       );
     }
