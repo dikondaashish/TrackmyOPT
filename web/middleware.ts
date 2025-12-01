@@ -13,14 +13,22 @@ import { NextResponse, type NextRequest } from 'next/server';
 // Routes that require authentication
 const protectedRoutes = ['/dashboard'];
 
+// Public routes that don't require authentication (exceptions within protected routes)
+const publicRoutes = ['/dashboard/help'];
+
 // Routes that should redirect authenticated users (optional)
 const authRoutes = ['/login'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Check if current path needs protection
-  const isProtectedRoute = protectedRoutes.some(route => 
+  // Check if current path is a public route (exceptions)
+  const isPublicRoute = publicRoutes.some(route => 
+    pathname === route || pathname.startsWith(`${route}/`)
+  );
+  
+  // Check if current path needs protection (but not if it's a public exception)
+  const isProtectedRoute = !isPublicRoute && protectedRoutes.some(route => 
     pathname === route || pathname.startsWith(`${route}/`)
   );
   
