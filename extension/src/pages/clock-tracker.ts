@@ -106,16 +106,28 @@ async function checkPremiumStatus(): Promise<boolean> {
  */
 async function loadToolEmail(tool: string): Promise<string | null> {
   try {
-    const { idToken } = await chrome.storage.sync.get('idToken');
-    if (!idToken) return null;
-
-    const response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
+    // Try session cookies first (if user logged in via website)
+    let response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
       method: 'GET',
+      credentials: 'include',
       headers: {
-        'Authorization': `Bearer ${idToken}`,
         'Content-Type': 'application/json',
       },
     });
+
+    // If session cookies failed, try JWT token
+    if (!response.ok) {
+      const { idToken } = await chrome.storage.sync.get('idToken');
+      if (idToken) {
+        response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+    }
 
     if (!response.ok) return null;
     
@@ -131,17 +143,30 @@ async function loadToolEmail(tool: string): Promise<string | null> {
  */
 async function saveToolEmail(tool: string, email: string): Promise<boolean> {
   try {
-    const { idToken } = await chrome.storage.sync.get('idToken');
-    if (!idToken) return false;
-
-    const response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
+    // Try session cookies first (if user logged in via website)
+    let response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'Authorization': `Bearer ${idToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ tool, email }),
     });
+
+    // If session cookies failed, try JWT token
+    if (!response.ok) {
+      const { idToken } = await chrome.storage.sync.get('idToken');
+      if (idToken) {
+        response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tool, email }),
+        });
+      }
+    }
 
     return response.ok;
   } catch (error) {
