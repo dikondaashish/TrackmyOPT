@@ -34,14 +34,6 @@ const EXTENSION_ID = process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID || "";
 const CHROME_STORE_URL = process.env.NEXT_PUBLIC_CHROME_STORE_URL || 
   "https://chrome.google.com/webstore/detail/trackmyopt";
 
-// Debug: Log extension configuration on load
-if (typeof window !== "undefined") {
-  console.log("🔧 Extension Config:", {
-    EXTENSION_ID: EXTENSION_ID || "(not set)",
-    CHROME_STORE_URL,
-    envCheck: process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID ? "ENV loaded" : "ENV missing",
-  });
-}
 
 // Tool to extension page mapping
 const TOOL_PAGE_MAP: Record<string, string> = {
@@ -151,43 +143,13 @@ export function ToolsGrid() {
   const [isCheckingExtension, setIsCheckingExtension] = useState(true);
   const [loadingTool, setLoadingTool] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "info" | "error" } | null>(null);
-  const [debugInfo, setDebugInfo] = useState<string>("");
-  const [showDebug, setShowDebug] = useState(false);
 
   // Check if Chrome extension is installed
   const checkExtensionInstalled = useCallback(async (): Promise<boolean> => {
-    let debug = `Extension ID: ${EXTENSION_ID || "(not set)"}\n`;
-    console.log("🔍 Checking extension installation...");
-    console.log("📋 Extension ID being used:", EXTENSION_ID || "(empty)");
-    
-    // Only works in Chrome
-    if (typeof chrome === "undefined") {
-      debug += "❌ Not in Chrome browser\n";
-      console.log("❌ chrome object is undefined - not in Chrome browser");
-      setDebugInfo(debug);
+    // Only works in Chrome with extension APIs
+    if (typeof chrome === "undefined" || !chrome.runtime || !EXTENSION_ID) {
       return false;
     }
-    
-    if (!chrome.runtime) {
-      debug += "❌ chrome.runtime unavailable\n";
-      console.log("❌ chrome.runtime is undefined - extension APIs not available");
-      setDebugInfo(debug);
-      return false;
-    }
-    
-    debug += "✓ chrome.runtime available\n";
-    console.log("✓ chrome.runtime is available");
-
-    if (!EXTENSION_ID) {
-      debug += "❌ Extension ID not configured\n";
-      console.log("⚠️ Extension ID not configured in environment variables");
-      console.log("💡 Add NEXT_PUBLIC_CHROME_EXTENSION_ID to your .env.local file");
-      setDebugInfo(debug);
-      return false;
-    }
-    
-    debug += `📤 Sending PING to ${EXTENSION_ID.substring(0, 8)}...\n`;
-    console.log("📤 Sending PING to extension:", EXTENSION_ID);
 
     return new Promise((resolve) => {
       let resolved = false;
@@ -200,17 +162,10 @@ export function ToolsGrid() {
             resolved = true;
             
             if (chrome.runtime?.lastError) {
-              const errorMsg = chrome.runtime.lastError.message || "Unknown error";
-              console.log("❌ Extension not installed:", errorMsg);
-              setDebugInfo(debug + `❌ Error: ${errorMsg}\n`);
               resolve(false);
             } else if (response && response.installed) {
-              console.log("✅ Extension installed, version:", response.version);
-              setDebugInfo(debug + `✅ Connected! v${response.version}\n`);
               resolve(true);
             } else {
-              console.log("❌ No response from extension");
-              setDebugInfo(debug + "❌ No response from extension\n");
               resolve(false);
             }
           }
@@ -220,14 +175,10 @@ export function ToolsGrid() {
         setTimeout(() => {
           if (!resolved) {
             resolved = true;
-            console.log("⏱️ Extension check timed out");
-            setDebugInfo(debug + "⏱️ Timed out waiting for response\n");
             resolve(false);
           }
         }, 2000);
-      } catch (err) {
-        console.log("❌ Error checking extension:", err);
-        setDebugInfo(debug + `❌ Exception: ${err}\n`);
+      } catch {
         resolve(false);
       }
     });
@@ -299,77 +250,31 @@ export function ToolsGrid() {
     }
   }, [checkExtensionInstalled]);
 
-  // Retry check function
-  const retryCheck = async () => {
-    setIsCheckingExtension(true);
-    const installed = await checkExtensionInstalled();
-    setExtensionInstalled(installed);
-    setIsCheckingExtension(false);
-  };
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+      <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">Your Toolkit</h2>
-        <div className="flex items-center gap-2 text-xs">
-          {isCheckingExtension ? (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Loader2 className="w-3 h-3 animate-spin" />
-              Checking...
-            </span>
-          ) : extensionInstalled ? (
-            <span className="flex items-center gap-1 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
-              <Check className="w-3 h-3" />
-              Extension Installed
-            </span>
-          ) : (
-            <a
-              href={CHROME_STORE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
-            >
-              <Download className="w-3 h-3" />
-              Get Extension
-            </a>
-          )}
-          <button
-            onClick={() => setShowDebug(!showDebug)}
-            className="text-muted-foreground hover:text-foreground px-1"
-            title="Debug info"
-          >
-            🔧
-          </button>
-        </div>
+        {!isCheckingExtension && (
+          <div className="flex items-center gap-2 text-xs">
+            {extensionInstalled ? (
+              <span className="flex items-center gap-1 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
+                <Check className="w-3 h-3" />
+                Extension Installed
+              </span>
+            ) : (
+              <a
+                href={CHROME_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+              >
+                <Download className="w-3 h-3" />
+                Get Extension
+              </a>
+            )}
+          </div>
+        )}
       </div>
-
-      {/* Debug Panel */}
-      {showDebug && (
-        <div className="bg-slate-100 dark:bg-slate-800 border border-border rounded-lg p-4 text-xs font-mono">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold">Extension Debug Info</span>
-            <button
-              onClick={retryCheck}
-              className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
-            >
-              Retry Check
-            </button>
-          </div>
-          <pre className="whitespace-pre-wrap text-muted-foreground">
-            {debugInfo || "Click 'Retry Check' to test connection"}
-          </pre>
-          <div className="mt-2 pt-2 border-t border-border text-muted-foreground">
-            <p><strong>Steps to fix:</strong></p>
-            <ol className="list-decimal list-inside space-y-1 mt-1">
-              <li>Get your extension ID from <code>chrome://extensions</code></li>
-              <li>Add to <code>.env.local</code>: <code>NEXT_PUBLIC_CHROME_EXTENSION_ID=your-id</code></li>
-              <li>Restart your Next.js dev server</li>
-              <li>Reload the extension in <code>chrome://extensions</code> (click refresh icon)</li>
-              <li>Refresh this page and click "Retry Check"</li>
-            </ol>
-          </div>
-        </div>
-      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <ToolCard 
