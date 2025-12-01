@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Mail, Crown, Edit, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PricingModal } from "@/components/pricing/PricingModal";
 
 interface OptDatesData {
   program_end_date?: string;
@@ -13,6 +14,27 @@ interface OptDatesData {
   opt_start_date?: string;
   opt_ead_end_date?: string;
   stem_start_date?: string;
+}
+
+// Helper function to add days to a date string (MM/DD/YYYY format)
+function addDaysToDate(dateStr: string, days: number): string {
+  const parts = dateStr.split('/');
+  if (parts.length !== 3) return '';
+  
+  const month = parseInt(parts[0]) - 1;
+  const day = parseInt(parts[1]);
+  const year = parseInt(parts[2]);
+  
+  if (isNaN(month) || isNaN(day) || isNaN(year)) return '';
+  
+  const date = new Date(year, month, day);
+  date.setDate(date.getDate() + days);
+  
+  const newMonth = String(date.getMonth() + 1).padStart(2, '0');
+  const newDay = String(date.getDate()).padStart(2, '0');
+  const newYear = date.getFullYear();
+  
+  return `${newMonth}/${newDay}/${newYear}`;
 }
 
 interface DateInputProps {
@@ -250,11 +272,68 @@ export function OptDatesSection() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [lastModifiedField, setLastModifiedField] = useState<string | null>(null);
+  
+  // Premium & Email states
+  const [isPremium, setIsPremium] = useState(false);
+  const [notificationEmail, setNotificationEmail] = useState('');
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
-  // Load existing dates on mount
+  // Load existing dates and premium status on mount
   useEffect(() => {
     loadDates();
+    checkPremiumStatus();
+    loadNotificationEmail();
   }, []);
+  
+  const checkPremiumStatus = async () => {
+    try {
+      const response = await fetch('/api/premium/status', { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
+        setIsPremium(data.isPremium || false);
+      }
+    } catch {
+      // Silently fail
+    }
+  };
+  
+  const loadNotificationEmail = async () => {
+    try {
+      const response = await fetch('/api/user/notification-email', { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
+        setNotificationEmail(data.email || '');
+      }
+    } catch {
+      // Silently fail
+    }
+  };
+  
+  const handleEmailSave = async () => {
+    if (!notificationEmail || !notificationEmail.includes('@')) {
+      return;
+    }
+    
+    try {
+      setEmailSaving(true);
+      const response = await fetch('/api/user/notification-email', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: notificationEmail }),
+      });
+      
+      if (response.ok) {
+        setIsEditingEmail(false);
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setEmailSaving(false);
+    }
+  };
 
   const loadDates = async () => {
     try {
@@ -281,10 +360,34 @@ export function OptDatesSection() {
   };
 
   const handleDateChange = (field: keyof OptDatesData, value: string) => {
-    setDates(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setDates(prev => {
+      const newDates = { ...prev, [field]: value };
+      
+      // Logic 1: Sync Program End Date ↔ DSO Recommendation Date
+      if (field === 'program_end_date' && value) {
+        // When Program End Date is updated, also update DSO Recommendation Date
+        newDates.dso_recommendation_date = value;
+      } else if (field === 'dso_recommendation_date' && value) {
+        // When DSO Recommendation Date is updated, also update Program End Date
+        newDates.program_end_date = value;
+      }
+      
+      // Logic 2: OPT Start Date → OPT EAD End Date (+ 365 days = 1 year)
+      // OPT period is 12 months, so end date is 365 days after start date
+      if (field === 'opt_start_date' && value) {
+        const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+        if (dateRegex.test(value)) {
+          // Calculate OPT EAD End Date as OPT Start Date + 364 days (1 year minus 1 day)
+          // Example: July 15, 2025 → July 14, 2026
+          const endDate = addDaysToDate(value, 364);
+          if (endDate) {
+            newDates.opt_ead_end_date = endDate;
+          }
+        }
+      }
+      
+      return newDates;
+    });
     setLastModifiedField(field); // Track which field user just modified
     setError(null);
     setSuccess(false);
@@ -461,6 +564,109 @@ export function OptDatesSection() {
           </div>
         </div>
       </Card>
+
+      {/* Email Notifications Section */}
+      <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+            {isPremium ? <Mail className="w-6 h-6 text-purple-600 dark:text-purple-400" /> : <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />}
+          </div>
+          <div className="flex-1">
+            {isPremium ? (
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">OPT Date Reminders</h3>
+                  {!isEditingEmail && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditingEmail(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit
+                    </Button>
+                  )}
+                </div>
+                {isEditingEmail ? (
+                  <div className="space-y-3">
+                    <Input
+                      type="email"
+                      value={notificationEmail}
+                      onChange={(e) => setNotificationEmail(e.target.value)}
+                      placeholder="your.email@example.com"
+                      className="bg-white dark:bg-gray-900"
+                      aria-label="Notification email address"
+                    />
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleEmailSave} 
+                        size="sm" 
+                        className="bg-purple-600 hover:bg-purple-700"
+                        disabled={emailSaving}
+                      >
+                        {emailSaving ? 'Saving...' : 'Save'}
+                      </Button>
+                      <Button onClick={() => setIsEditingEmail(false)} variant="outline" size="sm">
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                      {notificationEmail || 'No email set'}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      📧 Get reminders for important OPT deadlines
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Premium Feature: OPT Date Reminders
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Get notified before important OPT deadlines. Never miss a filing window or expiration date!
+                </p>
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    Email reminders before deadlines
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    OPT EAD expiration alerts
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    STEM extension reminders
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    Unemployment day warnings
+                  </li>
+                </ul>
+                <Button
+                  onClick={() => setShowPremiumModal(true)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  Upgrade to Premium
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      {/* Premium Modal */}
+      <PricingModal 
+        open={showPremiumModal} 
+        onClose={() => setShowPremiumModal(false)} 
+      />
     </div>
   );
 }
