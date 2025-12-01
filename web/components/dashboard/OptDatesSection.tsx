@@ -663,7 +663,7 @@ export function OptDatesSection() {
         </div>
 
         {isPremium ? (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
               const info = TOOL_INFO[tool];
               const isEditing = editingTool === tool;
