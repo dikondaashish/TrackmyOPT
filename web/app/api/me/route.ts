@@ -7,15 +7,19 @@ import { cookies } from 'next/headers';
 export const dynamic = 'force-dynamic';
 
 // CORS headers for Chrome extension
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+const getCorsHeaders = (req?: NextRequest) => {
+  const origin = req?.headers.get('origin') || '*';
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
+  };
 };
 
 // Handle preflight requests
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, { status: 200, headers: getCorsHeaders(req) });
 }
 
 export async function GET(request: NextRequest) {
@@ -65,7 +69,7 @@ export async function GET(request: NextRequest) {
         console.error('❌ /api/me - No session cookies and no JWT token');
         return NextResponse.json(
           { error: 'Not authenticated', user: null },
-          { status: 401, headers: corsHeaders }
+          { status: 401, headers: getCorsHeaders(request) }
         );
       }
 
@@ -76,7 +80,7 @@ export async function GET(request: NextRequest) {
         console.error('❌ /api/me - JWT token verification failed');
         return NextResponse.json(
           { error: 'Invalid or expired token', user: null },
-          { status: 401, headers: corsHeaders }
+          { status: 401, headers: getCorsHeaders(request) }
         );
       }
 
@@ -147,7 +151,7 @@ export async function GET(request: NextRequest) {
           user: currentUser,
           profile,
           status: null,
-        }, { headers: corsHeaders });
+        }, { headers: getCorsHeaders(request) });
       }
 
       console.error('OPT status query error:', statusError);
@@ -165,12 +169,12 @@ export async function GET(request: NextRequest) {
       user: currentUser,
       profile,
       status,
-    }, { headers: corsHeaders });
+    }, { headers: getCorsHeaders(request) });
   } catch (error) {
     console.error('API /me error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: getCorsHeaders(request) }
     );
   }
 }
