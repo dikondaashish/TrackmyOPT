@@ -385,6 +385,30 @@ export function OptDatesSection() {
     }
   };
   
+  const handleToolEmailStop = async (tool: ToolName) => {
+    if (!confirm('Stop email reminders for this tool?')) {
+      return;
+    }
+    
+    try {
+      setEmailSaving(tool);
+      const response = await fetch('/api/user/tool-email', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool, email: '' }),
+      });
+      
+      if (response.ok) {
+        setToolEmails(prev => ({ ...prev, [tool]: '' }));
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setEmailSaving(null);
+    }
+  };
+  
   const updateToolEmail = (tool: ToolName, email: string) => {
     setToolEmails(prev => ({ ...prev, [tool]: email }));
   };
@@ -690,18 +714,32 @@ export function OptDatesSection() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 opacity-80" />
-                        <span className="text-sm truncate max-w-[150px]">
+                        <span className="text-sm truncate max-w-[120px]">
                           {toolEmails[tool] || 'No email set'}
                         </span>
                       </div>
-                      <Button
-                        onClick={() => setEditingTool(tool)}
-                        size="sm"
-                        variant="ghost"
-                        className="text-white hover:bg-white/20"
-                      >
-                        <Edit className="w-3 h-3" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {toolEmails[tool] && (
+                          <Button
+                            onClick={() => handleToolEmailStop(tool)}
+                            size="sm"
+                            variant="ghost"
+                            className="text-white hover:bg-red-500/30 text-xs px-2"
+                            disabled={isSaving}
+                            title="Stop reminders"
+                          >
+                            {isSaving ? '...' : '🛑'}
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => setEditingTool(tool)}
+                          size="sm"
+                          variant="ghost"
+                          className="text-white hover:bg-white/20"
+                        >
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
