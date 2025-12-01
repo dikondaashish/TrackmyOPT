@@ -663,39 +663,56 @@ export function OptDatesSection() {
         </div>
 
         {isPremium ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
               const info = TOOL_INFO[tool];
               const isEditing = editingTool === tool;
               const isSaving = emailSaving === tool;
+              const hasEmail = !!toolEmails[tool];
               
               return (
                 <div 
                   key={tool}
-                  className={`p-4 rounded-xl bg-gradient-to-br ${info.color} text-white`}
+                  className={`p-5 rounded-2xl bg-gradient-to-br ${info.color} text-white shadow-lg hover:shadow-xl transition-all duration-300`}
                 >
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl">{info.icon}</span>
-                    <div>
-                      <h4 className="font-bold text-sm">{info.label}</h4>
-                      <p className="text-xs opacity-90">{info.description}</p>
+                  {/* Top row: Tool info + Status badge */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">{info.icon}</span>
+                      <div>
+                        <h4 className="font-bold text-base">{info.label}</h4>
+                        <p className="text-sm opacity-90">{info.description}</p>
+                      </div>
                     </div>
+                    
+                    {/* Status Badge */}
+                    {hasEmail ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/30 backdrop-blur-sm text-white text-xs font-semibold shadow-sm">
+                        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                        Active
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-500/30 backdrop-blur-sm text-white/70 text-xs font-semibold">
+                        <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                        Inactive
+                      </span>
+                    )}
                   </div>
                   
                   {isEditing ? (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <Input
                         type="email"
                         value={toolEmails[tool]}
                         onChange={(e) => updateToolEmail(tool, e.target.value)}
                         placeholder="your.email@example.com"
-                        className="bg-white/20 border-white/30 text-white placeholder:text-white/60 text-sm"
+                        className="bg-white/20 border-white/30 text-white placeholder:text-white/60 text-sm h-11"
                       />
                       <div className="flex gap-2">
                         <Button 
                           onClick={() => handleToolEmailSave(tool)}
                           size="sm"
-                          className="bg-white/20 hover:bg-white/30 text-white text-xs"
+                          className="bg-white/25 hover:bg-white/35 text-white text-sm font-medium px-4 shadow-sm transition-all duration-200"
                           disabled={isSaving}
                         >
                           {isSaving ? 'Saving...' : 'Save'}
@@ -704,45 +721,37 @@ export function OptDatesSection() {
                           onClick={() => setEditingTool(null)}
                           size="sm"
                           variant="ghost"
-                          className="text-white hover:bg-white/20 text-xs"
+                          className="text-white/80 hover:text-white hover:bg-white/15 text-sm transition-all duration-200"
                         >
                           Cancel
                         </Button>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      {/* Email display with status badge */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <Mail className="w-4 h-4 opacity-80 flex-shrink-0" />
-                          <span className="text-sm truncate">
-                            {toolEmails[tool] || 'No email set'}
-                          </span>
-                        </div>
-                        {toolEmails[tool] && (
-                          <span className="flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/20 text-green-100 text-xs font-medium">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
-                            Active
-                          </span>
-                        )}
+                    /* Bottom row: Email + Action buttons */
+                    <div className="flex items-center justify-between pt-3 border-t border-white/15">
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-5 h-5 opacity-80" />
+                        <span className="text-sm font-medium">
+                          {toolEmails[tool] || 'No email set'}
+                        </span>
                       </div>
                       
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-4 pt-1 border-t border-white/10">
-                        {toolEmails[tool] && (
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-3">
+                        {hasEmail && (
                           <button
                             onClick={() => handleToolEmailStop(tool)}
                             disabled={isSaving}
-                            className="flex items-center gap-1.5 text-red-300 hover:text-red-200 text-sm font-medium transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 hover:text-red-100 text-sm font-medium shadow-sm hover:shadow transition-all duration-200 disabled:opacity-50"
                           >
                             <BellOff className="w-4 h-4" />
-                            <span>{isSaving ? 'Stopping...' : 'Stop'}</span>
+                            <span>{isSaving ? '...' : 'Stop'}</span>
                           </button>
                         )}
                         <button
                           onClick={() => setEditingTool(tool)}
-                          className="flex items-center gap-1.5 text-white/80 hover:text-white text-sm font-medium transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white/90 hover:text-white text-sm font-medium shadow-sm hover:shadow transition-all duration-200"
                         >
                           <Pencil className="w-4 h-4" />
                           <span>Edit</span>
