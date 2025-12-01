@@ -20,7 +20,6 @@ export async function OPTIONS() {
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 /api/me - Checking authentication...');
     
     // First, try to get user from Supabase session cookies (primary method)
     const cookieStore = cookies();
@@ -57,12 +56,10 @@ export async function GET(request: NextRequest) {
     if (user) {
       // Session found via cookies (primary method)
       userId = user.id;
-      console.log('✅ /api/me - User authenticated via session cookies:', user.email);
     } else {
       // Fallback: Try JWT token from Authorization header (for backwards compatibility)
       const authHeader = request.headers.get('Authorization');
       
-      console.log('/api/me - No session cookies, trying JWT. Auth header:', authHeader ? 'present' : 'missing');
       
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.error('❌ /api/me - No session cookies and no JWT token');
@@ -84,7 +81,6 @@ export async function GET(request: NextRequest) {
       }
 
       userId = decoded.userId || decoded.sub;
-      console.log('✅ /api/me - User authenticated via JWT token');
     }
 
     // Supabase client already created above for user authentication
@@ -98,7 +94,6 @@ export async function GET(request: NextRequest) {
 
     // If profile doesn't exist (new Google OAuth user), create it
     if (profileError && profileError.code === 'PGRST116') {
-      console.log('Creating new profile for user:', userId);
       
       // Use service role key to bypass RLS for initial profile creation
       const supabaseAdmin = createClient(

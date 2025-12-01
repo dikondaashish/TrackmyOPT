@@ -19,10 +19,8 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
   
   // Get user initials from email or name
   const getUserInitials = () => {
-    console.log('🔤 Getting initials for user:', user?.email);
     
     if (!user) {
-      console.log('⚠️ No user object');
       return "U";
     }
     
@@ -31,7 +29,6 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
       const initials = names.length > 1 
         ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
         : names[0][0].toUpperCase();
-      console.log('✅ Initials from full_name:', initials);
       return initials;
     }
     
@@ -40,11 +37,9 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
       const initials = emailParts.length > 1
         ? `${emailParts[0][0]}${emailParts[1][0]}`.toUpperCase()
         : emailParts[0].substring(0, 2).toUpperCase();
-      console.log('✅ Initials from email:', initials);
       return initials;
     }
     
-    console.log('⚠️ Could not generate initials');
     return "U";
   };
   
@@ -74,13 +69,11 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
         localStorage.clear();
         sessionStorage.clear();
       } catch (e) {
-        console.warn('Could not clear storage:', e);
       }
       
       // Redirect to home
       window.location.href = '/';
     } catch (error) {
-      console.error('Sign out failed:', error);
       // Force redirect anyway to ensure user is logged out
       window.location.href = '/';
     }

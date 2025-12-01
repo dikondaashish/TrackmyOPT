@@ -41,7 +41,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(`📋 Checking status for receipt: ${receipt_number}`);
 
     // Use service role key for database updates
     const supabase = createClient(
@@ -52,8 +51,6 @@ export async function POST(req: NextRequest) {
     // Fetch USCIS status
     // Note: Use mockUSCISStatus for development, checkUSCISStatus for production
     const isDevelopment = process.env.NODE_ENV === 'development';
-    console.log(`🌍 Environment: ${isDevelopment ? 'development' : 'production'}`);
-    console.log(`🔍 Fetching status from ${isDevelopment ? 'mock' : 'USCIS API'}...`);
     
     const uscisStatus = isDevelopment
       ? mockUSCISStatus(receipt_number)
@@ -68,7 +65,6 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    console.log(`✅ Successfully fetched status: ${uscisStatus.status}`);
 
     // Get current case status from database
     const { data: currentCase, error: fetchError } = await supabase
@@ -128,11 +124,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(`✅ Updated status for ${receipt_number}: ${uscisStatus.status}`);
 
     // If status changed, send notification (only for premium users)
     if (hasStatusChanged && currentCase) {
-      console.log(`📧 Status changed! Sending notification...`);
       
       // Trigger notification (async, don't wait)
       fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/notify`, {

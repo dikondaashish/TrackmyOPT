@@ -103,17 +103,13 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       const isDarkMode = body.classList.contains('dark-mode');
       
       if (isDarkMode) {
-        // Switch to light mode (default)
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
         if (themeIcon) themeIcon.textContent = '🌙';
-        console.log('Switched to light mode');
       } else {
-        // Switch to dark mode
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
         if (themeIcon) themeIcon.textContent = '☀️';
-        console.log('Switched to dark mode');
       }
     });
   }
@@ -124,30 +120,16 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     logoutBtn.addEventListener('click', async () => {
       if (confirm('Are you sure you want to sign out?')) {
         try {
-          console.log('🚪 Extension: Signing out...');
-          
-          // Call Supabase signout endpoint to clear session cookies
-          const response = await fetch('https://www.trackmyopt.com/auth/signout', {
+          await fetch('https://www.trackmyopt.com/auth/signout', {
             method: 'POST',
-            credentials: 'include', // Important: send cookies to be cleared
+            credentials: 'include',
           });
-          
-          if (response.ok) {
-            console.log('✅ Extension: Server session cleared');
-          } else {
-            console.warn('⚠️ Extension: Server signout failed, clearing local data anyway');
-          }
-        } catch (error) {
-          console.error('❌ Extension: Error signing out:', error);
+        } catch {
+          // Continue with local cleanup even if server signout fails
         }
         
-        // Clear all local stored data
         await chrome.storage.sync.clear();
         await chrome.storage.session.clear();
-        
-        console.log('✅ Extension: Signed out successfully');
-        
-        // Reload popup to show sign in screen
         window.location.reload();
       }
     });

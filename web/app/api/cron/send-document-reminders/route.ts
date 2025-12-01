@@ -34,7 +34,6 @@ interface ReminderWithDocument {
 }
 
 export async function GET(request: NextRequest) {
-  console.log('🔔 Document Reminder Cron: Starting...');
   
   try {
     // Security: Verify cron secret
@@ -61,7 +60,6 @@ export async function GET(request: NextRequest) {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const todayEnd = tomorrow.toISOString();
 
-    console.log(`📅 Checking reminders for ${today.toDateString()}`);
 
     // Query reminders due today that haven't been sent
     const { data: reminders, error: queryError } = await supabase
@@ -87,7 +85,6 @@ export async function GET(request: NextRequest) {
       throw queryError;
     }
 
-    console.log(`📬 Found ${reminders?.length || 0} reminders to send`);
 
     if (!reminders || reminders.length === 0) {
       return NextResponse.json({
@@ -122,7 +119,6 @@ export async function GET(request: NextRequest) {
           .single();
 
         if (emailPrefs && !emailPrefs.document_reminders_enabled) {
-          console.log(`⏭️  User ${userEmail} has document reminders disabled`);
           
           // Mark as cancelled
           await supabase
@@ -134,7 +130,6 @@ export async function GET(request: NextRequest) {
         }
 
         // Send email
-        console.log(`📧 Sending reminder to ${userEmail}`);
         
         const { error: emailError } = await resend.emails.send({
           from: 'TrackMyOPT <notifications@trackmyopt.com>',
@@ -170,7 +165,6 @@ export async function GET(request: NextRequest) {
           .eq('id', reminder.id);
 
         sentCount++;
-        console.log(`✅ Reminder sent to ${userEmail}`);
 
       } catch (error) {
         console.error(`❌ Error processing reminder ${reminder.id}:`, error);
@@ -178,7 +172,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`✅ Cron job complete: ${sentCount} sent, ${failedCount} failed`);
 
     return NextResponse.json({
       success: true,

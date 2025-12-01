@@ -58,9 +58,6 @@ export async function uploadToS3(
       throw new Error(`File size exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit`);
     }
 
-    console.log(`📤 Uploading to S3: ${key}`);
-    console.log(`📊 File size: ${(file.length / 1024).toFixed(2)} KB`);
-    console.log(`📄 Content type: ${contentType}`);
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
@@ -75,7 +72,6 @@ export async function uploadToS3(
 
     await s3Client.send(command);
 
-    console.log(`✅ Successfully uploaded to S3: ${key}`);
 
     return {
       key,
@@ -95,7 +91,6 @@ export async function uploadToS3(
  */
 export async function generateSignedUrl(key: string): Promise<string> {
   try {
-    console.log(`🔐 Generating signed URL for: ${key}`);
 
     const command = new GetObjectCommand({
       Bucket: BUCKET_NAME,
@@ -106,7 +101,6 @@ export async function generateSignedUrl(key: string): Promise<string> {
       expiresIn: SIGNED_URL_EXPIRY, // 5 minutes
     });
 
-    console.log(`✅ Generated signed URL (expires in ${SIGNED_URL_EXPIRY}s)`);
 
     return signedUrl;
   } catch (error) {
@@ -121,7 +115,6 @@ export async function generateSignedUrl(key: string): Promise<string> {
  */
 export async function deleteFromS3(key: string): Promise<void> {
   try {
-    console.log(`🗑️  Deleting from S3: ${key}`);
 
     const command = new DeleteObjectCommand({
       Bucket: BUCKET_NAME,
@@ -130,7 +123,6 @@ export async function deleteFromS3(key: string): Promise<void> {
 
     await s3Client.send(command);
 
-    console.log(`✅ Successfully deleted from S3: ${key}`);
   } catch (error) {
     console.error('❌ S3 delete error:', error);
     throw new Error('Failed to delete file from S3');

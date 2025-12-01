@@ -11,35 +11,20 @@ import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navi
  */
 async function isSignedIn(): Promise<boolean> {
   try {
-    console.log('🔍 Extension: Checking if user is signed in...');
-    
-    // Check /api/me to see if there's a valid session
     const response = await fetch('https://www.trackmyopt.com/api/me', {
       method: 'GET',
-      credentials: 'include', // Important: send cookies
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
     });
     
     if (response.ok) {
-      const data = await response.json();
-      console.log('✅ Extension: User is signed in!', data.user?.email);
-      
-      // Store signedIn status
       await chrome.storage.sync.set({ signedIn: true });
-      
       return true;
     } else {
-      console.log('❌ Extension: User is not signed in');
-      
-      // Clear signedIn status
       await chrome.storage.sync.set({ signedIn: false });
-      
       return false;
     }
-  } catch (error) {
-    console.error('❌ Extension: Error checking sign in status:', error);
+  } catch {
     return false;
   }
 }
@@ -59,7 +44,6 @@ async function applyTheme(): Promise<void> {
     document.body.classList.remove('dark-mode');
     document.body.classList.remove('light-mode');
   }
-  console.log('Applied theme:', theme || 'light (default)');
 }
 
 /**
@@ -150,28 +134,18 @@ async function navigateToPage(page: string, data?: any): Promise<void> {
  */
 async function render(): Promise<void> {
   const root = document.getElementById('root');
-  if (!root) {
-    console.error('Root element not found');
-    return;
-  }
+  if (!root) return;
 
   // Apply saved theme first
   await applyTheme();
 
   const signedIn = await isSignedIn();
-  console.log('Popup render - signedIn:', signedIn);
 
   if (signedIn) {
-    // Try to restore last page
     const lastPage = await getLastPage();
-    console.log('Last page:', lastPage);
     
     if (lastPage && lastPage !== 'home') {
-      // Get saved page data
       const pageData = await getPageData(lastPage);
-      console.log('Restoring page:', lastPage, 'with data:', pageData);
-      
-      // Navigate to last page with data
       await navigateToPage(lastPage, pageData);
     } else {
       await navigateToPage('home');
@@ -185,7 +159,6 @@ async function render(): Promise<void> {
  * Initialize on DOM load
  */
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Popup loaded');
   render();
 });
 
@@ -194,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'sync' && changes.signedIn) {
-    console.log('Sign-in state changed, re-rendering...');
     render();
   }
 });

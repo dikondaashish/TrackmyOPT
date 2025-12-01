@@ -82,7 +82,6 @@ export function DocumentVaultClient() {
         setNotificationEmail(data.email || '');
       }
     } catch (error) {
-      console.error('Error loading notification email:', error);
     }
   }
   
@@ -105,14 +104,11 @@ export function DocumentVaultClient() {
       if (res.ok && data.success) {
         setEditingEmail(false);
         // Optionally show success message
-        console.log('Email saved successfully:', data.email);
       } else {
         const errorMessage = data.error || 'Failed to save notification email';
-        console.error('Error saving email:', errorMessage);
         alert(errorMessage);
       }
     } catch (error) {
-      console.error('Error saving email:', error);
       alert(error instanceof Error ? error.message : 'Failed to save notification email. Please try again.');
     } finally {
       setEmailSaving(false);
@@ -125,7 +121,6 @@ export function DocumentVaultClient() {
       const data = await res.json();
       setIsPremium(data.isPremium || false);
     } catch (error) {
-      console.error('Error checking premium status:', error);
       setIsPremium(false);
     }
   }
@@ -142,7 +137,6 @@ export function DocumentVaultClient() {
         setShowPasscodeVerify(true);
       }
     } catch (error) {
-      console.error('Error checking passcode status:', error);
       setHasPasscode(false);
       setShowPasscodeSetup(true);
     }
@@ -160,7 +154,6 @@ export function DocumentVaultClient() {
       const data = await res.json();
       setDocuments(data.documents || []);
     } catch (error) {
-      console.error('Error loading documents:', error);
       setDocuments([]);
     } finally {
       setLoading(false);

@@ -60,7 +60,6 @@ export async function checkDocumentUploadRateLimit(
     const remaining = Math.max(0, PREMIUM_DAILY_LIMIT - uploadCount);
     const allowed = uploadCount < PREMIUM_DAILY_LIMIT;
 
-    console.log(`📊 Rate limit check for user ${userId}: ${uploadCount}/${PREMIUM_DAILY_LIMIT} uploads today`);
 
     return {
       allowed,

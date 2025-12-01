@@ -23,9 +23,7 @@ export async function hashPasscode(passcode: string): Promise<string> {
       throw new Error('Passcode must be exactly 6 digits');
     }
 
-    console.log('🔐 Hashing passcode...');
     const hash = await bcrypt.hash(passcode, SALT_ROUNDS);
-    console.log('✅ Passcode hashed successfully');
 
     return hash;
   } catch (error) {
@@ -42,13 +40,10 @@ export async function hashPasscode(passcode: string): Promise<string> {
  */
 export async function verifyPasscode(passcode: string, hash: string): Promise<boolean> {
   try {
-    console.log('🔍 Verifying passcode...');
     const isValid = await bcrypt.compare(passcode, hash);
     
     if (isValid) {
-      console.log('✅ Passcode verified successfully');
     } else {
-      console.log('❌ Passcode verification failed');
     }
 
     return isValid;
@@ -86,7 +81,6 @@ export function checkLockoutStatus(
     const remainingMs = lockedUntil.getTime() - now.getTime();
     const remainingMinutes = Math.ceil(remainingMs / 60000);
 
-    console.log(`🔒 Account locked for ${remainingMinutes} more minutes`);
 
     return {
       isLocked: true,
@@ -96,7 +90,6 @@ export function checkLockoutStatus(
 
   // Check if should be locked
   if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
-    console.log(`🔒 Account should be locked (${failedAttempts} failed attempts)`);
     return {
       isLocked: true,
       remainingTime: 10, // Default to 10 minutes

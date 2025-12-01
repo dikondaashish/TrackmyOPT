@@ -384,10 +384,8 @@ async function loadSavedData(): Promise<any> {
     if (!response.ok) return null;
     
     const result = await response.json();
-    console.log('📖 STEM Apply loaded data:', result);
     return result.ok ? result.data : null;
   } catch (error) {
-    console.error('❌ Error loading saved data:', error);
     return null;
   }
 }
@@ -410,8 +408,6 @@ async function saveOptEadEndDate(optEadEndDate: string | null): Promise<boolean>
       _lastModifiedField: 'opt_ead_end_date', // Tell API this field was updated
     };
 
-    console.log('💾 Saving STEM Apply dates:', payload);
-    console.log('📝 Last modified field: opt_ead_end_date');
 
     // Try using session cookies first (if user is logged in on website)
     let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
@@ -440,14 +436,11 @@ async function saveOptEadEndDate(optEadEndDate: string | null): Promise<boolean>
 
     const result = await response.json();
     if (result.ok) {
-      console.log('✅ OPT EAD end date saved successfully');
       return true;
     } else {
-      console.error('❌ Failed to save OPT EAD end date:', result.error);
       return false;
     }
   } catch (error) {
-    console.error('❌ Error saving OPT EAD end date:', error);
     return false;
   }
 }
@@ -671,7 +664,6 @@ export function renderStemApply(root: HTMLElement, onBack: () => void): void {
   loadSavedData().then(savedData => {
     if (savedData && optEndInput && savedData.opt_ead_end_date) {
       optEndInput.value = savedData.opt_ead_end_date;
-      console.log('✅ Loaded saved OPT EAD end date');
     }
   });
   

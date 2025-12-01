@@ -43,19 +43,14 @@ async function getUSCISAccessToken(): Promise<string | null> {
   try {
     // Check if we have a valid cached token
     if (cachedToken && Date.now() < cachedToken.expiresAt) {
-      console.log('✅ Using cached USCIS access token');
       return cachedToken.token;
     }
 
-    console.log('🔐 Fetching new USCIS access token...');
 
     const clientId = process.env.USCIS_CLIENT_ID;
     const clientSecret = process.env.USCIS_CLIENT_SECRET;
     const tokenUrl = process.env.USCIS_TOKEN_URL || 'https://api-int.uscis.gov/oauth/accesstoken';
 
-    console.log(`📊 Token URL: ${tokenUrl}`);
-    console.log(`📊 Client ID present: ${!!clientId}`);
-    console.log(`📊 Client Secret present: ${!!clientSecret}`);
 
     if (!clientId || !clientSecret) {
       console.error('❌ USCIS credentials not configured');
@@ -75,7 +70,6 @@ async function getUSCISAccessToken(): Promise<string | null> {
       }).toString(),
     });
 
-    console.log(`📡 OAuth response status: ${response.status}`);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -85,7 +79,6 @@ async function getUSCISAccessToken(): Promise<string | null> {
     }
 
     const data = await response.json();
-    console.log(`📊 OAuth response received:`, { has_token: !!data.access_token, expires_in: data.expires_in });
     
     const { access_token, expires_in } = data;
 
@@ -101,7 +94,6 @@ async function getUSCISAccessToken(): Promise<string | null> {
       expiresAt: Date.now() + expiresInMs,
     };
 
-    console.log(`✅ Got USCIS access token (expires in ${expires_in}s)`);
     return access_token;
   } catch (error) {
     console.error('❌ Error getting USCIS access token:', error);
@@ -118,7 +110,6 @@ export async function checkUSCISStatus(
   receiptNumber: string
 ): Promise<USCISStatus | null> {
   try {
-    console.log(`🔍 Checking USCIS status for: ${receiptNumber}`);
 
     // Get OAuth access token
     const accessToken = await getUSCISAccessToken();
@@ -131,8 +122,6 @@ export async function checkUSCISStatus(
     const baseUrl = process.env.USCIS_API_BASE_URL || 'https://api-int.uscis.gov/case-status';
     const url = `${baseUrl}/${receiptNumber}`;
 
-    console.log(`📡 Making request to: ${url}`);
-    console.log(`📡 Using token: ${accessToken.substring(0, 10)}...`);
 
     // Make GET request to USCIS API
     const response = await fetch(url, {
@@ -143,7 +132,6 @@ export async function checkUSCISStatus(
       },
     });
 
-    console.log(`📡 Response status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
@@ -163,12 +151,9 @@ export async function checkUSCISStatus(
           console.error(`💡 For REAL receipt numbers, you need PRODUCTION access.`);
           console.error(`📧 Request production access: developersupport@uscis.dhs.gov`);
         } else {
-          console.log(`ℹ️  Receipt number ${receiptNumber} not found in USCIS system`);
         }
       } else if (response.status === 422) {
-        console.log(`ℹ️  Invalid receipt number format: ${receiptNumber}`);
       } else if (response.status === 429) {
-        console.log(`⚠️  Rate limit exceeded (TPS or daily quota)`);
       } else if (response.status === 503) {
         if (isSandbox) {
           console.error(`⏰ SANDBOX CLOSED: The USCIS Sandbox API is offline`);
@@ -194,7 +179,6 @@ export async function checkUSCISStatus(
       description: data.case_status.current_case_status_desc_en,
     };
 
-    console.log(`✅ Found status: ${status.status}`);
     return status;
   } catch (error) {
     console.error('❌ Error checking USCIS status:', error);

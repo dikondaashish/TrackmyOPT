@@ -96,10 +96,8 @@ export async function POST(req: NextRequest) {
     if (customerId) {
       try {
         await stripe.customers.retrieve(customerId);
-        console.log(`Using existing Stripe customer: ${customerId}`);
       } catch (error: any) {
         // Customer doesn't exist (maybe switched Stripe accounts), create new one
-        console.log(`Customer ${customerId} not found, creating new one`);
         customerId = null;
       }
     }
@@ -121,7 +119,6 @@ export async function POST(req: NextRequest) {
         .update({ stripe_customer_id: customerId })
         .eq('user_id', userId);
 
-      console.log(`Created Stripe customer: ${customerId} for user: ${userId}`);
     }
 
     // Get the origin from the request or use production URL
@@ -160,7 +157,6 @@ export async function POST(req: NextRequest) {
       billing_address_collection: 'auto',
     });
 
-    console.log(`Created checkout session: ${session.id} for user: ${userId}`);
 
     return NextResponse.json({
       sessionId: session.id,

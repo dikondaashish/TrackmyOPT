@@ -120,7 +120,6 @@ export function SettingsSection() {
       }
 
     } catch (err) {
-      console.error('Error loading user data:', err);
       setError('Failed to load settings');
     } finally {
       setIsLoading(false);
@@ -202,7 +201,6 @@ export function SettingsSection() {
       sessionStorage.clear();
       window.location.href = '/';
     } catch (error) {
-      console.error('Sign out failed:', error);
       window.location.href = '/';
     }
   };

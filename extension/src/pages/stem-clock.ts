@@ -361,10 +361,8 @@ async function loadSavedData(): Promise<any> {
     if (!response.ok) return null;
     
     const result = await response.json();
-    console.log('📖 STEM Clock loaded data:', result);
     return result.ok ? result.data : null;
   } catch (error) {
-    console.error('❌ Error loading saved data:', error);
     return null;
   }
 }
@@ -387,8 +385,6 @@ async function saveStemEadStartDate(stemEadStartDate: string | null): Promise<bo
       _lastModifiedField: 'stem_start_date', // Tell API this field was updated
     };
 
-    console.log('💾 Saving STEM Clock dates:', payload);
-    console.log('📝 Last modified field: stem_start_date');
 
     // Try using session cookies first (if user is logged in on website)
     let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
@@ -417,14 +413,11 @@ async function saveStemEadStartDate(stemEadStartDate: string | null): Promise<bo
 
     const result = await response.json();
     if (result.ok) {
-      console.log('✅ STEM start date saved successfully');
       return true;
     } else {
-      console.error('❌ Failed to save STEM start date:', result.error);
       return false;
     }
   } catch (error) {
-    console.error('❌ Error saving STEM start date:', error);
     return false;
   }
 }
@@ -661,7 +654,6 @@ export function renderStemClock(root: HTMLElement, onBack: () => void): void {
   loadSavedData().then(savedData => {
     if (savedData && startDateInput && savedData.stem_start_date) {
       startDateInput.value = savedData.stem_start_date;
-      console.log('✅ Loaded saved STEM start date');
     }
   });
   

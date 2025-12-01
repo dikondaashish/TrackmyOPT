@@ -106,7 +106,6 @@ function LoginPageContent() {
   // This prevents redirect loops if session check is inconsistent
 
   const handleGoogleSignIn = async () => {
-    console.log('🔐 Google OAuth attempt started');
     setLoading(true);
     setError(null);
     
@@ -115,7 +114,6 @@ function LoginPageContent() {
     
     try {
       const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
-      console.log('📍 OAuth redirect URL:', redirectUrl);
       
       // Use auth callback route for proper session handling
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -130,14 +128,11 @@ function LoginPageContent() {
       });
       
       if (oauthError) {
-        console.error('❌ OAuth error:', oauthError);
         throw oauthError;
       }
       
-      console.log('✅ OAuth initiated:', data);
       // OAuth will redirect automatically, don't set loading to false
     } catch (err: any) {
-      console.error('❌ Google sign-in failed:', err);
       setError(err.message || 'Google sign-in failed');
       setLoading(false);
     }
@@ -145,23 +140,19 @@ function LoginPageContent() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('🔐 Sign in attempt started');
     setLoading(true);
     setError(null);
 
     try {
-      console.log('📧 Signing in with email:', email);
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        console.error('❌ Sign in error:', signInError);
         throw signInError;
       }
 
-      console.log('✅ Sign in successful!', data);
 
       // Save email if remember me
       if (rememberMe) {
@@ -174,10 +165,8 @@ function LoginPageContent() {
       localStorage.setItem('trackmyopt_last_method', 'email');
       
       // Redirect to intended page or dashboard - session is now in cookies
-      console.log(`↗️ Redirecting to ${redirectTo}...`);
       window.location.href = redirectTo;
     } catch (err: any) {
-      console.error('❌ Sign in failed:', err);
       setError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
     }
@@ -224,7 +213,6 @@ function LoginPageContent() {
         setResetEmail('');
       }, 3000);
     } catch (err: any) {
-      console.error('Forgot password error:', err);
       setError(err.message || 'Failed to send reset link');
     } finally {
       setResetLoading(false);
@@ -278,12 +266,10 @@ function LoginPageContent() {
 
       if (error) throw error;
 
-      console.log('✅ OTP verified, account created!', data);
       
       // Redirect to intended page or dashboard
       window.location.href = redirectTo;
     } catch (err: any) {
-      console.error('❌ OTP verification failed:', err);
       setOtpError(err.message || 'Invalid or expired code. Please try again.');
     } finally {
       setOtpLoading(false);
@@ -292,7 +278,6 @@ function LoginPageContent() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('📝 Sign up attempt started');
     setLoading(true);
     setError(null);
 
@@ -309,7 +294,6 @@ function LoginPageContent() {
     }
 
     try {
-      console.log('📧 Signing up with email:', email);
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -324,11 +308,9 @@ function LoginPageContent() {
       });
 
       if (signUpError) {
-        console.error('❌ Sign up error:', signUpError);
         throw signUpError;
       }
 
-      console.log('✅ Sign up response:', data);
 
       // Show OTP modal
       setSignupEmail(email);
@@ -337,7 +319,6 @@ function LoginPageContent() {
       setCanResend(false);
       setLoading(false);
     } catch (err: any) {
-      console.error('❌ Sign up failed:', err);
       setError(err.message || 'Sign up failed. Please try again.');
       setLoading(false);
     }

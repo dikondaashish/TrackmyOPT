@@ -23,9 +23,6 @@ export async function generateRemindersForDocument(
   expiryDate: string
 ): Promise<void> {
   try {
-    console.log('⏰ Generating reminders for document...');
-    console.log(`📄 Document: ${documentName}`);
-    console.log(`📅 Expiry date: ${expiryDate}`);
 
     // Use service role client for database function
     const supabase = createClient(
@@ -46,7 +43,6 @@ export async function generateRemindersForDocument(
       throw error;
     }
 
-    console.log('✅ Reminders generated successfully');
   } catch (error) {
     console.error('❌ Failed to generate reminders:', error);
     // Don't throw - reminders are nice-to-have, not critical

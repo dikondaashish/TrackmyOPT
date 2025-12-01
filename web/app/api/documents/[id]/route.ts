@@ -25,7 +25,6 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    console.log(`📄 Fetching document: ${id}`);
 
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -49,8 +48,6 @@ export async function GET(
     // Generate signed URL for viewing (5 minutes)
     const viewUrl = await generateSignedUrl(document.s3_key);
 
-    console.log(`✅ Document fetched: ${document.filename}`);
-    console.log(`📅 Expiry date from DB: ${document.expiry_date}`);
 
     // Transform snake_case to camelCase for frontend
     return NextResponse.json({
@@ -89,7 +86,6 @@ export async function PATCH(
 ) {
   try {
     const { id } = await context.params;
-    console.log(`✏️  Updating document: ${id}`);
 
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -120,7 +116,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
-    console.log(`✅ Document updated: ${document.filename}`);
 
     return NextResponse.json({
       success: true,
@@ -145,7 +140,6 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    console.log(`🗑️  Deleting document: ${id}`);
 
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -169,7 +163,6 @@ export async function DELETE(
     // Delete from S3
     try {
       await deleteFromS3(document.s3_key);
-      console.log(`✅ Deleted from S3: ${document.s3_key}`);
     } catch (s3Error) {
       console.error('⚠️  S3 deletion failed:', s3Error);
       // Continue anyway - DB cleanup is more important
@@ -187,7 +180,6 @@ export async function DELETE(
       throw dbError;
     }
 
-    console.log(`✅ Document deleted: ${document.filename}`);
 
     return NextResponse.json({
       success: true,

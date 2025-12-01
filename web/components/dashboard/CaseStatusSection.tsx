@@ -70,7 +70,6 @@ export function CaseStatusSection() {
         setIsPremium(data.isPremium || false);
       }
     } catch (err) {
-      console.error('Error checking premium status:', err);
     }
   };
 
@@ -84,7 +83,6 @@ export function CaseStatusSection() {
         setNotificationEmail(data.email || "");
       }
     } catch (err) {
-      console.error('Error loading notification email:', err);
     }
   };
 
@@ -106,7 +104,6 @@ export function CaseStatusSection() {
       }
       return null;
     } catch (err) {
-      console.error('Error loading case status:', err);
       return null;
     } finally {
       setIsLoading(false);
@@ -182,7 +179,6 @@ export function CaseStatusSection() {
       }
     } catch (err) {
       setError('An error occurred while saving');
-      console.error('Error saving case status:', err);
     } finally {
       setIsSaving(false);
     }
@@ -209,7 +205,6 @@ export function CaseStatusSection() {
       }
     } catch (err) {
       setError('An error occurred while refreshing');
-      console.error('Error refreshing case status:', err);
     } finally {
       setIsRefreshing(false);
     }
@@ -237,7 +232,6 @@ export function CaseStatusSection() {
       }
     } catch (err) {
       setError('An error occurred');
-      console.error('Error toggling notifications:', err);
     }
   };
 
@@ -331,7 +325,6 @@ export function CaseStatusSection() {
         setTimeout(() => setSuccess(false), 3000);
       }
     } catch (err) {
-      console.error('Error saving email:', err);
     }
   };
 

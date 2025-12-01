@@ -52,7 +52,6 @@ export async function sendDailyReminder(data: EmailReminderData) {
       return { success: false, error };
     }
 
-    console.log(`✅ Email sent successfully to ${data.userEmail}:`, emailResult);
     return { success: true, messageId: emailResult.id };
   } catch (error) {
     console.error('Email service error:', error);

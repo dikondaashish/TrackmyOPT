@@ -19,7 +19,6 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔐 Verifying passcode...');
 
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -60,7 +59,6 @@ export async function POST(request: NextRequest) {
     );
 
     if (lockoutStatus.isLocked) {
-      console.log(`🔒 Account locked for ${lockoutStatus.remainingTime} more minutes`);
       return NextResponse.json(
         { 
           error: 'Too many failed attempts. Please try again later.',
@@ -85,7 +83,6 @@ export async function POST(request: NextRequest) {
         })
         .eq('user_id', user.id);
 
-      console.log('✅ Passcode verified');
 
       return NextResponse.json({
         success: true,
@@ -97,7 +94,6 @@ export async function POST(request: NextRequest) {
       const newFailedAttempts = stored.failed_attempts + 1;
       const remaining = getRemainingAttempts(newFailedAttempts);
 
-      console.log(`❌ Invalid passcode (${newFailedAttempts} attempts)`);
 
       // Lock account after 3 failed attempts
       const shouldLock = newFailedAttempts >= 3;

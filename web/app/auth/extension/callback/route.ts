@@ -15,7 +15,6 @@ export async function GET(req: NextRequest) {
     const state = searchParams.get("state");
     const code = searchParams.get("code"); // OAuth code from Supabase
 
-    console.log('Callback params:', { redirect_uri, state, hasCode: !!code });
 
     if (!redirect_uri || !state) {
       return new NextResponse("Missing redirect_uri or state", { status: 400 });
@@ -51,7 +50,6 @@ export async function GET(req: NextRequest) {
 
     // If we have a code, exchange it for a session
     if (code) {
-      console.log('Exchanging code for session, code length:', code.length);
       const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) {
         console.error('Code exchange error:', {
@@ -66,13 +64,11 @@ export async function GET(req: NextRequest) {
           )
         );
       }
-      console.log('Code exchange successful, user:', sessionData?.user?.id);
     }
 
     // Get the user from the session
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    console.log('Callback - User:', user ? user.id : 'none', 'Error:', userError?.message);
     
     if (!user) {
       console.error('No user found in callback, redirecting back to auth');
@@ -92,7 +88,6 @@ export async function GET(req: NextRequest) {
       .setExpirationTime("10m")
       .sign(secret);
 
-    console.log('Generated JWT for user:', user.id);
 
     // Return HTML that redirects to extension with token
     const html = `
@@ -143,7 +138,6 @@ export async function GET(req: NextRequest) {
       const st = ${JSON.stringify(state)};
       const token = ${JSON.stringify(jwt)};
       
-      console.log('Redirecting to extension with token');
       
       // Set window.location with token in fragment
       window.location = ru + "#id_token=" + encodeURIComponent(token) + "&state=" + encodeURIComponent(st);

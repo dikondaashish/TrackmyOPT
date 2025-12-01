@@ -16,9 +16,6 @@ export async function GET(req: NextRequest) {
     const code = url.searchParams.get('code');
     const next = url.searchParams.get('next') || '/dashboard';
 
-    console.log('🔄 OAuth callback for web flow');
-    console.log('Code present:', !!code);
-    console.log('Next destination:', next);
 
     if (!code) {
       console.error('❌ No OAuth code in callback');
@@ -41,14 +38,12 @@ export async function GET(req: NextRequest) {
             try {
               cookieStore.set({ name, value, ...options });
             } catch (error) {
-              console.warn('Cookie set error:', error);
             }
           },
           remove(name: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value: '', ...options });
             } catch (error) {
-              console.warn('Cookie remove error:', error);
             }
           },
         },
@@ -56,7 +51,6 @@ export async function GET(req: NextRequest) {
     );
 
     // Exchange the OAuth code for a session
-    console.log('🔐 Exchanging OAuth code for session...');
     const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
@@ -76,12 +70,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('✅ OAuth session established for user:', sessionData.user.id);
-    console.log('📧 User email:', sessionData.user.email);
 
     // Redirect to the dashboard or specified next page
     const redirectUrl = new URL(next, req.url);
-    console.log('↗️ Redirecting to:', redirectUrl.toString());
 
     return NextResponse.redirect(redirectUrl);
   } catch (error) {

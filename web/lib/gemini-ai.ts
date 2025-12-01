@@ -46,10 +46,6 @@ export async function analyzeDocument(
   filename: string
 ): Promise<DocumentAnalysis> {
   try {
-    console.log('🤖 Starting Gemini AI document analysis...');
-    console.log(`📄 File: ${filename}`);
-    console.log(`📊 Size: ${(fileBuffer.length / 1024).toFixed(2)} KB`);
-    console.log(`📦 Type: ${contentType}`);
 
     if (!process.env.GEMINI_API_KEY) {
       throw new Error('GEMINI_API_KEY is not configured');
@@ -66,7 +62,6 @@ export async function analyzeDocument(
       },
     };
 
-    console.log('📤 Sending to Gemini API...');
 
     // Single prompt for everything: OCR + Classification + Extraction
     const prompt = GEMINI_ANALYSIS_PROMPT;
@@ -75,7 +70,6 @@ export async function analyzeDocument(
     const response = await result.response;
     const text = response.text();
 
-    console.log('✅ Received response from Gemini');
 
     // Parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -85,10 +79,6 @@ export async function analyzeDocument(
 
     const analysis: DocumentAnalysis = JSON.parse(jsonMatch[0]);
 
-    console.log(`✅ Document classified as: ${analysis.documentType}`);
-    console.log(`📊 Confidence: ${analysis.confidence}%`);
-    console.log(`📊 Extracted ${analysis.extractedText.length} characters`);
-    console.log(`📊 Found ${Object.keys(analysis.extractedFields).length} fields`);
 
     return analysis;
 

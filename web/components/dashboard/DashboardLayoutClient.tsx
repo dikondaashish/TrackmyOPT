@@ -48,7 +48,6 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     
     const fetchUserData = async () => {
       try {
-        console.log('🔄 Starting user data fetch...');
         const response = await fetch('/api/me', {
           credentials: 'include',
           cache: 'no-store',
@@ -57,34 +56,25 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
           },
         });
         
-        console.log('📡 API /me response status:', response.status);
         
         if (!mounted) return;
         
         if (response.ok) {
           const data = await response.json();
-          console.log('✅ Full API response:', data);
-          console.log('👤 User object:', data.user);
-          console.log('📧 User email:', data.user?.email);
           
           if (data.user && mounted) {
             setUser(data.user);
-            console.log('✅ User state set to:', data.user.email);
             
             // Force a re-render
             setTimeout(() => {
-              console.log('🔄 Checking user state after update:', user?.email);
             }, 100);
           } else {
-            console.error('❌ No user object in response');
           }
         } else {
           const errorText = await response.text();
-          console.error('❌ Failed to fetch user data:', response.status, errorText);
         }
 
         // Fetch premium status
-        console.log('🔄 Starting premium status fetch...');
         const premiumResponse = await fetch('/api/premium/status', {
           credentials: 'include',
           cache: 'no-store',
@@ -93,23 +83,18 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
           },
         });
         
-        console.log('📡 API /premium/status response status:', premiumResponse.status);
         
         if (!mounted) return;
         
         if (premiumResponse.ok) {
           const premiumData = await premiumResponse.json();
-          console.log('✅ Premium status response:', premiumData);
           if (mounted) {
             setIsPremium(premiumData.isPremium || false);
-            console.log('✅ Premium state set to:', premiumData.isPremium);
           }
         } else {
           const errorText = await premiumResponse.text();
-          console.error('❌ Failed to fetch premium status:', premiumResponse.status, errorText);
         }
       } catch (error) {
-        console.error('❌ Exception during fetch:', error);
       }
     };
 

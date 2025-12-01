@@ -528,7 +528,6 @@ async function checkPremiumStatus(): Promise<boolean> {
     const result = await response.json();
     return result.isPremium || false;
   } catch (error) {
-    console.error('Error checking premium status:', error);
     return false;
   }
 }
@@ -566,10 +565,8 @@ async function loadSavedData(): Promise<any> {
     if (!response.ok) return null;
     
     const result = await response.json();
-    console.log('📖 Extension loaded data:', result);
     return result.ok ? result.data : null;
   } catch (error) {
-    console.error('❌ Error loading saved data:', error);
     return null;
   }
 }
@@ -606,8 +603,6 @@ async function saveDatesToAPI(
       _lastModifiedField: lastModifiedField, // Tell API which field was updated
     };
 
-    console.log('💾 Saving OPT Apply dates:', payload);
-    console.log('📝 Last modified field:', lastModifiedField);
 
     // Try using session cookies first (if user is logged in on website)
     let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
@@ -636,14 +631,11 @@ async function saveDatesToAPI(
 
     const result = await response.json();
     if (result.ok) {
-      console.log('✅ Extension saved dates successfully');
       return true;
     } else {
-      console.error('❌ Failed to save dates:', result.error);
       return false;
     }
   } catch (error) {
-    console.error('❌ Error saving dates:', error);
     return false;
   }
 }
@@ -1030,7 +1022,6 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
         dsoRecommendationInput.value = savedData.dso_recommendation_date;
       }
       
-      console.log('✅ Loaded saved OPT dates');
     }
   });
   

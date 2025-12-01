@@ -194,7 +194,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(`✅ Email preferences updated for user: ${userId}`);
 
     return NextResponse.json({ 
       success: true,
@@ -243,7 +242,6 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    console.log(`✅ Email preferences deleted for user: ${userId}`);
 
     return NextResponse.json({ 
       success: true,

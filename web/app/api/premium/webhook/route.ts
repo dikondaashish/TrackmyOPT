@@ -50,7 +50,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  console.log(`✅ Webhook received: ${event.type}`);
 
   // Handle the event
   try {
@@ -69,21 +68,18 @@ export async function POST(req: NextRequest) {
 
       case 'checkout.session.async_payment_failed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        console.log(`❌ Async payment failed for session: ${session.id}`);
         await logPaymentFailure(session);
         break;
       }
 
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log(`💰 Payment succeeded: ${paymentIntent.id}`);
         await updateTransactionStatus(paymentIntent.id, 'succeeded');
         break;
       }
 
       case 'payment_intent.payment_failed': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log(`❌ Payment failed: ${paymentIntent.id}`);
         await updateTransactionStatus(
           paymentIntent.id,
           'failed',
@@ -94,7 +90,6 @@ export async function POST(req: NextRequest) {
 
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge;
-        console.log(`🔄 Charge refunded: ${charge.id}`);
         if (charge.payment_intent) {
           await updateTransactionStatus(
             charge.payment_intent as string,
@@ -105,7 +100,6 @@ export async function POST(req: NextRequest) {
       }
 
       default:
-        console.log(`ℹ️ Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
@@ -129,7 +123,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  console.log(`Processing checkout for user: ${userId}`);
 
   try {
     // Update user to premium
@@ -148,7 +141,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       throw profileError;
     }
 
-    console.log(`✅ User ${userId} upgraded to premium`);
 
     // Record transaction
     const { error: transactionError } = await supabase
@@ -173,7 +165,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       throw transactionError;
     }
 
-    console.log(`✅ Transaction recorded for payment: ${session.payment_intent}`);
 
     // TODO: Send welcome email to premium user
     // await sendPremiumWelcomeEmail(userId);
@@ -206,7 +197,6 @@ async function logPaymentFailure(session: Stripe.Checkout.Session) {
         failure_reason: 'Async payment failed',
       });
 
-    console.log(`📝 Logged payment failure for user: ${userId}`);
   } catch (error) {
     console.error('❌ Error logging payment failure:', error);
   }
@@ -233,7 +223,6 @@ async function updateTransactionStatus(
     if (error) {
       console.error('❌ Error updating transaction status:', error);
     } else {
-      console.log(`✅ Updated transaction status to: ${status}`);
     }
   } catch (error) {
     console.error('❌ Error in updateTransactionStatus:', error);

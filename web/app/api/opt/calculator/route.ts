@@ -78,7 +78,6 @@ export async function GET(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    console.log('📖 Loading opt_status for user:', userId);
 
     // Fetch opt_status data - include stem_start_date and last_updated_field
     const { data, error } = await supabase
@@ -93,9 +92,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (!data) {
-      console.log('📭 No opt_status data found for user');
     } else {
-      console.log('✅ Loaded opt_status data:', data);
     }
 
     // Format dates to mm/dd/yyyy
@@ -154,7 +151,6 @@ export async function POST(req: NextRequest) {
       _lastModifiedField, // Special field from dashboard to indicate which date user modified
     } = body;
 
-    console.log('📥 Received _lastModifiedField:', _lastModifiedField);
 
     // Flexible validation: at least one date must be provided
     const dates = {
@@ -229,7 +225,6 @@ export async function POST(req: NextRequest) {
     if (_lastModifiedField) {
       // Dashboard explicitly told us which field was modified
       lastUpdatedField = _lastModifiedField;
-      console.log('✅ Using explicit lastModifiedField from dashboard:', lastUpdatedField);
     } else {
       // Extension didn't specify, use fallback logic (last non-null field wins)
       // Priority order: check which field was explicitly provided
@@ -238,7 +233,6 @@ export async function POST(req: NextRequest) {
       if (opt_start_date) lastUpdatedField = 'opt_start_date';
       if (opt_ead_end_date) lastUpdatedField = 'opt_ead_end_date';
       if (stem_start_date) lastUpdatedField = 'stem_start_date';
-      console.log('📍 Using fallback lastUpdatedField logic:', lastUpdatedField);
     }
 
     // Prepare data for upsert
@@ -253,8 +247,6 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    console.log('📝 Upserting opt_status for user:', userId);
-    console.log('📝 Data to save:', JSON.stringify(upsertData, null, 2));
 
     // Upsert opt_status with all 5 fields
     const { data: upsertResult, error } = await supabase
@@ -267,7 +259,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
     }
 
-    console.log('✅ Successfully saved opt_status:', upsertResult);
 
     return NextResponse.json({ ok: true, data: upsertResult }, { headers: corsHeaders });
   } catch (error: any) {

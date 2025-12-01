@@ -15,20 +15,13 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
   try {
-    console.log('🚀 OAUTH CALLBACK ROUTE HIT');
     const url = new URL(req.url);
-    console.log('Full URL:', url.toString());
     
     const code = url.searchParams.get('code');
     const next = url.searchParams.get('next') || '/dashboard';
     const error = url.searchParams.get('error');
     const errorDescription = url.searchParams.get('error_description');
 
-    console.log('📋 Callback Parameters:');
-    console.log('  - code:', code ? `${code.substring(0, 20)}...` : 'MISSING');
-    console.log('  - next:', next);
-    console.log('  - error:', error || 'none');
-    console.log('  - error_description:', errorDescription || 'none');
 
     if (!code) {
       console.error('❌ No OAuth code in callback');
@@ -51,14 +44,12 @@ export async function GET(req: NextRequest) {
             try {
               cookieStore.set({ name, value, ...options });
             } catch (error) {
-              console.warn('Cookie set error:', error);
             }
           },
           remove(name: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value: '', ...options });
             } catch (error) {
-              console.warn('Cookie remove error:', error);
             }
           },
         },
@@ -66,7 +57,6 @@ export async function GET(req: NextRequest) {
     );
 
     // Exchange the OAuth code for a session
-    console.log('🔐 Exchanging OAuth code for session...');
     const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
@@ -86,12 +76,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('✅ OAuth session established for user:', sessionData.user.id);
-    console.log('📧 User email:', sessionData.user.email);
 
     // Redirect to the dashboard or specified next page
     const redirectUrl = new URL(next, req.url);
-    console.log('↗️ Redirecting to:', redirectUrl.toString());
 
     // Add a small delay to ensure cookies are set before redirect
     // Redirect to the dashboard or specified URL

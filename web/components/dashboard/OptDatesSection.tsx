@@ -259,7 +259,6 @@ export function OptDatesSection() {
   const loadDates = async () => {
     try {
       setIsLoading(true);
-      console.log('📖 Dashboard loading dates...');
       
       // Use same endpoint as extension for perfect sync
       const response = await fetch('/api/opt/calculator', {
@@ -270,16 +269,12 @@ export function OptDatesSection() {
       if (response.ok) {
         const result = await response.json();
         if (result.ok && result.data) {
-          console.log('✅ Dashboard loaded dates:', result.data);
           setDates(result.data);
         } else {
-          console.log('📭 No dates found');
         }
       } else {
-        console.error('❌ Failed to load dates:', response.status);
       }
     } catch (err) {
-      console.error('❌ Error loading dates:', err);
     } finally {
       setIsLoading(false);
     }
@@ -331,8 +326,6 @@ export function OptDatesSection() {
         _lastModifiedField: lastModifiedField, // Tell API which field was modified
       };
 
-      console.log('💾 Dashboard saving dates:', payload);
-      console.log('📝 Last modified field:', lastModifiedField);
       
       // Use same endpoint as extension for perfect sync
       const response = await fetch('/api/opt/calculator', {
@@ -348,18 +341,15 @@ export function OptDatesSection() {
       const result = await response.json();
 
       if (response.ok && result.ok) {
-        console.log('✅ Dashboard saved dates successfully');
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
         // Reload to show updated data from database
         await loadDates();
       } else {
-        console.error('❌ Dashboard failed to save:', result.error);
         setError(result.error || 'Failed to save dates');
       }
     } catch (err) {
       setError('An error occurred while saving');
-      console.error('❌ Dashboard save error:', err);
     } finally {
       setIsSaving(false);
     }

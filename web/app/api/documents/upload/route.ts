@@ -26,7 +26,6 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('📤 Starting document upload...');
 
     // Get user from session
     const supabase = await createClient();
@@ -40,7 +39,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`👤 User: ${user.email}`);
 
     // Check premium status from profiles table
     const { data: profile } = await supabase
@@ -50,20 +48,17 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!profile?.premium_status) {
-      console.log('⚠️  Non-premium user attempted document upload');
       return NextResponse.json(
         { error: 'Premium feature - please upgrade' },
         { status: 403 }
       );
     }
 
-    console.log('✅ Premium user verified');
 
     // Check rate limit (20 uploads per day)
     const rateLimit = await checkDocumentUploadRateLimit(user.id);
     
     if (!rateLimit.allowed) {
-      console.log(`⚠️  Rate limit exceeded for user: ${user.email}`);
       return NextResponse.json(
         { 
           error: 'Daily upload limit reached',
@@ -82,7 +77,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`✅ Rate limit OK: ${rateLimit.remaining} uploads remaining today`);
 
     // Parse multipart form data
     const formData = await request.formData();
@@ -96,9 +90,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`📄 File: ${file.name}`);
-    console.log(`📊 Size: ${(file.size / 1024).toFixed(2)} KB`);
-    console.log(`📦 Type: ${file.type}`);
 
     // Validate file
     if (file.size > MAX_FILE_SIZE) {
@@ -121,7 +112,6 @@ export async function POST(request: NextRequest) {
 
     // Quick heuristic check for suspicious file types
     if (checkSuspiciousFileType(file.name, file.type)) {
-      console.log('⚠️  Suspicious file type detected, rejecting upload');
       return NextResponse.json(
         { error: 'File type not allowed for security reasons.' },
         { status: 400 }
@@ -129,11 +119,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Scan for viruses (if enabled)
-    console.log('🔍 Scanning file for viruses...');
     const virusScanResult = await scanFileForViruses(buffer, file.name);
     
     if (!virusScanResult.safe) {
-      console.log(`❌ Virus detected: ${virusScanResult.threat}`);
       return NextResponse.json(
         { 
           error: 'File failed virus scan',
@@ -143,25 +131,17 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    console.log(`✅ Virus scan passed (${virusScanResult.scanner}, ${virusScanResult.scanTime}ms)`);
 
     // Step 1: Upload to S3
-    console.log('📤 Step 1/4: Uploading to S3...');
     const s3Key = generateS3Key(user.id, file.name);
     
     await uploadToS3(buffer, s3Key, file.type);
-    console.log(`✅ Uploaded to S3: ${s3Key}`);
 
     // Step 2: Analyze with Gemini AI (OCR + Classification + Extraction)
-    console.log('🤖 Step 2/4: Analyzing document with Gemini AI...');
     const analysis = await analyzeDocument(buffer, file.type, file.name);
     const normalizedText = normalizeText(analysis.extractedText);
-    console.log(`✅ Classified as: ${analysis.documentType} (${analysis.confidence}% confidence)`);
-    console.log(`✅ Extracted ${normalizedText.length} characters`);
-    console.log(`✅ Found ${Object.keys(analysis.extractedFields).length} metadata fields`);
 
     // Step 3: Save to database
-    console.log('💾 Step 3/4: Saving to database...');
     const { data: document, error: dbError } = await supabase
       .from('documents')
       .insert({
@@ -189,24 +169,18 @@ export async function POST(request: NextRequest) {
       throw dbError;
     }
 
-    console.log(`✅ Document saved with ID: ${document.id}`);
-    console.log(`📊 Document type: ${document.document_type}`);
 
     // Step 4: Generate reminders (if expiry date exists)
     if (analysis.expiryDate) {
-      console.log('⏰ Step 4/4: Generating reminders...');
       await generateRemindersForDocument(
         user.id,
         document.id,
         file.name,
         analysis.expiryDate
       );
-      console.log('✅ Reminders created');
     } else {
-      console.log('ℹ️  No expiry date - skipping reminder generation');
     }
 
-    console.log('🎉 Document upload complete!');
 
     return NextResponse.json({
       success: true,

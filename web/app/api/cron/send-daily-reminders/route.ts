@@ -41,8 +41,6 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    console.log('🚀 Starting daily reminder cron job...');
-    console.log(`📅 Time: ${new Date().toISOString()}`);
 
     // Get all premium users with email enabled
     const { data: premiumUsers, error: usersError } = await supabase
@@ -63,7 +61,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log(`👥 Found ${premiumUsers?.length || 0} premium users`);
 
     const results = {
       total: premiumUsers?.length || 0,
@@ -86,7 +83,6 @@ export async function GET(req: NextRequest) {
         // Skip if email not enabled or not verified
         if (!emailPref || !emailPref.email_enabled || !emailPref.email_verified) {
           results.skipped++;
-          console.log(`⏭️  Skipped user ${user.user_id}: No verified email`);
           continue;
         }
 
@@ -99,7 +95,6 @@ export async function GET(req: NextRequest) {
 
         if (!optData) {
           results.skipped++;
-          console.log(`⏭️  Skipped user ${user.user_id}: No OPT data`);
           continue;
         }
 
@@ -197,7 +192,6 @@ export async function GET(req: NextRequest) {
         // Skip if no active tools/countdowns
         if (tools.length === 0) {
           results.skipped++;
-          console.log(`⏭️  Skipped user ${user.user_id}: No active countdowns`);
           continue;
         }
 
@@ -213,7 +207,6 @@ export async function GET(req: NextRequest) {
 
         if (result.success) {
           results.sent++;
-          console.log(`✅ Email sent to ${emailPref.email_address}`);
 
           // Log to email_queue
           await supabase.from('email_queue').insert({
@@ -254,9 +247,6 @@ export async function GET(req: NextRequest) {
 
     const duration = Date.now() - startTime;
 
-    console.log('✅ Cron job completed');
-    console.log(`📊 Results:`, results);
-    console.log(`⏱️  Duration: ${duration}ms`);
 
     return NextResponse.json({
       success: true,

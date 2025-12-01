@@ -69,7 +69,6 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
       const { url } = await response.json();
       window.location.href = url;
     } catch (error) {
-      console.error('Upgrade error:', error);
       alert('Failed to start upgrade process. Please try again.');
       setIsLoading(false);
     }

@@ -57,7 +57,6 @@ export function DateSelector() {
           if (newLastUpdatedField) {
             // If this is a NEW last_updated_field (different from before), auto-select it
             if (lastUpdatedFieldFromAPI !== newLastUpdatedField) {
-              console.log('📊 Last updated field changed:', lastUpdatedFieldFromAPI, '→', newLastUpdatedField);
               setSelectedDateType(newLastUpdatedField);
               setLastUpdatedFieldFromAPI(newLastUpdatedField);
             }
@@ -68,7 +67,6 @@ export function DateSelector() {
         }
       }
     } catch (err) {
-      console.error('Error loading dates:', err);
     } finally {
       setIsLoading(false);
     }

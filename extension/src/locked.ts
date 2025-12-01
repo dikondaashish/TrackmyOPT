@@ -67,7 +67,6 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
   const signinBtn = document.getElementById('signin-btn');
   if (signinBtn) {
     signinBtn.addEventListener('click', () => {
-      console.log('Opening login/signup page...');
       chrome.tabs.create({ url: 'https://www.trackmyopt.com/login' });
     });
     
@@ -102,12 +101,10 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
         if (themeIconLocked) themeIconLocked.textContent = '🌙';
-        console.log('Switched to light mode');
       } else {
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
         if (themeIconLocked) themeIconLocked.textContent = '☀️';
-        console.log('Switched to dark mode');
       }
     });
   }

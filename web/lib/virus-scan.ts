@@ -32,7 +32,6 @@ export async function scanFileForViruses(
 
   // Check if virus scanning is enabled
   if (process.env.ENABLE_VIRUS_SCAN !== 'true') {
-    console.log('⏭️  Virus scanning disabled - skipping');
     return {
       safe: true,
       scanner: 'disabled',
@@ -51,7 +50,6 @@ export async function scanFileForViruses(
       return await scanWithVirusTotal(fileBuffer, filename, startTime);
     
     default:
-      console.warn(`⚠️  Unknown virus scanner: ${scanner}, skipping scan`);
       return {
         safe: true,
         scanner: 'none',
@@ -86,8 +84,6 @@ async function scanWithClamAV(
   // 3. Set env: CLAMAV_HOST=localhost, CLAMAV_PORT=3310
   // 4. Uncomment the implementation below
   
-  console.log('⏭️  ClamAV not configured - skipping virus scan');
-  console.log('   To enable: Install ClamAV and clamscan package');
   
   return {
     safe: true,
@@ -98,7 +94,6 @@ async function scanWithClamAV(
   /* Uncomment to enable ClamAV scanning:
   
   try {
-    console.log(`🔍 Scanning file with ClamAV: ${filename}`);
 
     const { default: NodeClam } = await import('clamscan');
 
@@ -113,7 +108,6 @@ async function scanWithClamAV(
 
     const { isInfected, viruses } = await clamscan.scanStream(fileBuffer);
 
-    console.log(`✅ ClamAV scan complete: ${isInfected ? 'INFECTED' : 'CLEAN'}`);
 
     return {
       safe: !isInfected,
@@ -153,7 +147,6 @@ async function scanWithVirusTotal(
   startTime: number
 ): Promise<VirusScanResult> {
   try {
-    console.log(`🔍 Scanning file with VirusTotal: ${filename}`);
 
     if (!process.env.VIRUSTOTAL_API_KEY) {
       console.error('❌ VIRUSTOTAL_API_KEY not configured');
@@ -168,7 +161,6 @@ async function scanWithVirusTotal(
     // For production, implement full VirusTotal integration
     // For now, return safe (fail open)
     
-    console.warn('⚠️  VirusTotal integration not fully implemented');
     
     return {
       safe: true,
@@ -199,7 +191,6 @@ export function checkSuspiciousFileType(filename: string, mimeType: string): boo
   const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
   
   if (suspiciousExtensions.includes(ext)) {
-    console.warn(`⚠️  Suspicious file extension detected: ${ext}`);
     return true;
   }
 
@@ -212,7 +203,6 @@ export function checkSuspiciousFileType(filename: string, mimeType: string): boo
   ];
 
   if (suspiciousMimeTypes.includes(mimeType)) {
-    console.warn(`⚠️  Suspicious MIME type detected: ${mimeType}`);
     return true;
   }
 

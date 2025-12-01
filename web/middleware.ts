@@ -96,11 +96,9 @@ export async function middleware(request: NextRequest) {
   const isAuthenticated = !!user && !error;
 
   // Log for debugging (remove in production)
-  console.log(`🛡️ Middleware: ${pathname} | Authenticated: ${isAuthenticated} | User: ${user?.email || 'none'}`);
 
   // Protected route + not authenticated = redirect to login
   if (isProtectedRoute && !isAuthenticated) {
-    console.log(`🚫 Middleware: Redirecting unauthenticated user to /login from ${pathname}`);
     
     const loginUrl = new URL('/login', request.url);
     // Add redirect parameter so user returns to intended page after login
@@ -112,7 +110,6 @@ export async function middleware(request: NextRequest) {
   // Auth route + authenticated = optionally redirect to dashboard
   // Uncomment below if you want to redirect already-logged-in users away from login page
   // if (isAuthRoute && isAuthenticated) {
-  //   console.log(`✅ Middleware: Redirecting authenticated user to /dashboard from ${pathname}`);
   //   return NextResponse.redirect(new URL('/dashboard', request.url));
   // }
 

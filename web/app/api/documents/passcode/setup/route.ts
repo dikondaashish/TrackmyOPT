@@ -13,7 +13,6 @@ import { hashPasscode, isValidPasscode } from '@/lib/passcode';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔐 Setting up passcode...');
 
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -60,7 +59,6 @@ export async function POST(request: NextRequest) {
         throw updateError;
       }
 
-      console.log('✅ Passcode updated');
     } else {
       // Create new passcode
       const { error: insertError } = await supabase
@@ -75,7 +73,6 @@ export async function POST(request: NextRequest) {
         throw insertError;
       }
 
-      console.log('✅ Passcode created');
     }
 
     return NextResponse.json({

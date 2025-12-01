@@ -97,7 +97,6 @@ async function checkPremiumStatus(): Promise<boolean> {
     const result = await response.json();
     return result.isPremium || false;
   } catch (error) {
-    console.error('Error checking premium status:', error);
     return false;
   }
 }
@@ -496,7 +495,6 @@ export function renderStemClockTracker(
         
         // Save email to storage
         await chrome.storage.sync.set({ subscribedEmail: email });
-        console.log('Email saved to storage:', email);
         
         // Show success notification
         chrome.notifications.create({

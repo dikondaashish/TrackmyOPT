@@ -216,7 +216,6 @@ export function ToolsGrid() {
             setLoadingTool(null);
             
             if (chrome.runtime?.lastError) {
-              console.error("Error:", chrome.runtime.lastError);
               setToast({ message: "Error communicating with extension", type: "error" });
               return;
             }
@@ -236,7 +235,6 @@ export function ToolsGrid() {
         );
       } catch (err) {
         setLoadingTool(null);
-        console.error("Error sending message:", err);
         setToast({ message: "Error opening extension", type: "error" });
       }
     } else {

@@ -56,7 +56,6 @@ export async function GET() {
 
     // If column doesn't exist, return user's email as fallback
     if (fetchError && (fetchError.code === '42703' || fetchError.message?.includes('column') || fetchError.message?.includes('does not exist'))) {
-      console.warn('notification_email column not found, using user email as fallback');
       return NextResponse.json({
         email: user.email || '',
       });

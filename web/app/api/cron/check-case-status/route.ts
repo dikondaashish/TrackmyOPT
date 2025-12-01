@@ -28,7 +28,6 @@ import { createClient } from '@supabase/supabase-js';
  */
 export async function GET(req: NextRequest) {
   try {
-    console.log('🕐 Cron job started: Check case status');
 
     // Verify cron secret (set in Vercel environment variables)
     const authHeader = req.headers.get('authorization');
@@ -62,21 +61,18 @@ export async function GET(req: NextRequest) {
     }
 
     if (!cases || cases.length === 0) {
-      console.log('📋 No cases to check');
       return NextResponse.json(
         { ok: true, message: 'No cases to check', checked: 0 },
         { status: 200 }
       );
     }
 
-    console.log(`📋 Found ${cases.length} cases to check`);
 
     // Check each case (with delay to avoid rate limiting)
     const results = [];
     
     for (const caseItem of cases) {
       try {
-        console.log(`🔍 Checking ${caseItem.receipt_number}...`);
         
         // Call the check endpoint
         const response = await fetch(
@@ -102,9 +98,7 @@ export async function GET(req: NextRequest) {
           });
           
           if (result.data?.changed) {
-            console.log(`✨ Status changed for ${caseItem.receipt_number}`);
           } else {
-            console.log(`✅ Status unchanged for ${caseItem.receipt_number}`);
           }
         } else {
           console.error(`❌ Failed to check ${caseItem.receipt_number}`);
@@ -129,7 +123,6 @@ export async function GET(req: NextRequest) {
     const successCount = results.filter((r) => r.success).length;
     const changedCount = results.filter((r) => r.changed).length;
 
-    console.log(`✅ Cron job completed: ${successCount}/${cases.length} successful, ${changedCount} changed`);
 
     return NextResponse.json(
       {

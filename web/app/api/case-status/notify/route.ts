@@ -38,7 +38,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(`📧 Sending notification for ${receipt_number} status change`);
 
     // Use service role key for database access
     const supabase = createClient(
@@ -69,7 +68,6 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (caseError || !caseData || !caseData.notifications_enabled) {
-      console.log('❌ Notifications disabled for this user');
       return NextResponse.json(
         { ok: true, message: 'Notifications disabled' },
         { status: 200, headers: corsHeaders }
@@ -78,7 +76,6 @@ export async function POST(req: NextRequest) {
 
     // Check if user is premium
     if (!userData.premium_status) {
-      console.log('ℹ️ User is not premium, skipping notification');
       return NextResponse.json(
         { ok: true, message: 'Notifications are a premium feature' },
         { status: 200, headers: corsHeaders }
@@ -128,7 +125,6 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      console.log(`✅ Email sent to ${userEmail}:`, emailData);
 
       return NextResponse.json(
         { ok: true, message: 'Notification sent', email_id: emailData?.id },

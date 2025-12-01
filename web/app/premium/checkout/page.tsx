@@ -42,7 +42,6 @@ export default function PremiumCheckout() {
         setUserEmail(userData.user?.email || '');
       }
     } catch (err) {
-      console.error('Error checking premium status:', err);
     } finally {
       setChecking(false);
     }

@@ -13,7 +13,6 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📋 Fetching documents list...');
 
     // Get user from session
     const supabase = await createClient();
@@ -73,7 +72,6 @@ export async function GET(request: NextRequest) {
       throw dbError;
     }
 
-    console.log(`✅ Found ${documents?.length || 0} documents`);
 
     // Transform snake_case to camelCase for frontend
     const transformedDocuments = (documents || []).map(doc => ({
