@@ -10,7 +10,6 @@ import {
   Moon, 
   Sun, 
   Shield, 
-  Crown,
   Loader2,
   Check,
   AlertCircle,
@@ -783,84 +782,6 @@ export function SettingsSection() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Plan Tab */}
-        {activeTab === 'plan' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-xl">
-              {premium.isPremium ? (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                      <Crown className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Premium Plan</h2>
-                        <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">
-                          Active
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        You have full access to all features
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800/50">
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Your Premium Benefits</h3>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Document Vault with secure storage</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Advanced email notifications</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Priority customer support</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Case status tracking</li>
-                    </ul>
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    onClick={() => window.location.href = '/dashboard/premium'}
-                    className="h-11"
-                  >
-                    Manage Subscription
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                      <Crown className="w-7 h-7 text-gray-400" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Free Plan</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Upgrade to unlock all features
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Upgrade to Premium</h3>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-500" /> Document Vault with secure storage</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-500" /> Advanced email notifications</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-500" /> Priority customer support</li>
-                      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-500" /> Case status tracking</li>
-                    </ul>
-                  </div>
-
-                  <Button
-                    onClick={() => window.location.href = '/premium/checkout'}
-                    className="h-11 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                  >
-                    <Crown className="w-4 h-4 mr-2" />
-                    Upgrade to Premium
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
         )}
