@@ -793,6 +793,9 @@ export function renderStemApply(root: HTMLElement, onBack: () => void): void {
       return;
     }
     
+    // Save date to API (syncs with website)
+    await saveOptEadEndDate(formatDate(currentOptEndDate));
+    
     const results = calculateStemFilingWindow(currentOptEndDate);
     
     // Navigate to STEM countdown page

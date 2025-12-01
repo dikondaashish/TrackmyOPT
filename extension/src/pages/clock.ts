@@ -613,6 +613,9 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
       return;
     }
     
+    // Save date to API (syncs with website)
+    await saveOptStartDate(formatDate(optStartDate));
+    
     // Navigate to clock tracker page
     const { renderClockTracker } = await import('./clock-tracker.js');
     renderClockTracker(root, onBack, optStartDate);

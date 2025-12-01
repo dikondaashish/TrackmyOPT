@@ -613,6 +613,9 @@ export function renderStemClock(root: HTMLElement, onBack: () => void): void {
       return;
     }
     
+    // Save date to API (syncs with website)
+    await saveStemEadStartDate(formatDate(stemEadStartDate));
+    
     // Navigate to STEM clock tracker page
     const { renderStemClockTracker } = await import('./stem-clock-tracker.js');
     renderStemClockTracker(root, onBack, stemEadStartDate);
