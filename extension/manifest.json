@@ -16,6 +16,14 @@
     "https://www.trackmyopt.com/*",
     "https://trackmyopt.com/*"
   ],
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:3000/*",
+      "https://*.vercel.app/*",
+      "https://www.trackmyopt.com/*",
+      "https://trackmyopt.com/*"
+    ]
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

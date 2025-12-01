@@ -6,11 +6,55 @@ function randomString(len=32){
   return Array.from(bytes, b => b.toString(16).padStart(2,'0')).join('');
 }
 
+// Internal message listener (from popup)
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === 'BEGIN_AUTH') {
     beginAuth().then(()=>sendResponse({ok:true})).catch(e=>sendResponse({ok:false, err:String(e)}));
     return true;
   }
+});
+
+// External message listener (from web app)
+chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
+  console.log('📨 External message received:', msg, 'from:', sender.origin);
+  
+  // Respond to ping to confirm extension is installed
+  if (msg.type === 'PING') {
+    console.log('🏓 Responding to PING');
+    sendResponse({ ok: true, installed: true, version: chrome.runtime.getManifest().version });
+    return true;
+  }
+  
+  // Open a specific tool in the extension popup
+  if (msg.type === 'OPEN_TOOL') {
+    const toolPage = msg.tool; // e.g., 'opt-apply', 'stem-apply', 'clock', 'stem-clock'
+    console.log('🔧 Opening tool:', toolPage);
+    
+    // Save the requested page so popup opens to it
+    chrome.storage.local.set({ lastPage: toolPage }).then(() => {
+      // Open the extension popup by simulating a click on the extension icon
+      // Note: We can't programmatically open the popup, but we can open a new tab with our page
+      // or use chrome.action.openPopup() if available (Chrome 99+)
+      
+      if (chrome.action && chrome.action.openPopup) {
+        // Chrome 99+ - directly open popup
+        chrome.action.openPopup().then(() => {
+          console.log('✅ Popup opened');
+          sendResponse({ ok: true, opened: true });
+        }).catch((err) => {
+          console.log('⚠️ Could not open popup directly, user needs to click extension icon');
+          sendResponse({ ok: true, opened: false, message: 'Click the TrackMyOPT extension icon to open the tool' });
+        });
+      } else {
+        // Fallback: notify user to click the extension
+        sendResponse({ ok: true, opened: false, message: 'Click the TrackMyOPT extension icon to open the tool' });
+      }
+    });
+    return true;
+  }
+  
+  sendResponse({ ok: false, error: 'Unknown message type' });
+  return true;
 });
 
 async function beginAuth(){
