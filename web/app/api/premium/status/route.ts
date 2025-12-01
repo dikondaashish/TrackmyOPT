@@ -7,15 +7,19 @@ import { verifyToken } from '@/lib/jwt';
 export const dynamic = 'force-dynamic';
 
 // CORS headers for Chrome extension
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+const getCorsHeaders = (req?: NextRequest) => {
+  const origin = req?.headers.get('origin') || '*';
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
+  };
 };
 
 // Handle preflight requests
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, { status: 200, headers: getCorsHeaders(req) });
 }
 
 /**
@@ -70,7 +74,7 @@ export async function GET(req: NextRequest) {
         error: 'Not authenticated'
       }, { 
         status: 200,
-        headers: corsHeaders
+        headers: getCorsHeaders(req)
       });
     }
 
@@ -93,7 +97,7 @@ export async function GET(req: NextRequest) {
         error: error.message
       }, { 
         status: 200,
-        headers: corsHeaders
+        headers: getCorsHeaders(req)
       });
     }
 
@@ -104,7 +108,7 @@ export async function GET(req: NextRequest) {
         purchasedAt: null
       }, { 
         status: 200,
-        headers: corsHeaders
+        headers: getCorsHeaders(req)
       });
     }
 
@@ -115,7 +119,7 @@ export async function GET(req: NextRequest) {
       customerId: data.stripe_customer_id
     }, { 
       status: 200,
-      headers: corsHeaders
+      headers: getCorsHeaders(req)
     });
   } catch (error: any) {
     console.error('GET /api/premium/status error:', error);
@@ -123,7 +127,7 @@ export async function GET(req: NextRequest) {
       { isPremium: false },
       { 
         status: 200,
-        headers: corsHeaders
+        headers: getCorsHeaders(req)
       }
     );
   }
