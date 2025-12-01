@@ -10,6 +10,9 @@ function LoginPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const errorParam = searchParams.get('error');
+  
+  // Get redirect URL from query params (set by middleware for protected routes)
+  const redirectTo = searchParams.get('redirect') || '/dashboard';
 
   const [mode, setMode] = useState<Mode>('signin');
   const [loading, setLoading] = useState(false);
@@ -111,7 +114,7 @@ function LoginPageContent() {
     localStorage.setItem('trackmyopt_last_method', 'google');
     
     try {
-      const redirectUrl = `${window.location.origin}/auth/callback?next=/dashboard`;
+      const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
       console.log('📍 OAuth redirect URL:', redirectUrl);
       
       // Use auth callback route for proper session handling
@@ -170,9 +173,9 @@ function LoginPageContent() {
       // Save last used method
       localStorage.setItem('trackmyopt_last_method', 'email');
       
-      // Redirect to dashboard - session is now in cookies
-      console.log('↗️ Redirecting to dashboard...');
-      window.location.href = '/dashboard';
+      // Redirect to intended page or dashboard - session is now in cookies
+      console.log(`↗️ Redirecting to ${redirectTo}...`);
+      window.location.href = redirectTo;
     } catch (err: any) {
       console.error('❌ Sign in failed:', err);
       setError(err.message || 'Sign in failed. Please check your credentials.');
@@ -277,8 +280,8 @@ function LoginPageContent() {
 
       console.log('✅ OTP verified, account created!', data);
       
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
+      // Redirect to intended page or dashboard
+      window.location.href = redirectTo;
     } catch (err: any) {
       console.error('❌ OTP verification failed:', err);
       setOtpError(err.message || 'Invalid or expired code. Please try again.');
