@@ -444,17 +444,21 @@ export function renderStemClockTracker(
   }, 1000);
   
   // Check premium status and update UI
-  checkPremiumStatus().then(isPremium => {
+  checkPremiumStatus().then(async (isPremium) => {
     const premiumContent = document.getElementById('premium-content');
     if (!premiumContent) return;
     
     if (isPremium) {
+      // Load email from API (syncs with website and database)
+      const savedEmail = await loadToolEmail('stem_clock');
+      
       premiumContent.innerHTML = `
         <div style="position: relative;">
           <input 
             type="email" 
             id="reminder-email" 
-            placeholder="dikondaashish@gmail.com"
+            placeholder="your@email.com"
+            value="${savedEmail || ''}"
             style="
               width: 100%;
               padding: 14px 50px 14px 16px;

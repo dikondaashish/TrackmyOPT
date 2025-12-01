@@ -203,31 +203,14 @@ export async function POST(req: NextRequest) {
     validateDate(optEadEndISO, 'opt_ead_end_date');
     validateDate(stemStartISO, 'stem_start_date');
 
-    // Determine defaults for required fields
-    // Priority: program_end_date > opt_start_date > opt_ead_end_date
-    let defaultDate = programEndISO || optStartISO || optEadEndISO;
-
-    if (!defaultDate) {
-      // If none of the main dates are provided, use dso_recommendation_date or stem_start_date
-      defaultDate = dsoRecISO || stemStartISO;
-    }
-
-    if (!defaultDate) {
-      return NextResponse.json(
-        { ok: false, error: 'Unable to determine default dates' },
-        { status: 400, headers: corsHeaders }
-      );
-    }
-
     // Determine which field was most recently updated
     let lastUpdatedField = null;
     
     if (_lastModifiedField) {
-      // Dashboard explicitly told us which field was modified
+      // Client explicitly told us which field was modified
       lastUpdatedField = _lastModifiedField;
     } else {
-      // Extension didn't specify, use fallback logic (last non-null field wins)
-      // Priority order: check which field was explicitly provided
+      // Client didn't specify, use fallback logic (last non-null field wins)
       if (program_end_date) lastUpdatedField = 'program_end_date';
       if (dso_recommendation_date) lastUpdatedField = 'dso_recommendation_date';
       if (opt_start_date) lastUpdatedField = 'opt_start_date';
@@ -235,14 +218,22 @@ export async function POST(req: NextRequest) {
       if (stem_start_date) lastUpdatedField = 'stem_start_date';
     }
 
-    // Prepare data for upsert
+    // First, fetch existing data to merge properly
+    const { data: existingData } = await supabase
+      .from('opt_status')
+      .select('program_end_date, dso_recommendation_date, opt_start_date, opt_ead_end_date, stem_start_date')
+      .eq('user_id', userId)
+      .single();
+
+    // Prepare data for upsert - preserve existing values, only update what was explicitly sent
     const upsertData = {
       user_id: userId,
-      program_end_date: programEndISO || defaultDate,
-      dso_recommendation_date: dsoRecISO,
-      opt_start_date: optStartISO || defaultDate,
-      opt_ead_end_date: optEadEndISO || defaultDate,
-      stem_start_date: stemStartISO,
+      // Use new value if provided, otherwise keep existing value
+      program_end_date: programEndISO !== null ? programEndISO : (existingData?.program_end_date || null),
+      dso_recommendation_date: dsoRecISO !== null ? dsoRecISO : (existingData?.dso_recommendation_date || null),
+      opt_start_date: optStartISO !== null ? optStartISO : (existingData?.opt_start_date || null),
+      opt_ead_end_date: optEadEndISO !== null ? optEadEndISO : (existingData?.opt_ead_end_date || null),
+      stem_start_date: stemStartISO !== null ? stemStartISO : (existingData?.stem_start_date || null),
       last_updated_field: lastUpdatedField,
       updated_at: new Date().toISOString(),
     };

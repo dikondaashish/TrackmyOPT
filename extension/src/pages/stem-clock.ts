@@ -375,9 +375,9 @@ async function saveStemEadStartDate(stemEadStartDate: string | null): Promise<bo
     // First, load existing data to preserve other fields
     const existingData = await loadSavedData();
     
-    // Merge: only update stem_start_date, preserve other fields
+    // Merge: only update stem_start_date, preserve other fields exactly as they are
     const payload = {
-      program_end_date: existingData?.program_end_date || stemEadStartDate,
+      program_end_date: existingData?.program_end_date || null,
       dso_recommendation_date: existingData?.dso_recommendation_date || null,
       opt_start_date: existingData?.opt_start_date || null,
       opt_ead_end_date: existingData?.opt_ead_end_date || null,

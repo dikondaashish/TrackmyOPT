@@ -449,9 +449,13 @@ export function renderClockTracker(
     if (!premiumContent) return;
     
     if (isPremium) {
-      // Check if user has subscribed with email
-      const { subscribedEmail } = await chrome.storage.sync.get('subscribedEmail');
-      const hasSubscribed = !!subscribedEmail;
+      // Load email from API (syncs with website and database)
+      const savedEmail = await loadToolEmail('opt_clock');
+      // Also update local storage for quick access
+      if (savedEmail) {
+        await chrome.storage.sync.set({ subscribedEmail: savedEmail });
+      }
+      const hasSubscribed = !!savedEmail;
       
       premiumContent.innerHTML = `
         <div style="position: relative;">
@@ -459,7 +463,7 @@ export function renderClockTracker(
             type="email" 
             id="reminder-email-input" 
             placeholder="your@email.com"
-            value="${subscribedEmail || ''}"
+            value="${savedEmail || ''}"
             style="
               width: 100%;
               padding: 14px 50px 14px 16px;
