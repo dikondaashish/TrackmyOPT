@@ -17,8 +17,8 @@ import {
   Trash2,
   Key,
   Globe,
-  FileText,
   Lock,
+  Palette,
   Download,
   Chrome,
   Link2,
@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 
 // Tab types
-type SettingsTab = 'profile' | 'security' | 'case-status' | 'documents' | 'notifications' | 'privacy' | 'extension';
+type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'appearance';
 
 interface UserProfile {
   email: string;
@@ -350,6 +350,37 @@ export function SettingsSection() {
     }
   };
 
+  // Delete Account
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeleting(true);
+      setError(null);
+
+      const res = await fetch('/api/auth/delete-account', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (res.ok) {
+        // Clear all local data
+        localStorage.clear();
+        sessionStorage.clear();
+        // Redirect to home page
+        window.location.href = '/?deleted=true';
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to delete account');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete account');
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // Save Case Status Settings
   const handleSaveCaseSettings = async () => {
     try {
@@ -493,11 +524,11 @@ export function SettingsSection() {
   const tabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
     { id: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
     { id: 'security', label: 'Security', icon: <Shield className="w-4 h-4" /> },
-    { id: 'case-status', label: 'Case Status', icon: <FileText className="w-4 h-4" /> },
     { id: 'documents', label: 'Documents', icon: <Lock className="w-4 h-4" /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
     { id: 'privacy', label: 'Privacy', icon: <Database className="w-4 h-4" /> },
     { id: 'extension', label: 'Extension', icon: <Chrome className="w-4 h-4" /> },
+    { id: 'appearance', label: 'Appearance', icon: <Palette className="w-4 h-4" /> },
   ];
 
   if (isLoading) {
@@ -638,34 +669,6 @@ export function SettingsSection() {
                 </select>
               </div>
 
-              {/* Appearance */}
-              <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-200 dark:border-amber-800/50">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
-                    {darkMode ? (
-                      <Moon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                    ) : (
-                      <Sun className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Appearance</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Customize how TrackMyOPT looks
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between pl-13">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Dark Mode</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {darkMode ? 'Currently using dark theme' : 'Currently using light theme'}
-                    </p>
-                  </div>
-                  <Toggle enabled={darkMode} onToggle={handleDarkModeToggle} />
-                </div>
-              </div>
-
               <div className="pt-4">
                 <Button
                   onClick={handleSaveProfile}
@@ -755,18 +758,24 @@ export function SettingsSection() {
                           variant="outline"
                           size="sm"
                           onClick={() => setShowDeleteConfirm(false)}
+                          disabled={isDeleting}
                         >
                           Cancel
                         </Button>
                         <Button
                           size="sm"
                           className="bg-red-600 hover:bg-red-700 text-white"
-                          onClick={() => {
-                            alert('Please contact support to delete your account.');
-                            setShowDeleteConfirm(false);
-                          }}
+                          onClick={handleDeleteAccount}
+                          disabled={isDeleting}
                         >
-                          Confirm
+                          {isDeleting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                              Deleting...
+                            </>
+                          ) : (
+                            'Confirm Delete'
+                          )}
                         </Button>
                       </div>
                     ) : (
@@ -844,82 +853,6 @@ export function SettingsSection() {
                     <Toggle enabled={documentReminders} onToggle={() => setDocumentReminders(!documentReminders)} />
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Case Status Tab */}
-        {activeTab === 'case-status' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Case Status Settings</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Configure USCIS case tracking preferences</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Receipt Number */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    USCIS Receipt Number
-                  </label>
-                  <Input
-                    type="text"
-                    value={caseSettings.receiptNumber}
-                    onChange={(e) => setCaseSettings({ ...caseSettings, receiptNumber: e.target.value.toUpperCase() })}
-                    placeholder="e.g., EAC2190123456"
-                    className="h-11 font-mono"
-                    maxLength={13}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Your 13-character receipt number from USCIS</p>
-                </div>
-
-                {/* Auto-check Frequency */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    <div className="flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4" />
-                      Auto-check Frequency
-                    </div>
-                  </label>
-                  <select
-                    value={caseSettings.autoCheckFrequency}
-                    onChange={(e) => setCaseSettings({ ...caseSettings, autoCheckFrequency: e.target.value as CaseStatusSettings['autoCheckFrequency'] })}
-                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="hourly">Every hour</option>
-                    <option value="daily">Once daily</option>
-                    <option value="weekly">Once weekly</option>
-                    <option value="manual">Manual only</option>
-                  </select>
-                </div>
-
-                {/* Notify on Change */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Notify on Status Change</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when your case status updates</p>
-                  </div>
-                  <Toggle 
-                    enabled={caseSettings.notifyOnChange} 
-                    onToggle={() => setCaseSettings({ ...caseSettings, notifyOnChange: !caseSettings.notifyOnChange })} 
-                  />
-                </div>
-
-                <Button
-                  onClick={handleSaveCaseSettings}
-                  disabled={isSaving}
-                  className="h-11 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800"
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Save Settings
-                </Button>
               </div>
             </div>
           </div>
@@ -1294,6 +1227,39 @@ export function SettingsSection() {
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Appearance Tab */}
+        {activeTab === 'appearance' && (
+          <div className="p-6 sm:p-8">
+            <div className="max-w-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                  {darkMode ? (
+                    <Moon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                  ) : (
+                    <Sun className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Appearance</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Customize how TrackMyOPT looks</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Dark Mode</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      {darkMode ? 'Currently using dark theme' : 'Currently using light theme'}
+                    </p>
+                  </div>
+                  <Toggle enabled={darkMode} onToggle={handleDarkModeToggle} />
                 </div>
               </div>
             </div>
