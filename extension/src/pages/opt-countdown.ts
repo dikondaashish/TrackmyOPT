@@ -92,6 +92,79 @@ async function checkPremiumStatus(): Promise<boolean> {
 }
 
 /**
+ * Load tool email from API (syncs with website)
+ */
+async function loadToolEmail(tool: string): Promise<string | null> {
+  try {
+    // Try session cookies first (if user logged in via website)
+    let response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // If session cookies failed, try JWT token
+    if (!response.ok) {
+      const { idToken } = await chrome.storage.sync.get('idToken');
+      if (idToken) {
+        response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+    }
+
+    if (!response.ok) return null;
+    
+    const result = await response.json();
+    return result.email || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Save tool email to API (syncs with website)
+ */
+async function saveToolEmail(tool: string, email: string): Promise<boolean> {
+  try {
+    // Try session cookies first (if user logged in via website)
+    let response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tool, email }),
+    });
+
+    // If session cookies failed, try JWT token
+    if (!response.ok) {
+      const { idToken } = await chrome.storage.sync.get('idToken');
+      if (idToken) {
+        response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tool, email }),
+        });
+      }
+    }
+
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
  * Render OPT Countdown Page
  */
 export async function renderOptCountdown(
@@ -129,8 +202,8 @@ export async function renderOptCountdown(
   
   const isPremium = await checkPremiumStatus();
   
-  // Check if user has subscribed with email
-  const { subscribedEmail } = await chrome.storage.sync.get('subscribedEmail');
+  // Load email from API (syncs with website)
+  const subscribedEmail = await loadToolEmail('opt_apply');
   const hasSubscribed = !!subscribedEmail;
   
   content.innerHTML = `
@@ -466,25 +539,37 @@ export async function renderOptCountdown(
           return;
         }
         
-        // Save email to storage
-        await chrome.storage.sync.set({ subscribedEmail: email });
+        // Save email to API (syncs with website and database)
+        const success = await saveToolEmail('opt_apply', email);
         
-        // Show success notification
-        chrome.notifications.create({
-          type: 'basic',
-          iconUrl: 'icons/icon128.png',
-          title: '✅ Email Saved!',
-          message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
-        });
-        
-        // Change button to checkmark
-        saveEmailBtn.innerHTML = '✅';
-        saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
-        
-        // Reload the page after 1 second to show "Stop Reminders" button
-        setTimeout(() => {
-          renderOptCountdown(root, onBack, results);
-        }, 1000);
+        if (success) {
+          // Also save to local storage for quick access
+          await chrome.storage.sync.set({ subscribedEmail: email });
+          
+          // Show success notification
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon128.png',
+            title: '✅ Email Saved!',
+            message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
+          });
+          
+          // Change button to checkmark
+          saveEmailBtn.innerHTML = '✅';
+          saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
+          
+          // Reload the page after 1 second to show "Stop Reminders" button
+          setTimeout(() => {
+            renderOptCountdown(root, onBack, results);
+          }, 1000);
+        } else {
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon128.png',
+            title: 'Error',
+            message: 'Failed to save email. Please try again.'
+          });
+        }
       });
     }
     
@@ -493,7 +578,9 @@ export async function renderOptCountdown(
     if (stopBtn) {
       stopBtn.addEventListener('click', async () => {
         if (confirm('Are you sure you want to stop daily reminders?')) {
-          // Remove email from storage
+          // Remove email from API (syncs with website)
+          await saveToolEmail('opt_apply', '');
+          // Also remove from local storage
           await chrome.storage.sync.remove('subscribedEmail');
           
           // Show notification
