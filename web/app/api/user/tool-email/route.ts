@@ -20,16 +20,16 @@ export const dynamic = 'force-dynamic';
 const VALID_TOOLS = ['opt_apply', 'opt_clock', 'stem_apply', 'stem_clock'] as const;
 type ToolName = typeof VALID_TOOLS[number];
 
-// CORS headers for Chrome extension
-const getCorsHeaders = (req?: NextRequest) => {
-  const origin = req?.headers.get('origin') || '*';
+// Get CORS headers with proper origin for credentials support
+function getCorsHeaders(req: NextRequest) {
+  const origin = req.headers.get('Origin') || '*';
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Credentials': 'true',
   };
-};
+}
 
 // Handle preflight requests
 export async function OPTIONS(req: NextRequest) {

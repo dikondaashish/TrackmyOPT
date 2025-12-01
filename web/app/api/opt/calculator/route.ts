@@ -6,9 +6,9 @@ import { verifyToken } from '@/lib/jwt';
 
 export const dynamic = 'force-dynamic';
 
-// CORS headers for Chrome extension + cache control
-const getCorsHeaders = (req?: NextRequest) => {
-  const origin = req?.headers.get('origin') || '*';
+// Get CORS headers with proper origin for credentials support
+function getCorsHeaders(req: NextRequest) {
+  const origin = req.headers.get('Origin') || '*';
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -17,7 +17,7 @@ const getCorsHeaders = (req?: NextRequest) => {
     'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
     'Pragma': 'no-cache',
   };
-};
+}
 
 // Handle preflight requests
 export async function OPTIONS(req: NextRequest) {
