@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Calendar as CalendarIcon, Mail, Crown, Edit, CheckCircle2, Bell, BellOff, X } from "lucide-react";
+import { Calendar as CalendarIcon, Mail, Crown, Edit, CheckCircle2, BellOff, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -643,181 +643,158 @@ export function OptDatesSection() {
         </div>
       </Card>
 
-      {/* Tool Email Notifications Section - Clean Professional Design */}
-      <Card className="overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
-        {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                  Email Notifications
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Daily reminders at 9:00 AM ET
-                </p>
-              </div>
-            </div>
-            {!isPremium && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                <Crown className="w-3 h-3" />
-                Premium
-              </span>
-            )}
+      {/* Tool Email Notifications Section - 4 Separate Emails */}
+      <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
+        <div className="flex items-start gap-4 mb-6">
+          <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+            {isPremium ? <Mail className="w-6 h-6 text-purple-600 dark:text-purple-400" /> : <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />}
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
+              Daily Reminders (9:00 AM ET)
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {isPremium 
+                ? "Each tool sends separate email notifications. Set different emails for each tool below."
+                : "Get daily Chrome notifications and email reminders for each tool."
+              }
+            </p>
           </div>
         </div>
 
         {isPremium ? (
-          <div className="p-6 bg-gray-50 dark:bg-gray-800/50">
-            <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
+              const info = TOOL_INFO[tool];
+              const isEditing = editingTool === tool;
+              const isSaving = emailSaving === tool;
+              
+              return (
+                <div 
+                  key={tool}
+                  className={`p-4 rounded-xl bg-gradient-to-br ${info.color} text-white`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl">{info.icon}</span>
+                    <div>
+                      <h4 className="font-bold text-sm">{info.label}</h4>
+                      <p className="text-xs opacity-90">{info.description}</p>
+                    </div>
+                  </div>
+                  
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <Input
+                        type="email"
+                        value={toolEmails[tool]}
+                        onChange={(e) => updateToolEmail(tool, e.target.value)}
+                        placeholder="your.email@example.com"
+                        className="bg-white/20 border-white/30 text-white placeholder:text-white/60 text-sm"
+                      />
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => handleToolEmailSave(tool)}
+                          size="sm"
+                          className="bg-white/20 hover:bg-white/30 text-white text-xs"
+                          disabled={isSaving}
+                        >
+                          {isSaving ? 'Saving...' : 'Save'}
+                        </Button>
+                        <Button 
+                          onClick={() => setEditingTool(null)}
+                          size="sm"
+                          variant="ghost"
+                          className="text-white hover:bg-white/20 text-xs"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Email display with status badge */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Mail className="w-4 h-4 opacity-80 flex-shrink-0" />
+                          <span className="text-sm truncate">
+                            {toolEmails[tool] || 'No email set'}
+                          </span>
+                        </div>
+                        {toolEmails[tool] && (
+                          <span className="flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/20 text-green-100 text-xs font-medium">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-4 pt-1 border-t border-white/10">
+                        {toolEmails[tool] && (
+                          <button
+                            onClick={() => handleToolEmailStop(tool)}
+                            disabled={isSaving}
+                            className="flex items-center gap-1.5 text-red-300 hover:text-red-200 text-sm font-medium transition-colors disabled:opacity-50"
+                          >
+                            <BellOff className="w-4 h-4" />
+                            <span>{isSaving ? 'Stopping...' : 'Stop'}</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setEditingTool(tool)}
+                          className="flex items-center gap-1.5 text-white/80 hover:text-white text-sm font-medium transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          <span>Edit</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
                 const info = TOOL_INFO[tool];
-                const isEditing = editingTool === tool;
-                const isSaving = emailSaving === tool;
-                const hasEmail = !!toolEmails[tool];
-                
                 return (
                   <div 
                     key={tool}
-                    className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+                    className={`p-3 rounded-lg bg-gradient-to-br ${info.color} text-white text-center`}
                   >
-                    {/* Tool Header Row */}
-                    <div className="flex items-center justify-between px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg">{info.icon}</span>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">{info.label}</h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{info.description}</p>
-                        </div>
-                      </div>
-                      
-                      {/* Status Badge */}
-                      {!isEditing && (
-                        <div className="flex items-center gap-2">
-                          {hasEmail ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                              Active
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                              Not set
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Email Row / Edit Form */}
-                    <div className="px-4 pb-3">
-                      {isEditing ? (
-                        <div className="flex gap-2">
-                          <Input
-                            type="email"
-                            value={toolEmails[tool]}
-                            onChange={(e) => updateToolEmail(tool, e.target.value)}
-                            placeholder="your.email@example.com"
-                            className="flex-1 h-9 text-sm"
-                            autoFocus
-                          />
-                          <Button 
-                            onClick={() => handleToolEmailSave(tool)}
-                            size="sm"
-                            className="h-9 px-4 bg-indigo-600 hover:bg-indigo-700 text-white"
-                            disabled={isSaving}
-                          >
-                            {isSaving ? 'Saving...' : 'Save'}
-                          </Button>
-                          <Button 
-                            onClick={() => setEditingTool(null)}
-                            size="sm"
-                            variant="outline"
-                            className="h-9 px-3"
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                            <Mail className="w-4 h-4 text-gray-400" />
-                            <span className="truncate max-w-[200px]">
-                              {toolEmails[tool] || 'No email configured'}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {hasEmail && (
-                              <Button
-                                onClick={() => handleToolEmailStop(tool)}
-                                size="sm"
-                                variant="ghost"
-                                className="h-8 px-3 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                                disabled={isSaving}
-                              >
-                                <BellOff className="w-3.5 h-3.5 mr-1" />
-                                Stop
-                              </Button>
-                            )}
-                            <Button
-                              onClick={() => setEditingTool(tool)}
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 px-3 text-xs text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-                            >
-                              <Edit className="w-3.5 h-3.5 mr-1" />
-                              {hasEmail ? 'Edit' : 'Set up'}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    <span className="text-xl">{info.icon}</span>
+                    <p className="text-xs font-medium mt-1">{info.label}</p>
                   </div>
                 );
               })}
             </div>
-            
-            <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
-              Each tool can have a different email address for notifications
-            </p>
-          </div>
-        ) : (
-          <div className="p-6">
-            <div className="text-center py-6">
-              <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                <BellOff className="w-6 h-6 text-gray-400" />
-              </div>
-              <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                Unlock Email Notifications
-              </h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 max-w-xs mx-auto">
-                Get daily reminders for filing deadlines, sent directly to your inbox at 9:00 AM ET.
-              </p>
-              
-              <div className="flex flex-wrap justify-center gap-2 mb-6">
-                {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
-                  const info = TOOL_INFO[tool];
-                  return (
-                    <span 
-                      key={tool}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-400"
-                    >
-                      {info.icon} {info.label}
-                    </span>
-                  );
-                })}
-              </div>
-              
-              <Button
-                onClick={() => setShowPremiumModal(true)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                <Crown className="w-4 h-4 mr-2" />
-                Upgrade to Premium
-              </Button>
-            </div>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                Separate email for each tool
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                Daily 9:00 AM ET notifications
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                Chrome notifications + email
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                Customize alerts per tool
+              </li>
+            </ul>
+            <Button
+              onClick={() => setShowPremiumModal(true)}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade to Premium
+            </Button>
           </div>
         )}
       </Card>
