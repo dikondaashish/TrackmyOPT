@@ -385,9 +385,26 @@ async function saveOptStartDate(optStartDate: string | null): Promise<boolean> {
       _lastModifiedField: 'opt_start_date', // Tell API this field was updated
     };
 
+    // Use JWT token for extension → website communication (more reliable than cookies)
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (idToken) {
+      const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
 
-    // Try using session cookies first (if user is logged in on website)
-    let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+      if (response.ok) {
+        const result = await response.json();
+        return result.ok === true;
+      }
+    }
+
+    // Fallback: try session cookies
+    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -396,27 +413,8 @@ async function saveOptStartDate(optStartDate: string | null): Promise<boolean> {
       body: JSON.stringify(payload),
     });
 
-    // If session cookies failed, try JWT token
-    if (!response.ok) {
-      const { idToken } = await chrome.storage.sync.get('idToken');
-      if (idToken) {
-        response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${idToken}`,
-        'Content-Type': 'application/json',
-      },
-          body: JSON.stringify(payload),
-    });
-      }
-    }
-
     const result = await response.json();
-    if (result.ok) {
-      return true;
-    } else {
-      return false;
-    }
+    return result.ok === true;
   } catch (error) {
     return false;
   }
