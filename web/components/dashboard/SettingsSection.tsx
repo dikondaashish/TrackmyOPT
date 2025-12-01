@@ -18,7 +18,6 @@ import {
   Trash2,
   Key,
   Globe,
-  Palette,
   FileText,
   Lock,
   Download,
@@ -27,7 +26,6 @@ import {
   Clock,
   RefreshCw,
   Smartphone,
-  GraduationCap,
   Database,
   Eye,
   EyeOff,
@@ -38,13 +36,12 @@ import {
 } from "lucide-react";
 
 // Tab types
-type SettingsTab = 'profile' | 'security' | 'case-status' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'appearance';
+type SettingsTab = 'profile' | 'security' | 'case-status' | 'documents' | 'notifications' | 'privacy' | 'extension';
 
 interface UserProfile {
   email: string;
   fullName: string;
   timezone: string;
-  isStemEligible: boolean;
   notificationEmail: string;
   authProvider?: string;
 }
@@ -87,7 +84,6 @@ export function SettingsSection() {
     email: "",
     fullName: "",
     timezone: "America/New_York",
-    isStemEligible: false,
     notificationEmail: "",
     authProvider: "email",
   });
@@ -219,7 +215,6 @@ export function SettingsSection() {
           email: meData.user?.email || "",
           fullName: meData.user?.user_metadata?.full_name || "",
           timezone: meData.profile?.timezone || "America/New_York",
-          isStemEligible: meData.profile?.is_stem_eligible || false,
           notificationEmail: "",
         });
       }
@@ -252,11 +247,27 @@ export function SettingsSection() {
     try {
       setIsSaving(true);
       setError(null);
-      // Save profile logic here
-      setSuccess('Profile updated successfully!');
-      setTimeout(() => setSuccess(null), 3000);
-    } catch {
-      setError('Failed to save profile');
+      
+      // Save profile to API
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: profile.fullName,
+          timezone: profile.timezone,
+        }),
+      });
+
+      if (res.ok) {
+        setSuccess('Profile updated successfully!');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to update profile');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save profile');
     } finally {
       setIsSaving(false);
     }
@@ -337,31 +348,6 @@ export function SettingsSection() {
       window.location.href = '/';
     } catch {
       window.location.href = '/';
-    }
-  };
-
-  // STEM Eligibility Toggle
-  const handleStemToggle = async () => {
-    try {
-      setIsSaving(true);
-      const newValue = !profile.isStemEligible;
-      
-      const res = await fetch('/api/profile', {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_stem_eligible: newValue }),
-      });
-
-      if (res.ok) {
-        setProfile(prev => ({ ...prev, isStemEligible: newValue }));
-        setSuccess(`STEM eligibility ${newValue ? 'enabled' : 'disabled'}`);
-        setTimeout(() => setSuccess(null), 3000);
-      }
-    } catch {
-      setError('Failed to update STEM eligibility');
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -513,7 +499,6 @@ export function SettingsSection() {
     { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
     { id: 'privacy', label: 'Privacy', icon: <Database className="w-4 h-4" /> },
     { id: 'extension', label: 'Extension', icon: <Chrome className="w-4 h-4" /> },
-    { id: 'appearance', label: 'Appearance', icon: <Palette className="w-4 h-4" /> },
   ];
 
   if (isLoading) {
@@ -654,21 +639,31 @@ export function SettingsSection() {
                 </select>
               </div>
 
-              {/* STEM Eligibility */}
-              <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800/50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
-                      <GraduationCap className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">STEM OPT Eligible</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Enable to access STEM OPT extension tools
-                      </p>
-                    </div>
+              {/* Appearance */}
+              <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-200 dark:border-amber-800/50">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                    {darkMode ? (
+                      <Moon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    ) : (
+                      <Sun className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    )}
                   </div>
-                  <Toggle enabled={profile.isStemEligible} onToggle={handleStemToggle} />
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Appearance</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Customize how TrackMyOPT looks
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pl-13">
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Dark Mode</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {darkMode ? 'Currently using dark theme' : 'Currently using light theme'}
+                    </p>
+                  </div>
+                  <Toggle enabled={darkMode} onToggle={handleDarkModeToggle} />
                 </div>
               </div>
 
@@ -1378,39 +1373,6 @@ export function SettingsSection() {
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Appearance Tab */}
-        {activeTab === 'appearance' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                  {darkMode ? (
-                    <Moon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-                  ) : (
-                    <Sun className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-                  )}
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Appearance</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Customize how TrackMyOPT looks</p>
-                </div>
-              </div>
-
-              <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Dark Mode</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      {darkMode ? 'Currently using dark theme' : 'Currently using light theme'}
-                    </p>
-                  </div>
-                  <Toggle enabled={darkMode} onToggle={handleDarkModeToggle} />
                 </div>
               </div>
             </div>
