@@ -6,20 +6,16 @@ import { verifyToken } from '@/lib/jwt';
 
 export const dynamic = 'force-dynamic';
 
-// Get CORS headers with proper origin for credentials support
-function getCorsHeaders(req: NextRequest) {
-  const origin = req.headers.get('Origin') || '*';
-  return {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': 'true',
-  };
-}
+// CORS headers for Chrome extension
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
 
 // Handle preflight requests
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, { status: 200, headers: getCorsHeaders(req) });
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
 }
 
 /**
@@ -74,7 +70,7 @@ export async function GET(req: NextRequest) {
         error: 'Not authenticated'
       }, { 
         status: 200,
-        headers: getCorsHeaders(req)
+        headers: corsHeaders
       });
     }
 
@@ -97,7 +93,7 @@ export async function GET(req: NextRequest) {
         error: error.message
       }, { 
         status: 200,
-        headers: getCorsHeaders(req)
+        headers: corsHeaders
       });
     }
 
@@ -108,7 +104,7 @@ export async function GET(req: NextRequest) {
         purchasedAt: null
       }, { 
         status: 200,
-        headers: getCorsHeaders(req)
+        headers: corsHeaders
       });
     }
 
@@ -119,7 +115,7 @@ export async function GET(req: NextRequest) {
       customerId: data.stripe_customer_id
     }, { 
       status: 200,
-      headers: getCorsHeaders(req)
+      headers: corsHeaders
     });
   } catch (error: any) {
     console.error('GET /api/premium/status error:', error);
@@ -127,7 +123,7 @@ export async function GET(req: NextRequest) {
       { isPremium: false },
       { 
         status: 200,
-        headers: getCorsHeaders(req)
+        headers: corsHeaders
       }
     );
   }

@@ -534,7 +534,7 @@ async function checkPremiumStatus(): Promise<boolean> {
     // This works if user signed in via dashboard
     const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
       method: 'GET',
-      credentials: 'include',
+      credentials: 'include', // Include cookies
       headers: {
         'Content-Type': 'application/json',
       },

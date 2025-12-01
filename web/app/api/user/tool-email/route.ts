@@ -20,20 +20,16 @@ export const dynamic = 'force-dynamic';
 const VALID_TOOLS = ['opt_apply', 'opt_clock', 'stem_apply', 'stem_clock'] as const;
 type ToolName = typeof VALID_TOOLS[number];
 
-// Get CORS headers with proper origin for credentials support
-function getCorsHeaders(req: NextRequest) {
-  const origin = req.headers.get('Origin') || '*';
-  return {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': 'true',
-  };
-}
+// CORS headers for Chrome extension
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
 
 // Handle preflight requests
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, { status: 200, headers: getCorsHeaders(req) });
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
 }
 
 /**
@@ -83,7 +79,7 @@ export async function GET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: getCorsHeaders(req) });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
     const { searchParams } = new URL(req.url);
@@ -113,7 +109,7 @@ export async function GET(req: NextRequest) {
             stem_apply: null,
             stem_clock: null,
           }
-        }, { headers: getCorsHeaders(req) });
+        }, { headers: corsHeaders });
       }
     }
 
@@ -129,16 +125,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         tool,
         email: emails[tool.replace('_', '_') as keyof typeof emails] || null,
-      }, { headers: getCorsHeaders(req) });
+      }, { headers: corsHeaders });
     }
 
-    return NextResponse.json({ emails }, { headers: getCorsHeaders(req) });
+    return NextResponse.json({ emails }, { headers: corsHeaders });
 
   } catch (error) {
     console.error('Error fetching tool emails:', error);
     return NextResponse.json(
       { error: 'Failed to fetch tool emails' },
-      { status: 500, headers: getCorsHeaders(req) }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
@@ -152,7 +148,7 @@ export async function POST(req: NextRequest) {
     if (!tool || !VALID_TOOLS.includes(tool)) {
       return NextResponse.json(
         { error: 'Invalid tool name. Must be one of: opt_apply, opt_clock, stem_apply, stem_clock' },
-        { status: 400, headers: getCorsHeaders(req) }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -162,14 +158,14 @@ export async function POST(req: NextRequest) {
       if (!emailRegex.test(email)) {
         return NextResponse.json(
           { error: 'Invalid email format' },
-          { status: 400, headers: getCorsHeaders(req) }
+          { status: 400, headers: corsHeaders }
         );
       }
     }
 
     const userId = await getUserId(req);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: getCorsHeaders(req) });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
     // Use service role client to bypass RLS
@@ -215,13 +211,13 @@ export async function POST(req: NextRequest) {
       if (error.message?.includes('column') || error.code === '42703') {
         return NextResponse.json(
           { error: 'Database column not found. Please run migration 008_add_tool_emails.sql in Supabase.' },
-          { status: 500, headers: getCorsHeaders(req) }
+          { status: 500, headers: corsHeaders }
         );
       }
       
       return NextResponse.json(
         { error: `Failed to save email: ${error.message}` },
-        { status: 500, headers: getCorsHeaders(req) }
+        { status: 500, headers: corsHeaders }
       );
     }
 
@@ -229,13 +225,13 @@ export async function POST(req: NextRequest) {
       success: true,
       tool,
       email: email || null,
-    }, { headers: getCorsHeaders(req) });
+    }, { headers: corsHeaders });
 
   } catch (error) {
     console.error('Error saving tool email:', error);
     return NextResponse.json(
       { error: 'Failed to save tool email' },
-      { status: 500, headers: getCorsHeaders(req) }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
