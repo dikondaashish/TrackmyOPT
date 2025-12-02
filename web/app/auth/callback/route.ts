@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,6 +77,33 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Check if this email is blocked (previously deleted account)
+    const userEmail = sessionData.user.email;
+    if (userEmail) {
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+
+      const { data: blockedData } = await supabaseAdmin
+        .from('blocked_emails')
+        .select('email')
+        .eq('email', userEmail.toLowerCase())
+        .single();
+
+      if (blockedData) {
+        // Sign out the user immediately
+        await supabase.auth.signOut();
+        
+        // Delete the newly created user since they're blocked
+        await supabaseAdmin.auth.admin.deleteUser(sessionData.user.id);
+        
+        console.error('❌ Blocked email attempted OAuth login:', userEmail);
+        return NextResponse.redirect(
+          new URL('/login?error=This+email+has+been+permanently+blocked.+Previously+deleted+accounts+cannot+be+recreated.', req.url)
+        );
+      }
+    }
 
     // Redirect to the dashboard or specified next page
     const redirectUrl = new URL(next, req.url);

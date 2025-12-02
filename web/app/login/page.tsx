@@ -144,6 +144,18 @@ function LoginPageContent() {
     setError(null);
 
     try {
+      // Check if email is blocked (previously deleted account)
+      const blockedRes = await fetch('/api/auth/check-blocked', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const blockedData = await blockedRes.json();
+      
+      if (blockedData.blocked) {
+        throw new Error('This email has been permanently blocked. Previously deleted accounts cannot be recreated or used to sign in.');
+      }
+
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -294,6 +306,18 @@ function LoginPageContent() {
     }
 
     try {
+      // Check if email is blocked (previously deleted account)
+      const blockedRes = await fetch('/api/auth/check-blocked', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const blockedData = await blockedRes.json();
+      
+      if (blockedData.blocked) {
+        throw new Error('This email has been permanently blocked. Previously deleted accounts cannot be recreated.');
+      }
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,

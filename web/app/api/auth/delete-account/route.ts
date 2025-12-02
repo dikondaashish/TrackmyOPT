@@ -42,12 +42,24 @@ export async function DELETE() {
     }
 
     const userId = user.id;
+    const userEmail = user.email;
 
     // Use service role key to delete user and related data
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+
+    // Add email to blocked_emails table to prevent re-registration
+    if (userEmail) {
+      await supabaseAdmin.from('blocked_emails').upsert({
+        email: userEmail.toLowerCase(),
+        reason: 'account_deleted',
+        deleted_at: new Date().toISOString(),
+      }, {
+        onConflict: 'email',
+      });
+    }
 
     // Delete user data from all tables (cascade should handle most, but let's be explicit)
     // Delete from profiles

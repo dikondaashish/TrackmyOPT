@@ -417,8 +417,9 @@ export function SettingsSection() {
       setError('Passcodes do not match');
       return;
     }
-    if (newPasscode.length < 4) {
-      setError('Passcode must be at least 4 characters');
+    // Passcode must be exactly 6 digits
+    if (!/^\d{6}$/.test(newPasscode)) {
+      setError('Passcode must be exactly 6 digits');
       return;
     }
 
@@ -452,6 +453,31 @@ export function SettingsSection() {
       setError(err instanceof Error ? err.message : 'Failed to change passcode');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Update Auto-lock Timeout
+  const handleAutoLockChange = async (timeout: number) => {
+    try {
+      setDocSettings(prev => ({ ...prev, autoLockTimeout: timeout }));
+      
+      const res = await fetch('/api/documents/passcode/status', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autoLockTimeout: timeout }),
+      });
+
+      if (res.ok) {
+        setSuccess('Auto-lock timeout updated!');
+        setTimeout(() => setSuccess(null), 2000);
+      } else {
+        throw new Error('Failed to update');
+      }
+    } catch {
+      setError('Failed to update auto-lock timeout');
+      // Revert on error
+      loadDocumentSettings();
     }
   };
 
@@ -521,10 +547,12 @@ export function SettingsSection() {
   ];
 
   // Tab configuration - Updated with all new tabs
+  // Documents tab only visible for premium users
   const tabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
     { id: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
     { id: 'security', label: 'Security', icon: <Shield className="w-4 h-4" /> },
-    { id: 'documents', label: 'Documents', icon: <Lock className="w-4 h-4" /> },
+    // Only show Documents tab for premium users
+    ...(premium.isPremium ? [{ id: 'documents' as SettingsTab, label: 'Documents', icon: <Lock className="w-4 h-4" /> }] : []),
     { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
     { id: 'privacy', label: 'Privacy', icon: <Database className="w-4 h-4" /> },
     { id: 'extension', label: 'Extension', icon: <Chrome className="w-4 h-4" /> },
@@ -752,33 +780,7 @@ export function SettingsSection() {
                         Permanently delete your account and all data
                       </p>
                     </div>
-                    {showDeleteConfirm ? (
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowDeleteConfirm(false)}
-                          disabled={isDeleting}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                          onClick={handleDeleteAccount}
-                          disabled={isDeleting}
-                        >
-                          {isDeleting ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                              Deleting...
-                            </>
-                          ) : (
-                            'Confirm Delete'
-                          )}
-                        </Button>
-                      </div>
-                    ) : (
+                    {!showDeleteConfirm && (
                       <Button
                         variant="outline"
                         onClick={() => setShowDeleteConfirm(true)}
@@ -789,6 +791,52 @@ export function SettingsSection() {
                       </Button>
                     )}
                   </div>
+                  
+                  {/* Delete Confirmation Warning */}
+                  {showDeleteConfirm && (
+                    <div className="mt-4 p-4 bg-red-100 dark:bg-red-900/30 rounded-lg border border-red-300 dark:border-red-700">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-red-700 dark:text-red-300 mb-2">
+                            Warning: This action is permanent!
+                          </p>
+                          <ul className="text-sm text-red-600 dark:text-red-400 space-y-1 mb-4">
+                            <li>• All your data will be permanently deleted</li>
+                            <li>• You will NOT be able to create a new account with this email</li>
+                            <li>• This email address will be permanently blocked from our platform</li>
+                            <li>• This action cannot be undone</li>
+                          </ul>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowDeleteConfirm(false)}
+                              disabled={isDeleting}
+                              className="bg-white dark:bg-gray-800"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-red-600 hover:bg-red-700 text-white"
+                              onClick={handleDeleteAccount}
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                  Deleting...
+                                </>
+                              ) : (
+                                'Yes, Delete My Account'
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -907,15 +955,17 @@ export function SettingsSection() {
                       {docSettings.hasPasscode && (
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Current Passcode
+                            Current Passcode (6 digits)
                           </label>
                           <div className="relative">
                             <Input
                               type={showPasscodes ? 'text' : 'password'}
                               value={currentPasscode}
-                              onChange={(e) => setCurrentPasscode(e.target.value)}
-                              placeholder="Enter current passcode"
-                              className="h-11 pr-10"
+                              onChange={(e) => setCurrentPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                              placeholder="Enter 6-digit passcode"
+                              className="h-11 pr-10 font-mono tracking-widest"
+                              maxLength={6}
+                              inputMode="numeric"
                             />
                             <button
                               type="button"
@@ -929,15 +979,18 @@ export function SettingsSection() {
                       )}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          New Passcode
+                          New Passcode (6 digits)
                         </label>
                         <Input
                           type={showPasscodes ? 'text' : 'password'}
                           value={newPasscode}
-                          onChange={(e) => setNewPasscode(e.target.value)}
-                          placeholder="Enter new passcode (min 4 characters)"
-                          className="h-11"
+                          onChange={(e) => setNewPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          placeholder="Enter 6-digit passcode"
+                          className="h-11 font-mono tracking-widest"
+                          maxLength={6}
+                          inputMode="numeric"
                         />
+                        <p className="text-xs text-gray-500 mt-1">{newPasscode.length}/6 digits</p>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -946,9 +999,11 @@ export function SettingsSection() {
                         <Input
                           type={showPasscodes ? 'text' : 'password'}
                           value={confirmPasscode}
-                          onChange={(e) => setConfirmPasscode(e.target.value)}
-                          placeholder="Confirm new passcode"
-                          className="h-11"
+                          onChange={(e) => setConfirmPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          placeholder="Re-enter 6-digit passcode"
+                          className="h-11 font-mono tracking-widest"
+                          maxLength={6}
+                          inputMode="numeric"
                         />
                       </div>
                       <div className="flex gap-2">
@@ -986,7 +1041,7 @@ export function SettingsSection() {
                   </label>
                   <select
                     value={docSettings.autoLockTimeout}
-                    onChange={(e) => setDocSettings({ ...docSettings, autoLockTimeout: parseInt(e.target.value) })}
+                    onChange={(e) => handleAutoLockChange(parseInt(e.target.value))}
                     className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value={5}>5 minutes</option>
