@@ -19,13 +19,11 @@ supabase/
 │   ├── 005_triggers.sql         # Database triggers
 │   ├── 006_views.sql            # Analytics views
 │   └── 007_grants.sql           # Permission grants
-├── admin/                       # Admin & maintenance scripts
-│   ├── manual_premium_upgrade.sql
-│   ├── check_user_status.sql
-│   ├── analytics_queries.sql
-│   └── maintenance.sql
-└── migrations/                  # Historical migrations (reference only)
-    └── ...
+└── admin/                       # Admin & maintenance scripts
+    ├── manual_premium_upgrade.sql
+    ├── check_user_status.sql
+    ├── analytics_queries.sql
+    └── maintenance.sql
 ```
 
 ---
