@@ -140,9 +140,7 @@ VACUUM ANALYZE public.payment_transactions;
 -- =============================================================================
 
 -- Count records in all tables (for backup verification)
-SELECT 
-  '--- RECORD COUNTS ---' as section,
-  'profiles' as table_name, COUNT(*) as count FROM public.profiles
+SELECT 'profiles' as table_name, COUNT(*) as count FROM public.profiles
 UNION ALL SELECT 'opt_status', COUNT(*) FROM public.opt_status
 UNION ALL SELECT 'employment_spans', COUNT(*) FROM public.employment_spans
 UNION ALL SELECT 'case_status', COUNT(*) FROM public.case_status
