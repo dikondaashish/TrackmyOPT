@@ -97,6 +97,19 @@ export function SettingsSection() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [caseStatusAlerts, setCaseStatusAlerts] = useState(true);
   const [documentReminders, setDocumentReminders] = useState(true);
+  
+  // Tool email reminders (synced with OPT Dates)
+  const [toolEmails, setToolEmails] = useState<{
+    opt_apply: string;
+    opt_clock: string;
+    stem_apply: string;
+    stem_clock: string;
+  }>({
+    opt_apply: '',
+    opt_clock: '',
+    stem_apply: '',
+    stem_clock: '',
+  });
 
   // Security
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -138,6 +151,7 @@ export function SettingsSection() {
     loadDocumentSettings();
     loadExtensionStatus();
     loadRecentLogins();
+    loadToolEmails();
   }, []);
 
   const loadDarkModePreference = () => {
@@ -175,6 +189,58 @@ export function SettingsSection() {
       }
     } catch {
       // Silently fail
+    }
+  };
+
+  // Load tool email reminders (synced with OPT Dates page)
+  const loadToolEmails = async () => {
+    try {
+      const res = await fetch('/api/user/tool-email', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.emails) {
+          setToolEmails({
+            opt_apply: data.emails.opt_apply || '',
+            opt_clock: data.emails.opt_clock || '',
+            stem_apply: data.emails.stem_apply || '',
+            stem_clock: data.emails.stem_clock || '',
+          });
+        }
+      }
+    } catch {
+      // Silently fail
+    }
+  };
+
+  // Save tool email (syncs with OPT Dates page)
+  const handleSaveToolEmail = async (toolKey: string) => {
+    const email = toolEmails[toolKey as keyof typeof toolEmails];
+    if (!email || !email.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
+    try {
+      setIsSaving(true);
+      setError(null);
+      
+      const res = await fetch('/api/user/tool-email', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool: toolKey, email }),
+      });
+      
+      if (res.ok) {
+        setSuccess(`Email saved for ${toolKey.replace('_', ' ').toUpperCase()}`);
+        setTimeout(() => setSuccess(null), 2000);
+      } else {
+        throw new Error('Failed to save');
+      }
+    } catch {
+      setError('Failed to save email');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -548,11 +614,11 @@ export function SettingsSection() {
 
   // Tab configuration - Updated with all new tabs
   // Documents tab only visible for premium users
-  const tabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
+  const tabs: { id: SettingsTab; label: string; icon: React.ReactNode; isPro?: boolean }[] = [
     { id: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
     { id: 'security', label: 'Security', icon: <Shield className="w-4 h-4" /> },
     // Only show Documents tab for premium users
-    ...(premium.isPremium ? [{ id: 'documents' as SettingsTab, label: 'Documents', icon: <Lock className="w-4 h-4" /> }] : []),
+    ...(premium.isPremium ? [{ id: 'documents' as SettingsTab, label: 'Documents', icon: <Lock className="w-4 h-4" />, isPro: true }] : []),
     { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
     { id: 'privacy', label: 'Privacy', icon: <Database className="w-4 h-4" /> },
     { id: 'extension', label: 'Extension', icon: <Chrome className="w-4 h-4" /> },
@@ -610,6 +676,11 @@ export function SettingsSection() {
             >
               {tab.icon}
               {tab.label}
+              {tab.isPro && (
+                <span className="px-1.5 py-0.5 text-[10px] font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                  PRO
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -846,12 +917,43 @@ export function SettingsSection() {
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (
           <div className="p-6 sm:p-8">
-            <div className="max-w-xl space-y-6">
-              {/* Notification Email */}
+            <div className="max-w-2xl space-y-8">
+              
+              {/* Preferences Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Notification Email
-                </label>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Preferences</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Manage how you receive updates from TrackMyOPT</p>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive important updates, tips, and promotional offers via email</p>
+                    </div>
+                    <Toggle enabled={emailNotifications} onToggle={() => setEmailNotifications(!emailNotifications)} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Notification Email Section */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Notification Email</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Email address for receiving notifications</p>
+                  </div>
+                </div>
+                
                 <div className="flex gap-3">
                   <Input
                     type="email"
@@ -868,40 +970,156 @@ export function SettingsSection() {
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Receive document expiry reminders and case status updates at this email
-                </p>
               </div>
 
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Notification Preferences</h3>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive important updates via email</p>
+              {/* Daily Reminders (4 Tools) - Premium Feature */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <Toggle enabled={emailNotifications} onToggle={() => setEmailNotifications(!emailNotifications)} />
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">Daily Reminders (9:00 AM ET)</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Email reminders for each OPT tracking tool</p>
+                    </div>
                   </div>
+                  {!premium.isPremium && (
+                    <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                      PRO
+                    </span>
+                  )}
+                </div>
+                
+                <div className="space-y-3">
+                  {[
+                    { key: 'opt_apply', label: 'OPT Apply Dates', icon: '📅', description: 'OPT filing deadline reminders' },
+                    { key: 'opt_clock', label: 'OPT Clock Tracker', icon: '⏰', description: 'Unemployment days tracking alerts' },
+                    { key: 'stem_apply', label: 'STEM Apply Dates', icon: '🎓', description: 'STEM extension deadline reminders' },
+                    { key: 'stem_clock', label: 'STEM Clock Tracker', icon: '⏲️', description: 'STEM unemployment tracking alerts' },
+                  ].map((tool) => (
+                    <div key={tool.key} className={`p-4 rounded-xl border ${premium.isPremium ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700' : 'bg-gray-100 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600 opacity-60'}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{tool.icon}</span>
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{tool.label}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{tool.description}</p>
+                          </div>
+                        </div>
+                        {premium.isPremium ? (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="email"
+                              value={toolEmails[tool.key as keyof typeof toolEmails] || ''}
+                              onChange={(e) => setToolEmails(prev => ({ ...prev, [tool.key]: e.target.value }))}
+                              placeholder="Enter email"
+                              className="w-48 h-9 text-sm"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => handleSaveToolEmail(tool.key)}
+                              disabled={isSaving}
+                              className="h-9"
+                            >
+                              {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => window.location.href = '/premium/checkout'}
+                            className="h-9 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                          >
+                            Upgrade
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+              {/* Case Status Notifications - Premium Feature */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                      <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">Case Status Notifications</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when your USCIS case status changes</p>
+                    </div>
+                  </div>
+                  {!premium.isPremium && (
+                    <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                      PRO
+                    </span>
+                  )}
+                </div>
+                
+                <div className={`p-4 rounded-xl border ${premium.isPremium ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700' : 'bg-gray-100 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600 opacity-60'}`}>
+                  <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100">Case Status Alerts</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when your case status changes</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive email when your case status updates</p>
                     </div>
-                    <Toggle enabled={caseStatusAlerts} onToggle={() => setCaseStatusAlerts(!caseStatusAlerts)} />
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Document Expiry Reminders</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive alerts before documents expire</p>
-                    </div>
-                    <Toggle enabled={documentReminders} onToggle={() => setDocumentReminders(!documentReminders)} />
+                    {premium.isPremium ? (
+                      <Toggle enabled={caseStatusAlerts} onToggle={() => setCaseStatusAlerts(!caseStatusAlerts)} />
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => window.location.href = '/premium/checkout'}
+                        className="h-9 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                      >
+                        Upgrade
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
+
+              {/* Document Vault Expiry Reminder - Premium Feature */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                      <Lock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">Document Vault Expiry Reminder</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Get alerts before your documents expire</p>
+                    </div>
+                  </div>
+                  {!premium.isPremium && (
+                    <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                      PRO
+                    </span>
+                  )}
+                </div>
+                
+                <div className={`p-4 rounded-xl border ${premium.isPremium ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700' : 'bg-gray-100 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600 opacity-60'}`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">Document Expiry Reminders</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive alerts 30, 14, and 7 days before expiry</p>
+                    </div>
+                    {premium.isPremium ? (
+                      <Toggle enabled={documentReminders} onToggle={() => setDocumentReminders(!documentReminders)} />
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => window.location.href = '/premium/checkout'}
+                        className="h-9 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                      >
+                        Upgrade
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         )}
