@@ -110,6 +110,12 @@ export function SettingsSection() {
     stem_apply: '',
     stem_clock: '',
   });
+  
+  // Case Status & Document Vault notification emails
+  const [caseStatusEmail, setCaseStatusEmail] = useState('');
+  const [documentVaultEmail, setDocumentVaultEmail] = useState('');
+  const [editingCaseEmail, setEditingCaseEmail] = useState(false);
+  const [editingDocEmail, setEditingDocEmail] = useState(false);
 
   // Security
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -152,6 +158,7 @@ export function SettingsSection() {
     loadExtensionStatus();
     loadRecentLogins();
     loadToolEmails();
+    loadNotificationSettings();
   }, []);
 
   const loadDarkModePreference = () => {
@@ -241,6 +248,145 @@ export function SettingsSection() {
       setError('Failed to save email');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Delete tool email
+  const handleDeleteToolEmail = async (toolKey: string) => {
+    try {
+      setIsSaving(true);
+      const res = await fetch('/api/user/tool-email', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool: toolKey, email: '' }),
+      });
+      
+      if (res.ok) {
+        setToolEmails(prev => ({ ...prev, [toolKey]: '' }));
+        setSuccess('Email removed');
+        setTimeout(() => setSuccess(null), 2000);
+      }
+    } catch {
+      setError('Failed to remove email');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Save case status notification email
+  const handleSaveCaseStatusEmail = async () => {
+    if (!caseStatusEmail || !caseStatusEmail.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
+    try {
+      setIsSaving(true);
+      const res = await fetch('/api/user/notification-settings', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'case_status', email: caseStatusEmail }),
+      });
+      
+      if (res.ok) {
+        setEditingCaseEmail(false);
+        setSuccess('Case status notification email saved');
+        setTimeout(() => setSuccess(null), 2000);
+      }
+    } catch {
+      setError('Failed to save email');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Delete case status notification email
+  const handleDeleteCaseStatusEmail = async () => {
+    try {
+      setIsSaving(true);
+      const res = await fetch('/api/user/notification-settings', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'case_status', email: '' }),
+      });
+      
+      if (res.ok) {
+        setCaseStatusEmail('');
+        setSuccess('Case status notification email removed');
+        setTimeout(() => setSuccess(null), 2000);
+      }
+    } catch {
+      setError('Failed to remove email');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Save document vault notification email
+  const handleSaveDocumentVaultEmail = async () => {
+    if (!documentVaultEmail || !documentVaultEmail.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
+    try {
+      setIsSaving(true);
+      const res = await fetch('/api/user/notification-settings', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'document_vault', email: documentVaultEmail }),
+      });
+      
+      if (res.ok) {
+        setEditingDocEmail(false);
+        setSuccess('Document vault notification email saved');
+        setTimeout(() => setSuccess(null), 2000);
+      }
+    } catch {
+      setError('Failed to save email');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Delete document vault notification email
+  const handleDeleteDocumentVaultEmail = async () => {
+    try {
+      setIsSaving(true);
+      const res = await fetch('/api/user/notification-settings', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'document_vault', email: '' }),
+      });
+      
+      if (res.ok) {
+        setDocumentVaultEmail('');
+        setSuccess('Document vault notification email removed');
+        setTimeout(() => setSuccess(null), 2000);
+      }
+    } catch {
+      setError('Failed to remove email');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Load notification settings (case status & document vault emails)
+  const loadNotificationSettings = async () => {
+    try {
+      const res = await fetch('/api/user/notification-settings', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.case_status_email) setCaseStatusEmail(data.case_status_email);
+        if (data.document_vault_email) setDocumentVaultEmail(data.document_vault_email);
+      }
+    } catch {
+      // Silently fail
     }
   };
 
@@ -919,9 +1065,9 @@ export function SettingsSection() {
           <div className="p-6 sm:p-8">
             <div className="max-w-2xl space-y-8">
               
-              {/* Preferences Section */}
-              <div>
-                <div className="flex items-center gap-3 mb-4">
+              {/* Preferences Section - Combined with Notification Email */}
+              <div className="p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-3 mb-5">
                   <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                     <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
@@ -931,49 +1077,40 @@ export function SettingsSection() {
                   </div>
                 </div>
                 
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive important updates, tips, and promotional offers via email</p>
-                    </div>
-                    <Toggle enabled={emailNotifications} onToggle={() => setEmailNotifications(!emailNotifications)} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Notification Email Section */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  </div>
+                {/* Email Notifications Toggle */}
+                <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg mb-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Notification Email</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Email address for receiving notifications</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Receive important updates, tips, and promotional offers via email</p>
                   </div>
+                  <Toggle enabled={emailNotifications} onToggle={() => setEmailNotifications(!emailNotifications)} />
                 </div>
-                
-                <div className="flex gap-3">
-                  <Input
-                    type="email"
-                    value={profile.notificationEmail}
-                    onChange={(e) => setProfile({ ...profile, notificationEmail: e.target.value })}
-                    placeholder="Email for notifications"
-                    className="flex-1 h-11"
-                  />
-                  <Button
-                    onClick={handleSaveNotificationEmail}
-                    disabled={isSaving}
-                    className="h-11 px-6 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800"
-                  >
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
-                  </Button>
+
+                {/* Notification Email */}
+                <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                  <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">Notification Email</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Email address for receiving notifications</p>
+                  <div className="flex gap-3">
+                    <Input
+                      type="email"
+                      value={profile.notificationEmail}
+                      onChange={(e) => setProfile({ ...profile, notificationEmail: e.target.value })}
+                      placeholder="Email for notifications"
+                      className="flex-1 h-11"
+                    />
+                    <Button
+                      onClick={handleSaveNotificationEmail}
+                      disabled={isSaving}
+                      className="h-11 px-6 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800"
+                    >
+                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
               {/* Daily Reminders (4 Tools) - Premium Feature */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
@@ -984,21 +1121,31 @@ export function SettingsSection() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">Email reminders for each OPT tracking tool</p>
                     </div>
                   </div>
-                  {!premium.isPremium && (
-                    <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
-                      PRO
-                    </span>
-                  )}
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                    PRO
+                  </span>
                 </div>
                 
-                <div className="space-y-3">
+                {/* Blur overlay for non-premium */}
+                {!premium.isPremium && (
+                  <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                    <Button
+                      onClick={() => window.location.href = '/premium/checkout'}
+                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
+                    >
+                      Upgrade to Premium
+                    </Button>
+                  </div>
+                )}
+                
+                <div className={`space-y-3 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
                   {[
                     { key: 'opt_apply', label: 'OPT Apply Dates', icon: '📅', description: 'OPT filing deadline reminders' },
                     { key: 'opt_clock', label: 'OPT Clock Tracker', icon: '⏰', description: 'Unemployment days tracking alerts' },
                     { key: 'stem_apply', label: 'STEM Apply Dates', icon: '🎓', description: 'STEM extension deadline reminders' },
                     { key: 'stem_clock', label: 'STEM Clock Tracker', icon: '⏲️', description: 'STEM unemployment tracking alerts' },
                   ].map((tool) => (
-                    <div key={tool.key} className={`p-4 rounded-xl border ${premium.isPremium ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700' : 'bg-gray-100 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600 opacity-60'}`}>
+                    <div key={tool.key} className="p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <span className="text-xl">{tool.icon}</span>
@@ -1007,7 +1154,29 @@ export function SettingsSection() {
                             <p className="text-sm text-gray-500 dark:text-gray-400">{tool.description}</p>
                           </div>
                         </div>
-                        {premium.isPremium ? (
+                        {toolEmails[tool.key as keyof typeof toolEmails] ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
+                              {toolEmails[tool.key as keyof typeof toolEmails]}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setToolEmails(prev => ({ ...prev, [tool.key]: '' }))}
+                              className="h-8 px-2"
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteToolEmail(tool.key)}
+                              className="h-8 px-2 text-red-600 border-red-300 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        ) : (
                           <div className="flex items-center gap-2">
                             <Input
                               type="email"
@@ -1025,14 +1194,6 @@ export function SettingsSection() {
                               {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
                             </Button>
                           </div>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => window.location.href = '/premium/checkout'}
-                            className="h-9 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                          >
-                            Upgrade
-                          </Button>
                         )}
                       </div>
                     </div>
@@ -1041,7 +1202,7 @@ export function SettingsSection() {
               </div>
 
               {/* Case Status Notifications - Premium Feature */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
@@ -1052,36 +1213,107 @@ export function SettingsSection() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when your USCIS case status changes</p>
                     </div>
                   </div>
-                  {!premium.isPremium && (
-                    <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
-                      PRO
-                    </span>
-                  )}
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                    PRO
+                  </span>
                 </div>
                 
-                <div className={`p-4 rounded-xl border ${premium.isPremium ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700' : 'bg-gray-100 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600 opacity-60'}`}>
+                {/* Blur overlay for non-premium */}
+                {!premium.isPremium && (
+                  <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                    <Button
+                      onClick={() => window.location.href = '/premium/checkout'}
+                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
+                    >
+                      Upgrade to Premium
+                    </Button>
+                  </div>
+                )}
+                
+                <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100">Case Status Alerts</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Receive email when your case status updates</p>
                     </div>
-                    {premium.isPremium ? (
-                      <Toggle enabled={caseStatusAlerts} onToggle={() => setCaseStatusAlerts(!caseStatusAlerts)} />
+                    {caseStatusEmail ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
+                          {caseStatusEmail}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingCaseEmail(true)}
+                          className="h-8 px-2"
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleDeleteCaseStatusEmail}
+                          className="h-8 px-2 text-red-600 border-red-300 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => window.location.href = '/premium/checkout'}
-                        className="h-9 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                      >
-                        Upgrade
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="email"
+                          value={caseStatusEmail}
+                          onChange={(e) => setCaseStatusEmail(e.target.value)}
+                          placeholder="Enter email"
+                          className="w-48 h-9 text-sm"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleSaveCaseStatusEmail}
+                          disabled={isSaving}
+                          className="h-9"
+                        >
+                          {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
+                        </Button>
+                      </div>
                     )}
                   </div>
+                  
+                  {/* Edit mode for case status email */}
+                  {editingCaseEmail && caseStatusEmail && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="email"
+                          value={caseStatusEmail}
+                          onChange={(e) => setCaseStatusEmail(e.target.value)}
+                          placeholder="Enter new email"
+                          className="flex-1 h-9 text-sm"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleSaveCaseStatusEmail}
+                          disabled={isSaving}
+                          className="h-9"
+                        >
+                          {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingCaseEmail(false)}
+                          className="h-9"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Document Vault Expiry Reminder - Premium Feature */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
@@ -1092,31 +1324,102 @@ export function SettingsSection() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">Get alerts before your documents expire</p>
                     </div>
                   </div>
-                  {!premium.isPremium && (
-                    <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
-                      PRO
-                    </span>
-                  )}
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                    PRO
+                  </span>
                 </div>
                 
-                <div className={`p-4 rounded-xl border ${premium.isPremium ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700' : 'bg-gray-100 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600 opacity-60'}`}>
+                {/* Blur overlay for non-premium */}
+                {!premium.isPremium && (
+                  <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                    <Button
+                      onClick={() => window.location.href = '/premium/checkout'}
+                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
+                    >
+                      Upgrade to Premium
+                    </Button>
+                  </div>
+                )}
+                
+                <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100">Document Expiry Reminders</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Receive alerts 30, 14, and 7 days before expiry</p>
                     </div>
-                    {premium.isPremium ? (
-                      <Toggle enabled={documentReminders} onToggle={() => setDocumentReminders(!documentReminders)} />
+                    {documentVaultEmail ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
+                          {documentVaultEmail}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingDocEmail(true)}
+                          className="h-8 px-2"
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleDeleteDocumentVaultEmail}
+                          className="h-8 px-2 text-red-600 border-red-300 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => window.location.href = '/premium/checkout'}
-                        className="h-9 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                      >
-                        Upgrade
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="email"
+                          value={documentVaultEmail}
+                          onChange={(e) => setDocumentVaultEmail(e.target.value)}
+                          placeholder="Enter email"
+                          className="w-48 h-9 text-sm"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleSaveDocumentVaultEmail}
+                          disabled={isSaving}
+                          className="h-9"
+                        >
+                          {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
+                        </Button>
+                      </div>
                     )}
                   </div>
+                  
+                  {/* Edit mode for document vault email */}
+                  {editingDocEmail && documentVaultEmail && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="email"
+                          value={documentVaultEmail}
+                          onChange={(e) => setDocumentVaultEmail(e.target.value)}
+                          placeholder="Enter new email"
+                          className="flex-1 h-9 text-sm"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleSaveDocumentVaultEmail}
+                          disabled={isSaving}
+                          className="h-9"
+                        >
+                          {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingDocEmail(false)}
+                          className="h-9"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
