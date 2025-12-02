@@ -1,173 +1,334 @@
-# Supabase Database Setup
+# TrackMyOPT Database
 
-This directory contains SQL migrations for the TrackMyOPT database schema.
+> **Professional-grade PostgreSQL database schema for TrackMyOPT**  
+> Built on Supabase with enterprise security patterns
 
-## 🚀 Quick Setup
+---
 
-### 1. Run the Migration
+## 📁 Directory Structure
 
-1. Open your Supabase Dashboard: https://app.supabase.com
-2. Navigate to your project: **deknauqkqqzwuvopqott**
-3. Go to **SQL Editor** (left sidebar)
-4. Click **New Query**
-5. Copy the entire contents of `migrations/001_initial_schema.sql`
-6. Paste into the SQL editor
-7. Click **Run** or press `Ctrl/Cmd + Enter`
-
-### 2. Verify Tables
-
-After running the migration, verify in the **Table Editor**:
-- ✅ `profiles` table
-- ✅ `opt_status` table
-- ✅ `employment_spans` table
-
-All tables should have RLS enabled (green shield icon).
-
-## 📊 Database Schema
-
-### Tables
-
-#### `profiles`
-Extended user information linked to Supabase Auth users.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `user_id` | uuid | Primary key, references auth.users |
-| `timezone` | text | User's timezone (default: America/New_York) |
-| `is_stem_eligible` | boolean | STEM OPT eligibility |
-| `created_at` | timestamptz | Record creation timestamp |
-
-#### `opt_status`
-Core OPT timeline tracking with all critical dates.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `user_id` | uuid | Primary key, references auth.users |
-| `program_end_date` | date | Academic program completion date |
-| `dso_recommendation_date` | date | DSO recommendation date |
-| `opt_ead_end_date` | date | OPT EAD expiration date |
-| `opt_start_date` | date | OPT period start date |
-| `stem_start_date` | date | STEM extension start date (nullable) |
-| `created_at` | timestamptz | Record creation timestamp |
-| `updated_at` | timestamptz | Last update timestamp (auto-updated) |
-
-#### `employment_spans`
-Employment history tracking during OPT period.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | uuid | Primary key (auto-generated) |
-| `user_id` | uuid | References auth.users |
-| `employer_name` | text | Employer name |
-| `start_date` | date | Employment start date |
-| `end_date` | date | Employment end date (NULL = current) |
-| `created_at` | timestamptz | Record creation timestamp |
-
-## 🔒 Row Level Security (RLS)
-
-All tables have RLS enabled with policies that ensure:
-- Users can only read/write their own data
-- Policy name: `"[table_name] self"`
-- Uses `auth.uid()` to match authenticated user
-
-### Testing RLS
-
-```sql
--- As authenticated user, this should return only your data
-select * from profiles;
-select * from opt_status;
-select * from employment_spans;
+```
+supabase/
+├── README.md                    # This file - Start here!
+├── schema/                      # Core database schema (run in order)
+│   ├── 000_extensions.sql       # PostgreSQL extensions
+│   ├── 001_tables.sql           # All table definitions
+│   ├── 002_indexes.sql          # Performance indexes
+│   ├── 003_rls_policies.sql     # Row Level Security policies
+│   ├── 004_functions.sql        # Stored procedures & functions
+│   ├── 005_triggers.sql         # Database triggers
+│   ├── 006_views.sql            # Analytics views
+│   └── 007_grants.sql           # Permission grants
+├── admin/                       # Admin & maintenance scripts
+│   ├── manual_premium_upgrade.sql
+│   ├── check_user_status.sql
+│   ├── analytics_queries.sql
+│   └── maintenance.sql
+└── migrations/                  # Historical migrations (reference only)
+    └── ...
 ```
 
-## 🔧 Functions & Triggers
+---
 
-### Auto-create Profile on Signup
-When a user signs up via Supabase Auth, a profile is automatically created:
-- **Function**: `handle_new_user()`
-- **Trigger**: `on_auth_user_created`
+## 🚀 Quick Start for New Developers
 
-### Auto-update Timestamps
-The `opt_status.updated_at` field is automatically updated on every update:
-- **Function**: `update_updated_at_column()`
-- **Trigger**: `update_opt_status_updated_at`
+### First Day Setup
 
-## 📝 Example Queries
+1. **Get Supabase Access**
+   - Request access to the Supabase project from your team lead
+   - Project URL: `https://supabase.com/dashboard/project/deknauqkqqzwuvopqott`
 
-### Create OPT Status for User
+2. **Understand the Schema**
+   - Read through `schema/001_tables.sql` to understand all tables
+   - Each table has detailed comments explaining its purpose
+
+3. **Run Test Queries**
+   ```sql
+   -- Check your user profile
+   SELECT * FROM profiles WHERE user_id = auth.uid();
+   
+   -- View all tables
+   SELECT tablename FROM pg_tables WHERE schemaname = 'public';
+   ```
+
+### Fresh Database Setup
+
+Run schema files **in order** in Supabase SQL Editor:
+
+```bash
+1. schema/000_extensions.sql
+2. schema/001_tables.sql
+3. schema/002_indexes.sql
+4. schema/003_rls_policies.sql
+5. schema/004_functions.sql
+6. schema/005_triggers.sql
+7. schema/006_views.sql
+8. schema/007_grants.sql
+```
+
+---
+
+## 📊 Database Schema Overview
+
+### Core Tables
+
+| Table | Purpose | RLS |
+|-------|---------|-----|
+| `profiles` | User profiles (auto-created on signup) | ✅ User-only |
+| `opt_status` | OPT timeline dates | ✅ User-only |
+| `employment_spans` | Employment history | ✅ User-only |
+| `case_status` | USCIS case tracking | ✅ User-only |
+
+### Document Vault (Premium)
+
+| Table | Purpose | RLS |
+|-------|---------|-----|
+| `document_passcodes` | Vault access codes | ✅ User-only |
+| `documents` | Document metadata | ✅ User-only |
+| `document_reminders` | Expiry reminders | ✅ User-only |
+
+### Email & Payments
+
+| Table | Purpose | RLS |
+|-------|---------|-----|
+| `email_preferences` | Email settings | ✅ User-only |
+| `email_queue` | Email history | ✅ Read-only |
+| `payment_transactions` | Stripe payments | ✅ Read-only |
+| `blocked_emails` | Bounced emails | 🔒 Service-only |
+
+### Settings
+
+| Table | Purpose | RLS |
+|-------|---------|-----|
+| `notification_settings` | Notification prefs | ✅ User-only |
+
+---
+
+## 🔒 Security Architecture
+
+### Row Level Security (RLS)
+
+All tables have RLS enabled with optimized policies:
+
 ```sql
-insert into opt_status (
-  user_id,
-  program_end_date,
-  opt_start_date,
-  opt_ead_end_date
-) values (
-  auth.uid(),
-  '2024-05-15',
-  '2024-06-01',
-  '2025-05-31'
+-- ✅ CORRECT: Uses (select auth.uid()) for performance
+CREATE POLICY "profiles self" ON profiles
+  FOR ALL USING ((select auth.uid()) = user_id);
+
+-- ❌ WRONG: Re-evaluates auth.uid() for each row
+CREATE POLICY "profiles self" ON profiles
+  FOR ALL USING (auth.uid() = user_id);
+```
+
+### Permission Levels
+
+| Role | Access |
+|------|--------|
+| `anon` | No access (must authenticate) |
+| `authenticated` | Own data only (via RLS) |
+| `service_role` | Full access (bypasses RLS) |
+
+### Security Best Practices
+
+1. **Never expose `service_role` key** in client code
+2. **All policies use `(select auth.uid())`** for performance
+3. **Sensitive tables** (blocked_emails) are service_role only
+4. **Views use `SECURITY INVOKER`** to respect RLS
+
+---
+
+## 📋 Table Reference
+
+### profiles
+
+```sql
+CREATE TABLE profiles (
+  user_id UUID PRIMARY KEY,           -- Links to auth.users
+  email TEXT,                         -- Synced from auth
+  first_name TEXT,
+  last_name TEXT,
+  timezone TEXT DEFAULT 'America/New_York',
+  is_stem_eligible BOOLEAN DEFAULT FALSE,
+  
+  -- Premium
+  premium_status BOOLEAN DEFAULT FALSE,
+  premium_purchased_at TIMESTAMPTZ,
+  stripe_customer_id TEXT,
+  
+  -- Notification Emails
+  notification_email TEXT,            -- Case Status & Documents
+  opt_apply_email TEXT,               -- OPT Apply tool
+  opt_clock_email TEXT,               -- OPT Clock tool
+  stem_apply_email TEXT,              -- STEM Apply tool
+  stem_clock_email TEXT,              -- STEM Clock tool
+  
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
 );
 ```
 
-### Add Employment Record
+### opt_status
+
 ```sql
-insert into employment_spans (
-  user_id,
-  employer_name,
-  start_date
-) values (
-  auth.uid(),
-  'Tech Company Inc',
-  '2024-07-01'
+CREATE TABLE opt_status (
+  user_id UUID PRIMARY KEY,
+  program_end_date DATE NOT NULL,     -- Graduation date
+  dso_recommendation_date DATE,       -- DSO recommendation
+  opt_start_date DATE NOT NULL,       -- OPT start
+  opt_ead_end_date DATE NOT NULL,     -- EAD expiration
+  stem_start_date DATE,               -- STEM extension start
+  last_updated_field TEXT,            -- Track last edit
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
 );
 ```
 
-### Update Profile Timezone
+### documents
+
 ```sql
-update profiles
-set timezone = 'America/Los_Angeles'
-where user_id = auth.uid();
+CREATE TABLE documents (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL,
+  file_name TEXT NOT NULL,
+  document_type TEXT NOT NULL,        -- passport, visa, ead_card, etc.
+  expiry_date DATE,
+  
+  -- AI Analysis
+  ai_analyzed BOOLEAN DEFAULT FALSE,
+  ai_confidence INTEGER,              -- 0-100
+  extracted_text TEXT,
+  extracted_fields JSONB,
+  
+  -- Storage
+  s3_key TEXT NOT NULL,
+  s3_bucket TEXT NOT NULL,
+  
+  deleted_at TIMESTAMPTZ              -- Soft delete
+);
 ```
 
-### Calculate Days Remaining
+---
+
+## ⚡ Functions Reference
+
+| Function | Purpose | Security |
+|----------|---------|----------|
+| `handle_new_user()` | Auto-create profile on signup | DEFINER |
+| `upgrade_user_to_premium()` | Premium upgrade via Stripe | DEFINER |
+| `get_premium_users_for_daily_email()` | Email cron job | DEFINER |
+| `get_document_expiry_status()` | Check document status | INVOKER |
+| `create_document_reminders()` | Auto-create reminders | INVOKER |
+
+---
+
+## 🔧 Common Operations
+
+### Check User Premium Status
+
 ```sql
-select 
-  opt_ead_end_date - current_date as days_remaining
-from opt_status
-where user_id = auth.uid();
+SELECT user_id, email, premium_status, premium_purchased_at
+FROM profiles
+WHERE email = 'user@example.com';
 ```
 
-## 🔄 Future Migrations
+### Manually Upgrade to Premium
 
-To add new migrations:
-1. Create `002_your_migration_name.sql`
-2. Document changes in this README
-3. Run in Supabase SQL Editor
-4. Update the schema documentation
+```sql
+UPDATE profiles
+SET 
+  premium_status = TRUE,
+  premium_purchased_at = NOW()
+WHERE email = 'user@example.com';
+```
+
+### View Document Expiry Status
+
+```sql
+SELECT 
+  file_name,
+  document_type,
+  expiry_date,
+  get_document_expiry_status(expiry_date) as status
+FROM documents
+WHERE user_id = auth.uid()
+  AND deleted_at IS NULL;
+```
+
+### Calculate OPT Days Remaining
+
+```sql
+SELECT 
+  opt_ead_end_date - CURRENT_DATE as days_remaining
+FROM opt_status
+WHERE user_id = auth.uid();
+```
+
+---
+
+## 🛠 Admin Scripts
+
+Located in `admin/` folder:
+
+| Script | Purpose |
+|--------|---------|
+| `manual_premium_upgrade.sql` | Upgrade user to premium |
+| `check_user_status.sql` | Debug user data |
+| `analytics_queries.sql` | Business metrics |
+| `maintenance.sql` | Database cleanup |
+
+---
+
+## 📈 Views for Analytics
+
+| View | Purpose |
+|------|---------|
+| `premium_stats` | Premium conversion metrics |
+| `email_delivery_stats` | Email delivery rates |
+| `revenue_stats` | Payment/revenue metrics |
+| `document_expiry_overview` | Document status summary |
+| `user_activity_summary` | User engagement |
+
+---
 
 ## 🐛 Troubleshooting
 
-### "relation already exists" error
-If you see this error, tables already exist. You can either:
-1. Drop existing tables: `drop table if exists profiles cascade;`
-2. Or modify the migration to use `create table if not exists`
-
-### RLS blocks all access
-Make sure you're authenticated when testing:
+### "permission denied for table"
 ```sql
--- Check current user
-select auth.uid();
+-- Check RLS is enabled
+SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';
+
+-- Check your auth status
+SELECT auth.uid(), auth.role();
 ```
 
-### Trigger not working
-Verify trigger exists:
+### "relation does not exist"
+Run the schema files in order (000 → 007).
+
+### Trigger not firing
 ```sql
-select * from pg_trigger 
-where tgname in ('on_auth_user_created', 'update_opt_status_updated_at');
+-- Verify trigger exists
+SELECT tgname, tgrelid::regclass 
+FROM pg_trigger 
+WHERE tgname LIKE '%updated_at%';
 ```
+
+---
 
 ## 📚 Resources
 
-- [Supabase RLS Documentation](https://supabase.com/docs/guides/auth/row-level-security)
-- [PostgreSQL Date Functions](https://www.postgresql.org/docs/current/functions-datetime.html)
-- [Supabase Database Functions](https://supabase.com/docs/guides/database/functions)
+- [Supabase RLS Guide](https://supabase.com/docs/guides/auth/row-level-security)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Supabase Functions](https://supabase.com/docs/guides/database/functions)
+
+---
+
+## 🏷 Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | Initial | Core tables, RLS, functions |
+| 1.1 | Premium | Payment, email system |
+| 1.2 | Documents | Document vault, AI analysis |
+| 1.3 | Notifications | Tool-specific emails |
+| 2.0 | Refactor | Professional schema structure |
 
