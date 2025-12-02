@@ -111,11 +111,10 @@ export function SettingsSection() {
     stem_clock: '',
   });
   
-  // Case Status & Document Vault notification emails
-  const [caseStatusEmail, setCaseStatusEmail] = useState('');
-  const [documentVaultEmail, setDocumentVaultEmail] = useState('');
-  const [editingCaseEmail, setEditingCaseEmail] = useState(false);
-  const [editingDocEmail, setEditingDocEmail] = useState(false);
+  // Case Status & Document Vault share the same notification email (from profiles.notification_email)
+  const [sharedNotificationEmail, setSharedNotificationEmail] = useState('');
+  const [editingSharedEmail, setEditingSharedEmail] = useState<'case' | 'document' | null>(null);
+  const [tempEmail, setTempEmail] = useState('');
 
   // Security
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -158,7 +157,7 @@ export function SettingsSection() {
     loadExtensionStatus();
     loadRecentLogins();
     loadToolEmails();
-    loadNotificationSettings();
+    loadSharedNotificationEmail();
   }, []);
 
   const loadDarkModePreference = () => {
@@ -274,120 +273,78 @@ export function SettingsSection() {
     }
   };
 
-  // Save case status notification email
-  const handleSaveCaseStatusEmail = async () => {
-    if (!caseStatusEmail || !caseStatusEmail.includes('@')) {
-      setError('Please enter a valid email address');
-      return;
-    }
-    
+  // Load shared notification email (used by Case Status & Document Vault)
+  // This syncs with CaseStatusSection and DocumentVaultClient
+  const loadSharedNotificationEmail = async () => {
     try {
-      setIsSaving(true);
-      const res = await fetch('/api/user/notification-settings', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'case_status', email: caseStatusEmail }),
-      });
-      
-      if (res.ok) {
-        setEditingCaseEmail(false);
-        setSuccess('Case status notification email saved');
-        setTimeout(() => setSuccess(null), 2000);
-      }
-    } catch {
-      setError('Failed to save email');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Delete case status notification email
-  const handleDeleteCaseStatusEmail = async () => {
-    try {
-      setIsSaving(true);
-      const res = await fetch('/api/user/notification-settings', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'case_status', email: '' }),
-      });
-      
-      if (res.ok) {
-        setCaseStatusEmail('');
-        setSuccess('Case status notification email removed');
-        setTimeout(() => setSuccess(null), 2000);
-      }
-    } catch {
-      setError('Failed to remove email');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Save document vault notification email
-  const handleSaveDocumentVaultEmail = async () => {
-    if (!documentVaultEmail || !documentVaultEmail.includes('@')) {
-      setError('Please enter a valid email address');
-      return;
-    }
-    
-    try {
-      setIsSaving(true);
-      const res = await fetch('/api/user/notification-settings', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'document_vault', email: documentVaultEmail }),
-      });
-      
-      if (res.ok) {
-        setEditingDocEmail(false);
-        setSuccess('Document vault notification email saved');
-        setTimeout(() => setSuccess(null), 2000);
-      }
-    } catch {
-      setError('Failed to save email');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Delete document vault notification email
-  const handleDeleteDocumentVaultEmail = async () => {
-    try {
-      setIsSaving(true);
-      const res = await fetch('/api/user/notification-settings', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'document_vault', email: '' }),
-      });
-      
-      if (res.ok) {
-        setDocumentVaultEmail('');
-        setSuccess('Document vault notification email removed');
-        setTimeout(() => setSuccess(null), 2000);
-      }
-    } catch {
-      setError('Failed to remove email');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Load notification settings (case status & document vault emails)
-  const loadNotificationSettings = async () => {
-    try {
-      const res = await fetch('/api/user/notification-settings', { credentials: 'include' });
+      const res = await fetch('/api/user/notification-email', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
-        if (data.case_status_email) setCaseStatusEmail(data.case_status_email);
-        if (data.document_vault_email) setDocumentVaultEmail(data.document_vault_email);
+        setSharedNotificationEmail(data.email || '');
       }
     } catch {
       // Silently fail
     }
+  };
+
+  // Save shared notification email (syncs with Case Status & Document Vault pages)
+  const handleSaveSharedEmail = async () => {
+    if (!tempEmail || !tempEmail.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
+    try {
+      setIsSaving(true);
+      const res = await fetch('/api/user/notification-email', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: tempEmail }),
+      });
+      
+      if (res.ok) {
+        setSharedNotificationEmail(tempEmail);
+        setEditingSharedEmail(null);
+        setTempEmail('');
+        setSuccess('Notification email saved');
+        setTimeout(() => setSuccess(null), 2000);
+      }
+    } catch {
+      setError('Failed to save email');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Delete shared notification email
+  const handleDeleteSharedEmail = async () => {
+    try {
+      setIsSaving(true);
+      // Save empty email to clear it
+      const res = await fetch('/api/user/notification-email', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: '' }),
+      });
+      
+      if (res.ok) {
+        setSharedNotificationEmail('');
+        setSuccess('Notification email removed');
+        setTimeout(() => setSuccess(null), 2000);
+      }
+    } catch {
+      setError('Failed to remove email');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Start editing shared email
+  const startEditingSharedEmail = (source: 'case' | 'document') => {
+    setEditingSharedEmail(source);
+    setTempEmail(sharedNotificationEmail);
   };
 
   const loadExtensionStatus = () => {
@@ -1202,6 +1159,7 @@ export function SettingsSection() {
               </div>
 
               {/* Case Status Notifications - Premium Feature */}
+              {/* Synced with Case Status page via /api/user/notification-email */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -1236,15 +1194,15 @@ export function SettingsSection() {
                       <p className="font-medium text-gray-900 dark:text-gray-100">Case Status Alerts</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Receive email when your case status updates</p>
                     </div>
-                    {caseStatusEmail ? (
+                    {sharedNotificationEmail && editingSharedEmail !== 'case' ? (
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
-                          {caseStatusEmail}
+                          {sharedNotificationEmail}
                         </span>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setEditingCaseEmail(true)}
+                          onClick={() => startEditingSharedEmail('case')}
                           className="h-8 px-2"
                         >
                           Edit
@@ -1252,7 +1210,8 @@ export function SettingsSection() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={handleDeleteCaseStatusEmail}
+                          onClick={handleDeleteSharedEmail}
+                          disabled={isSaving}
                           className="h-8 px-2 text-red-600 border-red-300 hover:bg-red-50"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1262,57 +1221,37 @@ export function SettingsSection() {
                       <div className="flex items-center gap-2">
                         <Input
                           type="email"
-                          value={caseStatusEmail}
-                          onChange={(e) => setCaseStatusEmail(e.target.value)}
+                          value={editingSharedEmail === 'case' ? tempEmail : tempEmail}
+                          onChange={(e) => setTempEmail(e.target.value)}
                           placeholder="Enter email"
                           className="w-48 h-9 text-sm"
                         />
                         <Button
                           size="sm"
-                          onClick={handleSaveCaseStatusEmail}
+                          onClick={handleSaveSharedEmail}
                           disabled={isSaving}
                           className="h-9"
                         >
                           {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
                         </Button>
+                        {editingSharedEmail === 'case' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => { setEditingSharedEmail(null); setTempEmail(''); }}
+                            className="h-9"
+                          >
+                            Cancel
+                          </Button>
+                        )}
                       </div>
                     )}
                   </div>
-                  
-                  {/* Edit mode for case status email */}
-                  {editingCaseEmail && caseStatusEmail && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="email"
-                          value={caseStatusEmail}
-                          onChange={(e) => setCaseStatusEmail(e.target.value)}
-                          placeholder="Enter new email"
-                          className="flex-1 h-9 text-sm"
-                        />
-                        <Button
-                          size="sm"
-                          onClick={handleSaveCaseStatusEmail}
-                          disabled={isSaving}
-                          className="h-9"
-                        >
-                          {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setEditingCaseEmail(false)}
-                          className="h-9"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
 
               {/* Document Vault Expiry Reminder - Premium Feature */}
+              {/* Synced with Documents page via /api/user/notification-email (same email as Case Status) */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -1347,15 +1286,15 @@ export function SettingsSection() {
                       <p className="font-medium text-gray-900 dark:text-gray-100">Document Expiry Reminders</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Receive alerts 30, 14, and 7 days before expiry</p>
                     </div>
-                    {documentVaultEmail ? (
+                    {sharedNotificationEmail && editingSharedEmail !== 'document' ? (
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
-                          {documentVaultEmail}
+                          {sharedNotificationEmail}
                         </span>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setEditingDocEmail(true)}
+                          onClick={() => startEditingSharedEmail('document')}
                           className="h-8 px-2"
                         >
                           Edit
@@ -1363,7 +1302,8 @@ export function SettingsSection() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={handleDeleteDocumentVaultEmail}
+                          onClick={handleDeleteSharedEmail}
+                          disabled={isSaving}
                           className="h-8 px-2 text-red-600 border-red-300 hover:bg-red-50"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1373,53 +1313,32 @@ export function SettingsSection() {
                       <div className="flex items-center gap-2">
                         <Input
                           type="email"
-                          value={documentVaultEmail}
-                          onChange={(e) => setDocumentVaultEmail(e.target.value)}
+                          value={editingSharedEmail === 'document' ? tempEmail : tempEmail}
+                          onChange={(e) => setTempEmail(e.target.value)}
                           placeholder="Enter email"
                           className="w-48 h-9 text-sm"
                         />
                         <Button
                           size="sm"
-                          onClick={handleSaveDocumentVaultEmail}
+                          onClick={handleSaveSharedEmail}
                           disabled={isSaving}
                           className="h-9"
                         >
                           {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
                         </Button>
+                        {editingSharedEmail === 'document' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => { setEditingSharedEmail(null); setTempEmail(''); }}
+                            className="h-9"
+                          >
+                            Cancel
+                          </Button>
+                        )}
                       </div>
                     )}
                   </div>
-                  
-                  {/* Edit mode for document vault email */}
-                  {editingDocEmail && documentVaultEmail && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="email"
-                          value={documentVaultEmail}
-                          onChange={(e) => setDocumentVaultEmail(e.target.value)}
-                          placeholder="Enter new email"
-                          className="flex-1 h-9 text-sm"
-                        />
-                        <Button
-                          size="sm"
-                          onClick={handleSaveDocumentVaultEmail}
-                          disabled={isSaving}
-                          className="h-9"
-                        >
-                          {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setEditingDocEmail(false)}
-                          className="h-9"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
 
