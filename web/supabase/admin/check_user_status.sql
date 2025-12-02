@@ -27,8 +27,7 @@ SELECT
   p.opt_clock_email,
   p.stem_apply_email,
   p.stem_clock_email,
-  p.created_at,
-  p.updated_at
+  p.created_at
 FROM public.profiles p
 WHERE p.email = 'user@example.com';  -- ← CHANGE THIS
 

@@ -35,8 +35,7 @@ SET
   premium_status = TRUE,
   premium_purchased_at = NOW(),
   stripe_payment_intent_id = 'pi_manual_upgrade',  -- Or actual Stripe ID
-  stripe_customer_id = 'cus_manual_upgrade',       -- Or actual Stripe ID
-  updated_at = NOW()
+  stripe_customer_id = 'cus_manual_upgrade'        -- Or actual Stripe ID
 WHERE email = 'user@example.com';  -- ← CHANGE THIS
 
 

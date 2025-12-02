@@ -9,44 +9,43 @@
 -- =============================================================================
 -- HEALTH CHECKS
 -- =============================================================================
+-- NOTE: Run each query SEPARATELY in Supabase SQL Editor
+-- Select one query at a time and run it
 
--- Check table sizes
+-- Query 1: Check table sizes
 SELECT 
-  '--- TABLE SIZES ---' as section,
-  schemaname,
-  tablename,
-  pg_size_pretty(pg_total_relation_size(schemaname || '.' || tablename)) as total_size,
-  pg_size_pretty(pg_relation_size(schemaname || '.' || tablename)) as table_size,
-  pg_size_pretty(pg_indexes_size(schemaname || '.' || tablename)) as index_size
-FROM pg_tables
-WHERE schemaname = 'public'
-ORDER BY pg_total_relation_size(schemaname || '.' || tablename) DESC;
+  t.schemaname,
+  t.tablename,
+  pg_size_pretty(pg_total_relation_size(t.schemaname || '.' || t.tablename)) as total_size,
+  pg_size_pretty(pg_relation_size(t.schemaname || '.' || t.tablename)) as table_size,
+  pg_size_pretty(pg_indexes_size(t.schemaname || '.' || t.tablename)) as index_size
+FROM pg_tables t
+WHERE t.schemaname = 'public'
+ORDER BY pg_total_relation_size(t.schemaname || '.' || t.tablename) DESC;
 
 
--- Check index usage
+-- Query 2: Check index usage
 SELECT 
-  '--- INDEX USAGE ---' as section,
-  schemaname,
-  tablename,
-  indexname,
-  idx_scan as times_used,
-  pg_size_pretty(pg_relation_size(indexrelid)) as index_size
-FROM pg_stat_user_indexes
-WHERE schemaname = 'public'
-ORDER BY idx_scan DESC;
+  i.schemaname,
+  i.relname as table_name,
+  i.indexrelname as index_name,
+  i.idx_scan as times_used,
+  pg_size_pretty(pg_relation_size(i.indexrelid)) as index_size
+FROM pg_stat_user_indexes i
+WHERE i.schemaname = 'public'
+ORDER BY i.idx_scan DESC;
 
 
--- Check for unused indexes (potential cleanup candidates)
+-- Query 3: Check for unused indexes (potential cleanup candidates)
 SELECT 
-  '--- UNUSED INDEXES ---' as section,
-  schemaname,
-  tablename,
-  indexname,
-  pg_size_pretty(pg_relation_size(indexrelid)) as index_size
-FROM pg_stat_user_indexes
-WHERE schemaname = 'public'
-  AND idx_scan = 0
-ORDER BY pg_relation_size(indexrelid) DESC;
+  i.schemaname,
+  i.relname as table_name,
+  i.indexrelname as index_name,
+  pg_size_pretty(pg_relation_size(i.indexrelid)) as index_size
+FROM pg_stat_user_indexes i
+WHERE i.schemaname = 'public'
+  AND i.idx_scan = 0
+ORDER BY pg_relation_size(i.indexrelid) DESC;
 
 
 -- =============================================================================

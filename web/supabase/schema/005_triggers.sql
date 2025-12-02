@@ -25,36 +25,30 @@ DROP TRIGGER IF EXISTS update_notification_settings_updated_at ON public.notific
 -- =============================================================================
 -- AUTH TRIGGERS
 -- =============================================================================
+-- NOTE: The trigger on auth.users must be created via Supabase Dashboard
+-- or by a superuser. It cannot be created via SQL Editor.
+--
+-- The trigger already exists if you set it up previously.
+-- To verify: Go to Database > Triggers in Supabase Dashboard
+--
+-- If you need to create it manually, use the Supabase Dashboard:
+-- 1. Go to Database > Triggers
+-- 2. Create new trigger on auth.users table
+-- 3. Name: on_auth_user_created
+-- 4. Event: AFTER INSERT
+-- 5. Function: public.handle_new_user()
 
--- -----------------------------------------------------------------------------
--- Trigger: on_auth_user_created
--- Purpose: Automatically create a profile when a new user signs up
--- Table: auth.users
--- Function: handle_new_user()
--- -----------------------------------------------------------------------------
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW
-  EXECUTE FUNCTION public.handle_new_user();
-
-COMMENT ON TRIGGER on_auth_user_created ON auth.users IS 
-  'Creates a profile record when a new user signs up';
+-- Skip this in SQL Editor - requires superuser
+-- CREATE TRIGGER on_auth_user_created
+--   AFTER INSERT ON auth.users
+--   FOR EACH ROW
+--   EXECUTE FUNCTION public.handle_new_user();
 
 
 -- =============================================================================
 -- PROFILES TRIGGERS
 -- =============================================================================
-
--- -----------------------------------------------------------------------------
--- Trigger: update_profiles_updated_at
--- Purpose: Auto-update updated_at timestamp on profile changes
--- Table: profiles
--- Function: update_updated_at_column()
--- -----------------------------------------------------------------------------
-CREATE TRIGGER update_profiles_updated_at
-  BEFORE UPDATE ON public.profiles
-  FOR EACH ROW
-  EXECUTE FUNCTION public.update_updated_at_column();
+-- Note: profiles table does not have updated_at column, so no trigger needed
 
 
 -- =============================================================================

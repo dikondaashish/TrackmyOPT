@@ -78,8 +78,7 @@ BEGIN
     premium_status = TRUE,
     premium_purchased_at = NOW(),
     stripe_customer_id = p_stripe_customer_id,
-    stripe_payment_intent_id = p_stripe_payment_intent_id,
-    updated_at = NOW()
+    stripe_payment_intent_id = p_stripe_payment_intent_id
   WHERE user_id = p_user_id;
 
   RETURN FOUND;
@@ -101,6 +100,9 @@ COMMENT ON FUNCTION public.upgrade_user_to_premium(UUID, TEXT, TEXT) IS
 -- Returns: Table of user information for sending emails
 -- Security: SECURITY DEFINER to bypass RLS
 -- -----------------------------------------------------------------------------
+-- Drop first to allow signature changes
+DROP FUNCTION IF EXISTS public.get_premium_users_for_daily_email();
+
 CREATE OR REPLACE FUNCTION public.get_premium_users_for_daily_email()
 RETURNS TABLE (
   user_id UUID,

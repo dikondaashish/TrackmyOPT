@@ -46,8 +46,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   stem_clock_email TEXT,                      -- STEM Clock Tracker tool
   
   -- Timestamps
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
+  -- Note: profiles table does not have updated_at column
 );
 
 -- Table Comment
