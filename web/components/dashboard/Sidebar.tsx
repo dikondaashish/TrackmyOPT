@@ -47,7 +47,7 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
     { icon: Calendar, label: "OPT Dates", path: "/dashboard/opt-dates" },
     { icon: ClipboardCheck, label: "Case Status", path: "/dashboard/case-status" },
-    { icon: Clock, label: "Clock Tracker", path: "/dashboard/clock-tracker" },
+    { icon: Clock, label: "OPT Tools", path: "/dashboard/opt-tools" },
     { icon: FileText, label: "Documents", path: "/dashboard/documents" },
     { icon: Settings, label: "Settings", path: "/dashboard/settings" },
     { icon: HelpCircle, label: "Help", path: "/dashboard/help" },

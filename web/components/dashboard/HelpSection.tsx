@@ -452,7 +452,7 @@ export function HelpSection() {
                 icon={<Clock className="w-5 h-5 text-red-600" />}
                 title="Unemployment Clock"
                 description="Track your unemployment days and stay compliant with the 90-day limit."
-                link="/dashboard/clock-tracker"
+                link="/dashboard/opt-tools"
               />
               <FeatureCard
                 icon={<FileText className="w-5 h-5 text-purple-600" />}
