@@ -22,6 +22,7 @@ export function OptApplyTool() {
   const router = useRouter();
   const [programEndDate, setProgramEndDate] = useState("");
   const [dsoRecommendationDate, setDsoRecommendationDate] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [results, setResults] = useState<CalculatedDates | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +45,15 @@ export function OptApplyTool() {
       calculate();
     }
   }, [programEndDate, dsoRecommendationDate]);
+
+  // Auto-fill DSO recommendation date when program end date changes
+  const handleProgramEndDateChange = (value: string) => {
+    setProgramEndDate(value);
+    // Auto-fill DSO recommendation date to match program end date
+    if (value && !dsoRecommendationDate) {
+      setDsoRecommendationDate(value);
+    }
+  };
 
   const loadSavedData = async () => {
     setIsLoading(true);
@@ -147,29 +157,28 @@ export function OptApplyTool() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    setSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
+    setSaveSuccess(false);
 
     try {
-      const programEnd = parseDate(programEndDate);
-      const dsoRec = parseDate(dsoRecommendationDate);
-
-      const response = await fetch('/api/opt-status', {
-        method: 'PUT',
+      // Use the same API as OPT Dates page for perfect sync
+      const response = await fetch('/api/opt/calculator', {
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          program_end_date: programEnd?.toISOString().split('T')[0],
-          dso_recommendation_date: dsoRec?.toISOString().split('T')[0] || null,
+          program_end_date: programEndDate,
+          dso_recommendation_date: dsoRecommendationDate || programEndDate,
         }),
       });
 
       if (response.ok) {
-        setSyncStatus({ lastSynced: new Date(), isSyncing: false, error: null });
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
       } else {
-        throw new Error('Failed to save');
+        alert('Failed to save. Please try again.');
       }
     } catch (error) {
-      setSyncStatus(prev => ({ ...prev, isSyncing: false, error: 'Failed to sync. Please try again.' }));
+      alert('Failed to save. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -259,7 +268,7 @@ export function OptApplyTool() {
                   <DateInput
                     label="Program End Date"
                     value={programEndDate}
-                    onChange={setProgramEndDate}
+                    onChange={handleProgramEndDateChange}
                     description="From your I-20 (required)"
                     required
                   />
@@ -276,10 +285,14 @@ export function OptApplyTool() {
                   <button
                     onClick={handleSave}
                     disabled={isSaving || !programEndDate}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-200"
+                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${
+                      saveSuccess 
+                        ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25' 
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/25'
+                    } disabled:from-gray-400 disabled:to-gray-500 text-white`}
                   >
                     <Save className="w-4 h-4" />
-                    {isSaving ? 'Saving...' : 'Save'}
+                    {isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}
                   </button>
                 </div>
               </div>

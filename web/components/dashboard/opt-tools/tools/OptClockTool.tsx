@@ -24,6 +24,7 @@ export function OptClockTool() {
   const [employmentSpans, setEmploymentSpans] = useState<EmploymentSpan[]>([]);
   const [results, setResults] = useState<{ used: number; remaining: number; max: number } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [syncStatus, setSyncStatus] = useState({
     lastSynced: null as Date | null,
     isSyncing: false,
@@ -42,6 +43,27 @@ export function OptClockTool() {
       calculate();
     }
   }, [optStartDate, optEndDate, employmentSpans]);
+
+  // Auto-calculate OPT End Date (1 year from start)
+  const handleOptStartDateChange = (value: string) => {
+    setOptStartDate(value);
+    // Auto-calculate end date (1 year from start = 364 days)
+    if (value) {
+      const parts = value.split('/');
+      if (parts.length === 3) {
+        const [month, day, year] = parts.map(Number);
+        if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
+          const startDate = new Date(year, month - 1, day);
+          const endDate = new Date(startDate);
+          endDate.setDate(endDate.getDate() + 364);
+          const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+          const endDay = String(endDate.getDate()).padStart(2, '0');
+          const endYear = endDate.getFullYear();
+          setOptEndDate(`${endMonth}/${endDay}/${endYear}`);
+        }
+      }
+    }
+  };
 
   const loadSavedData = async () => {
     setIsLoading(true);
@@ -164,25 +186,28 @@ export function OptClockTool() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    setSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
+    setSaveSuccess(false);
 
     try {
-      const optStart = parseDate(optStartDate);
-      const optEnd = parseDate(optEndDate);
-
-      await fetch('/api/opt-status', {
-        method: 'PUT',
+      // Use the same API as OPT Dates page for perfect sync
+      const response = await fetch('/api/opt/calculator', {
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          opt_start_date: optStart?.toISOString().split('T')[0],
-          opt_ead_end_date: optEnd?.toISOString().split('T')[0],
+          opt_start_date: optStartDate,
+          opt_ead_end_date: optEndDate,
         }),
       });
 
-      setSyncStatus({ lastSynced: new Date(), isSyncing: false, error: null });
+      if (response.ok) {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        alert('Failed to save. Please try again.');
+      }
     } catch (error) {
-      setSyncStatus(prev => ({ ...prev, isSyncing: false, error: 'Failed to sync' }));
+      alert('Failed to save. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -278,7 +303,7 @@ export function OptClockTool() {
                 <DateInput
                   label="OPT Start Date"
                   value={optStartDate}
-                  onChange={setOptStartDate}
+                  onChange={handleOptStartDateChange}
                   description="From your EAD card"
                   required
                 />
@@ -286,7 +311,7 @@ export function OptClockTool() {
                   label="OPT End Date"
                   value={optEndDate}
                   onChange={setOptEndDate}
-                  description="From your EAD card"
+                  description="Auto-calculated (1 year)"
                   required
                 />
                 </div>
@@ -296,10 +321,14 @@ export function OptClockTool() {
                   <button
                     onClick={handleSave}
                     disabled={isSaving || !optStartDate}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-amber-500/25 transition-all duration-200"
+                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${
+                      saveSuccess 
+                        ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25' 
+                        : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-500/25'
+                    } disabled:from-gray-400 disabled:to-gray-500 text-white`}
                   >
                     <Save className="w-4 h-4" />
-                    {isSaving ? 'Saving...' : 'Save'}
+                    {isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}
                   </button>
                 </div>
               </div>

@@ -20,6 +20,7 @@ export function StemApplyTool() {
     daysUntilDeadline: number;
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [syncStatus, setSyncStatus] = useState({
     lastSynced: null as Date | null,
     isSyncing: false,
@@ -122,21 +123,27 @@ export function StemApplyTool() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    setSyncStatus(prev => ({ ...prev, isSyncing: true, error: null }));
+    setSaveSuccess(false);
 
     try {
-      const optEnd = parseDate(optEndDate);
-      await fetch('/api/opt-status', {
-        method: 'PUT',
+      // Use the same API as OPT Dates page for perfect sync
+      const response = await fetch('/api/opt/calculator', {
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          opt_ead_end_date: optEnd?.toISOString().split('T')[0],
+          opt_ead_end_date: optEndDate,
         }),
       });
-      setSyncStatus({ lastSynced: new Date(), isSyncing: false, error: null });
+
+      if (response.ok) {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        alert('Failed to save. Please try again.');
+      }
     } catch (error) {
-      setSyncStatus(prev => ({ ...prev, isSyncing: false, error: 'Failed to sync' }));
+      alert('Failed to save. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -237,10 +244,14 @@ export function StemApplyTool() {
                   <button
                     onClick={handleSave}
                     disabled={isSaving || !optEndDate}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-200"
+                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${
+                      saveSuccess 
+                        ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25' 
+                        : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/25'
+                    } disabled:from-gray-400 disabled:to-gray-500 text-white`}
                   >
                     <Save className="w-4 h-4" />
-                    {isSaving ? 'Saving...' : 'Save'}
+                    {isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}
                   </button>
                 </div>
               </div>
