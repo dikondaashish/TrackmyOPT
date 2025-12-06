@@ -290,6 +290,18 @@ export function OptClockTool() {
                   required
                 />
                 </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving || !optStartDate}
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-amber-500/25 transition-all duration-200"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isSaving ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -366,18 +378,6 @@ export function OptClockTool() {
                   ))}
                 </div>
                 )}
-
-                {/* Save Button */}
-                <div className="flex justify-end mt-6">
-                  <button
-                    onClick={handleSave}
-                    disabled={isSaving || !optStartDate}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-amber-500/25 transition-all duration-200"
-                  >
-                    <Save className="w-4 h-4" />
-                    {isSaving ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
               </div>
             </div>
 
