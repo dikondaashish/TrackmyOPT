@@ -49,8 +49,8 @@ export function OptApplyTool() {
   // Auto-fill DSO recommendation date when program end date changes
   const handleProgramEndDateChange = (value: string) => {
     setProgramEndDate(value);
-    // Auto-fill DSO recommendation date to match program end date
-    if (value && !dsoRecommendationDate) {
+    // Always auto-fill DSO recommendation date to match program end date
+    if (value) {
       setDsoRecommendationDate(value);
     }
   };
@@ -371,6 +371,7 @@ export function OptApplyTool() {
                   targetDate={results.mustArriveBy}
                   title="Filing Deadline"
                   gradient="from-blue-600 to-indigo-600"
+                  toolType="opt-apply"
                 />
               )}
               

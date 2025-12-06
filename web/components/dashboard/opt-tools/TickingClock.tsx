@@ -9,6 +9,7 @@ interface TickingClockProps {
   subtitle?: string;
   type?: 'deadline' | 'countdown' | 'remaining';
   gradient?: string;
+  toolType?: 'opt-apply' | 'opt-clock' | 'stem-apply' | 'stem-clock';
 }
 
 interface TimeLeft {
@@ -185,7 +186,8 @@ function TimeBlock({ value, label, highlight = false, pulse = false }: {
 export function TickingClockCompact({ 
   targetDate, 
   title,
-  gradient = 'from-blue-600 to-indigo-600'
+  gradient = 'from-blue-600 to-indigo-600',
+  toolType = 'opt-apply'
 }: Omit<TickingClockProps, 'subtitle' | 'type'>) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
   const [mounted, setMounted] = useState(false);
@@ -224,33 +226,96 @@ export function TickingClockCompact({
   const isCritical = timeLeft.days <= 7;
   const isPassed = timeLeft.total <= 0;
 
-  // Get action items based on time remaining
+  // Get action items based on time remaining and tool type
   const getActionItems = () => {
     if (isPassed) return [];
-    if (isCritical) return [
-      "⚡ Submit application NOW",
-      "📞 Contact DSO if needed",
-      "✅ Double-check all forms"
-    ];
-    if (isUrgent) return [
-      "📄 Finalize all documents",
-      "💳 Prepare filing fee",
-      "📮 Choose mailing method"
-    ];
-    if (timeLeft.days <= 30) return [
-      "📋 Gather required documents",
-      "📸 Get passport photos",
-      "✍️ Complete I-765 form"
-    ];
-    if (timeLeft.days <= 60) return [
-      "📖 Review requirements",
-      "📁 Organize documents",
-      "💼 Update employment info"
-    ];
+    
+    // OPT Apply specific action items
+    if (toolType === 'opt-apply') {
+      if (isCritical) return [
+        "⚡ Submit to USCIS TODAY!",
+        "📋 I-765 form completed?",
+        "📞 Contact DSO immediately"
+      ];
+      if (isUrgent) return [
+        "🚀 Apply ASAP - most approvals come from early filers!",
+        "📄 I-20 with OPT recommendation",
+        "📸 2 passport-style photos ready"
+      ];
+      if (timeLeft.days <= 30) return [
+        "📋 Gather: I-20, I-765, passport photos",
+        "💳 Prepare $410 filing fee",
+        "🔍 Check USCIS processing times"
+      ];
+      if (timeLeft.days <= 60) return [
+        "📝 Request OPT recommendation from DSO",
+        "📸 Get passport-style photos taken",
+        "📖 Review I-765 instructions"
+      ];
+      return [
+        "📅 Plan your OPT timeline",
+        "📋 Create document checklist",
+        "🔍 Check USCIS.gov for updates"
+      ];
+    }
+    
+    // OPT Clock specific action items
+    if (toolType === 'opt-clock') {
+      if (isCritical) return [
+        "⚠️ Unemployment limit almost reached!",
+        "💼 Secure employment immediately",
+        "📞 Contact DSO for guidance"
+      ];
+      if (isUrgent) return [
+        "🔍 Actively search for jobs",
+        "📝 Update resume & LinkedIn",
+        "💼 Apply to multiple positions"
+      ];
+      return [
+        "📊 Track employment periods",
+        "💼 Maintain employment records",
+        "📅 Monitor unemployment days"
+      ];
+    }
+    
+    // STEM Apply specific action items
+    if (toolType === 'stem-apply') {
+      if (isCritical) return [
+        "⚡ Submit STEM extension NOW!",
+        "📋 I-983 training plan ready?",
+        "📞 Confirm E-Verify with employer"
+      ];
+      if (isUrgent) return [
+        "🚀 File early - don't wait!",
+        "📄 Complete I-983 with employer",
+        "✅ Verify employer E-Verify status"
+      ];
+      return [
+        "📋 Prepare I-983 training plan",
+        "🏢 Confirm employer E-Verify",
+        "📝 Update I-20 for STEM"
+      ];
+    }
+    
+    // STEM Clock specific action items
+    if (toolType === 'stem-clock') {
+      if (isCritical) return [
+        "⚠️ 150-day limit approaching!",
+        "💼 Find employment urgently",
+        "📞 Contact DSO for options"
+      ];
+      return [
+        "📊 Track aggregate unemployment",
+        "💼 Maintain employment records",
+        "📅 Report changes to DSO"
+      ];
+    }
+    
+    // Default fallback
     return [
-      "📅 Mark deadline in calendar",
-      "📝 Create document checklist",
-      "🔍 Research filing process"
+      "📅 Track your deadlines",
+      "📋 Organize documents",
+      "🔍 Check USCIS.gov"
     ];
   };
 
