@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Clock, Sparkles, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
 import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
+import { PricingModal } from "@/components/pricing/PricingModal";
 
 interface EmploymentSpan {
   id: string;
@@ -28,8 +29,9 @@ export function OptClockTool() {
     isSyncing: false,
     error: null as string | null,
   });
-  const [userEmail, setUserEmail] = useState("");
   const [isPremium, setIsPremium] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showPricingModal, setShowPricingModal] = useState(false);
 
   useEffect(() => {
     loadSavedData();
@@ -42,18 +44,19 @@ export function OptClockTool() {
   }, [optStartDate, optEndDate, employmentSpans]);
 
   const loadSavedData = async () => {
+    setIsLoading(true);
     try {
-      const [optRes, spansRes, profileRes] = await Promise.all([
-        fetch('/api/opt-status', { credentials: 'include' }),
+      const [datesRes, spansRes, premiumRes] = await Promise.all([
+        fetch('/api/opt/calculator', { credentials: 'include', cache: 'no-store' }),
         fetch('/api/employment-spans', { credentials: 'include' }),
-        fetch('/api/user/profile', { credentials: 'include' }),
+        fetch('/api/premium/status', { credentials: 'include' }),
       ]);
 
-      if (optRes.ok) {
-        const data = await optRes.json();
-        if (data.status) {
-          if (data.status.opt_start_date) setOptStartDate(formatDateForInput(data.status.opt_start_date));
-          if (data.status.opt_ead_end_date) setOptEndDate(formatDateForInput(data.status.opt_ead_end_date));
+      if (datesRes.ok) {
+        const result = await datesRes.json();
+        if (result.ok && result.data) {
+          if (result.data.opt_start_date) setOptStartDate(result.data.opt_start_date);
+          if (result.data.opt_ead_end_date) setOptEndDate(result.data.opt_ead_end_date);
         }
       }
 
@@ -69,15 +72,16 @@ export function OptClockTool() {
         }
       }
 
-      if (profileRes.ok) {
-        const profile = await profileRes.json();
-        setUserEmail(profile.email || '');
-        setIsPremium(profile.is_premium || false);
+      if (premiumRes.ok) {
+        const premiumData = await premiumRes.json();
+        setIsPremium(premiumData.isPremium || false);
       }
 
       setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
     } catch (error) {
       console.error('Failed to load data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -356,13 +360,13 @@ export function OptClockTool() {
             <EmailReminder
               toolType="opt-clock"
               isPremium={isPremium}
+              onUpgradeClick={() => setShowPricingModal(true)}
             />
 
             <SyncStatus
               lastSynced={syncStatus.lastSynced}
               isSyncing={syncStatus.isSyncing}
               error={syncStatus.error}
-              email={userEmail}
               onSync={handleSave}
             />
           </div>
@@ -374,6 +378,12 @@ export function OptClockTool() {
           </div>
         </div>
       </div>
+      
+      {/* Pricing Modal */}
+      <PricingModal 
+        open={showPricingModal} 
+        onClose={() => setShowPricingModal(false)} 
+      />
     </div>
   );
 }

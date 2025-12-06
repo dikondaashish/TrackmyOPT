@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Info, Save } from "lucide-react";
+import { ArrowLeft, Info, Save, Calendar, Clock, Target, FileText, Sparkles, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, CountdownCard } from "../ResultCard";
 import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
+import { PricingModal } from "@/components/pricing/PricingModal";
 
 interface CalculatedDates {
   earliestFile: Date;
@@ -23,13 +24,14 @@ export function OptApplyTool() {
   const [dsoRecommendationDate, setDsoRecommendationDate] = useState("");
   const [results, setResults] = useState<CalculatedDates | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [syncStatus, setSyncStatus] = useState({
     lastSynced: null as Date | null,
     isSyncing: false,
     error: null as string | null,
   });
-  const [userEmail, setUserEmail] = useState("");
   const [isPremium, setIsPremium] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
 
   // Load saved data on mount
   useEffect(() => {
@@ -44,30 +46,35 @@ export function OptApplyTool() {
   }, [programEndDate, dsoRecommendationDate]);
 
   const loadSavedData = async () => {
+    setIsLoading(true);
     try {
-      const response = await fetch('/api/opt-status', { credentials: 'include' });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status) {
-          if (data.status.program_end_date) {
-            setProgramEndDate(formatDateForInput(data.status.program_end_date));
+      // Load dates from the same API as OPT Dates page for perfect sync
+      const [datesRes, premiumRes] = await Promise.all([
+        fetch('/api/opt/calculator', { credentials: 'include', cache: 'no-store' }),
+        fetch('/api/premium/status', { credentials: 'include' }),
+      ]);
+
+      if (datesRes.ok) {
+        const result = await datesRes.json();
+        if (result.ok && result.data) {
+          if (result.data.program_end_date) {
+            setProgramEndDate(result.data.program_end_date);
           }
-          if (data.status.dso_recommendation_date) {
-            setDsoRecommendationDate(formatDateForInput(data.status.dso_recommendation_date));
+          if (result.data.dso_recommendation_date) {
+            setDsoRecommendationDate(result.data.dso_recommendation_date);
           }
         }
         setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
       }
       
-      // Get user email and premium status
-      const profileRes = await fetch('/api/user/profile', { credentials: 'include' });
-      if (profileRes.ok) {
-        const profile = await profileRes.json();
-        setUserEmail(profile.email || '');
-        setIsPremium(profile.is_premium || false);
+      if (premiumRes.ok) {
+        const premiumData = await premiumRes.json();
+        setIsPremium(premiumData.isPremium || false);
       }
     } catch (error) {
       console.error('Failed to load data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -168,108 +175,176 @@ export function OptApplyTool() {
     }
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded-xl w-64"></div>
+            <div className="h-48 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+            <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => router.push('/dashboard/opt-tools')}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">OPT Apply Dates</h1>
-            <p className="text-gray-600 dark:text-gray-400">Calculate your OPT filing window</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push('/dashboard/opt-tools')}
+              className="p-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                  <Calendar className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">OPT Apply Dates</h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Calculate your I-765 filing window</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={handleSave}
+              disabled={isSaving || !programEndDate}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-200"
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Info Card */}
-            <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-              <div className="flex gap-3">
-                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-blue-900 dark:text-blue-100">Post-Completion OPT Filing Rules</p>
-                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                    You can apply 90 days before your program ends, up to 60 days after. USCIS must receive your I-765 within 30 days of your DSO's recommendation.
-                  </p>
+            {/* Info Banner */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white shadow-xl shadow-blue-500/20">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-16"></div>
+              <div className="relative z-10">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                    <Info className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold mb-2">Post-Completion OPT Filing Rules</h2>
+                    <p className="text-blue-100 leading-relaxed">
+                      You can apply <span className="font-semibold text-white">90 days before</span> your program ends, up to <span className="font-semibold text-white">60 days after</span>. 
+                      USCIS must receive your I-765 within <span className="font-semibold text-white">30 days</span> of your DSO's recommendation.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Form */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Enter Your Dates</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <DateInput
-                  label="Program End Date"
-                  value={programEndDate}
-                  onChange={setProgramEndDate}
-                  description="From your I-20"
-                  required
-                />
-                <DateInput
-                  label="DSO Recommendation Date"
-                  value={dsoRecommendationDate}
-                  onChange={setDsoRecommendationDate}
-                  description="When DSO signed your I-20 (optional)"
-                />
+            {/* Date Input Form */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your Important Dates</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Enter dates from your I-20</p>
+                  </div>
+                </div>
               </div>
+              
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <DateInput
+                    label="Program End Date"
+                    value={programEndDate}
+                    onChange={setProgramEndDate}
+                    description="From your I-20 (required)"
+                    required
+                  />
+                  <DateInput
+                    label="DSO Recommendation Date"
+                    value={dsoRecommendationDate}
+                    onChange={setDsoRecommendationDate}
+                    description="When DSO signed your I-20"
+                  />
+                </div>
 
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving || !programEndDate}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-xl transition-colors"
-                >
-                  <Save className="w-4 h-4" />
-                  {isSaving ? 'Saving...' : 'Save & Sync'}
-                </button>
+                {/* Mobile Save Button */}
+                <div className="sm:hidden mt-6">
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving || !programEndDate}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg transition-all duration-200"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Results */}
             {results && (
-              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm space-y-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your OPT Filing Timeline</h2>
+              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                      <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your Filing Timeline</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Based on your dates</p>
+                    </div>
+                  </div>
+                </div>
                 
-                <CountdownCard
-                  days={results.daysUntilDeadline}
-                  label="Days Until Deadline"
-                  deadline={`Must arrive by ${formatDateForDisplay(results.mustArriveBy)}`}
-                />
+                <div className="p-6 space-y-6">
+                  <CountdownCard
+                    days={results.daysUntilDeadline}
+                    label="Days Until Deadline"
+                    deadline={`Must arrive by ${formatDateForDisplay(results.mustArriveBy)}`}
+                  />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <ResultCard
-                    icon="📅"
-                    label="Earliest You Can File"
-                    value={formatDateForDisplay(results.earliestFile)}
-                    subtext="90 days before program end"
-                  />
-                  <ResultCard
-                    icon="⏰"
-                    label="Must Arrive By"
-                    value={formatDateForDisplay(results.mustArriveBy)}
-                    subtext="USCIS receipt deadline"
-                    status={results.daysUntilDeadline <= 14 ? 'critical' : results.daysUntilDeadline <= 30 ? 'warning' : 'ok'}
-                  />
-                  <ResultCard
-                    icon="🎯"
-                    label="OPT Can Start"
-                    value={formatDateForDisplay(results.optStartEarliest)}
-                    subtext="Your program end date"
-                  />
-                  <ResultCard
-                    icon="📆"
-                    label="Latest OPT Start"
-                    value={formatDateForDisplay(results.optStartLatest)}
-                    subtext="60 days after program end"
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <ResultCard
+                      icon="📅"
+                      label="Earliest Filing Date"
+                      value={formatDateForDisplay(results.earliestFile)}
+                      subtext="90 days before program end"
+                    />
+                    <ResultCard
+                      icon="⏰"
+                      label="Filing Deadline"
+                      value={formatDateForDisplay(results.mustArriveBy)}
+                      subtext="USCIS receipt deadline"
+                      status={results.daysUntilDeadline <= 14 ? 'critical' : results.daysUntilDeadline <= 30 ? 'warning' : 'ok'}
+                    />
+                    <ResultCard
+                      icon="🎯"
+                      label="OPT Start Date"
+                      value={formatDateForDisplay(results.optStartEarliest)}
+                      subtext="Your program end date"
+                    />
+                    <ResultCard
+                      icon="📆"
+                      label="Latest OPT Start"
+                      value={formatDateForDisplay(results.optStartLatest)}
+                      subtext="60 days after program end"
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -278,6 +353,7 @@ export function OptApplyTool() {
             <EmailReminder
               toolType="opt-apply"
               isPremium={isPremium}
+              onUpgradeClick={() => setShowPricingModal(true)}
             />
 
             {/* Sync Status */}
@@ -285,19 +361,46 @@ export function OptApplyTool() {
               lastSynced={syncStatus.lastSynced}
               isSyncing={syncStatus.isSyncing}
               error={syncStatus.error}
-              email={userEmail}
               onSync={handleSave}
             />
           </div>
 
           {/* Right Sidebar - Live Stats */}
           <div className="lg:col-span-1">
-            <div className="sticky top-6">
+            <div className="sticky top-6 space-y-6">
               <LiveStatsWidget toolType="opt-apply" />
+              
+              {/* Quick Tips */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Quick Tips</h3>
+                </div>
+                <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                  <li className="flex items-start gap-2">
+                    <ChevronRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <span>File early to avoid delays</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ChevronRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <span>Use USPS tracking for your I-765</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ChevronRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <span>Keep copies of all documents</span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Pricing Modal */}
+      <PricingModal 
+        open={showPricingModal} 
+        onClose={() => setShowPricingModal(false)} 
+      />
     </div>
   );
 }

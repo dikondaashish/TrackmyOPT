@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Sparkles, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
 import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
+import { PricingModal } from "@/components/pricing/PricingModal";
 
 interface EmploymentSpan {
   id: string;
@@ -35,8 +36,9 @@ export function StemClockTool() {
     isSyncing: false,
     error: null as string | null,
   });
-  const [userEmail, setUserEmail] = useState("");
   const [isPremium, setIsPremium] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showPricingModal, setShowPricingModal] = useState(false);
 
   useEffect(() => {
     loadSavedData();
@@ -47,29 +49,30 @@ export function StemClockTool() {
   }, [stemStartDate, stemEndDate, priorUnemployment, employmentSpans]);
 
   const loadSavedData = async () => {
+    setIsLoading(true);
     try {
-      const [optRes, profileRes] = await Promise.all([
-        fetch('/api/opt-status', { credentials: 'include' }),
-        fetch('/api/user/profile', { credentials: 'include' }),
+      const [datesRes, premiumRes] = await Promise.all([
+        fetch('/api/opt/calculator', { credentials: 'include', cache: 'no-store' }),
+        fetch('/api/premium/status', { credentials: 'include' }),
       ]);
 
-      if (optRes.ok) {
-        const data = await optRes.json();
-        if (data.status) {
-          if (data.status.stem_start_date) setStemStartDate(formatDateForInput(data.status.stem_start_date));
-          // Assume STEM ends 24 months after start if not stored
+      if (datesRes.ok) {
+        const result = await datesRes.json();
+        if (result.ok && result.data) {
+          if (result.data.stem_start_date) setStemStartDate(result.data.stem_start_date);
         }
       }
 
-      if (profileRes.ok) {
-        const profile = await profileRes.json();
-        setUserEmail(profile.email || '');
-        setIsPremium(profile.is_premium || false);
+      if (premiumRes.ok) {
+        const premiumData = await premiumRes.json();
+        setIsPremium(premiumData.isPremium || false);
       }
 
       setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
     } catch (error) {
       console.error('Failed to load data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -367,13 +370,13 @@ export function StemClockTool() {
             <EmailReminder
               toolType="stem-clock"
               isPremium={isPremium}
+              onUpgradeClick={() => setShowPricingModal(true)}
             />
 
             <SyncStatus
               lastSynced={syncStatus.lastSynced}
               isSyncing={syncStatus.isSyncing}
               error={syncStatus.error}
-              email={userEmail}
               onSync={handleSave}
             />
           </div>
@@ -385,6 +388,12 @@ export function StemClockTool() {
           </div>
         </div>
       </div>
+      
+      {/* Pricing Modal */}
+      <PricingModal 
+        open={showPricingModal} 
+        onClose={() => setShowPricingModal(false)} 
+      />
     </div>
   );
 }
