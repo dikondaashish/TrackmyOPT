@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Clock, Timer, FileText, Info, Sparkles, ChevronRight, Target } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Clock, Timer, FileText, Info, Sparkles, ChevronRight, Target, ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
@@ -33,6 +33,7 @@ export function OptClockTool() {
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showEmploymentHistory, setShowEmploymentHistory] = useState(false);
 
   useEffect(() => {
     loadSavedData();
@@ -84,13 +85,14 @@ export function OptClockTool() {
 
       if (spansRes.ok) {
         const data = await spansRes.json();
-        if (data.spans) {
+        if (data.spans && data.spans.length > 0) {
           setEmploymentSpans(data.spans.map((s: any) => ({
             id: s.id,
             start_date: s.start_date ? formatDateForInput(s.start_date) : '',
             end_date: s.end_date ? formatDateForInput(s.end_date) : null,
             employer_name: s.employer_name || '',
           })));
+          setShowEmploymentHistory(true); // Auto-expand if there are existing jobs
         }
       }
 
@@ -172,6 +174,7 @@ export function OptClockTool() {
       end_date: null,
       employer_name: "",
     }]);
+    setShowEmploymentHistory(true); // Expand when adding a job
   };
 
   const updateSpan = (id: string, field: keyof EmploymentSpan, value: string | null) => {
@@ -189,8 +192,8 @@ export function OptClockTool() {
     setSaveSuccess(false);
 
     try {
-      // Use the same API as OPT Dates page for perfect sync
-      const response = await fetch('/api/opt/calculator', {
+      // Save dates to OPT calculator API
+      const datesResponse = await fetch('/api/opt/calculator', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -200,9 +203,35 @@ export function OptClockTool() {
         }),
       });
 
-      if (response.ok) {
+      // Save employment spans to Supabase
+      const spansResponse = await fetch('/api/employment-spans', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          spans: employmentSpans.map(span => ({
+            id: span.id.startsWith('temp-') ? undefined : span.id,
+            start_date: span.start_date,
+            end_date: span.end_date,
+            employer_name: span.employer_name,
+            type: 'opt'
+          }))
+        }),
+      });
+
+      if (datesResponse.ok && spansResponse.ok) {
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
+        // Reload to get the saved IDs
+        const spansData = await spansResponse.json();
+        if (spansData.spans) {
+          setEmploymentSpans(spansData.spans.map((s: any) => ({
+            id: s.id,
+            start_date: s.start_date ? formatDateForInput(s.start_date) : '',
+            end_date: s.end_date ? formatDateForInput(s.end_date) : null,
+            employer_name: s.employer_name || '',
+          })));
+        }
       } else {
         alert('Failed to save. Please try again.');
       }
@@ -334,82 +363,6 @@ export function OptClockTool() {
               </div>
             </div>
 
-            {/* Employment History */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
-              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                      <Briefcase className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Employment History</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Add your jobs to calculate unemployment</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={addEmploymentSpan}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl shadow-lg shadow-amber-500/25 transition-all"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Job
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-6">
-
-                {employmentSpans.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                      <Briefcase className="w-8 h-8 opacity-50" />
-                    </div>
-                    <p className="font-medium text-gray-900 dark:text-white">No employment periods added</p>
-                    <p className="text-sm mt-1">Add your jobs to calculate unemployment days</p>
-                  </div>
-                ) : (
-                <div className="space-y-4">
-                  {employmentSpans.map((span, index) => (
-                    <div key={span.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="font-medium text-gray-900 dark:text-white">Job #{index + 1}</span>
-                        <button
-                          onClick={() => removeSpan(span.id)}
-                          className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-600 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employer</label>
-                          <input
-                            type="text"
-                            value={span.employer_name}
-                            onChange={(e) => updateSpan(span.id, 'employer_name', e.target.value)}
-                            placeholder="Company name"
-                            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-                          />
-                        </div>
-                        <DateInput
-                          label="Start Date"
-                          value={span.start_date}
-                          onChange={(v) => updateSpan(span.id, 'start_date', v)}
-                        />
-                        <DateInput
-                          label="End Date"
-                          value={span.end_date || ''}
-                          onChange={(v) => updateSpan(span.id, 'end_date', v || null)}
-                          description="Leave blank if current"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                )}
-              </div>
-            </div>
-
             {/* Results - Unemployment Status with Ticking Clock */}
             {results && (
               <div className="space-y-6">
@@ -457,6 +410,91 @@ export function OptClockTool() {
                 </div>
               </div>
             )}
+
+            {/* Employment History - Collapsible */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => setShowEmploymentHistory(!showEmploymentHistory)}
+                    className="flex items-center gap-3 flex-1"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div className="text-left">
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Employment History</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {employmentSpans.length > 0 ? `${employmentSpans.length} job${employmentSpans.length > 1 ? 's' : ''} added` : 'Click to add jobs'}
+                      </p>
+                    </div>
+                    <div className="ml-auto mr-4">
+                      {showEmploymentHistory ? (
+                        <ChevronUp className="w-5 h-5 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      )}
+                    </div>
+                  </button>
+                  <button
+                    onClick={addEmploymentSpan}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl shadow-lg shadow-amber-500/25 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Job
+                  </button>
+                </div>
+              </div>
+              
+              {showEmploymentHistory && (
+                <div className="p-6">
+                  {employmentSpans.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">Click "Add Job" to track your employment periods</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {employmentSpans.map((span, index) => (
+                        <div key={span.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="font-medium text-gray-900 dark:text-white">Job #{index + 1}</span>
+                            <button
+                              onClick={() => removeSpan(span.id)}
+                              className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-600 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employer</label>
+                              <input
+                                type="text"
+                                value={span.employer_name}
+                                onChange={(e) => updateSpan(span.id, 'employer_name', e.target.value)}
+                                placeholder="Company name"
+                                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                              />
+                            </div>
+                            <DateInput
+                              label="Start Date"
+                              value={span.start_date}
+                              onChange={(v) => updateSpan(span.id, 'start_date', v)}
+                            />
+                            <DateInput
+                              label="End Date"
+                              value={span.end_date || ''}
+                              onChange={(v) => updateSpan(span.id, 'end_date', v || null)}
+                              description="Leave blank if current"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Email Reminders */}
             <EmailReminder

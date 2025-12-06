@@ -59,15 +59,13 @@ export function UnemploymentClock({
   const isCritical = remaining <= 10;
   const StatusIcon = isCritical ? AlertTriangle : isUrgent ? TrendingDown : CheckCircle2;
   
-  // Dynamic gradient based on status
-  const statusGradient = isCritical 
-    ? 'from-red-600 via-rose-600 to-pink-600'
-    : isUrgent 
-    ? 'from-amber-500 via-orange-500 to-red-500'
-    : 'from-emerald-500 via-green-500 to-teal-500';
+  // Use consistent amber/orange gradient for OPT, purple/violet for STEM
+  const baseGradient = type === 'opt' 
+    ? 'from-amber-500 via-orange-500 to-orange-600'
+    : 'from-purple-500 via-violet-500 to-violet-600';
 
   return (
-    <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${statusGradient} p-8 shadow-2xl`}>
+    <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${baseGradient} p-8 shadow-2xl`}>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-48 translate-x-48 animate-pulse"></div>
@@ -167,7 +165,7 @@ export function UnemploymentClock({
   );
 }
 
-// Compact version for sidebar
+// Compact version for sidebar with action items
 export function UnemploymentClockCompact({ 
   daysUsed, 
   maxDays,
@@ -200,11 +198,54 @@ export function UnemploymentClockCompact({
     return <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse"></div>;
   }
 
-  const gradient = isCritical 
-    ? 'from-red-600 to-rose-600'
-    : isUrgent 
+  // Use consistent amber/orange gradient for OPT, purple/violet for STEM
+  const gradient = type === 'opt' 
     ? 'from-amber-500 to-orange-500'
-    : 'from-emerald-500 to-teal-500';
+    : 'from-purple-500 to-violet-500';
+
+  // Get action items based on days remaining
+  const getActionItems = () => {
+    if (type === 'opt') {
+      if (isCritical) return [
+        "⚠️ URGENT - Find a job NOW!",
+        "📞 Contact DSO immediately",
+        "💼 Apply to any OPT-eligible job"
+      ];
+      if (isUrgent) return [
+        "🚀 Actively apply for jobs!",
+        "📝 Update resume & LinkedIn",
+        "💼 Network and reach out to employers"
+      ];
+      if (remaining <= 60) return [
+        "💼 Keep job searching active",
+        "📋 Track your applications",
+        "🔍 Apply for internships too"
+      ];
+      return [
+        "✅ Great! Keep employed",
+        "📊 Track employment gaps",
+        "💼 Maintain job records"
+      ];
+    }
+    // STEM type
+    if (isCritical) return [
+      "⚠️ 150-day limit critical!",
+      "💼 Secure employment ASAP",
+      "📞 Contact DSO for options"
+    ];
+    if (isUrgent) return [
+      "🚀 Find employment quickly!",
+      "📝 Apply to multiple jobs",
+      "💼 Consider contract work"
+    ];
+    return [
+      "✅ Track aggregate days",
+      "💼 Maintain employment",
+      "📊 Report changes to DSO"
+    ];
+  };
+
+  const actionItems = getActionItems();
 
   return (
     <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-5 shadow-lg`}>
@@ -216,17 +257,36 @@ export function UnemploymentClockCompact({
           <span className="text-sm font-medium text-white/80">{title}</span>
         </div>
         
-        <div className="flex items-baseline gap-2 text-white mb-2">
+        <div className="flex items-baseline gap-2 text-white mb-3">
           <span className="text-4xl font-bold tabular-nums">{remaining}</span>
           <span className="text-sm opacity-70">days left</span>
         </div>
         
-        <div className="flex items-center gap-1 text-white/70 text-sm">
+        {/* Status Badge */}
+        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mb-3 ${
+          isCritical ? 'bg-red-500/30 text-red-100' :
+          isUrgent ? 'bg-amber-900/30 text-amber-100' :
+          'bg-white/20 text-white'
+        }`}>
+          {isCritical ? <AlertTriangle className="w-3 h-3" /> : isUrgent ? <TrendingDown className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+          {isCritical ? 'Critical!' : isUrgent ? 'Act Now!' : 'On Track'}
+        </div>
+        
+        {/* Live Clock */}
+        <div className="flex items-center gap-1 text-white/70 text-sm mb-3">
           <span className="tabular-nums">{String(time.hours).padStart(2, '0')}</span>
           <span className="animate-pulse">:</span>
           <span className="tabular-nums">{String(time.minutes).padStart(2, '0')}</span>
           <span className="animate-pulse">:</span>
           <span className="tabular-nums animate-pulse">{String(time.seconds).padStart(2, '0')}</span>
+        </div>
+
+        {/* Action Items */}
+        <div className="space-y-1.5 pt-3 border-t border-white/20">
+          <p className="text-xs text-white/60 uppercase tracking-wider mb-2">Next Steps</p>
+          {actionItems.map((item, index) => (
+            <p key={index} className="text-xs text-white/90">{item}</p>
+          ))}
         </div>
       </div>
     </div>
