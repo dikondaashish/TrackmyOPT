@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { createPortal } from "react-dom";
 
 interface DateInputProps {
   label: string;
@@ -102,17 +103,52 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
 
 export function DateInput({ label, value, onChange, description, error, required }: DateInputProps) {
   const [showCalendar, setShowCalendar] = useState(false);
+  const [calendarPosition, setCalendarPosition] = useState({ top: 0, left: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current && 
+        !containerRef.current.contains(event.target as Node) &&
+        calendarRef.current &&
+        !calendarRef.current.contains(event.target as Node)
+      ) {
         setShowCalendar(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (showCalendar && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const calendarWidth = 288; // w-72 = 18rem = 288px
+      const calendarHeight = 320; // approximate height
+      
+      let left = rect.right - calendarWidth;
+      let top = rect.bottom + 8;
+      
+      // Adjust if calendar would go off screen
+      if (left < 8) left = 8;
+      if (left + calendarWidth > window.innerWidth - 8) {
+        left = window.innerWidth - calendarWidth - 8;
+      }
+      if (top + calendarHeight > window.innerHeight - 8) {
+        top = rect.top - calendarHeight - 8;
+      }
+      
+      setCalendarPosition({ top, left });
+    }
+  }, [showCalendar]);
 
   return (
     <div ref={containerRef} className="space-y-2">
@@ -140,14 +176,19 @@ export function DateInput({ label, value, onChange, description, error, required
           `}
         />
         <button
+          ref={buttonRef}
           type="button"
           onClick={() => setShowCalendar(!showCalendar)}
           className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
         >
           <Calendar className="w-5 h-5 text-gray-500" />
         </button>
-        {showCalendar && (
-          <div className="absolute top-full mt-2 z-50 right-0">
+        {showCalendar && mounted && createPortal(
+          <div 
+            ref={calendarRef}
+            className="fixed z-[9999]"
+            style={{ top: calendarPosition.top, left: calendarPosition.left }}
+          >
             <DatePicker 
               value={value} 
               onSelect={(date) => {
@@ -155,7 +196,8 @@ export function DateInput({ label, value, onChange, description, error, required
                 setShowCalendar(false);
               }} 
             />
-          </div>
+          </div>,
+          document.body
         )}
       </div>
       {error && <p className="text-xs text-red-500">{error}</p>}
