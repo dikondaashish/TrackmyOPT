@@ -34,9 +34,18 @@ export function TickingClock({
     setMounted(true);
     
     const calculateTimeLeft = () => {
-      const now = new Date().getTime();
-      const target = targetDate.getTime();
-      const difference = target - now;
+      // Use Eastern Time for all OPT calculations
+      const now = new Date();
+      const etOptions = { timeZone: 'America/New_York' };
+      
+      // Get current time in ET
+      const nowET = new Date(now.toLocaleString('en-US', etOptions));
+      
+      // Target date at end of day in ET (11:59:59 PM)
+      const targetET = new Date(targetDate.toLocaleString('en-US', etOptions));
+      targetET.setHours(23, 59, 59, 999);
+      
+      const difference = targetET.getTime() - nowET.getTime();
       
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
@@ -196,9 +205,18 @@ export function TickingClockCompact({
     setMounted(true);
     
     const calculateTimeLeft = () => {
-      const now = new Date().getTime();
-      const target = targetDate.getTime();
-      const difference = target - now;
+      // Use Eastern Time for all OPT calculations
+      const now = new Date();
+      const etOptions = { timeZone: 'America/New_York' };
+      
+      // Get current time in ET
+      const nowET = new Date(now.toLocaleString('en-US', etOptions));
+      
+      // Target date at end of day in ET (11:59:59 PM)
+      const targetET = new Date(targetDate.toLocaleString('en-US', etOptions));
+      targetET.setHours(23, 59, 59, 999);
+      
+      const difference = targetET.getTime() - nowET.getTime();
       
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));

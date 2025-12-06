@@ -20,7 +20,7 @@ export function UnemploymentClock({
   gradient = 'from-amber-500 via-orange-500 to-red-500',
   type = 'opt'
 }: UnemploymentClockProps) {
-  const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [mounted, setMounted] = useState(false);
   
   const remaining = Math.max(0, maxDays - daysUsed);
@@ -29,18 +29,31 @@ export function UnemploymentClock({
   useEffect(() => {
     setMounted(true);
     
-    // Just update time every second to show live ticking
-    const updateTime = () => {
+    // Countdown until end of day in Eastern Time
+    const updateCountdown = () => {
+      // Get current time in Eastern Time
       const now = new Date();
-      setTime({
-        hours: now.getHours(),
-        minutes: now.getMinutes(),
-        seconds: now.getSeconds()
+      const etOptions = { timeZone: 'America/New_York' };
+      const etTimeStr = now.toLocaleString('en-US', { ...etOptions, hour12: false });
+      const etParts = etTimeStr.split(', ')[1].split(':');
+      const etHours = parseInt(etParts[0]);
+      const etMinutes = parseInt(etParts[1]);
+      const etSeconds = parseInt(etParts[2]);
+      
+      // Calculate time remaining until midnight ET
+      const hoursLeft = 23 - etHours;
+      const minutesLeft = 59 - etMinutes;
+      const secondsLeft = 59 - etSeconds;
+      
+      setCountdown({
+        hours: hoursLeft,
+        minutes: minutesLeft,
+        seconds: secondsLeft
       });
     };
     
-    updateTime();
-    const timer = setInterval(updateTime, 1000);
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -119,16 +132,16 @@ export function UnemploymentClock({
             <div className="text-sm text-white/80 mt-2 uppercase tracking-wider">Days Left</div>
           </div>
           
-          {/* Live Clock */}
+          {/* Countdown Timer - Time left today (ET) */}
           <div className="text-center p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
             <div className="flex items-center justify-center gap-1 text-white">
-              <span className="text-4xl sm:text-5xl font-bold tabular-nums">{String(time.hours).padStart(2, '0')}</span>
+              <span className="text-4xl sm:text-5xl font-bold tabular-nums">{String(countdown.hours).padStart(2, '0')}</span>
               <span className="text-3xl font-bold animate-pulse">:</span>
-              <span className="text-4xl sm:text-5xl font-bold tabular-nums">{String(time.minutes).padStart(2, '0')}</span>
+              <span className="text-4xl sm:text-5xl font-bold tabular-nums">{String(countdown.minutes).padStart(2, '0')}</span>
               <span className="text-3xl font-bold animate-pulse">:</span>
-              <span className="text-3xl font-bold tabular-nums animate-pulse">{String(time.seconds).padStart(2, '0')}</span>
+              <span className="text-3xl font-bold tabular-nums animate-pulse">{String(countdown.seconds).padStart(2, '0')}</span>
             </div>
-            <div className="text-sm text-white/80 mt-2 uppercase tracking-wider">Live Clock</div>
+            <div className="text-sm text-white/80 mt-2 uppercase tracking-wider">Time Left Today (ET)</div>
           </div>
         </div>
 
@@ -172,7 +185,7 @@ export function UnemploymentClockCompact({
   title,
   type = 'opt'
 }: Omit<UnemploymentClockProps, 'subtitle' | 'gradient'>) {
-  const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [mounted, setMounted] = useState(false);
   
   const remaining = Math.max(0, maxDays - daysUsed);
@@ -181,16 +194,24 @@ export function UnemploymentClockCompact({
 
   useEffect(() => {
     setMounted(true);
-    const updateTime = () => {
+    // Countdown until end of day in Eastern Time
+    const updateCountdown = () => {
       const now = new Date();
-      setTime({
-        hours: now.getHours(),
-        minutes: now.getMinutes(),
-        seconds: now.getSeconds()
+      const etOptions = { timeZone: 'America/New_York' };
+      const etTimeStr = now.toLocaleString('en-US', { ...etOptions, hour12: false });
+      const etParts = etTimeStr.split(', ')[1].split(':');
+      const etHours = parseInt(etParts[0]);
+      const etMinutes = parseInt(etParts[1]);
+      const etSeconds = parseInt(etParts[2]);
+      
+      setCountdown({
+        hours: 23 - etHours,
+        minutes: 59 - etMinutes,
+        seconds: 59 - etSeconds
       });
     };
-    updateTime();
-    const timer = setInterval(updateTime, 1000);
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -272,13 +293,14 @@ export function UnemploymentClockCompact({
           {isCritical ? 'Critical!' : isUrgent ? 'Act Now!' : 'On Track'}
         </div>
         
-        {/* Live Clock */}
+        {/* Countdown Timer (ET) */}
         <div className="flex items-center gap-1 text-white/70 text-sm mb-3">
-          <span className="tabular-nums">{String(time.hours).padStart(2, '0')}</span>
+          <span className="tabular-nums">{String(countdown.hours).padStart(2, '0')}</span>
           <span className="animate-pulse">:</span>
-          <span className="tabular-nums">{String(time.minutes).padStart(2, '0')}</span>
+          <span className="tabular-nums">{String(countdown.minutes).padStart(2, '0')}</span>
           <span className="animate-pulse">:</span>
-          <span className="tabular-nums animate-pulse">{String(time.seconds).padStart(2, '0')}</span>
+          <span className="tabular-nums animate-pulse">{String(countdown.seconds).padStart(2, '0')}</span>
+          <span className="text-xs ml-1 opacity-60">left today</span>
         </div>
 
         {/* Action Items */}
