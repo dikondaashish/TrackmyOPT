@@ -5,6 +5,7 @@ export { LiveStatsWidget } from './LiveStatsWidget';
 export { SyncStatus } from './SyncStatus';
 export { DateInput } from './DateInput';
 export { ResultCard, CountdownCard, ProgressBar } from './ResultCard';
+export { EmailReminder } from './EmailReminder';
 
 // Tool Components
 export { OptApplyTool } from './tools/OptApplyTool';

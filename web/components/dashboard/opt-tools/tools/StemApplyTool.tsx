@@ -7,6 +7,7 @@ import { DateInput } from "../DateInput";
 import { ResultCard, CountdownCard } from "../ResultCard";
 import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
+import { EmailReminder } from "../EmailReminder";
 
 export function StemApplyTool() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export function StemApplyTool() {
     error: null as string | null,
   });
   const [userEmail, setUserEmail] = useState("");
+  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
     loadSavedData();
@@ -50,6 +52,7 @@ export function StemApplyTool() {
       if (profileRes.ok) {
         const profile = await profileRes.json();
         setUserEmail(profile.email || '');
+        setIsPremium(profile.is_premium || false);
       }
 
       setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
@@ -234,6 +237,12 @@ export function StemApplyTool() {
               </div>
             )}
 
+            {/* Email Reminders */}
+            <EmailReminder
+              toolType="stem-apply"
+              isPremium={isPremium}
+            />
+
             <SyncStatus
               lastSynced={syncStatus.lastSynced}
               isSyncing={syncStatus.isSyncing}
@@ -245,7 +254,7 @@ export function StemApplyTool() {
 
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              <LiveStatsWidget />
+              <LiveStatsWidget toolType="stem-apply" />
             </div>
           </div>
         </div>

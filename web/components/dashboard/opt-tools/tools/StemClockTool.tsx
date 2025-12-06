@@ -7,6 +7,7 @@ import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
 import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
+import { EmailReminder } from "../EmailReminder";
 
 interface EmploymentSpan {
   id: string;
@@ -35,6 +36,7 @@ export function StemClockTool() {
     error: null as string | null,
   });
   const [userEmail, setUserEmail] = useState("");
+  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
     loadSavedData();
@@ -62,6 +64,7 @@ export function StemClockTool() {
       if (profileRes.ok) {
         const profile = await profileRes.json();
         setUserEmail(profile.email || '');
+        setIsPremium(profile.is_premium || false);
       }
 
       setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
@@ -360,6 +363,12 @@ export function StemClockTool() {
               </div>
             )}
 
+            {/* Email Reminders */}
+            <EmailReminder
+              toolType="stem-clock"
+              isPremium={isPremium}
+            />
+
             <SyncStatus
               lastSynced={syncStatus.lastSynced}
               isSyncing={syncStatus.isSyncing}
@@ -371,7 +380,7 @@ export function StemClockTool() {
 
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              <LiveStatsWidget />
+              <LiveStatsWidget toolType="stem-clock" />
             </div>
           </div>
         </div>

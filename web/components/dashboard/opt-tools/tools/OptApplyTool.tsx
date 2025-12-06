@@ -7,6 +7,7 @@ import { DateInput } from "../DateInput";
 import { ResultCard, CountdownCard } from "../ResultCard";
 import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
+import { EmailReminder } from "../EmailReminder";
 
 interface CalculatedDates {
   earliestFile: Date;
@@ -28,6 +29,7 @@ export function OptApplyTool() {
     error: null as string | null,
   });
   const [userEmail, setUserEmail] = useState("");
+  const [isPremium, setIsPremium] = useState(false);
 
   // Load saved data on mount
   useEffect(() => {
@@ -57,11 +59,12 @@ export function OptApplyTool() {
         setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
       }
       
-      // Get user email
+      // Get user email and premium status
       const profileRes = await fetch('/api/user/profile', { credentials: 'include' });
       if (profileRes.ok) {
         const profile = await profileRes.json();
         setUserEmail(profile.email || '');
+        setIsPremium(profile.is_premium || false);
       }
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -271,6 +274,12 @@ export function OptApplyTool() {
               </div>
             )}
 
+            {/* Email Reminders */}
+            <EmailReminder
+              toolType="opt-apply"
+              isPremium={isPremium}
+            />
+
             {/* Sync Status */}
             <SyncStatus
               lastSynced={syncStatus.lastSynced}
@@ -284,7 +293,7 @@ export function OptApplyTool() {
           {/* Right Sidebar - Live Stats */}
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              <LiveStatsWidget />
+              <LiveStatsWidget toolType="opt-apply" />
             </div>
           </div>
         </div>
