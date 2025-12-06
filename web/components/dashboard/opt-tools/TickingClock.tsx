@@ -73,14 +73,14 @@ export function TickingClock({
 
   const StatusIcon = isPassed ? CheckCircle2 : isCritical ? AlertTriangle : Clock;
 
-  // Dynamic message based on time remaining
+  // Dynamic message based on time remaining - always encourage early filing
   const getTimelineMessage = () => {
-    if (isPassed) return { icon: CheckCircle2, message: "Deadline has passed. Check your application status.", color: "text-green-200" };
-    if (isCritical) return { icon: Zap, message: "⚡ Hurry up! Time is running out. Submit your application immediately!", color: "text-red-200" };
-    if (isUrgent) return { icon: Rocket, message: "🚀 Act fast! You should finalize and submit your documents soon.", color: "text-amber-200" };
-    if (timeLeft.days <= 30) return { icon: FileText, message: "📋 Good pace! Start gathering your documents and prepare for submission.", color: "text-blue-200" };
-    if (timeLeft.days <= 60) return { icon: Coffee, message: "☕ You have time. Begin organizing your documents at a comfortable pace.", color: "text-white/80" };
-    return { icon: CheckSquare, message: "✨ Plenty of time! Plan ahead and gather all required documents systematically.", color: "text-white/70" };
+    if (isPassed) return { icon: CheckCircle2, message: "Deadline has passed. Check your application status on USCIS.", color: "text-green-200" };
+    if (isCritical) return { icon: Zap, message: "⚡ URGENT! Submit your application TODAY! You're at risk of missing the deadline!", color: "text-red-200" };
+    if (isUrgent) return { icon: Rocket, message: "🚀 Time is running short! Submit now to avoid last-minute issues. USCIS processing takes 3-6 months!", color: "text-amber-200" };
+    if (timeLeft.days <= 30) return { icon: FileText, message: "📋 Apply soon! Early filers get processed faster. Don't wait - USCIS queues are long!", color: "text-blue-200" };
+    if (timeLeft.days <= 60) return { icon: Rocket, message: "🚀 Great time to apply! Submit early to skip the long USCIS queue. Processing takes months!", color: "text-white/80" };
+    return { icon: CheckSquare, message: "✨ Perfect time to file early! Beat the rush - early applicants avoid delays and long wait times!", color: "text-white/70" };
   };
 
   const timelineInfo = getTimelineMessage();
@@ -230,32 +230,32 @@ export function TickingClockCompact({
   const getActionItems = () => {
     if (isPassed) return [];
     
-    // OPT Apply specific action items
+    // OPT Apply specific action items - always encourage early filing
     if (toolType === 'opt-apply') {
       if (isCritical) return [
-        "⚡ Submit to USCIS TODAY!",
-        "📋 I-765 form completed?",
-        "📞 Contact DSO immediately"
+        "⚡ SUBMIT TO USCIS TODAY!",
+        "📋 Double-check I-765 form",
+        "📞 Contact DSO if not ready"
       ];
       if (isUrgent) return [
-        "🚀 Apply ASAP - most approvals come from early filers!",
-        "📄 I-20 with OPT recommendation",
-        "📸 2 passport-style photos ready"
+        "🚀 Submit NOW - don't delay!",
+        "✅ I-20 with OPT endorsement ready?",
+        "📸 USCIS-size photos (2x2 inches)"
       ];
       if (timeLeft.days <= 30) return [
-        "📋 Gather: I-20, I-765, passport photos",
-        "💳 Prepare $410 filing fee",
-        "🔍 Check USCIS processing times"
+        "🚀 Apply NOW - beat the queue!",
+        "📄 Get I-20 endorsed by DSO",
+        "💳 Prepare $410 filing fee"
       ];
       if (timeLeft.days <= 60) return [
-        "📝 Request OPT recommendation from DSO",
-        "📸 Get passport-style photos taken",
-        "📖 Review I-765 instructions"
+        "⭐ Apply early - avoid 3-6 month delays!",
+        "📄 Request I-20 from DSO today",
+        "📸 Get 2x2 inch passport photos"
       ];
       return [
-        "📅 Plan your OPT timeline",
-        "📋 Create document checklist",
-        "🔍 Check USCIS.gov for updates"
+        "🚀 File early - skip the long queue!",
+        "📄 Request I-20 from DSO ASAP",
+        "📖 Review I-765 form instructions"
       ];
     }
     
