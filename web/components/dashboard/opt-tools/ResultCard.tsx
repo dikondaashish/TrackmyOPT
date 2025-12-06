@@ -1,0 +1,108 @@
+"use client";
+
+interface ResultCardProps {
+  icon: string;
+  label: string;
+  value: string;
+  subtext?: string;
+  status?: 'ok' | 'warning' | 'critical';
+  large?: boolean;
+}
+
+export function ResultCard({ icon, label, value, subtext, status, large }: ResultCardProps) {
+  const statusStyles = {
+    ok: 'border-green-500 bg-green-50 dark:bg-green-900/20',
+    warning: 'border-amber-500 bg-amber-50 dark:bg-amber-900/20',
+    critical: 'border-red-500 bg-red-50 dark:bg-red-900/20',
+  };
+
+  const defaultStyle = 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800';
+
+  return (
+    <div className={`
+      p-4 rounded-xl border-2 transition-all
+      ${status ? statusStyles[status] : defaultStyle}
+      ${large ? 'col-span-full' : ''}
+    `}>
+      <div className="flex items-center gap-2 mb-2">
+        <span className={large ? 'text-3xl' : 'text-2xl'}>{icon}</span>
+        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}</span>
+      </div>
+      <p className={`font-bold text-gray-900 dark:text-white ${large ? 'text-3xl' : 'text-lg'}`}>
+        {value}
+      </p>
+      {subtext && (
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtext}</p>
+      )}
+    </div>
+  );
+}
+
+interface CountdownCardProps {
+  days: number;
+  label: string;
+  deadline: string;
+}
+
+export function CountdownCard({ days, label, deadline }: CountdownCardProps) {
+  const getStatus = () => {
+    if (days <= 7) return 'critical';
+    if (days <= 30) return 'warning';
+    return 'ok';
+  };
+
+  const statusColors = {
+    ok: 'from-green-500 to-emerald-600',
+    warning: 'from-amber-500 to-orange-500',
+    critical: 'from-red-500 to-rose-600',
+  };
+
+  const status = getStatus();
+
+  return (
+    <div className={`
+      p-6 rounded-2xl bg-gradient-to-br ${statusColors[status]} text-white text-center
+      shadow-lg
+    `}>
+      <p className="text-sm font-medium opacity-90 mb-2">{label}</p>
+      <div className="flex items-baseline justify-center gap-2">
+        <span className="text-5xl font-bold">{days}</span>
+        <span className="text-xl opacity-80">days</span>
+      </div>
+      <p className="text-sm opacity-80 mt-2">{deadline}</p>
+    </div>
+  );
+}
+
+interface ProgressBarProps {
+  used: number;
+  max: number;
+  label?: string;
+}
+
+export function ProgressBar({ used, max, label }: ProgressBarProps) {
+  const percentage = Math.min(100, (used / max) * 100);
+  
+  const getColor = () => {
+    if (percentage >= 89) return 'bg-red-500';
+    if (percentage >= 67) return 'bg-amber-500';
+    return 'bg-green-500';
+  };
+
+  return (
+    <div className="space-y-2">
+      {label && (
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600 dark:text-gray-400">{label}</span>
+          <span className="font-medium text-gray-900 dark:text-white">{used} / {max} days</span>
+        </div>
+      )}
+      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div 
+          className={`h-full ${getColor()} transition-all duration-500 ease-out rounded-full`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
+}
