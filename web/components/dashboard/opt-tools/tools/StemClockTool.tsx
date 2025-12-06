@@ -287,6 +287,35 @@ export function StemClockTool() {
               </div>
             </div>
 
+            {/* Prior Unemployment */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <Info className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Prior OPT Unemployment</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Days accumulated during initial OPT</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="max-w-xs">
+                  <input
+                    type="number"
+                    value={priorUnemployment}
+                    onChange={(e) => setPriorUnemployment(e.target.value)}
+                    min="0"
+                    max="90"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-lg font-medium focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Max 90 days from initial OPT period</p>
+                </div>
+              </div>
+            </div>
+
             {/* Employment History */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
               <div className="p-6 border-b border-gray-100 dark:border-gray-800">
