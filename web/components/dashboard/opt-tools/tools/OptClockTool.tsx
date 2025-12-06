@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Clock, Sparkles, ChevronRight } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Clock, Timer, FileText, Info, Sparkles, ChevronRight, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
@@ -195,42 +195,98 @@ export function OptClockTool() {
     return 'ok';
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50/30 to-orange-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded-xl w-64"></div>
+            <div className="h-48 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+            <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50/30 to-orange-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => router.push('/dashboard/opt-tools')}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">OPT Clock Tracker</h1>
-            <p className="text-gray-600 dark:text-gray-400">Track your 90-day unemployment limit</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push('/dashboard/opt-tools')}
+              className="p-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
+                  <Timer className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">OPT Clock Tracker</h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Track your 90-day unemployment limit</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={handleSave}
+              disabled={isSaving || !optStartDate}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-amber-500/25 transition-all duration-200"
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Warning Card */}
-            <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-              <div className="flex gap-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-amber-900 dark:text-amber-100">90-Day Unemployment Limit</p>
-                  <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                    During post-completion OPT, you cannot be unemployed for more than 90 days total.
-                  </p>
+            {/* Info Banner */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-white shadow-xl shadow-amber-500/20">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-16"></div>
+              <div className="relative z-10">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold mb-2">90-Day Unemployment Limit</h2>
+                    <p className="text-amber-100 leading-relaxed">
+                      During post-completion OPT, you cannot be unemployed for more than <span className="font-semibold text-white">90 days total</span>. 
+                      Track all your employment periods carefully to stay in compliance with USCIS regulations.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* OPT Period */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">OPT Period</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* OPT Period - Date Input Form */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your OPT Period</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Enter dates from your EAD card</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <DateInput
                   label="OPT Start Date"
                   value={optStartDate}
@@ -245,29 +301,44 @@ export function OptClockTool() {
                   description="From your EAD card"
                   required
                 />
+                </div>
               </div>
             </div>
 
-            {/* Employment Spans */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Employment History</h2>
-                <button
-                  onClick={addEmploymentSpan}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Job
-                </button>
-              </div>
-
-              {employmentSpans.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Briefcase className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No employment periods added</p>
-                  <p className="text-sm mt-1">Add your jobs to calculate unemployment days</p>
+            {/* Employment History */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Employment History</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Add your jobs to calculate unemployment</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={addEmploymentSpan}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl shadow-lg shadow-amber-500/25 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Job
+                  </button>
                 </div>
-              ) : (
+              </div>
+              
+              <div className="p-6">
+
+                {employmentSpans.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                      <Briefcase className="w-8 h-8 opacity-50" />
+                    </div>
+                    <p className="font-medium text-gray-900 dark:text-white">No employment periods added</p>
+                    <p className="text-sm mt-1">Add your jobs to calculate unemployment days</p>
+                  </div>
+                ) : (
                 <div className="space-y-4">
                   {employmentSpans.map((span, index) => (
                     <div key={span.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -306,58 +377,62 @@ export function OptClockTool() {
                     </div>
                   ))}
                 </div>
-              )}
+                )}
 
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-xl transition-colors"
-                >
-                  <Save className="w-4 h-4" />
-                  {isSaving ? 'Saving...' : 'Save & Sync'}
-                </button>
+                {/* Mobile Save Button */}
+                <div className="sm:hidden mt-6">
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving || !optStartDate}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg transition-all duration-200"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Results - Unemployment Clock with Live Ticking */}
+            {/* Results - Unemployment Status with Ticking Clock */}
             {results && (
               <div className="space-y-6">
                 {/* Live Unemployment Clock */}
                 <UnemploymentClock
                   daysUsed={results.used}
                   maxDays={results.max}
-                  title="OPT Unemployment Tracker"
-                  subtitle="90-day limit for Post-Completion OPT"
+                  title="Time Remaining"
+                  subtitle="90-day unemployment limit for Post-Completion OPT"
                   type="opt"
                 />
 
-                {/* Detailed Stats */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-1">
+                {/* Key Stats Grid */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-1">
                   <div className="bg-white dark:bg-gray-900 rounded-[22px] p-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
-                        <Clock className="w-5 h-5 text-white" />
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                        <Target className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Unemployment Details</h2>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Your Unemployment Status</h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Track your 90-day limit</p>
                       </div>
                     </div>
                     
                     <ProgressBar used={results.used} max={results.max} label="Unemployment Days Used" />
                     
-                    <div className="grid grid-cols-2 gap-4 mt-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                       <ResultCard
                         icon="⏱️"
                         label="Days Used"
                         value={`${results.used} days`}
+                        subtext="Total unemployment accumulated"
                         status={getStatus(results.used, results.max)}
                       />
                       <ResultCard
                         icon="✅"
                         label="Days Remaining"
                         value={`${results.remaining} days`}
+                        subtext="Stay employed to maintain status"
                         status={results.remaining <= 10 ? 'critical' : results.remaining <= 30 ? 'warning' : 'ok'}
                       />
                     </div>

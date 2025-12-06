@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Info, Save, Shield, GraduationCap, Sparkles, ChevronRight } from "lucide-react";
+import { ArrowLeft, Info, Save, Shield, GraduationCap, Sparkles, ChevronRight, FileText, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard } from "../ResultCard";
@@ -143,56 +143,118 @@ export function StemApplyTool() {
     }
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded-xl w-64"></div>
+            <div className="h-48 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+            <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => router.push('/dashboard/opt-tools')}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">STEM OPT Apply Dates</h1>
-            <p className="text-gray-600 dark:text-gray-400">Calculate your STEM extension filing window</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push('/dashboard/opt-tools')}
+              className="p-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                  <GraduationCap className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">STEM OPT Apply Dates</h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Calculate your STEM extension filing window</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={handleSave}
+              disabled={isSaving || !optEndDate}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-200"
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-              <div className="flex gap-3">
-                <Info className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-green-900 dark:text-green-100">STEM OPT Extension Rules</p>
-                  <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                    Apply up to 90 days before your current OPT expires. If filed timely, you get automatic 180-day cap-gap work authorization.
-                  </p>
+            {/* Info Banner */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-white shadow-xl shadow-emerald-500/20">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-16"></div>
+              <div className="relative z-10">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                    <Info className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold mb-2">STEM OPT Extension Rules</h2>
+                    <p className="text-emerald-100 leading-relaxed">
+                      Apply up to <span className="font-semibold text-white">90 days before</span> your OPT expires. 
+                      If filed timely, you get automatic <span className="font-semibold text-white">180-day cap-gap</span> work authorization while waiting for approval.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Enter Your OPT End Date</h2>
-              <div className="max-w-md">
-                <DateInput
-                  label="Current OPT EAD End Date"
-                  value={optEndDate}
-                  onChange={setOptEndDate}
-                  description="From your OPT Employment Authorization Document"
-                  required
-                />
+            {/* Date Input Form */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your OPT End Date</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Enter the date from your EAD card</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving || !optEndDate}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium rounded-xl transition-colors"
-                >
-                  <Save className="w-4 h-4" />
-                  {isSaving ? 'Saving...' : 'Save & Sync'}
-                </button>
+              
+              <div className="p-6">
+                <div className="max-w-md">
+                  <DateInput
+                    label="Current OPT EAD End Date"
+                    value={optEndDate}
+                    onChange={setOptEndDate}
+                    description="From your OPT Employment Authorization Document"
+                    required
+                  />
+                </div>
+
+                {/* Mobile Save Button */}
+                <div className="sm:hidden mt-6">
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving || !optEndDate}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg transition-all duration-200"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
               </div>
             </div>
 

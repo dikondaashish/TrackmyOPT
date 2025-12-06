@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Sparkles, ChevronRight } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Sparkles, ChevronRight, FileText, Info, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
@@ -184,40 +184,98 @@ export function StemClockTool() {
     return 'ok';
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-violet-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded-xl w-64"></div>
+            <div className="h-48 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+            <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => router.push('/dashboard/opt-tools')}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">STEM Clock Tracker</h1>
-            <p className="text-gray-600 dark:text-gray-400">Track your 150-day aggregate unemployment limit</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-violet-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push('/dashboard/opt-tools')}
+              className="p-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+                  <Timer className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">STEM Clock Tracker</h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Track your 150-day aggregate unemployment limit</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={handleSave}
+              disabled={isSaving || !stemStartDate}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-purple-500/25 transition-all duration-200"
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
-              <div className="flex gap-3">
-                <AlertTriangle className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-purple-900 dark:text-purple-100">150-Day Aggregate Limit</p>
-                  <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
-                    Your total unemployment (including prior OPT) cannot exceed 150 days aggregate during STEM OPT.
-                  </p>
+            {/* Info Banner */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-500 to-violet-500 p-6 text-white shadow-xl shadow-purple-500/20">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-16"></div>
+              <div className="relative z-10">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold mb-2">150-Day Aggregate Unemployment Limit</h2>
+                    <p className="text-purple-100 leading-relaxed">
+                      Your total unemployment (including prior OPT) cannot exceed <span className="font-semibold text-white">150 days aggregate</span> during STEM OPT. 
+                      Track all your employment periods carefully to stay in compliance.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* STEM Period */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">STEM OPT Period</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* STEM Period - Date Input Form */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your STEM OPT Period</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Enter dates from your STEM EAD card</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <DateInput
                   label="STEM Start Date"
                   value={stemStartDate}
@@ -232,48 +290,72 @@ export function StemClockTool() {
                   description="From your STEM EAD card"
                   required
                 />
+                </div>
               </div>
             </div>
 
             {/* Prior Unemployment */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Prior OPT Unemployment</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Enter the number of unemployment days you accumulated during your initial OPT period
-              </p>
-              <div className="max-w-xs">
-                <input
-                  type="number"
-                  value={priorUnemployment}
-                  onChange={(e) => setPriorUnemployment(e.target.value)}
-                  min="0"
-                  max="90"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-lg font-medium"
-                />
-                <p className="text-xs text-gray-500 mt-2">Max 90 days from initial OPT</p>
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <Info className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Prior OPT Unemployment</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Days accumulated during initial OPT</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="max-w-xs">
+                  <input
+                    type="number"
+                    value={priorUnemployment}
+                    onChange={(e) => setPriorUnemployment(e.target.value)}
+                    min="0"
+                    max="90"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-lg font-medium focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Max 90 days from initial OPT period</p>
+                </div>
               </div>
             </div>
 
-            {/* Employment Spans */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">STEM Employment History</h2>
-                <button
-                  onClick={addEmploymentSpan}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Job
-                </button>
-              </div>
-
-              {employmentSpans.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Briefcase className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No STEM employment periods added</p>
-                  <p className="text-sm mt-1">Add your STEM OPT jobs to calculate unemployment</p>
+            {/* Employment History */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">STEM Employment History</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Add your STEM OPT jobs</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={addEmploymentSpan}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white rounded-xl shadow-lg shadow-purple-500/25 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Job
+                  </button>
                 </div>
-              ) : (
+              </div>
+              
+              <div className="p-6">
+                {employmentSpans.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                      <Briefcase className="w-8 h-8 opacity-50" />
+                    </div>
+                    <p className="font-medium text-gray-900 dark:text-white">No STEM employment periods added</p>
+                    <p className="text-sm mt-1">Add your STEM OPT jobs to calculate unemployment</p>
+                  </div>
+                ) : (
                 <div className="space-y-4">
                   {employmentSpans.map((span, index) => (
                     <div key={span.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -312,17 +394,19 @@ export function StemClockTool() {
                     </div>
                   ))}
                 </div>
-              )}
+                )}
 
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-medium rounded-xl transition-colors"
-                >
-                  <Save className="w-4 h-4" />
-                  {isSaving ? 'Saving...' : 'Save & Sync'}
-                </button>
+                {/* Mobile Save Button */}
+                <div className="sm:hidden mt-6">
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving || !stemStartDate}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg transition-all duration-200"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -338,15 +422,15 @@ export function StemClockTool() {
                   type="stem"
                 />
 
-                {/* Detailed Stats */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-500 p-1">
+                {/* Key Stats Grid */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-1">
                   <div className="bg-white dark:bg-gray-900 rounded-[22px] p-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center shadow-lg">
-                        <Timer className="w-5 h-5 text-white" />
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                        <Target className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Unemployment Breakdown</h2>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Your Unemployment Status</h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Aggregate 150-day limit</p>
                       </div>
                     </div>
