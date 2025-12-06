@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { ArrowLeft, Info, Save, Shield, GraduationCap, Sparkles, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
-import { ResultCard, CountdownCard } from "../ResultCard";
+import { ResultCard } from "../ResultCard";
 import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
+import { TickingClock, TickingClockCompact } from "../TickingClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
 
 export function StemApplyTool() {
@@ -195,45 +196,65 @@ export function StemApplyTool() {
               </div>
             </div>
 
+            {/* Results - STEM Filing Timeline with Ticking Clock */}
             {results && (
-              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm space-y-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your STEM Filing Timeline</h2>
-                
-                <CountdownCard
-                  days={results.daysUntilDeadline}
-                  label="Days Until OPT Expires"
-                  deadline={`File before ${formatDateForDisplay(results.deadline)}`}
+              <div className="space-y-6">
+                {/* Live Ticking Clock */}
+                <TickingClock
+                  targetDate={results.deadline}
+                  title="Time Until OPT Expires"
+                  subtitle={`File STEM extension before ${formatDateForDisplay(results.deadline)}`}
+                  gradient="from-emerald-500 via-green-500 to-teal-500"
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <ResultCard
-                    icon="📅"
-                    label="Earliest You Can File"
-                    value={formatDateForDisplay(results.earliestFile)}
-                    subtext="90 days before OPT ends"
-                  />
-                  <ResultCard
-                    icon="⏰"
-                    label="Filing Deadline"
-                    value={formatDateForDisplay(results.deadline)}
-                    subtext="Before OPT expires"
-                    status={results.daysUntilDeadline <= 14 ? 'critical' : results.daysUntilDeadline <= 30 ? 'warning' : 'ok'}
-                  />
-                  <ResultCard
-                    icon="🛡️"
-                    label="Cap-Gap Protection"
-                    value={formatDateForDisplay(results.capGapEnd)}
-                    subtext="If filed timely"
-                  />
+                {/* Key Dates Grid */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 p-1">
+                  <div className="bg-white dark:bg-gray-900 rounded-[22px] p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                        <GraduationCap className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">STEM Filing Timeline</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Key dates for your extension</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <ResultCard
+                        icon="📅"
+                        label="Earliest Filing"
+                        value={formatDateForDisplay(results.earliestFile)}
+                        subtext="90 days before OPT ends"
+                      />
+                      <ResultCard
+                        icon="⏰"
+                        label="Filing Deadline"
+                        value={formatDateForDisplay(results.deadline)}
+                        subtext="Before OPT expires"
+                        status={results.daysUntilDeadline <= 14 ? 'critical' : results.daysUntilDeadline <= 30 ? 'warning' : 'ok'}
+                      />
+                      <ResultCard
+                        icon="🛡️"
+                        label="Cap-Gap Ends"
+                        value={formatDateForDisplay(results.capGapEnd)}
+                        subtext="If filed timely"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
-                  <div className="flex gap-3">
-                    <Shield className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                {/* Cap-Gap Info */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-white shadow-xl">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -translate-y-24 translate-x-24"></div>
+                  <div className="relative z-10 flex gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                      <Shield className="w-6 h-6" />
+                    </div>
                     <div>
-                      <p className="font-medium text-emerald-900 dark:text-emerald-100">Cap-Gap Protection</p>
-                      <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-1">
-                        If you file timely, you can continue working for 180 days after your OPT expires while waiting for your STEM extension approval.
+                      <h3 className="font-bold text-lg mb-1">Cap-Gap Protection</h3>
+                      <p className="text-emerald-100 leading-relaxed">
+                        If you file timely, you can continue working for <span className="font-semibold text-white">180 days</span> after your OPT expires while waiting for your STEM extension approval.
                       </p>
                     </div>
                   </div>
@@ -256,9 +277,52 @@ export function StemApplyTool() {
             />
           </div>
 
+          {/* Right Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-6">
+            <div className="sticky top-6 space-y-6">
+              {/* Compact Countdown */}
+              {results && (
+                <TickingClockCompact
+                  targetDate={results.deadline}
+                  title="STEM Deadline"
+                  gradient="from-emerald-500 to-teal-500"
+                />
+              )}
+              
               <LiveStatsWidget toolType="stem-apply" />
+              
+              {/* Pro Tips */}
+              <div className="relative overflow-hidden bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg p-5">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-400/10 to-teal-400/10 rounded-full -translate-y-12 translate-x-12"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg">
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 dark:text-white">Pro Tips</h3>
+                  </div>
+                  <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                    <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ChevronRight className="w-3 h-3 text-emerald-600" />
+                      </div>
+                      <span>File STEM before OPT expires</span>
+                    </li>
+                    <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ChevronRight className="w-3 h-3 text-emerald-600" />
+                      </div>
+                      <span>Get updated I-20 from DSO first</span>
+                    </li>
+                    <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ChevronRight className="w-3 h-3 text-emerald-600" />
+                      </div>
+                      <span>E-Verify employer required</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>

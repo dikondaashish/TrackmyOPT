@@ -8,6 +8,7 @@ import { ResultCard, ProgressBar } from "../ResultCard";
 import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
+import { UnemploymentClock, UnemploymentClockCompact } from "../UnemploymentClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
 
 interface EmploymentSpan {
@@ -319,39 +320,48 @@ export function OptClockTool() {
               </div>
             </div>
 
-            {/* Results */}
+            {/* Results - Unemployment Clock with Live Ticking */}
             {results && (
-              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm space-y-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Unemployment Status</h2>
-                
-                {/* Main Counter */}
-                <div className={`p-6 rounded-2xl text-center ${
-                  results.remaining <= 10 ? 'bg-gradient-to-br from-red-500 to-rose-600' :
-                  results.remaining <= 30 ? 'bg-gradient-to-br from-amber-500 to-orange-500' :
-                  'bg-gradient-to-br from-green-500 to-emerald-600'
-                } text-white`}>
-                  <p className="text-sm font-medium opacity-90 mb-2">Days Remaining</p>
-                  <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-5xl font-bold">{results.remaining}</span>
-                    <span className="text-xl opacity-80">of {results.max}</span>
+              <div className="space-y-6">
+                {/* Live Unemployment Clock */}
+                <UnemploymentClock
+                  daysUsed={results.used}
+                  maxDays={results.max}
+                  title="OPT Unemployment Tracker"
+                  subtitle="90-day limit for Post-Completion OPT"
+                  type="opt"
+                />
+
+                {/* Detailed Stats */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-1">
+                  <div className="bg-white dark:bg-gray-900 rounded-[22px] p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
+                        <Clock className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Unemployment Details</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Track your 90-day limit</p>
+                      </div>
+                    </div>
+                    
+                    <ProgressBar used={results.used} max={results.max} label="Unemployment Days Used" />
+                    
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                      <ResultCard
+                        icon="⏱️"
+                        label="Days Used"
+                        value={`${results.used} days`}
+                        status={getStatus(results.used, results.max)}
+                      />
+                      <ResultCard
+                        icon="✅"
+                        label="Days Remaining"
+                        value={`${results.remaining} days`}
+                        status={results.remaining <= 10 ? 'critical' : results.remaining <= 30 ? 'warning' : 'ok'}
+                      />
+                    </div>
                   </div>
-                </div>
-
-                <ProgressBar used={results.used} max={results.max} label="Unemployment Days Used" />
-
-                <div className="grid grid-cols-2 gap-4">
-                  <ResultCard
-                    icon="⏱️"
-                    label="Days Used"
-                    value={`${results.used} days`}
-                    status={getStatus(results.used, results.max)}
-                  />
-                  <ResultCard
-                    icon="✅"
-                    label="Days Remaining"
-                    value={`${results.remaining} days`}
-                    status={results.remaining <= 10 ? 'critical' : results.remaining <= 30 ? 'warning' : 'ok'}
-                  />
                 </div>
               </div>
             )}
@@ -371,9 +381,53 @@ export function OptClockTool() {
             />
           </div>
 
+          {/* Right Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-6">
+            <div className="sticky top-6 space-y-6">
+              {/* Compact Unemployment Clock */}
+              {results && (
+                <UnemploymentClockCompact
+                  daysUsed={results.used}
+                  maxDays={results.max}
+                  title="Days Remaining"
+                  type="opt"
+                />
+              )}
+              
               <LiveStatsWidget toolType="opt-clock" />
+              
+              {/* Pro Tips */}
+              <div className="relative overflow-hidden bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg p-5">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400/10 to-orange-400/10 rounded-full -translate-y-12 translate-x-12"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 dark:text-white">Pro Tips</h3>
+                  </div>
+                  <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                    <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ChevronRight className="w-3 h-3 text-amber-600" />
+                      </div>
+                      <span>Track all employment gaps carefully</span>
+                    </li>
+                    <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ChevronRight className="w-3 h-3 text-amber-600" />
+                      </div>
+                      <span>Keep employment verification letters</span>
+                    </li>
+                    <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ChevronRight className="w-3 h-3 text-amber-600" />
+                      </div>
+                      <span>Report new employment to DSO</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>

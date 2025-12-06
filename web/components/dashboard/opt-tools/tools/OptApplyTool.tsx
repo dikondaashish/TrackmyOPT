@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { ArrowLeft, Info, Save, Calendar, Clock, Target, FileText, Sparkles, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
-import { ResultCard, CountdownCard } from "../ResultCard";
+import { ResultCard } from "../ResultCard";
 import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
+import { TickingClock, TickingClockCompact } from "../TickingClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
 
 interface CalculatedDates {
@@ -296,54 +297,57 @@ export function OptApplyTool() {
               </div>
             </div>
 
-            {/* Results */}
+            {/* Results - Filing Timeline with Ticking Clock */}
             {results && (
-              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                      <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your Filing Timeline</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Based on your dates</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-6 space-y-6">
-                  <CountdownCard
-                    days={results.daysUntilDeadline}
-                    label="Days Until Deadline"
-                    deadline={`Must arrive by ${formatDateForDisplay(results.mustArriveBy)}`}
-                  />
+              <div className="space-y-6">
+                {/* Live Ticking Clock */}
+                <TickingClock
+                  targetDate={results.mustArriveBy}
+                  title="Time Until Filing Deadline"
+                  subtitle={`USCIS must receive by ${formatDateForDisplay(results.mustArriveBy)}`}
+                  gradient="from-blue-600 via-indigo-600 to-purple-600"
+                />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <ResultCard
-                      icon="📅"
-                      label="Earliest Filing Date"
-                      value={formatDateForDisplay(results.earliestFile)}
-                      subtext="90 days before program end"
-                    />
-                    <ResultCard
-                      icon="⏰"
-                      label="Filing Deadline"
-                      value={formatDateForDisplay(results.mustArriveBy)}
-                      subtext="USCIS receipt deadline"
-                      status={results.daysUntilDeadline <= 14 ? 'critical' : results.daysUntilDeadline <= 30 ? 'warning' : 'ok'}
-                    />
-                    <ResultCard
-                      icon="🎯"
-                      label="OPT Start Date"
-                      value={formatDateForDisplay(results.optStartEarliest)}
-                      subtext="Your program end date"
-                    />
-                    <ResultCard
-                      icon="📆"
-                      label="Latest OPT Start"
-                      value={formatDateForDisplay(results.optStartLatest)}
-                      subtext="60 days after program end"
-                    />
+                {/* Key Dates Grid */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-1">
+                  <div className="bg-white dark:bg-gray-900 rounded-[22px] p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                        <Target className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Your Filing Timeline</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Key dates based on your I-20</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <ResultCard
+                        icon="📅"
+                        label="Earliest Filing Date"
+                        value={formatDateForDisplay(results.earliestFile)}
+                        subtext="90 days before program end"
+                      />
+                      <ResultCard
+                        icon="⏰"
+                        label="Filing Deadline"
+                        value={formatDateForDisplay(results.mustArriveBy)}
+                        subtext="USCIS receipt deadline"
+                        status={results.daysUntilDeadline <= 14 ? 'critical' : results.daysUntilDeadline <= 30 ? 'warning' : 'ok'}
+                      />
+                      <ResultCard
+                        icon="🎯"
+                        label="OPT Can Start"
+                        value={formatDateForDisplay(results.optStartEarliest)}
+                        subtext="Your program end date"
+                      />
+                      <ResultCard
+                        icon="📆"
+                        label="Latest OPT Start"
+                        value={formatDateForDisplay(results.optStartLatest)}
+                        subtext="60 days after program end"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -365,31 +369,51 @@ export function OptApplyTool() {
             />
           </div>
 
-          {/* Right Sidebar - Live Stats */}
+          {/* Right Sidebar - Live Stats & Widgets */}
           <div className="lg:col-span-1">
             <div className="sticky top-6 space-y-6">
+              {/* Compact Countdown in Sidebar */}
+              {results && (
+                <TickingClockCompact
+                  targetDate={results.mustArriveBy}
+                  title="Filing Deadline"
+                  gradient="from-blue-600 to-indigo-600"
+                />
+              )}
+              
               <LiveStatsWidget toolType="opt-apply" />
               
               {/* Quick Tips */}
-              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-5 h-5 text-amber-500" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Quick Tips</h3>
+              <div className="relative overflow-hidden bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg p-5">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400/10 to-orange-400/10 rounded-full -translate-y-12 translate-x-12"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 dark:text-white">Pro Tips</h3>
+                  </div>
+                  <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                    <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ChevronRight className="w-3 h-3 text-blue-600" />
+                      </div>
+                      <span>File early to avoid processing delays</span>
+                    </li>
+                    <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ChevronRight className="w-3 h-3 text-blue-600" />
+                      </div>
+                      <span>Use USPS tracking for I-765 package</span>
+                    </li>
+                    <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ChevronRight className="w-3 h-3 text-blue-600" />
+                      </div>
+                      <span>Keep copies of all documents filed</span>
+                    </li>
+                  </ul>
                 </div>
-                <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-                  <li className="flex items-start gap-2">
-                    <ChevronRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                    <span>File early to avoid delays</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ChevronRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                    <span>Use USPS tracking for your I-765</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ChevronRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                    <span>Keep copies of all documents</span>
-                  </li>
-                </ul>
               </div>
             </div>
           </div>
