@@ -223,17 +223,6 @@ export function StemClockTool() {
             </div>
           </div>
           
-          {/* Quick Actions */}
-          <div className="hidden sm:flex items-center gap-2">
-            <button
-              onClick={handleSave}
-              disabled={isSaving || !stemStartDate}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-purple-500/25 transition-all duration-200"
-            >
-              <Save className="w-4 h-4" />
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -395,15 +384,15 @@ export function StemClockTool() {
                 </div>
                 )}
 
-                {/* Mobile Save Button */}
-                <div className="sm:hidden mt-6">
+                {/* Save Button */}
+                <div className="flex justify-end mt-6">
                   <button
                     onClick={handleSave}
                     disabled={isSaving || !stemStartDate}
-                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg transition-all duration-200"
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium rounded-xl shadow-lg shadow-purple-500/25 transition-all duration-200"
                   >
                     <Save className="w-4 h-4" />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
+                    {isSaving ? 'Saving...' : 'Save'}
                   </button>
                 </div>
               </div>
