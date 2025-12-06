@@ -5,7 +5,6 @@ import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Sparkle
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
-import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { UnemploymentClock, UnemploymentClockCompact } from "../UnemploymentClock";
@@ -465,13 +464,6 @@ export function StemClockTool() {
               toolType="stem-clock"
               isPremium={isPremium}
               onUpgradeClick={() => setShowPricingModal(true)}
-            />
-
-            <SyncStatus
-              lastSynced={syncStatus.lastSynced}
-              isSyncing={syncStatus.isSyncing}
-              error={syncStatus.error}
-              onSync={handleSave}
             />
           </div>
 

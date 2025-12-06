@@ -5,7 +5,6 @@ import { ArrowLeft, Info, Save, Calendar, Clock, Target, FileText, Sparkles, Che
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard } from "../ResultCard";
-import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { TickingClock, TickingClockCompact } from "../TickingClock";
@@ -358,14 +357,6 @@ export function OptApplyTool() {
               toolType="opt-apply"
               isPremium={isPremium}
               onUpgradeClick={() => setShowPricingModal(true)}
-            />
-
-            {/* Sync Status */}
-            <SyncStatus
-              lastSynced={syncStatus.lastSynced}
-              isSyncing={syncStatus.isSyncing}
-              error={syncStatus.error}
-              onSync={handleSave}
             />
           </div>
 

@@ -5,7 +5,6 @@ import { ArrowLeft, Info, Save, Shield, GraduationCap, Sparkles, ChevronRight, F
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard } from "../ResultCard";
-import { SyncStatus } from "../SyncStatus";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { TickingClock, TickingClockCompact } from "../TickingClock";
@@ -329,13 +328,6 @@ export function StemApplyTool() {
               toolType="stem-apply"
               isPremium={isPremium}
               onUpgradeClick={() => setShowPricingModal(true)}
-            />
-
-            <SyncStatus
-              lastSynced={syncStatus.lastSynced}
-              isSyncing={syncStatus.isSyncing}
-              error={syncStatus.error}
-              onSync={handleSave}
             />
           </div>
 
