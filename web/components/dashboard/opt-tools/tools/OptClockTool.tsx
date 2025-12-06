@@ -406,10 +406,10 @@ export function OptClockTool() {
                 />
 
                 {/* Key Stats Grid */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-1">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-orange-600 p-1">
                   <div className="bg-white dark:bg-gray-900 rounded-[22px] p-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
                         <Target className="w-5 h-5 text-white" />
                       </div>
                       <div>
