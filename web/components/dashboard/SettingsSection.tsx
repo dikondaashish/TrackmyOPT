@@ -378,17 +378,62 @@ export function SettingsSection() {
 
   const loadExtensionStatus = async () => {
     try {
+      // Method 1: Check localStorage for extension marker (set by extension)
+      const extensionConnected = localStorage.getItem('tmo_extension_connected');
+      const extensionVersion = localStorage.getItem('tmo_extension_version');
+      const lastSync = localStorage.getItem('tmo_extension_last_sync');
+      
+      if (extensionConnected === 'true') {
+        setExtensionStatus({
+          isConnected: true,
+          lastSyncTime: lastSync,
+          version: extensionVersion || undefined,
+        });
+        return;
+      }
+
+      // Method 2: Check server sessions API
       const res = await fetch('/api/user/sessions', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
-        if (data.ok) {
+        if (data.ok && data.extensionStatus?.isConnected) {
           setExtensionStatus({
-            isConnected: data.extensionStatus?.isConnected || false,
+            isConnected: true,
             lastSyncTime: data.extensionStatus?.lastActiveAt || null,
             version: data.extensionStatus?.version || undefined,
           });
+          return;
         }
       }
+
+      // Method 3: Try to detect extension via custom event
+      // The extension should listen for this and respond
+      window.postMessage({ type: 'TMO_CHECK_EXTENSION' }, '*');
+      
+      // Listen for response (extension will reply if installed)
+      const handleExtensionResponse = (event: MessageEvent) => {
+        if (event.data?.type === 'TMO_EXTENSION_PRESENT') {
+          setExtensionStatus({
+            isConnected: true,
+            lastSyncTime: new Date().toISOString(),
+            version: event.data.version || undefined,
+          });
+          // Also store in localStorage for future checks
+          localStorage.setItem('tmo_extension_connected', 'true');
+          if (event.data.version) {
+            localStorage.setItem('tmo_extension_version', event.data.version);
+          }
+          localStorage.setItem('tmo_extension_last_sync', new Date().toISOString());
+        }
+      };
+      
+      window.addEventListener('message', handleExtensionResponse);
+      
+      // Clean up listener after 2 seconds
+      setTimeout(() => {
+        window.removeEventListener('message', handleExtensionResponse);
+      }, 2000);
+
     } catch {
       // Silently fail - extension status not critical
     }
@@ -949,20 +994,29 @@ export function SettingsSection() {
   // Disconnect Extension
   const handleDisconnectExtension = async () => {
     try {
+      // Clear localStorage markers
+      localStorage.removeItem('tmo_extension_connected');
+      localStorage.removeItem('tmo_extension_version');
+      localStorage.removeItem('tmo_extension_last_sync');
+      
+      // Also clear server session
       const res = await fetch('/api/user/sessions?device_type=extension', {
         method: 'DELETE',
         credentials: 'include',
       });
       
-      if (res.ok) {
-        setExtensionStatus({ isConnected: false, lastSyncTime: null });
-        setSuccess('Extension disconnected');
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        setError('Failed to disconnect extension');
+      setExtensionStatus({ isConnected: false, lastSyncTime: null });
+      setSuccess('Extension disconnected');
+      setTimeout(() => setSuccess(null), 3000);
+      
+      if (!res.ok) {
+        console.error('Failed to clear server session');
       }
     } catch {
-      setError('Failed to disconnect extension');
+      // Still update UI even if server call fails
+      setExtensionStatus({ isConnected: false, lastSyncTime: null });
+      setSuccess('Extension disconnected');
+      setTimeout(() => setSuccess(null), 3000);
     }
   };
 

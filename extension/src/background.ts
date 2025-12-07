@@ -9,10 +9,37 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 });
 
 // External message listener (from web app)
-chrome.runtime.onMessageExternal.addListener((msg, _sender, sendResponse) => {
+chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
   // Respond to ping to confirm extension is installed
   if (msg.type === 'PING') {
     sendResponse({ ok: true, installed: true, version: chrome.runtime.getManifest().version });
+    return true;
+  }
+  
+  // Check extension status - called from Settings page
+  if (msg.type === 'TMO_CHECK_EXTENSION') {
+    // Respond that extension is installed
+    sendResponse({ 
+      ok: true, 
+      installed: true, 
+      version: chrome.runtime.getManifest().version,
+      type: 'TMO_EXTENSION_PRESENT'
+    });
+    
+    // Also inject localStorage marker into the webpage if possible
+    if (sender.tab?.id) {
+      chrome.scripting.executeScript({
+        target: { tabId: sender.tab.id },
+        func: (version: string) => {
+          localStorage.setItem('tmo_extension_connected', 'true');
+          localStorage.setItem('tmo_extension_version', version);
+          localStorage.setItem('tmo_extension_last_sync', new Date().toISOString());
+        },
+        args: [chrome.runtime.getManifest().version]
+      }).catch(() => {
+        // Scripting might fail if permissions aren't granted
+      });
+    }
     return true;
   }
   
@@ -69,6 +96,33 @@ async function beginAuth(){
             
             if (response.ok) {
               await chrome.storage.sync.set({ signedIn: true });
+              
+              // Register extension session with server
+              const token = await chrome.storage.local.get('authToken');
+              if (token.authToken) {
+                fetch(`${API_ENDPOINTS.ME.replace('/api/me', '/api/extension/ping')}`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token.authToken}`,
+                  },
+                  body: JSON.stringify({ version: chrome.runtime.getManifest().version }),
+                }).catch(() => {}); // Silently fail
+              }
+              
+              // Set localStorage on the dashboard tab to mark extension as connected
+              if (tab.id) {
+                chrome.scripting.executeScript({
+                  target: { tabId: tab.id },
+                  func: (version: string) => {
+                    localStorage.setItem('tmo_extension_connected', 'true');
+                    localStorage.setItem('tmo_extension_version', version);
+                    localStorage.setItem('tmo_extension_last_sync', new Date().toISOString());
+                  },
+                  args: [chrome.runtime.getManifest().version]
+                }).catch(() => {});
+              }
+              
               resolve();
             } else {
               // Retry after cookies sync

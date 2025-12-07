@@ -8,7 +8,8 @@
     "storage", 
     "tabs",
     "alarms",
-    "notifications"
+    "notifications",
+    "scripting"
   ],
   "host_permissions": [
     "http://localhost:3000/*", 
@@ -39,6 +40,18 @@
   },
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "https://*.vercel.app/*",
+        "https://www.trackmyopt.com/*",
+        "https://trackmyopt.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }
 
