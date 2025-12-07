@@ -132,11 +132,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate ZIP
-    const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
+    // Generate ZIP as Blob
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
 
     // Return ZIP file
-    return new NextResponse(zipBuffer, {
+    return new Response(zipBlob, {
       headers: {
         'Content-Type': 'application/zip',
         'Content-Disposition': `attachment; filename="trackmyopt-export-${new Date().toISOString().split('T')[0]}.zip"`,
