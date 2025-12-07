@@ -382,13 +382,13 @@ export function TickingClockCompact({
     // STEM Clock specific action items
     if (toolType === 'stem-clock') {
       if (isCritical) return [
-        "⚠️ 150-day limit approaching!",
-        "💼 Find employment urgently",
+        "⚠️ 60-day limit approaching!",
+        "💼 Find E-Verify job urgently",
         "📞 Contact DSO for options"
       ];
       return [
-        "📊 Track aggregate unemployment",
-        "💼 Maintain employment records",
+        "📊 Track STEM unemployment",
+        "💼 Maintain E-Verify employment",
         "📅 Report changes to DSO"
       ];
     }

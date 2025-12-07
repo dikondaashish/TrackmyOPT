@@ -79,7 +79,7 @@ export function OptToolsSection() {
     },
     {
       title: "STEM Clock Tracker",
-      description: "Track your 150-day aggregate unemployment limit",
+      description: "Track your 60-day STEM OPT unemployment limit",
       icon: Timer,
       href: "/dashboard/opt-tools/stem-clock",
       gradient: "from-purple-500 via-violet-500 to-violet-600",

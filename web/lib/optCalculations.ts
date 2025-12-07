@@ -144,7 +144,7 @@ export function calculateUnemploymentDays(
   }
   
   const unemploymentUsed = totalDays - employedDays;
-  const max = 90; // Regular OPT limit (STEM is 150, but we'll handle that separately)
+  const max = 90; // Regular OPT limit (STEM has separate 60-day limit)
   const remaining = max - unemploymentUsed;
   
   return {

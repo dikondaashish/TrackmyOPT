@@ -291,8 +291,8 @@ export function HelpSection() {
                 <div>
                   <h4 className="font-semibold text-red-800 dark:text-red-300">Critical: Understanding Your Limits</h4>
                   <p className="text-sm text-red-700 dark:text-red-400 mt-1">
-                    You are limited to <strong>90 days of unemployment</strong> during your 12-month OPT period 
-                    (or 150 days if on STEM OPT). Exceeding this limit can result in loss of F-1 status.
+                    You are limited to <strong>90 days of unemployment</strong> during your 12-month OPT period. 
+                    STEM OPT has a separate <strong>60-day limit</strong>. Exceeding these limits can result in loss of F-1 status.
                   </p>
                 </div>
               </div>
@@ -318,8 +318,8 @@ export function HelpSection() {
                     STEM OPT (24 months)
                   </h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• Maximum 150 days total (including initial OPT)</li>
-                    <li>• Additional 60 days added to your limit</li>
+                    <li>• Separate 60-day unemployment limit</li>
+                    <li>• Does NOT carry over from initial OPT</li>
                     <li>• Must have qualifying STEM degree</li>
                     <li>• Must work for E-Verify employer</li>
                   </ul>
@@ -553,7 +553,7 @@ export function HelpSection() {
                   <h4 className="font-semibold">Understanding the Clock:</h4>
                   <ul className="text-sm space-y-2 text-muted-foreground">
                     <li><strong>90 days</strong> - Maximum unemployment on initial OPT</li>
-                    <li><strong>150 days</strong> - Maximum if on STEM OPT extension</li>
+                    <li><strong>60 days</strong> - Separate limit for STEM OPT extension</li>
                     <li><strong>Stops</strong> - When you have qualifying employment</li>
                     <li><strong>Resets</strong> - Does NOT reset; it's cumulative</li>
                   </ul>
@@ -671,7 +671,7 @@ export function HelpSection() {
                 />
                 <FAQItem
                   question="What happens if I exceed 90 days of unemployment?"
-                  answer="Exceeding the 90-day unemployment limit (150 days for STEM OPT) is a violation of your F-1 status. This can result in accruing unlawful presence and may affect future visa applications or immigration benefits."
+                  answer="Exceeding the 90-day unemployment limit (or 60 days for STEM OPT) is a violation of your F-1 status. This can result in accruing unlawful presence and may affect future visa applications or immigration benefits."
                 />
                 <FAQItem
                   question="Can I travel while my OPT application is pending?"
