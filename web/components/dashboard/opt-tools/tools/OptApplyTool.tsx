@@ -307,6 +307,8 @@ export function OptApplyTool() {
                   title="Time Until Filing Deadline"
                   subtitle={`USCIS must receive by ${formatDateForDisplay(results.mustArriveBy)}`}
                   gradient="from-blue-600 via-indigo-600 to-purple-600"
+                  toolType="opt-apply"
+                  startDate={results.earliestFile}
                 />
 
                 {/* Key Dates Grid */}
@@ -372,6 +374,7 @@ export function OptApplyTool() {
                   title="Filing Deadline"
                   gradient="from-blue-600 to-indigo-600"
                   toolType="opt-apply"
+                  startDate={results.earliestFile}
                 />
               )}
               

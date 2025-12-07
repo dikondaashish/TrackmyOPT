@@ -97,9 +97,9 @@ export function TickingClock({
   const getTimelineMessage = () => {
     // If dates haven't started yet
     if (isNotStarted) {
-      if (toolType === 'opt-apply') return { icon: Clock, message: "⏳ Your OPT period hasn't started yet. Wait until your program end date to begin your OPT application window.", color: "text-blue-200" };
-      if (toolType === 'stem-apply') return { icon: Clock, message: "⏳ Your STEM OPT application window hasn't opened yet. Wait until your current OPT nears its end date.", color: "text-purple-200" };
-      return { icon: Clock, message: "⏳ Your dates haven't started yet. Check your start date below and wait until then.", color: "text-blue-200" };
+      if (toolType === 'opt-apply') return { icon: Clock, message: "⏳ Your OPT application window hasn't opened yet. Be prepared with your documents - I-20, passport photos, I-765 form. Check your earliest filing date below!", color: "text-blue-200" };
+      if (toolType === 'stem-apply') return { icon: Clock, message: "⏳ Your STEM OPT application window hasn't opened yet. Be prepared with your docs - I-983 training plan, updated I-20, employer's E-Verify info!", color: "text-emerald-200" };
+      return { icon: Clock, message: "⏳ Your dates haven't started yet. Check your start date below and prepare your documents!", color: "text-blue-200" };
     }
     
     // If deadline has passed
@@ -282,9 +282,23 @@ export function TickingClockCompact({
   const getActionItems = () => {
     // If dates haven't started yet
     if (isNotStarted) {
+      if (toolType === 'opt-apply') {
+        return [
+          "⏳ Window not open yet",
+          "📄 Prepare I-765 & I-20",
+          "📸 Get passport photos ready"
+        ];
+      }
+      if (toolType === 'stem-apply') {
+        return [
+          "⏳ Window not open yet",
+          "📄 Prepare I-983 training plan",
+          "✅ Verify employer is E-Verify"
+        ];
+      }
       return [
         "⏳ Dates not started yet",
-        "📅 Check your start date",
+        "📄 Prepare your documents",
         "⏰ Wait until window opens"
       ];
     }

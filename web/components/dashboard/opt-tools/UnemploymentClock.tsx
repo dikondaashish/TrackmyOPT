@@ -92,8 +92,8 @@ export function UnemploymentClock({
   const getTimelineMessage = () => {
     // If OPT/STEM period hasn't started yet
     if (isNotStarted) {
-      if (type === 'opt') return { icon: Timer, message: "⏳ Your OPT period hasn't started yet. Wait until your OPT start date to begin tracking unemployment days.", color: "text-blue-200" };
-      return { icon: Timer, message: "⏳ Your STEM OPT period hasn't started yet. Wait until your STEM start date to begin tracking unemployment.", color: "text-purple-200" };
+      if (type === 'opt') return { icon: Timer, message: "⏳ Your OPT period hasn't started yet. Use this time to apply for jobs and prepare! Check your OPT start date below.", color: "text-blue-200" };
+      return { icon: Timer, message: "⏳ Your STEM OPT period hasn't started yet. Use this time to job search! Check your STEM start date below.", color: "text-purple-200" };
     }
     
     if (type === 'opt') {
@@ -291,10 +291,17 @@ export function UnemploymentClockCompact({
   const getActionItems = () => {
     // If dates haven't started yet
     if (isNotStarted) {
+      if (type === 'opt') {
+        return [
+          "⏳ OPT not started yet",
+          "� Start applying for jobs",
+          "📄 Update your resume"
+        ];
+      }
       return [
-        "⏳ Period not started yet",
-        "📅 Check your start date",
-        "⏰ Wait until it begins"
+        "⏳ STEM not started yet",
+        "💼 Continue job searching",
+        "✅ Keep E-Verify job ready"
       ];
     }
     

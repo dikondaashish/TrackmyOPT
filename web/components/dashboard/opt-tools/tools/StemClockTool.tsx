@@ -303,6 +303,7 @@ export function StemClockTool() {
                   title="STEM Unemployment Tracker"
                   subtitle="60-day limit for STEM OPT extension"
                   type="stem"
+                  startDate={parseDate(stemStartDate) || undefined}
                 />
 
                 {/* Key Stats Grid */}
@@ -446,6 +447,7 @@ export function StemClockTool() {
                   maxDays={results.max}
                   title="Days Remaining"
                   type="stem"
+                  startDate={parseDate(stemStartDate) || undefined}
                 />
               )}
               

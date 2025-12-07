@@ -266,6 +266,8 @@ export function StemApplyTool() {
                   title="Time Until OPT Expires"
                   subtitle={`File STEM extension before ${formatDateForDisplay(results.deadline)}`}
                   gradient="from-emerald-500 via-green-500 to-teal-500"
+                  toolType="stem-apply"
+                  startDate={results.earliestFile}
                 />
 
                 {/* Key Dates Grid */}
@@ -341,6 +343,7 @@ export function StemApplyTool() {
                   title="STEM Deadline"
                   gradient="from-emerald-500 to-teal-500"
                   toolType="stem-apply"
+                  startDate={results.earliestFile}
                 />
               )}
               

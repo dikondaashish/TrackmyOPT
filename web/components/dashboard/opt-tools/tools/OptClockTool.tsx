@@ -386,6 +386,7 @@ export function OptClockTool() {
                   title="Time Remaining"
                   subtitle="90-day unemployment limit for Post-Completion OPT"
                   type="opt"
+                  startDate={parseDate(optStartDate) || undefined}
                 />
 
                 {/* Key Stats Grid */}
@@ -527,6 +528,7 @@ export function OptClockTool() {
                   maxDays={results.max}
                   title="Days Remaining"
                   type="opt"
+                  startDate={parseDate(optStartDate) || undefined}
                 />
               )}
               
