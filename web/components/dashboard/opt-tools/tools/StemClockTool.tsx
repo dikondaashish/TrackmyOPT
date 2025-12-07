@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Sparkles, ChevronRight, FileText, Info, Target } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Sparkles, ChevronRight, ChevronDown, ChevronUp, FileText, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
@@ -21,14 +21,12 @@ export function StemClockTool() {
   const router = useRouter();
   const [stemStartDate, setStemStartDate] = useState("");
   const [stemEndDate, setStemEndDate] = useState("");
-  const [priorUnemployment, setPriorUnemployment] = useState("0");
   const [employmentSpans, setEmploymentSpans] = useState<EmploymentSpan[]>([]);
+  const [showEmploymentHistory, setShowEmploymentHistory] = useState(false);
   const [results, setResults] = useState<{
     used: number;
     remaining: number;
     max: number;
-    priorDays: number;
-    stemDays: number;
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -47,7 +45,7 @@ export function StemClockTool() {
 
   useEffect(() => {
     if (stemStartDate && stemEndDate) calculate();
-  }, [stemStartDate, stemEndDate, priorUnemployment, employmentSpans]);
+  }, [stemStartDate, stemEndDate, employmentSpans]);
 
   const loadSavedData = async () => {
     setIsLoading(true);
@@ -128,16 +126,15 @@ export function StemClockTool() {
       }
     }
     
-    const stemUnemployed = Math.max(0, totalDays - employedDays);
-    const priorDays = parseInt(priorUnemployment) || 0;
-    const used = stemUnemployed + priorDays;
-    const max = 150;
+    const used = Math.max(0, totalDays - employedDays);
+    const max = 150; // STEM OPT has its own 150-day limit (doesn't roll over from initial OPT)
     const remaining = Math.max(0, max - used);
 
-    setResults({ used, remaining, max, priorDays, stemDays: stemUnemployed });
+    setResults({ used, remaining, max });
   };
 
   const addEmploymentSpan = () => {
+    setShowEmploymentHistory(true);
     setEmploymentSpans([...employmentSpans, {
       id: `temp-${Date.now()}`,
       start_date: "",
@@ -245,10 +242,10 @@ export function StemClockTool() {
                     <AlertTriangle className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold mb-2">150-Day Aggregate Unemployment Limit</h2>
+                    <h2 className="text-lg font-bold mb-2">STEM OPT 150-Day Unemployment Limit</h2>
                     <p className="text-purple-100 leading-relaxed">
-                      Your total unemployment (including prior OPT) cannot exceed <span className="font-semibold text-white">150 days aggregate</span> during STEM OPT. 
-                      Track all your employment periods carefully to stay in compliance.
+                      During your STEM OPT extension, you cannot exceed <span className="font-semibold text-white">150 days of unemployment</span>. 
+                      This is a separate limit from initial OPT - <span className="font-semibold text-white">days do not roll over</span> between periods.
                     </p>
                   </div>
                 </div>
@@ -271,13 +268,20 @@ export function StemClockTool() {
               
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <DateInput
-                  label="STEM Start Date"
-                  value={stemStartDate}
-                  onChange={setStemStartDate}
-                  description="From your STEM EAD card"
-                  required
-                />
+                  <DateInput
+                    label="STEM Start Date"
+                    value={stemStartDate}
+                    onChange={setStemStartDate}
+                    description="From your STEM EAD card"
+                    required
+                  />
+                  <DateInput
+                    label="STEM End Date"
+                    value={stemEndDate}
+                    onChange={setStemEndDate}
+                    description="24 months from start (auto-calculated)"
+                    required
+                  />
                 </div>
 
                 {/* Save Button */}
@@ -298,36 +302,7 @@ export function StemClockTool() {
               </div>
             </div>
 
-            {/* Prior Unemployment */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
-              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                    <Info className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Prior OPT Unemployment</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Days accumulated during initial OPT</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <div className="max-w-xs">
-                  <input
-                    type="number"
-                    value={priorUnemployment}
-                    onChange={(e) => setPriorUnemployment(e.target.value)}
-                    min="0"
-                    max="90"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-lg font-medium focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  />
-                  <p className="text-xs text-gray-500 mt-2">Max 90 days from initial OPT period</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Employment History */}
+            {/* Employment History - Collapsible */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
               <div className="p-6 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center justify-between">
@@ -410,41 +385,37 @@ export function StemClockTool() {
                   daysUsed={results.used}
                   maxDays={results.max}
                   title="STEM Unemployment Tracker"
-                  subtitle="150-day aggregate limit (OPT + STEM)"
+                  subtitle="STEM OPT 150-day limit (separate from initial OPT)"
                   type="stem"
                 />
 
                 {/* Key Stats Grid */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-1">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500 via-violet-500 to-purple-600 p-1">
                   <div className="bg-white dark:bg-gray-900 rounded-[22px] p-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center shadow-lg">
                         <Target className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Your Unemployment Status</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Aggregate 150-day limit</p>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Your STEM Unemployment Status</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">150-day limit for STEM OPT period</p>
                       </div>
                     </div>
                     
-                    <ProgressBar used={results.used} max={results.max} label="Total Unemployment Days" />
+                    <ProgressBar used={results.used} max={results.max} label="STEM Unemployment Days" />
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-                      <ResultCard
-                        icon="📊"
-                        label="Prior OPT Days"
-                        value={`${results.priorDays} days`}
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                       <ResultCard
                         icon="⏱️"
-                        label="STEM Days Used"
-                        value={`${results.stemDays} days`}
+                        label="Days Used"
+                        value={`${results.used} days`}
+                        status={results.used >= 120 ? 'critical' : results.used >= 80 ? 'warning' : 'ok'}
                       />
                       <ResultCard
                         icon="✅"
-                        label="Total Remaining"
+                        label="Days Remaining"
                         value={`${results.remaining} days`}
-                        status={results.remaining <= 15 ? 'critical' : results.remaining <= 50 ? 'warning' : 'ok'}
+                        status={results.remaining <= 30 ? 'critical' : results.remaining <= 70 ? 'warning' : 'ok'}
                       />
                     </div>
                   </div>
@@ -490,19 +461,19 @@ export function StemClockTool() {
                       <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <ChevronRight className="w-3 h-3 text-purple-600" />
                       </div>
-                      <span>150-day aggregate includes OPT</span>
+                      <span>150-day limit is separate from OPT</span>
                     </li>
                     <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <ChevronRight className="w-3 h-3 text-purple-600" />
                       </div>
-                      <span>Report employment changes to DSO</span>
+                      <span>Days don't roll over from initial OPT</span>
                     </li>
                     <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <ChevronRight className="w-3 h-3 text-purple-600" />
                       </div>
-                      <span>E-Verify status required for STEM</span>
+                      <span>E-Verify employer required for STEM</span>
                     </li>
                   </ul>
                 </div>
