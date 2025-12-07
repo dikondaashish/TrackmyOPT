@@ -138,6 +138,14 @@ export function SettingsSection() {
   const [newPasscode, setNewPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [showPasscodes, setShowPasscodes] = useState(false);
+  
+  // OTP verification state for passcode change
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpEmail, setOtpEmail] = useState('');
+  const [otpCountdown, setOtpCountdown] = useState(0);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   // Extension Status
   const [extensionStatus, setExtensionStatus] = useState<ExtensionStatus>({
@@ -580,7 +588,7 @@ export function SettingsSection() {
     }
   };
 
-  // Change Document Passcode
+  // Change Document Passcode - Step 1: Send OTP
   const handleChangePasscode = async () => {
     if (newPasscode !== confirmPasscode) {
       setError('Passcodes do not match');
@@ -593,10 +601,11 @@ export function SettingsSection() {
     }
 
     try {
-      setIsSaving(true);
+      setSendingOtp(true);
       setError(null);
 
-      const res = await fetch('/api/documents/passcode/change', {
+      // Send OTP to user's email
+      const res = await fetch('/api/documents/passcode/send-otp', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -606,24 +615,82 @@ export function SettingsSection() {
         }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        setSuccess('Passcode updated successfully!');
+        setOtpEmail(data.email);
+        setShowOtpInput(true);
+        setOtpCountdown(600); // 10 minutes
+        setSuccess(`OTP sent to ${data.email}`);
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        throw new Error(data.error || 'Failed to send OTP');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send OTP');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  // Change Document Passcode - Step 2: Verify OTP
+  const handleVerifyOtp = async () => {
+    if (!/^\d{6}$/.test(otp)) {
+      setError('OTP must be 6 digits');
+      return;
+    }
+
+    try {
+      setVerifyingOtp(true);
+      setError(null);
+
+      const res = await fetch('/api/documents/passcode/verify-otp', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          otp,
+          newPasscode,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSuccess('Passcode changed successfully!');
+        // Reset all states
         setShowPasscodeChange(false);
+        setShowOtpInput(false);
         setCurrentPasscode('');
         setNewPasscode('');
         setConfirmPasscode('');
+        setOtp('');
+        setOtpEmail('');
+        setOtpCountdown(0);
         setDocSettings(prev => ({ ...prev, hasPasscode: true }));
         setTimeout(() => setSuccess(null), 3000);
       } else {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to change passcode');
+        throw new Error(data.error || 'Failed to verify OTP');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to change passcode');
+      setError(err instanceof Error ? err.message : 'Failed to verify OTP');
     } finally {
-      setIsSaving(false);
+      setVerifyingOtp(false);
     }
   };
+
+  // Resend OTP
+  const handleResendOtp = async () => {
+    await handleChangePasscode();
+  };
+
+  // OTP countdown timer
+  useEffect(() => {
+    if (otpCountdown > 0) {
+      const timer = setTimeout(() => setOtpCountdown(otpCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [otpCountdown]);
 
   // Update Auto-lock Timeout
   const handleAutoLockChange = async (timeout: number) => {
@@ -1446,27 +1513,88 @@ export function SettingsSection() {
                           inputMode="numeric"
                         />
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleChangePasscode}
-                          disabled={isSaving}
-                          className="bg-indigo-600 hover:bg-indigo-700"
-                        >
-                          {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                          Save Passcode
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setShowPasscodeChange(false);
-                            setCurrentPasscode('');
-                            setNewPasscode('');
-                            setConfirmPasscode('');
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
+                      {/* OTP Verification Section */}
+                      {showOtpInput ? (
+                        <div className="space-y-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                          <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
+                            <Mail className="w-5 h-5" />
+                            <p className="text-sm font-medium">
+                              OTP sent to {otpEmail}
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Enter 6-digit OTP
+                            </label>
+                            <Input
+                              type="text"
+                              value={otp}
+                              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                              placeholder="Enter OTP"
+                              className="h-11 font-mono tracking-widest text-center text-lg"
+                              maxLength={6}
+                              inputMode="numeric"
+                              autoFocus
+                            />
+                            {otpCountdown > 0 && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                Expires in {Math.floor(otpCountdown / 60)}:{(otpCountdown % 60).toString().padStart(2, '0')}
+                              </p>
+                            )}
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={handleVerifyOtp}
+                              disabled={verifyingOtp || otp.length !== 6}
+                              className="bg-indigo-600 hover:bg-indigo-700"
+                            >
+                              {verifyingOtp ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
+                              Verify & Change Passcode
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleResendOtp}
+                              disabled={sendingOtp || otpCountdown > 540}
+                            >
+                              {sendingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setShowOtpInput(false);
+                                setOtp('');
+                                setOtpCountdown(0);
+                              }}
+                            >
+                              Back
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handleChangePasscode}
+                            disabled={sendingOtp || newPasscode.length !== 6 || confirmPasscode.length !== 6}
+                            className="bg-indigo-600 hover:bg-indigo-700"
+                          >
+                            {sendingOtp ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
+                            Send OTP & Save
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setShowPasscodeChange(false);
+                              setCurrentPasscode('');
+                              setNewPasscode('');
+                              setConfirmPasscode('');
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
