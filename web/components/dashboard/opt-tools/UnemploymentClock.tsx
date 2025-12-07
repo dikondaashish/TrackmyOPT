@@ -10,6 +10,7 @@ interface UnemploymentClockProps {
   subtitle?: string;
   gradient?: string;
   type?: 'opt' | 'stem';
+  startDate?: Date; // When the OPT/STEM period starts
 }
 
 export function UnemploymentClock({ 
@@ -18,10 +19,12 @@ export function UnemploymentClock({
   title, 
   subtitle,
   gradient = 'from-amber-500 via-orange-500 to-red-500',
-  type = 'opt'
+  type = 'opt',
+  startDate
 }: UnemploymentClockProps) {
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [mounted, setMounted] = useState(false);
+  const [isNotStarted, setIsNotStarted] = useState(false);
   
   const remaining = Math.max(0, maxDays - daysUsed);
   const percentage = Math.min(100, (daysUsed / maxDays) * 100);
@@ -40,6 +43,14 @@ export function UnemploymentClock({
       const etMinutes = parseInt(etParts[1]);
       const etSeconds = parseInt(etParts[2]);
       
+      // Check if start date hasn't arrived yet
+      if (startDate) {
+        const nowET = new Date(now.toLocaleString('en-US', etOptions));
+        const startET = new Date(startDate.toLocaleString('en-US', etOptions));
+        startET.setHours(0, 0, 0, 0);
+        setIsNotStarted(nowET < startET);
+      }
+      
       // Calculate time remaining until midnight ET
       const hoursLeft = 23 - etHours;
       const minutesLeft = 59 - etMinutes;
@@ -55,7 +66,7 @@ export function UnemploymentClock({
     updateCountdown();
     const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [startDate]);
 
   if (!mounted) {
     return (
@@ -79,8 +90,14 @@ export function UnemploymentClock({
 
   // Dynamic message based on days remaining - job search guidance
   const getTimelineMessage = () => {
+    // If OPT/STEM period hasn't started yet
+    if (isNotStarted) {
+      if (type === 'opt') return { icon: Timer, message: "⏳ Your OPT period hasn't started yet. Wait until your OPT start date to begin tracking unemployment days.", color: "text-blue-200" };
+      return { icon: Timer, message: "⏳ Your STEM OPT period hasn't started yet. Wait until your STEM start date to begin tracking unemployment.", color: "text-purple-200" };
+    }
+    
     if (type === 'opt') {
-      if (remaining <= 0) return { icon: AlertTriangle, message: "⚠️ Unemployment limit exceeded! Contact your DSO immediately.", color: "text-red-200" };
+      if (remaining <= 0) return { icon: AlertTriangle, message: "⚠️ Unemployment limit exceeded! Contact your DSO immediately. Talk to an immigration attorney about your options.", color: "text-red-200" };
       if (remaining <= 10) return { icon: Zap, message: "⚡ CRITICAL! Apply to ANY job NOW - unpaid internships, volunteer work, anything OPT-eligible!", color: "text-red-200" };
       if (remaining <= 30) return { icon: Heart, message: "💼 Apply to unpaid internships & volunteer positions to stop your clock immediately!", color: "text-amber-200" };
       if (remaining <= 50) return { icon: Heart, message: "🚀 Time to expand your search! Apply to startups, unpaid internships & volunteer jobs.", color: "text-amber-200" };
@@ -89,7 +106,7 @@ export function UnemploymentClock({
       return { icon: Building2, message: "✨ You have good time! Apply to MNCs & big companies - you can wait for their process.", color: "text-white/80" };
     }
     // STEM type - 60 days limit (separate from initial OPT 90 days)
-    if (remaining <= 0) return { icon: AlertTriangle, message: "⚠️ STEM unemployment limit exceeded! Contact your DSO immediately.", color: "text-red-200" };
+    if (remaining <= 0) return { icon: AlertTriangle, message: "⚠️ STEM unemployment limit exceeded! Contact your DSO immediately. Talk to an immigration attorney.", color: "text-red-200" };
     if (remaining <= 10) return { icon: Zap, message: "⚡ CRITICAL! Apply to ANY job NOW - unpaid internships, volunteer work!", color: "text-red-200" };
     if (remaining <= 20) return { icon: Heart, message: "💼 Apply to unpaid internships & volunteer positions immediately!", color: "text-amber-200" };
     if (remaining <= 30) return { icon: Heart, message: "🚀 Time to expand! Apply to startups, unpaid internships & volunteer jobs.", color: "text-amber-200" };
@@ -218,14 +235,17 @@ export function UnemploymentClockCompact({
   daysUsed, 
   maxDays,
   title,
-  type = 'opt'
+  type = 'opt',
+  startDate
 }: Omit<UnemploymentClockProps, 'subtitle' | 'gradient'>) {
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [mounted, setMounted] = useState(false);
+  const [isNotStarted, setIsNotStarted] = useState(false);
   
   const remaining = Math.max(0, maxDays - daysUsed);
   const isCritical = remaining <= 10;
   const isUrgent = remaining <= 30;
+  const isExceeded = daysUsed >= maxDays;
 
   useEffect(() => {
     setMounted(true);
@@ -239,6 +259,14 @@ export function UnemploymentClockCompact({
       const etMinutes = parseInt(etParts[1]);
       const etSeconds = parseInt(etParts[2]);
       
+      // Check if start date hasn't arrived yet
+      if (startDate) {
+        const nowET = new Date(now.toLocaleString('en-US', etOptions));
+        const startET = new Date(startDate.toLocaleString('en-US', etOptions));
+        startET.setHours(0, 0, 0, 0);
+        setIsNotStarted(nowET < startET);
+      }
+      
       setCountdown({
         hours: 23 - etHours,
         minutes: 59 - etMinutes,
@@ -248,7 +276,7 @@ export function UnemploymentClockCompact({
     updateCountdown();
     const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [startDate]);
 
   if (!mounted) {
     return <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse"></div>;
@@ -261,6 +289,24 @@ export function UnemploymentClockCompact({
 
   // Get action items based on days remaining
   const getActionItems = () => {
+    // If dates haven't started yet
+    if (isNotStarted) {
+      return [
+        "⏳ Period not started yet",
+        "📅 Check your start date",
+        "⏰ Wait until it begins"
+      ];
+    }
+    
+    // If limit exceeded
+    if (isExceeded) {
+      return [
+        "⚠️ Limit exceeded!",
+        "📞 Contact your DSO",
+        "👨‍⚖️ Talk to an attorney"
+      ];
+    }
+    
     if (type === 'opt') {
       if (isCritical) return [
         "⚠️ URGENT - Find a job NOW!",

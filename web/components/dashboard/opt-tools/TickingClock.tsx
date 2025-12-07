@@ -10,6 +10,7 @@ interface TickingClockProps {
   type?: 'deadline' | 'countdown' | 'remaining';
   gradient?: string;
   toolType?: 'opt-apply' | 'opt-clock' | 'stem-apply' | 'stem-clock';
+  startDate?: Date; // When the period starts (to check if not started yet)
 }
 
 interface TimeLeft {
@@ -25,10 +26,13 @@ export function TickingClock({
   title, 
   subtitle,
   type = 'deadline',
-  gradient = 'from-blue-600 via-indigo-600 to-purple-600'
+  gradient = 'from-blue-600 via-indigo-600 to-purple-600',
+  startDate,
+  toolType = 'opt-apply'
 }: TickingClockProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
   const [mounted, setMounted] = useState(false);
+  const [isNotStarted, setIsNotStarted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -40,6 +44,13 @@ export function TickingClock({
       
       // Get current time in ET
       const nowET = new Date(now.toLocaleString('en-US', etOptions));
+      
+      // Check if start date hasn't arrived yet
+      if (startDate) {
+        const startET = new Date(startDate.toLocaleString('en-US', etOptions));
+        startET.setHours(0, 0, 0, 0);
+        setIsNotStarted(nowET < startET);
+      }
       
       // Target date at end of day in ET (11:59:59 PM)
       const targetET = new Date(targetDate.toLocaleString('en-US', etOptions));
@@ -63,7 +74,7 @@ export function TickingClock({
     const timer = setInterval(calculateTimeLeft, 1000);
     
     return () => clearInterval(timer);
-  }, [targetDate]);
+  }, [targetDate, startDate]);
 
   if (!mounted) {
     return (
@@ -84,7 +95,21 @@ export function TickingClock({
 
   // Dynamic message based on time remaining - always encourage early filing
   const getTimelineMessage = () => {
-    if (isPassed) return { icon: CheckCircle2, message: "Deadline has passed. Check your application status on USCIS.", color: "text-green-200" };
+    // If dates haven't started yet
+    if (isNotStarted) {
+      if (toolType === 'opt-apply') return { icon: Clock, message: "⏳ Your OPT period hasn't started yet. Wait until your program end date to begin your OPT application window.", color: "text-blue-200" };
+      if (toolType === 'stem-apply') return { icon: Clock, message: "⏳ Your STEM OPT application window hasn't opened yet. Wait until your current OPT nears its end date.", color: "text-purple-200" };
+      return { icon: Clock, message: "⏳ Your dates haven't started yet. Check your start date below and wait until then.", color: "text-blue-200" };
+    }
+    
+    // If deadline has passed
+    if (isPassed) {
+      if (toolType === 'opt-apply' || toolType === 'stem-apply') {
+        return { icon: AlertTriangle, message: "⚠️ Deadline has passed! Contact your DSO immediately, talk to an immigration attorney, or check your application status on USCIS.gov", color: "text-red-200" };
+      }
+      return { icon: AlertTriangle, message: "⚠️ Period has ended. Contact your DSO or an immigration attorney if you have concerns about your status.", color: "text-red-200" };
+    }
+    
     if (isCritical) return { icon: Zap, message: "⚡ URGENT! Submit your application TODAY! You're at risk of missing the deadline!", color: "text-red-200" };
     if (isUrgent) return { icon: Rocket, message: "🚀 Time is running short! Submit now to avoid last-minute issues. USCIS processing takes 3-6 months!", color: "text-amber-200" };
     if (timeLeft.days <= 30) return { icon: FileText, message: "📋 Apply soon! Early filers get processed faster. Don't wait - USCIS queues are long!", color: "text-blue-200" };
@@ -196,10 +221,12 @@ export function TickingClockCompact({
   targetDate, 
   title,
   gradient = 'from-blue-600 to-indigo-600',
-  toolType = 'opt-apply'
+  toolType = 'opt-apply',
+  startDate
 }: Omit<TickingClockProps, 'subtitle' | 'type'>) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
   const [mounted, setMounted] = useState(false);
+  const [isNotStarted, setIsNotStarted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -211,6 +238,13 @@ export function TickingClockCompact({
       
       // Get current time in ET
       const nowET = new Date(now.toLocaleString('en-US', etOptions));
+      
+      // Check if start date hasn't arrived yet
+      if (startDate) {
+        const startET = new Date(startDate.toLocaleString('en-US', etOptions));
+        startET.setHours(0, 0, 0, 0);
+        setIsNotStarted(nowET < startET);
+      }
       
       // Target date at end of day in ET (11:59:59 PM)
       const targetET = new Date(targetDate.toLocaleString('en-US', etOptions));
@@ -234,7 +268,7 @@ export function TickingClockCompact({
     const timer = setInterval(calculateTimeLeft, 1000);
     
     return () => clearInterval(timer);
-  }, [targetDate]);
+  }, [targetDate, startDate]);
 
   if (!mounted) {
     return <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse"></div>;
@@ -246,7 +280,23 @@ export function TickingClockCompact({
 
   // Get action items based on time remaining and tool type
   const getActionItems = () => {
-    if (isPassed) return [];
+    // If dates haven't started yet
+    if (isNotStarted) {
+      return [
+        "⏳ Dates not started yet",
+        "📅 Check your start date",
+        "⏰ Wait until window opens"
+      ];
+    }
+    
+    // If deadline has passed
+    if (isPassed) {
+      return [
+        "⚠️ Deadline has passed!",
+        "📞 Contact your DSO",
+        "👨‍⚖️ Talk to an attorney"
+      ];
+    }
     
     // OPT Apply specific action items - always encourage early filing
     if (toolType === 'opt-apply') {
