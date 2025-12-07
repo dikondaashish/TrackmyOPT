@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AlertTriangle, CheckCircle2, Timer, TrendingDown } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Timer, TrendingDown, Briefcase, Rocket, Building2, Heart, Zap } from "lucide-react";
 
 interface UnemploymentClockProps {
   daysUsed: number;
@@ -77,6 +77,27 @@ export function UnemploymentClock({
     ? 'from-amber-500 via-orange-500 to-orange-600'
     : 'from-purple-500 via-violet-500 to-violet-600';
 
+  // Dynamic message based on days remaining - job search guidance
+  const getTimelineMessage = () => {
+    if (type === 'opt') {
+      if (remaining <= 0) return { icon: AlertTriangle, message: "⚠️ Unemployment limit exceeded! Contact your DSO immediately.", color: "text-red-200" };
+      if (remaining <= 10) return { icon: Zap, message: "⚡ CRITICAL! Apply to ANY job NOW - unpaid internships, volunteer work, anything OPT-eligible!", color: "text-red-200" };
+      if (remaining <= 30) return { icon: Heart, message: "💼 Apply to unpaid internships & volunteer positions to stop your clock immediately!", color: "text-amber-200" };
+      if (remaining <= 50) return { icon: Heart, message: "🚀 Time to expand your search! Apply to startups, unpaid internships & volunteer jobs.", color: "text-amber-200" };
+      if (remaining <= 60) return { icon: Rocket, message: "🎯 Apply to startups from YC, Techstars & other accelerators - they hire quickly!", color: "text-white/90" };
+      if (remaining <= 80) return { icon: Rocket, message: "💡 Great time for startups! Apply to early-stage companies - faster hiring process.", color: "text-white/90" };
+      return { icon: Building2, message: "✨ You have good time! Apply to MNCs & big companies - you can wait for their process.", color: "text-white/80" };
+    }
+    // STEM type - 150 days limit
+    if (remaining <= 0) return { icon: AlertTriangle, message: "⚠️ Aggregate unemployment limit exceeded! Contact DSO.", color: "text-red-200" };
+    if (remaining <= 20) return { icon: Zap, message: "⚡ CRITICAL! Secure employment immediately to maintain status!", color: "text-red-200" };
+    if (remaining <= 50) return { icon: Heart, message: "🚀 Apply broadly - startups, contract work, anything STEM-eligible!", color: "text-amber-200" };
+    if (remaining <= 100) return { icon: Rocket, message: "💡 Keep applying actively - explore startups and growing companies.", color: "text-white/90" };
+    return { icon: Building2, message: "✨ Good position! Apply to companies of all sizes - you have time.", color: "text-white/80" };
+  };
+
+  const timelineInfo = getTimelineMessage();
+
   return (
     <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${baseGradient} p-8 shadow-2xl`}>
       {/* Animated background elements */}
@@ -142,6 +163,18 @@ export function UnemploymentClock({
               <span className="text-3xl font-bold tabular-nums animate-pulse">{String(countdown.seconds).padStart(2, '0')}</span>
             </div>
             <div className="text-sm text-white/80 mt-2 uppercase tracking-wider">Time Left Today (ET)</div>
+          </div>
+        </div>
+
+        {/* Dynamic Timeline Message */}
+        <div className="mb-6 p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+              <timelineInfo.icon className="w-5 h-5 text-white" />
+            </div>
+            <p className={`text-sm leading-relaxed ${timelineInfo.color}`}>
+              {timelineInfo.message}
+            </p>
           </div>
         </div>
 
