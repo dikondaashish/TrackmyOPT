@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     // Send email notification via SMTP
     try {
       const info = await transporter.sendMail({
-        from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+        from: `Zyene Inc <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
         to: userEmail,
         subject: `🔔 Your USCIS Case Status Has Changed - ${receipt_number}`,
         html: generateEmailHTML({
@@ -243,10 +243,10 @@ function generateEmailHTML({
                 <tr>
                   <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
                     <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 13px; text-align: center;">
-                      This is a premium feature of TrackMyOPT
+                      This is a premium feature
                     </p>
                     <p style="margin: 0; color: #9ca3af; font-size: 12px; text-align: center;">
-                      © ${new Date().getFullYear()} TrackMyOPT. All rights reserved.
+                      © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
                     </p>
                     <p style="margin: 10px 0 0 0; color: #9ca3af; font-size: 11px; text-align: center;">
                       <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://trackmyopt.com'}/dashboard/case-status" style="color: #667eea; text-decoration: none;">Manage Notifications</a>

@@ -214,8 +214,38 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
     (new Date(doc.expiry_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  const urgencyColor = daysUntilExpiry <= 7 ? '#ef4444' : daysUntilExpiry <= 30 ? '#f97316' : '#eab308';
-  const urgencyLabel = daysUntilExpiry <= 7 ? 'CRITICAL' : daysUntilExpiry <= 30 ? 'URGENT' : 'REMINDER';
+  // Determine urgency based on days remaining
+  let urgencyColor: string;
+  let urgencyLabel: string;
+  let headerEmoji: string;
+  
+  if (daysUntilExpiry <= 0) {
+    urgencyColor = '#dc2626';
+    urgencyLabel = '⚠️ EXPIRES TODAY';
+    headerEmoji = '🚨';
+  } else if (daysUntilExpiry <= 5) {
+    urgencyColor = '#dc2626';
+    urgencyLabel = 'CRITICAL';
+    headerEmoji = '🚨';
+  } else if (daysUntilExpiry <= 10) {
+    urgencyColor = '#ea580c';
+    urgencyLabel = 'URGENT';
+    headerEmoji = '⚠️';
+  } else if (daysUntilExpiry <= 20) {
+    urgencyColor = '#d97706';
+    urgencyLabel = 'IMPORTANT';
+    headerEmoji = '📢';
+  } else if (daysUntilExpiry <= 30) {
+    urgencyColor = '#ca8a04';
+    urgencyLabel = 'ATTENTION';
+    headerEmoji = '📅';
+  } else {
+    urgencyColor = '#2563eb';
+    urgencyLabel = 'REMINDER';
+    headerEmoji = '📋';
+  }
+
+  const daysText = daysUntilExpiry <= 0 ? 'TODAY' : daysUntilExpiry === 1 ? '1 day' : `${daysUntilExpiry} days`;
 
   return `
     <!DOCTYPE html>
@@ -228,19 +258,20 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
         <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px;">
           <tr>
             <td align="center">
-              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 
                 <!-- Header -->
                 <tr>
                   <td style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); padding: 30px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 28px;">⏰ Document Reminder</h1>
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">${headerEmoji} Document Expiry Alert</h1>
+                    <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">Action Required</p>
                   </td>
                 </tr>
 
                 <!-- Urgency Badge -->
                 <tr>
-                  <td style="padding: 20px; text-align: center;">
-                    <div style="display: inline-block; background-color: ${urgencyColor}; color: #ffffff; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 12px;">
+                  <td style="padding: 24px 30px 0 30px; text-align: center;">
+                    <div style="display: inline-block; background-color: ${urgencyColor}; color: #ffffff; padding: 10px 24px; border-radius: 24px; font-weight: 700; font-size: 13px; letter-spacing: 0.5px;">
                       ${urgencyLabel}
                     </div>
                   </td>
@@ -248,53 +279,77 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
 
                 <!-- Main Content -->
                 <tr>
-                  <td style="padding: 0 30px 30px 30px;">
-                    <h2 style="color: #1f2937; margin-top: 0;">Your document is expiring soon!</h2>
+                  <td style="padding: 24px 30px 30px 30px;">
+                    <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 22px; text-align: center;">
+                      ${daysUntilExpiry <= 0 ? 'Your document expires today!' : `Your document expires in ${daysText}!`}
+                    </h2>
                     
-                    <div style="background-color: #f9fafb; border-left: 4px solid ${urgencyColor}; padding: 15px; margin: 20px 0; border-radius: 4px;">
-                      <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">Document:</p>
-                      <p style="margin: 0 0 15px 0; color: #1f2937; font-size: 18px; font-weight: 600;">${doc.filename}</p>
-                      
-                      <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">Document Type:</p>
-                      <p style="margin: 0 0 15px 0; color: #1f2937; font-size: 16px; text-transform: capitalize;">${doc.document_type.replace('_', ' ')}</p>
-                      
-                      <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">Expiry Date:</p>
-                      <p style="margin: 0 0 15px 0; color: ${urgencyColor}; font-size: 18px; font-weight: 600;">${expiryDate}</p>
-                      
-                      <p style="margin: 0; color: #6b7280; font-size: 14px;">Days Remaining:</p>
-                      <p style="margin: 0; color: ${urgencyColor}; font-size: 24px; font-weight: bold;">${daysUntilExpiry} days</p>
+                    <!-- Document Details Card -->
+                    <div style="background-color: #f9fafb; border-radius: 12px; padding: 24px; margin: 20px 0; border: 1px solid #e5e7eb;">
+                      <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
+                            <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Document Name</p>
+                            <p style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 600;">${doc.filename}</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 16px 0; border-bottom: 1px solid #e5e7eb;">
+                            <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Document Type</p>
+                            <p style="margin: 0; color: #1f2937; font-size: 16px; text-transform: capitalize;">${doc.document_type.replace('_', ' ')}</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 16px 0; border-bottom: 1px solid #e5e7eb;">
+                            <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Expiry Date</p>
+                            <p style="margin: 0; color: ${urgencyColor}; font-size: 18px; font-weight: 700;">${expiryDate}</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding-top: 16px;">
+                            <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Time Remaining</p>
+                            <p style="margin: 0; color: ${urgencyColor}; font-size: 28px; font-weight: 800;">${daysText}</p>
+                          </td>
+                        </tr>
+                      </table>
                     </div>
 
-                    <p style="color: #4b5563; line-height: 1.6; margin: 20px 0;">
-                      ${reminder.reminder_message}
-                    </p>
+                    <!-- Action Required Box -->
+                    <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px 20px; border-radius: 4px; margin: 20px 0;">
+                      <p style="margin: 0 0 8px 0; color: #92400e; font-weight: 600; font-size: 15px;">📌 What you should do:</p>
+                      <ul style="margin: 0; padding: 0 0 0 20px; color: #78350f; font-size: 14px; line-height: 1.8;">
+                        <li>If you haven't renewed yet, please renew this document soon</li>
+                        <li>If you've already renewed, <strong>update the expiry date</strong> in your Document Vault to stop receiving these reminders</li>
+                      </ul>
+                    </div>
 
-                    <p style="color: #4b5563; line-height: 1.6;">
-                      Please take action to renew or update this document before it expires to avoid any compliance issues.
-                    </p>
-
-                    <!-- CTA Button -->
+                    <!-- CTA Buttons -->
                     <div style="text-align: center; margin: 30px 0;">
                       <a href="https://www.trackmyopt.com/dashboard/documents" 
-                         style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 16px;">
-                        View Document in Vault
+                         style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 16px 36px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);">
+                        View Document in Vault →
                       </a>
                     </div>
+
+                    <p style="color: #6b7280; font-size: 13px; text-align: center; margin: 20px 0 0 0; line-height: 1.6;">
+                      Keep your documents up to date to stay compliant with immigration requirements.
+                    </p>
                   </td>
                 </tr>
 
                 <!-- Footer -->
                 <tr>
-                  <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
-                    <p style="color: #6b7280; font-size: 12px; margin: 0 0 10px 0;">
+                  <td style="background-color: #f9fafb; padding: 24px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 12px; margin: 0 0 12px 0;">
                       You're receiving this email because you have document reminders enabled.
                     </p>
                     <p style="color: #6b7280; font-size: 12px; margin: 0;">
-                      <a href="https://www.trackmyopt.com/dashboard/settings" style="color: #06b6d4; text-decoration: none;">Manage Email Preferences</a> | 
-                      <a href="https://www.trackmyopt.com/dashboard/documents" style="color: #06b6d4; text-decoration: none;">View All Documents</a>
+                      <a href="https://www.trackmyopt.com/dashboard/settings" style="color: #06b6d4; text-decoration: none; font-weight: 500;">Manage Preferences</a>
+                      <span style="color: #d1d5db; margin: 0 8px;">|</span>
+                      <a href="https://www.trackmyopt.com/dashboard/documents" style="color: #06b6d4; text-decoration: none; font-weight: 500;">View All Documents</a>
                     </p>
-                    <p style="color: #9ca3af; font-size: 11px; margin: 15px 0 0 0;">
-                      © 2025 Zyene, Inc. All rights reserved.
+                    <p style="color: #9ca3af; font-size: 11px; margin: 16px 0 0 0;">
+                      © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
                     </p>
                   </td>
                 </tr>
