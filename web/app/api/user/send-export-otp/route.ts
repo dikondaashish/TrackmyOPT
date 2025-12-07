@@ -46,50 +46,64 @@ export async function POST() {
       return NextResponse.json({ error: 'Failed to store verification code' }, { status: 500 });
     }
 
-    // Send OTP email
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    // Check SMTP configuration
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.error('❌ SMTP not configured');
+      return NextResponse.json({ error: 'Email service not configured' }, { status: 500 });
+    }
 
-    await transporter.sendMail({
-      from: `"TrackMyOPT" <${process.env.SMTP_USER}>`,
-      to: user.email,
-      subject: 'Your Data Export Verification Code - TrackMyOPT',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%); padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0;">TrackMyOPT</h1>
-          </div>
-          <div style="padding: 30px; background: #f9fafb;">
-            <h2 style="color: #1f2937; margin-bottom: 20px;">Data Export Verification</h2>
-            <p style="color: #4b5563; margin-bottom: 20px;">
-              You requested to export your data. Use this code to verify your identity:
-            </p>
-            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0;">
-              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1f2937;">${otp}</span>
+    // Send OTP email
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"TrackMyOPT" <${process.env.SMTP_USER}>`,
+        to: user.email,
+        subject: 'Your Data Export Verification Code - TrackMyOPT',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%); padding: 30px; text-align: center;">
+              <h1 style="color: white; margin: 0;">TrackMyOPT</h1>
             </div>
-            <p style="color: #6b7280; font-size: 14px;">
-              This code expires in 10 minutes. If you didn't request this, please ignore this email.
-            </p>
+            <div style="padding: 30px; background: #f9fafb;">
+              <h2 style="color: #1f2937; margin-bottom: 20px;">Data Export Verification</h2>
+              <p style="color: #4b5563; margin-bottom: 20px;">
+                You requested to export your data. Use this code to verify your identity:
+              </p>
+              <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1f2937;">${otp}</span>
+              </div>
+              <p style="color: #6b7280; font-size: 14px;">
+                This code expires in 10 minutes. If you didn't request this, please ignore this email.
+              </p>
+            </div>
+            <div style="padding: 20px; text-align: center; color: #9ca3af; font-size: 12px;">
+              <p>© ${new Date().getFullYear()} TrackMyOPT. All rights reserved.</p>
+            </div>
           </div>
-          <div style="padding: 20px; text-align: center; color: #9ca3af; font-size: 12px;">
-            <p>© ${new Date().getFullYear()} TrackMyOPT. All rights reserved.</p>
-          </div>
-        </div>
-      `,
-    });
+        `,
+      });
+    } catch (emailError) {
+      console.error('❌ Email sending failed:', emailError);
+      return NextResponse.json({ 
+        error: `Email sending failed: ${emailError instanceof Error ? emailError.message : 'Unknown error'}` 
+      }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Error sending export OTP:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to send verification code' },
+      { error: `Failed to send verification code: ${errorMessage}` },
       { status: 500 }
     );
   }
