@@ -88,12 +88,14 @@ export function UnemploymentClock({
       if (remaining <= 80) return { icon: Rocket, message: "💡 Great time for startups! Apply to early-stage companies - faster hiring process.", color: "text-white/90" };
       return { icon: Building2, message: "✨ You have good time! Apply to MNCs & big companies - you can wait for their process.", color: "text-white/80" };
     }
-    // STEM type - 150 days limit
-    if (remaining <= 0) return { icon: AlertTriangle, message: "⚠️ Aggregate unemployment limit exceeded! Contact DSO.", color: "text-red-200" };
-    if (remaining <= 20) return { icon: Zap, message: "⚡ CRITICAL! Secure employment immediately to maintain status!", color: "text-red-200" };
-    if (remaining <= 50) return { icon: Heart, message: "🚀 Apply broadly - startups, contract work, anything STEM-eligible!", color: "text-amber-200" };
-    if (remaining <= 100) return { icon: Rocket, message: "💡 Keep applying actively - explore startups and growing companies.", color: "text-white/90" };
-    return { icon: Building2, message: "✨ Good position! Apply to companies of all sizes - you have time.", color: "text-white/80" };
+    // STEM type - 60 days limit (separate from initial OPT 90 days)
+    if (remaining <= 0) return { icon: AlertTriangle, message: "⚠️ STEM unemployment limit exceeded! Contact your DSO immediately.", color: "text-red-200" };
+    if (remaining <= 10) return { icon: Zap, message: "⚡ CRITICAL! Apply to ANY job NOW - unpaid internships, volunteer work!", color: "text-red-200" };
+    if (remaining <= 20) return { icon: Heart, message: "💼 Apply to unpaid internships & volunteer positions immediately!", color: "text-amber-200" };
+    if (remaining <= 30) return { icon: Heart, message: "🚀 Time to expand! Apply to startups, unpaid internships & volunteer jobs.", color: "text-amber-200" };
+    if (remaining <= 40) return { icon: Rocket, message: "🎯 Apply to startups from YC, Techstars - they hire quickly!", color: "text-white/90" };
+    if (remaining <= 50) return { icon: Rocket, message: "💡 Great time for startups! Apply to early-stage companies.", color: "text-white/90" };
+    return { icon: Building2, message: "✨ You have good time! Apply to MNCs & big E-Verify companies.", color: "text-white/80" };
   };
 
   const timelineInfo = getTimelineMessage();
@@ -281,20 +283,20 @@ export function UnemploymentClockCompact({
         "💼 Maintain job records"
       ];
     }
-    // STEM type
+    // STEM type - 60 day limit
     if (isCritical) return [
-      "⚠️ 150-day limit critical!",
+      "⚠️ URGENT - 60-day limit critical!",
       "💼 Secure employment ASAP",
       "📞 Contact DSO for options"
     ];
     if (isUrgent) return [
       "🚀 Find employment quickly!",
-      "📝 Apply to multiple jobs",
+      "📝 Apply to multiple E-Verify jobs",
       "💼 Consider contract work"
     ];
     return [
-      "✅ Track aggregate days",
-      "💼 Maintain employment",
+      "✅ Track your STEM days",
+      "💼 Maintain E-Verify employment",
       "📊 Report changes to DSO"
     ];
   };

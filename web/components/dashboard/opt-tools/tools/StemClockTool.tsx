@@ -127,7 +127,7 @@ export function StemClockTool() {
     }
     
     const used = Math.max(0, totalDays - employedDays);
-    const max = 150; // STEM OPT has its own 150-day limit (doesn't roll over from initial OPT)
+    const max = 60; // STEM OPT has 60-day unemployment limit (separate from initial OPT 90 days)
     const remaining = Math.max(0, max - used);
 
     setResults({ used, remaining, max });
@@ -221,7 +221,7 @@ export function StemClockTool() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 dark:text-white">STEM Clock Tracker</h1>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Track your 150-day aggregate unemployment limit</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Track your 60-day unemployment limit</p>
                 </div>
               </div>
             </div>
@@ -242,10 +242,10 @@ export function StemClockTool() {
                     <AlertTriangle className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold mb-2">STEM OPT 150-Day Unemployment Limit</h2>
+                    <h2 className="text-lg font-bold mb-2">STEM OPT 60-Day Unemployment Limit</h2>
                     <p className="text-purple-100 leading-relaxed">
-                      During your STEM OPT extension, you cannot exceed <span className="font-semibold text-white">150 days of unemployment</span>. 
-                      This is a separate limit from initial OPT - <span className="font-semibold text-white">days do not roll over</span> between periods.
+                      During your STEM OPT extension, you have <span className="font-semibold text-white">60 days of unemployment</span> allowed. 
+                      This is separate from initial OPT (90 days) - each period has its own limit.
                     </p>
                   </div>
                 </div>
@@ -302,81 +302,6 @@ export function StemClockTool() {
               </div>
             </div>
 
-            {/* Employment History - Collapsible */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
-              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                      <Briefcase className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">STEM Employment History</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Add your STEM OPT jobs</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={addEmploymentSpan}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white rounded-xl shadow-lg shadow-purple-500/25 transition-all"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Job
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                {employmentSpans.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                      <Briefcase className="w-8 h-8 opacity-50" />
-                    </div>
-                    <p className="font-medium text-gray-900 dark:text-white">No STEM employment periods added</p>
-                    <p className="text-sm mt-1">Add your STEM OPT jobs to calculate unemployment</p>
-                  </div>
-                ) : (
-                <div className="space-y-4">
-                  {employmentSpans.map((span, index) => (
-                    <div key={span.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="font-medium text-gray-900 dark:text-white">Job #{index + 1}</span>
-                        <button
-                          onClick={() => removeSpan(span.id)}
-                          className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-600 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employer</label>
-                          <input
-                            type="text"
-                            value={span.employer_name}
-                            onChange={(e) => updateSpan(span.id, 'employer_name', e.target.value)}
-                            placeholder="Company name"
-                            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-                          />
-                        </div>
-                        <DateInput
-                          label="Start Date"
-                          value={span.start_date}
-                          onChange={(v) => updateSpan(span.id, 'start_date', v)}
-                        />
-                        <DateInput
-                          label="End Date"
-                          value={span.end_date || ''}
-                          onChange={(v) => updateSpan(span.id, 'end_date', v || null)}
-                          description="Leave blank if current"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                )}
-              </div>
-            </div>
-
             {/* Results - STEM Unemployment Clock with Live Ticking */}
             {results && (
               <div className="space-y-6">
@@ -385,7 +310,7 @@ export function StemClockTool() {
                   daysUsed={results.used}
                   maxDays={results.max}
                   title="STEM Unemployment Tracker"
-                  subtitle="STEM OPT 150-day limit (separate from initial OPT)"
+                  subtitle="60-day limit for STEM OPT extension"
                   type="stem"
                 />
 
@@ -398,7 +323,7 @@ export function StemClockTool() {
                       </div>
                       <div>
                         <h2 className="text-lg font-bold text-gray-900 dark:text-white">Your STEM Unemployment Status</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">150-day limit for STEM OPT period</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">60-day limit for STEM OPT period</p>
                       </div>
                     </div>
                     
@@ -409,13 +334,13 @@ export function StemClockTool() {
                         icon="⏱️"
                         label="Days Used"
                         value={`${results.used} days`}
-                        status={results.used >= 120 ? 'critical' : results.used >= 80 ? 'warning' : 'ok'}
+                        status={results.used >= 50 ? 'critical' : results.used >= 30 ? 'warning' : 'ok'}
                       />
                       <ResultCard
                         icon="✅"
                         label="Days Remaining"
                         value={`${results.remaining} days`}
-                        status={results.remaining <= 30 ? 'critical' : results.remaining <= 70 ? 'warning' : 'ok'}
+                        status={results.remaining <= 10 ? 'critical' : results.remaining <= 30 ? 'warning' : 'ok'}
                       />
                     </div>
                   </div>
@@ -429,6 +354,95 @@ export function StemClockTool() {
               isPremium={isPremium}
               onUpgradeClick={() => setShowPricingModal(true)}
             />
+
+            {/* Employment History - Collapsible (at bottom) */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+              <button
+                onClick={() => setShowEmploymentHistory(!showEmploymentHistory)}
+                className="w-full p-6 border-b border-gray-100 dark:border-gray-800"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div className="text-left">
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">STEM Employment History</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {employmentSpans.length === 0 ? 'Add your STEM OPT jobs' : `${employmentSpans.length} job${employmentSpans.length > 1 ? 's' : ''} added`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); addEmploymentSpan(); }}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white rounded-xl shadow-lg shadow-purple-500/25 transition-all"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Job
+                    </button>
+                    {showEmploymentHistory ? (
+                      <ChevronUp className="w-5 h-5 text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    )}
+                  </div>
+                </div>
+              </button>
+              
+              {showEmploymentHistory && (
+                <div className="p-6">
+                  {employmentSpans.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                        <Briefcase className="w-8 h-8 opacity-50" />
+                      </div>
+                      <p className="font-medium text-gray-900 dark:text-white">No STEM employment periods added</p>
+                      <p className="text-sm mt-1">Add your STEM OPT jobs to calculate unemployment</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {employmentSpans.map((span, index) => (
+                        <div key={span.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="font-medium text-gray-900 dark:text-white">Job #{index + 1}</span>
+                            <button
+                              onClick={() => removeSpan(span.id)}
+                              className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-600 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employer</label>
+                              <input
+                                type="text"
+                                value={span.employer_name}
+                                onChange={(e) => updateSpan(span.id, 'employer_name', e.target.value)}
+                                placeholder="Company name"
+                                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                              />
+                            </div>
+                            <DateInput
+                              label="Start Date"
+                              value={span.start_date}
+                              onChange={(v) => updateSpan(span.id, 'start_date', v)}
+                            />
+                            <DateInput
+                              label="End Date"
+                              value={span.end_date || ''}
+                              onChange={(v) => updateSpan(span.id, 'end_date', v || null)}
+                              description="Leave blank if current"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right Sidebar */}
@@ -461,19 +475,19 @@ export function StemClockTool() {
                       <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <ChevronRight className="w-3 h-3 text-purple-600" />
                       </div>
-                      <span>150-day limit is separate from OPT</span>
+                      <span>STEM has 60-day limit (separate)</span>
                     </li>
                     <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <ChevronRight className="w-3 h-3 text-purple-600" />
                       </div>
-                      <span>Days don't roll over from initial OPT</span>
+                      <span>Initial OPT has 90-day limit</span>
                     </li>
                     <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <ChevronRight className="w-3 h-3 text-purple-600" />
                       </div>
-                      <span>E-Verify employer required for STEM</span>
+                      <span>E-Verify employer required</span>
                     </li>
                   </ul>
                 </div>
