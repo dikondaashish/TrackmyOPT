@@ -31,6 +31,7 @@ interface DocumentViewModalProps {
   onClose: () => void;
   onDelete: () => void;
   onUpdate?: (updatedDoc: Document) => void;
+  autoEditExpiry?: boolean;
 }
 
 function isValidDate(dateString: string | null): boolean {
@@ -46,11 +47,11 @@ function formatDateForInput(dateString: string | null): string {
   return date.toISOString().split('T')[0];
 }
 
-export function DocumentViewModal({ document, onClose, onDelete, onUpdate }: DocumentViewModalProps) {
+export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoEditExpiry = false }: DocumentViewModalProps) {
   const [viewUrl, setViewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isEditingExpiry, setIsEditingExpiry] = useState(false);
+  const [isEditingExpiry, setIsEditingExpiry] = useState(autoEditExpiry);
   const [expiryDate, setExpiryDate] = useState(formatDateForInput(document.expiryDate));
   const [savingExpiry, setSavingExpiry] = useState(false);
   const [currentExpiryDate, setCurrentExpiryDate] = useState(document.expiryDate);

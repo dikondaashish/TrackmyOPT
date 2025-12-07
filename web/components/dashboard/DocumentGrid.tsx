@@ -37,6 +37,12 @@ export function DocumentGrid({
   onRefresh,
 }: DocumentGridProps) {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [openEditExpiry, setOpenEditExpiry] = useState(false);
+
+  function handleOpenWithExpiry(doc: Document) {
+    setSelectedDocument(doc);
+    setOpenEditExpiry(true);
+  }
 
   async function handleDelete(id: string) {
     if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
@@ -104,8 +110,12 @@ export function DocumentGrid({
           <DocumentCard
             key={doc.id}
             document={doc}
-            onView={() => setSelectedDocument(doc)}
+            onView={() => {
+              setOpenEditExpiry(false);
+              setSelectedDocument(doc);
+            }}
             onDelete={() => handleDelete(doc.id)}
+            onAddExpiry={() => handleOpenWithExpiry(doc)}
           />
         ))}
       </div>
@@ -113,7 +123,10 @@ export function DocumentGrid({
       {selectedDocument && (
         <DocumentViewModal
           document={selectedDocument}
-          onClose={() => setSelectedDocument(null)}
+          onClose={() => {
+            setSelectedDocument(null);
+            setOpenEditExpiry(false);
+          }}
           onDelete={() => {
             handleDelete(selectedDocument.id);
             setSelectedDocument(null);
@@ -124,6 +137,7 @@ export function DocumentGrid({
             // Refresh the document list to reflect changes
             onRefresh();
           }}
+          autoEditExpiry={openEditExpiry}
         />
       )}
     </>
