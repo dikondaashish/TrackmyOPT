@@ -20,7 +20,6 @@ interface EmploymentSpan {
 export function StemClockTool() {
   const router = useRouter();
   const [stemStartDate, setStemStartDate] = useState("");
-  const [stemEndDate, setStemEndDate] = useState("");
   const [employmentSpans, setEmploymentSpans] = useState<EmploymentSpan[]>([]);
   const [showEmploymentHistory, setShowEmploymentHistory] = useState(false);
   const [results, setResults] = useState<{
@@ -44,8 +43,8 @@ export function StemClockTool() {
   }, []);
 
   useEffect(() => {
-    if (stemStartDate && stemEndDate) calculate();
-  }, [stemStartDate, stemEndDate, employmentSpans]);
+    if (stemStartDate) calculate();
+  }, [stemStartDate, employmentSpans]);
 
   const loadSavedData = async () => {
     setIsLoading(true);
@@ -101,14 +100,13 @@ export function StemClockTool() {
 
   const calculate = () => {
     const stemStart = parseDate(stemStartDate);
-    const stemEnd = parseDate(stemEndDate);
-    if (!stemStart || !stemEnd) return;
+    if (!stemStart) return;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const endDate = today < stemEnd ? today : stemEnd;
-    const totalDays = Math.max(0, daysBetween(stemStart, endDate));
+    // Calculate from STEM start date to today
+    const totalDays = Math.max(0, daysBetween(stemStart, today));
     
     let employedDays = 0;
     for (const span of employmentSpans) {
@@ -119,7 +117,7 @@ export function StemClockTool() {
       if (!spanEnd) continue;
       
       const effectiveStart = spanStart < stemStart ? stemStart : spanStart;
-      const effectiveEnd = spanEnd > endDate ? endDate : spanEnd;
+      const effectiveEnd = spanEnd > today ? today : spanEnd;
       
       if (effectiveStart <= effectiveEnd) {
         employedDays += daysBetween(effectiveStart, effectiveEnd);
@@ -267,19 +265,12 @@ export function StemClockTool() {
               </div>
               
               <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="max-w-md">
                   <DateInput
                     label="STEM Start Date"
                     value={stemStartDate}
                     onChange={setStemStartDate}
                     description="From your STEM EAD card"
-                    required
-                  />
-                  <DateInput
-                    label="STEM End Date"
-                    value={stemEndDate}
-                    onChange={setStemEndDate}
-                    description="24 months from start (auto-calculated)"
                     required
                   />
                 </div>
@@ -348,14 +339,7 @@ export function StemClockTool() {
               </div>
             )}
 
-            {/* Email Reminders */}
-            <EmailReminder
-              toolType="stem-clock"
-              isPremium={isPremium}
-              onUpgradeClick={() => setShowPricingModal(true)}
-            />
-
-            {/* Employment History - Collapsible (at bottom) */}
+            {/* Employment History - Collapsible */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
               <button
                 onClick={() => setShowEmploymentHistory(!showEmploymentHistory)}
@@ -443,6 +427,13 @@ export function StemClockTool() {
                 </div>
               )}
             </div>
+
+            {/* Email Reminders */}
+            <EmailReminder
+              toolType="stem-clock"
+              isPremium={isPremium}
+              onUpgradeClick={() => setShowPricingModal(true)}
+            />
           </div>
 
           {/* Right Sidebar */}
