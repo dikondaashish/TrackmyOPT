@@ -4,10 +4,10 @@
  * Document Upload Modal
  * 
  * Upload documents with AI-powered analysis
- * Shows real-time progress: Upload → OCR → AI Analysis → Complete
+ * Shows real-time animated progress: Upload → OCR → AI Analysis → Complete
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface DocumentUploadModalProps {
   open: boolean;
@@ -206,57 +206,9 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
           </div>
         )}
 
-        {/* Uploading/Processing */}
+        {/* Uploading/Processing - Animated Loading State */}
         {(stage === 'uploading' || stage === 'processing') && (
-          <div className="space-y-6">
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>
-                  {stage === 'uploading' ? '📤 Uploading file...' : '🤖 AI analyzing document...'}
-                </span>
-                <span>{progress}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div
-                  className="bg-cyan-500 h-3 rounded-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Processing Steps */}
-            <div className="space-y-3">
-              <ProcessingStep
-                icon="📤"
-                label="Uploading to secure storage"
-                active={stage === 'uploading'}
-                complete={progress > 30}
-              />
-              <ProcessingStep
-                icon="📄"
-                label="Extracting text with Gemini OCR"
-                active={stage === 'processing' && progress < 60}
-                complete={progress >= 60}
-              />
-              <ProcessingStep
-                icon="🤖"
-                label="Analyzing document type"
-                active={stage === 'processing' && progress >= 60 && progress < 80}
-                complete={progress >= 80}
-              />
-              <ProcessingStep
-                icon="🔍"
-                label="Extracting metadata fields"
-                active={stage === 'processing' && progress >= 80}
-                complete={progress >= 100}
-              />
-            </div>
-
-            <div className="text-xs text-gray-500 text-center">
-              This may take 10-30 seconds depending on document size
-            </div>
-          </div>
+          <AnimatedProcessingState progress={progress} stage={stage} />
         )}
 
         {/* Complete */}
@@ -330,28 +282,271 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
   );
 }
 
-function ProcessingStep({
-  icon,
-  label,
-  active,
-  complete,
-}: {
-  icon: string;
-  label: string;
-  active: boolean;
-  complete: boolean;
-}) {
+// Task sequences for document processing animation
+const PROCESSING_SEQUENCES = [
+  {
+    status: "Uploading to secure storage",
+    lines: [
+      "Initializing secure connection...",
+      "Encrypting document data...",
+      "Uploading to AWS S3...",
+      "Verifying upload integrity...",
+      "Upload complete ✓",
+    ],
+  },
+  {
+    status: "Extracting text with Gemini OCR",
+    lines: [
+      "Initializing Gemini Vision AI...",
+      "Scanning document pages...",
+      "Detecting text regions...",
+      "Extracting text content...",
+      "Processing handwritten text...",
+      "Validating extracted data...",
+      "OCR extraction complete ✓",
+    ],
+  },
+  {
+    status: "Analyzing document type",
+    lines: [
+      "Analyzing document structure...",
+      "Identifying document category...",
+      "Matching against known templates...",
+      "Detecting Passport format...",
+      "Checking Visa indicators...",
+      "Validating I-20 patterns...",
+      "Document type identified ✓",
+    ],
+  },
+  {
+    status: "Extracting metadata fields",
+    lines: [
+      "Scanning for key fields...",
+      "Extracting name information...",
+      "Parsing date fields...",
+      "Identifying expiry dates...",
+      "Extracting document numbers...",
+      "Validating field accuracy...",
+      "Cross-referencing data...",
+      "Metadata extraction complete ✓",
+    ],
+  },
+];
+
+// Animated spinner component
+const LoadingSpinner = ({ progress }: { progress: number }) => (
+  <div className="relative w-8 h-8">
+    <svg
+      viewBox="0 0 240 240"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-full h-full"
+      aria-label={`Loading progress: ${Math.round(progress)}%`}
+    >
+      <title>Loading Progress</title>
+      <defs>
+        <mask id="progress-mask">
+          <rect width="240" height="240" fill="black" />
+          <circle
+            r="120"
+            cx="120"
+            cy="120"
+            fill="white"
+            strokeDasharray={`${(progress / 100) * 754}, 754`}
+            transform="rotate(-90 120 120)"
+          />
+        </mask>
+      </defs>
+      <style>
+        {`
+          @keyframes rotate-cw {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes rotate-ccw {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+          }
+          .g-spin circle {
+            transform-origin: 120px 120px;
+          }
+          .g-spin circle:nth-child(1) { animation: rotate-cw 6s linear infinite; }
+          .g-spin circle:nth-child(2) { animation: rotate-ccw 6s linear infinite; }
+          .g-spin circle:nth-child(3) { animation: rotate-cw 6s linear infinite; }
+          .g-spin circle:nth-child(4) { animation: rotate-ccw 6s linear infinite; }
+          .g-spin circle:nth-child(2n) { animation-delay: 0.2s; }
+          .g-spin circle:nth-child(3n) { animation-delay: 0.3s; }
+        `}
+      </style>
+      <g
+        className="g-spin"
+        strokeWidth="16"
+        strokeDasharray="18% 40%"
+        mask="url(#progress-mask)"
+      >
+        <circle r="150" cx="120" cy="120" stroke="#06B6D4" opacity="0.95" />
+        <circle r="130" cx="120" cy="120" stroke="#22D3EE" opacity="0.95" />
+        <circle r="110" cx="120" cy="120" stroke="#67E8F9" opacity="0.95" />
+        <circle r="90" cx="120" cy="120" stroke="#A5F3FC" opacity="0.95" />
+      </g>
+    </svg>
+  </div>
+);
+
+// Animated processing state component
+function AnimatedProcessingState({ progress, stage }: { progress: number; stage: string }) {
+  const [sequenceIndex, setSequenceIndex] = useState(0);
+  const [visibleLines, setVisibleLines] = useState<Array<{ text: string; number: number }>>([]);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const codeContainerRef = useRef<HTMLDivElement>(null);
+  const lineHeight = 28;
+
+  const currentSequence = PROCESSING_SEQUENCES[sequenceIndex];
+  const totalLines = currentSequence?.lines.length || 0;
+
+  // Update sequence based on progress
+  useEffect(() => {
+    if (progress <= 30) {
+      setSequenceIndex(0); // Uploading
+    } else if (progress <= 50) {
+      setSequenceIndex(1); // OCR
+    } else if (progress <= 75) {
+      setSequenceIndex(2); // Analyzing type
+    } else {
+      setSequenceIndex(3); // Extracting metadata
+    }
+  }, [progress]);
+
+  // Initialize visible lines when sequence changes
+  useEffect(() => {
+    if (!currentSequence) return;
+    const initialLines = [];
+    for (let i = 0; i < Math.min(3, totalLines); i++) {
+      initialLines.push({
+        text: currentSequence.lines[i],
+        number: i + 1,
+      });
+    }
+    setVisibleLines(initialLines);
+    setScrollPosition(0);
+  }, [sequenceIndex, currentSequence, totalLines]);
+
+  // Handle line advancement
+  useEffect(() => {
+    if (!currentSequence) return;
+    
+    const advanceTimer = setInterval(() => {
+      const firstVisibleLineIndex = Math.floor(scrollPosition / lineHeight);
+      const nextLineIndex = firstVisibleLineIndex + 3;
+
+      if (nextLineIndex < totalLines) {
+        setVisibleLines((prevLines) => {
+          if (nextLineIndex < totalLines && !prevLines.find(l => l.number === nextLineIndex + 1)) {
+            return [
+              ...prevLines,
+              {
+                text: currentSequence.lines[nextLineIndex],
+                number: nextLineIndex + 1,
+              },
+            ];
+          }
+          return prevLines;
+        });
+        setScrollPosition((prev) => prev + lineHeight);
+      }
+    }, 1500);
+
+    return () => clearInterval(advanceTimer);
+  }, [scrollPosition, totalLines, currentSequence, lineHeight]);
+
+  // Apply scroll position
+  useEffect(() => {
+    if (codeContainerRef.current) {
+      codeContainerRef.current.scrollTop = scrollPosition;
+    }
+  }, [scrollPosition]);
+
+  if (!currentSequence) return null;
+
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-lg ${
-      active ? 'bg-cyan-50 border border-cyan-200' : complete ? 'bg-green-50' : 'bg-gray-50'
-    }`}>
-      <span className="text-2xl">{complete ? '✅' : active ? icon : '⏸️'}</span>
-      <span className={`flex-1 ${active ? 'font-medium text-cyan-900' : complete ? 'text-green-700' : 'text-gray-600'}`}>
-        {label}
-      </span>
-      {active && (
-        <div className="animate-spin h-5 w-5 border-2 border-cyan-500 border-t-transparent rounded-full" />
-      )}
+    <div className="space-y-6">
+      {/* Progress Bar */}
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm text-gray-600">
+          <span>
+            {stage === 'uploading' ? '📤 Uploading file...' : '🤖 AI analyzing document...'}
+          </span>
+          <span>{progress}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-3">
+          <div
+            className="bg-gradient-to-r from-cyan-500 to-cyan-400 h-3 rounded-full transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Animated Status Display */}
+      <div className="flex items-center justify-center">
+        <div className="space-y-4 w-full max-w-md">
+          {/* Current Task Status */}
+          <div className="flex items-center space-x-3 text-gray-700 font-medium">
+            <LoadingSpinner progress={progress} />
+            <span className="text-base">{currentSequence.status}...</span>
+          </div>
+
+          {/* Scrolling Lines */}
+          <div className="relative">
+            <div
+              ref={codeContainerRef}
+              className="font-mono text-xs overflow-hidden w-full h-[84px] relative rounded-lg bg-gray-50 border border-gray-200"
+              style={{ scrollBehavior: 'smooth' }}
+            >
+              <div>
+                {visibleLines.map((line) => (
+                  <div
+                    key={`${line.number}-${line.text}`}
+                    className="flex h-[28px] items-center px-3"
+                  >
+                    <div className="text-gray-400 pr-3 select-none w-6 text-right">
+                      {line.number}
+                    </div>
+                    <div className={`flex-1 ml-1 ${line.text.includes('✓') ? 'text-green-600 font-medium' : 'text-gray-700'}`}>
+                      {line.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Gradient Overlay */}
+            <div
+              className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none rounded-lg"
+              style={{
+                background: 'linear-gradient(to bottom, rgba(249,250,251,0.9) 0%, rgba(249,250,251,0.5) 30%, transparent 100%)',
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Step Indicators */}
+      <div className="flex justify-center gap-2">
+        {PROCESSING_SEQUENCES.map((seq, idx) => (
+          <div
+            key={seq.status}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              idx < sequenceIndex ? 'bg-green-500' : 
+              idx === sequenceIndex ? 'bg-cyan-500 scale-125' : 
+              'bg-gray-300'
+            }`}
+          />
+        ))}
+      </div>
+
+      <div className="text-xs text-gray-500 text-center">
+        This may take 10-30 seconds depending on document size
+      </div>
     </div>
   );
 }
