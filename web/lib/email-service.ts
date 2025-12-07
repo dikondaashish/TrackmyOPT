@@ -67,7 +67,7 @@ function getDynamicSubject(tools: EmailReminderData['tools']): string {
   } else if (minDays <= 30) {
     return `📅 ${minDays} days left - Time to prepare`;
   } else {
-    return `✅ TrackMyOPT Daily Update - ${minDays} days remaining`;
+    return `✅ OPT Daily Update - ${minDays} days remaining`;
   }
 }
 
@@ -111,7 +111,7 @@ function generateEmailHTML(data: EmailReminderData): string {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>TrackMyOPT Daily Reminder</title>
+      <title>OPT Daily Reminder</title>
       <!--[if mso]>
       <style>
         table { border-collapse: collapse; }
@@ -124,7 +124,7 @@ function generateEmailHTML(data: EmailReminderData): string {
         <!-- Header -->
         <div style="background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 16px; padding: 32px 24px; text-align: center; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);">
           <h1 style="margin: 0; color: white; font-size: 32px; font-weight: 800; letter-spacing: -0.5px;">
-            TrackMyOPT
+            OPT<span style="color: #FFD60A;">Clock</span>Tracker
           </h1>
           <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.95); font-size: 15px; font-weight: 500;">
             Your Daily OPT Reminder
@@ -169,7 +169,7 @@ function generateEmailHTML(data: EmailReminderData): string {
         <!-- Footer -->
         <div style="background: #F9FAFB; border-radius: 12px; padding: 24px; margin-top: 24px; text-align: center; border: 1px solid #E5E7EB;">
           <p style="margin: 0 0 12px 0; color: #6B7280; font-size: 13px; line-height: 1.6;">
-            You're receiving this email because you're a <strong style="color: #007AFF;">TrackMyOPT Premium</strong> member with daily reminders enabled.
+            You're receiving this email because you're a <strong style="color: #007AFF;">Premium</strong> member with daily reminders enabled.
           </p>
           <p style="margin: 0 0 16px 0; color: #9CA3AF; font-size: 12px;">
             <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings" style="color: #007AFF; text-decoration: none; font-weight: 500;">
@@ -186,7 +186,7 @@ function generateEmailHTML(data: EmailReminderData): string {
           </p>
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB;">
             <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 11px;">
-              © ${new Date().getFullYear()} TrackMyOPT. All rights reserved.
+              © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
             </p>
             <p style="margin: 0; color: #9CA3AF; font-size: 11px;">
               Helping international students navigate OPT requirements
@@ -197,7 +197,7 @@ function generateEmailHTML(data: EmailReminderData): string {
         <!-- Anti-spam footer (required for compliance) -->
         <div style="margin-top: 16px; text-align: center;">
           <p style="margin: 0; color: #9CA3AF; font-size: 10px;">
-            TrackMyOPT, Inc. | support@trackmyopt.com
+            Zyene, Inc. | support@trackmyopt.com
           </p>
         </div>
 
@@ -302,7 +302,7 @@ export async function sendExportOtpEmail(
         <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6;">
           <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
             <div style="background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%); padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
-              <h1 style="color: white; margin: 0; font-size: 28px;">TrackMyOPT</h1>
+              <h1 style="color: white; margin: 0; font-size: 28px;">OPT<span style="color: #FFD60A;">Clock</span>Tracker</h1>
             </div>
             <div style="background: white; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
               <h2 style="margin: 0 0 16px 0; color: #1F2937; font-size: 20px;">
@@ -319,7 +319,7 @@ export async function sendExportOtpEmail(
               </p>
             </div>
             <div style="text-align: center; padding: 20px; color: #9CA3AF; font-size: 12px;">
-              <p style="margin: 0;">© ${new Date().getFullYear()} TrackMyOPT. All rights reserved.</p>
+              <p style="margin: 0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -347,7 +347,7 @@ export async function sendVerificationEmail(
     const info = await transporter.sendMail({
       from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: email,
-      subject: 'Verify your email for TrackMyOPT reminders',
+      subject: 'Verify your email for OPT reminders',
       html: `
         <!DOCTYPE html>
         <html>
@@ -371,6 +371,9 @@ export async function sendVerificationEmail(
               <p style="margin: 24px 0 0 0; color: #9CA3AF; font-size: 13px;">
                 This link expires in 24 hours.
               </p>
+            </div>
+            <div style="text-align: center; padding: 20px; color: #9CA3AF; font-size: 12px;">
+              <p style="margin: 0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -494,7 +497,7 @@ export async function sendEnrollmentEmail(
             <!-- Footer -->
             <div style="text-align: center; margin-top: 24px;">
               <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 13px;">
-                TrackMyOPT - Your OPT Timeline Companion
+                Zyene, Inc. - Your OPT Timeline Companion
               </p>
               <a href="https://www.trackmyopt.com/dashboard" 
                  style="color: #007AFF; text-decoration: none; font-size: 14px; font-weight: 500;">

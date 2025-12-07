@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
         // Send email via SMTP
         try {
           await transporter.sendMail({
-            from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+            from: `Zyene Inc <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
             to: userEmail,
             subject: `⏰ Document Expiring Soon: ${reminder.document.filename}`,
             html: generateReminderEmail(reminder),
@@ -287,14 +287,14 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
                 <tr>
                   <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                     <p style="color: #6b7280; font-size: 12px; margin: 0 0 10px 0;">
-                      You're receiving this email because you have document reminders enabled in TrackMyOPT.
+                      You're receiving this email because you have document reminders enabled.
                     </p>
                     <p style="color: #6b7280; font-size: 12px; margin: 0;">
                       <a href="https://www.trackmyopt.com/dashboard/settings" style="color: #06b6d4; text-decoration: none;">Manage Email Preferences</a> | 
                       <a href="https://www.trackmyopt.com/dashboard/documents" style="color: #06b6d4; text-decoration: none;">View All Documents</a>
                     </p>
                     <p style="color: #9ca3af; font-size: 11px; margin: 15px 0 0 0;">
-                      © 2025 TrackMyOPT. All rights reserved.
+                      © 2025 Zyene, Inc. All rights reserved.
                     </p>
                   </td>
                 </tr>
