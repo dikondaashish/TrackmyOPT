@@ -1,8 +1,23 @@
 /**
  * Next.js Middleware for Route Protection
  * 
- * Protects all /dashboard/* routes by checking for valid Supabase session.
- * Redirects unauthenticated users to /login page.
+ * Protects dashboard routes by checking for valid Supabase session.
+ * Redirects unauthenticated users to home page (trackmyopt.com).
+ * 
+ * Protected routes (require login):
+ * - /dashboard (main dashboard)
+ * - /dashboard/opt-dates
+ * - /dashboard/case-status
+ * - /dashboard/opt-tools (main page only)
+ * - /dashboard/documents
+ * - /dashboard/settings
+ * 
+ * Public routes (no login required):
+ * - /dashboard/help
+ * - /dashboard/opt-tools/opt-apply
+ * - /dashboard/opt-tools/opt-clock
+ * - /dashboard/opt-tools/stem-apply
+ * - /dashboard/opt-tools/stem-clock
  * 
  * This middleware runs at the edge before page rendering for optimal performance.
  */
@@ -10,11 +25,18 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-// Routes that require authentication
+// Routes that require authentication (redirect to home if not logged in)
 const protectedRoutes = ['/dashboard'];
 
 // Public routes that don't require authentication (exceptions within protected routes)
-const publicRoutes = ['/dashboard/help'];
+// These pages are accessible without login
+const publicRoutes = [
+  '/dashboard/help',
+  '/dashboard/opt-tools/opt-apply',      // OPT Apply tool - public
+  '/dashboard/opt-tools/opt-clock',      // OPT Clock Tracker - public
+  '/dashboard/opt-tools/stem-apply',     // STEM OPT Apply - public
+  '/dashboard/opt-tools/stem-clock',     // STEM Clock Tracker - public
+];
 
 // Routes that should redirect authenticated users (optional)
 const authRoutes = ['/login'];
@@ -97,14 +119,10 @@ export async function middleware(request: NextRequest) {
 
   // Log for debugging (remove in production)
 
-  // Protected route + not authenticated = redirect to login
+  // Protected route + not authenticated = redirect to home page
   if (isProtectedRoute && !isAuthenticated) {
-    
-    const loginUrl = new URL('/login', request.url);
-    // Add redirect parameter so user returns to intended page after login
-    loginUrl.searchParams.set('redirect', pathname);
-    
-    return NextResponse.redirect(loginUrl);
+    // Redirect to home page (trackmyopt.com)
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   // Auth route + authenticated = optionally redirect to dashboard
