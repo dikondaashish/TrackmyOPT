@@ -52,7 +52,14 @@ export async function GET(req: NextRequest) {
 
     const supabase = await createClient();
 
-    // Get recent sessions (last 30 days, limit 10)
+    // Get all sessions for this user (not just recent)
+    const { data: allSessions, error: allError } = await supabase
+      .from('user_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('last_active_at', { ascending: false });
+
+    // Get recent sessions (last 30 days) for display
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -66,22 +73,43 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error('Error fetching sessions:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch sessions' },
-        { status: 500, headers: corsHeaders }
-      );
+      // Return empty but successful response instead of error
+      return NextResponse.json({
+        ok: true,
+        sessions: [],
+        extensionStatus: {
+          isConnected: false,
+          lastActiveAt: null,
+          version: null,
+        },
+      }, { headers: corsHeaders });
     }
 
-    // Check if extension is connected (has activity in last 24 hours)
-    const extensionSession = sessions?.find(
-      s => s.device_type === 'extension' && s.is_active
+    // Find any extension session (ever)
+    const extensionSession = allSessions?.find(
+      s => s.device_type === 'extension'
     );
     
-    const oneDayAgo = new Date();
-    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-    
-    const extensionConnected = extensionSession && 
-      new Date(extensionSession.last_active_at) > oneDayAgo;
+    // Extension is "connected" if there's any active extension session
+    const extensionConnected = extensionSession && extensionSession.is_active;
+
+    // Calculate how long ago the extension was last active
+    let lastActiveText = null;
+    if (extensionSession?.last_active_at) {
+      const lastActive = new Date(extensionSession.last_active_at);
+      const now = new Date();
+      const diffMs = now.getTime() - lastActive.getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 0) {
+        lastActiveText = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      } else if (diffHours > 0) {
+        lastActiveText = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      } else {
+        lastActiveText = 'Just now';
+      }
+    }
 
     return NextResponse.json({
       ok: true,
@@ -89,6 +117,7 @@ export async function GET(req: NextRequest) {
       extensionStatus: {
         isConnected: !!extensionConnected,
         lastActiveAt: extensionSession?.last_active_at || null,
+        lastActiveText,
         version: extensionSession?.device_info || null,
       },
     }, { headers: corsHeaders });
