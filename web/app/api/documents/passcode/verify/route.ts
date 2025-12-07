@@ -94,11 +94,13 @@ export async function POST(request: NextRequest) {
       const newFailedAttempts = stored.failed_attempts + 1;
       const remaining = getRemainingAttempts(newFailedAttempts);
 
+      // Get custom lockout duration (default 10 minutes)
+      const lockoutMinutes = stored.lockout_duration ?? 10;
 
       // Lock account after 3 failed attempts
       const shouldLock = newFailedAttempts >= 3;
       const lockedUntil = shouldLock 
-        ? new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+        ? new Date(Date.now() + lockoutMinutes * 60 * 1000)
         : null;
 
       await supabase
@@ -112,9 +114,9 @@ export async function POST(request: NextRequest) {
       if (shouldLock) {
         return NextResponse.json(
           { 
-            error: 'Too many failed attempts. Account locked for 10 minutes.',
+            error: `Too many failed attempts. Account locked for ${lockoutMinutes} minute${lockoutMinutes > 1 ? 's' : ''}.`,
             lockedUntil: lockedUntil?.toISOString(),
-            remainingMinutes: 10
+            remainingMinutes: lockoutMinutes
           },
           { status: 429 }
         );

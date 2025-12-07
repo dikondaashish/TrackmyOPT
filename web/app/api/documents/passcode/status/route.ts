@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // Check if passcode exists
     const { data: passcode } = await supabase
       .from('document_passcodes')
-      .select('id, locked_until, failed_attempts, auto_lock_timeout')
+      .select('id, locked_until, failed_attempts, auto_lock_timeout, lockout_duration')
       .eq('user_id', user.id)
       .single();
 
@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
       lockedUntil: isLocked ? passcode?.locked_until : null,
       failedAttempts: passcode?.failed_attempts || 0,
       autoLockTimeout: passcode?.auto_lock_timeout ?? 5, // Default 5 minutes
+      lockoutDuration: passcode?.lockout_duration ?? 10, // Default 10 minutes
     });
 
   } catch (error) {
@@ -62,7 +63,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { autoLockTimeout } = body;
+    const { autoLockTimeout, lockoutDuration } = body;
 
     // Validate auto-lock timeout
     const validTimeouts = [0, 5, 15, 30, 60];
@@ -72,6 +73,22 @@ export async function PATCH(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Validate lockout duration (1-30 minutes)
+    const validLockoutDurations = [1, 2, 3, 5, 10, 15, 30];
+    if (lockoutDuration !== undefined && !validLockoutDurations.includes(lockoutDuration)) {
+      return NextResponse.json(
+        { error: 'Invalid lockout duration value' },
+        { status: 400 }
+      );
+    }
+
+    // Build update object
+    const updateData: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (autoLockTimeout !== undefined) updateData.auto_lock_timeout = autoLockTimeout;
+    if (lockoutDuration !== undefined) updateData.lockout_duration = lockoutDuration;
 
     // Check if passcode record exists
     const { data: existing } = await supabase
@@ -84,10 +101,7 @@ export async function PATCH(request: NextRequest) {
       // Update existing record
       const { error: updateError } = await supabase
         .from('document_passcodes')
-        .update({
-          auto_lock_timeout: autoLockTimeout,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('user_id', user.id);
 
       if (updateError) {
@@ -95,12 +109,13 @@ export async function PATCH(request: NextRequest) {
         throw updateError;
       }
     } else {
-      // Create new record with just auto-lock timeout (no passcode yet)
+      // Create new record
       const { error: insertError } = await supabase
         .from('document_passcodes')
         .insert({
           user_id: user.id,
-          auto_lock_timeout: autoLockTimeout,
+          auto_lock_timeout: autoLockTimeout ?? 5,
+          lockout_duration: lockoutDuration ?? 10,
         });
 
       if (insertError) {
@@ -112,6 +127,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({
       success: true,
       autoLockTimeout,
+      lockoutDuration,
     });
 
   } catch (error) {

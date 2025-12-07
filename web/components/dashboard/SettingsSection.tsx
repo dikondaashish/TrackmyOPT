@@ -60,6 +60,7 @@ interface CaseStatusSettings {
 interface DocumentSettings {
   hasPasscode: boolean;
   autoLockTimeout: number; // in minutes
+  lockoutDuration: number; // in minutes - lockout after 3 failed attempts
 }
 
 interface ExtensionStatus {
@@ -132,6 +133,7 @@ export function SettingsSection() {
   const [docSettings, setDocSettings] = useState<DocumentSettings>({
     hasPasscode: false,
     autoLockTimeout: 5,
+    lockoutDuration: 10, // Default 10 minutes
   });
   const [showPasscodeChange, setShowPasscodeChange] = useState(false);
   const [currentPasscode, setCurrentPasscode] = useState('');
@@ -199,6 +201,7 @@ export function SettingsSection() {
         setDocSettings({
           hasPasscode: data.hasPasscode || false,
           autoLockTimeout: data.autoLockTimeout || 5,
+          lockoutDuration: data.lockoutDuration || 10,
         });
       }
     } catch {
@@ -712,6 +715,31 @@ export function SettingsSection() {
       }
     } catch {
       setError('Failed to update auto-lock timeout');
+      // Revert on error
+      loadDocumentSettings();
+    }
+  };
+
+  // Update Lockout Duration (after 3 failed attempts)
+  const handleLockoutDurationChange = async (duration: number) => {
+    try {
+      setDocSettings(prev => ({ ...prev, lockoutDuration: duration }));
+      
+      const res = await fetch('/api/documents/passcode/status', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lockoutDuration: duration }),
+      });
+
+      if (res.ok) {
+        setSuccess('Lockout duration updated!');
+        setTimeout(() => setSuccess(null), 2000);
+      } else {
+        throw new Error('Failed to update');
+      }
+    } catch {
+      setError('Failed to update lockout duration');
       // Revert on error
       loadDocumentSettings();
     }
@@ -1619,6 +1647,32 @@ export function SettingsSection() {
                     <option value={0}>Never (not recommended)</option>
                   </select>
                   <p className="text-xs text-gray-500 mt-1">Vault will lock after this period of inactivity</p>
+                </div>
+
+                {/* Lockout Duration - After 3 Failed Attempts */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      Failed Attempts Lockout
+                    </div>
+                  </label>
+                  <select
+                    value={docSettings.lockoutDuration}
+                    onChange={(e) => handleLockoutDurationChange(parseInt(e.target.value))}
+                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value={1}>1 minute</option>
+                    <option value={2}>2 minutes</option>
+                    <option value={3}>3 minutes</option>
+                    <option value={5}>5 minutes</option>
+                    <option value={10}>10 minutes (default)</option>
+                    <option value={15}>15 minutes</option>
+                    <option value={30}>30 minutes</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    You have 3 attempts before a {docSettings.lockoutDuration} minute{docSettings.lockoutDuration > 1 ? 's' : ''} lockout
+                  </p>
                 </div>
               </div>
             </div>
