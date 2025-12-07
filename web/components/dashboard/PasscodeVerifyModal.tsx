@@ -4,7 +4,7 @@
  * Passcode Verify Modal
  * 
  * Unlock document vault with 6-digit passcode
- * - 3 failed attempts → 10-minute lockout
+ * - 3 failed attempts → custom lockout (user configurable)
  * - Shows remaining attempts
  */
 
@@ -23,6 +23,21 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
   const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
   const [lockedUntil, setLockedUntil] = useState<string | null>(null);
   const [remainingMinutes, setRemainingMinutes] = useState<number | null>(null);
+  const [lockoutDuration, setLockoutDuration] = useState<number>(10); // Default 10 minutes
+
+  // Fetch lockout duration from settings
+  useEffect(() => {
+    if (open) {
+      fetch('/api/documents/passcode/status', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.lockoutDuration) {
+            setLockoutDuration(data.lockoutDuration);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [open]);
 
   // Update countdown for lockout
   useEffect(() => {
@@ -168,7 +183,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
           {/* Info */}
           {!error && (
             <div className="text-xs text-gray-500 text-center">
-              You have 3 attempts before a 10-minute lockout
+              You have 3 attempts before a {lockoutDuration}-minute lockout
             </div>
           )}
 

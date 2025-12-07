@@ -53,13 +53,17 @@ export function DocumentVaultClient() {
   const [notificationEmail, setNotificationEmail] = useState('');
   const [editingEmail, setEditingEmail] = useState(false);
   const [emailSaving, setEmailSaving] = useState(false);
+  
+  // Auto-lock timeout state
+  const [autoLockTimeout, setAutoLockTimeout] = useState<number>(5); // Default 5 minutes
+  const [lastActivity, setLastActivity] = useState<number>(Date.now());
 
   // Check premium status
   useEffect(() => {
     checkPremiumStatus();
   }, []);
 
-  // Check passcode status
+  // Check passcode status and get auto-lock settings
   useEffect(() => {
     if (isPremium) {
       checkPasscodeStatus();
@@ -73,6 +77,47 @@ export function DocumentVaultClient() {
       loadNotificationEmail();
     }
   }, [isUnlocked, selectedCategory, searchQuery, sortBy]);
+  
+  // Auto-lock timer - locks vault after period of inactivity
+  useEffect(() => {
+    if (!isUnlocked || autoLockTimeout === 0) return; // 0 = never auto-lock
+    
+    const checkInactivity = () => {
+      const now = Date.now();
+      const inactiveTime = (now - lastActivity) / 1000 / 60; // in minutes
+      
+      if (inactiveTime >= autoLockTimeout) {
+        setIsUnlocked(false);
+        setShowPasscodeVerify(true);
+      }
+    };
+    
+    const interval = setInterval(checkInactivity, 30000); // Check every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [isUnlocked, autoLockTimeout, lastActivity]);
+  
+  // Track user activity to reset auto-lock timer
+  useEffect(() => {
+    if (!isUnlocked) return;
+    
+    const resetActivity = () => setLastActivity(Date.now());
+    
+    // Track mouse, keyboard, touch events
+    window.addEventListener('mousemove', resetActivity);
+    window.addEventListener('keydown', resetActivity);
+    window.addEventListener('click', resetActivity);
+    window.addEventListener('scroll', resetActivity);
+    window.addEventListener('touchstart', resetActivity);
+    
+    return () => {
+      window.removeEventListener('mousemove', resetActivity);
+      window.removeEventListener('keydown', resetActivity);
+      window.removeEventListener('click', resetActivity);
+      window.removeEventListener('scroll', resetActivity);
+      window.removeEventListener('touchstart', resetActivity);
+    };
+  }, [isUnlocked]);
   
   async function loadNotificationEmail() {
     try {
@@ -131,6 +176,11 @@ export function DocumentVaultClient() {
       const data = await res.json();
       setHasPasscode(data.hasPasscode);
       
+      // Set auto-lock timeout from settings
+      if (data.autoLockTimeout !== undefined) {
+        setAutoLockTimeout(data.autoLockTimeout);
+      }
+      
       if (!data.hasPasscode) {
         setShowPasscodeSetup(true);
       } else {
@@ -169,6 +219,7 @@ export function DocumentVaultClient() {
   function handlePasscodeVerifySuccess() {
     setShowPasscodeVerify(false);
     setIsUnlocked(true);
+    setLastActivity(Date.now()); // Reset activity timer on unlock
   }
 
   function handleUploadClick() {
