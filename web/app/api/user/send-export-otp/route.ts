@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import nodemailer from 'nodemailer';
+import * as crypto from 'crypto';
+
+// Simple in-memory store for OTPs (will reset on server restart, but that's fine for short-lived OTPs)
+// In production, you'd use Redis or a database table
+const otpStore = new Map<string, { otp: string; expiresAt: number }>();
+
+// Export for use in verify endpoint
+export { otpStore };
 
 /**
  * POST /api/user/send-export-otp
@@ -29,17 +37,25 @@ export async function POST() {
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-    // Store OTP in database
-    await supabase
-      .from('export_otps')
-      .upsert({
-        user_id: user.id,
-        otp_hash: otp, // In production, hash this
-        expires_at: expiresAt.toISOString(),
-        created_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' });
+    // Store OTP in memory with user ID as key
+    otpStore.set(user.id, { otp, expiresAt });
+
+    // Clean up expired OTPs
+    for (const [key, value] of otpStore.entries()) {
+      if (value.expiresAt < Date.now()) {
+        otpStore.delete(key);
+      }
+    }
+
+    // Also create a signed token as backup (in case serverless function restarts)
+    const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret';
+    const tokenData = JSON.stringify({ otp, exp: expiresAt, userId: user.id });
+    const hmac = crypto.createHmac('sha256', secret);
+    hmac.update(tokenData);
+    const signature = hmac.digest('hex');
+    const otpToken = Buffer.from(tokenData).toString('base64') + '.' + signature;
 
     // Send OTP email
     const transporter = nodemailer.createTransport({
@@ -80,7 +96,7 @@ export async function POST() {
       `,
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, otpToken });
   } catch (error) {
     console.error('❌ Error sending export OTP:', error);
     return NextResponse.json(
