@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '@/lib/supabase/server';
 import { verifyToken } from '@/lib/jwt';
+
+// Admin client to bypass RLS for session management
+const getAdminClient = () => createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +37,7 @@ async function getUserId(req: NextRequest): Promise<string | null> {
   }
 
   // Try session (for web)
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   return user?.id || null;
 }
@@ -50,16 +57,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
-    // Get all sessions for this user (not just recent)
-    const { data: allSessions, error: allError } = await supabase
-      .from('user_sessions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('last_active_at', { ascending: false });
-
-    // Get recent sessions (last 30 days) for display
+    // Get recent sessions (last 30 days, limit 10)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -73,43 +73,22 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error('Error fetching sessions:', error);
-      // Return empty but successful response instead of error
-      return NextResponse.json({
-        ok: true,
-        sessions: [],
-        extensionStatus: {
-          isConnected: false,
-          lastActiveAt: null,
-          version: null,
-        },
-      }, { headers: corsHeaders });
+      return NextResponse.json(
+        { error: 'Failed to fetch sessions' },
+        { status: 500, headers: corsHeaders }
+      );
     }
 
-    // Find any extension session (ever)
-    const extensionSession = allSessions?.find(
-      s => s.device_type === 'extension'
+    // Check if extension is connected (has activity in last 24 hours)
+    const extensionSession = sessions?.find(
+      s => s.device_type === 'extension' && s.is_active
     );
     
-    // Extension is "connected" if there's any active extension session
-    const extensionConnected = extensionSession && extensionSession.is_active;
-
-    // Calculate how long ago the extension was last active
-    let lastActiveText = null;
-    if (extensionSession?.last_active_at) {
-      const lastActive = new Date(extensionSession.last_active_at);
-      const now = new Date();
-      const diffMs = now.getTime() - lastActive.getTime();
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      
-      if (diffDays > 0) {
-        lastActiveText = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-      } else if (diffHours > 0) {
-        lastActiveText = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-      } else {
-        lastActiveText = 'Just now';
-      }
-    }
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    
+    const extensionConnected = extensionSession && 
+      new Date(extensionSession.last_active_at) > oneDayAgo;
 
     return NextResponse.json({
       ok: true,
@@ -117,7 +96,6 @@ export async function GET(req: NextRequest) {
       extensionStatus: {
         isConnected: !!extensionConnected,
         lastActiveAt: extensionSession?.last_active_at || null,
-        lastActiveText,
         version: extensionSession?.device_info || null,
       },
     }, { headers: corsHeaders });
@@ -156,7 +134,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     // Get IP from headers (might be behind proxy)
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 
@@ -244,7 +222,7 @@ export async function DELETE(req: NextRequest) {
     const sessionId = searchParams.get('id');
     const deviceType = searchParams.get('device_type');
 
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     if (sessionId) {
       // Delete specific session
