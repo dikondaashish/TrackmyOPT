@@ -280,6 +280,62 @@ function getRandomTip(): string {
 }
 
 /**
+ * Send OTP email for data export verification
+ */
+export async function sendExportOtpEmail(
+  email: string,
+  otp: string,
+  firstName?: string
+) {
+  try {
+    const info = await transporter.sendMail({
+      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+      to: email,
+      subject: 'Your Data Export Verification Code - TrackMyOPT',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <div style="background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%); padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">TrackMyOPT</h1>
+            </div>
+            <div style="background: white; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <h2 style="margin: 0 0 16px 0; color: #1F2937; font-size: 20px;">
+                Data Export Verification
+              </h2>
+              <p style="margin: 0 0 24px 0; color: #6B7280; font-size: 15px;">
+                ${firstName ? `Hi ${firstName}, ` : ''}You requested to export your data. Use this code to verify your identity:
+              </p>
+              <div style="background: #F9FAFB; border: 2px solid #E5E7EB; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0;">
+                <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #1F2937; font-family: monospace;">${otp}</span>
+              </div>
+              <p style="margin: 24px 0 0 0; color: #9CA3AF; font-size: 13px; text-align: center;">
+                This code expires in 10 minutes. If you didn't request this, please ignore this email.
+              </p>
+            </div>
+            <div style="text-align: center; padding: 20px; color: #9CA3AF; font-size: 12px;">
+              <p style="margin: 0;">© ${new Date().getFullYear()} TrackMyOPT. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+
+    console.log('Export OTP email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Export OTP email service error:', error);
+    return { success: false, error };
+  }
+}
+
+/**
  * Send verification email for email address confirmation
  */
 export async function sendVerificationEmail(
