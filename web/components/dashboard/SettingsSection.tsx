@@ -2038,28 +2038,69 @@ export function SettingsSection() {
                   </div>
                 ) : (
                   /* Connection Status - Not Connected State */
-                  <div className="p-5 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                          <Chrome className="w-7 h-7 text-gray-400" />
+                  <div className="space-y-4">
+                    <div className="p-5 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                            <Chrome className="w-7 h-7 text-gray-400" />
+                          </div>
+                          <div>
+                            <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                              Extension Not Connected
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Install and login to the Chrome extension
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                            Extension Not Connected
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Install and login to the Chrome extension to sync
-                          </p>
-                        </div>
+                        <Button
+                          onClick={() => window.open('https://chromewebstore.google.com/detail/trackmyopt/your-extension-id', '_blank')}
+                          className="h-11 px-5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium shadow-lg"
+                        >
+                          <Chrome className="w-4 h-4 mr-2" />
+                          Install Extension
+                        </Button>
                       </div>
-                      <Button
-                        onClick={() => window.open('https://chromewebstore.google.com/detail/trackmyopt/your-extension-id', '_blank')}
-                        className="h-11 px-5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium shadow-lg"
-                      >
-                        <Chrome className="w-4 h-4 mr-2" />
-                        Install Extension
-                      </Button>
+                    </div>
+                    
+                    {/* Already have extension? Connect it */}
+                    <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-blue-700 dark:text-blue-300">Already have the extension?</p>
+                          <p className="text-sm text-blue-600/80 dark:text-blue-400/70">
+                            If you're logged into the extension, click to sync
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={async () => {
+                            try {
+                              const res = await fetch('/api/user/sessions', {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  device_type: 'extension',
+                                  device_info: 'Chrome Extension (Manual Sync)',
+                                }),
+                              });
+                              if (res.ok) {
+                                await loadExtensionStatus();
+                                setSuccess('Extension connected successfully!');
+                                setTimeout(() => setSuccess(null), 3000);
+                              }
+                            } catch {
+                              setError('Failed to connect extension');
+                            }
+                          }}
+                          className="h-10 border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-300"
+                        >
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Sync Now
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
