@@ -1,5 +1,5 @@
 /**
- * Email Service - Handles all email sending via Resend
+ * Email Service - Handles all email sending via SMTP (Hostinger)
  * 
  * Features:
  * - Daily reminder emails
@@ -8,9 +8,18 @@
  * - Apple-inspired design
  */
 
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Create SMTP transporter for Hostinger
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 export interface EmailReminderData {
   userId: string;
@@ -30,29 +39,15 @@ export interface EmailReminderData {
  */
 export async function sendDailyReminder(data: EmailReminderData) {
   try {
-    const { data: emailResult, error } = await resend.emails.send({
-      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.EMAIL_FROM || 'reminders@trackmyopt.com'}>`,
+    const info = await transporter.sendMail({
+      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: data.userEmail,
       subject: getDynamicSubject(data.tools),
       html: generateEmailHTML(data),
-      tags: [
-        {
-          name: 'category',
-          value: 'daily_reminder',
-        },
-        {
-          name: 'user_id',
-          value: data.userId,
-        },
-      ],
     });
 
-    if (error) {
-      console.error('Email send error:', error);
-      return { success: false, error };
-    }
-
-    return { success: true, messageId: emailResult.id };
+    console.log('Email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('Email service error:', error);
     return { success: false, error };
@@ -293,8 +288,8 @@ export async function sendVerificationEmail(
   firstName: string
 ) {
   try {
-    const { data, error } = await resend.emails.send({
-      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.EMAIL_FROM || 'reminders@trackmyopt.com'}>`,
+    const info = await transporter.sendMail({
+      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: email,
       subject: 'Verify your email for TrackMyOPT reminders',
       html: `
@@ -327,12 +322,8 @@ export async function sendVerificationEmail(
       `,
     });
 
-    if (error) {
-      console.error('Verification email error:', error);
-      return { success: false, error };
-    }
-
-    return { success: true, messageId: data.id };
+    console.log('Verification email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('Verification email service error:', error);
     return { success: false, error };

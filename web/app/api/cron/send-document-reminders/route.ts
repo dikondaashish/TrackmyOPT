@@ -13,9 +13,18 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Create SMTP transporter for Hostinger
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 // Type definitions for reminder with document
 interface DocumentData {
@@ -129,16 +138,15 @@ export async function GET(request: NextRequest) {
           continue;
         }
 
-        // Send email
-        
-        const { error: emailError } = await resend.emails.send({
-          from: 'TrackMyOPT <notifications@trackmyopt.com>',
-          to: userEmail,
-          subject: `⏰ Document Expiring Soon: ${reminder.document.filename}`,
-          html: generateReminderEmail(reminder),
-        });
-
-        if (emailError) {
+        // Send email via SMTP
+        try {
+          await transporter.sendMail({
+            from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+            to: userEmail,
+            subject: `⏰ Document Expiring Soon: ${reminder.document.filename}`,
+            html: generateReminderEmail(reminder),
+          });
+        } catch (emailError) {
           console.error(`❌ Email send error for ${userEmail}:`, emailError);
           
           // Mark as failed

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,7 +9,16 @@ const corsHeaders = {
   'Cache-Control': 'no-store',
 };
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Create SMTP transporter for Hostinger
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 /**
  * POST /api/case-status/notify
@@ -103,11 +112,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Send email notification
+    // Send email notification via SMTP
     try {
-      const { data: emailData, error: emailError } = await resend.emails.send({
-        from: 'TrackMyOPT <notifications@trackmyopt.com>',
-        to: [userEmail],
+      const info = await transporter.sendMail({
+        from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+        to: userEmail,
         subject: `🔔 Your USCIS Case Status Has Changed - ${receipt_number}`,
         html: generateEmailHTML({
           name: userData.full_name || 'there',
@@ -117,17 +126,10 @@ export async function POST(req: NextRequest) {
         }),
       });
 
-      if (emailError) {
-        console.error('Error sending email:', emailError);
-        return NextResponse.json(
-          { ok: false, error: 'Failed to send email' },
-          { status: 500, headers: corsHeaders }
-        );
-      }
-
+      console.log('Email sent:', info.messageId);
 
       return NextResponse.json(
-        { ok: true, message: 'Notification sent', email_id: emailData?.id },
+        { ok: true, message: 'Notification sent', email_id: info.messageId },
         { status: 200, headers: corsHeaders }
       );
     } catch (emailError) {
