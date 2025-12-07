@@ -157,6 +157,14 @@ export function SettingsSection() {
 
   // Data Export
   const [isExporting, setIsExporting] = useState(false);
+  
+  // ZIP Export with OTP verification
+  const [showZipExportOtp, setShowZipExportOtp] = useState(false);
+  const [zipExportOtp, setZipExportOtp] = useState('');
+  const [zipExportOtpSending, setZipExportOtpSending] = useState(false);
+  const [zipExportOtpVerifying, setZipExportOtpVerifying] = useState(false);
+  const [zipExportCountdown, setZipExportCountdown] = useState(0);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Load user data
   useEffect(() => {
@@ -788,6 +796,93 @@ export function SettingsSection() {
     } finally {
       setIsExporting(false);
     }
+  };
+
+  // ZIP Export countdown timer
+  useEffect(() => {
+    if (zipExportCountdown > 0) {
+      const timer = setTimeout(() => setZipExportCountdown(prev => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [zipExportCountdown]);
+
+  // Handle ZIP Export click - check if Pro, then send OTP
+  const handleZipExportClick = async () => {
+    if (!premium.isPremium) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    
+    // Send OTP for verification
+    setZipExportOtpSending(true);
+    try {
+      const res = await fetch('/api/user/send-export-otp', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      if (res.ok) {
+        setShowZipExportOtp(true);
+        setZipExportCountdown(60);
+        setSuccess('Verification code sent to your email!');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to send OTP');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send verification code');
+    } finally {
+      setZipExportOtpSending(false);
+    }
+  };
+
+  // Verify OTP and download ZIP
+  const handleZipExportVerify = async () => {
+    if (zipExportOtp.length !== 6) {
+      setError('Please enter the 6-digit code');
+      return;
+    }
+    
+    setZipExportOtpVerifying(true);
+    try {
+      const res = await fetch('/api/user/export-zip', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: zipExportOtp }),
+      });
+      
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `trackmyopt-export-${new Date().toISOString().split('T')[0]}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        setShowZipExportOtp(false);
+        setZipExportOtp('');
+        setSuccess('Data exported successfully!');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || 'Verification failed');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setZipExportOtpVerifying(false);
+    }
+  };
+
+  // Resend ZIP export OTP
+  const handleResendZipOtp = async () => {
+    if (zipExportCountdown > 0) return;
+    await handleZipExportClick();
   };
 
   // Disconnect Extension
@@ -1703,7 +1798,7 @@ export function SettingsSection() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">Download all your data in a portable format</p>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3">
                     <Button
                       variant="outline"
                       onClick={() => handleExportData('json')}
@@ -1721,7 +1816,77 @@ export function SettingsSection() {
                     >
                       Export as CSV
                     </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleZipExportClick}
+                      disabled={zipExportOtpSending || showZipExportOtp}
+                      className="h-10 relative"
+                    >
+                      {zipExportOtpSending ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <Download className="w-4 h-4 mr-2" />
+                      )}
+                      Export as ZIP
+                      <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
+                        PRO
+                      </span>
+                    </Button>
                   </div>
+                  
+                  {/* ZIP Export OTP Verification */}
+                  {showZipExportOtp && (
+                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <p className="text-sm text-blue-800 dark:text-blue-300 mb-3">
+                        Enter the 6-digit code sent to your email to verify and download your data.
+                      </p>
+                      <div className="flex gap-3 items-center">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={6}
+                          value={zipExportOtp}
+                          onChange={(e) => setZipExportOtp(e.target.value.replace(/\D/g, ''))}
+                          placeholder="Enter 6-digit code"
+                          className="flex-1 h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-center text-lg font-mono tracking-widest"
+                        />
+                        <Button
+                          onClick={handleZipExportVerify}
+                          disabled={zipExportOtpVerifying || zipExportOtp.length !== 6}
+                          className="h-10 bg-blue-600 hover:bg-blue-700"
+                        >
+                          {zipExportOtpVerifying ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            'Verify & Download'
+                          )}
+                        </Button>
+                      </div>
+                      <div className="flex justify-between items-center mt-3">
+                        <button
+                          onClick={handleResendZipOtp}
+                          disabled={zipExportCountdown > 0}
+                          className={`text-sm ${zipExportCountdown > 0 ? 'text-gray-400' : 'text-blue-600 hover:underline'}`}
+                        >
+                          {zipExportCountdown > 0 ? `Resend in ${zipExportCountdown}s` : 'Resend code'}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowZipExportOtp(false);
+                            setZipExportOtp('');
+                          }}
+                          className="text-sm text-gray-500 hover:text-gray-700"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                    <span className="font-medium">ZIP export (Pro):</span> Includes your profile data, OPT dates, case status, and all uploaded documents.
+                  </p>
                 </div>
 
                 {/* Data Retention */}
@@ -1944,6 +2109,62 @@ export function SettingsSection() {
         )}
 
       </div>
+
+      {/* Upgrade Modal for Non-Pro Users */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            {/* Icon */}
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Download className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+            </div>
+            
+            {/* Title */}
+            <h3 className="text-xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
+              Upgrade to Pro
+            </h3>
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
+              ZIP export with documents is a Pro feature. Upgrade to download all your data including uploaded documents.
+            </p>
+            
+            {/* Features */}
+            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 mb-6 space-y-3">
+              <div className="flex items-center gap-3 text-sm">
+                <Check className="w-5 h-5 text-green-500" />
+                <span className="text-gray-700 dark:text-gray-300">Export profile, OPT dates & case status</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Check className="w-5 h-5 text-green-500" />
+                <span className="text-gray-700 dark:text-gray-300">Download all uploaded documents</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Check className="w-5 h-5 text-green-500" />
+                <span className="text-gray-700 dark:text-gray-300">Everything in one ZIP file</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Check className="w-5 h-5 text-green-500" />
+                <span className="text-gray-700 dark:text-gray-300">Secure OTP verification</span>
+              </div>
+            </div>
+            
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="flex-1 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
+              >
+                Maybe Later
+              </button>
+              <a
+                href="/upgrade"
+                className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all font-medium text-center"
+              >
+                Upgrade Now
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">

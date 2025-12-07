@@ -21,6 +21,7 @@
     "@vercel/speed-insights": "^1.2.0",
     "bcryptjs": "^3.0.3",
     "jose": "^5.2.0",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.545.0",
     "next": "^14.2.0",
     "nodemailer": "^7.0.11",
