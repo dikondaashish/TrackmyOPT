@@ -376,23 +376,71 @@ export function SettingsSection() {
     setTempEmail(sharedNotificationEmail);
   };
 
-  const loadExtensionStatus = () => {
-    // Check localStorage for extension sync data
-    const lastSync = localStorage.getItem('tmo_extension_last_sync');
-    const isConnected = !!localStorage.getItem('tmo_extension_connected');
-    setExtensionStatus({
-      isConnected,
-      lastSyncTime: lastSync,
-      version: localStorage.getItem('tmo_extension_version') || undefined,
-    });
+  const loadExtensionStatus = async () => {
+    try {
+      const res = await fetch('/api/user/sessions', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok) {
+          setExtensionStatus({
+            isConnected: data.extensionStatus?.isConnected || false,
+            lastSyncTime: data.extensionStatus?.lastActiveAt || null,
+            version: data.extensionStatus?.version || undefined,
+          });
+        }
+      }
+    } catch {
+      // Silently fail - extension status not critical
+    }
   };
 
-  const loadRecentLogins = () => {
-    // Mock data - in production, this would come from an API
-    setRecentLogins([
-      { device: 'Chrome on MacOS', location: 'New York, US', time: 'Just now' },
-      { device: 'Chrome Extension', location: 'New York, US', time: '2 hours ago' },
-    ]);
+  const loadRecentLogins = async () => {
+    try {
+      const res = await fetch('/api/user/sessions', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok && data.sessions) {
+          const formattedLogins = data.sessions.map((session: {
+            device_type: string;
+            device_info?: string;
+            location?: string;
+            last_active_at: string;
+          }) => {
+            // Format time ago
+            const lastActive = new Date(session.last_active_at);
+            const now = new Date();
+            const diffMs = now.getTime() - lastActive.getTime();
+            const diffMins = Math.floor(diffMs / (1000 * 60));
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            let timeAgo = 'Just now';
+            if (diffDays > 0) {
+              timeAgo = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            } else if (diffHours > 0) {
+              timeAgo = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            } else if (diffMins > 5) {
+              timeAgo = `${diffMins} minutes ago`;
+            }
+
+            // Format device name
+            let device = session.device_type === 'extension' 
+              ? 'Chrome Extension' 
+              : session.device_info || 'Web Browser';
+
+            return {
+              device,
+              location: session.location || 'Unknown location',
+              time: timeAgo,
+            };
+          });
+          setRecentLogins(formattedLogins);
+        }
+      }
+    } catch {
+      // If API fails, show empty state
+      setRecentLogins([]);
+    }
   };
 
   const loadUserData = async () => {
@@ -899,13 +947,23 @@ export function SettingsSection() {
   };
 
   // Disconnect Extension
-  const handleDisconnectExtension = () => {
-    localStorage.removeItem('tmo_extension_connected');
-    localStorage.removeItem('tmo_extension_last_sync');
-    localStorage.removeItem('tmo_extension_version');
-    setExtensionStatus({ isConnected: false, lastSyncTime: null });
-    setSuccess('Extension disconnected');
-    setTimeout(() => setSuccess(null), 3000);
+  const handleDisconnectExtension = async () => {
+    try {
+      const res = await fetch('/api/user/sessions?device_type=extension', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      
+      if (res.ok) {
+        setExtensionStatus({ isConnected: false, lastSyncTime: null });
+        setSuccess('Extension disconnected');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        setError('Failed to disconnect extension');
+      }
+    } catch {
+      setError('Failed to disconnect extension');
+    }
   };
 
   const timezones = [

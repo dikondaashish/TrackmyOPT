@@ -84,13 +84,22 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
           if (data.user && mounted) {
             setUser(data.user);
             
-            // Force a re-render
-            setTimeout(() => {
-            }, 100);
-          } else {
+            // Record web session for login activity tracking
+            fetch('/api/user/sessions', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                device_type: 'web',
+                device_info: navigator.userAgent.includes('Chrome') ? 'Chrome Browser' :
+                             navigator.userAgent.includes('Firefox') ? 'Firefox Browser' :
+                             navigator.userAgent.includes('Safari') ? 'Safari Browser' :
+                             'Web Browser',
+              }),
+            }).catch(() => {}); // Silently fail - not critical
           }
         } else {
-          const errorText = await response.text();
+          // Auth failed
         }
 
         // Fetch premium status

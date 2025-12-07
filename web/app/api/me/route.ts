@@ -81,6 +81,20 @@ export async function GET(request: NextRequest) {
       }
 
       userId = decoded.userId || decoded.sub;
+      
+      // Record extension session (JWT means it's from extension)
+      // Fire and forget - don't await
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://trackmyopt.com'}/api/user/sessions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          device_type: 'extension',
+          device_info: 'Chrome Extension',
+        }),
+      }).catch(() => {}); // Silently fail
     }
 
     // Supabase client already created above for user authentication
