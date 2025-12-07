@@ -103,11 +103,11 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
   }
 
   async function handleDownload() {
-    if (!viewUrl) return;
-    
     try {
-      // Fetch the file and trigger actual download
-      const res = await fetch(viewUrl);
+      // Use server-side download endpoint to avoid CORS issues
+      const res = await fetch(`/api/documents/${document.id}/download`);
+      if (!res.ok) throw new Error('Failed to download');
+      
       const blob = await res.blob();
       
       // Create download link
@@ -120,8 +120,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
       window.document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
-      // Fallback to opening in new tab if download fails
-      window.open(viewUrl, '_blank');
+      setError('Failed to download document. Please try again.');
     }
   }
 

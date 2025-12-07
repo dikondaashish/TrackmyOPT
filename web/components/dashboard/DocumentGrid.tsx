@@ -46,28 +46,23 @@ export function DocumentGrid({
 
   async function handleDownload(doc: Document) {
     try {
-      // Get signed URL for the document
-      const res = await fetch(`/api/documents/${doc.id}/view`);
-      if (!res.ok) throw new Error('Failed to get download URL');
+      // Use server-side download endpoint to avoid CORS issues
+      const res = await fetch(`/api/documents/${doc.id}/download`);
+      if (!res.ok) throw new Error('Failed to download');
       
-      const data = await res.json();
-      if (!data.url) throw new Error('No URL returned');
-      
-      // Fetch the file and trigger download
-      const fileRes = await fetch(data.url);
-      const blob = await fileRes.blob();
+      const blob = await res.blob();
       
       // Create download link
       const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = window.document.createElement('a');
       link.href = downloadUrl;
       link.download = doc.filename || 'document';
-      document.body.appendChild(link);
+      window.document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      window.document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      alert('Failed to download document');
+      alert('Failed to download document. Please try again.');
     }
   }
 
