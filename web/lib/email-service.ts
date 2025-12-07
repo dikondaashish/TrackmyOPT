@@ -386,3 +386,122 @@ export async function sendVerificationEmail(
   }
 }
 
+/**
+ * Send enrollment confirmation email when user enables daily reminders
+ */
+export async function sendEnrollmentEmail(
+  email: string,
+  firstName: string,
+  toolName: string
+) {
+  try {
+    const toolDescriptions: Record<string, { title: string; description: string; icon: string }> = {
+      'opt-apply': {
+        title: 'OPT Application Reminders',
+        description: 'You\'ll receive daily reminders about your OPT filing window, including document preparation, DSO appointments, and submission deadlines.',
+        icon: '📋'
+      },
+      'opt-clock': {
+        title: 'OPT Unemployment Clock',
+        description: 'Track your 90-day unemployment limit with daily updates on remaining days and job search tips.',
+        icon: '⏰'
+      },
+      'stem-apply': {
+        title: 'STEM OPT Extension Reminders',
+        description: 'Get daily reminders for your STEM OPT application timeline, including Form I-983 preparation and filing deadlines.',
+        icon: '🔬'
+      },
+      'stem-clock': {
+        title: 'STEM Unemployment Clock',
+        description: 'Monitor your 150-day aggregate unemployment limit during STEM OPT with daily countdown updates.',
+        icon: '⏱️'
+      },
+    };
+
+    const tool = toolDescriptions[toolName] || {
+      title: 'OPT Daily Reminders',
+      description: 'You\'ll receive daily reminder emails to help you stay on track with your OPT timeline.',
+      icon: '📧'
+    };
+
+    const info = await transporter.sendMail({
+      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+      to: email,
+      subject: `✅ You're enrolled: ${tool.title}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 24px;">
+              <div style="font-size: 48px;">${tool.icon}</div>
+              <h1 style="margin: 16px 0 0 0; color: #1F2937; font-size: 28px;">
+                You're All Set!
+              </h1>
+            </div>
+
+            <!-- Main Card -->
+            <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">
+                Hi ${firstName || 'there'},
+              </p>
+              
+              <p style="margin: 0 0 24px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                You've successfully enrolled in <strong>${tool.title}</strong>! 
+              </p>
+
+              <div style="background: linear-gradient(135deg, #E0F2FE 0%, #DBEAFE 100%); border-radius: 12px; padding: 20px; margin: 24px 0;">
+                <p style="margin: 0; color: #1E40AF; font-size: 15px; line-height: 1.6;">
+                  ${tool.description}
+                </p>
+              </div>
+
+              <h3 style="margin: 24px 0 16px 0; color: #1F2937; font-size: 16px;">
+                📬 What to Expect:
+              </h3>
+              <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 15px; line-height: 1.8;">
+                <li>Daily emails at <strong>9:00 AM ET</strong></li>
+                <li>Timeline-specific action items</li>
+                <li>Urgency alerts as deadlines approach</li>
+                <li>Step-by-step guidance for applications</li>
+              </ul>
+
+              <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #E5E7EB;">
+                <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 14px;">
+                  <strong>Got a job or completed your application?</strong>
+                </p>
+                <p style="margin: 0; color: #6B7280; font-size: 14px;">
+                  Simply visit your <a href="https://www.trackmyopt.com/dashboard/settings" style="color: #007AFF; text-decoration: none;">Settings</a> to stop receiving these reminders.
+                </p>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="text-align: center; margin-top: 24px;">
+              <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 13px;">
+                TrackMyOPT - Your OPT Timeline Companion
+              </p>
+              <a href="https://www.trackmyopt.com/dashboard" 
+                 style="color: #007AFF; text-decoration: none; font-size: 14px; font-weight: 500;">
+                Go to Dashboard →
+              </a>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+
+    console.log('Enrollment email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Enrollment email service error:', error);
+    return { success: false, error };
+  }
+}
+

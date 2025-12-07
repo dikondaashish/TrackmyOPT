@@ -1,12 +1,25 @@
 /**
  * Daily Email Reminder Cron Job
  * 
- * This endpoint is called by Vercel Cron daily at 9:00 AM EST
- * It sends personalized email reminders to all premium users
+ * Sends personalized OPT timeline reminders to premium users at 9 AM ET daily.
  * 
- * Schedule: 0 13 * * * (1:00 PM UTC = 9:00 AM EST)
+ * ⚠️ This endpoint is triggered by cron-job.org (external service)
+ * 
+ * Setup on cron-job.org:
+ * 1. Go to https://cron-job.org
+ * 2. Create a new cron job:
+ *    - Title: "TrackMyOPT - Daily Reminders (9 AM ET)"
+ *    - URL: https://www.trackmyopt.com/api/cron/send-daily-reminders
+ *    - Method: GET
+ *    - Schedule: 0 14 * * * (2:00 PM UTC = 9:00 AM ET)
+ *    - Headers: Authorization: Bearer YOUR_CRON_SECRET
+ *    - Timeout: 30 seconds
  * 
  * Security: Protected by CRON_SECRET environment variable
+ * 
+ * For manual testing:
+ * curl -X GET "https://www.trackmyopt.com/api/cron/send-daily-reminders" \
+ *   -H "Authorization: Bearer YOUR_CRON_SECRET"
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -21,49 +34,68 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+interface UserOptData {
+  user_id: string;
+  program_end_date: string | null;
+  opt_start_date: string | null;
+  opt_ead_end_date: string | null;
+  stem_start_date: string | null;
+}
+
+interface UserEmailPrefs {
+  user_id: string;
+  email_address: string;
+  email_enabled: boolean;
+  email_verified: boolean;
+  // Tool-specific preferences
+  opt_apply_reminders?: boolean;
+  opt_clock_reminders?: boolean;
+  stem_apply_reminders?: boolean;
+  stem_clock_reminders?: boolean;
+}
+
 /**
- * GET - Send daily reminders to all premium users
- * Called by Vercel Cron or manually for testing
+ * GET - Send daily reminders to all eligible users
  */
 export async function GET(req: NextRequest) {
   const startTime = Date.now();
   
-  // Verify cron secret to prevent unauthorized access
+  // Verify cron secret
   const authHeader = req.headers.get('authorization');
   const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
   
   if (authHeader !== expectedAuth) {
     console.error('⚠️ Unauthorized cron job attempt');
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
+    console.log('📧 Starting daily reminder job...');
 
-    // Get all premium users with email enabled
-    const { data: premiumUsers, error: usersError } = await supabase
-      .from('profiles')
-      .select(`
-        user_id,
-        email,
-        first_name,
-        last_name
-      `)
-      .eq('premium_status', true);
+    // Get all users with email preferences enabled
+    const { data: emailPrefs, error: prefsError } = await supabase
+      .from('email_preferences')
+      .select('*')
+      .eq('email_enabled', true);
 
-    if (usersError) {
-      console.error('❌ Error fetching premium users:', usersError);
-      return NextResponse.json(
-        { error: usersError.message },
-        { status: 500 }
-      );
+    if (prefsError) {
+      console.error('❌ Error fetching email preferences:', prefsError);
+      return NextResponse.json({ error: prefsError.message }, { status: 500 });
     }
 
+    if (!emailPrefs || emailPrefs.length === 0) {
+      console.log('ℹ️ No users with email enabled');
+      return NextResponse.json({ 
+        success: true, 
+        message: 'No users with email enabled',
+        sent: 0 
+      });
+    }
+
+    console.log(`📊 Found ${emailPrefs.length} users with email enabled`);
 
     const results = {
-      total: premiumUsers?.length || 0,
+      total: emailPrefs.length,
       sent: 0,
       skipped: 0,
       failed: 0,
@@ -71,17 +103,16 @@ export async function GET(req: NextRequest) {
     };
 
     // Process each user
-    for (const user of premiumUsers || []) {
+    for (const prefs of emailPrefs as UserEmailPrefs[]) {
       try {
-        // Get user's email preferences
-        const { data: emailPref } = await supabase
-          .from('email_preferences')
-          .select('email_address, email_enabled, email_verified')
-          .eq('user_id', user.user_id)
+        // Check if user is premium
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('premium_status, first_name, last_name')
+          .eq('user_id', prefs.user_id)
           .single();
 
-        // Skip if email not enabled or not verified
-        if (!emailPref || !emailPref.email_enabled || !emailPref.email_verified) {
+        if (!profile?.premium_status) {
           results.skipped++;
           continue;
         }
@@ -90,7 +121,7 @@ export async function GET(req: NextRequest) {
         const { data: optData } = await supabase
           .from('opt_status')
           .select('*')
-          .eq('user_id', user.user_id)
+          .eq('user_id', prefs.user_id)
           .single();
 
         if (!optData) {
@@ -98,98 +129,9 @@ export async function GET(req: NextRequest) {
           continue;
         }
 
-        // Calculate countdowns for each tool
-        const tools = [];
+        // Calculate active tools and reminders
+        const tools = calculateActiveTools(optData, prefs);
 
-        // 1. OPT Filing Window (if program_end_date exists)
-        if (optData.program_end_date) {
-          const programEnd = new Date(optData.program_end_date);
-          const latestEnd = new Date(programEnd);
-          latestEnd.setDate(latestEnd.getDate() + 60); // 60 days after program ends
-          const daysLeft = Math.ceil((latestEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-
-          if (daysLeft > 0 && daysLeft <= 150) { // Only send if within 150 days
-            tools.push({
-              name: 'OPT Filing Window',
-              daysLeft,
-              endDate: latestEnd.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              }),
-              urgency: getUrgency(daysLeft, 150),
-              message: getOptFilingMessage(daysLeft),
-            });
-          }
-        }
-
-        // 2. STEM OPT Filing Window (if opt_ead_end_date exists)
-        if (optData.opt_ead_end_date) {
-          const optEnd = new Date(optData.opt_ead_end_date);
-          const daysLeft = Math.ceil((optEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-
-          if (daysLeft > 0 && daysLeft <= 150) {
-            tools.push({
-              name: 'STEM OPT Filing Window',
-              daysLeft,
-              endDate: optEnd.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              }),
-              urgency: getUrgency(daysLeft, 150),
-              message: getStemFilingMessage(daysLeft),
-            });
-          }
-        }
-
-        // 3. OPT Unemployment Days (if opt_start_date exists)
-        if (optData.opt_start_date) {
-          const optStart = new Date(optData.opt_start_date);
-          const endDate = new Date(optStart);
-          endDate.setDate(endDate.getDate() + 90); // 90 unemployment days
-          const daysLeft = Math.ceil((endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-
-          if (daysLeft > 0 && daysLeft <= 90) {
-            tools.push({
-              name: 'OPT Unemployment Days',
-              daysLeft,
-              endDate: endDate.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              }),
-              urgency: getUrgency(daysLeft, 90),
-              message: getUnemploymentMessage(daysLeft, 90),
-            });
-          }
-        }
-
-        // 4. STEM Unemployment Days (if we have STEM start date)
-        // Note: Assuming STEM start is opt_ead_end_date for now
-        // Adjust based on your actual schema
-        if (optData.opt_ead_end_date) {
-          const stemStart = new Date(optData.opt_ead_end_date);
-          const endDate = new Date(stemStart);
-          endDate.setDate(endDate.getDate() + 60); // 60 STEM unemployment days
-          const daysLeft = Math.ceil((endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-
-          if (daysLeft > 0 && daysLeft <= 60) {
-            tools.push({
-              name: 'STEM Unemployment Days',
-              daysLeft,
-              endDate: endDate.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              }),
-              urgency: getUrgency(daysLeft, 60),
-              message: getUnemploymentMessage(daysLeft, 60),
-            });
-          }
-        }
-
-        // Skip if no active tools/countdowns
         if (tools.length === 0) {
           results.skipped++;
           continue;
@@ -197,9 +139,9 @@ export async function GET(req: NextRequest) {
 
         // Send email
         const emailData: EmailReminderData = {
-          userId: user.user_id,
-          userEmail: emailPref.email_address,
-          firstName: user.first_name || 'there',
+          userId: prefs.user_id,
+          userEmail: prefs.email_address,
+          firstName: profile.first_name || 'there',
           tools,
         };
 
@@ -207,13 +149,14 @@ export async function GET(req: NextRequest) {
 
         if (result.success) {
           results.sent++;
+          console.log(`✅ Sent to ${prefs.email_address}`);
 
           // Log to email_queue
           await supabase.from('email_queue').insert({
-            user_id: user.user_id,
-            email_address: emailPref.email_address,
+            user_id: prefs.user_id,
+            email_address: prefs.email_address,
             email_type: 'daily_reminder',
-            email_subject: `Daily OPT Reminder - ${tools.length} active countdown${tools.length !== 1 ? 's' : ''}`,
+            email_subject: `Daily OPT Reminder - ${tools.length} active`,
             email_data: tools,
             sent_at: new Date().toISOString(),
             status: 'sent',
@@ -221,32 +164,22 @@ export async function GET(req: NextRequest) {
           });
         } else {
           results.failed++;
-          results.errors.push(`${emailPref.email_address}: ${result.error}`);
-          console.error(`❌ Failed to send to ${emailPref.email_address}:`, result.error);
-
-          // Log failure
-          await supabase.from('email_queue').insert({
-            user_id: user.user_id,
-            email_address: emailPref.email_address,
-            email_type: 'daily_reminder',
-            email_data: tools,
-            status: 'failed',
-            error_message: JSON.stringify(result.error),
-          });
+          results.errors.push(`${prefs.email_address}: ${result.error}`);
+          console.error(`❌ Failed: ${prefs.email_address}`);
         }
 
-        // Small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Rate limiting delay
+        await new Promise(resolve => setTimeout(resolve, 200));
 
       } catch (error: any) {
         results.failed++;
-        results.errors.push(`${user.email}: ${error.message}`);
-        console.error(`❌ Error processing user ${user.user_id}:`, error);
+        results.errors.push(`${prefs.email_address}: ${error.message}`);
+        console.error(`❌ Error processing user:`, error);
       }
     }
 
     const duration = Date.now() - startTime;
-
+    console.log(`✅ Job completed in ${duration}ms - Sent: ${results.sent}, Skipped: ${results.skipped}, Failed: ${results.failed}`);
 
     return NextResponse.json({
       success: true,
@@ -256,22 +189,145 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error('❌ Cron job error:', error);
-    return NextResponse.json(
-      { 
-        error: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
 /**
- * Determine urgency level based on days remaining
+ * Calculate active tools and their reminder messages based on dates
+ */
+function calculateActiveTools(optData: UserOptData, prefs: UserEmailPrefs): EmailReminderData['tools'] {
+  const tools: EmailReminderData['tools'] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // ========================================
+  // 1. OPT APPLY - Filing Window Reminders
+  // ========================================
+  // Earliest: 90 days before program end
+  // Deadline: 60 days after program end
+  if (optData.program_end_date && prefs.opt_apply_reminders !== false) {
+    const programEnd = new Date(optData.program_end_date);
+    
+    // Earliest filing date: 90 days before program end
+    const earliestFiling = new Date(programEnd);
+    earliestFiling.setDate(earliestFiling.getDate() - 90);
+    
+    // Filing deadline: 60 days after program end
+    const filingDeadline = new Date(programEnd);
+    filingDeadline.setDate(filingDeadline.getDate() + 60);
+    
+    // Only send reminders within the filing window
+    if (today >= earliestFiling && today <= filingDeadline) {
+      const daysLeft = Math.ceil((filingDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const totalWindow = 150; // 90 + 60 days total window
+      
+      tools.push({
+        name: 'OPT Application',
+        daysLeft,
+        endDate: filingDeadline.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        }),
+        urgency: getUrgency(daysLeft, totalWindow),
+        message: getOptApplyMessage(daysLeft, programEnd, today),
+      });
+    }
+  }
+
+  // ========================================
+  // 2. OPT CLOCK - Unemployment Days Tracker
+  // ========================================
+  // 90 days total during initial OPT
+  if (optData.opt_start_date && prefs.opt_clock_reminders !== false) {
+    const optStart = new Date(optData.opt_start_date);
+    const optEnd = optData.opt_ead_end_date ? new Date(optData.opt_ead_end_date) : null;
+    
+    // Only track during active OPT period
+    if (today >= optStart && (!optEnd || today <= optEnd)) {
+      // Calculate used days (simplified - in reality would need employment spans)
+      const daysSinceStart = Math.ceil((today.getTime() - optStart.getTime()) / (1000 * 60 * 60 * 24));
+      const daysLeft = Math.max(0, 90 - daysSinceStart);
+      
+      if (daysLeft > 0 && daysLeft <= 90) {
+        tools.push({
+          name: 'OPT Unemployment Days',
+          daysLeft,
+          endDate: 'Max 90 days',
+          urgency: getUrgency(daysLeft, 90),
+          message: getUnemploymentMessage(daysLeft, 90, 'OPT'),
+        });
+      }
+    }
+  }
+
+  // ========================================
+  // 3. STEM APPLY - Extension Filing Window
+  // ========================================
+  // Can file up to 90 days before OPT EAD expires
+  // Must file before OPT EAD expires
+  if (optData.opt_ead_end_date && prefs.stem_apply_reminders !== false) {
+    const optEadEnd = new Date(optData.opt_ead_end_date);
+    
+    // Earliest STEM filing: 90 days before OPT EAD expires
+    const earliestStemFiling = new Date(optEadEnd);
+    earliestStemFiling.setDate(earliestStemFiling.getDate() - 90);
+    
+    // Only send reminders within STEM filing window (and not yet on STEM)
+    if (!optData.stem_start_date && today >= earliestStemFiling && today <= optEadEnd) {
+      const daysLeft = Math.ceil((optEadEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      
+      tools.push({
+        name: 'STEM OPT Extension',
+        daysLeft,
+        endDate: optEadEnd.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        }),
+        urgency: getUrgency(daysLeft, 90),
+        message: getStemApplyMessage(daysLeft),
+      });
+    }
+  }
+
+  // ========================================
+  // 4. STEM CLOCK - STEM Unemployment Tracker
+  // ========================================
+  // 150 days aggregate (90 from OPT + 60 from STEM)
+  if (optData.stem_start_date && prefs.stem_clock_reminders !== false) {
+    const stemStart = new Date(optData.stem_start_date);
+    
+    // Calculate STEM period end (24 months from STEM start)
+    const stemEnd = new Date(stemStart);
+    stemEnd.setMonth(stemEnd.getMonth() + 24);
+    
+    if (today >= stemStart && today <= stemEnd) {
+      // During STEM, track 150 aggregate days
+      const daysSinceStemStart = Math.ceil((today.getTime() - stemStart.getTime()) / (1000 * 60 * 60 * 24));
+      const stemDaysRemaining = Math.max(0, 60 - Math.min(60, daysSinceStemStart));
+      
+      if (stemDaysRemaining > 0) {
+        tools.push({
+          name: 'STEM Unemployment Days',
+          daysLeft: stemDaysRemaining,
+          endDate: 'Max 150 aggregate',
+          urgency: getUrgency(stemDaysRemaining, 60),
+          message: getUnemploymentMessage(stemDaysRemaining, 60, 'STEM'),
+        });
+      }
+    }
+  }
+
+  return tools;
+}
+
+/**
+ * Determine urgency level
  */
 function getUrgency(daysLeft: number, total: number): 'safe' | 'moderate' | 'urgent' | 'critical' {
   const percentage = (daysLeft / total) * 100;
-  
   if (percentage > 60) return 'safe';
   if (percentage > 30) return 'moderate';
   if (percentage > 10) return 'urgent';
@@ -279,67 +335,75 @@ function getUrgency(daysLeft: number, total: number): 'safe' | 'moderate' | 'urg
 }
 
 /**
- * Get message for OPT filing window
+ * OPT Apply reminder messages based on timeline position
  */
-function getOptFilingMessage(daysLeft: number): string {
-  if (daysLeft > 90) {
-    return 'Start gathering your documents. You\'ll need transcripts, I-20, and passport copies.';
-  } else if (daysLeft > 60) {
-    return 'Begin filling out Form I-765. Ensure all information is accurate.';
-  } else if (daysLeft > 45) {
-    return 'Schedule an appointment with your DSO for I-20 recommendation.';
-  } else if (daysLeft > 30) {
-    return 'Get your passport photos taken. You need 2 identical photos.';
-  } else if (daysLeft > 21) {
-    return 'Double-check all forms and documents. Make copies before mailing.';
-  } else if (daysLeft > 14) {
-    return '⚠️ Time to submit! Use expedited shipping with tracking.';
-  } else if (daysLeft > 7) {
-    return '⚠️ Submit THIS WEEK! USCIS processing takes 3-5 months.';
-  } else {
-    return '🚨 URGENT: Submit TODAY! Don\'t miss your filing window!';
-  }
-}
-
-/**
- * Get message for STEM OPT filing window
- */
-function getStemFilingMessage(daysLeft: number): string {
-  if (daysLeft > 90) {
-    return 'Start preparing Form I-983 with your employer. Ensure they\'re E-Verified.';
-  } else if (daysLeft > 60) {
-    return 'Work on your training plan with your employer. This is crucial for approval.';
-  } else if (daysLeft > 45) {
-    return 'Finalize Form I-983 and schedule DSO appointment for STEM recommendation.';
-  } else if (daysLeft > 30) {
-    return 'Get new passport photos and gather all required documents.';
-  } else if (daysLeft > 21) {
-    return 'Review everything carefully. Verify your degree is on the STEM list.';
-  } else if (daysLeft > 14) {
-    return '⚠️ Apply before your current OPT expires to avoid work authorization gaps!';
-  } else if (daysLeft > 7) {
-    return '⚠️ CRITICAL: Mail application with tracking immediately!';
-  } else {
-    return '🚨 EMERGENCY: Submit NOW! A gap could jeopardize your status!';
-  }
-}
-
-/**
- * Get message for unemployment days
- */
-function getUnemploymentMessage(daysLeft: number, total: number): string {
-  const used = total - daysLeft;
+function getOptApplyMessage(daysLeft: number, programEnd: Date, today: Date): string {
+  const daysToProgEnd = Math.ceil((programEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   
-  if (daysLeft > total * 0.75) {
-    return `You've used ${used} of ${total} unemployment days. Keep actively job searching!`;
-  } else if (daysLeft > total * 0.5) {
-    return `${used} days used. Apply to multiple jobs daily and network actively.`;
-  } else if (daysLeft > total * 0.33) {
-    return `⚠️ ${used}/${total} days used. Intensify your job search - consider widening your area.`;
-  } else if (daysLeft > total * 0.17) {
-    return `⚠️ ${used} unemployment days used! Accept reasonable offers soon.`;
+  // Before program ends (daysToProgEnd > 0)
+  if (daysToProgEnd > 60) {
+    return `📋 START EARLY: Request official transcripts and gather required documents. You'll need: passport copies, I-94, I-20s, and 2 passport photos.`;
+  } else if (daysToProgEnd > 45) {
+    return `📝 PREPARE FORMS: Begin filling out Form I-765 carefully. Double-check every entry - errors cause delays!`;
+  } else if (daysToProgEnd > 30) {
+    return `🏫 DSO MEETING: Schedule appointment with your DSO for OPT recommendation on your I-20. This is required!`;
+  } else if (daysToProgEnd > 14) {
+    return `📸 FINAL PREP: Get passport photos taken (2 identical, 2x2 inches). Make copies of ALL documents before mailing.`;
+  } else if (daysToProgEnd > 0) {
+    return `⚠️ SUBMIT NOW: Mail your complete application with USPS tracking. Processing takes 3-5 months!`;
+  }
+  
+  // After program ends (counting down to 60-day deadline)
+  if (daysLeft > 45) {
+    return `⚠️ POST-GRADUATION: Your program has ended. Submit OPT application ASAP - you have ${daysLeft} days left.`;
+  } else if (daysLeft > 30) {
+    return `🚨 URGENT: Only ${daysLeft} days remaining! Mail your application THIS WEEK with tracking.`;
+  } else if (daysLeft > 14) {
+    return `🚨 CRITICAL: ${daysLeft} days until deadline! Submit TODAY - consider premium processing if available.`;
+  } else if (daysLeft > 7) {
+    return `🆘 EMERGENCY: Just ${daysLeft} days left! Contact your DSO immediately if you haven't submitted!`;
   } else {
-    return `🚨 CRITICAL: Only ${daysLeft} days left! Accept ANY offer in your field and contact your DSO!`;
+    return `🆘 FINAL DAYS: Only ${daysLeft} days remaining! Submit NOW or you will miss your OPT window entirely!`;
   }
 }
 
+/**
+ * STEM Apply reminder messages
+ */
+function getStemApplyMessage(daysLeft: number): string {
+  if (daysLeft > 75) {
+    return `📋 STEM PREP: Start gathering documents. You'll need Form I-983 completed with your employer and proof they're E-Verified.`;
+  } else if (daysLeft > 60) {
+    return `📝 FORM I-983: Work with your employer to complete the Training Plan. This requires detailed mentorship info.`;
+  } else if (daysLeft > 45) {
+    return `🏫 DSO MEETING: Schedule appointment for STEM I-20 recommendation. Have Form I-983 ready!`;
+  } else if (daysLeft > 30) {
+    return `📸 PREPARE APPLICATION: Get new passport photos. Verify your degree is STEM-eligible (check CIP code).`;
+  } else if (daysLeft > 14) {
+    return `⚠️ SUBMIT SOON: Your current OPT expires in ${daysLeft} days. Mail STEM application with tracking!`;
+  } else if (daysLeft > 7) {
+    return `🚨 URGENT: Only ${daysLeft} days before OPT expires! Submit NOW to maintain work authorization!`;
+  } else {
+    return `🆘 CRITICAL: ${daysLeft} days left! A gap in filing could void your work authorization - submit TODAY!`;
+  }
+}
+
+/**
+ * Unemployment clock reminder messages
+ */
+function getUnemploymentMessage(daysLeft: number, total: number, type: 'OPT' | 'STEM'): string {
+  const used = total - daysLeft;
+  const threshold = type === 'OPT' ? 90 : 60;
+  
+  if (daysLeft > threshold * 0.75) {
+    return `⏰ ${used}/${total} unemployment days used. Apply to 3+ jobs daily and document your search!`;
+  } else if (daysLeft > threshold * 0.5) {
+    return `⚠️ ${used} days used, ${daysLeft} remaining. Intensify job search - network actively on LinkedIn!`;
+  } else if (daysLeft > threshold * 0.33) {
+    return `🚨 WARNING: ${used}/${total} days used! Consider widening your geographic area and industry.`;
+  } else if (daysLeft > threshold * 0.17) {
+    return `🆘 CRITICAL: Only ${daysLeft} days left! Accept reasonable offers - negotiate after starting!`;
+  } else {
+    return `🆘 EMERGENCY: Just ${daysLeft} days remaining! Accept ANY qualifying offer and contact your DSO immediately!`;
+  }
+}
