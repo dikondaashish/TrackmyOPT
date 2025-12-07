@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { generateSignedUrl } from '@/lib/s3';
 import JSZip from 'jszip';
 
 /**
@@ -109,22 +110,34 @@ export async function POST(request: NextRequest) {
     ];
     zip.file('opt_data.csv', csvRows.join('\n'));
 
-    // 5. Download and add documents
+    // 5. Download and add documents from S3
     if (documents && documents.length > 0) {
       const documentsFolder = zip.folder('documents');
 
       for (const doc of documents) {
         try {
-          // Get file from S3/storage
-          const { data: fileData } = await supabase.storage
-            .from('documents')
-            .download(doc.file_path);
-
-          if (fileData) {
-            const arrayBuffer = await fileData.arrayBuffer();
-            const fileName = doc.original_filename || `document_${doc.id}`;
-            documentsFolder?.file(fileName, arrayBuffer);
+          // Check if document has S3 key
+          if (!doc.s3_key) {
+            console.log(`Document ${doc.id} has no S3 key, skipping`);
+            continue;
           }
+
+          // Generate signed URL for S3
+          const signedUrl = await generateSignedUrl(doc.s3_key);
+          
+          // Fetch file from S3
+          const s3Response = await fetch(signedUrl);
+          
+          if (!s3Response.ok) {
+            console.error(`Failed to fetch document ${doc.id} from S3: ${s3Response.status}`);
+            continue;
+          }
+
+          const arrayBuffer = await s3Response.arrayBuffer();
+          const fileName = doc.filename || doc.file_name || doc.original_filename || `document_${doc.id}`;
+          documentsFolder?.file(fileName, arrayBuffer);
+          
+          console.log(`✅ Added document: ${fileName}`);
         } catch (err) {
           console.error(`Failed to download document ${doc.id}:`, err);
           // Continue with other documents
