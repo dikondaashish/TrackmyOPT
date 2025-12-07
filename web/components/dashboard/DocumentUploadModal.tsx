@@ -282,282 +282,328 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
   );
 }
 
-// Advanced animated processing state component with professional animations
-function AnimatedProcessingState({ progress, stage }: { progress: number; stage: string }) {
-  const [currentLineIndex, setCurrentLineIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState('');
-  const [completedLines, setCompletedLines] = useState<string[]>([]);
-  const [isTyping, setIsTyping] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
+// All processing lines - synced with actual upload progress
+const ALL_PROCESSING_LINES = [
+  // 0-15% - Upload initialization
+  { text: "Initializing secure connection...", phase: "upload" },
+  { text: "Encrypting document data...", phase: "upload" },
+  { text: "Connecting to AWS S3...", phase: "upload" },
+  // 15-30% - Upload in progress
+  { text: "Uploading to secure storage...", phase: "upload" },
+  { text: "Verifying upload integrity...", phase: "upload" },
+  { text: "Upload complete ✓", phase: "upload" },
+  // 30-50% - OCR
+  { text: "Initializing Gemini Vision AI...", phase: "ocr" },
+  { text: "Scanning document pages...", phase: "ocr" },
+  { text: "Detecting text regions...", phase: "ocr" },
+  { text: "Extracting text content...", phase: "ocr" },
+  { text: "Processing document layout...", phase: "ocr" },
+  { text: "OCR extraction complete ✓", phase: "ocr" },
+  // 50-75% - Analysis
+  { text: "Analyzing document structure...", phase: "analyze" },
+  { text: "Identifying document category...", phase: "analyze" },
+  { text: "Matching against known templates...", phase: "analyze" },
+  { text: "Detecting document type...", phase: "analyze" },
+  { text: "Document type identified ✓", phase: "analyze" },
+  // 75-95% - Metadata
+  { text: "Scanning for key fields...", phase: "metadata" },
+  { text: "Extracting name information...", phase: "metadata" },
+  { text: "Parsing date fields...", phase: "metadata" },
+  { text: "Identifying expiry dates...", phase: "metadata" },
+  { text: "Extracting document numbers...", phase: "metadata" },
+  { text: "Validating field accuracy...", phase: "metadata" },
+  // 95-100% - Finalizing
+  { text: "Finalizing document analysis...", phase: "final" },
+  { text: "Saving to vault...", phase: "final" },
+  { text: "All done ✓", phase: "final" },
+];
 
-  // All processing lines with timing markers
-  const allLines = [
-    { text: "Establishing secure TLS connection...", phase: 'upload', icon: '🔐' },
-    { text: "Encrypting document with AES-256...", phase: 'upload', icon: '🔒' },
-    { text: "Uploading to secure cloud storage...", phase: 'upload', icon: '☁️' },
-    { text: "Verifying checksum integrity...", phase: 'upload', icon: '✅' },
-    { text: "Initializing Gemini Vision AI model...", phase: 'ocr', icon: '🤖' },
-    { text: "Loading document into memory buffer...", phase: 'ocr', icon: '📄' },
-    { text: "Detecting text regions and boundaries...", phase: 'ocr', icon: '🔍' },
-    { text: "Extracting text with 99.2% accuracy...", phase: 'ocr', icon: '📝' },
-    { text: "Processing multi-language characters...", phase: 'ocr', icon: '🌐' },
-    { text: "Running document classification model...", phase: 'analyze', icon: '🧠' },
-    { text: "Matching against 47 document templates...", phase: 'analyze', icon: '📋' },
-    { text: "Confidence score: calculating...", phase: 'analyze', icon: '📊' },
-    { text: "Document type identified successfully", phase: 'analyze', icon: '✨' },
-    { text: "Extracting name and identity fields...", phase: 'metadata', icon: '👤' },
-    { text: "Parsing date formats (MM/DD/YYYY)...", phase: 'metadata', icon: '📅' },
-    { text: "Detecting expiration date...", phase: 'metadata', icon: '⏰' },
-    { text: "Extracting document numbers...", phase: 'metadata', icon: '🔢' },
-    { text: "Cross-referencing extracted data...", phase: 'metadata', icon: '🔗' },
-    { text: "Finalizing document analysis...", phase: 'complete', icon: '🎯' },
-    { text: "Analysis complete ✓", phase: 'complete', icon: '✅' },
-  ];
+const PHASE_STATUS: Record<string, string> = {
+  upload: "Uploading to secure storage",
+  ocr: "Extracting text with Gemini OCR",
+  analyze: "Analyzing document type",
+  metadata: "Extracting metadata fields",
+  final: "Finalizing",
+};
 
-  // Get current phase based on progress
-  const getCurrentPhase = () => {
-    if (progress <= 25) return 'upload';
-    if (progress <= 50) return 'ocr';
-    if (progress <= 75) return 'analyze';
-    if (progress <= 95) return 'metadata';
-    return 'complete';
-  };
+// Animated spinner component
+const LoadingSpinner = ({ progress }: { progress: number }) => (
+  <div className="relative w-8 h-8">
+    <svg
+      viewBox="0 0 240 240"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-full h-full"
+      aria-label={`Loading progress: ${Math.round(progress)}%`}
+    >
+      <title>Loading Progress</title>
+      <defs>
+        <mask id="progress-mask">
+          <rect width="240" height="240" fill="black" />
+          <circle
+            r="120"
+            cx="120"
+            cy="120"
+            fill="white"
+            strokeDasharray={`${(progress / 100) * 754}, 754`}
+            transform="rotate(-90 120 120)"
+          />
+        </mask>
+      </defs>
+      <style>
+        {`
+          @keyframes rotate-cw {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes rotate-ccw {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+          }
+          .g-spin circle {
+            transform-origin: 120px 120px;
+          }
+          .g-spin circle:nth-child(1) { animation: rotate-cw 4s linear infinite; }
+          .g-spin circle:nth-child(2) { animation: rotate-ccw 4s linear infinite; }
+          .g-spin circle:nth-child(3) { animation: rotate-cw 4s linear infinite; }
+          .g-spin circle:nth-child(4) { animation: rotate-ccw 4s linear infinite; }
+          .g-spin circle:nth-child(2n) { animation-delay: 0.15s; }
+          .g-spin circle:nth-child(3n) { animation-delay: 0.25s; }
+        `}
+      </style>
+      <g
+        className="g-spin"
+        strokeWidth="16"
+        strokeDasharray="18% 40%"
+        mask="url(#progress-mask)"
+      >
+        <circle r="150" cx="120" cy="120" stroke="#06B6D4" opacity="0.95" />
+        <circle r="130" cx="120" cy="120" stroke="#22D3EE" opacity="0.95" />
+        <circle r="110" cx="120" cy="120" stroke="#67E8F9" opacity="0.95" />
+        <circle r="90" cx="120" cy="120" stroke="#A5F3FC" opacity="0.95" />
+      </g>
+    </svg>
+  </div>
+);
 
-  // Get phase display info
-  const getPhaseInfo = () => {
-    const phase = getCurrentPhase();
-    switch (phase) {
-      case 'upload': return { title: 'Uploading to Secure Storage', color: 'cyan' };
-      case 'ocr': return { title: 'Extracting Text with Gemini OCR', color: 'blue' };
-      case 'analyze': return { title: 'Analyzing Document Type', color: 'purple' };
-      case 'metadata': return { title: 'Extracting Metadata Fields', color: 'indigo' };
-      case 'complete': return { title: 'Finalizing Analysis', color: 'green' };
-      default: return { title: 'Processing...', color: 'cyan' };
-    }
-  };
-
-  // Calculate which line to show based on progress
+// Typing animation for a single line
+function TypingLine({ text, isComplete, isTyping }: { text: string; isComplete: boolean; isTyping: boolean }) {
+  const [displayText, setDisplayText] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+  
   useEffect(() => {
-    const targetLine = Math.floor((progress / 100) * allLines.length);
-    if (targetLine > currentLineIndex && currentLineIndex < allLines.length - 1) {
-      setCurrentLineIndex(targetLine);
+    if (!isTyping) {
+      setDisplayText(text);
+      return;
     }
-  }, [progress, currentLineIndex, allLines.length]);
-
-  // Typewriter effect for current line
-  useEffect(() => {
-    if (currentLineIndex >= allLines.length) return;
     
-    const currentLine = allLines[currentLineIndex];
-    let charIndex = 0;
-    setDisplayedText('');
-    setIsTyping(true);
-
+    setDisplayText('');
+    let index = 0;
+    const typingSpeed = Math.max(20, 60 - text.length); // Faster for longer text
+    
     const typeInterval = setInterval(() => {
-      if (charIndex < currentLine.text.length) {
-        setDisplayedText(currentLine.text.slice(0, charIndex + 1));
-        charIndex++;
+      if (index < text.length) {
+        setDisplayText(text.slice(0, index + 1));
+        index++;
       } else {
         clearInterval(typeInterval);
-        setIsTyping(false);
-        
-        // Add to completed lines after a short delay
-        setTimeout(() => {
-          setCompletedLines(prev => {
-            const newLines = [...prev, `${currentLine.icon} ${currentLine.text}`];
-            // Keep only last 4 lines
-            return newLines.slice(-4);
-          });
-        }, 300);
       }
-    }, 25); // Fast typing speed
-
+    }, typingSpeed);
+    
     return () => clearInterval(typeInterval);
-  }, [currentLineIndex]);
+  }, [text, isTyping]);
+  
+  // Blinking cursor
+  useEffect(() => {
+    if (!isTyping) {
+      setShowCursor(false);
+      return;
+    }
+    const cursorInterval = setInterval(() => {
+      setShowCursor(prev => !prev);
+    }, 400);
+    return () => clearInterval(cursorInterval);
+  }, [isTyping]);
+  
+  const isDone = text.includes('✓');
+  
+  return (
+    <span className={`${isDone ? 'text-green-600 font-medium' : isComplete ? 'text-gray-500' : 'text-gray-700'}`}>
+      {displayText}
+      {isTyping && displayText.length < text.length && (
+        <span className={`${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity`}>|</span>
+      )}
+    </span>
+  );
+}
 
-  // Auto-scroll completed lines
+// Animated processing state component
+function AnimatedProcessingState({ progress, stage }: { progress: number; stage: string }) {
+  const [visibleLines, setVisibleLines] = useState<Array<{ text: string; phase: string; index: number }>>([]);
+  const [currentTypingIndex, setCurrentTypingIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Calculate which line index we should be at based on progress
+  const targetLineIndex = Math.min(
+    Math.floor((progress / 100) * ALL_PROCESSING_LINES.length),
+    ALL_PROCESSING_LINES.length - 1
+  );
+  
+  // Get current phase for status display
+  const currentPhase = ALL_PROCESSING_LINES[targetLineIndex]?.phase || 'upload';
+  const currentStatus = PHASE_STATUS[currentPhase] || 'Processing';
+  
+  // Add lines progressively based on progress
+  useEffect(() => {
+    // Add all lines up to target
+    const newLines = ALL_PROCESSING_LINES.slice(0, targetLineIndex + 1).map((line, idx) => ({
+      ...line,
+      index: idx,
+    }));
+    
+    if (newLines.length > visibleLines.length) {
+      setVisibleLines(newLines);
+      setCurrentTypingIndex(newLines.length - 1);
+    }
+  }, [targetLineIndex, visibleLines.length]);
+  
+  // Auto-scroll to bottom
   useEffect(() => {
     if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
     }
-  }, [completedLines]);
-
-  const phaseInfo = getPhaseInfo();
-  const currentLine = allLines[currentLineIndex] || allLines[0];
+  }, [visibleLines]);
+  
+  // Phase indicators
+  const phases = ['upload', 'ocr', 'analyze', 'metadata', 'final'];
+  const currentPhaseIndex = phases.indexOf(currentPhase);
 
   return (
-    <div className="space-y-5">
-      {/* Custom CSS for animations */}
-      <style>{`
-        @keyframes pulse-ring {
-          0% { transform: scale(0.95); opacity: 1; }
-          50% { transform: scale(1.05); opacity: 0.8; }
-          100% { transform: scale(0.95); opacity: 1; }
+    <div className="space-y-6">
+      {/* Progress Bar */}
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm text-gray-600">
+          <span>
+            {stage === 'uploading' ? '📤 Uploading file...' : '🤖 AI analyzing document...'}
+          </span>
+          <span>{progress}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div
+            className="bg-gradient-to-r from-cyan-500 to-cyan-400 h-3 rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Animated Status Display */}
+      <div className="flex items-center justify-center">
+        <div className="space-y-4 w-full max-w-md">
+          {/* Current Task Status */}
+          <div className="flex items-center space-x-3 text-gray-700 font-medium">
+            {progress >= 100 ? (
+              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            ) : (
+              <LoadingSpinner progress={progress} />
+            )}
+            <span className="text-base">
+              {progress >= 100 ? 'Processing complete!' : `${currentStatus}...`}
+            </span>
+          </div>
+
+          {/* Scrolling Lines Container */}
+          <div className="relative">
+            <div
+              ref={containerRef}
+              className="font-mono text-xs overflow-hidden w-full h-[112px] rounded-lg bg-gray-50 border border-gray-200"
+            >
+              <div className="p-2 space-y-1">
+                {visibleLines.map((line, idx) => (
+                  <div
+                    key={`${line.index}-${line.text}`}
+                    className="flex items-center px-2 py-1 animate-fadeIn"
+                    style={{
+                      animation: idx === visibleLines.length - 1 ? 'fadeIn 0.3s ease-out' : 'none',
+                    }}
+                  >
+                    <div className="text-gray-400 pr-3 select-none w-6 text-right text-[10px]">
+                      {String(line.index + 1).padStart(2, '0')}
+                    </div>
+                    <div className="flex-1 ml-1">
+                      <TypingLine 
+                        text={line.text} 
+                        isComplete={idx < visibleLines.length - 1}
+                        isTyping={idx === currentTypingIndex}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Gradient Overlay */}
+            <div
+              className="absolute top-0 left-0 right-0 h-6 pointer-events-none rounded-t-lg"
+              style={{
+                background: 'linear-gradient(to bottom, rgba(249,250,251,0.95) 0%, transparent 100%)',
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Phase Indicators */}
+      <div className="flex justify-center gap-3">
+        {phases.map((phase, idx) => (
+          <div
+            key={phase}
+            className={`flex items-center gap-1.5 transition-all duration-500 ${
+              idx <= currentPhaseIndex ? 'opacity-100' : 'opacity-40'
+            }`}
+          >
+            <div
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                idx < currentPhaseIndex ? 'bg-green-500' : 
+                idx === currentPhaseIndex ? 'bg-cyan-500 scale-125 animate-pulse' : 
+                'bg-gray-300'
+              }`}
+            />
+            {idx === currentPhaseIndex && (
+              <span className="text-[10px] text-cyan-600 font-medium hidden sm:inline">
+                {PHASE_STATUS[phase]?.split(' ')[0]}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="text-xs text-gray-500 text-center">
+        {progress >= 95 ? 'Almost done...' : 'This may take 10-30 seconds depending on document size'}
+      </div>
+      
+      {/* CSS for animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes spin-reverse {
-          from { transform: rotate(360deg); }
-          to { transform: rotate(0deg); }
-        }
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 5px rgba(6, 182, 212, 0.5); }
-          50% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.8), 0 0 30px rgba(6, 182, 212, 0.4); }
-        }
-        @keyframes typing-cursor {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .typing-cursor {
-          animation: typing-cursor 0.8s ease-in-out infinite;
-        }
-        .slide-up {
-          animation: slide-up 0.3s ease-out forwards;
-        }
-        .glow-effect {
-          animation: glow 2s ease-in-out infinite;
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
         }
       `}</style>
-
-      {/* Progress Bar with Glow Effect */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600 font-medium flex items-center gap-2">
-            <span className="text-lg">{stage === 'uploading' ? '📤' : '🤖'}</span>
-            {stage === 'uploading' ? 'Uploading file...' : 'AI analyzing document...'}
-          </span>
-          <span className="font-bold text-cyan-600">{progress}%</span>
-        </div>
-        <div className="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 h-3 rounded-full transition-all duration-300 ease-out"
-            style={{ 
-              width: `${progress}%`,
-              backgroundSize: '200% 100%',
-              animation: 'gradient-shift 2s linear infinite',
-            }}
-          />
-          <div 
-            className="absolute top-0 h-3 w-8 bg-white/40 rounded-full blur-sm"
-            style={{ 
-              left: `${Math.max(0, progress - 5)}%`,
-              transition: 'left 0.3s ease-out'
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Main Animation Container */}
-      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-xl p-5 border border-gray-700 shadow-2xl">
-        {/* Animated Header */}
-        <div className="flex items-center gap-3 mb-4">
-          {/* Animated Spinner */}
-          <div className="relative w-10 h-10">
-            <div 
-              className="absolute inset-0 rounded-full border-2 border-cyan-500/30"
-              style={{ animation: 'spin-slow 3s linear infinite' }}
-            />
-            <div 
-              className="absolute inset-1 rounded-full border-2 border-t-cyan-400 border-r-transparent border-b-transparent border-l-cyan-400/50"
-              style={{ animation: 'spin-reverse 2s linear infinite' }}
-            />
-            <div 
-              className="absolute inset-2 rounded-full border-2 border-cyan-300/40"
-              style={{ animation: 'spin-slow 1.5s linear infinite' }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-2 h-2 bg-cyan-400 rounded-full" style={{ animation: 'pulse-ring 1s ease-in-out infinite' }} />
-            </div>
-          </div>
-          
-          {/* Phase Title */}
-          <div>
-            <div className="text-cyan-400 font-semibold text-sm tracking-wide uppercase">
-              {phaseInfo.title}
-            </div>
-            <div className="text-gray-500 text-xs">
-              Step {Math.min(4, Math.floor(progress / 25) + 1)} of 4
-            </div>
-          </div>
-        </div>
-
-        {/* Terminal-style Output */}
-        <div className="bg-black/50 rounded-lg border border-gray-700 overflow-hidden">
-          {/* Terminal Header */}
-          <div className="flex items-center gap-2 px-3 py-2 bg-gray-800/50 border-b border-gray-700">
-            <div className="w-3 h-3 rounded-full bg-red-500/80" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-            <div className="w-3 h-3 rounded-full bg-green-500/80" />
-            <span className="ml-2 text-xs text-gray-500 font-mono">document-analyzer.sh</span>
-          </div>
-
-          {/* Terminal Content */}
-          <div 
-            ref={containerRef}
-            className="p-3 h-[120px] overflow-y-auto font-mono text-xs space-y-1 scroll-smooth"
-          >
-            {/* Completed Lines */}
-            {completedLines.map((line, idx) => (
-              <div 
-                key={idx} 
-                className="text-gray-400 slide-up flex items-start gap-2"
-                style={{ animationDelay: `${idx * 0.05}s` }}
-              >
-                <span className="text-green-500 flex-shrink-0">$</span>
-                <span className="break-all">{line}</span>
-              </div>
-            ))}
-            
-            {/* Current Typing Line */}
-            <div className="text-cyan-300 flex items-start gap-2">
-              <span className="text-green-500 flex-shrink-0">$</span>
-              <span>
-                {currentLine.icon} {displayedText}
-                {isTyping && <span className="typing-cursor text-cyan-400">▊</span>}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Phase Progress Dots */}
-        <div className="flex justify-center gap-3 mt-4">
-          {['upload', 'ocr', 'analyze', 'metadata'].map((phase, idx) => {
-            const isActive = getCurrentPhase() === phase;
-            const isComplete = ['upload', 'ocr', 'analyze', 'metadata'].indexOf(getCurrentPhase()) > idx;
-            
-            return (
-              <div key={phase} className="flex flex-col items-center gap-1">
-                <div 
-                  className={`w-3 h-3 rounded-full transition-all duration-500 ${
-                    isComplete ? 'bg-green-500 scale-100' : 
-                    isActive ? 'bg-cyan-400 scale-125 glow-effect' : 
-                    'bg-gray-600 scale-100'
-                  }`}
-                />
-                <span className={`text-[10px] ${isActive ? 'text-cyan-400' : 'text-gray-500'}`}>
-                  {idx + 1}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Info Text */}
-      <div className="text-center text-xs text-gray-500 flex items-center justify-center gap-2">
-        <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-pulse" />
-        Processing with Gemini AI • Estimated time: 10-30 seconds
-      </div>
     </div>
   );
 }
