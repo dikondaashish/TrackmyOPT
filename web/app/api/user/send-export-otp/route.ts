@@ -2,13 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import nodemailer from 'nodemailer';
 import * as crypto from 'crypto';
-
-// Simple in-memory store for OTPs (will reset on server restart, but that's fine for short-lived OTPs)
-// In production, you'd use Redis or a database table
-const otpStore = new Map<string, { otp: string; expiresAt: number }>();
-
-// Export for use in verify endpoint
-export { otpStore };
+import { otpStore, cleanupExpiredOtps } from '@/lib/otp-store';
 
 /**
  * POST /api/user/send-export-otp
@@ -43,11 +37,7 @@ export async function POST() {
     otpStore.set(user.id, { otp, expiresAt });
 
     // Clean up expired OTPs
-    for (const [key, value] of otpStore.entries()) {
-      if (value.expiresAt < Date.now()) {
-        otpStore.delete(key);
-      }
-    }
+    cleanupExpiredOtps();
 
     // Also create a signed token as backup (in case serverless function restarts)
     const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret';
