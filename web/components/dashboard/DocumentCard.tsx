@@ -28,9 +28,10 @@ interface DocumentCardProps {
   onView: () => void;
   onDelete: () => void;
   onAddExpiry?: () => void;
+  onDownload?: () => void;
 }
 
-export function DocumentCard({ document, onView, onDelete, onAddExpiry }: DocumentCardProps) {
+export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownload }: DocumentCardProps) {
   const expiryStatus = getExpiryStatus(document.expiryDate);
   // Use category first (which holds the updated type), fall back to documentType
   const displayType = document.category || document.documentType || 'other';
@@ -123,6 +124,15 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry }: Docume
             className="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium hover:shadow-md"
           >
             View Document
+          </button>
+          <button
+            onClick={onDownload}
+            className="px-3 py-2 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all"
+            title="Download document"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
           </button>
           <button
             onClick={onDelete}

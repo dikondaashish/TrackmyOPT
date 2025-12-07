@@ -102,8 +102,25 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
     }
   }
 
-  function handleDownload() {
-    if (viewUrl) {
+  async function handleDownload() {
+    if (!viewUrl) return;
+    
+    try {
+      // Fetch the file and trigger actual download
+      const res = await fetch(viewUrl);
+      const blob = await res.blob();
+      
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = window.document.createElement('a');
+      link.href = downloadUrl;
+      link.download = document.filename || 'document';
+      window.document.body.appendChild(link);
+      link.click();
+      window.document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      // Fallback to opening in new tab if download fails
       window.open(viewUrl, '_blank');
     }
   }

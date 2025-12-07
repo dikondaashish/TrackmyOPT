@@ -44,6 +44,33 @@ export function DocumentGrid({
     setOpenEditExpiry(true);
   }
 
+  async function handleDownload(doc: Document) {
+    try {
+      // Get signed URL for the document
+      const res = await fetch(`/api/documents/${doc.id}/view`);
+      if (!res.ok) throw new Error('Failed to get download URL');
+      
+      const data = await res.json();
+      if (!data.url) throw new Error('No URL returned');
+      
+      // Fetch the file and trigger download
+      const fileRes = await fetch(data.url);
+      const blob = await fileRes.blob();
+      
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = doc.filename || 'document';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      alert('Failed to download document');
+    }
+  }
+
   async function handleDelete(id: string) {
     if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
       return;
@@ -116,6 +143,7 @@ export function DocumentGrid({
             }}
             onDelete={() => handleDelete(doc.id)}
             onAddExpiry={() => handleOpenWithExpiry(doc)}
+            onDownload={() => handleDownload(doc)}
           />
         ))}
       </div>
