@@ -183,6 +183,16 @@ export function SettingsSection() {
     setDarkMode(savedMode === 'true');
   };
 
+  // Listen for dark mode changes from header
+  useEffect(() => {
+    const handleDarkModeChange = (e: CustomEvent) => {
+      setDarkMode(e.detail.darkMode);
+    };
+
+    window.addEventListener('darkModeChanged', handleDarkModeChange as EventListener);
+    return () => window.removeEventListener('darkModeChanged', handleDarkModeChange as EventListener);
+  }, []);
+
   const loadCaseSettings = async () => {
     try {
       const res = await fetch('/api/case-status', { credentials: 'include' });
@@ -497,6 +507,9 @@ export function SettingsSection() {
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    // Dispatch custom event to sync with header
+    window.dispatchEvent(new CustomEvent('darkModeChanged', { detail: { darkMode: newMode } }));
   };
 
   const handlePasswordReset = async () => {

@@ -40,6 +40,25 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setDarkMode(prefersDark);
     }
+
+    // Listen for storage changes (when settings page changes dark mode - cross tab)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'tmo_dark_mode' && e.newValue !== null) {
+        setDarkMode(e.newValue === 'true');
+      }
+    };
+
+    // Listen for custom event (same page sync from settings)
+    const handleDarkModeChange = (e: CustomEvent) => {
+      setDarkMode(e.detail.darkMode);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('darkModeChanged', handleDarkModeChange as EventListener);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('darkModeChanged', handleDarkModeChange as EventListener);
+    };
   }, []);
 
   // Fetch user data and premium status
@@ -119,6 +138,8 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   const handleDarkModeToggle = (value: boolean) => {
     setDarkMode(value);
     localStorage.setItem('tmo_dark_mode', String(value));
+    // Dispatch custom event to sync with settings page
+    window.dispatchEvent(new CustomEvent('darkModeChanged', { detail: { darkMode: value } }));
   };
 
   return (
