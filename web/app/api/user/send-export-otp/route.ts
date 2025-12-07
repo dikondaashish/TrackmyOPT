@@ -16,14 +16,14 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is premium
-    const { data: subscription } = await supabase
-      .from('subscriptions')
-      .select('status')
+    // Check if user is premium from profiles table
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('premium_status')
       .eq('user_id', user.id)
       .single();
 
-    if (!subscription || subscription.status !== 'active') {
+    if (!profile || !profile.premium_status) {
       return NextResponse.json({ error: 'Pro subscription required' }, { status: 403 });
     }
 
