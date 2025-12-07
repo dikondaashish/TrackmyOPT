@@ -323,6 +323,7 @@ export function DocumentVaultClient() {
         onCategoryChange={setSelectedCategory}
         onSearchChange={setSearchQuery}
         onSortChange={setSortBy}
+        customCategories={[...new Set(documents.map(d => d.category || d.documentType).filter(Boolean))]}
       />
 
       {/* Documents Grid */}

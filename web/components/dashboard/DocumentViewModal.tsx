@@ -47,6 +47,19 @@ function formatDateForInput(dateString: string | null): string {
   return date.toISOString().split('T')[0];
 }
 
+// Default document type options
+const DEFAULT_DOC_TYPES = [
+  { value: 'passport', label: 'Passport' },
+  { value: 'visa', label: 'Visa' },
+  { value: 'i20', label: 'I-20' },
+  { value: 'ead_card', label: 'EAD Card' },
+  { value: 'i983', label: 'I-983' },
+  { value: 'offer_letter', label: 'Offer Letter' },
+  { value: 'paystub', label: 'Paystub' },
+  { value: 'receipt_notice', label: 'Receipt Notice' },
+  { value: 'other', label: 'Other' },
+];
+
 export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoEditExpiry = false }: DocumentViewModalProps) {
   const [viewUrl, setViewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,6 +68,14 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
   const [expiryDate, setExpiryDate] = useState(formatDateForInput(document.expiryDate));
   const [savingExpiry, setSavingExpiry] = useState(false);
   const [currentExpiryDate, setCurrentExpiryDate] = useState(document.expiryDate);
+  
+  // Document type editing state
+  const [isEditingType, setIsEditingType] = useState(false);
+  const [documentType, setDocumentType] = useState(document.documentType || 'other');
+  const [customType, setCustomType] = useState('');
+  const [savingType, setSavingType] = useState(false);
+  const [currentDocumentType, setCurrentDocumentType] = useState(document.documentType || 'other');
+  const [isCustomType, setIsCustomType] = useState(!DEFAULT_DOC_TYPES.some(t => t.value === document.documentType));
 
   useEffect(() => {
     loadDocument();
@@ -116,6 +137,58 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
   function handleCancelEdit() {
     setExpiryDate(formatDateForInput(currentExpiryDate));
     setIsEditingExpiry(false);
+  }
+
+  async function handleSaveDocumentType() {
+    setSavingType(true);
+    try {
+      const newType = isCustomType ? customType.toLowerCase().replace(/\s+/g, '_') : documentType;
+      
+      if (!newType || newType.trim() === '') {
+        setError('Please enter a document type');
+        setSavingType(false);
+        return;
+      }
+
+      const res = await fetch(`/api/documents/${document.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category: newType }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to update document type');
+      }
+
+      setCurrentDocumentType(newType);
+      setIsEditingType(false);
+      
+      // Notify parent of update
+      if (onUpdate) {
+        onUpdate({ ...document, documentType: newType, category: newType });
+      }
+    } catch (err) {
+      setError('Failed to save document type');
+    } finally {
+      setSavingType(false);
+    }
+  }
+
+  function handleCancelTypeEdit() {
+    setDocumentType(currentDocumentType);
+    setCustomType('');
+    setIsCustomType(!DEFAULT_DOC_TYPES.some(t => t.value === currentDocumentType));
+    setIsEditingType(false);
+  }
+
+  function handleTypeSelectChange(value: string) {
+    if (value === 'custom') {
+      setIsCustomType(true);
+      setDocumentType('');
+    } else {
+      setIsCustomType(false);
+      setDocumentType(value);
+    }
   }
 
   return (
@@ -188,13 +261,61 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
 
                 {/* Key Information Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Document Type */}
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                    <label className="text-xs text-gray-500 uppercase tracking-wide">Document Type</label>
-                    <p className="font-semibold text-gray-900 capitalize mt-1">
-                      {document.documentType?.replace(/_/g, ' ') || 'Document'}
-                    </p>
-                  </div>
+                  {/* Document Type - Editable */}
+                  {isEditingType ? (
+                    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-4 border border-purple-200">
+                      <label className="text-xs text-purple-700 uppercase tracking-wide font-medium">📁 Edit Document Type</label>
+                      <select
+                        value={isCustomType ? 'custom' : documentType}
+                        onChange={(e) => handleTypeSelectChange(e.target.value)}
+                        className="w-full mt-2 px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      >
+                        {DEFAULT_DOC_TYPES.map((type) => (
+                          <option key={type.value} value={type.value}>{type.label}</option>
+                        ))}
+                        <option value="custom">+ Custom Type...</option>
+                      </select>
+                      {isCustomType && (
+                        <input
+                          type="text"
+                          value={customType}
+                          onChange={(e) => setCustomType(e.target.value)}
+                          placeholder="Enter custom type (e.g., Driving License)"
+                          className="w-full mt-2 px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        />
+                      )}
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={handleSaveDocumentType}
+                          disabled={savingType}
+                          className="flex-1 px-3 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 disabled:bg-purple-300"
+                        >
+                          {savingType ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={handleCancelTypeEdit}
+                          className="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                      <div className="flex justify-between items-start">
+                        <label className="text-xs text-gray-500 uppercase tracking-wide">Document Type</label>
+                        <button
+                          onClick={() => setIsEditingType(true)}
+                          className="text-xs text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                      <p className="font-semibold text-gray-900 capitalize mt-1">
+                        {currentDocumentType?.replace(/_/g, ' ') || 'Document'}
+                      </p>
+                    </div>
+                  )}
                   
                   {/* Expiry Date - Editable */}
                   {isEditingExpiry ? (

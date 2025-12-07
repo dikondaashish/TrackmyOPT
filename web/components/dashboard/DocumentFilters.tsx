@@ -4,6 +4,7 @@
  * Document Filters Component
  * 
  * Category filter, search, and sort controls
+ * Supports custom document types from user documents
  */
 
 interface DocumentFiltersProps {
@@ -13,7 +14,22 @@ interface DocumentFiltersProps {
   onCategoryChange: (category: string) => void;
   onSearchChange: (query: string) => void;
   onSortChange: (sort: string) => void;
+  customCategories?: string[]; // Custom categories from user documents
 }
+
+// Default document categories
+const DEFAULT_CATEGORIES = [
+  { value: 'all', label: 'All Documents', icon: '📁' },
+  { value: 'passport', label: 'Passport', icon: '📘' },
+  { value: 'visa', label: 'Visa', icon: '🛂' },
+  { value: 'i20', label: 'I-20', icon: '📋' },
+  { value: 'ead_card', label: 'EAD Card', icon: '💳' },
+  { value: 'i983', label: 'I-983', icon: '📄' },
+  { value: 'offer_letter', label: 'Offer Letter', icon: '📨' },
+  { value: 'paystub', label: 'Paystub', icon: '💰' },
+  { value: 'receipt_notice', label: 'Receipt Notice', icon: '📬' },
+  { value: 'other', label: 'Other', icon: '📁' },
+];
 
 export function DocumentFilters({
   selectedCategory,
@@ -22,18 +38,21 @@ export function DocumentFilters({
   onCategoryChange,
   onSearchChange,
   onSortChange,
+  customCategories = [],
 }: DocumentFiltersProps) {
+  // Merge default categories with custom ones (excluding duplicates)
+  const defaultValues = DEFAULT_CATEGORIES.map(c => c.value);
+  const uniqueCustomCategories = customCategories.filter(c => !defaultValues.includes(c));
+  
+  // Create category list with custom types added before "Other"
   const categories = [
-    { value: 'all', label: 'All Documents', icon: '📁' },
-    { value: 'passport', label: 'Passport', icon: '📘' },
-    { value: 'visa', label: 'Visa', icon: '🛂' },
-    { value: 'i20', label: 'I-20', icon: '📋' },
-    { value: 'ead_card', label: 'EAD Card', icon: '💳' },
-    { value: 'i983', label: 'I-983', icon: '📄' },
-    { value: 'offer_letter', label: 'Offer Letter', icon: '📨' },
-    { value: 'paystub', label: 'Paystub', icon: '💰' },
-    { value: 'receipt_notice', label: 'Receipt Notice', icon: '📬' },
-    { value: 'other', label: 'Other', icon: '📁' },
+    ...DEFAULT_CATEGORIES.slice(0, -1), // All except "Other"
+    ...uniqueCustomCategories.map(c => ({
+      value: c,
+      label: c.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), // Format label
+      icon: '📄',
+    })),
+    DEFAULT_CATEGORIES[DEFAULT_CATEGORIES.length - 1], // Add "Other" at the end
   ];
 
   const sortOptions = [
