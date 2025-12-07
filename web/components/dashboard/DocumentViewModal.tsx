@@ -69,13 +69,14 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
   const [savingExpiry, setSavingExpiry] = useState(false);
   const [currentExpiryDate, setCurrentExpiryDate] = useState(document.expiryDate);
   
-  // Document type editing state
+  // Document type editing state - use category first (holds updated type), fall back to documentType
+  const initialDocType = document.category || document.documentType || 'other';
   const [isEditingType, setIsEditingType] = useState(false);
-  const [documentType, setDocumentType] = useState(document.documentType || 'other');
-  const [customType, setCustomType] = useState('');
+  const [documentType, setDocumentType] = useState(initialDocType);
+  const [customType, setCustomType] = useState(!DEFAULT_DOC_TYPES.some(t => t.value === initialDocType) ? initialDocType.replace(/_/g, ' ') : '');
   const [savingType, setSavingType] = useState(false);
-  const [currentDocumentType, setCurrentDocumentType] = useState(document.documentType || 'other');
-  const [isCustomType, setIsCustomType] = useState(!DEFAULT_DOC_TYPES.some(t => t.value === document.documentType));
+  const [currentDocumentType, setCurrentDocumentType] = useState(initialDocType);
+  const [isCustomType, setIsCustomType] = useState(!DEFAULT_DOC_TYPES.some(t => t.value === initialDocType));
 
   useEffect(() => {
     loadDocument();
@@ -198,7 +199,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
         <div className="p-6 border-b flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold capitalize">
-              {document.documentType?.replace('_', ' ') || 'Document'}
+              {currentDocumentType?.replace(/_/g, ' ') || 'Document'}
             </h2>
             <p className="text-gray-600 text-sm mt-1">{document.filename}</p>
           </div>

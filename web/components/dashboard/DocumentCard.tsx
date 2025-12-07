@@ -32,7 +32,9 @@ interface DocumentCardProps {
 
 export function DocumentCard({ document, onView, onDelete, onAddExpiry }: DocumentCardProps) {
   const expiryStatus = getExpiryStatus(document.expiryDate);
-  const icon = getDocumentIcon(document.documentType);
+  // Use category first (which holds the updated type), fall back to documentType
+  const displayType = document.category || document.documentType || 'other';
+  const icon = getDocumentIcon(displayType);
 
   return (
     <div className="group bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 overflow-hidden">
@@ -43,7 +45,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry }: Docume
             <div className="text-3xl">{icon}</div>
             <div>
               <h3 className="font-semibold text-gray-900 capitalize text-sm">
-                {document.documentType?.replace(/_/g, ' ') || 'Document'}
+                {displayType?.replace(/_/g, ' ') || 'Document'}
               </h3>
               <p className="text-xs text-gray-500 mt-0.5">
                 {document.uploadedAt && isValidDate(document.uploadedAt)
