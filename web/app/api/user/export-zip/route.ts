@@ -56,19 +56,19 @@ export async function POST(request: NextRequest) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
-    // 2. Get OPT dates
-    const { data: optDates } = await supabase
-      .from('opt_dates')
+    // 2. Get OPT status (dates)
+    const { data: optStatus } = await supabase
+      .from('opt_status')
       .select('*')
       .eq('user_id', user.id)
       .single();
 
-    // 3. Get case status settings
+    // 3. Get case status
     const { data: caseStatus } = await supabase
-      .from('case_status_settings')
+      .from('case_status')
       .select('*')
       .eq('user_id', user.id)
       .single();
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         createdAt: user.created_at,
       },
       profile: profile || {},
-      optDates: optDates || {},
+      optStatus: optStatus || {},
       caseStatus: caseStatus || {},
       documentsMetadata: documents || [],
     };
@@ -95,18 +95,18 @@ export async function POST(request: NextRequest) {
     // Add JSON file
     zip.file('data.json', JSON.stringify(exportData, null, 2));
 
-    // Create CSV for OPT dates
+    // Create CSV for OPT data
     const csvHeaders = ['Field', 'Value'];
     const csvRows = [
       csvHeaders.join(','),
       `Email,${user.email}`,
-      `OPT Start Date,${optDates?.opt_start_date || 'Not set'}`,
-      `OPT End Date,${optDates?.opt_end_date || 'Not set'}`,
-      `Employment Start Date,${optDates?.employment_start_date || 'Not set'}`,
-      `STEM Extension Start,${optDates?.stem_extension_start || 'Not set'}`,
-      `STEM Extension End,${optDates?.stem_extension_end || 'Not set'}`,
+      `Program End Date,${optStatus?.program_end_date || 'Not set'}`,
+      `DSO Recommendation Date,${optStatus?.dso_recommendation_date || 'Not set'}`,
+      `OPT Start Date,${optStatus?.opt_start_date || 'Not set'}`,
+      `OPT EAD End Date,${optStatus?.opt_ead_end_date || 'Not set'}`,
+      `STEM Start Date,${optStatus?.stem_start_date || 'Not set'}`,
       `Receipt Number,${caseStatus?.receipt_number || 'Not set'}`,
-      `Last Status,${caseStatus?.last_status || 'Not set'}`,
+      `Case Status,${caseStatus?.current_status || 'Not set'}`,
     ];
     zip.file('opt_data.csv', csvRows.join('\n'));
 
