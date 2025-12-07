@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import nodemailer from 'nodemailer';
-import * as crypto from 'crypto';
-import { otpStore, cleanupExpiredOtps } from '@/lib/otp-store';
 
 /**
  * POST /api/user/send-export-otp
@@ -31,21 +29,22 @@ export async function POST() {
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Store OTP in memory with user ID as key
-    otpStore.set(user.id, { otp, expiresAt });
+    // Store OTP in database
+    const { error: upsertError } = await supabase
+      .from('export_otps')
+      .upsert({
+        user_id: user.id,
+        otp_hash: otp,
+        expires_at: expiresAt.toISOString(),
+        created_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
 
-    // Clean up expired OTPs
-    cleanupExpiredOtps();
-
-    // Also create a signed token as backup (in case serverless function restarts)
-    const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret';
-    const tokenData = JSON.stringify({ otp, exp: expiresAt, userId: user.id });
-    const hmac = crypto.createHmac('sha256', secret);
-    hmac.update(tokenData);
-    const signature = hmac.digest('hex');
-    const otpToken = Buffer.from(tokenData).toString('base64') + '.' + signature;
+    if (upsertError) {
+      console.error('❌ Error storing OTP:', upsertError);
+      return NextResponse.json({ error: 'Failed to store verification code' }, { status: 500 });
+    }
 
     // Send OTP email
     const transporter = nodemailer.createTransport({
@@ -86,7 +85,7 @@ export async function POST() {
       `,
     });
 
-    return NextResponse.json({ success: true, otpToken });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('❌ Error sending export OTP:', error);
     return NextResponse.json(

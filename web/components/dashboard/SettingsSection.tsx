@@ -164,7 +164,6 @@ export function SettingsSection() {
   const [zipExportOtpSending, setZipExportOtpSending] = useState(false);
   const [zipExportOtpVerifying, setZipExportOtpVerifying] = useState(false);
   const [zipExportCountdown, setZipExportCountdown] = useState(0);
-  const [zipExportOtpToken, setZipExportOtpToken] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Load user data
@@ -816,22 +815,19 @@ export function SettingsSection() {
     
     // Send OTP for verification
     setZipExportOtpSending(true);
-    setError(null);
     try {
       const res = await fetch('/api/user/send-export-otp', {
         method: 'POST',
         credentials: 'include',
       });
       
-      const data = await res.json();
-      
       if (res.ok) {
         setShowZipExportOtp(true);
         setZipExportCountdown(60);
-        setZipExportOtpToken(data.otpToken || ''); // Save the token for verification
         setSuccess('Verification code sent to your email!');
         setTimeout(() => setSuccess(null), 3000);
       } else {
+        const data = await res.json();
         throw new Error(data.error || 'Failed to send OTP');
       }
     } catch (err) {
@@ -849,13 +845,12 @@ export function SettingsSection() {
     }
     
     setZipExportOtpVerifying(true);
-    setError(null);
     try {
       const res = await fetch('/api/user/export-zip', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ otp: zipExportOtp, otpToken: zipExportOtpToken }),
+        body: JSON.stringify({ otp: zipExportOtp }),
       });
       
       if (res.ok) {
@@ -871,7 +866,6 @@ export function SettingsSection() {
         
         setShowZipExportOtp(false);
         setZipExportOtp('');
-        setZipExportOtpToken('');
         setSuccess('Data exported successfully!');
         setTimeout(() => setSuccess(null), 3000);
       } else {

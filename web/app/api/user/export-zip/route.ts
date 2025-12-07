@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import JSZip from 'jszip';
-import * as crypto from 'crypto';
-import { otpStore } from '@/lib/otp-store';
 
 /**
  * POST /api/user/export-zip
@@ -20,48 +18,35 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { otp, otpToken } = body;
+    const { otp } = body;
 
     if (!otp || otp.length !== 6) {
       return NextResponse.json({ error: 'Invalid OTP' }, { status: 400 });
     }
 
-    let isValid = false;
+    // Verify OTP
+    const { data: otpRecord, error: otpError } = await supabase
+      .from('export_otps')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
 
-    // First try in-memory store
-    const storedOtp = otpStore.get(user.id);
-    if (storedOtp && storedOtp.otp === otp && storedOtp.expiresAt > Date.now()) {
-      isValid = true;
-      otpStore.delete(user.id); // Remove used OTP
+    if (otpError || !otpRecord) {
+      return NextResponse.json({ error: 'No OTP found. Please request a new code.' }, { status: 400 });
     }
 
-    // If not in memory, try token verification (backup for serverless)
-    if (!isValid && otpToken) {
-      try {
-        const [dataBase64, signature] = otpToken.split('.');
-        const tokenData = Buffer.from(dataBase64, 'base64').toString();
-        const parsed = JSON.parse(tokenData);
-
-        // Verify signature
-        const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret';
-        const hmac = crypto.createHmac('sha256', secret);
-        hmac.update(tokenData);
-        const expectedSig = hmac.digest('hex');
-
-        if (signature === expectedSig && 
-            parsed.otp === otp && 
-            parsed.userId === user.id && 
-            parsed.exp > Date.now()) {
-          isValid = true;
-        }
-      } catch {
-        // Token parsing failed, continue
-      }
+    // Check if OTP expired
+    if (new Date(otpRecord.expires_at) < new Date()) {
+      return NextResponse.json({ error: 'OTP expired. Please request a new code.' }, { status: 400 });
     }
 
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid or expired OTP. Please request a new code.' }, { status: 400 });
+    // Verify OTP matches
+    if (otpRecord.otp_hash !== otp) {
+      return NextResponse.json({ error: 'Invalid OTP. Please try again.' }, { status: 400 });
     }
+
+    // Delete used OTP
+    await supabase.from('export_otps').delete().eq('user_id', user.id);
 
     // Create ZIP file
     const zip = new JSZip();
