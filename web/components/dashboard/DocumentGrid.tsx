@@ -118,6 +118,12 @@ export function DocumentGrid({
             handleDelete(selectedDocument.id);
             setSelectedDocument(null);
           }}
+          onUpdate={(updatedDoc) => {
+            // Update the selected document with new data
+            setSelectedDocument(updatedDoc);
+            // Refresh the document list to reflect changes
+            onRefresh();
+          }}
         />
       )}
     </>

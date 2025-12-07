@@ -8,6 +8,7 @@
  * - Document metadata display
  * - AI-extracted fields
  * - Download button
+ * - Edit expiry date
  */
 
 import { useState, useEffect } from 'react';
@@ -29,6 +30,7 @@ interface DocumentViewModalProps {
   document: Document;
   onClose: () => void;
   onDelete: () => void;
+  onUpdate?: (updatedDoc: Document) => void;
 }
 
 function isValidDate(dateString: string | null): boolean {
@@ -37,10 +39,21 @@ function isValidDate(dateString: string | null): boolean {
   return date instanceof Date && !isNaN(date.getTime());
 }
 
-export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewModalProps) {
+function formatDateForInput(dateString: string | null): string {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  return date.toISOString().split('T')[0];
+}
+
+export function DocumentViewModal({ document, onClose, onDelete, onUpdate }: DocumentViewModalProps) {
   const [viewUrl, setViewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isEditingExpiry, setIsEditingExpiry] = useState(false);
+  const [expiryDate, setExpiryDate] = useState(formatDateForInput(document.expiryDate));
+  const [savingExpiry, setSavingExpiry] = useState(false);
+  const [currentExpiryDate, setCurrentExpiryDate] = useState(document.expiryDate);
 
   useEffect(() => {
     loadDocument();
@@ -70,6 +83,38 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
     if (viewUrl) {
       window.open(viewUrl, '_blank');
     }
+  }
+
+  async function handleSaveExpiryDate() {
+    setSavingExpiry(true);
+    try {
+      const res = await fetch(`/api/documents/${document.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expiryDate: expiryDate || null }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to update expiry date');
+      }
+
+      setCurrentExpiryDate(expiryDate || null);
+      setIsEditingExpiry(false);
+      
+      // Notify parent of update
+      if (onUpdate) {
+        onUpdate({ ...document, expiryDate: expiryDate || null });
+      }
+    } catch (err) {
+      setError('Failed to save expiry date');
+    } finally {
+      setSavingExpiry(false);
+    }
+  }
+
+  function handleCancelEdit() {
+    setExpiryDate(formatDateForInput(currentExpiryDate));
+    setIsEditingExpiry(false);
   }
 
   return (
@@ -150,25 +195,64 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
                     </p>
                   </div>
                   
-                  {/* Expiry Date - Prominent */}
-                  {document.expiryDate && isValidDate(document.expiryDate) ? (
+                  {/* Expiry Date - Editable */}
+                  {isEditingExpiry ? (
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+                      <label className="text-xs text-blue-700 uppercase tracking-wide font-medium">📅 Edit Expiry Date</label>
+                      <input
+                        type="date"
+                        value={expiryDate}
+                        onChange={(e) => setExpiryDate(e.target.value)}
+                        className="w-full mt-2 px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={handleSaveExpiryDate}
+                          disabled={savingExpiry}
+                          className="flex-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
+                        >
+                          {savingExpiry ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : currentExpiryDate && isValidDate(currentExpiryDate) ? (
                     <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-4 border border-orange-200">
-                      <label className="text-xs text-orange-700 uppercase tracking-wide font-medium">⏰ Expires On</label>
+                      <div className="flex justify-between items-start">
+                        <label className="text-xs text-orange-700 uppercase tracking-wide font-medium">⏰ Expires On</label>
+                        <button
+                          onClick={() => setIsEditingExpiry(true)}
+                          className="text-xs text-orange-600 hover:text-orange-800 underline"
+                        >
+                          Edit
+                        </button>
+                      </div>
                       <p className="font-bold text-orange-900 mt-1">
-                        {new Date(document.expiryDate).toLocaleDateString('en-US', { 
+                        {new Date(currentExpiryDate).toLocaleDateString('en-US', { 
                           year: 'numeric', 
                           month: 'long', 
                           day: 'numeric' 
                         })}
                       </p>
                       <p className="text-xs text-orange-700 mt-1">
-                        {Math.ceil((new Date(document.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
+                        {Math.ceil((new Date(currentExpiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
                       </p>
                     </div>
                   ) : (
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                      <label className="text-xs text-gray-500 uppercase tracking-wide">Expiry Date</label>
-                      <p className="font-semibold text-gray-900 mt-1">No expiry date</p>
+                    <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg p-4 border border-amber-200">
+                      <label className="text-xs text-amber-700 uppercase tracking-wide font-medium">📅 Expiry Date</label>
+                      <p className="font-semibold text-amber-900 mt-1">No expiry date set</p>
+                      <button
+                        onClick={() => setIsEditingExpiry(true)}
+                        className="mt-2 px-3 py-1.5 bg-amber-100 text-amber-800 text-sm rounded-lg hover:bg-amber-200 border border-amber-300 w-full font-medium"
+                      >
+                        + Add Expiry Date
+                      </button>
                     </div>
                   )}
                   
@@ -209,7 +293,7 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
         </div>
 
         {/* Actions */}
-        <div className="p-6 border-t flex gap-3">
+        <div className="p-6 border-t flex gap-3 flex-wrap">
           <button
             onClick={onDelete}
             className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
@@ -218,6 +302,15 @@ export function DocumentViewModal({ document, onClose, onDelete }: DocumentViewM
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
             Delete
+          </button>
+          <button
+            onClick={() => setIsEditingExpiry(true)}
+            className="px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {currentExpiryDate ? 'Edit Expiry' : 'Add Expiry'}
           </button>
           <div className="flex-1"></div>
           <button
