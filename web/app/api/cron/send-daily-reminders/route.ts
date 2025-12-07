@@ -42,16 +42,12 @@ interface UserOptData {
   stem_start_date: string | null;
 }
 
-interface UserEmailPrefs {
+interface UserToolEmails {
   user_id: string;
-  email_address: string;
-  email_enabled: boolean;
-  email_verified: boolean;
-  // Tool-specific preferences
-  opt_apply_reminders?: boolean;
-  opt_clock_reminders?: boolean;
-  stem_apply_reminders?: boolean;
-  stem_clock_reminders?: boolean;
+  opt_apply_email: string | null;
+  opt_clock_email: string | null;
+  stem_apply_email: string | null;
+  stem_clock_email: string | null;
 }
 
 /**
@@ -72,19 +68,34 @@ export async function GET(req: NextRequest) {
   try {
     console.log('📧 Starting daily reminder job...');
 
-    // Get all users with email preferences enabled
-    const { data: emailPrefs, error: prefsError } = await supabase
-      .from('email_preferences')
-      .select('*')
-      .eq('email_enabled', true);
+    // Get all premium users with at least one tool email set
+    // Tool emails are stored in profiles table: opt_apply_email, opt_clock_email, etc.
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select(`
+        user_id,
+        first_name,
+        last_name,
+        premium_status,
+        opt_apply_email,
+        opt_clock_email,
+        stem_apply_email,
+        stem_clock_email
+      `)
+      .eq('premium_status', true);
 
-    if (prefsError) {
-      console.error('❌ Error fetching email preferences:', prefsError);
-      return NextResponse.json({ error: prefsError.message }, { status: 500 });
+    if (profilesError) {
+      console.error('❌ Error fetching profiles:', profilesError);
+      return NextResponse.json({ error: profilesError.message }, { status: 500 });
     }
 
-    if (!emailPrefs || emailPrefs.length === 0) {
-      console.log('ℹ️ No users with email enabled');
+    // Filter to only users who have at least one tool email set
+    const usersWithEmails = (profiles || []).filter(p => 
+      p.opt_apply_email || p.opt_clock_email || p.stem_apply_email || p.stem_clock_email
+    );
+
+    if (usersWithEmails.length === 0) {
+      console.log('ℹ️ No users with tool emails enabled');
       return NextResponse.json({ 
         success: true, 
         message: 'No users with email enabled',
@@ -92,10 +103,10 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    console.log(`📊 Found ${emailPrefs.length} users with email enabled`);
+    console.log(`📊 Found ${usersWithEmails.length} premium users with tool emails`);
 
     const results = {
-      total: emailPrefs.length,
+      total: usersWithEmails.length,
       sent: 0,
       skipped: 0,
       failed: 0,
@@ -103,44 +114,47 @@ export async function GET(req: NextRequest) {
     };
 
     // Process each user
-    for (const prefs of emailPrefs as UserEmailPrefs[]) {
+    for (const profile of usersWithEmails) {
       try {
-        // Check if user is premium
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('premium_status, first_name, last_name')
-          .eq('user_id', prefs.user_id)
-          .single();
-
-        if (!profile?.premium_status) {
-          results.skipped++;
-          continue;
-        }
-
         // Get user's OPT data
         const { data: optData } = await supabase
           .from('opt_status')
           .select('*')
-          .eq('user_id', prefs.user_id)
+          .eq('user_id', profile.user_id)
           .single();
 
         if (!optData) {
+          console.log(`ℹ️ No OPT data for user ${profile.user_id}`);
           results.skipped++;
           continue;
         }
+
+        // Build tool email preferences from profile
+        const toolPrefs = {
+          user_id: profile.user_id,
+          opt_apply_email: profile.opt_apply_email,
+          opt_clock_email: profile.opt_clock_email,
+          stem_apply_email: profile.stem_apply_email,
+          stem_clock_email: profile.stem_clock_email,
+        };
 
         // Calculate active tools and reminders
-        const tools = calculateActiveTools(optData, prefs);
+        const tools = calculateActiveTools(optData, toolPrefs);
 
         if (tools.length === 0) {
+          console.log(`ℹ️ No active tools for user ${profile.user_id}`);
           results.skipped++;
           continue;
         }
+
+        // Determine which email to send to (use first available)
+        const targetEmail = profile.opt_apply_email || profile.opt_clock_email || 
+                          profile.stem_apply_email || profile.stem_clock_email;
 
         // Send email
         const emailData: EmailReminderData = {
-          userId: prefs.user_id,
-          userEmail: prefs.email_address,
+          userId: profile.user_id,
+          userEmail: targetEmail,
           firstName: profile.first_name || 'there',
           tools,
         };
@@ -149,23 +163,25 @@ export async function GET(req: NextRequest) {
 
         if (result.success) {
           results.sent++;
-          console.log(`✅ Sent to ${prefs.email_address}`);
+          console.log(`✅ Sent to ${targetEmail}`);
 
-          // Log to email_queue
-          await supabase.from('email_queue').insert({
-            user_id: prefs.user_id,
-            email_address: prefs.email_address,
-            email_type: 'daily_reminder',
-            email_subject: `Daily OPT Reminder - ${tools.length} active`,
-            email_data: tools,
-            sent_at: new Date().toISOString(),
-            status: 'sent',
-            provider_message_id: result.messageId,
-          });
+          // Log to email_queue (optional - don't fail if this errors)
+          try {
+            await supabase.from('email_queue').insert({
+              user_id: profile.user_id,
+              email_address: targetEmail,
+              email_type: 'daily_reminder',
+              email_subject: `Daily OPT Reminder - ${tools.length} active`,
+              email_data: tools,
+              sent_at: new Date().toISOString(),
+              status: 'sent',
+              provider_message_id: result.messageId,
+            });
+          } catch { /* ignore logging errors */ }
         } else {
           results.failed++;
-          results.errors.push(`${prefs.email_address}: ${result.error}`);
-          console.error(`❌ Failed: ${prefs.email_address}`);
+          results.errors.push(`${targetEmail}: ${result.error}`);
+          console.error(`❌ Failed: ${targetEmail}`);
         }
 
         // Rate limiting delay
@@ -173,7 +189,7 @@ export async function GET(req: NextRequest) {
 
       } catch (error: any) {
         results.failed++;
-        results.errors.push(`${prefs.email_address}: ${error.message}`);
+        results.errors.push(`User ${profile.user_id}: ${error.message}`);
         console.error(`❌ Error processing user:`, error);
       }
     }
@@ -195,8 +211,9 @@ export async function GET(req: NextRequest) {
 
 /**
  * Calculate active tools and their reminder messages based on dates
+ * Only includes tools where user has set an email address
  */
-function calculateActiveTools(optData: UserOptData, prefs: UserEmailPrefs): EmailReminderData['tools'] {
+function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails): EmailReminderData['tools'] {
   const tools: EmailReminderData['tools'] = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -206,7 +223,8 @@ function calculateActiveTools(optData: UserOptData, prefs: UserEmailPrefs): Emai
   // ========================================
   // Earliest: 90 days before program end
   // Deadline: 60 days after program end
-  if (optData.program_end_date && prefs.opt_apply_reminders !== false) {
+  // Only if user has opt_apply_email set
+  if (optData.program_end_date && toolEmails.opt_apply_email) {
     const programEnd = new Date(optData.program_end_date);
     
     // Earliest filing date: 90 days before program end
@@ -240,7 +258,7 @@ function calculateActiveTools(optData: UserOptData, prefs: UserEmailPrefs): Emai
   // 2. OPT CLOCK - Unemployment Days Tracker
   // ========================================
   // 90 days total during initial OPT
-  if (optData.opt_start_date && prefs.opt_clock_reminders !== false) {
+  if (optData.opt_start_date && toolEmails.opt_clock_email) {
     const optStart = new Date(optData.opt_start_date);
     const optEnd = optData.opt_ead_end_date ? new Date(optData.opt_ead_end_date) : null;
     
@@ -267,7 +285,7 @@ function calculateActiveTools(optData: UserOptData, prefs: UserEmailPrefs): Emai
   // ========================================
   // Can file up to 90 days before OPT EAD expires
   // Must file before OPT EAD expires
-  if (optData.opt_ead_end_date && prefs.stem_apply_reminders !== false) {
+  if (optData.opt_ead_end_date && toolEmails.stem_apply_email) {
     const optEadEnd = new Date(optData.opt_ead_end_date);
     
     // Earliest STEM filing: 90 days before OPT EAD expires
@@ -296,7 +314,7 @@ function calculateActiveTools(optData: UserOptData, prefs: UserEmailPrefs): Emai
   // 4. STEM CLOCK - STEM Unemployment Tracker
   // ========================================
   // 150 days aggregate (90 from OPT + 60 from STEM)
-  if (optData.stem_start_date && prefs.stem_clock_reminders !== false) {
+  if (optData.stem_start_date && toolEmails.stem_clock_email) {
     const stemStart = new Date(optData.stem_start_date);
     
     // Calculate STEM period end (24 months from STEM start)
