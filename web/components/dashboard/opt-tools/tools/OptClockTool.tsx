@@ -203,39 +203,52 @@ export function OptClockTool() {
         }),
       });
 
-      // Save employment spans to Supabase
-      const spansResponse = await fetch('/api/employment-spans', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          spans: employmentSpans.map(span => ({
-            id: span.id.startsWith('temp-') ? undefined : span.id,
-            start_date: span.start_date,
-            end_date: span.end_date,
-            employer_name: span.employer_name,
-            type: 'opt'
-          }))
-        }),
-      });
-
-      if (datesResponse.ok && spansResponse.ok) {
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
-        // Reload to get the saved IDs
-        const spansData = await spansResponse.json();
-        if (spansData.spans) {
-          setEmploymentSpans(spansData.spans.map((s: any) => ({
-            id: s.id,
-            start_date: s.start_date ? formatDateForInput(s.start_date) : '',
-            end_date: s.end_date ? formatDateForInput(s.end_date) : null,
-            employer_name: s.employer_name || '',
-          })));
-        }
-      } else {
-        alert('Failed to save. Please try again.');
+      if (!datesResponse.ok) {
+        const errorData = await datesResponse.json();
+        console.error('Dates save error:', errorData);
+        alert('Failed to save dates. Please try again.');
+        return;
       }
+
+      // Save employment spans only if there are any
+      if (employmentSpans.length > 0) {
+        try {
+          const spansResponse = await fetch('/api/employment-spans', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              spans: employmentSpans.map(span => ({
+                id: span.id.startsWith('temp-') ? undefined : span.id,
+                start_date: span.start_date,
+                end_date: span.end_date,
+                employer_name: span.employer_name,
+                type: 'opt'
+              }))
+            }),
+          });
+
+          if (spansResponse.ok) {
+            const spansData = await spansResponse.json();
+            if (spansData.spans) {
+              setEmploymentSpans(spansData.spans.map((s: any) => ({
+                id: s.id,
+                start_date: s.start_date ? formatDateForInput(s.start_date) : '',
+                end_date: s.end_date ? formatDateForInput(s.end_date) : null,
+                employer_name: s.employer_name || '',
+              })));
+            }
+          }
+        } catch (spansError) {
+          console.error('Employment spans save error:', spansError);
+          // Don't fail the whole save if spans fail
+        }
+      }
+
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
+      console.error('Save error:', error);
       alert('Failed to save. Please try again.');
     } finally {
       setIsSaving(false);
