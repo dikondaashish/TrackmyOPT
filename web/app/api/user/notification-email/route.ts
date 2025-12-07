@@ -8,6 +8,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { sendEnrollmentEmail } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,7 +51,7 @@ export async function GET() {
     // Fetch from profiles table
     const { data: profile, error: fetchError } = await supabase
       .from('profiles')
-      .select('notification_email')
+      .select('notification_email, first_name')
       .eq('user_id', user.id)
       .single();
 
@@ -128,6 +129,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Check previous email BEFORE updating to detect new enrollment
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('notification_email, first_name')
+      .eq('user_id', user.id)
+      .single();
+
+    const previousEmail = existingProfile?.notification_email;
+    const isNewEnrollment = email && (!previousEmail || previousEmail !== email);
+
     // Use upsert to handle both create and update cases
     const { error: upsertError } = await supabase
       .from('profiles')
@@ -156,9 +167,26 @@ export async function POST(request: Request) {
       );
     }
 
+    // Send enrollment confirmation email if this is a new enrollment
+    if (isNewEnrollment) {
+      const firstName = existingProfile?.first_name || 'there';
+      
+      // Send enrollment email asynchronously
+      sendEnrollmentEmail(email, firstName, 'documents')
+        .then(result => {
+          if (result.success) {
+            console.log(`✅ Document reminder enrollment email sent to ${email}`);
+          } else {
+            console.error(`❌ Failed to send enrollment email:`, result.error);
+          }
+        })
+        .catch(err => console.error('Enrollment email error:', err));
+    }
+
     return NextResponse.json({
       success: true,
       email,
+      enrollmentEmailSent: isNewEnrollment,
     });
 
   } catch (error) {

@@ -13,6 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/jwt';
+import { sendEnrollmentEmail } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -177,12 +178,17 @@ export async function POST(req: NextRequest) {
     // Map tool name to column name
     const columnName = `${tool}_email`;
 
-    // First, check if profile exists
+    // First, check if profile exists and get current email for this tool
     const { data: existingProfile } = await supabase
       .from('profiles')
-      .select('user_id')
+      .select('user_id, first_name, opt_apply_email, opt_clock_email, stem_apply_email, stem_clock_email')
       .eq('user_id', userId)
       .single();
+
+    // Check if this is a new enrollment (email being set for first time or changed)
+    const profileData = existingProfile as Record<string, any> | null;
+    const previousEmail = profileData?.[columnName];
+    const isNewEnrollment = email && (!previousEmail || previousEmail !== email);
 
     let error;
     
@@ -221,10 +227,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Send enrollment confirmation email if this is a new enrollment
+    if (isNewEnrollment) {
+      const toolNameForEmail = tool.replace('_', '-'); // Convert opt_apply to opt-apply
+      const firstName = profileData?.first_name || 'there';
+      
+      // Send enrollment email asynchronously (don't block the response)
+      sendEnrollmentEmail(email, firstName, toolNameForEmail)
+        .then(result => {
+          if (result.success) {
+            console.log(`✅ Enrollment email sent to ${email} for ${tool}`);
+          } else {
+            console.error(`❌ Failed to send enrollment email:`, result.error);
+          }
+        })
+        .catch(err => console.error('Enrollment email error:', err));
+    }
+
     return NextResponse.json({
       success: true,
       tool,
       email: email || null,
+      enrollmentEmailSent: isNewEnrollment,
     }, { headers: corsHeaders });
 
   } catch (error) {

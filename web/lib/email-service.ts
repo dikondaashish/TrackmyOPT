@@ -416,6 +416,16 @@ export async function sendEnrollmentEmail(
         description: 'Monitor your 150-day aggregate unemployment limit during STEM OPT with daily countdown updates.',
         icon: '⏱️'
       },
+      'documents': {
+        title: 'Document Expiry Reminders',
+        description: 'Get notified before your important documents expire. We\'ll send you reminders based on the schedule you set for each document.',
+        icon: '📄'
+      },
+      'case-status': {
+        title: 'Case Status Alerts',
+        description: 'Receive instant notifications when your USCIS case status changes. We check your case every 6 hours and alert you of any updates.',
+        icon: '🔔'
+      },
     };
 
     const tool = toolDescriptions[toolName] || {
