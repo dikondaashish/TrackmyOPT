@@ -228,20 +228,27 @@ export async function POST(req: NextRequest) {
     }
 
     // Send enrollment confirmation email if this is a new enrollment
+    console.log(`📧 Tool email save - Tool: ${tool}, Email: ${email}, PreviousEmail: ${previousEmail}, IsNewEnrollment: ${isNewEnrollment}`);
+    
     if (isNewEnrollment) {
       const toolNameForEmail = tool.replace('_', '-'); // Convert opt_apply to opt-apply
       const firstName = profileData?.first_name || 'there';
       
-      // Send enrollment email asynchronously (don't block the response)
-      sendEnrollmentEmail(email, firstName, toolNameForEmail)
-        .then(result => {
-          if (result.success) {
-            console.log(`✅ Enrollment email sent to ${email} for ${tool}`);
-          } else {
-            console.error(`❌ Failed to send enrollment email:`, result.error);
-          }
-        })
-        .catch(err => console.error('Enrollment email error:', err));
+      console.log(`📤 Sending enrollment email for ${toolNameForEmail} to ${email}`);
+      
+      // Send enrollment email and wait for result to ensure it's sent
+      try {
+        const result = await sendEnrollmentEmail(email, firstName, toolNameForEmail);
+        if (result.success) {
+          console.log(`✅ Enrollment email sent successfully to ${email} for ${tool}`);
+        } else {
+          console.error(`❌ Failed to send enrollment email for ${tool}:`, result.error);
+        }
+      } catch (err) {
+        console.error(`❌ Enrollment email error for ${tool}:`, err);
+      }
+    } else {
+      console.log(`ℹ️ Skipping enrollment email - not a new enrollment for ${tool}`);
     }
 
     return NextResponse.json({
