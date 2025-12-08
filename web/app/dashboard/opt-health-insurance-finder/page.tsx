@@ -1,777 +1,638 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Shield, ChevronDown, Check, X, AlertTriangle, ExternalLink, Info, ChevronRight, User, DollarSign, Calendar, Building, Heart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { createBrowserClient } from "@supabase/ssr";
 
-// US States data
-const US_STATES = [
-  { value: "", label: "Select your state" },
-  { value: "AL", label: "Alabama" },
-  { value: "AK", label: "Alaska" },
-  { value: "AZ", label: "Arizona" },
-  { value: "AR", label: "Arkansas" },
-  { value: "CA", label: "California" },
-  { value: "CO", label: "Colorado" },
-  { value: "CT", label: "Connecticut" },
-  { value: "DE", label: "Delaware" },
-  { value: "FL", label: "Florida" },
-  { value: "GA", label: "Georgia" },
-  { value: "HI", label: "Hawaii" },
-  { value: "ID", label: "Idaho" },
-  { value: "IL", label: "Illinois" },
-  { value: "IN", label: "Indiana" },
-  { value: "IA", label: "Iowa" },
-  { value: "KS", label: "Kansas" },
-  { value: "KY", label: "Kentucky" },
-  { value: "LA", label: "Louisiana" },
-  { value: "ME", label: "Maine" },
-  { value: "MD", label: "Maryland" },
-  { value: "MA", label: "Massachusetts" },
-  { value: "MI", label: "Michigan" },
-  { value: "MN", label: "Minnesota" },
-  { value: "MS", label: "Mississippi" },
-  { value: "MO", label: "Missouri" },
-  { value: "MT", label: "Montana" },
-  { value: "NE", label: "Nebraska" },
-  { value: "NV", label: "Nevada" },
-  { value: "NH", label: "New Hampshire" },
-  { value: "NJ", label: "New Jersey" },
-  { value: "NM", label: "New Mexico" },
-  { value: "NY", label: "New York" },
-  { value: "NC", label: "North Carolina" },
-  { value: "ND", label: "North Dakota" },
-  { value: "OH", label: "Ohio" },
-  { value: "OK", label: "Oklahoma" },
-  { value: "OR", label: "Oregon" },
-  { value: "PA", label: "Pennsylvania" },
-  { value: "RI", label: "Rhode Island" },
-  { value: "SC", label: "South Carolina" },
-  { value: "SD", label: "South Dakota" },
-  { value: "TN", label: "Tennessee" },
-  { value: "TX", label: "Texas" },
-  { value: "UT", label: "Utah" },
-  { value: "VT", label: "Vermont" },
-  { value: "VA", label: "Virginia" },
-  { value: "WA", label: "Washington" },
-  { value: "WV", label: "West Virginia" },
-  { value: "WI", label: "Wisconsin" },
-  { value: "WY", label: "Wyoming" },
-  { value: "DC", label: "Washington D.C." },
+// US States
+const STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+  "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+  "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+  "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+  "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+  "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+  "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "Washington D.C."
 ];
 
-// States with free insurance programs for low-income adults
-const FREE_INSURANCE_STATES = ["NY", "CA", "OR", "WA", "IL", "CO", "MA", "CT", "VT", "MN", "NJ", "MD", "DC"];
-
-// States with partial/limited coverage
-const PARTIAL_COVERAGE_STATES = ["PA", "NM", "NV", "RI", "DE", "HI", "ME", "MI", "NH", "OH", "VA", "WI"];
-
-// Visa types
-const VISA_TYPES = [
-  { value: "", label: "Select visa type" },
-  { value: "F-1", label: "F-1 Student Visa" },
-  { value: "OPT", label: "OPT (Optional Practical Training)" },
-  { value: "STEM-OPT", label: "STEM OPT Extension" },
-  { value: "J-1", label: "J-1 Exchange Visitor" },
-  { value: "Other", label: "Other" },
-];
-
-// State-specific free plans
-const STATE_FREE_PLANS: Record<string, Array<{
-  name: string;
-  cost: string;
-  features: string[];
-  link: string;
-}>> = {
-  NY: [
-    {
-      name: "Essential Plan",
-      cost: "$0/month",
-      features: ["Preventive care", "Vision & dental", "Specialist visits", "Prescriptions", "Emergency care"],
-      link: "https://nystateofhealth.ny.gov/",
-    },
-  ],
-  CA: [
-    {
-      name: "Medi-Cal",
-      cost: "$0/month",
-      features: ["Full medical coverage", "Dental care", "Vision care", "Mental health", "Prescriptions"],
-      link: "https://www.coveredca.com/",
-    },
-  ],
-  WA: [
-    {
-      name: "Apple Health",
-      cost: "$0/month",
-      features: ["Doctor visits", "Hospital care", "Prescriptions", "Mental health", "Preventive care"],
-      link: "https://www.wahealthplanfinder.org/",
-    },
-  ],
-  OR: [
-    {
-      name: "Oregon Health Plan",
-      cost: "$0/month",
-      features: ["Medical care", "Dental", "Mental health", "Vision", "Prescriptions"],
-      link: "https://healthcare.oregon.gov/",
-    },
-  ],
-  IL: [
-    {
-      name: "Illinois Medicaid",
-      cost: "$0/month",
-      features: ["Doctor visits", "Hospital care", "Lab tests", "Prescriptions", "Preventive care"],
-      link: "https://abe.illinois.gov/",
-    },
-  ],
-  CO: [
-    {
-      name: "Health First Colorado",
-      cost: "$0/month",
-      features: ["Primary care", "Specialist care", "Hospital", "Prescriptions", "Mental health"],
-      link: "https://www.healthfirstcolorado.com/",
-    },
-  ],
-  MA: [
-    {
-      name: "MassHealth",
-      cost: "$0/month",
-      features: ["Comprehensive medical", "Dental", "Vision", "Behavioral health", "Prescriptions"],
-      link: "https://www.mass.gov/masshealth",
-    },
-  ],
+const STATE_CODES: Record<string, string> = {
+  "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
+  "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA",
+  "Hawaii": "HI", "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS",
+  "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD", "Massachusetts": "MA",
+  "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS", "Missouri": "MO", "Montana": "MT",
+  "Nebraska": "NE", "Nevada": "NV", "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM",
+  "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK",
+  "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
+  "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT", "Vermont": "VT",
+  "Virginia": "VA", "Washington": "WA", "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY",
+  "Washington D.C.": "DC"
 };
 
-// Private insurance partners
-const PRIVATE_INSURANCE_OPTIONS = [
+const FREE_STATES = ["NY", "CA", "OR", "WA", "IL", "CO", "MA", "CT", "VT", "MN", "NJ", "MD", "DC"];
+const PARTIAL_STATES = ["PA", "NM", "NV", "RI", "DE", "HI", "ME", "MI", "NH", "OH", "VA", "WI"];
+
+const VISA_OPTIONS = ["F-1", "OPT", "STEM OPT", "J-1", "Other"];
+
+interface Plan {
+  name: string;
+  price: string;
+  type: "free" | "low" | "standard";
+  features: string[];
+  highlight?: string;
+  url: string;
+}
+
+const STATE_PLANS: Record<string, Plan[]> = {
+  NY: [{
+    name: "Essential Plan",
+    price: "$0",
+    type: "free",
+    features: ["Doctor visits", "Prescriptions", "Emergency care", "Mental health"],
+    highlight: "No cost coverage",
+    url: "https://nystateofhealth.ny.gov/"
+  }],
+  CA: [{
+    name: "Medi-Cal",
+    price: "$0",
+    type: "free",
+    features: ["Full medical", "Dental & vision", "Mental health", "Prescriptions"],
+    highlight: "Comprehensive coverage",
+    url: "https://www.coveredca.com/"
+  }],
+  WA: [{
+    name: "Apple Health",
+    price: "$0",
+    type: "free",
+    features: ["Doctor visits", "Hospital care", "Prescriptions", "Preventive care"],
+    url: "https://www.wahealthplanfinder.org/"
+  }],
+  OR: [{
+    name: "Oregon Health Plan",
+    price: "$0",
+    type: "free",
+    features: ["Medical care", "Dental", "Vision", "Mental health"],
+    url: "https://healthcare.oregon.gov/"
+  }],
+};
+
+const PRIVATE_PLANS: Plan[] = [
   {
     name: "ISO OPTima",
-    cost: "From $38/month",
-    deductible: "$100-$500",
-    network: "Aetna Nationwide",
-    optEligible: true,
-    features: ["OPT eligible", "Nationwide network", "Easy enrollment", "24/7 support"],
-    link: "https://www.isoa.org/",
-  },
-  {
-    name: "ISI Student Health",
-    cost: "From $40/month",
-    deductible: "Varies",
-    network: "United Healthcare",
-    optEligible: true,
-    features: ["Designed for students", "Comprehensive coverage", "Mental health", "Telemedicine"],
-    link: "https://www.isistudentinsurance.com/",
-  },
-  {
-    name: "Patriot Exchange",
-    cost: "From $45/month",
-    deductible: "$250-$2500",
-    network: "Aetna",
-    optEligible: true,
-    features: ["ACA compliant", "Pre-existing conditions", "Preventive care", "Emergency coverage"],
-    link: "https://www.imglobal.com/",
+    price: "$38",
+    type: "low",
+    features: ["OPT eligible", "Aetna network", "Easy enrollment"],
+    highlight: "Most popular",
+    url: "https://www.isoa.org/"
   },
   {
     name: "Student Medicover",
-    cost: "From $35/month",
-    deductible: "$100-$1000",
-    network: "First Health",
-    optEligible: true,
-    features: ["Affordable rates", "OPT/CPT eligible", "Quick enrollment", "No waiting period"],
-    link: "https://www.studentmedicover.com/",
+    price: "$35",
+    type: "low",
+    features: ["Budget friendly", "Quick approval", "No waiting"],
+    url: "https://www.studentmedicover.com/"
+  },
+  {
+    name: "ISI Health",
+    price: "$45",
+    type: "standard",
+    features: ["Comprehensive", "United network", "Telemedicine"],
+    url: "https://www.isistudentinsurance.com/"
   },
 ];
 
-// Educational content
-const EDUCATION_ITEMS = [
-  {
-    title: "Why do international students need health insurance?",
-    content: "Healthcare in the US is expensive. A single emergency room visit can cost $3,000-$10,000+. Without insurance, you're responsible for the full amount. Most universities require health insurance, and having coverage protects you from financial hardship if you get sick or injured.",
-  },
-  {
-    title: "What is a deductible?",
-    content: "A deductible is the amount you pay out-of-pocket before your insurance starts covering costs. For example, if you have a $500 deductible, you pay the first $500 of medical bills. After that, your insurance kicks in. Lower deductibles usually mean higher monthly premiums.",
-  },
-  {
-    title: "What is coinsurance?",
-    content: "Coinsurance is the percentage you pay after meeting your deductible. If your plan has 20% coinsurance, you pay 20% of covered costs and insurance pays 80%. This continues until you reach your out-of-pocket maximum.",
-  },
-  {
-    title: "Does OPT require health insurance?",
-    content: "While OPT doesn't legally require health insurance, it's strongly recommended. If you have a medical emergency without insurance, you could face thousands in bills. Some employers may also require proof of insurance. Having coverage gives you peace of mind to focus on your career.",
-  },
-  {
-    title: "When does school insurance end?",
-    content: "Most university health insurance plans end when you graduate or when the semester ends. If you're on OPT, your school insurance typically ends 30-60 days after graduation. Plan ahead to avoid gaps in coverage - apply for new insurance before your school plan expires.",
-  },
-  {
-    title: "Can international students get Medicaid?",
-    content: "Generally, international students on F-1 or J-1 visas are not eligible for federal Medicaid. However, some states (like New York, California) offer state-funded programs that cover legal residents regardless of immigration status, especially for low-income individuals.",
-  },
+const FAQ = [
+  { q: "Why do I need health insurance?", a: "US healthcare is expensive. A single ER visit can cost $5,000+. Insurance protects you financially." },
+  { q: "What's a deductible?", a: "The amount you pay before insurance kicks in. Lower deductible = higher monthly cost." },
+  { q: "Is insurance required for OPT?", a: "Not legally required, but strongly recommended. Some employers may require it." },
+  { q: "When does school insurance end?", a: "Usually 30-60 days after graduation. Plan ahead to avoid gaps." },
 ];
 
-export default function HealthInsuranceFinderPage() {
+export default function HealthInsurancePage() {
+  const [step, setStep] = useState(0);
   const [state, setState] = useState("");
-  const [monthlyIncome, setMonthlyIncome] = useState("");
-  const [visaType, setVisaType] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [hasEmployerInsurance, setHasEmployerInsurance] = useState<boolean | null>(null);
+  const [income, setIncome] = useState("");
+  const [visa, setVisa] = useState("");
+  const [dob, setDob] = useState("");
+  const [hasEmployer, setHasEmployer] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showOnlyEligible, setShowOnlyEligible] = useState(false);
-  const [expandedEducation, setExpandedEducation] = useState<number | null>(null);
-  const [showExitModal, setShowExitModal] = useState(false);
-  const [exitUrl, setExitUrl] = useState("");
+  const [exitModal, setExitModal] = useState<string | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   
   const resultsRef = useRef<HTMLDivElement>(null);
-  const eligibilityRef = useRef<HTMLDivElement>(null);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  const scrollToEligibility = () => {
-    eligibilityRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const stateCode = STATE_CODES[state] || "";
+  const eligibility = hasEmployer ? "employer" : FREE_STATES.includes(stateCode) ? "free" : PARTIAL_STATES.includes(stateCode) ? "partial" : "none";
 
-  const handleCheckEligibility = async () => {
-    if (!state || !visaType || hasEmployerInsurance === null) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
+  const handleSubmit = async () => {
+    setLoading(true);
     try {
-      // Save to Supabase
       const { data: { user } } = await supabase.auth.getUser();
-      
       await supabase.from("insurance_eligibility_checks").insert({
         user_id: user?.id || null,
-        state,
-        monthly_income: monthlyIncome ? parseFloat(monthlyIncome) : 0,
-        visa_type: visaType,
-        date_of_birth: dateOfBirth || null,
-        has_employer_insurance: hasEmployerInsurance,
-        checked_at: new Date().toISOString(),
+        state: stateCode,
+        monthly_income: income ? parseFloat(income) : 0,
+        visa_type: visa,
+        date_of_birth: dob || null,
+        has_employer_insurance: hasEmployer,
       });
-    } catch (error) {
-      console.error("Error saving eligibility check:", error);
-    }
-
-    setIsSubmitting(false);
-    setShowResults(true);
+    } catch (e) { console.error(e); }
     
-    // Scroll to results
-    setTimeout(() => {
-      resultsRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    setLoading(false);
+    setShowResults(true);
+    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   };
 
-  const handleApplyClick = (url: string) => {
-    setExitUrl(url);
-    setShowExitModal(true);
-  };
+  const handleApply = (url: string) => setExitModal(url);
 
-  const confirmExit = () => {
-    window.open(exitUrl, "_blank");
-    setShowExitModal(false);
+  const formatIncome = (value: string) => {
+    const num = value.replace(/[^0-9]/g, "");
+    return num ? Number(num).toLocaleString() : "";
   };
-
-  // Determine eligibility type
-  const getEligibilityType = () => {
-    if (hasEmployerInsurance) return "employer";
-    if (FREE_INSURANCE_STATES.includes(state)) return "free";
-    if (PARTIAL_COVERAGE_STATES.includes(state)) return "partial";
-    return "none";
-  };
-
-  const eligibilityType = getEligibilityType();
-  const stateFreePlans = STATE_FREE_PLANS[state] || [];
-  const income = parseFloat(monthlyIncome) || 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-16 sm:py-20">
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-            <div className="flex-1 text-center lg:text-left">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-                Health Insurance Options for OPT & STEM OPT Students
-              </h1>
-              <p className="text-lg sm:text-xl text-blue-100 mb-8">
-                Find free, low-cost, or state-funded insurance options based on your location and income.
-              </p>
-              <button
-                onClick={scrollToEligibility}
-                className="inline-flex items-center gap-2 bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-blue-50 transition-all transform hover:scale-105"
-              >
-                <Shield className="w-6 h-6" />
-                Check Eligibility Now
-              </button>
-            </div>
-            <div className="flex-shrink-0">
-              <div className="w-48 h-48 sm:w-64 sm:h-64 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center">
-                <div className="relative">
-                  <User className="w-20 h-20 sm:w-28 sm:h-28 text-white/80" />
-                  <div className="absolute -right-4 -bottom-2 w-16 h-16 sm:w-20 sm:h-20 bg-green-400 rounded-full flex items-center justify-center shadow-lg">
-                    <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="min-h-screen bg-[#f5f5f7]">
+      {/* Hero - Clean & Minimal */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-3xl mx-auto px-6 py-16 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 mb-6">
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
           </div>
+          <h1 className="text-4xl font-semibold text-gray-900 tracking-tight mb-3">
+            Health Insurance for OPT Students
+          </h1>
+          <p className="text-lg text-gray-500 max-w-xl mx-auto">
+            Find free or low-cost insurance options based on your state and income
+          </p>
         </div>
       </div>
 
-      {/* Section 1: State Eligibility Checker */}
-      <div ref={eligibilityRef} className="max-w-4xl mx-auto px-4 py-12 sm:py-16">
-        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <Check className="w-6 h-6 text-green-600" />
+      {/* Form Section */}
+      <div className="max-w-2xl mx-auto px-6 py-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* Progress */}
+          <div className="px-8 pt-8">
+            <div className="flex items-center gap-2 mb-8">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
+                    i <= step ? "bg-blue-500" : "bg-gray-200"
+                  }`}
+                />
+              ))}
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">State Eligibility Checker</h2>
           </div>
 
-          <div className="space-y-6">
-            {/* State Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Which state do you live in?
-              </label>
-              <div className="relative">
-                <select
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white text-gray-900"
+          <div className="px-8 pb-8">
+            <AnimatePresence mode="wait">
+              {/* Step 0: State */}
+              {step === 0 && (
+                <motion.div
+                  key="state"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
                 >
-                  {US_STATES.map((s) => (
-                    <option key={s.value} value={s.value}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Additional Fields - Show after state selected */}
-            {state && (
-              <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
-                {/* Monthly Income */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    What is your monthly income?
-                  </label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="number"
-                      value={monthlyIncome}
-                      onChange={(e) => setMonthlyIncome(e.target.value)}
-                      placeholder="0"
-                      min="0"
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                  <div>
+                    <h2 className="text-xl font-medium text-gray-900 mb-1">Where do you live?</h2>
+                    <p className="text-sm text-gray-500">Some states offer free health coverage</p>
                   </div>
-                  <p className="mt-2 text-sm text-gray-500 flex items-start gap-2">
-                    <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    If you are doing an unpaid internship or volunteering and not earning money, keep it $0
-                  </p>
-                </div>
-
-                {/* Visa Type */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    What is your visa type?
-                  </label>
                   <div className="relative">
                     <select
-                      value={visaType}
-                      onChange={(e) => setVisaType(e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white text-gray-900"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      className="w-full h-14 px-4 rounded-xl border border-gray-300 bg-white text-gray-900 text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
                     >
-                      {VISA_TYPES.map((v) => (
-                        <option key={v.value} value={v.value}>
-                          {v.label}
-                        </option>
+                      <option value="">Select state</option>
+                      {STATES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                    <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </div>
-                </div>
+                  <button
+                    onClick={() => setStep(1)}
+                    disabled={!state}
+                    className="w-full h-14 bg-blue-500 text-white rounded-xl font-medium text-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+                  >
+                    Continue
+                  </button>
+                </motion.div>
+              )}
 
-                {/* Date of Birth */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date of Birth
-                  </label>
+              {/* Step 1: Income */}
+              {step === 1 && (
+                <motion.div
+                  key="income"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h2 className="text-xl font-medium text-gray-900 mb-1">Monthly income</h2>
+                    <p className="text-sm text-gray-500">Unpaid internship? Enter 0</p>
+                  </div>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">$</span>
                     <input
-                      type="date"
-                      value={dateOfBirth}
-                      onChange={(e) => setDateOfBirth(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      type="text"
+                      inputMode="numeric"
+                      value={income}
+                      onChange={(e) => setIncome(formatIncome(e.target.value))}
+                      placeholder="0"
+                      className="w-full h-14 pl-8 pr-4 rounded-xl border border-gray-300 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
                     />
                   </div>
-                </div>
-
-                {/* Employer Insurance */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Do you have employer insurance?
-                  </label>
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
                     <button
-                      onClick={() => setHasEmployerInsurance(true)}
-                      className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all ${
-                        hasEmployerInsurance === true
-                          ? "border-blue-500 bg-blue-50 text-blue-700"
-                          : "border-gray-300 hover:border-gray-400 text-gray-700"
+                      onClick={() => setStep(0)}
+                      className="h-14 px-6 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => setStep(2)}
+                      className="flex-1 h-14 bg-blue-500 text-white rounded-xl font-medium text-lg hover:bg-blue-600 transition-colors"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 2: Visa */}
+              {step === 2 && (
+                <motion.div
+                  key="visa"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h2 className="text-xl font-medium text-gray-900 mb-1">Visa type</h2>
+                    <p className="text-sm text-gray-500">Select your current immigration status</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {VISA_OPTIONS.map((v) => (
+                      <button
+                        key={v}
+                        onClick={() => setVisa(v)}
+                        className={`h-14 rounded-xl font-medium transition-all ${
+                          visa === v
+                            ? "bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setStep(1)}
+                      className="h-14 px-6 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => setStep(3)}
+                      disabled={!visa}
+                      className="flex-1 h-14 bg-blue-500 text-white rounded-xl font-medium text-lg disabled:opacity-40 hover:bg-blue-600 transition-colors"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 3: DOB */}
+              {step === 3 && (
+                <motion.div
+                  key="dob"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h2 className="text-xl font-medium text-gray-900 mb-1">Date of birth</h2>
+                    <p className="text-sm text-gray-500">Some plans have age requirements</p>
+                  </div>
+                  <input
+                    type="date"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    className="w-full h-14 px-4 rounded-xl border border-gray-300 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setStep(2)}
+                      className="h-14 px-6 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => setStep(4)}
+                      className="flex-1 h-14 bg-blue-500 text-white rounded-xl font-medium text-lg hover:bg-blue-600 transition-colors"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 4: Employer Insurance */}
+              {step === 4 && (
+                <motion.div
+                  key="employer"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h2 className="text-xl font-medium text-gray-900 mb-1">Employer insurance?</h2>
+                    <p className="text-sm text-gray-500">Does your employer offer health coverage?</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setHasEmployer(true)}
+                      className={`h-14 rounded-xl font-medium transition-all ${
+                        hasEmployer === true
+                          ? "bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
                       Yes
                     </button>
                     <button
-                      onClick={() => setHasEmployerInsurance(false)}
-                      className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all ${
-                        hasEmployerInsurance === false
-                          ? "border-blue-500 bg-blue-50 text-blue-700"
-                          : "border-gray-300 hover:border-gray-400 text-gray-700"
+                      onClick={() => setHasEmployer(false)}
+                      className={`h-14 rounded-xl font-medium transition-all ${
+                        hasEmployer === false
+                          ? "bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
                       No
                     </button>
                   </div>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  onClick={handleCheckEligibility}
-                  disabled={!state || !visaType || hasEmployerInsurance === null || isSubmitting}
-                  className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold text-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Checking...
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="w-5 h-5" />
-                      Check My Eligibility
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setStep(3)}
+                      className="h-14 px-6 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      disabled={hasEmployer === null || loading}
+                      className="flex-1 h-14 bg-blue-500 text-white rounded-xl font-medium text-lg disabled:opacity-40 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                      {loading ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        "See Results"
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
 
-      {/* Section 2: Results Panel */}
-      {showResults && (
-        <div ref={resultsRef} className="max-w-4xl mx-auto px-4 pb-12">
-          {/* Employer Insurance */}
-          {eligibilityType === "employer" && (
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 sm:p-8 mb-8">
+      {/* Results */}
+      <AnimatePresence>
+        {showResults && (
+          <motion.div
+            ref={resultsRef}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-2xl mx-auto px-6 pb-12"
+          >
+            {/* Status Card */}
+            <div className={`rounded-2xl p-6 mb-6 ${
+              eligibility === "employer" ? "bg-blue-50 border border-blue-200" :
+              eligibility === "free" ? "bg-green-50 border border-green-200" :
+              eligibility === "partial" ? "bg-amber-50 border border-amber-200" :
+              "bg-gray-100 border border-gray-200"
+            }`}>
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Building className="w-6 h-6 text-blue-600" />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  eligibility === "employer" ? "bg-blue-100" :
+                  eligibility === "free" ? "bg-green-100" :
+                  eligibility === "partial" ? "bg-amber-100" :
+                  "bg-gray-200"
+                }`}>
+                  {eligibility === "free" ? (
+                    <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : eligibility === "employer" ? (
+                    <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  )}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-blue-900 mb-2">You Have Employer Insurance</h3>
-                  <p className="text-blue-700">
-                    Great! Employer-sponsored insurance is typically the most comprehensive option. 
-                    Make sure to review your plan details and understand your coverage.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Free Insurance States */}
-          {eligibilityType === "free" && (
-            <div className="space-y-6 mb-8">
-              <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 sm:p-8">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Check className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-green-900 mb-2">
-                      🎉 Good news! You may qualify for free or $0-cost state-funded insurance.
-                    </h3>
-                    <p className="text-green-700">
-                      Based on your state ({US_STATES.find(s => s.value === state)?.label}), you may be eligible for state-funded health coverage.
-                      {income <= 2000 && " Your income level also suggests you may qualify for these programs."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* State-specific Free Plans */}
-              {stateFreePlans.length > 0 && (
-                <div className="grid gap-4">
-                  {stateFreePlans.map((plan, index) => (
-                    <div key={index} className="bg-white rounded-xl border-2 border-green-200 p-6 shadow-sm">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                        <div>
-                          <h4 className="text-lg font-bold text-gray-900">{plan.name}</h4>
-                          <p className="text-2xl font-bold text-green-600">{plan.cost}</p>
-                        </div>
-                        <button
-                          onClick={() => handleApplyClick(plan.link)}
-                          className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-                        >
-                          Apply Now
-                          <ExternalLink className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {plan.features.map((feature, i) => (
-                          <span key={i} className="inline-flex items-center gap-1 text-sm text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
-                            <Check className="w-4 h-4 text-green-600" />
-                            {feature}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Partial Coverage States */}
-          {eligibilityType === "partial" && (
-            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-6 sm:p-8 mb-8">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="w-6 h-6 text-yellow-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-yellow-900 mb-2">
-                    ⚠️ Your state offers limited state-funded health programs.
+                  <h3 className={`font-semibold text-lg ${
+                    eligibility === "employer" ? "text-blue-900" :
+                    eligibility === "free" ? "text-green-900" :
+                    eligibility === "partial" ? "text-amber-900" :
+                    "text-gray-900"
+                  }`}>
+                    {eligibility === "employer" && "You have employer coverage"}
+                    {eligibility === "free" && "You may qualify for free coverage!"}
+                    {eligibility === "partial" && "Limited options available"}
+                    {eligibility === "none" && "Private plans recommended"}
                   </h3>
-                  <p className="text-yellow-800">
-                    You may qualify for some low-cost options. Check with your state's health marketplace or consider the private insurance options below.
+                  <p className={`text-sm mt-1 ${
+                    eligibility === "employer" ? "text-blue-700" :
+                    eligibility === "free" ? "text-green-700" :
+                    eligibility === "partial" ? "text-amber-700" :
+                    "text-gray-600"
+                  }`}>
+                    {eligibility === "employer" && "Employer insurance is usually the best option. Review your plan details."}
+                    {eligibility === "free" && `${state} offers state-funded health coverage for eligible residents.`}
+                    {eligibility === "partial" && `${state} has limited programs. Consider private options below.`}
+                    {eligibility === "none" && "Check out affordable plans designed for OPT students."}
                   </p>
                 </div>
               </div>
             </div>
-          )}
 
-          {/* No Free Insurance */}
-          {eligibilityType === "none" && (
-            <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 sm:p-8 mb-8">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <X className="w-6 h-6 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-red-900 mb-2">
-                    ❌ Your state does not offer free insurance for low-income adults.
-                  </h3>
-                  <p className="text-red-700">
-                    Don't worry! There are affordable private insurance options designed specifically for OPT students. Check out the plans below.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Private Insurance Options - Show for partial/none or as additional options for free states */}
-          {(eligibilityType === "partial" || eligibilityType === "none" || (eligibilityType === "free" && !hasEmployerInsurance)) && (
-            <div className="mt-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                {eligibilityType === "free" ? "Additional Private Insurance Options" : "Recommended Insurance Plans for OPT Students"}
+            {/* Plans */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-medium text-gray-900 px-1">
+                {eligibility === "free" ? "Recommended Plans" : "Available Plans"}
               </h3>
-              <div className="grid sm:grid-cols-2 gap-4">
-                {PRIVATE_INSURANCE_OPTIONS.map((plan, index) => (
-                  <div key={index} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h4 className="font-bold text-gray-900">{plan.name}</h4>
-                        <p className="text-lg font-bold text-blue-600">{plan.cost}</p>
-                      </div>
-                      {plan.optEligible && (
-                        <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">
-                          OPT Eligible
+              
+              {/* State plans first if eligible */}
+              {eligibility === "free" && STATE_PLANS[stateCode]?.map((plan, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      {plan.highlight && (
+                        <span className="inline-block text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full mb-2">
+                          {plan.highlight}
                         </span>
                       )}
+                      <h4 className="font-semibold text-gray-900">{plan.name}</h4>
+                      <p className="text-2xl font-bold text-green-600">{plan.price}<span className="text-sm font-normal text-gray-500">/mo</span></p>
                     </div>
-                    <div className="space-y-2 mb-4">
-                      {plan.features.slice(0, 3).map((feature, i) => (
-                        <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
-                          <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          {feature}
-                        </div>
-                      ))}
-                    </div>
-                    <button
-                      onClick={() => handleApplyClick(plan.link)}
-                      className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                    >
-                      View Plans
-                      <ExternalLink className="w-4 h-4" />
-                    </button>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Section 3: Plan Comparison Table */}
-      {showResults && (
-        <div className="max-w-6xl mx-auto px-4 pb-12">
-          <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Plan Comparison</h2>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div className={`relative w-11 h-6 rounded-full transition-colors ${showOnlyEligible ? 'bg-blue-600' : 'bg-gray-300'}`}>
-                  <input
-                    type="checkbox"
-                    checked={showOnlyEligible}
-                    onChange={(e) => setShowOnlyEligible(e.target.checked)}
-                    className="sr-only"
-                  />
-                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${showOnlyEligible ? 'translate-x-5' : ''}`} />
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {plan.features.map((f, j) => (
+                      <span key={j} className="text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">{f}</span>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleApply(plan.url)}
+                    className="w-full h-11 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 transition-colors"
+                  >
+                    Apply Now
+                  </button>
                 </div>
-                <span className="text-sm text-gray-600">Show only plans I'm eligible for</span>
-              </label>
-            </div>
+              ))}
 
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Provider</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Monthly Cost</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Deductible</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Network</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700">OPT</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {/* Show state plans if eligible */}
-                  {eligibilityType === "free" && stateFreePlans.map((plan, index) => (
-                    <tr key={`state-${index}`} className="hover:bg-gray-50">
-                      <td className="py-4 px-4 font-medium text-gray-900">{plan.name}</td>
-                      <td className="py-4 px-4 text-green-600 font-bold">{plan.cost}</td>
-                      <td className="py-4 px-4 text-gray-600">$0</td>
-                      <td className="py-4 px-4 text-gray-600">{state} State</td>
-                      <td className="py-4 px-4 text-center">
-                        <Check className="w-5 h-5 text-green-500 mx-auto" />
-                      </td>
-                      <td className="py-4 px-4 text-center">
-                        <button
-                          onClick={() => handleApplyClick(plan.link)}
-                          className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-                        >
-                          Apply →
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {/* Private options */}
-                  {(!showOnlyEligible || eligibilityType !== "free") && PRIVATE_INSURANCE_OPTIONS.map((plan, index) => (
-                    <tr key={`private-${index}`} className="hover:bg-gray-50">
-                      <td className="py-4 px-4 font-medium text-gray-900">{plan.name}</td>
-                      <td className="py-4 px-4 text-blue-600 font-semibold">{plan.cost}</td>
-                      <td className="py-4 px-4 text-gray-600">{plan.deductible}</td>
-                      <td className="py-4 px-4 text-gray-600">{plan.network}</td>
-                      <td className="py-4 px-4 text-center">
-                        {plan.optEligible && <Check className="w-5 h-5 text-green-500 mx-auto" />}
-                      </td>
-                      <td className="py-4 px-4 text-center">
-                        <button
-                          onClick={() => handleApplyClick(plan.link)}
-                          className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-                        >
-                          Apply →
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Section 4: Educational Info */}
-      <div className="max-w-4xl mx-auto px-4 pb-16">
-        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Info className="w-6 h-6 text-purple-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">Health Insurance 101</h2>
-          </div>
-
-          <div className="space-y-3">
-            {EDUCATION_ITEMS.map((item, index) => (
-              <div key={index} className="border border-gray-200 rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setExpandedEducation(expandedEducation === index ? null : index)}
-                  className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-medium text-gray-900">{item.title}</span>
-                  <ChevronRight
-                    className={`w-5 h-5 text-gray-400 transition-transform ${
-                      expandedEducation === index ? "rotate-90" : ""
-                    }`}
-                  />
-                </button>
-                {expandedEducation === index && (
-                  <div className="px-4 pb-4 text-gray-600 animate-in slide-in-from-top-2 duration-200">
-                    {item.content}
+              {/* Private plans */}
+              {(eligibility !== "employer") && PRIVATE_PLANS.map((plan, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      {plan.highlight && (
+                        <span className="inline-block text-xs font-medium text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full mb-2">
+                          {plan.highlight}
+                        </span>
+                      )}
+                      <h4 className="font-semibold text-gray-900">{plan.name}</h4>
+                      <p className="text-2xl font-bold text-blue-600">{plan.price}<span className="text-sm font-normal text-gray-500">/mo</span></p>
+                    </div>
                   </div>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {plan.features.map((f, j) => (
+                      <span key={j} className="text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">{f}</span>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleApply(plan.url)}
+                    className="w-full h-11 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors"
+                  >
+                    View Plans
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Reset */}
+            <button
+              onClick={() => { setShowResults(false); setStep(0); }}
+              className="w-full mt-6 h-12 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+            >
+              Start Over
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* FAQ */}
+      <div className="max-w-2xl mx-auto px-6 pb-16">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Common Questions</h3>
+        <div className="bg-white rounded-2xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+          {FAQ.map((item, i) => (
+            <div key={i}>
+              <button
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+              >
+                <span className="font-medium text-gray-900 pr-4">{item.q}</span>
+                <svg
+                  className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`}
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <AnimatePresence>
+                {openFaq === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <p className="px-4 pb-4 text-gray-600 text-sm">{item.a}</p>
+                  </motion.div>
                 )}
-              </div>
-            ))}
-          </div>
+              </AnimatePresence>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Exit Modal */}
-      {showExitModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <ExternalLink className="w-5 h-5 text-blue-600" />
+      <AnimatePresence>
+        {exitModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setExitModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl"
+            >
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Leaving TrackMyOPT</h3>
+                <p className="text-sm text-gray-500">You'll be redirected to complete your enrollment.</p>
               </div>
-              <h3 className="text-lg font-bold text-gray-900">Leaving TrackMyOPT</h3>
-            </div>
-            <p className="text-gray-600 mb-6">
-              You are now leaving TrackMyOPT to complete your enrollment on an external website. We are not responsible for the content or services on external sites.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowExitModal(false)}
-                className="flex-1 py-3 px-4 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmExit}
-                className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-              >
-                Continue
-                <ExternalLink className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setExitModal(null)}
+                  className="flex-1 h-11 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => { window.open(exitModal, "_blank"); setExitModal(null); }}
+                  className="flex-1 h-11 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors"
+                >
+                  Continue
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

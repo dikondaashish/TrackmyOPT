@@ -20,6 +20,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "bcryptjs": "^3.0.3",
+    "framer-motion": "^12.23.25",
     "jose": "^5.2.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.545.0",
