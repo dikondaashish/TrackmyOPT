@@ -441,7 +441,7 @@ export function DocumentVaultClient() {
             <p className="text-sm text-gray-600">{notificationEmail}</p>
           )}
           <p className="text-xs text-gray-500 mt-2">
-            📬 Get notified 30 days before your documents expire
+            📬 Get notified at 60, 45, 30, 20, 15, 10, 5, 3, 2, and 1 day before your documents expire
           </p>
         </div>
       </div>

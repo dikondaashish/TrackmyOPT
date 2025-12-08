@@ -184,6 +184,7 @@ COMMENT ON FUNCTION public.get_document_expiry_status(DATE) IS
 --   p_document_name: TEXT - Document name for reminder message
 --   p_expiry_date: DATE - Document expiry date
 -- Returns: VOID
+-- Reminder Schedule: 60, 45, 30, 20, 15, 10, 5, 3, 2, 1 days before expiry
 -- -----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.create_document_reminders(
   p_user_id UUID,
@@ -193,8 +194,8 @@ CREATE OR REPLACE FUNCTION public.create_document_reminders(
 )
 RETURNS VOID AS $$
 DECLARE
-  reminder_intervals INTEGER[] := ARRAY[180, 90, 30, 7]; -- 6 months, 3 months, 1 month, 7 days
-  reminder_labels TEXT[] := ARRAY['6 months', '3 months', '1 month', '7 days'];
+  reminder_intervals INTEGER[] := ARRAY[60, 45, 30, 20, 15, 10, 5, 3, 2, 1];
+  reminder_labels TEXT[] := ARRAY['60 days', '45 days', '30 days', '20 days', '15 days', '10 days', '5 days', '3 days', '2 days', '1 day'];
   reminder_type TEXT;
   reminder_date DATE;
   i INTEGER;
@@ -209,10 +210,16 @@ BEGIN
     -- Only create reminder if it's in the future
     IF reminder_date >= CURRENT_DATE THEN
       reminder_type := CASE reminder_intervals[i]
-        WHEN 180 THEN '6_months'
-        WHEN 90 THEN '3_months'
-        WHEN 30 THEN '1_month'
-        WHEN 7 THEN '7_days'
+        WHEN 60 THEN '60_days'
+        WHEN 45 THEN '45_days'
+        WHEN 30 THEN '30_days'
+        WHEN 20 THEN '20_days'
+        WHEN 15 THEN '15_days'
+        WHEN 10 THEN '10_days'
+        WHEN 5 THEN '5_days'
+        WHEN 3 THEN '3_days'
+        WHEN 2 THEN '2_days'
+        WHEN 1 THEN '1_day'
       END;
       
       INSERT INTO public.document_reminders (
@@ -234,7 +241,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 COMMENT ON FUNCTION public.create_document_reminders(UUID, UUID, TEXT, DATE) IS 
-  'Create automatic reminders for a document at 6 months, 3 months, 1 month, and 7 days before expiry';
+  'Create automatic reminders for a document at 60, 45, 30, 20, 15, 10, 5, 3, 2, 1 days before expiry';
 
 
 -- =============================================================================

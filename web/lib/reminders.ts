@@ -52,10 +52,11 @@ export async function generateRemindersForDocument(
 /**
  * Calculate reminder dates
  * Returns array of dates when reminders should be sent
+ * Schedule: 60, 45, 30, 20, 15, 10, 5, 3, 2, 1 days before expiry
  */
 export function calculateReminderDates(expiryDate: string): Date[] {
   const expiry = new Date(expiryDate);
-  const reminderOffsets = [180, 90, 30, 7]; // days before expiry
+  const reminderOffsets = [60, 45, 30, 20, 15, 10, 5, 3, 2, 1]; // days before expiry
 
   return reminderOffsets
     .map((days) => {
@@ -71,10 +72,16 @@ export function calculateReminderDates(expiryDate: string): Date[] {
  */
 export function getReminderLabel(daysBefore: number): string {
   const labels: Record<number, string> = {
-    180: '6 months',
-    90: '3 months',
-    30: '1 month',
-    7: '7 days',
+    60: '60 days',
+    45: '45 days',
+    30: '30 days',
+    20: '20 days',
+    15: '15 days',
+    10: '10 days',
+    5: '5 days',
+    3: '3 days',
+    2: '2 days',
+    1: '1 day',
   };
 
   return labels[daysBefore] || `${daysBefore} days`;
