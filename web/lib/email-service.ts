@@ -21,17 +21,25 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+export interface ToolReminderDetail {
+  name: string;
+  toolType: 'opt-apply' | 'opt-clock' | 'stem-apply' | 'stem-clock';
+  daysLeft: number;
+  totalDays: number;
+  startDate: string;
+  endDate: string;
+  urgency: 'safe' | 'moderate' | 'urgent' | 'critical';
+  message: string;
+  // OPT specific fields
+  optType?: 'Pre-Completion OPT' | 'Post-Completion OPT';
+  programEndDate?: string;
+}
+
 export interface EmailReminderData {
   userId: string;
   userEmail: string;
   firstName: string;
-  tools: {
-    name: string;
-    daysLeft: number;
-    endDate: string;
-    urgency: 'safe' | 'moderate' | 'urgent' | 'critical';
-    message: string;
-  }[];
+  tools: ToolReminderDetail[];
 }
 
 /**
@@ -72,38 +80,18 @@ function getDynamicSubject(tools: EmailReminderData['tools']): string {
 }
 
 /**
- * Generate HTML email content
+ * Generate HTML email content - comprehensive professional template
  */
 function generateEmailHTML(data: EmailReminderData): string {
-  const toolsHTML = data.tools.map(tool => {
-    const bgColor = getUrgencyColor(tool.urgency);
-    const textColor = getUrgencyTextColor(tool.urgency);
-    const emoji = getUrgencyEmoji(tool.urgency);
-    
-    return `
-      <div style="background: ${bgColor}; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <h3 style="margin: 0 0 8px 0; color: ${textColor}; font-size: 18px; font-weight: 700;">
-          ${emoji} ${tool.name}
-        </h3>
-        <div style="font-size: 36px; font-weight: 800; color: ${textColor}; margin: 12px 0;">
-          ${tool.daysLeft} ${tool.daysLeft === 1 ? 'day' : 'days'} left
-        </div>
-        <div style="color: ${textColor}; opacity: 0.8; font-size: 14px; margin-bottom: 8px; font-weight: 500;">
-          Deadline: ${tool.endDate}
-        </div>
-        <div style="color: ${textColor}; font-size: 15px; font-weight: 600; line-height: 1.5;">
-          ${tool.message}
-        </div>
-      </div>
-    `;
-  }).join('');
-
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
+
+  // Generate tool-specific sections
+  const toolSectionsHTML = data.tools.map(tool => generateToolSection(tool)).join('');
 
   return `
     <!DOCTYPE html>
@@ -112,98 +100,440 @@ function generateEmailHTML(data: EmailReminderData): string {
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>OPT Daily Reminder</title>
-      <!--[if mso]>
-      <style>
-        table { border-collapse: collapse; }
-      </style>
-      <![endif]-->
     </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F3F4F6; -webkit-font-smoothing: antialiased;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F3F4F6;">
+      <div style="max-width: 640px; margin: 0 auto; padding: 20px;">
         
         <!-- Header -->
-        <div style="background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 16px; padding: 32px 24px; text-align: center; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);">
-          <h1 style="margin: 0; color: white; font-size: 32px; font-weight: 800; letter-spacing: -0.5px;">
+        <div style="background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 16px 16px 0 0; padding: 32px 24px; text-align: center;">
+          <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 800;">
             OPT<span style="color: #FFD60A;">Clock</span>Tracker
           </h1>
-          <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.95); font-size: 15px; font-weight: 500;">
-            Your Daily OPT Reminder
+          <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
+            Your <strong>OPT</strong> Timeline Assistant
           </p>
         </div>
 
-        <!-- Greeting -->
-        <div style="background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-          <h2 style="margin: 0 0 12px 0; color: #1F2937; font-size: 22px; font-weight: 700;">
-            Good morning, ${data.firstName}! 👋
-          </h2>
-          <p style="margin: 0; color: #6B7280; font-size: 15px; line-height: 1.6;">
-            Here's your daily OPT timeline update for <strong>${currentDate}</strong>
-          </p>
-        </div>
+        <!-- Main Content Container -->
+        <div style="background: white; border-radius: 0 0 16px 16px; padding: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+          
+          <!-- Greeting Section -->
+          <div style="padding: 28px 28px 20px 28px; border-bottom: 1px solid #E5E7EB;">
+            <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 14px;">
+              ${currentDate}
+            </p>
+            <h2 style="margin: 0; color: #1F2937; font-size: 22px; font-weight: 700;">
+              Hi ${data.firstName}! 👋
+            </h2>
+          </div>
 
-        <!-- Tools/Countdowns -->
-        ${toolsHTML}
+          <!-- Tool Sections -->
+          ${toolSectionsHTML}
 
-        <!-- Call to Action -->
-        <div style="background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-          <p style="margin: 0 0 16px 0; color: #374151; font-size: 14px;">
-            Track your progress and manage deadlines
-          </p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
-             style="display: inline-block; background: linear-gradient(135deg, #007AFF, #5856D6); color: white; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);">
-            Open Dashboard →
-          </a>
-        </div>
+          <!-- Daily Reminder Note -->
+          <div style="padding: 20px 28px; background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border-top: 1px solid #C7D2FE;">
+            <div style="display: flex; align-items: flex-start;">
+              <span style="font-size: 20px; margin-right: 12px;">📬</span>
+              <div>
+                <p style="margin: 0 0 4px 0; color: #4338CA; font-size: 14px; font-weight: 600;">
+                  Daily Reminders Active
+                </p>
+                <p style="margin: 0; color: #6366F1; font-size: 13px; line-height: 1.5;">
+                  We'll send you daily updates at 9:00 AM ET to help you stay on track. Best of luck with your OPT application and job search! 🍀
+                </p>
+              </div>
+            </div>
+          </div>
 
-        <!-- Tips Section -->
-        <div style="background: linear-gradient(135deg, #10B981, #059669); border-radius: 12px; padding: 20px; margin-bottom: 20px; color: white; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);">
-          <div style="font-size: 20px; margin-bottom: 8px;">💡</div>
-          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700;">
-            Quick Tip
-          </h3>
-          <p style="margin: 0; font-size: 14px; line-height: 1.5; opacity: 0.95;">
-            ${getRandomTip()}
-          </p>
+          <!-- CTA Button -->
+          <div style="padding: 24px 28px; text-align: center; border-top: 1px solid #E5E7EB;">
+            <a href="https://www.trackmyopt.com/dashboard/opt-tools/opt-apply" 
+               style="display: inline-block; background: linear-gradient(135deg, #007AFF, #5856D6); color: white; text-decoration: none; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);">
+              Update OPT Portal →
+            </a>
+          </div>
+
         </div>
 
         <!-- Footer -->
-        <div style="background: #F9FAFB; border-radius: 12px; padding: 24px; margin-top: 24px; text-align: center; border: 1px solid #E5E7EB;">
-          <p style="margin: 0 0 12px 0; color: #6B7280; font-size: 13px; line-height: 1.6;">
-            You're receiving this email because you're a <strong style="color: #007AFF;">Premium</strong> member with daily reminders enabled.
-          </p>
-          <p style="margin: 0 0 16px 0; color: #9CA3AF; font-size: 12px;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings" style="color: #007AFF; text-decoration: none; font-weight: 500;">
-              Manage email preferences
-            </a>
-            <span style="margin: 0 8px; color: #D1D5DB;">·</span>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" style="color: #007AFF; text-decoration: none; font-weight: 500;">
-              View Dashboard
-            </a>
-            <span style="margin: 0 8px; color: #D1D5DB;">·</span>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/help" style="color: #007AFF; text-decoration: none; font-weight: 500;">
-              Get Help
+        <div style="padding: 24px; text-align: center;">
+          <p style="margin: 0 0 12px 0; color: #6B7280; font-size: 12px;">
+            Want to stop these emails? 
+            <a href="https://www.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #007AFF; text-decoration: none; font-weight: 500;">
+              Manage Email Preferences
             </a>
           </p>
-          <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB;">
-            <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 11px;">
-              © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
-            </p>
-            <p style="margin: 0; color: #9CA3AF; font-size: 11px;">
-              Helping international students navigate OPT requirements
-            </p>
-          </div>
-        </div>
-
-        <!-- Anti-spam footer (required for compliance) -->
-        <div style="margin-top: 16px; text-align: center;">
-          <p style="margin: 0; color: #9CA3AF; font-size: 10px;">
-            Zyene, Inc. | support@trackmyopt.com
+          <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 11px;">
+            Best regards,<br/>
+            <strong>OPT Clock Tracker Team</strong>
+          </p>
+          <p style="margin: 0; color: #D1D5DB; font-size: 10px;">
+            © ${new Date().getFullYear()} Zyene, Inc. | support@trackmyopt.com
           </p>
         </div>
 
       </div>
     </body>
     </html>
+  `;
+}
+
+/**
+ * Generate detailed section for each tool type
+ */
+function generateToolSection(tool: ToolReminderDetail): string {
+  if (tool.toolType === 'opt-apply') {
+    return generateOptApplySection(tool);
+  } else if (tool.toolType === 'opt-clock') {
+    return generateOptClockSection(tool);
+  } else if (tool.toolType === 'stem-apply') {
+    return generateStemApplySection(tool);
+  } else if (tool.toolType === 'stem-clock') {
+    return generateStemClockSection(tool);
+  }
+  return '';
+}
+
+/**
+ * Generate comprehensive OPT Apply email section
+ */
+function generateOptApplySection(tool: ToolReminderDetail): string {
+  const urgencyConfig = getUrgencyConfig(tool.daysLeft, tool.totalDays);
+  const actionItems = getOptApplyActionItems(tool.daysLeft, tool.totalDays);
+  const daysUsed = tool.totalDays - tool.daysLeft;
+  const progressPercent = Math.round((daysUsed / tool.totalDays) * 100);
+
+  return `
+    <!-- Congratulations Banner -->
+    <div style="padding: 24px 28px; background: linear-gradient(135deg, ${urgencyConfig.bgGradient}); border-bottom: 1px solid #E5E7EB;">
+      <div style="text-align: center;">
+        <span style="font-size: 32px;">${urgencyConfig.emoji}</span>
+        <h3 style="margin: 12px 0 8px 0; color: ${urgencyConfig.titleColor}; font-size: 20px; font-weight: 700;">
+          ${urgencyConfig.headline}
+        </h3>
+        <p style="margin: 0; color: ${urgencyConfig.subtitleColor}; font-size: 14px; line-height: 1.5;">
+          ${urgencyConfig.subtitle}
+        </p>
+      </div>
+    </div>
+
+    <!-- OPT Details Section -->
+    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
+      <h4 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 700; display: flex; align-items: center;">
+        📋 OPT Details
+      </h4>
+      
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+        <tr>
+          <td style="padding: 12px; background: #F9FAFB; border-radius: 8px 0 0 0; border-bottom: 1px solid #E5E7EB;">
+            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">OPT Type</span><br/>
+            <strong style="color: #1F2937; font-size: 15px;">${tool.optType || 'Post-Completion OPT'}</strong>
+          </td>
+          <td style="padding: 12px; background: #F9FAFB; border-radius: 0 8px 0 0; border-bottom: 1px solid #E5E7EB; border-left: 1px solid #E5E7EB;">
+            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Program End Date</span><br/>
+            <strong style="color: #1F2937; font-size: 15px;">${tool.programEndDate || 'N/A'}</strong>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 12px; background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
+            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Apply Start Date</span><br/>
+            <strong style="color: #059669; font-size: 15px;">${tool.startDate}</strong>
+          </td>
+          <td style="padding: 12px; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; border-left: 1px solid #E5E7EB;">
+            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Filing Deadline</span><br/>
+            <strong style="color: #DC2626; font-size: 15px;">${tool.endDate}</strong>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 12px; background: #F9FAFB; border-radius: 0 0 0 8px;">
+            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Total Filing Window</span><br/>
+            <strong style="color: #1F2937; font-size: 15px;">${tool.totalDays} days</strong>
+          </td>
+          <td style="padding: 12px; background: #F9FAFB; border-radius: 0 0 8px 0; border-left: 1px solid #E5E7EB;">
+            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Days Remaining</span><br/>
+            <strong style="color: ${urgencyConfig.daysColor}; font-size: 20px; font-weight: 800;">${tool.daysLeft} days</strong>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Progress Bar -->
+      <div style="margin-top: 16px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+          <span style="color: #6B7280; font-size: 12px;">${daysUsed} days elapsed</span>
+          <span style="color: #6B7280; font-size: 12px;">${tool.daysLeft} days left</span>
+        </div>
+        <div style="background: #E5E7EB; border-radius: 10px; height: 10px; overflow: hidden;">
+          <div style="background: linear-gradient(90deg, ${urgencyConfig.progressColor}); width: ${progressPercent}%; height: 100%; border-radius: 10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- What to Do Now Section -->
+    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
+      <h4 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 700;">
+        ✅ What to Do Now
+      </h4>
+      
+      <div style="background: ${urgencyConfig.actionBg}; border-radius: 12px; padding: 20px; border-left: 4px solid ${urgencyConfig.actionBorder};">
+        <p style="margin: 0 0 12px 0; color: ${urgencyConfig.actionTitle}; font-size: 15px; font-weight: 700;">
+          ${urgencyConfig.actionHeadline}
+        </p>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          ${actionItems.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Important Reminders Section -->
+    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
+      <h4 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 700;">
+        ⚠️ Important Reminders
+      </h4>
+      
+      <div style="background: #FEF3C7; border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #92400E; font-size: 13px; line-height: 1.8;">
+          <li><strong>Never</strong> start working before your EAD card arrives and the start date begins</li>
+          <li>Keep copies of ALL documents you submit to USCIS</li>
+          <li>Use USPS certified mail with tracking for your application</li>
+          <li>OPT application processing typically takes <strong>3-5 months</strong></li>
+          <li>You can track your case status at <a href="https://egov.uscis.gov/casestatus" style="color: #B45309;">USCIS Case Status Portal</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- USCIS Portal Link -->
+    <div style="padding: 20px 28px; background: #F0FDF4; border-bottom: 1px solid #E5E7EB;">
+      <div style="display: flex; align-items: center;">
+        <span style="font-size: 24px; margin-right: 12px;">🔗</span>
+        <div>
+          <p style="margin: 0 0 4px 0; color: #166534; font-size: 14px; font-weight: 600;">
+            USCIS SCVP Portal
+          </p>
+          <a href="https://egov.uscis.gov/casestatus" style="color: #15803D; font-size: 13px; text-decoration: none;">
+            https://egov.uscis.gov/casestatus →
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Get urgency configuration based on days left
+ */
+function getUrgencyConfig(daysLeft: number, totalDays: number): {
+  emoji: string;
+  headline: string;
+  subtitle: string;
+  bgGradient: string;
+  titleColor: string;
+  subtitleColor: string;
+  daysColor: string;
+  progressColor: string;
+  actionBg: string;
+  actionBorder: string;
+  actionTitle: string;
+  actionHeadline: string;
+} {
+  const percentRemaining = (daysLeft / totalDays) * 100;
+
+  if (percentRemaining > 75) {
+    return {
+      emoji: '🎉',
+      headline: 'Congratulations! Your OPT Timeline Has Started!',
+      subtitle: 'You have plenty of time to prepare. Start gathering your documents and planning ahead.',
+      bgGradient: '#ECFDF5 0%, #D1FAE5 100%',
+      titleColor: '#065F46',
+      subtitleColor: '#047857',
+      daysColor: '#059669',
+      progressColor: '#10B981, #34D399',
+      actionBg: '#F0FDF4',
+      actionBorder: '#10B981',
+      actionTitle: '#065F46',
+      actionHeadline: 'Early Preparation Phase - Take Your Time',
+    };
+  } else if (percentRemaining > 50) {
+    return {
+      emoji: '📋',
+      headline: 'Your OPT Filing Window is Open',
+      subtitle: 'Good progress! Continue preparing your documents and schedule your DSO appointment.',
+      bgGradient: '#EFF6FF 0%, #DBEAFE 100%',
+      titleColor: '#1E40AF',
+      subtitleColor: '#1D4ED8',
+      daysColor: '#2563EB',
+      progressColor: '#3B82F6, #60A5FA',
+      actionBg: '#EFF6FF',
+      actionBorder: '#3B82F6',
+      actionTitle: '#1E40AF',
+      actionHeadline: 'Active Preparation Phase - Keep Moving Forward',
+    };
+  } else if (percentRemaining > 25) {
+    return {
+      emoji: '⏰',
+      headline: 'Time to Submit Your OPT Application',
+      subtitle: 'The clock is ticking! Prioritize finalizing and submitting your application.',
+      bgGradient: '#FFFBEB 0%, #FEF3C7 100%',
+      titleColor: '#92400E',
+      subtitleColor: '#B45309',
+      daysColor: '#D97706',
+      progressColor: '#F59E0B, #FBBF24',
+      actionBg: '#FFFBEB',
+      actionBorder: '#F59E0B',
+      actionTitle: '#92400E',
+      actionHeadline: '⚠️ Urgent - Submit Your Application Soon',
+    };
+  } else if (percentRemaining > 10) {
+    return {
+      emoji: '🚨',
+      headline: 'URGENT: Limited Time Remaining!',
+      subtitle: 'You must submit your application immediately to avoid missing your deadline.',
+      bgGradient: '#FEF2F2 0%, #FEE2E2 100%',
+      titleColor: '#991B1B',
+      subtitleColor: '#B91C1C',
+      daysColor: '#DC2626',
+      progressColor: '#EF4444, #F87171',
+      actionBg: '#FEF2F2',
+      actionBorder: '#EF4444',
+      actionTitle: '#991B1B',
+      actionHeadline: '🚨 CRITICAL - Submit TODAY!',
+    };
+  } else {
+    return {
+      emoji: '🆘',
+      headline: 'FINAL DAYS - ACT NOW!',
+      subtitle: 'This is your last chance. Submit your application immediately or you will miss your OPT window.',
+      bgGradient: '#7F1D1D 0%, #991B1B 100%',
+      titleColor: '#FFFFFF',
+      subtitleColor: '#FECACA',
+      daysColor: '#DC2626',
+      progressColor: '#DC2626, #EF4444',
+      actionBg: '#FEF2F2',
+      actionBorder: '#DC2626',
+      actionTitle: '#7F1D1D',
+      actionHeadline: '🆘 EMERGENCY - SUBMIT IMMEDIATELY!',
+    };
+  }
+}
+
+/**
+ * Get action items based on timeline position
+ */
+function getOptApplyActionItems(daysLeft: number, totalDays: number): string[] {
+  const percentRemaining = (daysLeft / totalDays) * 100;
+
+  if (percentRemaining > 75) {
+    return [
+      '<strong>Request official transcripts</strong> from your university (takes 1-2 weeks)',
+      'Gather required documents: passport copies, I-94, all previous I-20s',
+      'Make digital copies of everything for your records',
+      'Start filling out <strong>Form I-765</strong> (Application for Employment Authorization)',
+      'Review OPT requirements with your DSO',
+    ];
+  } else if (percentRemaining > 50) {
+    return [
+      '<strong>Schedule an appointment with your DSO</strong> for OPT recommendation',
+      'Get your I-20 endorsed for OPT by your DSO',
+      'Complete Form I-765 carefully (double-check all entries!)',
+      'Get <strong>2 passport-style photos</strong> (2x2 inches, white background)',
+      'Prepare payment ($410 filing fee - check current fee on USCIS website)',
+    ];
+  } else if (percentRemaining > 25) {
+    return [
+      '⚠️ <strong>Finalize your application package</strong> this week',
+      'Make copies of all documents before mailing',
+      'Use <strong>USPS certified mail with tracking</strong>',
+      'Mail to the correct USCIS lockbox address for your state',
+      'Save your tracking number and check delivery confirmation',
+    ];
+  } else if (percentRemaining > 10) {
+    return [
+      '🚨 <strong>Submit your application TODAY</strong>',
+      'If not submitted, contact your DSO immediately for emergency assistance',
+      'Consider premium processing if available for your case type',
+      'Use overnight shipping (FedEx/UPS) if mailing',
+      'Verify the lockbox address before sending',
+    ];
+  } else {
+    return [
+      '🆘 <strong>SUBMIT IMMEDIATELY</strong> - Every hour counts!',
+      'Contact your DSO for emergency support',
+      'Use overnight shipping only at this point',
+      'Keep proof of submission with timestamp',
+      'Prepare contingency plans in case of issues',
+    ];
+  }
+}
+
+/**
+ * Generate OPT Clock (unemployment tracker) section
+ */
+function generateOptClockSection(tool: ToolReminderDetail): string {
+  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' : 
+                       tool.urgency === 'urgent' ? '#D97706' : 
+                       tool.urgency === 'moderate' ? '#2563EB' : '#059669';
+  
+  return `
+    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
+      <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FFFBEB 100%); border-radius: 12px; padding: 20px;">
+        <h4 style="margin: 0 0 12px 0; color: #92400E; font-size: 18px; font-weight: 700;">
+          ⏰ OPT Unemployment Clock
+        </h4>
+        <div style="font-size: 36px; font-weight: 800; color: ${urgencyColor}; margin: 8px 0;">
+          ${tool.daysLeft} days remaining
+        </div>
+        <p style="margin: 12px 0 0 0; color: #78350F; font-size: 14px; line-height: 1.6;">
+          ${tool.message}
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Generate STEM Apply section
+ */
+function generateStemApplySection(tool: ToolReminderDetail): string {
+  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' : 
+                       tool.urgency === 'urgent' ? '#D97706' : '#2563EB';
+  
+  return `
+    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
+      <div style="background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%); border-radius: 12px; padding: 20px;">
+        <h4 style="margin: 0 0 12px 0; color: #5B21B6; font-size: 18px; font-weight: 700;">
+          🔬 STEM OPT Extension
+        </h4>
+        <div style="font-size: 28px; font-weight: 800; color: ${urgencyColor}; margin: 8px 0;">
+          ${tool.daysLeft} days until deadline
+        </div>
+        <p style="margin: 12px 0 0 0; color: #6D28D9; font-size: 14px; line-height: 1.6;">
+          ${tool.message}
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Generate STEM Clock section
+ */
+function generateStemClockSection(tool: ToolReminderDetail): string {
+  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' : 
+                       tool.urgency === 'urgent' ? '#D97706' : '#059669';
+  
+  return `
+    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
+      <div style="background: linear-gradient(135deg, #CCFBF1 0%, #99F6E4 100%); border-radius: 12px; padding: 20px;">
+        <h4 style="margin: 0 0 12px 0; color: #0F766E; font-size: 18px; font-weight: 700;">
+          ⏱️ STEM Unemployment Clock
+        </h4>
+        <div style="font-size: 28px; font-weight: 800; color: ${urgencyColor}; margin: 8px 0;">
+          ${tool.daysLeft} of 60 STEM days remaining
+        </div>
+        <p style="margin: 12px 0 0 0; color: #115E59; font-size: 14px; line-height: 1.6;">
+          ${tool.message}
+        </p>
+      </div>
+    </div>
   `;
 }
 
@@ -516,389 +846,5 @@ export async function sendEnrollmentEmail(
     console.error('Enrollment email service error:', error);
     return { success: false, error };
   }
-}
-
-// ============================================================================
-// OPT APPLY - COMPREHENSIVE DAILY REMINDER EMAIL
-// ============================================================================
-
-export interface OptApplyEmailData {
-  userEmail: string;
-  firstName: string;
-  optType: 'Regular OPT' | 'Post-Completion OPT';
-  programEndDate: Date;
-  earliestFilingDate: Date;
-  filingDeadline: Date;
-  daysRemaining: number;
-  totalWindowDays: number;
-}
-
-/**
- * Send comprehensive OPT Apply daily reminder email
- */
-export async function sendOptApplyReminder(data: OptApplyEmailData) {
-  try {
-    const { urgencyLevel, headerColor, badgeColor, headerEmoji } = getOptApplyUrgency(data.daysRemaining, data.totalWindowDays);
-    
-    const info = await transporter.sendMail({
-      from: `Zyene Inc <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
-      to: data.userEmail,
-      subject: getOptApplySubject(data.daysRemaining, urgencyLevel),
-      html: generateOptApplyEmailHTML(data, urgencyLevel, headerColor, badgeColor, headerEmoji),
-    });
-
-    console.log('OPT Apply reminder sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error('OPT Apply email error:', error);
-    return { success: false, error };
-  }
-}
-
-function getOptApplyUrgency(daysLeft: number, totalDays: number): {
-  urgencyLevel: 'relaxed' | 'planning' | 'active' | 'urgent' | 'critical';
-  headerColor: string;
-  badgeColor: string;
-  headerEmoji: string;
-} {
-  const percentage = (daysLeft / totalDays) * 100;
-  
-  if (percentage > 80) {
-    return { urgencyLevel: 'relaxed', headerColor: '#059669', badgeColor: '#10B981', headerEmoji: '🎉' };
-  } else if (percentage > 60) {
-    return { urgencyLevel: 'planning', headerColor: '#0284C7', badgeColor: '#0EA5E9', headerEmoji: '📋' };
-  } else if (percentage > 40) {
-    return { urgencyLevel: 'active', headerColor: '#D97706', badgeColor: '#F59E0B', headerEmoji: '📝' };
-  } else if (percentage > 20) {
-    return { urgencyLevel: 'urgent', headerColor: '#EA580C', badgeColor: '#F97316', headerEmoji: '⚠️' };
-  } else {
-    return { urgencyLevel: 'critical', headerColor: '#DC2626', badgeColor: '#EF4444', headerEmoji: '🚨' };
-  }
-}
-
-function getOptApplySubject(daysLeft: number, urgency: string): string {
-  switch (urgency) {
-    case 'relaxed':
-      return `🎉 Your Regular OPT Timeline Has Started! ${daysLeft} Days to Apply`;
-    case 'planning':
-      return `📋 OPT Application Reminder: ${daysLeft} Days Remaining`;
-    case 'active':
-      return `📝 Time to Submit OPT Application - ${daysLeft} Days Left`;
-    case 'urgent':
-      return `⚠️ URGENT: Only ${daysLeft} Days to Submit OPT Application!`;
-    case 'critical':
-      return `🚨 CRITICAL: ${daysLeft} Days Left - Submit OPT Application NOW!`;
-    default:
-      return `OPT Application Reminder - ${daysLeft} Days Remaining`;
-  }
-}
-
-function generateOptApplyEmailHTML(
-  data: OptApplyEmailData,
-  urgencyLevel: string,
-  headerColor: string,
-  badgeColor: string,
-  headerEmoji: string
-): string {
-  const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  });
-
-  const today = new Date();
-  const daysToDeadline = data.daysRemaining;
-  const progressPercentage = Math.round(((data.totalWindowDays - daysToDeadline) / data.totalWindowDays) * 100);
-
-  // Generate timeline-based instructions
-  const instructions = getOptApplyInstructions(daysToDeadline, data.programEndDate);
-  const importantReminders = getOptApplyReminders(daysToDeadline);
-
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>OPT Application Reminder</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F3F4F6; -webkit-font-smoothing: antialiased;">
-      <div style="max-width: 640px; margin: 0 auto; padding: 20px;">
-        
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, ${headerColor} 0%, ${headerColor}dd 100%); border-radius: 16px 16px 0 0; padding: 32px 24px; text-align: center;">
-          <div style="font-size: 48px; margin-bottom: 12px;">${headerEmoji}</div>
-          <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 800;">
-            ${urgencyLevel === 'relaxed' ? 'Congratulations!' : urgencyLevel === 'critical' ? 'Urgent Action Required!' : 'OPT Application Reminder'}
-          </h1>
-          <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">
-            ${urgencyLevel === 'relaxed' ? 'Your OPT timeline has officially started!' : `${daysToDeadline} days remaining to apply`}
-          </p>
-        </div>
-
-        <!-- Main Content -->
-        <div style="background: white; padding: 32px 24px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-          
-          <!-- Greeting -->
-          <p style="margin: 0 0 24px 0; color: #1F2937; font-size: 17px; line-height: 1.6;">
-            Hi <strong>${data.firstName}</strong>,
-            ${urgencyLevel === 'relaxed' 
-              ? `<br><br>Great news! Your Regular OPT application window is now open. This is an exciting step in your career journey in the United States!`
-              : urgencyLevel === 'critical'
-              ? `<br><br>This is an urgent reminder about your OPT application. You have very limited time remaining - please take action immediately!`
-              : `<br><br>Here's your daily OPT application status update. Stay on track with the steps below.`
-            }
-          </p>
-
-          <!-- OPT Details Card -->
-          <div style="background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border-radius: 12px; padding: 24px; margin: 24px 0; border: 1px solid #BAE6FD;">
-            <h2 style="margin: 0 0 20px 0; color: #0369A1; font-size: 18px; font-weight: 700; display: flex; align-items: center;">
-              📊 Your OPT Details
-            </h2>
-            
-            <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 15px;">
-              <tr>
-                <td style="padding: 8px 0; color: #64748B; width: 50%;">OPT Type:</td>
-                <td style="padding: 8px 0; color: #0F172A; font-weight: 600;">${data.optType}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #64748B; border-top: 1px solid #E0F2FE;">Program End Date:</td>
-                <td style="padding: 8px 0; color: #0F172A; font-weight: 600; border-top: 1px solid #E0F2FE;">${formatDate(data.programEndDate)}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #64748B; border-top: 1px solid #E0F2FE;">Earliest Filing Date:</td>
-                <td style="padding: 8px 0; color: #059669; font-weight: 600; border-top: 1px solid #E0F2FE;">${formatDate(data.earliestFilingDate)}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #64748B; border-top: 1px solid #E0F2FE;">Filing Deadline:</td>
-                <td style="padding: 8px 0; color: #DC2626; font-weight: 600; border-top: 1px solid #E0F2FE;">${formatDate(data.filingDeadline)}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #64748B; border-top: 1px solid #E0F2FE;">Total Application Window:</td>
-                <td style="padding: 8px 0; color: #0F172A; font-weight: 600; border-top: 1px solid #E0F2FE;">${data.totalWindowDays} days</td>
-              </tr>
-            </table>
-          </div>
-
-          <!-- Days Remaining Counter -->
-          <div style="background: ${badgeColor}15; border: 2px solid ${badgeColor}; border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center;">
-            <p style="margin: 0 0 8px 0; color: #64748B; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Days Remaining to Apply</p>
-            <div style="font-size: 56px; font-weight: 800; color: ${headerColor}; line-height: 1;">${daysToDeadline}</div>
-            <p style="margin: 12px 0 0 0; color: #64748B; font-size: 14px;">out of ${data.totalWindowDays} days total</p>
-            
-            <!-- Progress Bar -->
-            <div style="margin-top: 16px; background: #E5E7EB; border-radius: 10px; height: 12px; overflow: hidden;">
-              <div style="background: linear-gradient(90deg, ${badgeColor}, ${headerColor}); width: ${progressPercentage}%; height: 100%; border-radius: 10px;"></div>
-            </div>
-            <p style="margin: 8px 0 0 0; color: #64748B; font-size: 12px;">${progressPercentage}% of application window used</p>
-          </div>
-
-          <!-- What To Do Now Section -->
-          <div style="background: #FFFBEB; border-left: 4px solid #F59E0B; border-radius: 0 12px 12px 0; padding: 24px; margin: 24px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #92400E; font-size: 18px; font-weight: 700;">
-              📌 What To Do Now
-            </h3>
-            <ol style="margin: 0; padding: 0 0 0 20px; color: #78350F; font-size: 15px; line-height: 2;">
-              ${instructions.map(step => `<li style="margin-bottom: 4px;">${step}</li>`).join('')}
-            </ol>
-          </div>
-
-          <!-- Important Reminders -->
-          <div style="background: #FEF2F2; border-left: 4px solid #EF4444; border-radius: 0 12px 12px 0; padding: 24px; margin: 24px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #991B1B; font-size: 18px; font-weight: 700;">
-              ⚠️ Important Reminders
-            </h3>
-            <ul style="margin: 0; padding: 0 0 0 20px; color: #7F1D1D; font-size: 15px; line-height: 1.8;">
-              ${importantReminders.map(reminder => `<li style="margin-bottom: 8px;">${reminder}</li>`).join('')}
-            </ul>
-          </div>
-
-          <!-- SEVP Portal Link -->
-          <div style="background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%); border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center;">
-            <h3 style="margin: 0 0 12px 0; color: #5B21B6; font-size: 16px; font-weight: 700;">
-              🔗 SEVP Portal
-            </h3>
-            <p style="margin: 0 0 16px 0; color: #6D28D9; font-size: 14px;">
-              Access the official Student and Exchange Visitor Program portal
-            </p>
-            <a href="https://studyinthestates.dhs.gov/students" 
-               style="display: inline-block; background: #7C3AED; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;">
-              Visit SEVP Portal →
-            </a>
-          </div>
-
-          <!-- Daily Reminder Notice -->
-          <div style="background: #F0FDF4; border-radius: 12px; padding: 20px; margin: 24px 0; text-align: center;">
-            <p style="margin: 0; color: #166534; font-size: 14px; line-height: 1.6;">
-              📧 <strong>We'll send you daily reminders</strong> to help you stay on track with your OPT application timeline.
-            </p>
-          </div>
-
-          <!-- Closing -->
-          <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #E5E7EB;">
-            <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px; line-height: 1.6;">
-              Best of luck with your OPT application! 🍀
-            </p>
-            <p style="margin: 0; color: #374151; font-size: 15px;">
-              Best regards,<br>
-              <strong style="color: #0EA5E9;">OPT Clock Tracker</strong><br>
-              <span style="color: #6B7280; font-size: 13px;">by Zyene, Inc.</span>
-            </p>
-          </div>
-
-        </div>
-
-        <!-- Footer -->
-        <div style="text-align: center; padding: 24px; margin-top: 16px;">
-          <p style="margin: 0 0 12px 0; color: #6B7280; font-size: 13px;">
-            Questions? Contact us at <a href="mailto:support@trackmyopt.com" style="color: #0EA5E9; text-decoration: none;">support@trackmyopt.com</a>
-          </p>
-          <p style="margin: 0 0 16px 0; color: #6B7280; font-size: 13px;">
-            <a href="https://www.trackmyopt.com/dashboard/settings#notifications" 
-               style="color: #0EA5E9; text-decoration: none; font-weight: 500;">
-              Manage Email Preferences
-            </a>
-            <span style="color: #D1D5DB; margin: 0 8px;">•</span>
-            <a href="https://www.trackmyopt.com/dashboard" 
-               style="color: #0EA5E9; text-decoration: none; font-weight: 500;">
-              View Dashboard
-            </a>
-          </p>
-          <p style="margin: 0; color: #9CA3AF; font-size: 12px;">
-            © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
-          </p>
-        </div>
-
-      </div>
-    </body>
-    </html>
-  `;
-}
-
-/**
- * Get timeline-based instructions for OPT Apply
- */
-function getOptApplyInstructions(daysLeft: number, programEndDate: Date): string[] {
-  const today = new Date();
-  const daysToProgEnd = Math.ceil((programEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  
-  // Before program ends - still in school
-  if (daysToProgEnd > 60) {
-    return [
-      '<strong>Request official transcripts</strong> from your university registrar',
-      '<strong>Gather all required documents:</strong> passport, I-94, all I-20s, 2 passport photos (2x2 inches)',
-      'Review Form I-765 instructions on the USCIS website',
-      'Schedule a meeting with your DSO to discuss the OPT process',
-      'Start researching employers and job opportunities in your field'
-    ];
-  } else if (daysToProgEnd > 45) {
-    return [
-      '<strong>Begin filling out Form I-765</strong> - take your time and double-check every entry',
-      'Complete any missing sections of your I-765 carefully',
-      'Organize your documents in a folder (originals and copies)',
-      'Schedule your DSO appointment for I-20 OPT recommendation',
-      'Get your passport photos taken if you haven\'t already'
-    ];
-  } else if (daysToProgEnd > 30) {
-    return [
-      '<strong>Meet with your DSO</strong> to get OPT recommendation on your I-20',
-      'Review your completed I-765 one final time for errors',
-      'Make photocopies of ALL documents before mailing',
-      'Prepare your application package with correct filing fee',
-      'Research USCIS processing times for your service center'
-    ];
-  } else if (daysToProgEnd > 14) {
-    return [
-      '<strong>Finalize your application package</strong> - double-check all documents',
-      'Verify you have the correct USCIS filing fee (check for updates)',
-      'Get passport photos if not done yet (2 identical, 2x2 inches)',
-      'Prepare mailing envelope with USPS tracking',
-      'Consider your preferred OPT start date (within 60 days after program end)'
-    ];
-  } else if (daysToProgEnd > 0) {
-    return [
-      '<strong>Submit your OPT application TODAY if possible!</strong>',
-      'Mail via USPS with tracking number',
-      'Save your tracking number and check delivery status',
-      'Expect receipt notice (I-797C) within 2-3 weeks',
-      'Do NOT travel internationally until you receive your EAD card'
-    ];
-  }
-  
-  // After program ends - counting down to 60-day deadline
-  if (daysLeft > 45) {
-    return [
-      '<strong>Your program has ended - submit OPT application ASAP</strong>',
-      'If not already submitted, mail your application this week',
-      'Use USPS Priority Mail with tracking',
-      'Monitor tracking until confirmed delivered',
-      'Save all confirmation and tracking information'
-    ];
-  } else if (daysLeft > 30) {
-    return [
-      '<strong>URGENT: Submit your application within the next few days!</strong>',
-      'Processing takes 3-5 months - don\'t wait any longer',
-      'Double-check your application package is complete',
-      'Mail with express tracking and signature confirmation',
-      'Contact your DSO if you need any last-minute help'
-    ];
-  } else if (daysLeft > 14) {
-    return [
-      '<strong>CRITICAL: You must submit your application immediately!</strong>',
-      'This week is your last safe window to apply',
-      'Use overnight mail with tracking',
-      'Verify all documents are included before sealing',
-      'Contact your DSO today if you have any issues'
-    ];
-  } else if (daysLeft > 7) {
-    return [
-      '<strong>EMERGENCY: Only ${daysLeft} days left to apply!</strong>',
-      'Submit your application TODAY',
-      'Use overnight express mail',
-      'Contact your DSO immediately for assistance',
-      'Missing this deadline means losing OPT eligibility'
-    ];
-  } else {
-    return [
-      '<strong>FINAL DAYS: Submit immediately or lose OPT eligibility!</strong>',
-      'Mail your application TODAY using overnight express',
-      'Contact your DSO right now if you need help',
-      'Every hour counts at this point',
-      'Consider visiting USCIS lockbox in person if possible'
-    ];
-  }
-}
-
-/**
- * Get important reminders based on timeline
- */
-function getOptApplyReminders(daysLeft: number): string[] {
-  const baseReminders = [
-    'USCIS processing time is typically <strong>3-5 months</strong>',
-    'You <strong>cannot work</strong> until you receive your EAD card',
-    'Do <strong>NOT travel internationally</strong> while your OPT is pending',
-    'Keep your address updated with USCIS through AR-11 form'
-  ];
-  
-  if (daysLeft <= 30) {
-    return [
-      '<strong>Missing the deadline = losing your OPT eligibility entirely</strong>',
-      'You cannot apply for OPT after the 60-day grace period ends',
-      ...baseReminders
-    ];
-  } else if (daysLeft <= 60) {
-    return [
-      'Early submission gives you a buffer for any delivery issues',
-      'USCIS accepts applications as soon as your filing window opens',
-      ...baseReminders
-    ];
-  }
-  
-  return [
-    'Start your job search early - many employers have long hiring processes',
-    'Network on LinkedIn and attend career fairs at your university',
-    ...baseReminders
-  ];
 }
 

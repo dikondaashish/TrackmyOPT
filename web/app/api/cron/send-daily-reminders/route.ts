@@ -24,7 +24,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendDailyReminder, sendOptApplyReminder, type EmailReminderData, type OptApplyEmailData } from '@/lib/email-service';
+import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max execution time
@@ -138,117 +138,54 @@ export async function GET(req: NextRequest) {
           stem_clock_email: profile.stem_clock_email,
         };
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        let emailsSentForUser = 0;
+        // Calculate active tools and reminders
+        const tools = calculateActiveTools(optData, toolPrefs);
 
-        // ========================================
-        // 1. OPT APPLY - Send comprehensive email
-        // ========================================
-        if (profile.opt_apply_email && optData.program_end_date) {
-          const programEnd = new Date(optData.program_end_date);
-          const earliestFiling = new Date(programEnd);
-          earliestFiling.setDate(earliestFiling.getDate() - 90);
-          const filingDeadline = new Date(programEnd);
-          filingDeadline.setDate(filingDeadline.getDate() + 60);
-
-          // Only send within filing window
-          if (today >= earliestFiling && today <= filingDeadline) {
-            const daysRemaining = Math.ceil((filingDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-            const totalWindowDays = 150; // 90 + 60 days
-
-            const optApplyData: OptApplyEmailData = {
-              userEmail: profile.opt_apply_email,
-              firstName: profile.first_name || 'there',
-              optType: 'Post-Completion OPT',
-              programEndDate: programEnd,
-              earliestFilingDate: earliestFiling,
-              filingDeadline: filingDeadline,
-              daysRemaining,
-              totalWindowDays,
-            };
-
-            const result = await sendOptApplyReminder(optApplyData);
-
-            if (result.success) {
-              emailsSentForUser++;
-              results.sent++;
-              console.log(`✅ OPT Apply email sent to ${profile.opt_apply_email}`);
-
-              // Log to email_queue
-              try {
-                await supabase.from('email_queue').insert({
-                  user_id: profile.user_id,
-                  email_address: profile.opt_apply_email,
-                  email_type: 'opt_apply_reminder',
-                  email_subject: `OPT Apply Reminder - ${daysRemaining} days left`,
-                  email_data: optApplyData,
-                  sent_at: new Date().toISOString(),
-                  status: 'sent',
-                  provider_message_id: result.messageId,
-                });
-              } catch { /* ignore logging errors */ }
-            } else {
-              results.failed++;
-              results.errors.push(`OPT Apply ${profile.opt_apply_email}: ${result.error}`);
-            }
-
-            await new Promise(resolve => setTimeout(resolve, 200));
-          }
-        }
-
-        // ========================================
-        // 2-4. Other tools - Use generic email for now
-        // ========================================
-        const otherTools = calculateActiveTools(optData, {
-          ...toolPrefs,
-          opt_apply_email: null, // Exclude OPT Apply (already sent above)
-        });
-
-        if (otherTools.length > 0) {
-          // Determine which email to send to
-          const targetEmail = profile.opt_clock_email || profile.stem_apply_email || profile.stem_clock_email;
-
-          if (targetEmail) {
-            const emailData: EmailReminderData = {
-              userId: profile.user_id,
-              userEmail: targetEmail,
-              firstName: profile.first_name || 'there',
-              tools: otherTools,
-            };
-
-            const result = await sendDailyReminder(emailData);
-
-            if (result.success) {
-              emailsSentForUser++;
-              results.sent++;
-              console.log(`✅ Other tools email sent to ${targetEmail}`);
-
-              try {
-                await supabase.from('email_queue').insert({
-                  user_id: profile.user_id,
-                  email_address: targetEmail,
-                  email_type: 'daily_reminder',
-                  email_subject: `Daily OPT Reminder - ${otherTools.length} active`,
-                  email_data: otherTools,
-                  sent_at: new Date().toISOString(),
-                  status: 'sent',
-                  provider_message_id: result.messageId,
-                });
-              } catch { /* ignore logging errors */ }
-            } else {
-              results.failed++;
-              results.errors.push(`${targetEmail}: ${result.error}`);
-            }
-
-            await new Promise(resolve => setTimeout(resolve, 200));
-          }
-        }
-
-        if (emailsSentForUser === 0) {
-          console.log(`ℹ️ No emails sent for user ${profile.user_id} (outside active windows)`);
+        if (tools.length === 0) {
+          console.log(`ℹ️ No active tools for user ${profile.user_id}`);
           results.skipped++;
+          continue;
         }
+
+        // Determine which email to send to (use first available)
+        const targetEmail = profile.opt_apply_email || profile.opt_clock_email || 
+                          profile.stem_apply_email || profile.stem_clock_email;
+
+        // Send email
+        const emailData: EmailReminderData = {
+          userId: profile.user_id,
+          userEmail: targetEmail,
+          firstName: profile.first_name || 'there',
+          tools,
+        };
+
+        const result = await sendDailyReminder(emailData);
+
+        if (result.success) {
+          results.sent++;
+          console.log(`✅ Sent to ${targetEmail}`);
+
+          // Log to email_queue (optional - don't fail if this errors)
+          try {
+            await supabase.from('email_queue').insert({
+              user_id: profile.user_id,
+              email_address: targetEmail,
+              email_type: 'daily_reminder',
+              email_subject: `Daily OPT Reminder - ${tools.length} active`,
+              email_data: tools,
+              sent_at: new Date().toISOString(),
+              status: 'sent',
+              provider_message_id: result.messageId,
+            });
+          } catch { /* ignore logging errors */ }
+        } else {
+          results.failed++;
+          results.errors.push(`${targetEmail}: ${result.error}`);
+          console.error(`❌ Failed: ${targetEmail}`);
+        }
+
+        // Rate limiting delay
+        await new Promise(resolve => setTimeout(resolve, 200));
 
       } catch (error: any) {
         results.failed++;
@@ -303,16 +240,23 @@ function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails):
       const daysLeft = Math.ceil((filingDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       const totalWindow = 150; // 90 + 60 days total window
       
+      const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+      
       tools.push({
         name: 'OPT Application',
+        toolType: 'opt-apply',
         daysLeft,
-        endDate: filingDeadline.toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric',
-        }),
+        totalDays: totalWindow,
+        startDate: formatDate(earliestFiling),
+        endDate: formatDate(filingDeadline),
         urgency: getUrgency(daysLeft, totalWindow),
         message: getOptApplyMessage(daysLeft, programEnd, today),
+        optType: 'Post-Completion OPT',
+        programEndDate: formatDate(programEnd),
       });
     }
   }
@@ -332,10 +276,19 @@ function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails):
       const daysLeft = Math.max(0, 90 - daysSinceStart);
       
       if (daysLeft > 0 && daysLeft <= 90) {
+        const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        });
+        
         tools.push({
           name: 'OPT Unemployment Days',
+          toolType: 'opt-clock',
           daysLeft,
-          endDate: 'Max 90 days',
+          totalDays: 90,
+          startDate: formatDate(optStart),
+          endDate: optEnd ? formatDate(optEnd) : 'Max 90 days',
           urgency: getUrgency(daysLeft, 90),
           message: getUnemploymentMessage(daysLeft, 90, 'OPT'),
         });
@@ -359,14 +312,19 @@ function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails):
     if (!optData.stem_start_date && today >= earliestStemFiling && today <= optEadEnd) {
       const daysLeft = Math.ceil((optEadEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       
+      const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+      
       tools.push({
         name: 'STEM OPT Extension',
+        toolType: 'stem-apply',
         daysLeft,
-        endDate: optEadEnd.toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric',
-        }),
+        totalDays: 90,
+        startDate: formatDate(earliestStemFiling),
+        endDate: formatDate(optEadEnd),
         urgency: getUrgency(daysLeft, 90),
         message: getStemApplyMessage(daysLeft),
       });
@@ -390,10 +348,19 @@ function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails):
       const stemDaysRemaining = Math.max(0, 60 - Math.min(60, daysSinceStemStart));
       
       if (stemDaysRemaining > 0) {
+        const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        });
+        
         tools.push({
           name: 'STEM Unemployment Days',
+          toolType: 'stem-clock',
           daysLeft: stemDaysRemaining,
-          endDate: 'Max 150 aggregate',
+          totalDays: 60,
+          startDate: formatDate(stemStart),
+          endDate: formatDate(stemEnd),
           urgency: getUrgency(stemDaysRemaining, 60),
           message: getUnemploymentMessage(stemDaysRemaining, 60, 'STEM'),
         });
