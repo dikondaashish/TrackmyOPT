@@ -2,28 +2,54 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
-import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2 } from "lucide-react";
-import Link from "next/link";
+import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, AlertTriangle, Stethoscope, Pill, Eye, Brain, Phone, FileCheck, Heart, Activity } from "lucide-react";
 
 // States with free insurance programs
-const FREE_STATES: Record<string, { name: string; plan: string; link: string }> = {
-  NY: { name: "New York", plan: "Essential Plan", link: "https://nystateofhealth.ny.gov/" },
-  CA: { name: "California", plan: "Medi-Cal", link: "https://www.coveredca.com/" },
-  WA: { name: "Washington", plan: "Apple Health", link: "https://www.wahealthplanfinder.org/" },
-  OR: { name: "Oregon", plan: "Oregon Health Plan", link: "https://healthcare.oregon.gov/" },
-  IL: { name: "Illinois", plan: "Medicaid", link: "https://abe.illinois.gov/" },
-  CO: { name: "Colorado", plan: "Health First Colorado", link: "https://www.healthfirstcolorado.com/" },
-  MA: { name: "Massachusetts", plan: "MassHealth", link: "https://www.mass.gov/masshealth" },
-  CT: { name: "Connecticut", plan: "HUSKY Health", link: "https://www.accesshealthct.com/" },
-  VT: { name: "Vermont", plan: "Green Mountain Care", link: "https://portal.healthconnect.vermont.gov/" },
-  MN: { name: "Minnesota", plan: "MinnesotaCare", link: "https://www.mnsure.org/" },
-  NJ: { name: "New Jersey", plan: "NJ FamilyCare", link: "https://www.njfamilycare.org/" },
-  MD: { name: "Maryland", plan: "Maryland Health Connection", link: "https://www.marylandhealthconnection.gov/" },
-  DC: { name: "Washington D.C.", plan: "DC Health Link", link: "https://dchealthlink.com/" },
+const FREE_STATES: Record<string, { name: string; plan: string; link: string; benefits: string[] }> = {
+  NY: { name: "New York", plan: "Essential Plan", link: "https://nystateofhealth.ny.gov/", benefits: ["$0 monthly premium", "No deductible", "Doctor visits covered", "Prescriptions included", "Mental health services", "Dental & vision care"] },
+  CA: { name: "California", plan: "Medi-Cal", link: "https://www.coveredca.com/", benefits: ["$0 monthly premium", "Full medical coverage", "Dental care included", "Vision coverage", "Mental health", "Prescription drugs"] },
+  WA: { name: "Washington", plan: "Apple Health", link: "https://www.wahealthplanfinder.org/", benefits: ["$0 monthly cost", "Doctor & hospital care", "Prescriptions covered", "Mental health services", "Preventive care", "Maternity care"] },
+  OR: { name: "Oregon", plan: "Oregon Health Plan", link: "https://healthcare.oregon.gov/", benefits: ["$0 premium", "Medical care", "Dental services", "Mental health", "Vision care", "Prescription drugs"] },
+  IL: { name: "Illinois", plan: "Medicaid", link: "https://abe.illinois.gov/", benefits: ["$0 monthly cost", "Doctor visits", "Hospital care", "Lab tests", "Prescriptions", "Preventive care"] },
+  CO: { name: "Colorado", plan: "Health First Colorado", link: "https://www.healthfirstcolorado.com/", benefits: ["$0 premium", "Primary care", "Specialist care", "Hospital services", "Prescriptions", "Mental health"] },
+  MA: { name: "Massachusetts", plan: "MassHealth", link: "https://www.mass.gov/masshealth", benefits: ["$0 monthly premium", "Comprehensive medical", "Dental coverage", "Vision care", "Behavioral health", "Prescription drugs"] },
+  CT: { name: "Connecticut", plan: "HUSKY Health", link: "https://www.accesshealthct.com/", benefits: ["$0 premium", "Primary care", "Specialist visits", "Hospital care", "Mental health", "Prescriptions"] },
+  VT: { name: "Vermont", plan: "Green Mountain Care", link: "https://portal.healthconnect.vermont.gov/", benefits: ["$0 monthly cost", "Doctor visits", "Hospital care", "Prescriptions", "Mental health", "Preventive care"] },
+  MN: { name: "Minnesota", plan: "MinnesotaCare", link: "https://www.mnsure.org/", benefits: ["Low-cost coverage", "Doctor visits", "Hospital care", "Prescriptions", "Mental health", "Dental & vision"] },
+  NJ: { name: "New Jersey", plan: "NJ FamilyCare", link: "https://www.njfamilycare.org/", benefits: ["$0 premium option", "Medical care", "Dental services", "Prescriptions", "Mental health", "Hospital care"] },
+  MD: { name: "Maryland", plan: "Maryland Health Connection", link: "https://www.marylandhealthconnection.gov/", benefits: ["Low-cost plans", "Doctor visits", "Prescriptions", "Preventive care", "Mental health", "Hospital services"] },
+  DC: { name: "Washington D.C.", plan: "DC Health Link", link: "https://dchealthlink.com/", benefits: ["Affordable plans", "Primary care", "Specialist visits", "Prescriptions", "Preventive care", "Mental health"] },
+};
+
+// States with partial coverage
+const PARTIAL_STATES: Record<string, { name: string; note: string }> = {
+  PA: { name: "Pennsylvania", note: "Limited Medicaid expansion available" },
+  NV: { name: "Nevada", note: "Some low-cost options through Silver State Health" },
+  NM: { name: "New Mexico", note: "Centennial Care available for some" },
+  RI: { name: "Rhode Island", note: "RIte Care offers limited coverage" },
+  DE: { name: "Delaware", note: "Diamond State Health Plan available" },
+  HI: { name: "Hawaii", note: "Med-QUEST offers some coverage" },
+  ME: { name: "Maine", note: "MaineCare available for qualifying individuals" },
+  MI: { name: "Michigan", note: "Healthy Michigan Plan available" },
+};
+
+// Get state display name
+const STATE_NAMES: Record<string, string> = {
+  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",
+  CO: "Colorado", CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia",
+  HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa",
+  KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland",
+  MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri",
+  MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
+  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio",
+  OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina",
+  SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont",
+  VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
+  DC: "Washington D.C."
 };
 
 // Age-based pricing for insurance partners
-function getAgeBracket(dob: string): { bracket: string; isoPrice: number; isiPrice: number; kimberPrice: number } {
+function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {
   const birthDate = new Date(dob);
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
@@ -33,15 +59,15 @@ function getAgeBracket(dob: string): { bracket: string; isoPrice: number; isiPri
   }
 
   if (age < 25) {
-    return { bracket: "Under 25", isoPrice: 38, isiPrice: 35, kimberPrice: 42 };
+    return { bracket: "Under 25", age, isoPrice: 38, isiPrice: 35, kimberPrice: 42 };
   } else if (age < 30) {
-    return { bracket: "25-29", isoPrice: 52, isiPrice: 48, kimberPrice: 56 };
+    return { bracket: "25-29", age, isoPrice: 52, isiPrice: 48, kimberPrice: 56 };
   } else if (age < 35) {
-    return { bracket: "30-34", isoPrice: 68, isiPrice: 62, kimberPrice: 72 };
+    return { bracket: "30-34", age, isoPrice: 68, isiPrice: 62, kimberPrice: 72 };
   } else if (age < 40) {
-    return { bracket: "35-39", isoPrice: 85, isiPrice: 78, kimberPrice: 89 };
+    return { bracket: "35-39", age, isoPrice: 85, isiPrice: 78, kimberPrice: 89 };
   } else {
-    return { bracket: "40+", isoPrice: 105, isiPrice: 98, kimberPrice: 115 };
+    return { bracket: "40+", age, isoPrice: 105, isiPrice: 98, kimberPrice: 115 };
   }
 }
 
@@ -56,10 +82,13 @@ function ResultsContent() {
   const visa = searchParams.get("visa") || "";
   const dob = searchParams.get("dob") || "";
 
-  const stateName = FREE_STATES[state]?.name || state;
+  const stateName = STATE_NAMES[state] || state;
   const freeState = FREE_STATES[state];
+  const partialState = PARTIAL_STATES[state];
   const pricing = getAgeBracket(dob);
   const isLowIncome = income < 2500;
+  const isEligibleForFree = freeState && isLowIncome;
+  const isPartialEligible = partialState && isLowIncome;
 
   const handleApply = (url: string) => {
     setExitUrl(url);
@@ -75,204 +104,267 @@ function ResultsContent() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
       <div className="border-b border-slate-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-4">
+        <div className="max-w-6xl mx-auto px-4 py-3">
           <button
             onClick={() => router.back()}
             className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back to eligibility</span>
+            <span className="text-sm font-medium">Back</span>
           </button>
         </div>
       </div>
 
       {/* Title */}
-      <div className="max-w-5xl mx-auto px-4 pt-8 pb-6">
+      <div className="max-w-6xl mx-auto px-4 pt-6 pb-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
           Your Recommended Plans
         </h1>
-        <p className="text-slate-600 mt-2">
-          Based on your location ({stateName}), age ({pricing.bracket}), and visa ({visa})
+        <p className="text-slate-600 mt-1 text-sm">
+          {stateName} • Age {pricing.age} ({pricing.bracket}) • {visa}
         </p>
       </div>
 
       {/* Plans Grid */}
-      <div className="max-w-5xl mx-auto px-4 pb-12">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="max-w-6xl mx-auto px-4 pb-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          {/* State Plan Card - Only show if eligible */}
-          {freeState && isLowIncome && (
-            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border-2 border-emerald-200 p-5 relative overflow-hidden">
+          {/* STATE ELIGIBILITY CARD - Always show first */}
+          {isEligibleForFree ? (
+            /* FREE State Plan Card */
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border-2 border-emerald-200 p-5 relative">
               <div className="absolute top-3 right-3">
-                <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                <span className="bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                   FREE
                 </span>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
-                <Building2 className="w-6 h-6 text-emerald-600" />
+              <div className="w-11 h-11 bg-emerald-100 rounded-xl flex items-center justify-center mb-3">
+                <Building2 className="w-5 h-5 text-emerald-600" />
               </div>
-              <h3 className="font-bold text-slate-900 text-lg">{freeState.plan}</h3>
-              <p className="text-sm text-slate-600 mt-1">State of {freeState.name}</p>
+              <h3 className="font-bold text-slate-900">{freeState.plan}</h3>
+              <p className="text-xs text-slate-500 mt-0.5">{freeState.name}</p>
               
-              <div className="mt-4">
-                <span className="text-3xl font-bold text-emerald-600">$0</span>
-                <span className="text-slate-500 text-sm">/month</span>
+              <div className="mt-3">
+                <span className="text-2xl font-bold text-emerald-600">$0</span>
+                <span className="text-slate-500 text-sm">/mo</span>
               </div>
 
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2 text-sm text-slate-700">
-                  <Check className="w-4 h-4 text-emerald-500" />
-                  Full medical coverage
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-700">
-                  <Check className="w-4 h-4 text-emerald-500" />
-                  Dental & vision
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-700">
-                  <Check className="w-4 h-4 text-emerald-500" />
-                  Prescriptions included
-                </div>
+              <div className="mt-3 space-y-1.5">
+                {freeState.benefits.slice(0, 4).map((benefit, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs text-slate-700">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                    {benefit}
+                  </div>
+                ))}
               </div>
 
               <button
                 onClick={() => handleApply(freeState.link)}
-                className="w-full mt-5 h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                className="w-full mt-4 h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
               >
                 Apply Now
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-3.5 h-3.5" />
               </button>
+            </div>
+          ) : isPartialEligible ? (
+            /* Partial Coverage Card */
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl border-2 border-amber-200 p-5 relative">
+              <div className="absolute top-3 right-3">
+                <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                  PARTIAL
+                </span>
+              </div>
+              <div className="w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center mb-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
+              </div>
+              <h3 className="font-bold text-slate-900">Limited State Coverage</h3>
+              <p className="text-xs text-slate-500 mt-0.5">{partialState.name}</p>
+              
+              <div className="mt-3">
+                <span className="text-lg font-semibold text-amber-700">May Qualify</span>
+              </div>
+
+              <p className="mt-3 text-xs text-slate-600 leading-relaxed">
+                {partialState.note}. Check your state's marketplace for eligibility requirements.
+              </p>
+
+              <div className="mt-3 p-2.5 bg-amber-100/50 rounded-lg">
+                <p className="text-xs text-amber-800">
+                  💡 We recommend checking partner plans below for guaranteed coverage.
+                </p>
+              </div>
+            </div>
+          ) : (
+            /* Not Eligible Card */
+            <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl border-2 border-slate-200 p-5 relative">
+              <div className="absolute top-3 right-3">
+                <span className="bg-slate-400 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                  N/A
+                </span>
+              </div>
+              <div className="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center mb-3">
+                <X className="w-5 h-5 text-slate-400" />
+              </div>
+              <h3 className="font-bold text-slate-900">No Free State Plan</h3>
+              <p className="text-xs text-slate-500 mt-0.5">{stateName}</p>
+              
+              <div className="mt-3">
+                <span className="text-lg font-semibold text-slate-500">Not Available</span>
+              </div>
+
+              <p className="mt-3 text-xs text-slate-600 leading-relaxed">
+                Your state doesn't offer free health insurance for international students or OPT workers.
+              </p>
+
+              <div className="mt-3 p-2.5 bg-blue-50 rounded-lg">
+                <p className="text-xs text-blue-700">
+                  ✨ Don't worry! Check our partner plans for affordable coverage starting at ${Math.min(pricing.isoPrice, pricing.isiPrice, pricing.kimberPrice)}/mo.
+                </p>
+              </div>
             </div>
           )}
 
           {/* ISO Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-blue-200 transition-all">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
-              <span className="text-white font-bold">ISO</span>
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-[#8B1538]/30 transition-all">
+            {/* ISO Logo */}
+            <div className="flex items-center gap-0.5 mb-3">
+              <span className="text-xl font-bold text-[#8B1538]">IS</span>
+              <div className="w-5 h-5 rounded-full bg-[#8B1538] flex items-center justify-center">
+                <div className="w-1.5 h-1.5 bg-white rounded-full" />
+              </div>
             </div>
-            <h3 className="font-bold text-slate-900 text-lg">ISO OPTima</h3>
-            <p className="text-sm text-slate-600 mt-1">International Student Insurance</p>
+            <h3 className="font-bold text-slate-900">ISO OPTima Plan</h3>
+            <p className="text-xs text-slate-500 mt-0.5">International Student Insurance</p>
             
-            <div className="mt-4">
-              <span className="text-3xl font-bold text-slate-900">${pricing.isoPrice}</span>
-              <span className="text-slate-500 text-sm">/month</span>
+            <div className="mt-3">
+              <span className="text-2xl font-bold text-slate-900">${pricing.isoPrice}</span>
+              <span className="text-slate-500 text-sm">/mo</span>
             </div>
 
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <Check className="w-4 h-4 text-blue-500" />
-                OPT & F-1 eligible
+            <div className="mt-3 space-y-1.5">
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-[#8B1538] flex-shrink-0" />
+                OPT, CPT & F-1 eligible
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <Check className="w-4 h-4 text-blue-500" />
-                Aetna network
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-[#8B1538] flex-shrink-0" />
+                Aetna PPO network
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <Check className="w-4 h-4 text-blue-500" />
-                University waiver
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-[#8B1538] flex-shrink-0" />
+                University waiver approved
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-[#8B1538] flex-shrink-0" />
+                Prescription coverage
               </div>
             </div>
 
             <button
               onClick={() => handleApply("https://www.isoa.org/")}
-              className="w-full mt-5 h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-4 h-10 bg-[#8B1538] hover:bg-[#6d1029] text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
             >
               View Plans
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* ISI Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-purple-200 transition-all">
-            <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center mb-4">
-              <span className="text-white font-bold text-sm">ISI</span>
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-[#3D4F8F]/30 transition-all">
+            {/* ISI Logo */}
+            <div className="w-11 h-11 bg-[#3D4F8F] rounded-lg flex items-center justify-center mb-3 shadow-sm">
+              <span className="text-white font-bold">ISI</span>
             </div>
-            <h3 className="font-bold text-slate-900 text-lg">ISI Student Health</h3>
-            <p className="text-sm text-slate-600 mt-1">Student Health Insurance</p>
+            <h3 className="font-bold text-slate-900">ISI Student Health</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Student Health Insurance</p>
             
-            <div className="mt-4">
-              <span className="text-3xl font-bold text-slate-900">${pricing.isiPrice}</span>
-              <span className="text-slate-500 text-sm">/month</span>
+            <div className="mt-3">
+              <span className="text-2xl font-bold text-slate-900">${pricing.isiPrice}</span>
+              <span className="text-slate-500 text-sm">/mo</span>
             </div>
 
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <Check className="w-4 h-4 text-purple-500" />
-                United Healthcare
+            <div className="mt-3 space-y-1.5">
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-[#3D4F8F] flex-shrink-0" />
+                United Healthcare network
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <Check className="w-4 h-4 text-purple-500" />
-                Mental health covered
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-[#3D4F8F] flex-shrink-0" />
+                Mental health included
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <Check className="w-4 h-4 text-purple-500" />
-                Telemedicine included
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-[#3D4F8F] flex-shrink-0" />
+                Telemedicine 24/7
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-[#3D4F8F] flex-shrink-0" />
+                Emergency coverage
               </div>
             </div>
 
             <button
               onClick={() => handleApply("https://www.isistudentinsurance.com/")}
-              className="w-full mt-5 h-11 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-4 h-10 bg-[#3D4F8F] hover:bg-[#2d3a6b] text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
             >
               View Plans
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Kimber Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-emerald-200 transition-all">
-            <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center mb-4">
-              <Shield className="w-6 h-6 text-white" />
+          {/* Kimber Health Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-cyan-300 transition-all">
+            {/* Kimber Health Logo */}
+            <div className="flex items-center gap-2 mb-3">
+              <div className="relative w-8 h-8">
+                <div className="absolute top-0 left-1 w-5 h-1 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-sm transform -rotate-45" />
+                <div className="absolute bottom-0 left-0 w-5 h-5 border-l-[3px] border-t-[3px] border-cyan-500 rounded-tl-md" />
+              </div>
+              <div className="flex flex-col -space-y-0.5">
+                <span className="font-bold text-sm text-slate-800">Kimber</span>
+                <span className="font-bold text-sm text-cyan-600">Health<sup className="text-[8px]">®</sup></span>
+              </div>
             </div>
-            <h3 className="font-bold text-slate-900 text-lg">Kimber Health</h3>
-            <p className="text-sm text-slate-600 mt-1">Comprehensive Coverage</p>
+            <h3 className="font-bold text-slate-900">Kimber Essential</h3>
+            <p className="text-xs text-slate-500 mt-0.5">by NYWPG</p>
             
-            <div className="mt-4">
-              <span className="text-3xl font-bold text-slate-900">${pricing.kimberPrice}</span>
-              <span className="text-slate-500 text-sm">/month</span>
+            <div className="mt-3">
+              <span className="text-2xl font-bold text-slate-900">${pricing.kimberPrice}</span>
+              <span className="text-slate-500 text-sm">/mo</span>
             </div>
 
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <Check className="w-4 h-4 text-emerald-500" />
+            <div className="mt-3 space-y-1.5">
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-cyan-600 flex-shrink-0" />
                 No waiting period
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <Check className="w-4 h-4 text-emerald-500" />
-                Preventive care
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-cyan-600 flex-shrink-0" />
+                Preventive care covered
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <Check className="w-4 h-4 text-emerald-500" />
-                24/7 support
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-cyan-600 flex-shrink-0" />
+                24/7 customer support
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-700">
+                <Check className="w-3.5 h-3.5 text-cyan-600 flex-shrink-0" />
+                Vision & dental options
               </div>
             </div>
 
             <button
               onClick={() => handleApply("https://www.kimberhealth.com/")}
-              className="w-full mt-5 h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-4 h-10 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
             >
               View Plans
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
-        {/* No free state notice */}
-        {(!freeState || !isLowIncome) && (
-          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-            <p className="text-sm text-amber-800">
-              {!freeState 
-                ? `Your state (${stateName}) doesn't offer free state-funded insurance for international students. Consider the partner plans above.`
-                : `Based on your income ($${income.toLocaleString()}/month), you may not qualify for free state coverage. Check the partner plans above.`
-              }
-            </p>
-          </div>
-        )}
-
         {/* Pricing Disclaimer */}
-        <div className="mt-8 text-center">
+        <div className="mt-6 text-center">
           <p className="text-xs text-slate-400">
-            * Prices shown are estimates based on your age ({pricing.bracket}). Actual prices may vary depending on 
-            specific plan details and our partners' latest rates. Click on a plan for exact pricing.
+            * Prices are estimates for age {pricing.age} ({pricing.bracket}). Actual prices may vary based on your specific details and our partners' latest rates.
           </p>
         </div>
       </div>

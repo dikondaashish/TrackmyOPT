@@ -125,7 +125,7 @@ export default function HealthInsuranceFinderPage() {
       {/* Hero */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-cyan-500/5" />
-        <div className="max-w-5xl mx-auto px-4 pt-12 pb-8 sm:pt-16 sm:pb-12">
+        <div className="max-w-5xl mx-auto px-4 pt-6 pb-6 sm:pt-8 sm:pb-8">
           <div className="text-center">
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
@@ -202,7 +202,7 @@ export default function HealthInsuranceFinderPage() {
                 min="0"
                 className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
-              <p className="text-xs text-slate-500 mt-1.5">Enter 0 if unpaid internship or unemployed</p>
+              <p className="text-xs text-slate-500 mt-1.5">If you are doing an internship or voluntary job and not getting paid, enter 0</p>
             </div>
 
             {/* Visa */}
@@ -292,24 +292,31 @@ export default function HealthInsuranceFinderPage() {
       <div className="border-t border-slate-100 bg-slate-50/50">
         <div className="max-w-4xl mx-auto px-4 py-12">
           <p className="text-center text-sm text-slate-500 mb-6">Our Trusted Partners</p>
-          <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12">
-            <div className="flex items-center gap-2 text-slate-700">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">ISO</span>
+          <div className="flex flex-wrap justify-center items-center gap-10 sm:gap-16">
+            {/* ISO Logo */}
+            <div className="flex items-center gap-1">
+              <span className="text-2xl font-bold text-[#8B1538]">IS</span>
+              <div className="w-6 h-6 relative">
+                <div className="w-6 h-6 rounded-full bg-[#8B1538] flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                </div>
               </div>
-              <span className="font-semibold">ISO Insurance</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-700">
-              <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
+            {/* Kimber Health Logo */}
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col">
+                <div className="w-8 h-1.5 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-sm transform -rotate-45 translate-x-1" />
+                <div className="w-6 h-6 border-l-4 border-t-4 border-gradient-to-b from-cyan-400 to-blue-500 rounded-tl-lg" style={{borderColor: '#0891b2'}} />
               </div>
-              <span className="font-semibold">Kimber Health</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg text-slate-800">Kimber</span>
+                <span className="font-bold text-lg text-[#0891b2] -mt-1">Health<sup className="text-xs">®</sup></span>
+                <span className="text-[10px] text-slate-500 -mt-0.5">by NYWPG</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-slate-700">
-              <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">ISI</span>
-              </div>
-              <span className="font-semibold">ISI Student</span>
+            {/* ISI Logo */}
+            <div className="w-12 h-12 bg-[#3D4F8F] rounded-lg flex items-center justify-center shadow-md">
+              <span className="text-white font-bold text-lg">ISI</span>
             </div>
           </div>
         </div>
