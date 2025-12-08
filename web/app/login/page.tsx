@@ -44,6 +44,7 @@ function LoginPageContent() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   // Password validation
   const validatePassword = (pwd: string) => ({
@@ -883,9 +884,45 @@ function LoginPageContent() {
                 </div>
               </div>
 
+              {/* Terms and Privacy Policy Agreement */}
+              <div className="flex items-start gap-3">
+                <div className="flex items-center h-5 mt-0.5">
+                  <input
+                    id="terms-checkbox"
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    disabled={loading}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+                <label htmlFor="terms-checkbox" className="text-sm text-gray-600 cursor-pointer select-none">
+                  I agree to the{' '}
+                  <a 
+                    href="/privacy" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Privacy Policy
+                  </a>
+                  {' '}and{' '}
+                  <a 
+                    href="/terms" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Terms & Conditions
+                  </a>
+                </label>
+              </div>
+
               <button
                 type="submit"
-                disabled={loading || !isPasswordValid}
+                disabled={loading || !isPasswordValid || !agreedToTerms}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
               >
                 {loading ? 'Creating account...' : 'Create Account'}
@@ -901,19 +938,12 @@ function LoginPageContent() {
                       setError(null);
                       setPassword('');
                       setConfirmPassword('');
+                      setAgreedToTerms(false);
                     }}
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
                     sign in
                   </button>
-                </p>
-              </div>
-
-              <div className="text-center mt-4">
-                <p className="text-xs text-gray-500">
-                  <a href="/privacy" className="hover:text-blue-600">Privacy Policy</a>
-                  {' · '}
-                  <a href="/terms" className="hover:text-blue-600">Terms & Conditions</a>
                 </p>
               </div>
             </form>
