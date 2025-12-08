@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/jwt';
+import { sendEnrollmentEmail } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -174,6 +175,50 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check if this is a new case enrollment (first time saving)
+    // If caseStatus was just created (no previous current_status), send enrollment email
+    const isNewEnrollment = notifications_enabled && !caseStatus?.current_status;
+    
+    if (isNewEnrollment) {
+      console.log(`📧 Case status enrollment - Receipt: ${receipt_number}, Notifications: ${notifications_enabled}`);
+      
+      // Get user's email and name from profiles
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('first_name')
+        .eq('user_id', userId)
+        .single();
+      
+      const { data: authUser } = await supabaseAdmin
+        .from('auth.users')
+        .select('email')
+        .eq('id', userId)
+        .single();
+      
+      // Try to get email from auth.users table directly
+      const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+      const userEmail = userData?.user?.email;
+      
+      if (userEmail) {
+        const firstName = profile?.first_name || 'there';
+        
+        console.log(`📤 Sending case-status enrollment email to ${userEmail}`);
+        
+        try {
+          const result = await sendEnrollmentEmail(userEmail, firstName, 'case-status');
+          if (result.success) {
+            console.log(`✅ Case status enrollment email sent successfully to ${userEmail}`);
+          } else {
+            console.error(`❌ Failed to send case-status enrollment email:`, result.error);
+          }
+        } catch (err) {
+          console.error(`❌ Case-status enrollment email error:`, err);
+        }
+      } else {
+        console.log(`⚠️ Could not find user email for case-status enrollment`);
+      }
+    }
+
     // Trigger immediate status check (async, don't wait)
     fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/check`, {
       method: 'POST',
@@ -187,7 +232,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(
-      { ok: true, data: caseStatus },
+      { ok: true, data: caseStatus, enrollmentEmailSent: isNewEnrollment },
       { status: 200, headers: corsHeaders }
     );
   } catch (error) {

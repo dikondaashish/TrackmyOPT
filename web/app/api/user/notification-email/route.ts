@@ -168,19 +168,26 @@ export async function POST(request: Request) {
     }
 
     // Send enrollment confirmation email if this is a new enrollment
+    console.log(`📧 Notification email save - Email: ${email}, PreviousEmail: ${previousEmail}, IsNewEnrollment: ${isNewEnrollment}`);
+    
     if (isNewEnrollment) {
       const firstName = existingProfile?.first_name || 'there';
       
-      // Send enrollment email asynchronously
-      sendEnrollmentEmail(email, firstName, 'documents')
-        .then(result => {
-          if (result.success) {
-            console.log(`✅ Document reminder enrollment email sent to ${email}`);
-          } else {
-            console.error(`❌ Failed to send enrollment email:`, result.error);
-          }
-        })
-        .catch(err => console.error('Enrollment email error:', err));
+      console.log(`📤 Sending document reminder enrollment email to ${email}`);
+      
+      // Send enrollment email and wait for result
+      try {
+        const result = await sendEnrollmentEmail(email, firstName, 'documents');
+        if (result.success) {
+          console.log(`✅ Document reminder enrollment email sent successfully to ${email}`);
+        } else {
+          console.error(`❌ Failed to send document enrollment email:`, result.error);
+        }
+      } catch (err) {
+        console.error(`❌ Document enrollment email error:`, err);
+      }
+    } else {
+      console.log(`ℹ️ Skipping enrollment email - not a new enrollment for documents`);
     }
 
     return NextResponse.json({
