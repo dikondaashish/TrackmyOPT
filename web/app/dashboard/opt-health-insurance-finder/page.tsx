@@ -1,638 +1,326 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Shield, ChevronDown, ChevronRight, Sparkles, CreditCard, Clock, CheckCircle2 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
+import Image from "next/image";
 
 // US States
-const STATES = [
-  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
-  "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
-  "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
-  "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
-  "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
-  "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
-  "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "Washington D.C."
+const US_STATES = [
+  { value: "", label: "Select your state" },
+  { value: "AL", label: "Alabama" }, { value: "AK", label: "Alaska" }, { value: "AZ", label: "Arizona" },
+  { value: "AR", label: "Arkansas" }, { value: "CA", label: "California" }, { value: "CO", label: "Colorado" },
+  { value: "CT", label: "Connecticut" }, { value: "DE", label: "Delaware" }, { value: "FL", label: "Florida" },
+  { value: "GA", label: "Georgia" }, { value: "HI", label: "Hawaii" }, { value: "ID", label: "Idaho" },
+  { value: "IL", label: "Illinois" }, { value: "IN", label: "Indiana" }, { value: "IA", label: "Iowa" },
+  { value: "KS", label: "Kansas" }, { value: "KY", label: "Kentucky" }, { value: "LA", label: "Louisiana" },
+  { value: "ME", label: "Maine" }, { value: "MD", label: "Maryland" }, { value: "MA", label: "Massachusetts" },
+  { value: "MI", label: "Michigan" }, { value: "MN", label: "Minnesota" }, { value: "MS", label: "Mississippi" },
+  { value: "MO", label: "Missouri" }, { value: "MT", label: "Montana" }, { value: "NE", label: "Nebraska" },
+  { value: "NV", label: "Nevada" }, { value: "NH", label: "New Hampshire" }, { value: "NJ", label: "New Jersey" },
+  { value: "NM", label: "New Mexico" }, { value: "NY", label: "New York" }, { value: "NC", label: "North Carolina" },
+  { value: "ND", label: "North Dakota" }, { value: "OH", label: "Ohio" }, { value: "OK", label: "Oklahoma" },
+  { value: "OR", label: "Oregon" }, { value: "PA", label: "Pennsylvania" }, { value: "RI", label: "Rhode Island" },
+  { value: "SC", label: "South Carolina" }, { value: "SD", label: "South Dakota" }, { value: "TN", label: "Tennessee" },
+  { value: "TX", label: "Texas" }, { value: "UT", label: "Utah" }, { value: "VT", label: "Vermont" },
+  { value: "VA", label: "Virginia" }, { value: "WA", label: "Washington" }, { value: "WV", label: "West Virginia" },
+  { value: "WI", label: "Wisconsin" }, { value: "WY", label: "Wyoming" }, { value: "DC", label: "Washington D.C." },
 ];
 
-const STATE_CODES: Record<string, string> = {
-  "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
-  "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA",
-  "Hawaii": "HI", "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS",
-  "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD", "Massachusetts": "MA",
-  "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS", "Missouri": "MO", "Montana": "MT",
-  "Nebraska": "NE", "Nevada": "NV", "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM",
-  "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK",
-  "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
-  "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT", "Vermont": "VT",
-  "Virginia": "VA", "Washington": "WA", "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY",
-  "Washington D.C.": "DC"
-};
-
-const FREE_STATES = ["NY", "CA", "OR", "WA", "IL", "CO", "MA", "CT", "VT", "MN", "NJ", "MD", "DC"];
-const PARTIAL_STATES = ["PA", "NM", "NV", "RI", "DE", "HI", "ME", "MI", "NH", "OH", "VA", "WI"];
-
-const VISA_OPTIONS = ["F-1", "OPT", "STEM OPT", "J-1", "Other"];
-
-interface Plan {
-  name: string;
-  price: string;
-  type: "free" | "low" | "standard";
-  features: string[];
-  highlight?: string;
-  url: string;
-}
-
-const STATE_PLANS: Record<string, Plan[]> = {
-  NY: [{
-    name: "Essential Plan",
-    price: "$0",
-    type: "free",
-    features: ["Doctor visits", "Prescriptions", "Emergency care", "Mental health"],
-    highlight: "No cost coverage",
-    url: "https://nystateofhealth.ny.gov/"
-  }],
-  CA: [{
-    name: "Medi-Cal",
-    price: "$0",
-    type: "free",
-    features: ["Full medical", "Dental & vision", "Mental health", "Prescriptions"],
-    highlight: "Comprehensive coverage",
-    url: "https://www.coveredca.com/"
-  }],
-  WA: [{
-    name: "Apple Health",
-    price: "$0",
-    type: "free",
-    features: ["Doctor visits", "Hospital care", "Prescriptions", "Preventive care"],
-    url: "https://www.wahealthplanfinder.org/"
-  }],
-  OR: [{
-    name: "Oregon Health Plan",
-    price: "$0",
-    type: "free",
-    features: ["Medical care", "Dental", "Vision", "Mental health"],
-    url: "https://healthcare.oregon.gov/"
-  }],
-};
-
-const PRIVATE_PLANS: Plan[] = [
-  {
-    name: "ISO OPTima",
-    price: "$38",
-    type: "low",
-    features: ["OPT eligible", "Aetna network", "Easy enrollment"],
-    highlight: "Most popular",
-    url: "https://www.isoa.org/"
-  },
-  {
-    name: "Student Medicover",
-    price: "$35",
-    type: "low",
-    features: ["Budget friendly", "Quick approval", "No waiting"],
-    url: "https://www.studentmedicover.com/"
-  },
-  {
-    name: "ISI Health",
-    price: "$45",
-    type: "standard",
-    features: ["Comprehensive", "United network", "Telemedicine"],
-    url: "https://www.isistudentinsurance.com/"
-  },
+const VISA_TYPES = [
+  { value: "", label: "Select visa type" },
+  { value: "F-1", label: "F-1" },
+  { value: "OPT", label: "OPT" },
+  { value: "STEM-OPT", label: "STEM OPT" },
+  { value: "J-1", label: "J-1" },
+  { value: "Other", label: "Other" },
 ];
 
-const FAQ = [
-  { q: "Why do I need health insurance?", a: "US healthcare is expensive. A single ER visit can cost $5,000+. Insurance protects you financially." },
-  { q: "What's a deductible?", a: "The amount you pay before insurance kicks in. Lower deductible = higher monthly cost." },
-  { q: "Is insurance required for OPT?", a: "Not legally required, but strongly recommended. Some employers may require it." },
-  { q: "When does school insurance end?", a: "Usually 30-60 days after graduation. Plan ahead to avoid gaps." },
+const FAQ_ITEMS = [
+  {
+    q: "Why should I buy health insurance?",
+    a: "Healthcare in the US is extremely expensive. A single ER visit can cost $3,000-$10,000+. Insurance protects you from unexpected medical bills and ensures you can access quality healthcare when needed."
+  },
+  {
+    q: "Can I get a plan without SSN?",
+    a: "Yes! No SSN is required. International students and OPT workers can enroll using their passport and visa documents. The process is simple and straightforward."
+  },
+  {
+    q: "How quickly can I get coverage?",
+    a: "Get your digital health card instantly after payment confirmation. Coverage can start as early as the next day depending on the plan you choose."
+  },
+  {
+    q: "What is a university waiver?",
+    a: "Many universities require health insurance. If you purchase a qualifying plan, you can waive the school's expensive insurance. Our partner plans are designed to meet most university requirements."
+  },
+  {
+    q: "What if my university doesn't accept my plan?",
+    a: "Contact your school's health center with your plan details. Most plans from our partners meet university requirements. If not accepted, many partners offer full refunds."
+  },
+  {
+    q: "Does OPT require health insurance?",
+    a: "While not legally required, it's strongly recommended. Without insurance, a medical emergency could result in thousands of dollars in debt. Many employers also expect you to have coverage."
+  },
+  {
+    q: "When does my school insurance end?",
+    a: "Typically 30-60 days after graduation. Plan ahead to avoid coverage gaps—apply for new insurance before your school plan expires."
+  },
+  {
+    q: "Can I get free insurance in my state?",
+    a: "Some states like NY, CA, WA, OR offer free or low-cost plans for low-income residents regardless of immigration status. Use our checker above to see if you qualify!"
+  }
 ];
 
-export default function HealthInsurancePage() {
-  const [step, setStep] = useState(0);
+export default function HealthInsuranceFinderPage() {
+  const router = useRouter();
   const [state, setState] = useState("");
-  const [income, setIncome] = useState("");
-  const [visa, setVisa] = useState("");
-  const [dob, setDob] = useState("");
-  const [hasEmployer, setHasEmployer] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [exitModal, setExitModal] = useState<string | null>(null);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  
-  const resultsRef = useRef<HTMLDivElement>(null);
+  const [monthlyIncome, setMonthlyIncome] = useState("");
+  const [visaType, setVisaType] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  const stateCode = STATE_CODES[state] || "";
-  const eligibility = hasEmployer ? "employer" : FREE_STATES.includes(stateCode) ? "free" : PARTIAL_STATES.includes(stateCode) ? "partial" : "none";
+  const canSubmit = state && visaType && dateOfBirth;
 
-  const handleSubmit = async () => {
-    setLoading(true);
+  const handleShowResults = async () => {
+    if (!canSubmit) return;
+    
+    setIsLoading(true);
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      
       await supabase.from("insurance_eligibility_checks").insert({
         user_id: user?.id || null,
-        state: stateCode,
-        monthly_income: income ? parseFloat(income) : 0,
-        visa_type: visa,
-        date_of_birth: dob || null,
-        has_employer_insurance: hasEmployer,
+        state,
+        monthly_income: monthlyIncome ? parseFloat(monthlyIncome) : 0,
+        visa_type: visaType,
+        date_of_birth: dateOfBirth || null,
+        has_employer_insurance: false,
+        checked_at: new Date().toISOString(),
       });
-    } catch (e) { console.error(e); }
+    } catch (error) {
+      console.error("Error saving:", error);
+    }
+
+    // Navigate to results page with query params
+    const params = new URLSearchParams({
+      state,
+      income: monthlyIncome || "0",
+      visa: visaType,
+      dob: dateOfBirth,
+    });
     
-    setLoading(false);
-    setShowResults(true);
-    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-  };
-
-  const handleApply = (url: string) => setExitModal(url);
-
-  const formatIncome = (value: string) => {
-    const num = value.replace(/[^0-9]/g, "");
-    return num ? Number(num).toLocaleString() : "";
+    router.push(`/dashboard/opt-health-insurance-finder/results?${params.toString()}`);
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7]">
-      {/* Hero - Clean & Minimal */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-3xl mx-auto px-6 py-16 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 mb-6">
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* Hero */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-cyan-500/5" />
+        <div className="max-w-5xl mx-auto px-4 pt-12 pb-8 sm:pt-16 sm:pb-12">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              Free plans available in select states
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight mb-4">
+              Get Health Insurance
+              <span className="block text-blue-600">Starting from $0/month</span>
+            </h1>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Find affordable coverage based on your state and eligibility. No SSN required.
+            </p>
           </div>
-          <h1 className="text-4xl font-semibold text-gray-900 tracking-tight mb-3">
-            Health Insurance for OPT Students
-          </h1>
-          <p className="text-lg text-gray-500 max-w-xl mx-auto">
-            Find free or low-cost insurance options based on your state and income
-          </p>
-        </div>
-      </div>
 
-      {/* Form Section */}
-      <div className="max-w-2xl mx-auto px-6 py-12">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          {/* Progress */}
-          <div className="px-8 pt-8">
-            <div className="flex items-center gap-2 mb-8">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
-                    i <= step ? "bg-blue-500" : "bg-gray-200"
-                  }`}
-                />
-              ))}
+          {/* Benefits */}
+          <div className="flex flex-wrap justify-center gap-6 mt-10">
+            <div className="flex items-center gap-2 text-slate-700">
+              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+              </div>
+              <span className="text-sm font-medium">No SSN Required</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-700">
+              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <CreditCard className="w-4 h-4 text-blue-600" />
+              </div>
+              <span className="text-sm font-medium">Instant Digital Card</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-700">
+              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                <Clock className="w-4 h-4 text-purple-600" />
+              </div>
+              <span className="text-sm font-medium">Coverage in 24hrs</span>
             </div>
           </div>
-
-          <div className="px-8 pb-8">
-            <AnimatePresence mode="wait">
-              {/* Step 0: State */}
-              {step === 0 && (
-                <motion.div
-                  key="state"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div>
-                    <h2 className="text-xl font-medium text-gray-900 mb-1">Where do you live?</h2>
-                    <p className="text-sm text-gray-500">Some states offer free health coverage</p>
-                  </div>
-                  <div className="relative">
-                    <select
-                      value={state}
-                      onChange={(e) => setState(e.target.value)}
-                      className="w-full h-14 px-4 rounded-xl border border-gray-300 bg-white text-gray-900 text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-                    >
-                      <option value="">Select state</option>
-                      {STATES.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                    <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                  <button
-                    onClick={() => setStep(1)}
-                    disabled={!state}
-                    className="w-full h-14 bg-blue-500 text-white rounded-xl font-medium text-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
-                  >
-                    Continue
-                  </button>
-                </motion.div>
-              )}
-
-              {/* Step 1: Income */}
-              {step === 1 && (
-                <motion.div
-                  key="income"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div>
-                    <h2 className="text-xl font-medium text-gray-900 mb-1">Monthly income</h2>
-                    <p className="text-sm text-gray-500">Unpaid internship? Enter 0</p>
-                  </div>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">$</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={income}
-                      onChange={(e) => setIncome(formatIncome(e.target.value))}
-                      placeholder="0"
-                      className="w-full h-14 pl-8 pr-4 rounded-xl border border-gray-300 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setStep(0)}
-                      className="h-14 px-6 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={() => setStep(2)}
-                      className="flex-1 h-14 bg-blue-500 text-white rounded-xl font-medium text-lg hover:bg-blue-600 transition-colors"
-                    >
-                      Continue
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Step 2: Visa */}
-              {step === 2 && (
-                <motion.div
-                  key="visa"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div>
-                    <h2 className="text-xl font-medium text-gray-900 mb-1">Visa type</h2>
-                    <p className="text-sm text-gray-500">Select your current immigration status</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {VISA_OPTIONS.map((v) => (
-                      <button
-                        key={v}
-                        onClick={() => setVisa(v)}
-                        className={`h-14 rounded-xl font-medium transition-all ${
-                          visa === v
-                            ? "bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        {v}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setStep(1)}
-                      className="h-14 px-6 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={() => setStep(3)}
-                      disabled={!visa}
-                      className="flex-1 h-14 bg-blue-500 text-white rounded-xl font-medium text-lg disabled:opacity-40 hover:bg-blue-600 transition-colors"
-                    >
-                      Continue
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Step 3: DOB */}
-              {step === 3 && (
-                <motion.div
-                  key="dob"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div>
-                    <h2 className="text-xl font-medium text-gray-900 mb-1">Date of birth</h2>
-                    <p className="text-sm text-gray-500">Some plans have age requirements</p>
-                  </div>
-                  <input
-                    type="date"
-                    value={dob}
-                    onChange={(e) => setDob(e.target.value)}
-                    className="w-full h-14 px-4 rounded-xl border border-gray-300 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-                  />
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setStep(2)}
-                      className="h-14 px-6 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={() => setStep(4)}
-                      className="flex-1 h-14 bg-blue-500 text-white rounded-xl font-medium text-lg hover:bg-blue-600 transition-colors"
-                    >
-                      Continue
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Step 4: Employer Insurance */}
-              {step === 4 && (
-                <motion.div
-                  key="employer"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div>
-                    <h2 className="text-xl font-medium text-gray-900 mb-1">Employer insurance?</h2>
-                    <p className="text-sm text-gray-500">Does your employer offer health coverage?</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => setHasEmployer(true)}
-                      className={`h-14 rounded-xl font-medium transition-all ${
-                        hasEmployer === true
-                          ? "bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      Yes
-                    </button>
-                    <button
-                      onClick={() => setHasEmployer(false)}
-                      className={`h-14 rounded-xl font-medium transition-all ${
-                        hasEmployer === false
-                          ? "bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      No
-                    </button>
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setStep(3)}
-                      className="h-14 px-6 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={handleSubmit}
-                      disabled={hasEmployer === null || loading}
-                      className="flex-1 h-14 bg-blue-500 text-white rounded-xl font-medium text-lg disabled:opacity-40 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
-                    >
-                      {loading ? (
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        "See Results"
-                      )}
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
         </div>
       </div>
 
-      {/* Results */}
-      <AnimatePresence>
-        {showResults && (
-          <motion.div
-            ref={resultsRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto px-6 pb-12"
-          >
-            {/* Status Card */}
-            <div className={`rounded-2xl p-6 mb-6 ${
-              eligibility === "employer" ? "bg-blue-50 border border-blue-200" :
-              eligibility === "free" ? "bg-green-50 border border-green-200" :
-              eligibility === "partial" ? "bg-amber-50 border border-amber-200" :
-              "bg-gray-100 border border-gray-200"
-            }`}>
-              <div className="flex items-start gap-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  eligibility === "employer" ? "bg-blue-100" :
-                  eligibility === "free" ? "bg-green-100" :
-                  eligibility === "partial" ? "bg-amber-100" :
-                  "bg-gray-200"
-                }`}>
-                  {eligibility === "free" ? (
-                    <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : eligibility === "employer" ? (
-                    <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  )}
-                </div>
-                <div>
-                  <h3 className={`font-semibold text-lg ${
-                    eligibility === "employer" ? "text-blue-900" :
-                    eligibility === "free" ? "text-green-900" :
-                    eligibility === "partial" ? "text-amber-900" :
-                    "text-gray-900"
-                  }`}>
-                    {eligibility === "employer" && "You have employer coverage"}
-                    {eligibility === "free" && "You may qualify for free coverage!"}
-                    {eligibility === "partial" && "Limited options available"}
-                    {eligibility === "none" && "Private plans recommended"}
-                  </h3>
-                  <p className={`text-sm mt-1 ${
-                    eligibility === "employer" ? "text-blue-700" :
-                    eligibility === "free" ? "text-green-700" :
-                    eligibility === "partial" ? "text-amber-700" :
-                    "text-gray-600"
-                  }`}>
-                    {eligibility === "employer" && "Employer insurance is usually the best option. Review your plan details."}
-                    {eligibility === "free" && `${state} offers state-funded health coverage for eligible residents.`}
-                    {eligibility === "partial" && `${state} has limited programs. Consider private options below.`}
-                    {eligibility === "none" && "Check out affordable plans designed for OPT students."}
-                  </p>
-                </div>
+      {/* Form Card */}
+      <div className="max-w-xl mx-auto px-4 -mt-2">
+        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-6 sm:p-8">
+          <h2 className="text-xl font-semibold text-slate-900 mb-6">Check Your Eligibility</h2>
+          
+          <div className="space-y-5">
+            {/* State */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Where do you live?
+              </label>
+              <div className="relative">
+                <select
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className="w-full h-12 px-4 pr-10 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none transition-all"
+                >
+                  {US_STATES.map((s) => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               </div>
             </div>
 
-            {/* Plans */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-medium text-gray-900 px-1">
-                {eligibility === "free" ? "Recommended Plans" : "Available Plans"}
-              </h3>
-              
-              {/* State plans first if eligible */}
-              {eligibility === "free" && STATE_PLANS[stateCode]?.map((plan, i) => (
-                <div key={i} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      {plan.highlight && (
-                        <span className="inline-block text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full mb-2">
-                          {plan.highlight}
-                        </span>
-                      )}
-                      <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-                      <p className="text-2xl font-bold text-green-600">{plan.price}<span className="text-sm font-normal text-gray-500">/mo</span></p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {plan.features.map((f, j) => (
-                      <span key={j} className="text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">{f}</span>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => handleApply(plan.url)}
-                    className="w-full h-11 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 transition-colors"
-                  >
-                    Apply Now
-                  </button>
-                </div>
-              ))}
-
-              {/* Private plans */}
-              {(eligibility !== "employer") && PRIVATE_PLANS.map((plan, i) => (
-                <div key={i} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      {plan.highlight && (
-                        <span className="inline-block text-xs font-medium text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full mb-2">
-                          {plan.highlight}
-                        </span>
-                      )}
-                      <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-                      <p className="text-2xl font-bold text-blue-600">{plan.price}<span className="text-sm font-normal text-gray-500">/mo</span></p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {plan.features.map((f, j) => (
-                      <span key={j} className="text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">{f}</span>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => handleApply(plan.url)}
-                    className="w-full h-11 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors"
-                  >
-                    View Plans
-                  </button>
-                </div>
-              ))}
+            {/* Income */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Monthly income (USD)
+              </label>
+              <input
+                type="number"
+                value={monthlyIncome}
+                onChange={(e) => setMonthlyIncome(e.target.value)}
+                placeholder="0"
+                min="0"
+                className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+              <p className="text-xs text-slate-500 mt-1.5">Enter 0 if unpaid internship or unemployed</p>
             </div>
 
-            {/* Reset */}
+            {/* Visa */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Visa type
+              </label>
+              <div className="relative">
+                <select
+                  value={visaType}
+                  onChange={(e) => setVisaType(e.target.value)}
+                  className="w-full h-12 px-4 pr-10 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none transition-all"
+                >
+                  {VISA_TYPES.map((v) => (
+                    <option key={v.value} value={v.value}>{v.label}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* DOB */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Date of birth
+              </label>
+              <input
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+            </div>
+
+            {/* Submit */}
             <button
-              onClick={() => { setShowResults(false); setStep(0); }}
-              className="w-full mt-6 h-12 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+              onClick={handleShowResults}
+              disabled={!canSubmit || isLoading}
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 mt-2"
             >
-              Start Over
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  Show Results
+                  <ChevronRight className="w-5 h-5" />
+                </>
+              )}
             </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </div>
 
       {/* FAQ */}
-      <div className="max-w-2xl mx-auto px-6 pb-16">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Common Questions</h3>
-        <div className="bg-white rounded-2xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
-          {FAQ.map((item, i) => (
-            <div key={i}>
+      <div className="max-w-2xl mx-auto px-4 py-16">
+        <h2 className="text-2xl font-bold text-slate-900 text-center mb-8">
+          Frequently Asked Questions
+        </h2>
+        <div className="space-y-3">
+          {FAQ_ITEMS.map((item, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl border border-slate-100 overflow-hidden"
+            >
               <button
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+                onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors"
               >
-                <span className="font-medium text-gray-900 pr-4">{item.q}</span>
-                <svg
-                  className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`}
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <span className="font-medium text-slate-900 pr-4">{item.q}</span>
+                <ChevronDown
+                  className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform ${
+                    expandedFaq === i ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              <AnimatePresence>
-                {openFaq === i && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <p className="px-4 pb-4 text-gray-600 text-sm">{item.a}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {expandedFaq === i && (
+                <div className="px-4 pb-4 text-slate-600 text-sm leading-relaxed">
+                  {item.a}
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Exit Modal */}
-      <AnimatePresence>
-        {exitModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={() => setExitModal(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl"
-            >
-              <div className="text-center mb-6">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Leaving TrackMyOPT</h3>
-                <p className="text-sm text-gray-500">You'll be redirected to complete your enrollment.</p>
+      {/* Partners */}
+      <div className="border-t border-slate-100 bg-slate-50/50">
+        <div className="max-w-4xl mx-auto px-4 py-12">
+          <p className="text-center text-sm text-slate-500 mb-6">Our Trusted Partners</p>
+          <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12">
+            <div className="flex items-center gap-2 text-slate-700">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">ISO</span>
               </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setExitModal(null)}
-                  className="flex-1 h-11 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => { window.open(exitModal, "_blank"); setExitModal(null); }}
-                  className="flex-1 h-11 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors"
-                >
-                  Continue
-                </button>
+              <span className="font-semibold">ISO Insurance</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-700">
+              <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
+                <Shield className="w-5 h-5 text-white" />
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <span className="font-semibold">Kimber Health</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-700">
+              <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">ISI</span>
+              </div>
+              <span className="font-semibold">ISI Student</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Note */}
+      <div className="text-center py-8 px-4">
+        <p className="text-xs text-slate-400">
+          Insurance plans are provided by our partners. TrackMyOPT helps you find the best options.
+        </p>
+      </div>
     </div>
   );
 }
