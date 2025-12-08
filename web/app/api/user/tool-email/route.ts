@@ -13,7 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/jwt';
-import { sendEnrollmentEmail } from '@/lib/email-service';
+import { sendEnrollmentEmail, type EnrollmentEmailData } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -234,11 +234,71 @@ export async function POST(req: NextRequest) {
       const toolNameForEmail = tool.replace('_', '-'); // Convert opt_apply to opt-apply
       const firstName = profileData?.first_name || 'there';
       
+      // Fetch OPT data for timeline information in email
+      let enrollmentData: EnrollmentEmailData | undefined;
+      
+      try {
+        const { data: optData } = await supabase
+          .from('opt_data')
+          .select('program_end_date, opt_start_date, opt_ead_end_date, stem_start_date')
+          .eq('user_id', userId)
+          .single();
+        
+        if (optData) {
+          const formatDate = (dateStr: string | null) => {
+            if (!dateStr) return undefined;
+            return new Date(dateStr).toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            });
+          };
+          
+          // Calculate dates based on tool type
+          if (tool === 'opt_apply' && optData.program_end_date) {
+            const programEnd = new Date(optData.program_end_date);
+            const earliestFiling = new Date(programEnd);
+            earliestFiling.setDate(earliestFiling.getDate() - 90);
+            const filingDeadline = new Date(programEnd);
+            filingDeadline.setDate(filingDeadline.getDate() + 60);
+            
+            enrollmentData = {
+              startDate: formatDate(earliestFiling.toISOString()),
+              endDate: formatDate(filingDeadline.toISOString()),
+              programEndDate: formatDate(optData.program_end_date),
+              totalDays: 150,
+              optType: 'Post-Completion OPT',
+            };
+          } else if (tool === 'opt_clock' && optData.opt_start_date) {
+            enrollmentData = {
+              startDate: formatDate(optData.opt_start_date),
+              endDate: optData.opt_ead_end_date ? formatDate(optData.opt_ead_end_date) : undefined,
+            };
+          } else if (tool === 'stem_apply' && optData.opt_ead_end_date) {
+            const optEadEnd = new Date(optData.opt_ead_end_date);
+            const earliestStemFiling = new Date(optEadEnd);
+            earliestStemFiling.setDate(earliestStemFiling.getDate() - 90);
+            
+            enrollmentData = {
+              startDate: formatDate(earliestStemFiling.toISOString()),
+              endDate: formatDate(optData.opt_ead_end_date),
+              totalDays: 90,
+            };
+          } else if (tool === 'stem_clock' && optData.stem_start_date) {
+            enrollmentData = {
+              startDate: formatDate(optData.stem_start_date),
+            };
+          }
+        }
+      } catch (err) {
+        console.log('Could not fetch OPT data for enrollment email:', err);
+      }
+      
       console.log(`📤 Sending enrollment email for ${toolNameForEmail} to ${email}`);
       
       // Send enrollment email and wait for result to ensure it's sent
       try {
-        const result = await sendEnrollmentEmail(email, firstName, toolNameForEmail);
+        const result = await sendEnrollmentEmail(email, firstName, toolNameForEmail, enrollmentData);
         if (result.success) {
           console.log(`✅ Enrollment email sent successfully to ${email} for ${tool}`);
         } else {

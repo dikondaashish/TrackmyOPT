@@ -781,57 +781,380 @@ export async function sendVerificationEmail(
 }
 
 /**
+ * Enrollment email data including timeline information
+ */
+export interface EnrollmentEmailData {
+  startDate?: string;
+  endDate?: string;
+  programEndDate?: string;
+  optType?: string;
+  totalDays?: number;
+}
+
+/**
+ * Generate tool-specific preparation steps and tips
+ */
+function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData): {
+  title: string;
+  subtitle: string;
+  icon: string;
+  gradient: string;
+  timelineHtml: string;
+  preparationHtml: string;
+  tipsHtml: string;
+  whatToExpectHtml: string;
+} {
+  const baseStyles = {
+    listItem: 'margin: 0 0 12px 0; padding-left: 8px; color: #374151; font-size: 14px; line-height: 1.6;',
+    sectionTitle: 'margin: 0 0 12px 0; color: #1F2937; font-size: 16px; font-weight: 600;',
+  };
+
+  switch (toolName) {
+    case 'opt-apply':
+      return {
+        title: 'OPT Apply Dates',
+        subtitle: 'Your Daily OPT Application Reminder',
+        icon: '📋',
+        gradient: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+        timelineHtml: data?.startDate && data?.endDate ? `
+          <div style="background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="margin: 0 0 16px 0; color: #0369A1; font-size: 16px; font-weight: 600;">📅 Your OPT Filing Window</h3>
+            <div style="display: flex; justify-content: space-between; gap: 16px;">
+              <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
+                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">Earliest Apply Date</p>
+                <p style="margin: 0; color: #059669; font-size: 16px; font-weight: 700;">${data.startDate}</p>
+              </div>
+              <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
+                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">Filing Deadline</p>
+                <p style="margin: 0; color: #DC2626; font-size: 16px; font-weight: 700;">${data.endDate}</p>
+              </div>
+            </div>
+            ${data.programEndDate ? `<p style="margin: 16px 0 0 0; color: #64748B; font-size: 13px; text-align: center;">Program End Date: <strong>${data.programEndDate}</strong></p>` : ''}
+            ${data.totalDays ? `<p style="margin: 8px 0 0 0; color: #64748B; font-size: 13px; text-align: center;">Total Filing Window: <strong>${data.totalDays} days</strong></p>` : ''}
+          </div>
+        ` : '',
+        preparationHtml: `
+          <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">📝 Documents to Prepare</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Form I-765</strong> - Application for Employment Authorization</li>
+              <li style="${baseStyles.listItem}"><strong>2 Passport-Size Photos</strong> - Recent, with white background (2x2 inches)</li>
+              <li style="${baseStyles.listItem}"><strong>Form I-20</strong> - With OPT recommendation from your DSO</li>
+              <li style="${baseStyles.listItem}"><strong>Passport Copy</strong> - All pages with stamps/visas</li>
+              <li style="${baseStyles.listItem}"><strong>I-94 Record</strong> - Print from CBP website</li>
+              <li style="${baseStyles.listItem}"><strong>Previous EAD Cards</strong> - Copies if applicable</li>
+              <li style="${baseStyles.listItem}"><strong>G-1145</strong> - E-Notification of Application Acceptance</li>
+              <li style="${baseStyles.listItem}"><strong>Filing Fee</strong> - Check current USCIS fee ($410 as of 2024)</li>
+            </ul>
+          </div>
+        `,
+        tipsHtml: `
+          <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">💡 Pro Tips for Faster Approval</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Apply on Day 1:</strong> Submit your application as early as possible in your filing window for the best processing times</li>
+              <li style="${baseStyles.listItem}"><strong>Schedule DSO Appointment Early:</strong> Request your OPT I-20 recommendation at least 2 weeks before your earliest filing date</li>
+              <li style="${baseStyles.listItem}"><strong>Use USPS Certified Mail:</strong> Always send with tracking and signature confirmation</li>
+              <li style="${baseStyles.listItem}"><strong>Make Copies:</strong> Keep copies of EVERYTHING you submit</li>
+              <li style="${baseStyles.listItem}"><strong>Check Processing Times:</strong> Current processing times are 3-5 months - plan accordingly</li>
+              <li style="${baseStyles.listItem}"><strong>Don't Start Work:</strong> Never begin employment until your EAD card arrives</li>
+            </ul>
+          </div>
+        `,
+        whatToExpectHtml: `
+          <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 14px; line-height: 1.8;">
+            <li>Daily reminder emails at <strong>9:00 AM ET</strong></li>
+            <li>Document preparation checklists</li>
+            <li>DSO appointment reminders</li>
+            <li>Filing deadline countdowns</li>
+            <li>Step-by-step application guidance</li>
+            <li>Urgency alerts as deadlines approach</li>
+          </ul>
+        `,
+      };
+
+    case 'opt-clock':
+      return {
+        title: 'OPT Unemployment Clock',
+        subtitle: 'Track Your 90-Day Unemployment Limit',
+        icon: '⏰',
+        gradient: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+        timelineHtml: data?.startDate ? `
+          <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="margin: 0 0 16px 0; color: #92400E; font-size: 16px; font-weight: 600;">⏱️ Your Unemployment Clock</h3>
+            <div style="text-align: center;">
+              <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 13px;">OPT Start Date</p>
+              <p style="margin: 0 0 16px 0; color: #B45309; font-size: 18px; font-weight: 700;">${data.startDate}</p>
+              <div style="background: white; border-radius: 8px; padding: 16px;">
+                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px;">Maximum Unemployment Days Allowed</p>
+                <p style="margin: 0; color: #DC2626; font-size: 32px; font-weight: 800;">90 Days</p>
+              </div>
+            </div>
+          </div>
+        ` : '',
+        preparationHtml: `
+          <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">🚨 Important Rules to Remember</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>90-Day Limit:</strong> You can only be unemployed for 90 cumulative days during your entire OPT period</li>
+              <li style="${baseStyles.listItem}"><strong>Count Starts:</strong> Clock begins from your OPT start date, not EAD receipt date</li>
+              <li style="${baseStyles.listItem}"><strong>Aggregate Days:</strong> Unemployment days are cumulative - they add up over time</li>
+              <li style="${baseStyles.listItem}"><strong>Volunteer Work:</strong> At least 20 hours/week of unpaid work in your field counts as employment</li>
+              <li style="${baseStyles.listItem}"><strong>Self-Employment:</strong> Starting your own business in your field is valid employment</li>
+            </ul>
+          </div>
+        `,
+        tipsHtml: `
+          <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">💼 Job Search Tips</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Start Early:</strong> Begin your job search before your program ends</li>
+              <li style="${baseStyles.listItem}"><strong>Use OPT-Friendly Job Boards:</strong> MyVisaJobs, H1BGrader, Indeed with visa filter</li>
+              <li style="${baseStyles.listItem}"><strong>Network Actively:</strong> Attend career fairs, join LinkedIn groups, reach out to alumni</li>
+              <li style="${baseStyles.listItem}"><strong>Consider Contract Work:</strong> Staffing agencies often have OPT-friendly positions</li>
+              <li style="${baseStyles.listItem}"><strong>Keep Records:</strong> Document all job search activities and employment offers</li>
+            </ul>
+          </div>
+        `,
+        whatToExpectHtml: `
+          <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 14px; line-height: 1.8;">
+            <li>Daily countdown of remaining unemployment days</li>
+            <li>Alerts when approaching critical thresholds</li>
+            <li>Job search tips and resources</li>
+            <li>Employment documentation reminders</li>
+            <li>SEVIS reporting deadline alerts</li>
+          </ul>
+        `,
+      };
+
+    case 'stem-apply':
+      return {
+        title: 'STEM OPT Extension',
+        subtitle: 'Your 24-Month Extension Application Reminder',
+        icon: '🔬',
+        gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+        timelineHtml: data?.startDate && data?.endDate ? `
+          <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">📅 Your STEM OPT Filing Window</h3>
+            <div style="display: flex; justify-content: space-between; gap: 16px;">
+              <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
+                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">Earliest Apply Date</p>
+                <p style="margin: 0; color: #059669; font-size: 16px; font-weight: 700;">${data.startDate}</p>
+              </div>
+              <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
+                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">OPT EAD Expires</p>
+                <p style="margin: 0; color: #DC2626; font-size: 16px; font-weight: 700;">${data.endDate}</p>
+              </div>
+            </div>
+          </div>
+        ` : '',
+        preparationHtml: `
+          <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">📝 Documents Required for STEM Extension</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Form I-983</strong> - Training Plan (signed by you and employer)</li>
+              <li style="${baseStyles.listItem}"><strong>Form I-765</strong> - Employment Authorization Application</li>
+              <li style="${baseStyles.listItem}"><strong>New I-20</strong> - With STEM OPT recommendation from DSO</li>
+              <li style="${baseStyles.listItem}"><strong>Current EAD Card</strong> - Copy front and back</li>
+              <li style="${baseStyles.listItem}"><strong>2 Passport Photos</strong> - Recent, 2x2 inches</li>
+              <li style="${baseStyles.listItem}"><strong>Passport Copy</strong> - All pages with stamps</li>
+              <li style="${baseStyles.listItem}"><strong>Employer's E-Verify Number</strong> - Must be current and valid</li>
+            </ul>
+          </div>
+        `,
+        tipsHtml: `
+          <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">💡 STEM Extension Success Tips</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Verify E-Verify:</strong> Confirm your employer is enrolled in E-Verify before starting the process</li>
+              <li style="${baseStyles.listItem}"><strong>I-983 Training Plan:</strong> Work with your employer to create a detailed, degree-related training plan</li>
+              <li style="${baseStyles.listItem}"><strong>Apply Early:</strong> Submit up to 90 days before your OPT EAD expires</li>
+              <li style="${baseStyles.listItem}"><strong>Cap-Gap:</strong> If your OPT expires while application is pending, you get automatic extension</li>
+              <li style="${baseStyles.listItem}"><strong>6-Month Reports:</strong> Remember you must report to your school every 6 months during STEM OPT</li>
+            </ul>
+          </div>
+        `,
+        whatToExpectHtml: `
+          <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 14px; line-height: 1.8;">
+            <li>Daily reminder emails at <strong>9:00 AM ET</strong></li>
+            <li>I-983 preparation guidance</li>
+            <li>E-Verify verification reminders</li>
+            <li>Filing deadline countdowns</li>
+            <li>DSO reporting reminders</li>
+          </ul>
+        `,
+      };
+
+    case 'stem-clock':
+      return {
+        title: 'STEM Unemployment Clock',
+        subtitle: 'Track Your 150-Day Aggregate Limit',
+        icon: '⏱️',
+        gradient: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+        timelineHtml: data?.startDate ? `
+          <div style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">⏱️ Your STEM Unemployment Clock</h3>
+            <div style="text-align: center;">
+              <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 13px;">STEM OPT Start Date</p>
+              <p style="margin: 0 0 16px 0; color: #7C3AED; font-size: 18px; font-weight: 700;">${data.startDate}</p>
+              <div style="background: white; border-radius: 8px; padding: 16px;">
+                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px;">Maximum Aggregate Unemployment</p>
+                <p style="margin: 0; color: #DC2626; font-size: 32px; font-weight: 800;">150 Days</p>
+                <p style="margin: 8px 0 0 0; color: #6B7280; font-size: 12px;">(90 days from OPT + 60 days from STEM)</p>
+              </div>
+            </div>
+          </div>
+        ` : '',
+        preparationHtml: `
+          <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">🚨 STEM OPT Employment Rules</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>150-Day Aggregate:</strong> Combined limit including OPT (90) + STEM (60) unemployment days</li>
+              <li style="${baseStyles.listItem}"><strong>E-Verify Required:</strong> You can only work for E-Verify enrolled employers</li>
+              <li style="${baseStyles.listItem}"><strong>Wage Requirements:</strong> Must be paid at least as much as US workers in similar positions</li>
+              <li style="${baseStyles.listItem}"><strong>Report Changes:</strong> Report any employer changes to your DSO within 10 days</li>
+              <li style="${baseStyles.listItem}"><strong>6-Month Validation:</strong> Self-validate your SEVIS record every 6 months</li>
+            </ul>
+          </div>
+        `,
+        tipsHtml: `
+          <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">💼 Maintaining STEM OPT Status</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Keep I-983 Updated:</strong> Any material changes require a new training plan</li>
+              <li style="${baseStyles.listItem}"><strong>Plan for H-1B:</strong> Start H-1B preparation early - lottery registration is in March</li>
+              <li style="${baseStyles.listItem}"><strong>Multiple Employers:</strong> You can work for multiple E-Verify employers (each needs I-983)</li>
+              <li style="${baseStyles.listItem}"><strong>Document Everything:</strong> Keep records of all employment and training activities</li>
+            </ul>
+          </div>
+        `,
+        whatToExpectHtml: `
+          <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 14px; line-height: 1.8;">
+            <li>Daily countdown of remaining unemployment days</li>
+            <li>6-month validation reminders</li>
+            <li>H-1B timeline alerts</li>
+            <li>Employer change reporting reminders</li>
+            <li>Status maintenance tips</li>
+          </ul>
+        `,
+      };
+
+    case 'documents':
+      return {
+        title: 'Document Expiry Reminders',
+        subtitle: 'Never Miss an Important Deadline',
+        icon: '📄',
+        gradient: 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
+        timelineHtml: '',
+        preparationHtml: `
+          <div style="background: #FDF2F8; border: 1px solid #FBCFE8; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">📁 Documents We Help You Track</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Passport</strong> - Must be valid for at least 6 months</li>
+              <li style="${baseStyles.listItem}"><strong>Visa</strong> - F-1/OPT visa stamp validity</li>
+              <li style="${baseStyles.listItem}"><strong>I-20</strong> - Program end dates and extensions</li>
+              <li style="${baseStyles.listItem}"><strong>EAD Card</strong> - Employment Authorization Document</li>
+              <li style="${baseStyles.listItem}"><strong>Driver's License</strong> - State ID renewals</li>
+              <li style="${baseStyles.listItem}"><strong>Any Custom Documents</strong> - Add any document you need to track</li>
+            </ul>
+          </div>
+        `,
+        tipsHtml: `
+          <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">💡 Document Management Tips</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Renew Early:</strong> Start renewal process 3-6 months before expiry</li>
+              <li style="${baseStyles.listItem}"><strong>Keep Copies:</strong> Maintain digital copies of all documents</li>
+              <li style="${baseStyles.listItem}"><strong>Update Promptly:</strong> When you renew a document, update the expiry date on our website</li>
+            </ul>
+          </div>
+        `,
+        whatToExpectHtml: `
+          <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 14px; line-height: 1.8;">
+            <li>Reminders at 60, 45, 30, 20, 10, 5, and 0 days before expiry</li>
+            <li>Priority alerts for critical documents</li>
+            <li>Renewal guidance and checklists</li>
+          </ul>
+        `,
+      };
+
+    case 'case-status':
+      return {
+        title: 'USCIS Case Status Alerts',
+        subtitle: 'Instant Notifications When Your Case Updates',
+        icon: '🔔',
+        gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+        timelineHtml: '',
+        preparationHtml: `
+          <div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">📋 How Case Tracking Works</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Automatic Checks:</strong> We check your case status every 6 hours</li>
+              <li style="${baseStyles.listItem}"><strong>Instant Alerts:</strong> Get notified immediately when status changes</li>
+              <li style="${baseStyles.listItem}"><strong>Status History:</strong> Track all changes over time</li>
+              <li style="${baseStyles.listItem}"><strong>USCIS Direct:</strong> Data comes directly from USCIS servers</li>
+            </ul>
+          </div>
+        `,
+        tipsHtml: `
+          <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="${baseStyles.sectionTitle}">💡 Understanding Case Status</h3>
+            <ul style="margin: 0; padding: 0 0 0 20px;">
+              <li style="${baseStyles.listItem}"><strong>Case Received:</strong> USCIS has your application</li>
+              <li style="${baseStyles.listItem}"><strong>Fingerprints Scheduled:</strong> Biometrics appointment coming</li>
+              <li style="${baseStyles.listItem}"><strong>Case Being Reviewed:</strong> Actively under review</li>
+              <li style="${baseStyles.listItem}"><strong>Card Being Produced:</strong> Approved! Card in production</li>
+              <li style="${baseStyles.listItem}"><strong>Card Was Mailed:</strong> Your EAD is on the way</li>
+            </ul>
+          </div>
+        `,
+        whatToExpectHtml: `
+          <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 14px; line-height: 1.8;">
+            <li>Email alerts when your case status changes</li>
+            <li>Status checks every 6 hours</li>
+            <li>Explanation of what each status means</li>
+            <li>Next steps guidance after updates</li>
+          </ul>
+        `,
+      };
+
+    default:
+      return {
+        title: 'OPT Daily Reminders',
+        subtitle: 'Your OPT Timeline Assistant',
+        icon: '📧',
+        gradient: 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)',
+        timelineHtml: '',
+        preparationHtml: '',
+        tipsHtml: '',
+        whatToExpectHtml: `
+          <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 14px; line-height: 1.8;">
+            <li>Daily reminder emails at <strong>9:00 AM ET</strong></li>
+            <li>Timeline-specific action items</li>
+            <li>Urgency alerts as deadlines approach</li>
+          </ul>
+        `,
+      };
+  }
+}
+
+/**
  * Send enrollment confirmation email when user enables daily reminders
  */
 export async function sendEnrollmentEmail(
   email: string,
   firstName: string,
-  toolName: string
+  toolName: string,
+  data?: EnrollmentEmailData
 ) {
   try {
-    const toolDescriptions: Record<string, { title: string; description: string; icon: string }> = {
-      'opt-apply': {
-        title: 'OPT Application Reminders',
-        description: 'You\'ll receive daily reminders about your OPT filing window, including document preparation, DSO appointments, and submission deadlines.',
-        icon: '📋'
-      },
-      'opt-clock': {
-        title: 'OPT Unemployment Clock',
-        description: 'Track your 90-day unemployment limit with daily updates on remaining days and job search tips.',
-        icon: '⏰'
-      },
-      'stem-apply': {
-        title: 'STEM OPT Extension Reminders',
-        description: 'Get daily reminders for your STEM OPT application timeline, including Form I-983 preparation and filing deadlines.',
-        icon: '🔬'
-      },
-      'stem-clock': {
-        title: 'STEM Unemployment Clock',
-        description: 'Monitor your 150-day aggregate unemployment limit during STEM OPT with daily countdown updates.',
-        icon: '⏱️'
-      },
-      'documents': {
-        title: 'Document Expiry Reminders',
-        description: 'Get notified before your important documents expire. We\'ll send you reminders based on the schedule you set for each document.',
-        icon: '📄'
-      },
-      'case-status': {
-        title: 'Case Status Alerts',
-        description: 'Receive instant notifications when your USCIS case status changes. We check your case every 6 hours and alert you of any updates.',
-        icon: '🔔'
-      },
-    };
-
-    const tool = toolDescriptions[toolName] || {
-      title: 'OPT Daily Reminders',
-      description: 'You\'ll receive daily reminder emails to help you stay on track with your OPT timeline.',
-      icon: '📧'
-    };
+    const content = getToolEnrollmentContent(toolName, data);
+    const chromeExtensionUrl = 'https://chromewebstore.google.com/detail/your-extension-id'; // TODO: Replace with actual extension URL
 
     const info = await sendMailWithRetry({
       from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: email,
-      subject: `✅ You're enrolled: ${tool.title}`,
+      subject: `✅ Welcome to ${content.title} - You're All Set!`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -840,61 +1163,111 @@ export async function sendEnrollmentEmail(
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
         <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-            <!-- Header -->
-            <div style="text-align: center; margin-bottom: 24px;">
-              <div style="font-size: 48px;">${tool.icon}</div>
-              <h1 style="margin: 16px 0 0 0; color: #1F2937; font-size: 28px;">
-                You're All Set!
+          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            
+            <!-- Header with Branding -->
+            <div style="background: ${content.gradient}; border-radius: 16px 16px 0 0; padding: 32px; text-align: center;">
+              <h1 style="margin: 0 0 8px 0; color: white; font-size: 28px; font-weight: 700;">
+                OPT<span style="color: #FFD60A;">Clock</span>Tracker
               </h1>
+              <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 14px;">${content.subtitle}</p>
             </div>
 
-            <!-- Main Card -->
-            <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-              <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">
-                Hi ${firstName || 'there'},
+            <!-- Success Banner -->
+            <div style="background: #ECFDF5; border-left: 4px solid #10B981; padding: 16px 20px; margin: 0;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 28px;">${content.icon}</span>
+                <div>
+                  <h2 style="margin: 0; color: #065F46; font-size: 20px; font-weight: 600;">You're All Set!</h2>
+                  <p style="margin: 4px 0 0 0; color: #047857; font-size: 14px;">Successfully enrolled in ${content.title}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main Content Card -->
+            <div style="background: white; padding: 32px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+              
+              <!-- Greeting -->
+              <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                Hi <strong>${firstName || 'there'}</strong>,
               </p>
               
               <p style="margin: 0 0 24px 0; color: #374151; font-size: 16px; line-height: 1.6;">
-                You've successfully enrolled in <strong>${tool.title}</strong>! 
+                Congratulations! 🎉 You've successfully enrolled in <strong>${content.title}</strong>. 
+                We'll help you stay on track with timely reminders and expert guidance throughout your journey.
               </p>
 
-              <div style="background: linear-gradient(135deg, #E0F2FE 0%, #DBEAFE 100%); border-radius: 12px; padding: 20px; margin: 24px 0;">
-                <p style="margin: 0; color: #1E40AF; font-size: 15px; line-height: 1.6;">
-                  ${tool.description}
-                </p>
+              <!-- Timeline Info (if available) -->
+              ${content.timelineHtml}
+
+              <!-- Preparation Section -->
+              ${content.preparationHtml}
+
+              <!-- Tips Section -->
+              ${content.tipsHtml}
+
+              <!-- What to Expect -->
+              <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <h3 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
+                  📬 What to Expect
+                </h3>
+                ${content.whatToExpectHtml}
               </div>
 
-              <h3 style="margin: 24px 0 16px 0; color: #1F2937; font-size: 16px;">
-                📬 What to Expect:
-              </h3>
-              <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 15px; line-height: 1.8;">
-                <li>Daily emails at <strong>9:00 AM ET</strong></li>
-                <li>Timeline-specific action items</li>
-                <li>Urgency alerts as deadlines approach</li>
-                <li>Step-by-step guidance for applications</li>
-              </ul>
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 32px 0 24px 0;">
+                <a href="https://www.trackmyopt.com/dashboard/opt-tools/${toolName}" 
+                   style="display: inline-block; background: ${content.gradient}; color: white; text-decoration: none; padding: 14px 32px; border-radius: 10px; font-weight: 600; font-size: 15px;">
+                  Go to ${content.title} →
+                </a>
+              </div>
 
-              <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #E5E7EB;">
+              <!-- Settings Link -->
+              <div style="text-align: center; padding: 20px; border-top: 1px solid #E5E7EB; margin-top: 24px;">
                 <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 14px;">
                   <strong>Got a job or completed your application?</strong>
                 </p>
                 <p style="margin: 0; color: #6B7280; font-size: 14px;">
-                  Simply visit your <a href="https://www.trackmyopt.com/dashboard/settings" style="color: #007AFF; text-decoration: none;">Settings</a> to stop receiving these reminders.
+                  Visit your <a href="https://www.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #3B82F6; text-decoration: none; font-weight: 500;">Settings → Notifications</a> to manage your email preferences.
                 </p>
               </div>
             </div>
 
-            <!-- Footer -->
-            <div style="text-align: center; margin-top: 24px;">
-              <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 13px;">
-                Zyene, Inc. - Your OPT Timeline Companion
+            <!-- Rating Section -->
+            <div style="background: white; border-radius: 16px; padding: 24px; margin-top: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+              <h3 style="margin: 0 0 8px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
+                ⭐ Loving OPT Clock Tracker?
+              </h3>
+              <p style="margin: 0 0 16px 0; color: #6B7280; font-size: 14px;">
+                Help other international students by leaving a review!
               </p>
-              <a href="https://www.trackmyopt.com/dashboard" 
-                 style="color: #007AFF; text-decoration: none; font-size: 14px; font-weight: 500;">
-                Go to Dashboard →
+              <a href="${chromeExtensionUrl}" style="text-decoration: none;">
+                <div style="display: inline-block;">
+                  <span style="font-size: 32px; letter-spacing: 4px;">⭐⭐⭐⭐⭐</span>
+                </div>
               </a>
+              <p style="margin: 12px 0 0 0;">
+                <a href="${chromeExtensionUrl}" 
+                   style="color: #3B82F6; text-decoration: none; font-size: 14px; font-weight: 500;">
+                  Rate on Chrome Web Store →
+                </a>
+              </p>
             </div>
+
+            <!-- Footer -->
+            <div style="text-align: center; padding: 24px 20px;">
+              <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 13px;">
+                Best regards,<br>
+                <strong>The OPT Clock Tracker Team</strong>
+              </p>
+              <p style="margin: 16px 0 0 0; color: #9CA3AF; font-size: 12px;">
+                © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
+              </p>
+              <p style="margin: 8px 0 0 0; color: #9CA3AF; font-size: 12px;">
+                <a href="mailto:support@trackmyopt.com" style="color: #9CA3AF; text-decoration: none;">support@trackmyopt.com</a>
+              </p>
+            </div>
+
           </div>
         </body>
         </html>
