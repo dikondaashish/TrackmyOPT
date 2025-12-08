@@ -10,8 +10,8 @@
 
 import nodemailer from 'nodemailer';
 
-// Create SMTP transporter for Hostinger
-const transporter = nodemailer.createTransport({
+// Create SMTP transporter for Hostinger with improved timeout settings
+const createTransporter = () => nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '465'),
   secure: true, // true for 465, false for other ports
@@ -19,7 +19,68 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  // Connection settings to prevent timeout issues
+  connectionTimeout: 30000, // 30 seconds to establish connection
+  greetingTimeout: 30000, // 30 seconds for greeting
+  socketTimeout: 60000, // 60 seconds for socket operations
+  // Pool settings for multiple emails
+  pool: true,
+  maxConnections: 3,
+  maxMessages: 10,
+  // TLS settings
+  tls: {
+    rejectUnauthorized: false, // Allow self-signed certs if needed
+  },
 });
+
+// Lazy initialization of transporter
+let transporter: nodemailer.Transporter | null = null;
+
+const getTransporter = () => {
+  if (!transporter) {
+    transporter = createTransporter();
+  }
+  return transporter;
+};
+
+/**
+ * Send email with retry logic
+ */
+async function sendMailWithRetry(
+  mailOptions: nodemailer.SendMailOptions,
+  maxRetries: number = 3
+): Promise<nodemailer.SentMessageInfo> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const transport = getTransporter();
+      const info = await transport.sendMail(mailOptions);
+      return info;
+    } catch (error) {
+      lastError = error as Error;
+      console.error(`Email attempt ${attempt}/${maxRetries} failed:`, (error as Error).message);
+      
+      // If it's a timeout error, close and recreate the transporter
+      if ((error as Error).message?.includes('timeout') || (error as Error).message?.includes('421')) {
+        console.log('Recreating transporter due to timeout...');
+        if (transporter) {
+          transporter.close();
+          transporter = null;
+        }
+      }
+      
+      // Wait before retry (exponential backoff)
+      if (attempt < maxRetries) {
+        const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
+        console.log(`Waiting ${delay}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  throw lastError || new Error('Failed to send email after retries');
+}
 
 export interface ToolReminderDetail {
   name: string;
@@ -47,17 +108,17 @@ export interface EmailReminderData {
  */
 export async function sendDailyReminder(data: EmailReminderData) {
   try {
-    const info = await transporter.sendMail({
-      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+    const info = await sendMailWithRetry({
+      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: data.userEmail,
       subject: getDynamicSubject(data.tools),
       html: generateEmailHTML(data),
     });
 
-    console.log('Email sent:', info.messageId);
+    console.log('Daily reminder email sent:', info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('Email service error:', error);
+    console.error('Daily reminder email service error:', error);
     return { success: false, error };
   }
 }
@@ -618,10 +679,10 @@ export async function sendExportOtpEmail(
   firstName?: string
 ) {
   try {
-    const info = await transporter.sendMail({
-      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+    const info = await sendMailWithRetry({
+      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: email,
-      subject: 'Your Data Export Verification Code - TrackMyOPT',
+      subject: 'Your Data Export Verification Code - OPT Clock Tracker',
       html: `
         <!DOCTYPE html>
         <html>
@@ -674,8 +735,8 @@ export async function sendVerificationEmail(
   firstName: string
 ) {
   try {
-    const info = await transporter.sendMail({
-      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+    const info = await sendMailWithRetry({
+      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: email,
       subject: 'Verify your email for OPT reminders',
       html: `
@@ -767,8 +828,8 @@ export async function sendEnrollmentEmail(
       icon: '📧'
     };
 
-    const info = await transporter.sendMail({
-      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+    const info = await sendMailWithRetry({
+      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: email,
       subject: `✅ You're enrolled: ${tool.title}`,
       html: `
