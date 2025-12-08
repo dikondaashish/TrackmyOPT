@@ -988,7 +988,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
     case 'stem-clock':
       return {
         title: 'STEM Unemployment Clock',
-        subtitle: 'Track Your 150-Day Aggregate Limit',
+        subtitle: 'Track Your 60-Day STEM Unemployment Limit',
         icon: '⏱️',
         gradient: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
         timelineHtml: data?.startDate ? `
@@ -998,9 +998,9 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
               <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 13px;">STEM OPT Start Date</p>
               <p style="margin: 0 0 16px 0; color: #7C3AED; font-size: 18px; font-weight: 700;">${data.startDate}</p>
               <div style="background: white; border-radius: 8px; padding: 16px;">
-                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px;">Maximum Aggregate Unemployment</p>
-                <p style="margin: 0; color: #DC2626; font-size: 32px; font-weight: 800;">150 Days</p>
-                <p style="margin: 8px 0 0 0; color: #6B7280; font-size: 12px;">(90 days from OPT + 60 days from STEM)</p>
+                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px;">STEM OPT Unemployment Limit</p>
+                <p style="margin: 0; color: #DC2626; font-size: 32px; font-weight: 800;">60 Days</p>
+                <p style="margin: 8px 0 0 0; color: #6B7280; font-size: 12px;">Additional days during your 24-month STEM extension</p>
               </div>
             </div>
           </div>
@@ -1009,7 +1009,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
           <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="${baseStyles.sectionTitle}">🚨 STEM OPT Employment Rules</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
-              <li style="${baseStyles.listItem}"><strong>150-Day Aggregate:</strong> Combined limit including OPT (90) + STEM (60) unemployment days</li>
+              <li style="${baseStyles.listItem}"><strong>60-Day Limit:</strong> You have 60 additional unemployment days during your STEM OPT period (separate from the 90 days during initial OPT)</li>
               <li style="${baseStyles.listItem}"><strong>E-Verify Required:</strong> You can only work for E-Verify enrolled employers</li>
               <li style="${baseStyles.listItem}"><strong>Wage Requirements:</strong> Must be paid at least as much as US workers in similar positions</li>
               <li style="${baseStyles.listItem}"><strong>Report Changes:</strong> Report any employer changes to your DSO within 10 days</li>

@@ -334,7 +334,7 @@ function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails):
   // ========================================
   // 4. STEM CLOCK - STEM Unemployment Tracker
   // ========================================
-  // 150 days aggregate (90 from OPT + 60 from STEM)
+  // 60 days additional unemployment during STEM OPT (separate from 90 days during initial OPT)
   if (optData.stem_start_date && toolEmails.stem_clock_email) {
     const stemStart = new Date(optData.stem_start_date);
     
@@ -343,7 +343,7 @@ function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails):
     stemEnd.setMonth(stemEnd.getMonth() + 24);
     
     if (today >= stemStart && today <= stemEnd) {
-      // During STEM, track 150 aggregate days
+      // During STEM, track 60 additional unemployment days
       const daysSinceStemStart = Math.ceil((today.getTime() - stemStart.getTime()) / (1000 * 60 * 60 * 24));
       const stemDaysRemaining = Math.max(0, 60 - Math.min(60, daysSinceStemStart));
       
