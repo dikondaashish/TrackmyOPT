@@ -263,118 +263,185 @@ function generateOptApplySection(tool: ToolReminderDetail): string {
   const actionItems = getOptApplyActionItems(tool.daysLeft, tool.totalDays);
   const daysUsed = tool.totalDays - tool.daysLeft;
   const progressPercent = Math.round((daysUsed / tool.totalDays) * 100);
+  const today = new Date().toLocaleString('en-US', { 
+    timeZone: 'America/New_York',
+    year: 'numeric', month: 'numeric', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
+  });
+
+  // Get urgency-based motivational message
+  const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
+  let motivationalMessage = 'You have plenty of time! Apply early to get in the queue first and receive faster processing.';
+  if (percentRemaining <= 25) {
+    motivationalMessage = 'Time is critical! Submit your application TODAY to avoid losing your OPT opportunity.';
+  } else if (percentRemaining <= 50) {
+    motivationalMessage = 'Don\'t delay! Early applicants typically receive faster processing and approvals.';
+  }
 
   return `
-    <!-- Congratulations Banner -->
-    <div style="padding: 24px 28px; background: linear-gradient(135deg, ${urgencyConfig.bgGradient}); border-bottom: 1px solid #E5E7EB;">
-      <div style="text-align: center;">
-        <span style="font-size: 32px;">${urgencyConfig.emoji}</span>
-        <h3 style="margin: 12px 0 8px 0; color: ${urgencyConfig.titleColor}; font-size: 20px; font-weight: 700;">
-          ${urgencyConfig.headline}
+    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
+      
+      <!-- Header -->
+      <div style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); border-radius: 12px 12px 0 0; padding: 20px; text-align: center;">
+        <h2 style="margin: 0; color: white; font-size: 22px; font-weight: 700;">
+          📋 OPT Application Dates
+        </h2>
+        <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
+          Track Your OPT Filing Window
+        </p>
+      </div>
+
+      <!-- Application Status Section -->
+      <div style="background: ${urgencyConfig.actionBg}; border: 1px solid ${urgencyConfig.actionBorder}; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
+          ${urgencyConfig.emoji} Your Application Status:
         </h3>
-        <p style="margin: 0; color: ${urgencyConfig.subtitleColor}; font-size: 14px; line-height: 1.5;">
-          ${urgencyConfig.subtitle}
-        </p>
-      </div>
-    </div>
-
-    <!-- OPT Details Section -->
-    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
-      <h4 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 700; display: flex; align-items: center;">
-        📋 OPT Details
-      </h4>
-      
-      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
-        <tr>
-          <td style="padding: 12px; background: #F9FAFB; border-radius: 8px 0 0 0; border-bottom: 1px solid #E5E7EB;">
-            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">OPT Type</span><br/>
-            <strong style="color: #1F2937; font-size: 15px;">${tool.optType || 'Post-Completion OPT'}</strong>
-          </td>
-          <td style="padding: 12px; background: #F9FAFB; border-radius: 0 8px 0 0; border-bottom: 1px solid #E5E7EB; border-left: 1px solid #E5E7EB;">
-            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Program End Date</span><br/>
-            <strong style="color: #1F2937; font-size: 15px;">${tool.programEndDate || 'N/A'}</strong>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 12px; background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
-            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Apply Start Date</span><br/>
-            <strong style="color: #059669; font-size: 15px;">${tool.startDate}</strong>
-          </td>
-          <td style="padding: 12px; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; border-left: 1px solid #E5E7EB;">
-            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Filing Deadline</span><br/>
-            <strong style="color: #DC2626; font-size: 15px;">${tool.endDate}</strong>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 12px; background: #F9FAFB; border-radius: 0 0 0 8px;">
-            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Total Filing Window</span><br/>
-            <strong style="color: #1F2937; font-size: 15px;">${tool.totalDays} days</strong>
-          </td>
-          <td style="padding: 12px; background: #F9FAFB; border-radius: 0 0 8px 0; border-left: 1px solid #E5E7EB;">
-            <span style="color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Days Remaining</span><br/>
-            <strong style="color: ${urgencyConfig.daysColor}; font-size: 20px; font-weight: 800;">${tool.daysLeft} days</strong>
-          </td>
-        </tr>
-      </table>
-
-      <!-- Progress Bar -->
-      <div style="margin-top: 16px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-          <span style="color: #6B7280; font-size: 12px;">${daysUsed} days elapsed</span>
-          <span style="color: #6B7280; font-size: 12px;">${tool.daysLeft} days left</span>
-        </div>
-        <div style="background: #E5E7EB; border-radius: 10px; height: 10px; overflow: hidden;">
-          <div style="background: linear-gradient(90deg, ${urgencyConfig.progressColor}); width: ${progressPercent}%; height: 100%; border-radius: 10px;"></div>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Time Remaining:</td>
+            <td style="padding: 8px 0; color: ${urgencyConfig.daysColor}; font-size: 14px; font-weight: 700; text-align: right;">${tool.daysLeft} days</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Days Elapsed:</td>
+            <td style="padding: 8px 0; color: #374151; font-size: 14px; font-weight: 600; text-align: right;">${daysUsed} days</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Filing Window Used:</td>
+            <td style="padding: 8px 0; color: ${urgencyConfig.daysColor}; font-size: 14px; font-weight: 700; text-align: right;">${progressPercent}%</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Apply Start Date:</td>
+            <td style="padding: 8px 0; color: #059669; font-size: 14px; font-weight: 600; text-align: right;">${tool.startDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Filing Deadline:</td>
+            <td style="padding: 8px 0; color: #DC2626; font-size: 14px; font-weight: 700; text-align: right;">${tool.endDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Program End Date:</td>
+            <td style="padding: 8px 0; color: #374151; font-size: 14px; font-weight: 600; text-align: right;">${tool.programEndDate || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Today (ET):</td>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px; text-align: right;">${today}</td>
+          </tr>
+        </table>
+        
+        <!-- Progress Bar -->
+        <div style="margin-top: 16px;">
+          <div style="background: #E5E7EB; border-radius: 10px; height: 10px; overflow: hidden;">
+            <div style="background: linear-gradient(90deg, ${urgencyConfig.progressColor}); width: ${progressPercent}%; height: 100%; border-radius: 10px;"></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- What to Do Now Section -->
-    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
-      <h4 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 700;">
-        ✅ What to Do Now
-      </h4>
-      
-      <div style="background: ${urgencyConfig.actionBg}; border-radius: 12px; padding: 20px; border-left: 4px solid ${urgencyConfig.actionBorder};">
-        <p style="margin: 0 0 12px 0; color: ${urgencyConfig.actionTitle}; font-size: 15px; font-weight: 700;">
-          ${urgencyConfig.actionHeadline}
-        </p>
+      <!-- What to Do Now -->
+      <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
+          ✅ ${urgencyConfig.actionHeadline}
+        </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           ${actionItems.map(item => `<li>${item}</li>`).join('')}
         </ul>
       </div>
-    </div>
 
-    <!-- Important Reminders Section -->
-    <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
-      <h4 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 700;">
-        ⚠️ Important Reminders
-      </h4>
-      
-      <div style="background: #FEF3C7; border-radius: 12px; padding: 16px; margin-bottom: 12px;">
-        <ul style="margin: 0; padding: 0 0 0 20px; color: #92400E; font-size: 13px; line-height: 1.8;">
-          <li><strong>Never</strong> start working before your EAD card arrives and the start date begins</li>
-          <li>Keep copies of ALL documents you submit to USCIS</li>
-          <li>Use USPS certified mail with tracking for your application</li>
-          <li>OPT application processing typically takes <strong>3-5 months</strong></li>
-          <li>You can track your case status at <a href="https://egov.uscis.gov/casestatus" style="color: #B45309;">USCIS Case Status Portal</a></li>
+      <!-- Required Documents Checklist -->
+      <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
+          📄 Required Documents Checklist:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li>☐ <strong>Form I-765</strong> - Application for Employment Authorization (completed & signed)</li>
+          <li>☐ <strong>Form I-20</strong> - with OPT recommendation from DSO (<strong>must be signed by you!</strong>)</li>
+          <li>☐ <strong>2 Passport Photos</strong> - 2x2 inches, white background, taken within 30 days</li>
+          <li>☐ <strong>Passport Copy</strong> - Bio page and visa stamp</li>
+          <li>☐ <strong>I-94</strong> - Most recent arrival/departure record</li>
+          <li>☐ <strong>Previous EAD Cards</strong> - If any (copies)</li>
+          <li>☐ <strong>Filing Fee</strong> - $410 (check current fee on USCIS website)</li>
         </ul>
       </div>
-    </div>
 
-    <!-- USCIS Portal Link -->
-    <div style="padding: 20px 28px; background: #F0FDF4; border-bottom: 1px solid #E5E7EB;">
-      <div style="display: flex; align-items: center;">
-        <span style="font-size: 24px; margin-right: 12px;">🔗</span>
-        <div>
-          <p style="margin: 0 0 4px 0; color: #166534; font-size: 14px; font-weight: 600;">
-            USCIS SCVP Portal
-          </p>
-          <a href="https://egov.uscis.gov/casestatus" style="color: #15803D; font-size: 13px; text-decoration: none;">
-            https://egov.uscis.gov/casestatus →
-          </a>
-        </div>
+      <!-- Common Mistakes to Avoid -->
+      <div style="background: #FEF2F2; border: 2px solid #DC2626; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #991B1B; font-size: 16px; font-weight: 700;">
+          🚨 Common Mistakes That Cause Denials/RFEs:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #7F1D1D; font-size: 14px; line-height: 1.8;">
+          <li><strong>❌ Unsigned I-20:</strong> ALWAYS sign your I-20 before submitting - unsigned = automatic denial!</li>
+          <li><strong>❌ Wrong Photo Size:</strong> Must be exactly 2x2 inches with white background</li>
+          <li><strong>❌ Expired Passport:</strong> Passport must be valid for at least 6 months</li>
+          <li><strong>❌ Missing Signature on I-765:</strong> Sign the form in black ink only</li>
+          <li><strong>❌ Wrong Filing Address:</strong> Use the correct USCIS Lockbox address for your state</li>
+          <li><strong>❌ Late Filing:</strong> Apply within 30 days AFTER DSO recommends OPT in SEVIS</li>
+          <li><strong>❌ Working Before EAD:</strong> Never work before your EAD card arrives AND start date begins</li>
+        </ul>
       </div>
+
+      <!-- How Successful Applicants Apply -->
+      <div style="background: #F5F3FF; border: 1px solid #8B5CF6; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">
+          ⭐ How Successful Applicants Apply:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><strong>Apply Early:</strong> Don't wait until the deadline - early applicants get processed first</li>
+          <li><strong>Use USPS Priority Mail:</strong> With tracking and delivery confirmation</li>
+          <li><strong>Make Copies:</strong> Keep copies of EVERYTHING you submit</li>
+          <li><strong>Check, Double-Check:</strong> Review all forms for errors before mailing</li>
+          <li><strong>Online Filing:</strong> Consider filing online at <a href="https://www.uscis.gov/i-765" style="color: #5B21B6;">USCIS.gov</a> for faster processing</li>
+        </ul>
+      </div>
+
+      <!-- Where to Apply -->
+      <div style="background: #FDF2F8; border: 1px solid #EC4899; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #9D174D; font-size: 16px; font-weight: 600;">
+          📮 Where to Submit Your Application:
+        </h3>
+        <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px;">
+          <strong>Option 1: Online (Recommended)</strong><br/>
+          <a href="https://www.uscis.gov/i-765" style="color: #3B82F6;">https://www.uscis.gov/i-765</a>
+        </p>
+        <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px;">
+          <strong>Option 2: Mail to USCIS Lockbox</strong><br/>
+          Check the <a href="https://www.uscis.gov/i-765-addresses" style="color: #3B82F6;">USCIS Filing Addresses</a> for your specific location
+        </p>
+      </div>
+
+      <!-- Processing Timeline -->
+      <div style="background: #FFFBEB; border: 1px solid #F59E0B; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #92400E; font-size: 16px; font-weight: 600;">
+          ⏱️ Expected Processing Timeline:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><strong>Receipt Notice:</strong> 2-4 weeks after USCIS receives your application</li>
+          <li><strong>Biometrics (if required):</strong> 3-6 weeks after receipt</li>
+          <li><strong>Decision:</strong> 3-5 months total (can vary)</li>
+          <li><strong>EAD Card:</strong> Mailed within 1-2 weeks of approval</li>
+        </ul>
+      </div>
+
+      <!-- Helpful Resources -->
+      <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
+          🔗 Helpful Resources:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><a href="https://www.uscis.gov/i-765" style="color: #3B82F6;">USCIS I-765 Page</a> - Official form and instructions</li>
+          <li><a href="https://egov.uscis.gov/casestatus" style="color: #3B82F6;">USCIS Case Status</a> - Track your application</li>
+          <li><a href="https://egov.uscis.gov/processing-times/" style="color: #3B82F6;">Processing Times</a> - Check current wait times</li>
+          <li><a href="https://sevp.ice.gov/opt/" style="color: #3B82F6;">SEVP Portal</a> - Update employment info after approval</li>
+        </ul>
+      </div>
+
+      <!-- Motivational Message -->
+      <div style="background: linear-gradient(135deg, ${urgencyConfig.bgGradient}); border-radius: 0 0 12px 12px; padding: 24px; text-align: center;">
+        <p style="margin: 0 0 12px 0; color: ${urgencyConfig.titleColor}; font-size: 15px; font-weight: 500; line-height: 1.6;">
+          ${motivationalMessage}
+        </p>
+        <p style="margin: 0; color: ${urgencyConfig.subtitleColor}; font-size: 14px; font-weight: 600;">
+          We're here to help you succeed! 🎓
+        </p>
+      </div>
+
     </div>
   `;
 }
@@ -684,49 +751,384 @@ function generateOptClockSection(tool: ToolReminderDetail): string {
 }
 
 /**
- * Generate STEM Apply section
+ * Generate comprehensive STEM Apply section
  */
 function generateStemApplySection(tool: ToolReminderDetail): string {
   const urgencyColor = tool.urgency === 'critical' ? '#DC2626' : 
                        tool.urgency === 'urgent' ? '#D97706' : '#2563EB';
   
+  const daysElapsed = tool.totalDays - tool.daysLeft;
+  const progressPercent = Math.round((daysElapsed / tool.totalDays) * 100);
+  const today = new Date().toLocaleString('en-US', { 
+    timeZone: 'America/New_York',
+    year: 'numeric', month: 'numeric', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
+  });
+
+  // Get urgency-based styling
+  const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
+  let statusBg = '#F5F3FF';
+  let statusBorder = '#8B5CF6';
+  let statusEmoji = '✅';
+  let motivationalMessage = 'You have time to prepare your STEM OPT extension carefully. Start gathering documents now!';
+  
+  if (percentRemaining <= 33) {
+    statusBg = '#FEF2F2';
+    statusBorder = '#EF4444';
+    statusEmoji = '🚨';
+    motivationalMessage = 'URGENT! Your OPT expires soon. Submit your STEM extension application immediately!';
+  } else if (percentRemaining <= 66) {
+    statusBg = '#FFFBEB';
+    statusBorder = '#F59E0B';
+    statusEmoji = '⚠️';
+    motivationalMessage = 'Time is moving! Don\'t wait - apply for your STEM extension now.';
+  }
+
   return `
     <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
-      <div style="background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%); border-radius: 12px; padding: 20px;">
-        <h4 style="margin: 0 0 12px 0; color: #5B21B6; font-size: 18px; font-weight: 700;">
+      
+      <!-- Header -->
+      <div style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border-radius: 12px 12px 0 0; padding: 20px; text-align: center;">
+        <h2 style="margin: 0; color: white; font-size: 22px; font-weight: 700;">
           🔬 STEM OPT Extension
-        </h4>
-        <div style="font-size: 28px; font-weight: 800; color: ${urgencyColor}; margin: 8px 0;">
-          ${tool.daysLeft} days until deadline
-        </div>
-        <p style="margin: 12px 0 0 0; color: #6D28D9; font-size: 14px; line-height: 1.6;">
-          ${tool.message}
+        </h2>
+        <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
+          24-Month STEM Extension Application
         </p>
       </div>
+
+      <!-- Application Status Section -->
+      <div style="background: ${statusBg}; border: 1px solid ${statusBorder}; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
+          ${statusEmoji} Your STEM Extension Status:
+        </h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Time Remaining:</td>
+            <td style="padding: 8px 0; color: ${urgencyColor}; font-size: 14px; font-weight: 700; text-align: right;">${tool.daysLeft} days</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Days Elapsed:</td>
+            <td style="padding: 8px 0; color: #374151; font-size: 14px; font-weight: 600; text-align: right;">${daysElapsed} days</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Filing Window Used:</td>
+            <td style="padding: 8px 0; color: ${urgencyColor}; font-size: 14px; font-weight: 700; text-align: right;">${progressPercent}%</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• OPT Expiration Date:</td>
+            <td style="padding: 8px 0; color: #DC2626; font-size: 14px; font-weight: 700; text-align: right;">${tool.endDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Earliest Filing Date:</td>
+            <td style="padding: 8px 0; color: #059669; font-size: 14px; font-weight: 600; text-align: right;">${tool.startDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Today (ET):</td>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px; text-align: right;">${today}</td>
+          </tr>
+        </table>
+        
+        <!-- Progress Bar -->
+        <div style="margin-top: 16px;">
+          <div style="background: #E5E7EB; border-radius: 10px; height: 10px; overflow: hidden;">
+            <div style="background: linear-gradient(90deg, #8B5CF6, #A78BFA); width: ${progressPercent}%; height: 100%; border-radius: 10px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEM Extension Requirements -->
+      <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
+          ✅ Key Requirements for STEM Extension:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><strong>STEM Degree:</strong> Your degree must be on the STEM Designated Degree Program List</li>
+          <li><strong>E-Verify Employer:</strong> Your employer MUST be enrolled in E-Verify</li>
+          <li><strong>Form I-983:</strong> Training Plan signed by you and your employer</li>
+          <li><strong>Timely Filing:</strong> Apply up to 90 days before OPT expires</li>
+          <li><strong>Cap-Gap Protection:</strong> If filed on time, you can continue working while pending</li>
+        </ul>
+      </div>
+
+      <!-- Required Documents Checklist -->
+      <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
+          📄 Required Documents Checklist:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li>☐ <strong>Form I-765</strong> - Application for Employment Authorization</li>
+          <li>☐ <strong>Form I-983</strong> - Training Plan for STEM OPT Students (signed by employer)</li>
+          <li>☐ <strong>Form I-20</strong> - with STEM OPT recommendation from DSO</li>
+          <li>☐ <strong>Copy of Current EAD</strong> - Front and back</li>
+          <li>☐ <strong>Copy of STEM Degree</strong> - Diploma or official transcript</li>
+          <li>☐ <strong>2 Passport Photos</strong> - 2x2 inches, white background</li>
+          <li>☐ <strong>Passport Copy</strong> - Bio page (valid for 6+ months)</li>
+          <li>☐ <strong>Filing Fee</strong> - $410 (check current fee)</li>
+        </ul>
+      </div>
+
+      <!-- Common Mistakes to Avoid -->
+      <div style="background: #FEF2F2; border: 2px solid #DC2626; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #991B1B; font-size: 16px; font-weight: 700;">
+          � Common STEM Extension Mistakes:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #7F1D1D; font-size: 14px; line-height: 1.8;">
+          <li><strong>❌ Non-E-Verify Employer:</strong> Your employer MUST be enrolled in E-Verify - no exceptions!</li>
+          <li><strong>❌ Incomplete I-983:</strong> All sections must be completed and signed by both you and employer</li>
+          <li><strong>❌ Wrong Job Title:</strong> Job must be directly related to your STEM degree field</li>
+          <li><strong>❌ Missing DSO Endorsement:</strong> I-20 must be updated with STEM recommendation</li>
+          <li><strong>❌ Late Filing:</strong> Must file BEFORE your current OPT expires</li>
+          <li><strong>❌ Part-time Work:</strong> Must work at least 20 hours per week</li>
+        </ul>
+      </div>
+
+      <!-- I-983 Form Tips -->
+      <div style="background: #F5F3FF; border: 1px solid #8B5CF6; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">
+          📝 I-983 Training Plan Tips:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><strong>Learning Goals:</strong> Be specific about skills you'll develop</li>
+          <li><strong>Supervisor Info:</strong> Include their title and contact information</li>
+          <li><strong>Training Methods:</strong> Describe mentorship, projects, coursework</li>
+          <li><strong>E-Verify Number:</strong> Get the company's E-Verify Company ID Number</li>
+          <li><strong>Employer Signature:</strong> Must be signed by authorized company representative</li>
+        </ul>
+      </div>
+
+      <!-- E-Verify Check -->
+      <div style="background: #FFFBEB; border: 1px solid #F59E0B; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #92400E; font-size: 16px; font-weight: 600;">
+          🔍 Verify Your Employer's E-Verify Status:
+        </h3>
+        <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px; line-height: 1.6;">
+          Before applying, confirm your employer is enrolled in E-Verify:
+        </p>
+        <a href="https://www.e-verify.gov/about-e-verify/e-verify-data/how-to-find-participating-employers" 
+           style="display: inline-block; background: #F59E0B; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+          Check E-Verify Status →
+        </a>
+      </div>
+
+      <!-- Cap-Gap Information -->
+      <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
+          🛡️ Cap-Gap Protection:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li>If you file before OPT expires, you get automatic <strong>180-day extension</strong></li>
+          <li>You can continue working while your STEM extension is pending</li>
+          <li>Keep your receipt notice as proof of pending application</li>
+          <li>Cap-gap ends when STEM extension is approved or denied</li>
+        </ul>
+      </div>
+
+      <!-- Helpful Resources -->
+      <div style="background: #FDF2F8; border: 1px solid #EC4899; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #9D174D; font-size: 16px; font-weight: 600;">
+          🔗 Helpful Resources:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><a href="https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-extension-for-stem-students-stem-opt" style="color: #3B82F6;">USCIS STEM OPT Page</a></li>
+          <li><a href="https://www.ice.gov/doclib/sevis/pdf/i983.pdf" style="color: #3B82F6;">Form I-983 (PDF)</a></li>
+          <li><a href="https://www.e-verify.gov/" style="color: #3B82F6;">E-Verify Website</a></li>
+          <li><a href="https://sevp.ice.gov/opt/" style="color: #3B82F6;">SEVP Portal</a></li>
+        </ul>
+      </div>
+
+      <!-- Motivational Message -->
+      <div style="background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%); border-radius: 0 0 12px 12px; padding: 24px; text-align: center;">
+        <p style="margin: 0 0 12px 0; color: #5B21B6; font-size: 15px; font-weight: 500; line-height: 1.6;">
+          ${motivationalMessage}
+        </p>
+        <p style="margin: 0; color: #7C3AED; font-size: 14px; font-weight: 600;">
+          Your STEM skills are in demand - keep going! 🚀
+        </p>
+      </div>
+
     </div>
   `;
 }
 
 /**
- * Generate STEM Clock section
+ * Generate comprehensive STEM Clock section
  */
 function generateStemClockSection(tool: ToolReminderDetail): string {
   const urgencyColor = tool.urgency === 'critical' ? '#DC2626' : 
                        tool.urgency === 'urgent' ? '#D97706' : '#059669';
   
+  const daysElapsed = tool.totalDays - tool.daysLeft;
+  const unemploymentDaysUsed = daysElapsed;
+  const today = new Date().toLocaleString('en-US', { 
+    timeZone: 'America/New_York',
+    year: 'numeric', month: 'numeric', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
+  });
+  
+  // Get urgency-based styling
+  const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
+  let statusBg = '#ECFDF5';
+  let statusBorder = '#10B981';
+  let statusEmoji = '✅';
+  let motivationalMessage = 'You have time to find the right opportunity! Focus on quality applications and networking.';
+  
+  if (percentRemaining <= 33) {
+    statusBg = '#FEF2F2';
+    statusBorder = '#EF4444';
+    statusEmoji = '🚨';
+    motivationalMessage = 'Time is critical! Intensify your job search immediately - consider all options including NGOs and internships.';
+  } else if (percentRemaining <= 66) {
+    statusBg = '#FFFBEB';
+    statusBorder = '#F59E0B';
+    statusEmoji = '⚠️';
+    motivationalMessage = 'Stay focused on your job search. Consistency is key - apply daily and follow up on applications.';
+  }
+
   return `
     <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
-      <div style="background: linear-gradient(135deg, #CCFBF1 0%, #99F6E4 100%); border-radius: 12px; padding: 20px;">
-        <h4 style="margin: 0 0 12px 0; color: #0F766E; font-size: 18px; font-weight: 700;">
+      
+      <!-- Header -->
+      <div style="background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); border-radius: 12px 12px 0 0; padding: 20px; text-align: center;">
+        <h2 style="margin: 0; color: white; font-size: 22px; font-weight: 700;">
           ⏱️ STEM Unemployment Clock
-        </h4>
-        <div style="font-size: 28px; font-weight: 800; color: ${urgencyColor}; margin: 8px 0;">
-          ${tool.daysLeft} of 60 STEM days remaining
-        </div>
-        <p style="margin: 12px 0 0 0; color: #115E59; font-size: 14px; line-height: 1.6;">
-          ${tool.message}
+        </h2>
+        <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
+          Track Your 60-Day STEM Unemployment Limit
         </p>
       </div>
+
+      <!-- STEM Status Section -->
+      <div style="background: ${statusBg}; border: 1px solid ${statusBorder}; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
+          ${statusEmoji} Your STEM Unemployment Status:
+        </h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Time Remaining:</td>
+            <td style="padding: 8px 0; color: ${urgencyColor}; font-size: 14px; font-weight: 700; text-align: right;">${tool.daysLeft} days</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Days Elapsed:</td>
+            <td style="padding: 8px 0; color: #374151; font-size: 14px; font-weight: 600; text-align: right;">${daysElapsed} days</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• STEM Unemployment Used:</td>
+            <td style="padding: 8px 0; color: ${urgencyColor}; font-size: 14px; font-weight: 700; text-align: right;">${unemploymentDaysUsed} / 60</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• STEM Start Date:</td>
+            <td style="padding: 8px 0; color: #059669; font-size: 14px; font-weight: 600; text-align: right;">${tool.startDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• STEM End Date:</td>
+            <td style="padding: 8px 0; color: #374151; font-size: 14px; font-weight: 600; text-align: right;">${tool.endDate || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Today (ET):</td>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px; text-align: right;">${today}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Strategic Approach -->
+      <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
+          📋 Strategic Job Search Approach:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li>Apply to <strong>10-15 quality jobs daily</strong> - focus on STEM roles matching your degree</li>
+          <li>Target <strong>E-Verify employers</strong> (required for STEM OPT)</li>
+          <li>Leverage your STEM skills for contract and consulting opportunities</li>
+          <li>Network with professionals in your field on LinkedIn</li>
+          <li>Consider <strong>H-1B sponsoring companies</strong> for long-term opportunities</li>
+        </ul>
+      </div>
+
+      <!-- Top Job Search Resources for STEM -->
+      <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
+          🔍 STEM-Focused Job Resources:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><a href="https://www.linkedin.com/jobs/" style="color: #3B82F6;">LinkedIn Jobs</a> - Filter for "Visa Sponsorship"</li>
+          <li><a href="https://www.indeed.com/" style="color: #3B82F6;">Indeed</a> - Search with "OPT" or "H1B sponsor"</li>
+          <li><a href="https://www.dice.com/" style="color: #3B82F6;">Dice</a> - Tech & Engineering jobs</li>
+          <li><a href="https://builtin.com/jobs" style="color: #3B82F6;">Built In</a> - Startup & Tech jobs</li>
+          <li><a href="https://www.myvisajobs.com/" style="color: #3B82F6;">MyVisaJobs</a> - H-1B sponsor database</li>
+          <li><a href="https://h1bdata.info/" style="color: #3B82F6;">H1B Data</a> - Check company H-1B history</li>
+        </ul>
+      </div>
+
+      <!-- NGO & Research Options -->
+      <div style="background: #FDF2F8; border: 1px solid #EC4899; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #9D174D; font-size: 16px; font-weight: 600;">
+          🤝 NGO, Research & Alternative Options:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><a href="https://www.idealist.org/" style="color: #3B82F6;">Idealist</a> - NGO & nonprofit jobs</li>
+          <li><a href="https://www.usajobs.gov/" style="color: #3B82F6;">USAJobs</a> - Federal research positions</li>
+          <li><a href="https://academicjobsonline.org/" style="color: #3B82F6;">Academic Jobs Online</a> - University positions</li>
+          <li><a href="https://www.higheredjobs.com/" style="color: #3B82F6;">HigherEd Jobs</a> - Higher education careers</li>
+          <li><strong>University Research Labs:</strong> Contact professors directly for RA positions</li>
+        </ul>
+      </div>
+
+      <!-- STEM Employment Rules -->
+      <div style="background: #FEF2F2; border: 2px solid #DC2626; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #991B1B; font-size: 16px; font-weight: 700;">
+          🚨 Critical STEM OPT Employment Rules:
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #7F1D1D; font-size: 14px; line-height: 1.8;">
+          <li><strong>60-Day Limit:</strong> Maximum unemployment during STEM period (separate from OPT's 90 days)</li>
+          <li><strong>E-Verify ONLY:</strong> Can only work for employers enrolled in E-Verify</li>
+          <li><strong>Minimum 20 Hours:</strong> Must work at least 20 hours per week</li>
+          <li><strong>Report Changes:</strong> Report any employer changes to DSO within <strong>10 days</strong></li>
+          <li><strong>6-Month Validation:</strong> Self-validate your SEVIS record every 6 months</li>
+          <li><strong>Related Work:</strong> Job must be directly related to your STEM degree</li>
+        </ul>
+      </div>
+
+      <!-- H-1B Planning -->
+      <div style="background: #F5F3FF; border: 1px solid #8B5CF6; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">
+          📅 H-1B Planning (Think Ahead):
+        </h3>
+        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><strong>H-1B Cap Season:</strong> Registration typically in March for October start</li>
+          <li>Ask employers about H-1B sponsorship early in the interview process</li>
+          <li>Consider <strong>cap-exempt employers</strong> (universities, research institutions)</li>
+          <li>STEM OPT gives you up to 3 chances at the H-1B lottery</li>
+          <li>Check company H-1B history at <a href="https://h1bdata.info/" style="color: #5B21B6;">h1bdata.info</a></li>
+        </ul>
+      </div>
+
+      <!-- SEVP Portal Reminder -->
+      <div style="background: #FFFBEB; border: 1px solid #F59E0B; border-top: none; padding: 24px;">
+        <h3 style="margin: 0 0 12px 0; color: #92400E; font-size: 16px; font-weight: 700;">
+          ⚠️ Important SEVP Reminders:
+        </h3>
+        <ul style="margin: 0 0 16px 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
+          <li><strong>Update within 10 days</strong> when starting new employment</li>
+          <li><strong>Validate every 6 months</strong> during STEM OPT</li>
+          <li>Report address changes within 10 days</li>
+        </ul>
+        <a href="https://sevp.ice.gov/opt/#/login" 
+           style="display: inline-block; background: #F59E0B; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+          Update SEVP Portal →
+        </a>
+      </div>
+
+      <!-- Motivational Message -->
+      <div style="background: linear-gradient(135deg, #CCFBF1 0%, #99F6E4 100%); border-radius: 0 0 12px 12px; padding: 24px; text-align: center;">
+        <p style="margin: 0 0 12px 0; color: #0F766E; font-size: 15px; font-weight: 500; line-height: 1.6;">
+          ${motivationalMessage}
+        </p>
+        <p style="margin: 0; color: #115E59; font-size: 14px; font-weight: 600;">
+          Your STEM expertise is valuable - the right opportunity is out there! 💼
+        </p>
+      </div>
+
     </div>
   `;
 }
