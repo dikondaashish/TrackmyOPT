@@ -44,14 +44,14 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
   };
   
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-    { icon: Calendar, label: "OPT Dates", path: "/dashboard/opt-dates" },
-    { icon: ClipboardCheck, label: "Case Status", path: "/dashboard/case-status" },
-    { icon: Clock, label: "OPT Tools", path: "/dashboard/opt-tools" },
-    { icon: Shield, label: "Health Insurance", path: "/dashboard/opt-health-insurance-finder" },
-    { icon: FileText, label: "Documents", path: "/dashboard/documents" },
-    { icon: Settings, label: "Settings", path: "/dashboard/settings" },
-    { icon: HelpCircle, label: "Help", path: "/dashboard/help" },
+    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", badge: null },
+    { icon: Calendar, label: "OPT Dates", path: "/dashboard/opt-dates", badge: null },
+    { icon: ClipboardCheck, label: "Case Status", path: "/dashboard/case-status", badge: null },
+    { icon: Clock, label: "OPT Tools", path: "/dashboard/opt-tools", badge: null },
+    { icon: Shield, label: "Health Insurance", path: "/dashboard/opt-health-insurance-finder", badge: "From $0" },
+    { icon: FileText, label: "Documents", path: "/dashboard/documents", badge: null },
+    { icon: Settings, label: "Settings", path: "/dashboard/settings", badge: null },
+    { icon: HelpCircle, label: "Help", path: "/dashboard/help", badge: null },
   ];
   
   const handleSignOut = async () => {
@@ -134,7 +134,16 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
             title={collapsed ? item.label : undefined}
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
-            {!collapsed && <span>{item.label}</span>}
+            {!collapsed && (
+              <span className="flex-1 flex items-center justify-between">
+                <span>{item.label}</span>
+                {item.badge && (
+                  <span className="ml-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                    {item.badge}
+                  </span>
+                )}
+              </span>
+            )}
           </button>
           );
         })}
