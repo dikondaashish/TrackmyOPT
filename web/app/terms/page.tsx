@@ -12,13 +12,13 @@ export default function TermsPage() {
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">Terms & Conditions</h1>
         
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
-          Last Updated: December 9, 2024
+          Last Updated: December 9, 2025
         </p>
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <h2>1. Acceptance of Terms</h2>
           <p>
-            Welcome to TrackMyOPT! By accessing or using our Chrome extension and web application (collectively, the "Service"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, please do not use our Service.
+            Welcome to TrackMyOPT, a product of <strong>Zyene, Inc.</strong>, a company incorporated in the State of Delaware, with headquarters located in San Francisco, California. By accessing or using our Chrome extension and web application (collectively, the "Service"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, please do not use our Service.
           </p>
 
           <h2>2. Description of Service</h2>
@@ -222,8 +222,10 @@ export default function TermsPage() {
             If you have questions about these Terms, please contact us:
           </p>
           <ul>
+            <li><strong>Company</strong>: Zyene, Inc.</li>
+            <li><strong>Headquarters</strong>: San Francisco, California</li>
             <li><strong>Email</strong>: <a href="mailto:support@trackmyopt.com">support@trackmyopt.com</a></li>
-            <li><strong>Website</strong>: <a href="https://trackmyopt.vercel.app">trackmyopt.vercel.app</a></li>
+            <li><strong>Website</strong>: <a href="https://trackmyopt.com">trackmyopt.com</a></li>
           </ul>
 
           <hr className="my-8" />

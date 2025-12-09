@@ -12,13 +12,13 @@ export default function PrivacyPage() {
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">Privacy Policy</h1>
         
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
-          Last Updated: December 9, 2024
+          Last Updated: December 9, 2025
         </p>
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <h2>Introduction</h2>
           <p>
-            TrackMyOPT ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Chrome extension and web application.
+            TrackMyOPT is a product of <strong>Zyene, Inc.</strong>, a company incorporated in the State of Delaware, with headquarters located in San Francisco, California. TrackMyOPT ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Chrome extension and web application.
           </p>
 
           <h2>Information We Collect</h2>
@@ -203,8 +203,10 @@ export default function PrivacyPage() {
             If you have questions or concerns about this Privacy Policy, please contact us:
           </p>
           <ul>
+            <li><strong>Company</strong>: Zyene, Inc.</li>
+            <li><strong>Headquarters</strong>: San Francisco, California</li>
             <li><strong>Email</strong>: <a href="mailto:support@trackmyopt.com">support@trackmyopt.com</a></li>
-            <li><strong>Website</strong>: <a href="https://trackmyopt.vercel.app">trackmyopt.vercel.app</a></li>
+            <li><strong>Website</strong>: <a href="https://trackmyopt.com">trackmyopt.com</a></li>
           </ul>
 
           <hr className="my-8" />
