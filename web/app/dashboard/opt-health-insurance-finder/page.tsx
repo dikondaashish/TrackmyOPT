@@ -294,29 +294,34 @@ export default function HealthInsuranceFinderPage() {
           <p className="text-center text-sm text-slate-500 mb-6">Our Trusted Partners</p>
           <div className="flex flex-wrap justify-center items-center gap-10 sm:gap-16">
             {/* ISO Logo */}
-            <div className="flex items-center gap-1">
-              <span className="text-2xl font-bold text-[#8B1538]">IS</span>
-              <div className="w-6 h-6 relative">
-                <div className="w-6 h-6 rounded-full bg-[#8B1538] flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full" />
-                </div>
-              </div>
+            <div className="flex items-center justify-center">
+              <Image
+                src="/partners/logo.svg"
+                alt="ISO Insurance logo"
+                width={120}
+                height={40}
+                className="h-10 w-auto object-contain"
+              />
             </div>
             {/* Kimber Health Logo */}
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col">
-                <div className="w-8 h-1.5 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-sm transform -rotate-45 translate-x-1" />
-                <div className="w-6 h-6 border-l-4 border-t-4 border-gradient-to-b from-cyan-400 to-blue-500 rounded-tl-lg" style={{borderColor: '#0891b2'}} />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-lg text-slate-800">Kimber</span>
-                <span className="font-bold text-lg text-[#0891b2] -mt-1">Health<sup className="text-xs">®</sup></span>
-                <span className="text-[10px] text-slate-500 -mt-0.5">by NYWPG</span>
-              </div>
+            <div className="flex items-center justify-center">
+              <Image
+                src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
+                alt="Kimber Health logo"
+                width={180}
+                height={40}
+                className="h-10 w-auto object-contain"
+              />
             </div>
             {/* ISI Logo */}
-            <div className="w-12 h-12 bg-[#3D4F8F] rounded-lg flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-lg">ISI</span>
+            <div className="flex items-center justify-center">
+              <Image
+                src="/partners/Logo-ISI.png"
+                alt="ISI Student Insurance logo"
+                width={100}
+                height={40}
+                className="h-10 w-auto object-contain"
+              />
             </div>
           </div>
         </div>

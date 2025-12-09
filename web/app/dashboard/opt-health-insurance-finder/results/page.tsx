@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
+import Image from "next/image";
 import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, AlertTriangle, Stethoscope, Pill, Eye, Brain, Phone, FileCheck, Heart, Activity } from "lucide-react";
 
 // States with free insurance programs
@@ -227,11 +228,14 @@ function ResultsContent() {
           {/* ISO Card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-[#8B1538]/30 transition-all">
             {/* ISO Logo */}
-            <div className="flex items-center gap-0.5 mb-3">
-              <span className="text-xl font-bold text-[#8B1538]">IS</span>
-              <div className="w-5 h-5 rounded-full bg-[#8B1538] flex items-center justify-center">
-                <div className="w-1.5 h-1.5 bg-white rounded-full" />
-              </div>
+            <div className="mb-3 flex items-center">
+              <Image
+                src="/partners/logo.svg"
+                alt="ISO Insurance logo"
+                width={110}
+                height={32}
+                className="h-8 w-auto object-contain"
+              />
             </div>
             <h3 className="font-bold text-slate-900">ISO OPTima Plan</h3>
             <p className="text-xs text-slate-500 mt-0.5">International Student Insurance</p>
@@ -272,8 +276,14 @@ function ResultsContent() {
           {/* ISI Card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-[#3D4F8F]/30 transition-all">
             {/* ISI Logo */}
-            <div className="w-11 h-11 bg-[#3D4F8F] rounded-lg flex items-center justify-center mb-3 shadow-sm">
-              <span className="text-white font-bold">ISI</span>
+            <div className="mb-3 flex items-center">
+              <Image
+                src="/partners/Logo-ISI.png"
+                alt="ISI Student Insurance logo"
+                width={80}
+                height={32}
+                className="h-8 w-auto object-contain"
+              />
             </div>
             <h3 className="font-bold text-slate-900">ISI Student Health</h3>
             <p className="text-xs text-slate-500 mt-0.5">Student Health Insurance</p>
@@ -314,15 +324,14 @@ function ResultsContent() {
           {/* Kimber Health Card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-cyan-300 transition-all">
             {/* Kimber Health Logo */}
-            <div className="flex items-center gap-2 mb-3">
-              <div className="relative w-8 h-8">
-                <div className="absolute top-0 left-1 w-5 h-1 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-sm transform -rotate-45" />
-                <div className="absolute bottom-0 left-0 w-5 h-5 border-l-[3px] border-t-[3px] border-cyan-500 rounded-tl-md" />
-              </div>
-              <div className="flex flex-col -space-y-0.5">
-                <span className="font-bold text-sm text-slate-800">Kimber</span>
-                <span className="font-bold text-sm text-cyan-600">Health<sup className="text-[8px]">®</sup></span>
-              </div>
+            <div className="mb-3 flex items-center">
+              <Image
+                src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
+                alt="Kimber Health logo"
+                width={150}
+                height={36}
+                className="h-9 w-auto object-contain"
+              />
             </div>
             <h3 className="font-bold text-slate-900">Kimber Essential</h3>
             <p className="text-xs text-slate-500 mt-0.5">by NYWPG</p>
