@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ChevronDown, Calendar as CalendarIcon } from "lucide-react";
 
 interface OptDatesData {
@@ -27,16 +27,7 @@ export function DateSelector() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [lastUpdatedFieldFromAPI, setLastUpdatedFieldFromAPI] = useState<string | null>(null);
 
-  // Load dates from API
-  useEffect(() => {
-    loadDates();
-    
-    // Poll for updates every 3 seconds to stay in sync
-    const interval = setInterval(loadDates, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadDates = async () => {
+  const loadDates = useCallback(async () => {
     try {
       const response = await fetch('/api/opt/calculator', {
         credentials: 'include',
@@ -67,10 +58,20 @@ export function DateSelector() {
         }
       }
     } catch (err) {
+      // Ignore errors
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [lastUpdatedFieldFromAPI]);
+
+  // Load dates from API
+  useEffect(() => {
+    loadDates();
+    
+    // Poll for updates every 3 seconds to stay in sync
+    const interval = setInterval(loadDates, 3000);
+    return () => clearInterval(interval);
+  }, [loadDates]);
 
   const handleSelectChange = (value: string) => {
     setSelectedDateType(value);

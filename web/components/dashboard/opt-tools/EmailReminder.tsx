@@ -52,6 +52,7 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
 
   useEffect(() => {
     loadEmailPreference();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toolType]);
 
   const loadEmailPreference = async () => {

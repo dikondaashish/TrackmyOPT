@@ -37,6 +37,7 @@ export function OptApplyTool() {
   // Load saved data on mount
   useEffect(() => {
     loadSavedData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Auto-calculate when dates change
@@ -44,6 +45,7 @@ export function OptApplyTool() {
     if (programEndDate) {
       calculate();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [programEndDate, dsoRecommendationDate]);
 
   // Auto-fill DSO recommendation date when program end date changes

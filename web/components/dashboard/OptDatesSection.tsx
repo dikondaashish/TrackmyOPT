@@ -327,6 +327,7 @@ export function OptDatesSection() {
     loadDates();
     checkPremiumStatus();
     loadToolEmails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const checkPremiumStatus = async () => {

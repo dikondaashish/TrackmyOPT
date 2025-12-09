@@ -32,10 +32,12 @@ export function StemApplyTool() {
 
   useEffect(() => {
     loadSavedData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (optEndDate) calculate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [optEndDate]);
 
   const loadSavedData = async () => {

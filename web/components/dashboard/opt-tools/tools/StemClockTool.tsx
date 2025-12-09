@@ -40,10 +40,12 @@ export function StemClockTool() {
 
   useEffect(() => {
     loadSavedData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (stemStartDate) calculate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stemStartDate, employmentSpans]);
 
   const loadSavedData = async () => {

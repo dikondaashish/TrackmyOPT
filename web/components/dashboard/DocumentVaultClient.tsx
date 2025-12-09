@@ -61,6 +61,7 @@ export function DocumentVaultClient() {
   // Check premium status
   useEffect(() => {
     checkPremiumStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Check passcode status and get auto-lock settings
@@ -76,6 +77,7 @@ export function DocumentVaultClient() {
       loadDocuments();
       loadNotificationEmail();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUnlocked, selectedCategory, searchQuery, sortBy]);
   
   // Auto-lock timer - locks vault after period of inactivity

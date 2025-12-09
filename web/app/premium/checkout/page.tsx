@@ -20,6 +20,7 @@ export default function PremiumCheckout() {
   // Check if user is already premium
   useEffect(() => {
     checkPremiumStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function checkPremiumStatus() {

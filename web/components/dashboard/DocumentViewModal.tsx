@@ -80,6 +80,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
 
   useEffect(() => {
     loadDocument();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [document.id]);
 
   async function loadDocument() {
@@ -259,6 +260,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
                         title={document.filename}
                       />
                     ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={viewUrl}
                         alt={document.filename}

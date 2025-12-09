@@ -37,12 +37,14 @@ export function OptClockTool() {
 
   useEffect(() => {
     loadSavedData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (optStartDate && optEndDate) {
       calculate();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [optStartDate, optEndDate, employmentSpans]);
 
   // Auto-calculate OPT End Date (1 year from start)

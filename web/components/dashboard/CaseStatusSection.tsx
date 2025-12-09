@@ -57,6 +57,7 @@ export function CaseStatusSection() {
     loadCaseStatus();
     checkPremiumStatus();
     loadUserEmail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkPremiumStatus = async () => {

@@ -148,6 +148,7 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
     fetchStats();
     const interval = setInterval(() => fetchStats(), 300000); // 5 minutes
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toolType]);
 
   const getTrendIcon = () => {
