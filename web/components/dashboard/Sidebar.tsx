@@ -50,7 +50,7 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
     { icon: Clock, label: "OPT Tools", path: "/dashboard/opt-tools", badge: null },
     { icon: Shield, label: "Health Insurance", path: "/dashboard/opt-health-insurance-finder", badge: "From $0" },
     { icon: FileText, label: "Documents", path: "/dashboard/documents", badge: null },
-    { icon: Receipt, label: "Tax Filing", path: "/dashboard/tax-filing", badge: "New" },
+    { icon: Receipt, label: "Tax Filing", path: "/dashboard/tax-filing", badge: "Free" },
     { icon: Settings, label: "Settings", path: "/dashboard/settings", badge: null },
     { icon: HelpCircle, label: "Help", path: "/dashboard/help", badge: null },
   ];

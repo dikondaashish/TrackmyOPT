@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Receipt, 
   ChevronDown, 
@@ -17,9 +17,16 @@ import {
   Sparkles,
   Building2,
   GraduationCap,
-  Briefcase
+  Briefcase,
+  Gift,
+  Copy,
+  Check,
+  Crown,
+  Lock
 } from "lucide-react";
 import Image from "next/image";
+import { createBrowserClient } from "@supabase/ssr";
+import { useRouter } from "next/navigation";
 
 // Tax filing partners
 const TAX_PARTNERS = [
@@ -54,7 +61,7 @@ const TAX_PARTNERS = [
     bgColor: "from-purple-50 to-pink-50",
     borderColor: "border-purple-200",
     tagline: "Maximum Refund Guarantee",
-    description: "Experts in tax refunds for international students. They handle everything for you.",
+    description: "Experts in tax refunds for international students. They handle everything for you hussle free.",
     features: ["Full-service filing", "Refund maximization", "FICA recovery", "Multi-year filing"],
     badge: "Full Service",
     link: "https://www.taxback.com/"
@@ -126,11 +133,50 @@ const TAX_STATUS_QUESTIONS = [
 ];
 
 export default function TaxFilingPage() {
+  const router = useRouter();
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [expandedGuide, setExpandedGuide] = useState<number | null>(null);
   const [showExitModal, setShowExitModal] = useState(false);
   const [exitUrl, setExitUrl] = useState("");
   const [taxStatus, setTaxStatus] = useState<{years?: string; income?: string}>({});
+  
+  // Coupon modal states
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [selectedPartner, setSelectedPartner] = useState<typeof TAX_PARTNERS[0] | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [couponCopied, setCouponCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const COUPON_CODE = "TRACKMYOPTFREE";
+
+  // Check user's premium status
+  useEffect(() => {
+    const checkPremiumStatus = async () => {
+      try {
+        const supabase = createBrowserClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_premium')
+            .eq('id', user.id)
+            .single();
+          
+          setIsPremium(profile?.is_premium || false);
+        }
+      } catch (error) {
+        console.error('Error checking premium status:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkPremiumStatus();
+  }, []);
 
   const handleApply = (url: string) => {
     setExitUrl(url);
@@ -140,6 +186,25 @@ export default function TaxFilingPage() {
   const confirmExit = () => {
     window.open(exitUrl, "_blank");
     setShowExitModal(false);
+  };
+
+  const handleGetCoupon = (partner: typeof TAX_PARTNERS[0]) => {
+    setSelectedPartner(partner);
+    setShowCouponModal(true);
+    setCouponCopied(false);
+  };
+
+  const copyCoupon = () => {
+    navigator.clipboard.writeText(COUPON_CODE);
+    setCouponCopied(true);
+    setTimeout(() => setCouponCopied(false), 2000);
+  };
+
+  const openPartnerWithCoupon = () => {
+    if (selectedPartner) {
+      window.open(selectedPartner.link, "_blank");
+      setShowCouponModal(false);
+    }
   };
 
   // Determine filing requirement based on answers
@@ -403,13 +468,22 @@ export default function TaxFilingPage() {
                 ))}
               </div>
               
-              <button
-                onClick={() => handleApply(partner.link)}
-                className={`w-full mt-4 h-10 bg-gradient-to-r ${partner.color} text-white font-medium text-sm rounded-xl transition-all hover:opacity-90 flex items-center justify-center gap-1.5`}
-              >
-                File Now
-                <ExternalLink className="w-3.5 h-3.5" />
-              </button>
+              <div className="mt-4 space-y-2">
+                <button
+                  onClick={() => handleApply(partner.link)}
+                  className={`w-full h-10 bg-gradient-to-r ${partner.color} text-white font-medium text-sm rounded-xl transition-all hover:opacity-90 flex items-center justify-center gap-1.5`}
+                >
+                  File Now
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => handleGetCoupon(partner)}
+                  className="w-full h-9 bg-white border border-slate-200 text-slate-700 font-medium text-sm rounded-xl transition-all hover:border-emerald-300 hover:text-emerald-700 flex items-center justify-center gap-1.5"
+                >
+                  <Gift className="w-3.5 h-3.5" />
+                  Get Free Coupon
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -576,6 +650,122 @@ export default function TaxFilingPage() {
                 Continue
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Coupon Modal */}
+      {showCouponModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            {isPremium ? (
+              /* Pro Member - Show Coupon */
+              <>
+                <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Gift className="w-7 h-7 text-white" />
+                </div>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Crown className="w-4 h-4 text-amber-500" />
+                  <span className="text-xs font-semibold text-amber-600">PRO MEMBER EXCLUSIVE</span>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 text-center">Your Free Coupon</h3>
+                <p className="text-slate-600 text-sm text-center mt-2">
+                  Use this code at {selectedPartner?.name} for exclusive savings!
+                </p>
+                
+                {/* Coupon Code Box */}
+                <div className="mt-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-dashed border-emerald-300 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <code className="text-xl font-bold text-emerald-700 tracking-wider">{COUPON_CODE}</code>
+                    <button
+                      onClick={copyCoupon}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        couponCopied 
+                          ? "bg-emerald-500 text-white" 
+                          : "bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                      }`}
+                    >
+                      {couponCopied ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4" />
+                          Copy
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowCouponModal(false)}
+                    className="flex-1 h-11 border border-slate-200 rounded-xl font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={openPartnerWithCoupon}
+                    className="flex-1 h-11 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    Open Website
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* Non-Pro Member - Show Upgrade */
+              <>
+                <div className="w-14 h-14 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lock className="w-7 h-7 text-slate-500" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 text-center">Pro Members Only</h3>
+                <p className="text-slate-600 text-sm text-center mt-2">
+                  Upgrade to Pro to unlock free filing coupons and exclusive discounts on tax services!
+                </p>
+                
+                {/* Benefits */}
+                <div className="mt-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-slate-700 mb-2">Pro Benefits Include:</p>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      Free tax filing coupons
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      Priority support
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      Advanced OPT tools
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowCouponModal(false)}
+                    className="flex-1 h-11 border border-slate-200 rounded-xl font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowCouponModal(false);
+                      router.push('/dashboard/settings');
+                    }}
+                    className="flex-1 h-11 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <Crown className="w-4 h-4" />
+                    Upgrade to Pro
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
