@@ -61,24 +61,42 @@ export async function DELETE() {
       });
     }
 
-    // Delete user data from all tables (cascade should handle most, but let's be explicit)
-    // Delete from profiles
+    // Delete user data from ALL tables (explicit deletion for USCIS compliance)
+    // Note: Most tables have ON DELETE CASCADE, but we're explicit for audit trail
+    
+    // Core user data
     await supabaseAdmin.from('profiles').delete().eq('user_id', userId);
-    
-    // Delete from opt_status
     await supabaseAdmin.from('opt_status').delete().eq('user_id', userId);
-    
-    // Delete from documents
-    await supabaseAdmin.from('documents').delete().eq('user_id', userId);
-    
-    // Delete from case_status
+    await supabaseAdmin.from('employment_spans').delete().eq('user_id', userId);
     await supabaseAdmin.from('case_status').delete().eq('user_id', userId);
     
-    // Delete from tool_reminders
-    await supabaseAdmin.from('tool_reminders').delete().eq('user_id', userId);
+    // Document vault data
+    await supabaseAdmin.from('document_reminders').delete().eq('user_id', userId);
+    await supabaseAdmin.from('documents').delete().eq('user_id', userId);
+    await supabaseAdmin.from('document_passcodes').delete().eq('user_id', userId);
     
-    // Delete from subscriptions
+    // Email and notification data
+    await supabaseAdmin.from('email_preferences').delete().eq('user_id', userId);
+    await supabaseAdmin.from('email_queue').delete().eq('user_id', userId);
+    await supabaseAdmin.from('notification_settings').delete().eq('user_id', userId);
+    
+    // Payment data
+    await supabaseAdmin.from('payment_transactions').delete().eq('user_id', userId);
     await supabaseAdmin.from('subscriptions').delete().eq('user_id', userId);
+    
+    // Session and OTP data
+    await supabaseAdmin.from('user_sessions').delete().eq('user_id', userId);
+    await supabaseAdmin.from('export_otps').delete().eq('user_id', userId);
+    await supabaseAdmin.from('passcode_otps').delete().eq('user_id', userId);
+    
+    // Insurance eligibility data
+    await supabaseAdmin.from('insurance_eligibility').delete().eq('user_id', userId);
+    
+    // Policy consent records
+    await supabaseAdmin.from('policy_consents').delete().eq('user_id', userId);
+    
+    // Legacy tables (if they exist)
+    await supabaseAdmin.from('tool_reminders').delete().eq('user_id', userId);
 
     // Finally, delete the user from auth
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);

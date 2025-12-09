@@ -94,8 +94,9 @@ export default function PrivacyPage() {
           <h3>Service Providers</h3>
           <ul>
             <li><strong>Supabase</strong>: Database and authentication (privacy policy: <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a>)</li>
-            <li><strong>Resend</strong>: Email notifications (optional, only if you enable email reminders)</li>
+            <li><strong>Hostinger SMTP</strong>: Email notifications via our own domain (emails sent from @trackmyopt.com)</li>
             <li><strong>Google OAuth</strong>: If you sign in with Google (privacy policy: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">policies.google.com/privacy</a>)</li>
+            <li><strong>Stripe</strong>: Payment processing for premium features (privacy policy: <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer">stripe.com/privacy</a>)</li>
           </ul>
           <p>
             <strong>All third-party service providers are contractually bound</strong> to protect your data in accordance with this Privacy Policy and are prohibited from using your data for any purpose other than providing their services to TrackMyOPT.
