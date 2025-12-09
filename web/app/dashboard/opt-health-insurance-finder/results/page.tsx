@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, AlertTriangle, Stethoscope, Pill, Eye, Brain, Phone, FileCheck, Heart, Activity } from "lucide-react";
+import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, AlertTriangle, Stethoscope, Pill, Eye, Brain, Phone, FileCheck, Heart, Activity, ChevronDown, AlertCircle, Users, Globe, Award } from "lucide-react";
 
 // States with free insurance programs
 const FREE_STATES: Record<string, { name: string; plan: string; link: string; benefits: string[] }> = {
@@ -77,6 +77,7 @@ function ResultsContent() {
   const router = useRouter();
   const [showExitModal, setShowExitModal] = useState(false);
   const [exitUrl, setExitUrl] = useState("");
+  const [expandedInfo, setExpandedInfo] = useState<number | null>(null);
 
   const state = searchParams.get("state") || "";
   const income = parseFloat(searchParams.get("income") || "0");
@@ -383,7 +384,7 @@ function ResultsContent() {
       </div>
 
       {/* Quick Info */}
-      <div className="max-w-5xl mx-auto px-4 pb-16">
+      <div className="max-w-6xl mx-auto px-4 pb-8">
         <div className="grid sm:grid-cols-3 gap-4">
           <div className="bg-slate-50 rounded-xl p-5">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
@@ -405,6 +406,130 @@ function ResultsContent() {
             </div>
             <h4 className="font-semibold text-slate-900">No SSN Required</h4>
             <p className="text-sm text-slate-600 mt-1">Passport & visa docs accepted</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Protect Yourself Section */}
+      <div className="max-w-6xl mx-auto px-4 pb-8">
+        <div className="bg-gradient-to-br from-blue-50 via-cyan-50 to-emerald-50 rounded-2xl p-6 sm:p-8 border border-blue-100">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Shield className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-900">Protect Yourself & Your Loved Ones</h3>
+              <p className="text-slate-600 mt-2 leading-relaxed">
+                Don't risk your OPT status or financial future. A single ER visit in the US can cost <span className="font-semibold text-red-600">$3,000 - $10,000+</span>. 
+                Health insurance is not just a safety net—it's essential for your peace of mind while you focus on your career.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Why Health Insurance Matters - Accordion */}
+      <div className="max-w-6xl mx-auto px-4 pb-8">
+        <h3 className="text-lg font-bold text-slate-900 mb-4">Why Health Insurance Matters in the US</h3>
+        <div className="space-y-3">
+          {[
+            {
+              title: "Healthcare costs are extremely high",
+              content: "Healthcare costs in the United States are not to be underestimated – services for even the simplest of reasons can result in medical bills from hundreds to thousands of dollars. A routine doctor visit can cost $150-300, while an emergency room visit averages $1,500-3,000. Without insurance, a hospital stay can easily exceed $10,000 per night."
+            },
+            {
+              title: "No national health plan like other countries",
+              content: "Unlike many countries, the US does not have a national healthcare plan. Americans rely on private health insurance to reduce their medical payments. Many international visitors assume healthcare works similarly to their home country, but misaligned expectations can put you at risk of incurring massive bills."
+            },
+            {
+              title: "Protect your immigration status",
+              content: "Unexpected medical debt can impact your financial stability and potentially your immigration status. If you're on OPT or STEM OPT, maintaining good standing is crucial. Having proper health coverage ensures you can focus on your career without worrying about medical emergencies derailing your plans."
+            },
+            {
+              title: "University requirements & job compliance",
+              content: "Many universities require health insurance for enrollment. Additionally, some employers expect OPT workers to have coverage. Our partner plans are designed to meet university waiver requirements and provide the documentation you need for employment."
+            }
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl border border-slate-100 overflow-hidden"
+            >
+              <button
+                onClick={() => setExpandedInfo(expandedInfo === i ? null : i)}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors"
+              >
+                <span className="font-medium text-slate-900 pr-4">{item.title}</span>
+                <ChevronDown
+                  className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${
+                    expandedInfo === i ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <div className={`overflow-hidden transition-all duration-200 ${expandedInfo === i ? "max-h-96" : "max-h-0"}`}>
+                <div className="px-4 pb-4 text-slate-600 text-sm leading-relaxed">
+                  {item.content}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Trusted Partners Section */}
+      <div className="max-w-6xl mx-auto px-4 pb-12">
+        <h3 className="text-lg font-bold text-slate-900 mb-4 text-center">Our Trusted Partners</h3>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {/* Kimber Health */}
+          <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl p-5 border border-cyan-100 text-center">
+            <div className="flex justify-center mb-3">
+              <Image
+                src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
+                alt="Kimber Health"
+                width={120}
+                height={32}
+                className="h-8 w-auto object-contain"
+              />
+            </div>
+            <div className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
+              <span>Starts from $0</span>
+            </div>
+            <p className="text-xs text-slate-600">Excellent service & specialty insurance that meets your needs. Free NY Essential Plan available.</p>
+          </div>
+
+          {/* ISO */}
+          <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-5 border border-rose-100 text-center">
+            <div className="flex justify-center mb-3">
+              <Image
+                src="/partners/logo.svg"
+                alt="ISO Insurance"
+                width={100}
+                height={32}
+                className="h-8 w-auto object-contain"
+              />
+            </div>
+            <div className="inline-flex items-center gap-1 bg-rose-100 text-rose-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
+              <Users className="w-3 h-3" />
+              <span>3M+ Students Since 1958</span>
+            </div>
+            <p className="text-xs text-slate-600">Trusted by students from 158+ countries. Comprehensive coverage with Aetna PPO network.</p>
+          </div>
+
+          {/* ISI */}
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-100 text-center">
+            <div className="flex justify-center mb-3">
+              <Image
+                src="/partners/Logo-ISI.png"
+                alt="ISI Student Insurance"
+                width={80}
+                height={32}
+                className="h-8 w-auto object-contain"
+              />
+            </div>
+            <div className="inline-flex items-center gap-1 bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
+              <Globe className="w-3 h-3" />
+              <span>1M+ Students Insured</span>
+            </div>
+            <p className="text-xs text-slate-600">United Healthcare network with 24/7 telemedicine and mental health coverage included.</p>
           </div>
         </div>
       </div>
