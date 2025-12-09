@@ -135,10 +135,10 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
             {!collapsed && (
-              <span className="flex-1 flex items-center justify-between">
-                <span>{item.label}</span>
+              <span className="flex-1 flex items-center justify-between min-w-0">
+                <span className="truncate">{item.label}</span>
                 {item.badge && (
-                  <span className="ml-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                  <span className="ml-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
                     {item.badge}
                   </span>
                 )}
