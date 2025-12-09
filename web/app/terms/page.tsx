@@ -12,7 +12,7 @@ export default function TermsPage() {
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">Terms & Conditions</h1>
         
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
-          Last Updated: October 14, 2025
+          Last Updated: December 9, 2024
         </p>
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -195,7 +195,7 @@ export default function TermsPage() {
           
           <h3>13.1 Governing Law</h3>
           <p>
-            These Terms are governed by the laws of the United States and the State of [Your State], without regard to conflict of law principles.
+            These Terms are governed by the laws of the United States and the State of Delaware, without regard to conflict of law principles.
           </p>
 
           <h3>13.2 Dispute Resolution</h3>

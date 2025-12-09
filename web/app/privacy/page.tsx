@@ -12,7 +12,7 @@ export default function PrivacyPage() {
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">Privacy Policy</h1>
         
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
-          Last Updated: October 14, 2025
+          Last Updated: December 9, 2024
         </p>
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -97,6 +97,9 @@ export default function PrivacyPage() {
             <li><strong>Resend</strong>: Email notifications (optional, only if you enable email reminders)</li>
             <li><strong>Google OAuth</strong>: If you sign in with Google (privacy policy: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">policies.google.com/privacy</a>)</li>
           </ul>
+          <p>
+            <strong>All third-party service providers are contractually bound</strong> to protect your data in accordance with this Privacy Policy and are prohibited from using your data for any purpose other than providing their services to TrackMyOPT.
+          </p>
 
           <h3>Legal Requirements</h3>
           <p>We may disclose your information if required by law or in response to valid legal requests.</p>
@@ -117,12 +120,38 @@ export default function PrivacyPage() {
 
           <h2>Data Retention</h2>
           <p>
-            We retain your personal information for as long as your account is active. If you delete your account:
+            We retain your personal information for as long as your account is active. If your account becomes dormant (no login for 24 months), we will notify you before taking any action on your data.
           </p>
+          <p>If you delete your account:</p>
           <ul>
             <li>All personal data is permanently deleted within 30 days</li>
             <li>Aggregated, anonymized data may be retained for analytics</li>
           </ul>
+
+          <h2>Data Breach Notification</h2>
+          <p>
+            In the unlikely event of a data breach affecting your personal information, we will:
+          </p>
+          <ul>
+            <li>Notify affected users via email within 72 hours of discovery</li>
+            <li>Provide details about what data was compromised</li>
+            <li>Explain what steps we are taking to address the breach</li>
+            <li>Provide instructions on actions you may take to protect yourself</li>
+            <li>Report to relevant authorities as required by law</li>
+          </ul>
+
+          <h2>Business Transfers</h2>
+          <p>
+            If TrackMyOPT is involved in a merger, acquisition, or sale of assets:
+          </p>
+          <ul>
+            <li>We will notify you via email and/or prominent notice on our website before your data is transferred</li>
+            <li>Your data will only be transferred to entities that agree to protect your data consistent with this Privacy Policy</li>
+            <li>You will have the option to delete your account and data before any transfer</li>
+          </ul>
+          <p>
+            If TrackMyOPT ceases operations, we will provide at least 30 days' notice and securely delete all user data.
+          </p>
 
           <h2>Cookies and Tracking</h2>
           <p>
@@ -143,13 +172,30 @@ export default function PrivacyPage() {
             Your data is stored in the United States. By using TrackMyOPT, you consent to the transfer of your information to the U.S.
           </p>
 
-          <h2>Changes to This Privacy Policy</h2>
+          <h2>California Privacy Rights (CCPA)</h2>
           <p>
-            We may update this Privacy Policy from time to time. We will notify you of changes by:
+            If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA):
           </p>
           <ul>
-            <li>Updating the "Last Updated" date at the top of this page</li>
-            <li>Sending an email notification (if material changes)</li>
+            <li><strong>Right to Know</strong>: You may request information about the categories and specific pieces of personal information we have collected about you</li>
+            <li><strong>Right to Delete</strong>: You may request deletion of your personal information</li>
+            <li><strong>Right to Opt-Out</strong>: You have the right to opt-out of the sale of personal information. Note: We do NOT sell personal information</li>
+            <li><strong>Right to Non-Discrimination</strong>: We will not discriminate against you for exercising your privacy rights</li>
+          </ul>
+          <p>
+            To exercise your CCPA rights, please contact us at <a href="mailto:support@trackmyopt.com">support@trackmyopt.com</a>. We will respond to verified requests within 45 days.
+          </p>
+
+          <h2>Changes to This Privacy Policy</h2>
+          <p>
+            We may update this Privacy Policy from time to time. When we make changes:
+          </p>
+          <ul>
+            <li>We will update the "Last Updated" date at the top of this page</li>
+            <li>For material changes, we will send an email notification to all registered users</li>
+            <li>We will provide a <strong>plain-language summary</strong> of what has changed</li>
+            <li>For significant changes, we will request your <strong>active consent</strong> (e.g., checkbox confirmation) before the changes take effect</li>
+            <li>You will have the opportunity to review changes and delete your account if you do not agree</li>
           </ul>
 
           <h2>Contact Us</h2>
