@@ -90,6 +90,10 @@ function ResultsContent() {
   const isLowIncome = income < 2500;
   const isEligibleForFree = freeState && isLowIncome;
   const isPartialEligible = partialState && isLowIncome;
+  
+  // Special case: New York Essential Plan redirects to Kimber Health
+  const isNYEssentialPlan = state === "NY" && isEligibleForFree;
+  const kimberPriceForNY = isNYEssentialPlan ? 0 : pricing.kimberPrice;
 
   const handleApply = (url: string) => {
     setExitUrl(url);
@@ -160,7 +164,7 @@ function ResultsContent() {
               </div>
 
               <button
-                onClick={() => handleApply(freeState.link)}
+                onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : freeState.link)}
                 className="w-full mt-4 h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
               >
                 Apply Now
@@ -333,11 +337,11 @@ function ResultsContent() {
                 className="h-9 w-auto object-contain"
               />
             </div>
-            <h3 className="font-bold text-slate-900">Kimber Essential</h3>
-            <p className="text-xs text-slate-500 mt-0.5">by NYWPG</p>
+            <h3 className="font-bold text-slate-900">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber Essential"}</h3>
+            <p className="text-xs text-slate-500 mt-0.5">{isNYEssentialPlan ? "Free via Kimber Health" : "by NYWPG"}</p>
             
             <div className="mt-3">
-              <span className="text-2xl font-bold text-slate-900">${pricing.kimberPrice}</span>
+              <span className="text-2xl font-bold text-slate-900">${kimberPriceForNY}</span>
               <span className="text-slate-500 text-sm">/mo</span>
             </div>
 
