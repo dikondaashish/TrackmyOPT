@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { subdomainConfig } from '@/lib/subdomain-config';
 
 async function signOut(request: Request) {
   const cookieStore = cookies();
@@ -35,8 +36,9 @@ async function signOut(request: Request) {
   // Sign out from Supabase
   await supabase.auth.signOut();
 
-  // Redirect to home page
-  return NextResponse.redirect(new URL('/', request.url));
+  // Redirect to marketing page (main domain)
+  const marketingUrl = subdomainConfig.marketing;
+  return NextResponse.redirect(marketingUrl);
 }
 
 export async function POST(request: Request) {

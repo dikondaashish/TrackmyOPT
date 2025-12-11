@@ -3,6 +3,7 @@ import { LayoutDashboard, Calendar, ClipboardCheck, Clock, FileText, Settings, H
 import { useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { usePathname, useRouter } from "next/navigation";
+import { subdomainConfig } from "@/lib/subdomain-config";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -73,11 +74,11 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
       } catch (e) {
       }
       
-      // Redirect to home
-      window.location.href = '/';
+      // Redirect to marketing page
+      window.location.href = subdomainConfig.marketing;
     } catch (error) {
       // Force redirect anyway to ensure user is logged out
-      window.location.href = '/';
+      window.location.href = subdomainConfig.marketing;
     }
   };
 

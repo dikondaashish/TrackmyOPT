@@ -33,6 +33,7 @@ import {
   History,
   ShieldCheck
 } from "lucide-react";
+import { subdomainConfig } from "@/lib/subdomain-config";
 
 // Tab types
 type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'appearance';
@@ -638,9 +639,9 @@ export function SettingsSection() {
       });
       localStorage.clear();
       sessionStorage.clear();
-      window.location.href = '/';
+      window.location.href = subdomainConfig.marketing;
     } catch {
-      window.location.href = '/';
+      window.location.href = subdomainConfig.marketing;
     }
   };
 

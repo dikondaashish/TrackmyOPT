@@ -260,7 +260,7 @@ function LoginPageContent() {
             lastName,
             fullName: `${firstName} ${lastName}`,
           },
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${subdomainConfig.dashboard}/dashboard`,
         },
       });
 
@@ -353,7 +353,7 @@ function LoginPageContent() {
             lastName,
             fullName: `${firstName} ${lastName}`,
           },
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${subdomainConfig.dashboard}/dashboard`,
         },
       });
 

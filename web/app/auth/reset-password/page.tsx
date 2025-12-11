@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { subdomainConfig } from '@/lib/subdomain-config';
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
@@ -52,9 +53,9 @@ export default function ResetPasswordPage() {
       setSuccess(true);
       setLoading(false);
 
-      // Redirect to login after 3 seconds
+      // Redirect to login subdomain after 3 seconds
       setTimeout(() => {
-        router.push('/');
+        window.location.href = `${subdomainConfig.login}/login`;
       }, 3000);
     } catch (err: any) {
       setError(err.message || 'Failed to reset password. Please try again.');
@@ -73,7 +74,7 @@ export default function ResetPasswordPage() {
               Your password has been successfully reset. You can now sign in with your new password.
             </p>
             <p className="text-sm text-gray-500">
-              Redirecting to home page...
+              Redirecting to login page...
             </p>
           </div>
         </div>
@@ -148,7 +149,7 @@ export default function ResetPasswordPage() {
 
         <div className="mt-6 text-center">
           <a
-            href="/"
+            href={subdomainConfig.marketing}
             className="text-sm text-blue-600 hover:text-blue-700 font-medium"
           >
             ← Back to Home

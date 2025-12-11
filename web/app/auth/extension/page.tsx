@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { subdomainConfig } from '@/lib/subdomain-config';
 
 type Tab = 'google' | 'manual';
 
@@ -88,7 +89,8 @@ function ExtensionAuthContent() {
     setLoading(true);
     setError(null);
     try {
-      const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+      // Use login subdomain for extension OAuth callback
+      const callbackUrl = `${subdomainConfig.login}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { 
