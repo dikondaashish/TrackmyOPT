@@ -28,8 +28,9 @@ export async function GET(req: NextRequest) {
     
     const code = url.searchParams.get('code');
     const next = url.searchParams.get('next') || '/dashboard';
-    const error = url.searchParams.get('error');
-    const errorDescription = url.searchParams.get('error_description');
+    // These are available for future error handling if needed
+    const _error = url.searchParams.get('error');
+    const _errorDescription = url.searchParams.get('error_description');
 
     if (!code) {
       console.error('❌ No OAuth code in callback');

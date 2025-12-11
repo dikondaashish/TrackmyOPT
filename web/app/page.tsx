@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { AuroraBackground } from '@/components/ui/aurora-background';
 import { Button as MovingBorderButton } from '@/components/ui/moving-border';
 
+// Subdomain URLs for production
+const LOGIN_URL = process.env.NEXT_PUBLIC_LOGIN_URL || 'https://login.trackmyopt.com';
+
 export default function HomePage() {
   return (
     <div className="min-h-screen">
@@ -20,8 +23,8 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
             <MovingBorderButton
-              as={Link}
-              href="/login"
+              as="a"
+              href={`${LOGIN_URL}/login`}
               borderRadius="9999px"
               className="bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
               containerClassName="h-auto w-auto"

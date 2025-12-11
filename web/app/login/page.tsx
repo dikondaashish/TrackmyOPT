@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import { subdomainConfig, getPostLoginRedirectUrl } from '@/lib/subdomain-config';
+import { subdomainConfig } from '@/lib/subdomain-config';
 
 type Mode = 'signin' | 'signup';
 
@@ -179,11 +179,18 @@ function LoginPageContent() {
       localStorage.setItem('trackmyopt_last_method', 'email');
       
       // Redirect to dashboard subdomain after successful login
-      const dashboardUrl = redirectTo.startsWith('/dashboard') 
-        ? `${subdomainConfig.dashboard}${redirectTo}`
-        : redirectTo.startsWith('/')
-          ? `${subdomainConfig.dashboard}${redirectTo}`
-          : redirectTo;
+      // Handle cases where redirectTo is already a full URL or just a path
+      let dashboardUrl: string;
+      if (redirectTo.startsWith('http://') || redirectTo.startsWith('https://')) {
+        // Already a full URL, use as-is
+        dashboardUrl = redirectTo;
+      } else if (redirectTo.startsWith('/')) {
+        // Relative path - prepend dashboard subdomain
+        dashboardUrl = `${subdomainConfig.dashboard}${redirectTo}`;
+      } else {
+        // Default to dashboard
+        dashboardUrl = `${subdomainConfig.dashboard}/dashboard`;
+      }
       window.location.href = dashboardUrl;
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
@@ -287,11 +294,18 @@ function LoginPageContent() {
 
       
       // Redirect to dashboard subdomain after OTP verification
-      const dashboardUrl = redirectTo.startsWith('/dashboard') 
-        ? `${subdomainConfig.dashboard}${redirectTo}`
-        : redirectTo.startsWith('/')
-          ? `${subdomainConfig.dashboard}${redirectTo}`
-          : redirectTo;
+      // Handle cases where redirectTo is already a full URL or just a path
+      let dashboardUrl: string;
+      if (redirectTo.startsWith('http://') || redirectTo.startsWith('https://')) {
+        // Already a full URL, use as-is
+        dashboardUrl = redirectTo;
+      } else if (redirectTo.startsWith('/')) {
+        // Relative path - prepend dashboard subdomain
+        dashboardUrl = `${subdomainConfig.dashboard}${redirectTo}`;
+      } else {
+        // Default to dashboard
+        dashboardUrl = `${subdomainConfig.dashboard}/dashboard`;
+      }
       window.location.href = dashboardUrl;
     } catch (err: any) {
       setOtpError(err.message || 'Invalid or expired code. Please try again.');
