@@ -44,16 +44,17 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
     return "U";
   };
   
+  // Clean URLs for dashboard subdomain (no /dashboard prefix)
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", badge: null },
-    { icon: Calendar, label: "OPT Dates", path: "/dashboard/opt-dates", badge: null },
-    { icon: ClipboardCheck, label: "Case Status", path: "/dashboard/case-status", badge: null },
-    { icon: Clock, label: "OPT Tools", path: "/dashboard/opt-tools", badge: null },
-    { icon: Shield, label: "Health Insurance", path: "/dashboard/opt-health-insurance-finder", badge: "From $0" },
-    { icon: FileText, label: "Documents", path: "/dashboard/documents", badge: null },
-    { icon: Receipt, label: "Tax Filing", path: "/dashboard/tax-filing", badge: "Free" },
-    { icon: Settings, label: "Settings", path: "/dashboard/settings", badge: null },
-    { icon: HelpCircle, label: "Help", path: "/dashboard/help", badge: null },
+    { icon: LayoutDashboard, label: "Dashboard", path: "/", badge: null },
+    { icon: Calendar, label: "OPT Dates", path: "/opt-dates", badge: null },
+    { icon: ClipboardCheck, label: "Case Status", path: "/case-status", badge: null },
+    { icon: Clock, label: "OPT Tools", path: "/opt-tools", badge: null },
+    { icon: Shield, label: "Health Insurance", path: "/opt-health-insurance-finder", badge: "From $0" },
+    { icon: FileText, label: "Documents", path: "/documents", badge: null },
+    { icon: Receipt, label: "Tax Filing", path: "/tax-filing", badge: "Free" },
+    { icon: Settings, label: "Settings", path: "/settings", badge: null },
+    { icon: HelpCircle, label: "Help", path: "/help", badge: null },
   ];
   
   const handleSignOut = async () => {

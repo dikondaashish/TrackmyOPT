@@ -440,25 +440,25 @@ export function HelpSection() {
                 icon={<Calendar className="w-5 h-5 text-blue-600" />}
                 title="OPT Dates Calculator"
                 description="Calculate important OPT filing windows, start dates, and deadlines based on your program end date."
-                link="/dashboard/opt-dates"
+                link="/opt-dates"
               />
               <FeatureCard
                 icon={<ClipboardCheck className="w-5 h-5 text-green-600" />}
                 title="Case Status Tracker"
                 description="Monitor your USCIS case status in real-time. Get notifications when your status changes."
-                link="/dashboard/case-status"
+                link="/case-status"
               />
               <FeatureCard
                 icon={<Clock className="w-5 h-5 text-red-600" />}
                 title="Unemployment Clock"
                 description="Track your unemployment days and stay compliant with the 90-day limit."
-                link="/dashboard/opt-tools"
+                link="/opt-tools"
               />
               <FeatureCard
                 icon={<FileText className="w-5 h-5 text-purple-600" />}
                 title="Document Vault"
                 description="Securely store and organize your OPT documents with AI-powered analysis."
-                link="/dashboard/documents"
+                link="/documents"
               />
             </div>
           </Card>

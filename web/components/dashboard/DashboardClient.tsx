@@ -212,7 +212,7 @@ export default function DashboardClient({
             <span>📅</span> Your Dates
           </h2>
           <a
-            href="/dashboard/opt-dates"
+            href="/opt-dates"
               className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
             >
             Edit Dates →
