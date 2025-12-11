@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { subdomainConfig, getPostLoginRedirectUrl, getLoginUrl, getDashboardUrl } from '@/lib/subdomain-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,34 +9,29 @@ export const dynamic = 'force-dynamic';
  * OAuth Callback Route for Web-Only Flows
  * 
  * This route handles Google OAuth callbacks for web users (not extension).
- * It exchanges the OAuth code for a session and redirects to the dashboard subdomain.
+ * It exchanges the OAuth code for a session and redirects to the dashboard.
  * 
- * Subdomain Architecture:
- * - This callback runs on login.trackmyopt.com
- * - After successful auth, redirects to dashboard.trackmyopt.com
- * - Cookies are set on .trackmyopt.com for cross-subdomain sharing
- * 
- * CRITICAL: Make sure Supabase and Google Console redirect URIs point to:
- * - https://login.trackmyopt.com/auth/callback (production)
- * - http://localhost:3000/auth/callback (development)
+ * CRITICAL: This route is at /auth/callback (not /auth/callback/server)
+ * Make sure Supabase and Google Console redirect URIs point to this exact path.
  */
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const cookieDomain = subdomainConfig.cookieDomain;
     
     const code = url.searchParams.get('code');
     const next = url.searchParams.get('next') || '/dashboard';
-    // These are available for future error handling if needed
-    const _error = url.searchParams.get('error');
-    const _errorDescription = url.searchParams.get('error_description');
+    const error = url.searchParams.get('error');
+    const errorDescription = url.searchParams.get('error_description');
+
 
     if (!code) {
       console.error('❌ No OAuth code in callback');
-      return NextResponse.redirect(getLoginUrl() + '?error=no_code');
+      return NextResponse.redirect(
+        new URL('/login?error=no_code', req.url)
+      );
     }
 
-    // Create Supabase client with root domain cookie handling
+    // Create Supabase client with proper cookie handling
     const cookieStore = cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,29 +43,14 @@ export async function GET(req: NextRequest) {
           },
           set(name: string, value: string, options: CookieOptions) {
             try {
-              // Set cookie on root domain for cross-subdomain sharing
-              const cookieOptions = {
-                name,
-                value,
-                ...options,
-                ...(cookieDomain && { domain: cookieDomain }),
-              };
-              cookieStore.set(cookieOptions);
-            } catch (err) {
-              console.error('Cookie set error:', err);
+              cookieStore.set({ name, value, ...options });
+            } catch (error) {
             }
           },
           remove(name: string, options: CookieOptions) {
             try {
-              const cookieOptions = {
-                name,
-                value: '',
-                ...options,
-                ...(cookieDomain && { domain: cookieDomain }),
-              };
-              cookieStore.set(cookieOptions);
-            } catch (err) {
-              console.error('Cookie remove error:', err);
+              cookieStore.set({ name, value: '', ...options });
+            } catch (error) {
             }
           },
         },
@@ -83,12 +62,19 @@ export async function GET(req: NextRequest) {
 
     if (exchangeError) {
       console.error('❌ Code exchange failed:', exchangeError);
-      return NextResponse.redirect(getLoginUrl() + '?error=exchange_failed');
+      return NextResponse.redirect(
+        new URL(
+          `/login?error=exchange_failed`,
+          req.url
+        )
+      );
     }
 
     if (!sessionData.session || !sessionData.user) {
       console.error('❌ No session or user after code exchange');
-      return NextResponse.redirect(getLoginUrl() + '?error=no_session');
+      return NextResponse.redirect(
+        new URL('/login?error=no_session', req.url)
+      );
     }
 
     // Check if this email is blocked (previously deleted account)
@@ -114,32 +100,29 @@ export async function GET(req: NextRequest) {
         
         console.error('❌ Blocked email attempted OAuth login:', userEmail);
         return NextResponse.redirect(
-          getLoginUrl() + '?error=This+email+has+been+permanently+blocked.+Previously+deleted+accounts+cannot+be+recreated.'
+          new URL('/login?error=This+email+has+been+permanently+blocked.+Previously+deleted+accounts+cannot+be+recreated.', req.url)
         );
       }
     }
 
-    // Determine redirect URL using clean URLs
-    // e.g., /dashboard → dashboard.trackmyopt.com
-    // e.g., /dashboard/opt-tools → dashboard.trackmyopt.com/opt-tools
-    let redirectUrl: string;
-    if (next.startsWith('http://') || next.startsWith('https://')) {
-      // Absolute URL - use as is
-      redirectUrl = next;
-    } else {
-      // Relative path - convert to clean dashboard URL
-      redirectUrl = getDashboardUrl(next);
-    }
+    // Redirect to the dashboard or specified next page
+    const redirectUrl = new URL(next, req.url);
 
-    // Redirect to the dashboard subdomain
+    // Add a small delay to ensure cookies are set before redirect
+    // Redirect to the dashboard or specified URL
     const response = NextResponse.redirect(redirectUrl);
     
-    // Ensure cookies are set properly and prevent caching
+    // Ensure cookies are set properly
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     
     return response;
   } catch (error) {
     console.error('❌ OAuth callback error:', error);
-    return NextResponse.redirect(getLoginUrl() + '?error=callback_failed');
+    return NextResponse.redirect(
+      new URL(
+        `/login?error=callback_failed`,
+        req.url
+      )
+    );
   }
 }

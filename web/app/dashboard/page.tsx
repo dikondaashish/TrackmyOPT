@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
-import { getLoginUrl } from "@/lib/subdomain-config";
 
 export default async function DashboardPage() {
   const cookieStore = cookies();
@@ -38,8 +37,7 @@ export default async function DashboardPage() {
   const { data, error } = await supabase.auth.getUser();
   
   if (!data.user) {
-    // Redirect to login subdomain
-    redirect(getLoginUrl('/dashboard'));
+    redirect(`/login`);
   }
 
   return <DashboardContent user={data.user} />;

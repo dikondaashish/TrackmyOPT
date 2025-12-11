@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import { subdomainConfig, getDashboardUrl } from '@/lib/subdomain-config';
 
 type Mode = 'signin' | 'signup';
 
@@ -178,17 +177,8 @@ function LoginPageContent() {
       // Save last used method
       localStorage.setItem('trackmyopt_last_method', 'email');
       
-      // Redirect to dashboard subdomain after successful login
-      // Uses clean URLs (e.g., dashboard.trackmyopt.com/opt-tools instead of /dashboard/opt-tools)
-      let dashboardUrl: string;
-      if (redirectTo.startsWith('http://') || redirectTo.startsWith('https://')) {
-        // Already a full URL, use as-is
-        dashboardUrl = redirectTo;
-      } else {
-        // Use helper to get correct URL with clean path
-        dashboardUrl = getDashboardUrl(redirectTo);
-      }
-      window.location.href = dashboardUrl;
+      // Redirect to intended page or dashboard - session is now in cookies
+      window.location.href = redirectTo;
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
@@ -257,7 +247,7 @@ function LoginPageContent() {
             lastName,
             fullName: `${firstName} ${lastName}`,
           },
-          emailRedirectTo: getDashboardUrl(),
+          emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
 
@@ -290,17 +280,8 @@ function LoginPageContent() {
       if (error) throw error;
 
       
-      // Redirect to dashboard subdomain after OTP verification
-      // Uses clean URLs (e.g., dashboard.trackmyopt.com instead of /dashboard)
-      let dashboardUrl: string;
-      if (redirectTo.startsWith('http://') || redirectTo.startsWith('https://')) {
-        // Already a full URL, use as-is
-        dashboardUrl = redirectTo;
-      } else {
-        // Use helper to get correct URL with clean path
-        dashboardUrl = getDashboardUrl(redirectTo);
-      }
-      window.location.href = dashboardUrl;
+      // Redirect to intended page or dashboard
+      window.location.href = redirectTo;
     } catch (err: any) {
       setOtpError(err.message || 'Invalid or expired code. Please try again.');
     } finally {
@@ -347,7 +328,7 @@ function LoginPageContent() {
             lastName,
             fullName: `${firstName} ${lastName}`,
           },
-          emailRedirectTo: getDashboardUrl(),
+          emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
 

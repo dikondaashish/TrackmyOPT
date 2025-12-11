@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { subdomainConfig } from '@/lib/subdomain-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,9 +39,9 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // Send password reset email - redirect to login subdomain
+    // Send password reset email
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${subdomainConfig.login}/auth/reset-password`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
     });
 
     if (error) {

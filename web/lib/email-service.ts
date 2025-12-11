@@ -208,7 +208,7 @@ function generateEmailHTML(data: EmailReminderData): string {
 
           <!-- CTA Button -->
           <div style="padding: 24px 28px; text-align: center; border-top: 1px solid #E5E7EB;">
-            <a href="https://dashboard.trackmyopt.com/dashboard/opt-tools/opt-apply" 
+            <a href="https://www.trackmyopt.com/dashboard/opt-tools/opt-apply" 
                style="display: inline-block; background: linear-gradient(135deg, #007AFF, #5856D6); color: white; text-decoration: none; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);">
               Update OPT Portal →
             </a>
@@ -220,7 +220,7 @@ function generateEmailHTML(data: EmailReminderData): string {
         <div style="padding: 24px; text-align: center;">
           <p style="margin: 0 0 12px 0; color: #6B7280; font-size: 12px;">
             Want to stop these emails? 
-            <a href="https://dashboard.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #007AFF; text-decoration: none; font-weight: 500;">
+            <a href="https://www.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #007AFF; text-decoration: none; font-weight: 500;">
               Manage Email Preferences
             </a>
           </p>
@@ -1751,7 +1751,7 @@ export async function sendEnrollmentEmail(
 
               <!-- CTA Button -->
               <div style="text-align: center; margin: 32px 0 24px 0;">
-                <a href="https://dashboard.trackmyopt.com/dashboard/opt-tools/${toolName}" 
+                <a href="https://www.trackmyopt.com/dashboard/opt-tools/${toolName}" 
                    style="display: inline-block; background: ${content.gradient}; color: white; text-decoration: none; padding: 14px 32px; border-radius: 10px; font-weight: 600; font-size: 15px;">
                   Go to ${content.title} →
                 </a>
@@ -1763,7 +1763,7 @@ export async function sendEnrollmentEmail(
                   <strong>Got a job or completed your application?</strong>
                 </p>
                 <p style="margin: 0; color: #6B7280; font-size: 14px;">
-                  Visit your <a href="https://dashboard.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #3B82F6; text-decoration: none; font-weight: 500;">Settings → Notifications</a> to manage your email preferences.
+                  Visit your <a href="https://www.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #3B82F6; text-decoration: none; font-weight: 500;">Settings → Notifications</a> to manage your email preferences.
                 </p>
               </div>
             </div>

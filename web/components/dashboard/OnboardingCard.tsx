@@ -38,7 +38,7 @@ export function OnboardingCard() {
             <h3 className="text-lg font-semibold">Your Dates</h3>
           </div>
           <a
-            href="/opt-dates"
+            href="/dashboard/opt-dates"
             className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
             Edit Dates →

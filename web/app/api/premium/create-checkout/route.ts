@@ -11,7 +11,6 @@ import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/jwt';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
-import { subdomainConfig } from '@/lib/subdomain-config';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-09-30.clover',
@@ -122,10 +121,11 @@ export async function POST(req: NextRequest) {
 
     }
 
-    // Get the origin from the request or use dashboard subdomain
+    // Get the origin from the request or use production URL
     const origin = req.headers.get('origin') || 
                    req.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
-                   subdomainConfig.dashboard;
+                   process.env.NEXT_PUBLIC_APP_URL || 
+                   'https://www.trackmyopt.com';
     
     // Create checkout session
     const session = await stripe.checkout.sessions.create({

@@ -1,5 +1,3 @@
-import { LOGIN_URL, MARKETING_URL } from './config.js';
-
 /**
  * Renders the locked state when user is not signed in
  */
@@ -60,32 +58,16 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
     </div>
 
     <div class="footer" style="margin-top: 12px; font-size: 11px;">
-      <a class="link" target="_blank" rel="noreferrer" href="${MARKETING_URL}/privacy">Privacy</a> ·
-      <a class="link" target="_blank" rel="noreferrer" href="${MARKETING_URL}/terms">Terms</a>
+      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/privacy">Privacy</a> ·
+      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/terms">Terms</a>
     </div>
   `;
 
-  // Hook up sign-in button to trigger auth flow via background.ts
-  // This ensures signedIn state is properly tracked
+  // Hook up sign-in button to trigger OAuth flow and also handle create account
   const signinBtn = document.getElementById('signin-btn');
   if (signinBtn) {
-    signinBtn.addEventListener('click', async () => {
-      // Update button to show loading state
-      signinBtn.textContent = 'Opening login...';
-      signinBtn.setAttribute('disabled', 'true');
-      
-      // Send message to background.ts to handle auth flow
-      // This will open login page and track when user reaches dashboard
-      chrome.runtime.sendMessage({ type: 'BEGIN_AUTH' }, (response) => {
-        if (response?.ok) {
-          // Auth successful - popup will re-render due to storage listener
-          window.close();
-        } else {
-          // Reset button if auth failed/cancelled
-          signinBtn.textContent = 'Sign In or Create Account';
-          signinBtn.removeAttribute('disabled');
-        }
-      });
+    signinBtn.addEventListener('click', () => {
+      chrome.tabs.create({ url: 'https://www.trackmyopt.com/login' });
     });
     
     // Add hover effect

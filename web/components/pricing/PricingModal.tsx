@@ -3,7 +3,6 @@
 import { ArrowRight, CircleCheck, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { getDashboardUrl } from "@/lib/subdomain-config";
 import {
   Card,
   CardContent,
@@ -58,8 +57,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          successUrl: getDashboardUrl('/premium/success'),
-          cancelUrl: getDashboardUrl(),
+          successUrl: `${window.location.origin}/premium/success`,
+          cancelUrl: `${window.location.origin}/dashboard`,
         }),
       });
 

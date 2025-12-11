@@ -84,7 +84,7 @@ export function PremiumUpsellModal({ open, onClose, feature }: PremiumUpsellModa
             Maybe Later
           </button>
           <button
-            onClick={() => window.location.href = '/premium'}
+            onClick={() => window.location.href = '/dashboard/premium'}
             className="flex-1 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-colors font-medium"
           >
             Upgrade to Premium

@@ -167,7 +167,7 @@ export function DateSelector() {
           
           {/* Calendar Icon */}
           <a
-            href="/opt-dates"
+            href="/dashboard/opt-dates"
             className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
             title="Edit this date"
           >

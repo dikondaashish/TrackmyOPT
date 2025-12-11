@@ -285,7 +285,7 @@ export function OptClockTool() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push('/opt-tools')}
+              onClick={() => router.push('/dashboard/opt-tools')}
               className="p-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200"
             >
               <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />

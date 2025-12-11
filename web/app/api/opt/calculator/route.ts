@@ -6,36 +6,18 @@ import { verifyToken } from '@/lib/jwt';
 
 export const dynamic = 'force-dynamic';
 
-// Allowed origins for CORS (extension and subdomains)
-const ALLOWED_ORIGINS = [
-  'https://trackmyopt.com',
-  'https://www.trackmyopt.com',
-  'https://login.trackmyopt.com',
-  'https://dashboard.trackmyopt.com',
-  'http://localhost:3000',
-];
-
-// Get CORS headers based on request origin
-function getCorsHeaders(request: NextRequest) {
-  const origin = request.headers.get('origin') || '';
-  
-  // Allow Chrome extension origins
-  const isExtension = origin.startsWith('chrome-extension://');
-  const isAllowed = ALLOWED_ORIGINS.includes(origin) || isExtension;
-  
-  return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': 'true',
-    'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-    'Pragma': 'no-cache',
-  };
-}
+// CORS headers for Chrome extension + cache control
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+};
 
 // Handle preflight requests
-export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, { status: 200, headers: getCorsHeaders(request) });
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
 }
 
 /**
@@ -87,7 +69,7 @@ export async function GET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: getCorsHeaders(req) });
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
     // Use service role client to bypass RLS
@@ -106,7 +88,7 @@ export async function GET(req: NextRequest) {
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
       console.error('❌ Error fetching opt_status:', error);
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: getCorsHeaders(req) });
+      return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
     }
 
     if (!data) {
@@ -133,7 +115,7 @@ export async function GET(req: NextRequest) {
         stem_start_date: formatDate(data.stem_start_date),
         last_updated_field: data.last_updated_field || null,
       } : null
-    }, { headers: getCorsHeaders(req) });
+    }, { headers: corsHeaders });
   } catch (error: any) {
     console.error('GET /api/opt/calculator error:', error);
     return NextResponse.json(
@@ -150,7 +132,7 @@ export async function POST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: getCorsHeaders(req) });
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
     // Use service role client to bypass RLS
@@ -184,7 +166,7 @@ export async function POST(req: NextRequest) {
     if (!hasAtLeastOneDate) {
       return NextResponse.json(
         { ok: false, error: 'At least one date is required' },
-        { status: 400, headers: getCorsHeaders(req) }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -265,11 +247,11 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('❌ Error upserting opt_status:', error);
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: getCorsHeaders(req) });
+      return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
     }
 
 
-    return NextResponse.json({ ok: true, data: upsertResult }, { headers: getCorsHeaders(req) });
+    return NextResponse.json({ ok: true, data: upsertResult }, { headers: corsHeaders });
   } catch (error: any) {
     console.error('POST /api/opt/calculator error:', error);
     return NextResponse.json(

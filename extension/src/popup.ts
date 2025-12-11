@@ -5,39 +5,25 @@ import { renderStemApply } from './pages/stem-apply.js';
 import { renderClock } from './pages/clock.js';
 import { renderStemClock } from './pages/stem-clock.js';
 import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
-import { API_ENDPOINTS } from './config.js';
 
 /**
- * Check if user is signed in
- * First checks chrome.storage (set by background.ts after successful login)
- * Extensions cannot send cookies with fetch, so we rely on stored state
+ * Check if user is signed in by calling /api/me
  */
 async function isSignedIn(): Promise<boolean> {
   try {
-    // First check chrome.storage - this is set by background.ts after login
-    const { signedIn } = await chrome.storage.sync.get('signedIn');
+    const response = await fetch('https://www.trackmyopt.com/api/me', {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
     
-    if (signedIn === true) {
+    if (response.ok) {
+      await chrome.storage.sync.set({ signedIn: true });
       return true;
+    } else {
+      await chrome.storage.sync.set({ signedIn: false });
+      return false;
     }
-    
-    // If not marked as signed in, try API as fallback (may not work due to cookie restrictions)
-    try {
-      const response = await fetch(API_ENDPOINTS.ME, {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      
-      if (response.ok) {
-        await chrome.storage.sync.set({ signedIn: true });
-        return true;
-      }
-    } catch {
-      // API call failed - expected for extensions
-    }
-    
-    return false;
   } catch {
     return false;
   }
