@@ -16,6 +16,9 @@ export const LOGIN_URL = 'https://login.trackmyopt.com';
 // Marketing/main domain
 export const MARKETING_URL = 'https://trackmyopt.com';
 
+// Backwards compatibility alias (other files import this)
+export const WEBSITE_URL = DASHBOARD_URL;
+
 export const API_ENDPOINTS = {
   ME: `${DASHBOARD_URL}/api/me`,
   AUTH: `${LOGIN_URL}/login`,
