@@ -65,11 +65,27 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
     </div>
   `;
 
-  // Hook up sign-in button to trigger OAuth flow and also handle create account
+  // Hook up sign-in button to trigger auth flow via background.ts
+  // This ensures signedIn state is properly tracked
   const signinBtn = document.getElementById('signin-btn');
   if (signinBtn) {
-    signinBtn.addEventListener('click', () => {
-      chrome.tabs.create({ url: `${LOGIN_URL}/login` });
+    signinBtn.addEventListener('click', async () => {
+      // Update button to show loading state
+      signinBtn.textContent = 'Opening login...';
+      signinBtn.setAttribute('disabled', 'true');
+      
+      // Send message to background.ts to handle auth flow
+      // This will open login page and track when user reaches dashboard
+      chrome.runtime.sendMessage({ type: 'BEGIN_AUTH' }, (response) => {
+        if (response?.ok) {
+          // Auth successful - popup will re-render due to storage listener
+          window.close();
+        } else {
+          // Reset button if auth failed/cancelled
+          signinBtn.textContent = 'Sign In or Create Account';
+          signinBtn.removeAttribute('disabled');
+        }
+      });
     });
     
     // Add hover effect

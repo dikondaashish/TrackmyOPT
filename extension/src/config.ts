@@ -21,5 +21,5 @@ export const WEBSITE_URL = DASHBOARD_URL;
 
 export const API_ENDPOINTS = {
   ME: `${DASHBOARD_URL}/api/me`,
-  AUTH: `${LOGIN_URL}/login`,
+  AUTH: LOGIN_URL,  // Clean URL - login.trackmyopt.com serves login page at root
 };
