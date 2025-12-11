@@ -186,9 +186,23 @@ export default function HomePage() {
       {/* Footer */}
       <div className="bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-12 text-center">
-          <p className="text-gray-600 dark:text-gray-300 text-lg">
+          <p className="text-gray-600 dark:text-gray-300 text-lg mb-4">
             Made with 💙 for international students
           </p>
+          <div className="flex justify-center gap-6 text-sm">
+            <Link 
+              href="/privacy" 
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link 
+              href="/terms" 
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            >
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </div>
