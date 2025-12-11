@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/jwt';
+import { getCorsHeaders } from '@/lib/cors';
 
 export const dynamic = 'force-dynamic';
 
-// CORS headers for Chrome extension
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(request: NextRequest) {
+  return NextResponse.json({}, { headers: getCorsHeaders(request) });
 }
 
 // Admin client to bypass RLS
@@ -33,7 +27,7 @@ export async function POST(req: NextRequest) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
         { error: 'Authorization required' },
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: getCorsHeaders(req) }
       );
     }
 
@@ -43,7 +37,7 @@ export async function POST(req: NextRequest) {
     if (!decoded) {
       return NextResponse.json(
         { error: 'Invalid token' },
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: getCorsHeaders(req) }
       );
     }
 
@@ -94,13 +88,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ 
       ok: true, 
       message: 'Extension registered' 
-    }, { headers: corsHeaders });
+    }, { headers: getCorsHeaders(req) });
 
   } catch (error) {
     console.error('Extension ping error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: getCorsHeaders(req) }
     );
   }
 }
@@ -126,7 +120,7 @@ export async function GET(req: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: 'Authorization required' },
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: getCorsHeaders(req) }
       );
     }
 
@@ -152,13 +146,13 @@ export async function GET(req: NextRequest) {
       isConnected: !!session,
       lastActiveAt: session?.last_active_at || null,
       version: session?.device_info || null,
-    }, { headers: corsHeaders });
+    }, { headers: getCorsHeaders(req) });
 
   } catch (error) {
     console.error('Extension ping GET error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: getCorsHeaders(req) }
     );
   }
 }
