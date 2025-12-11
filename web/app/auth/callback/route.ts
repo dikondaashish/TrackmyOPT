@@ -28,9 +28,7 @@ export async function GET(req: NextRequest) {
     
     const code = url.searchParams.get('code');
     const next = url.searchParams.get('next') || '/dashboard';
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const error = url.searchParams.get('error');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const errorDescription = url.searchParams.get('error_description');
 
     if (!code) {
