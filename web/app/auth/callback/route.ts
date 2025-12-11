@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
+import { subdomainConfig, getPostLoginRedirectUrl, getLoginUrl } from '@/lib/subdomain-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,29 +10,35 @@ export const dynamic = 'force-dynamic';
  * OAuth Callback Route for Web-Only Flows
  * 
  * This route handles Google OAuth callbacks for web users (not extension).
- * It exchanges the OAuth code for a session and redirects to the dashboard.
+ * It exchanges the OAuth code for a session and redirects to the dashboard subdomain.
  * 
- * CRITICAL: This route is at /auth/callback (not /auth/callback/server)
- * Make sure Supabase and Google Console redirect URIs point to this exact path.
+ * Subdomain Architecture:
+ * - This callback runs on login.trackmyopt.com
+ * - After successful auth, redirects to dashboard.trackmyopt.com
+ * - Cookies are set on .trackmyopt.com for cross-subdomain sharing
+ * 
+ * CRITICAL: Make sure Supabase and Google Console redirect URIs point to:
+ * - https://login.trackmyopt.com/auth/callback (production)
+ * - http://localhost:3000/auth/callback (development)
  */
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
+    const cookieDomain = subdomainConfig.cookieDomain;
     
     const code = url.searchParams.get('code');
     const next = url.searchParams.get('next') || '/dashboard';
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const error = url.searchParams.get('error');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const errorDescription = url.searchParams.get('error_description');
-
 
     if (!code) {
       console.error('❌ No OAuth code in callback');
-      return NextResponse.redirect(
-        new URL('/login?error=no_code', req.url)
-      );
+      return NextResponse.redirect(getLoginUrl() + '?error=no_code');
     }
 
-    // Create Supabase client with proper cookie handling
+    // Create Supabase client with root domain cookie handling
     const cookieStore = cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,14 +50,29 @@ export async function GET(req: NextRequest) {
           },
           set(name: string, value: string, options: CookieOptions) {
             try {
-              cookieStore.set({ name, value, ...options });
-            } catch (error) {
+              // Set cookie on root domain for cross-subdomain sharing
+              const cookieOptions = {
+                name,
+                value,
+                ...options,
+                ...(cookieDomain && { domain: cookieDomain }),
+              };
+              cookieStore.set(cookieOptions);
+            } catch (err) {
+              console.error('Cookie set error:', err);
             }
           },
           remove(name: string, options: CookieOptions) {
             try {
-              cookieStore.set({ name, value: '', ...options });
-            } catch (error) {
+              const cookieOptions = {
+                name,
+                value: '',
+                ...options,
+                ...(cookieDomain && { domain: cookieDomain }),
+              };
+              cookieStore.set(cookieOptions);
+            } catch (err) {
+              console.error('Cookie remove error:', err);
             }
           },
         },
@@ -62,19 +84,12 @@ export async function GET(req: NextRequest) {
 
     if (exchangeError) {
       console.error('❌ Code exchange failed:', exchangeError);
-      return NextResponse.redirect(
-        new URL(
-          `/login?error=exchange_failed`,
-          req.url
-        )
-      );
+      return NextResponse.redirect(getLoginUrl() + '?error=exchange_failed');
     }
 
     if (!sessionData.session || !sessionData.user) {
       console.error('❌ No session or user after code exchange');
-      return NextResponse.redirect(
-        new URL('/login?error=no_session', req.url)
-      );
+      return NextResponse.redirect(getLoginUrl() + '?error=no_session');
     }
 
     // Check if this email is blocked (previously deleted account)
@@ -100,29 +115,35 @@ export async function GET(req: NextRequest) {
         
         console.error('❌ Blocked email attempted OAuth login:', userEmail);
         return NextResponse.redirect(
-          new URL('/login?error=This+email+has+been+permanently+blocked.+Previously+deleted+accounts+cannot+be+recreated.', req.url)
+          getLoginUrl() + '?error=This+email+has+been+permanently+blocked.+Previously+deleted+accounts+cannot+be+recreated.'
         );
       }
     }
 
-    // Redirect to the dashboard or specified next page
-    const redirectUrl = new URL(next, req.url);
+    // Determine redirect URL
+    // If next is a relative path like /dashboard, redirect to dashboard subdomain
+    // Otherwise, use the provided URL
+    let redirectUrl: string;
+    if (next.startsWith('/dashboard') || next === '/dashboard') {
+      // Redirect to dashboard subdomain
+      redirectUrl = getPostLoginRedirectUrl();
+    } else if (next.startsWith('/')) {
+      // Other relative paths go to dashboard subdomain with that path
+      redirectUrl = subdomainConfig.dashboard + next;
+    } else {
+      // Absolute URL - use as is
+      redirectUrl = next;
+    }
 
-    // Add a small delay to ensure cookies are set before redirect
-    // Redirect to the dashboard or specified URL
+    // Redirect to the dashboard subdomain
     const response = NextResponse.redirect(redirectUrl);
     
-    // Ensure cookies are set properly
+    // Ensure cookies are set properly and prevent caching
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     
     return response;
   } catch (error) {
     console.error('❌ OAuth callback error:', error);
-    return NextResponse.redirect(
-      new URL(
-        `/login?error=callback_failed`,
-        req.url
-      )
-    );
+    return NextResponse.redirect(getLoginUrl() + '?error=callback_failed');
   }
 }

@@ -2,11 +2,17 @@ import { createBrowserClient } from '@supabase/ssr';
 
 /**
  * Supabase client for client-side usage
- * Uses cookies for session storage to ensure compatibility between client and server
+ * 
+ * Uses cookies for session storage with cross-subdomain support:
+ * - Cookies are set on .trackmyopt.com (root domain) by server
+ * - Browser client can read these cookies across all subdomains
+ * - Works with: login.trackmyopt.com, dashboard.trackmyopt.com
  */
 export const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  // Browser client uses default cookie handling
+  // Root domain cookies (.trackmyopt.com) are automatically available
 );
 
 /**

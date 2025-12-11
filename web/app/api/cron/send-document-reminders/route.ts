@@ -389,7 +389,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
 
                     <!-- CTA Buttons -->
                     <div style="text-align: center; margin: 30px 0;">
-                      <a href="https://www.trackmyopt.com/dashboard/documents" 
+                      <a href="https://dashboard.trackmyopt.com/dashboard/documents" 
                          style="display: inline-block; background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 16px 36px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);">
                         View & Update Document →
                       </a>
@@ -420,9 +420,9 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
                       You're receiving this email because you have document reminders enabled.
                     </p>
                     <p style="color: #6b7280; font-size: 12px; margin: 0;">
-                      <a href="https://www.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #06b6d4; text-decoration: none; font-weight: 500;">Manage Email Preferences</a>
+                      <a href="https://dashboard.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #06b6d4; text-decoration: none; font-weight: 500;">Manage Email Preferences</a>
                       <span style="color: #d1d5db; margin: 0 8px;">|</span>
-                      <a href="https://www.trackmyopt.com/dashboard/documents" style="color: #06b6d4; text-decoration: none; font-weight: 500;">View All Documents</a>
+                      <a href="https://dashboard.trackmyopt.com/dashboard/documents" style="color: #06b6d4; text-decoration: none; font-weight: 500;">View All Documents</a>
                     </p>
                     <p style="color: #9ca3af; font-size: 11px; margin: 16px 0 0 0;">
                       © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.

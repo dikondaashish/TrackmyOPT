@@ -208,13 +208,13 @@ export async function GET(request: NextRequest) {
             <li>The new owner agrees to our current Privacy Policy terms</li>
             <li>You have until [DATE] to delete your account if you prefer</li>
           </ul>
-          <p><a href="https://www.trackmyopt.com/dashboard/settings" style="background: #DC2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Delete My Account Before Transfer</a></p>
+          <p><a href="https://dashboard.trackmyopt.com/dashboard/settings" style="background: #DC2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Delete My Account Before Transfer</a></p>
           <p>If you have questions, contact us at support@trackmyopt.com</p>
           <p>Best regards,<br/>The TrackMyOPT Team<br/>Zyene, Inc.</p>
         </body>
         </html>
       `,
-      plainTextContent: `Hi {{firstName}}, TrackMyOPT ownership is being transferred. Visit https://www.trackmyopt.com/dashboard/settings to delete your account before transfer if you prefer.`,
+      plainTextContent: `Hi {{firstName}}, TrackMyOPT ownership is being transferred. Visit https://dashboard.trackmyopt.com/dashboard/settings to delete your account before transfer if you prefer.`,
     },
     data_breach: {
       subject: '🚨 Security Notice: TrackMyOPT Data Incident',

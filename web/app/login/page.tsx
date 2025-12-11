@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { subdomainConfig, getPostLoginRedirectUrl } from '@/lib/subdomain-config';
 
 type Mode = 'signin' | 'signup';
 
@@ -177,8 +178,13 @@ function LoginPageContent() {
       // Save last used method
       localStorage.setItem('trackmyopt_last_method', 'email');
       
-      // Redirect to intended page or dashboard - session is now in cookies
-      window.location.href = redirectTo;
+      // Redirect to dashboard subdomain after successful login
+      const dashboardUrl = redirectTo.startsWith('/dashboard') 
+        ? `${subdomainConfig.dashboard}${redirectTo}`
+        : redirectTo.startsWith('/')
+          ? `${subdomainConfig.dashboard}${redirectTo}`
+          : redirectTo;
+      window.location.href = dashboardUrl;
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
@@ -280,8 +286,13 @@ function LoginPageContent() {
       if (error) throw error;
 
       
-      // Redirect to intended page or dashboard
-      window.location.href = redirectTo;
+      // Redirect to dashboard subdomain after OTP verification
+      const dashboardUrl = redirectTo.startsWith('/dashboard') 
+        ? `${subdomainConfig.dashboard}${redirectTo}`
+        : redirectTo.startsWith('/')
+          ? `${subdomainConfig.dashboard}${redirectTo}`
+          : redirectTo;
+      window.location.href = dashboardUrl;
     } catch (err: any) {
       setOtpError(err.message || 'Invalid or expired code. Please try again.');
     } finally {
