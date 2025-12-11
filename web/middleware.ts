@@ -84,15 +84,21 @@ export async function middleware(request: NextRequest) {
   
   // === MARKETING DOMAIN: NO PROTECTION ===
   // Marketing site (www.trackmyopt.com / trackmyopt.com) is fully public
-  // Just pass through without any auth checks
   if (isMarketing && !isLocal) {
     return NextResponse.next();
   }
   
-  // === URL REWRITING FOR DASHBOARD SUBDOMAIN ===
-  // On dashboard.trackmyopt.com, rewrite URLs to add /dashboard prefix internally
-  // Example: dashboard.trackmyopt.com/opt-tools → serves /dashboard/opt-tools
+  // === URL REWRITING FOR LOGIN SUBDOMAIN ===
+  // login.trackmyopt.com → serves /login page
+  // login.trackmyopt.com/auth/* → serves /auth/* routes
   let rewritePath = pathname;
+  if (isLogin && pathname === '/') {
+    rewritePath = '/login';
+  }
+  
+  // === URL REWRITING FOR DASHBOARD SUBDOMAIN ===
+  // dashboard.trackmyopt.com → serves /dashboard
+  // dashboard.trackmyopt.com/opt-tools → serves /dashboard/opt-tools
   if (isDashboard && !pathname.startsWith('/dashboard') && !pathname.startsWith('/api') && !pathname.startsWith('/_next') && !pathname.startsWith('/auth')) {
     rewritePath = `/dashboard${pathname === '/' ? '' : pathname}`;
   }
@@ -107,13 +113,13 @@ export async function middleware(request: NextRequest) {
     pathname === route || pathname.startsWith(`${route}/`)
   );
   
-  // Auth route is only on login subdomain
-  const isAuthRoute = isLogin && authRoutes.some(route => pathname === route);
+  // Auth route - check if user is on login subdomain root (which serves /login)
+  const isAuthRoute = isLogin && (pathname === '/' || pathname === '/login');
 
-  // Create response - use rewrite for dashboard subdomain
+  // Create response - use rewrite for subdomains with clean URLs
   let response: NextResponse;
-  if (isDashboard && rewritePath !== pathname) {
-    // Rewrite the URL internally (user sees clean URL, server sees /dashboard/...)
+  if (rewritePath !== pathname) {
+    // Rewrite the URL internally (user sees clean URL, server sees actual path)
     response = NextResponse.rewrite(new URL(rewritePath, request.url));
   } else {
     response = NextResponse.next({
@@ -183,8 +189,8 @@ export async function middleware(request: NextRequest) {
       // Local development - redirect to login page on same host
       return NextResponse.redirect(new URL('/login', request.url));
     } else {
-      // Production - redirect to login subdomain with clean URL as redirect
-      const redirectUrl = `${LOGIN_URL}/login?redirect=${encodeURIComponent(pathname)}`;
+      // Production - redirect to login subdomain (clean URL, no /login path)
+      const redirectUrl = `${LOGIN_URL}?redirect=${encodeURIComponent(pathname)}`;
       return NextResponse.redirect(redirectUrl);
     }
   }

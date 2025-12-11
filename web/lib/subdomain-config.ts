@@ -85,12 +85,21 @@ export function getDashboardUrl(path: string = ''): string {
 
 /**
  * Get login page URL with optional redirect
+ * Uses clean URL (login.trackmyopt.com instead of login.trackmyopt.com/login)
  */
 export function getLoginUrl(redirectTo?: string): string {
-  if (redirectTo) {
-    return `${subdomainConfig.login}/login?redirect=${encodeURIComponent(redirectTo)}`;
+  if (isLocalhost) {
+    // Localhost still uses /login path
+    if (redirectTo) {
+      return `${subdomainConfig.login}/login?redirect=${encodeURIComponent(redirectTo)}`;
+    }
+    return `${subdomainConfig.login}/login`;
   }
-  return `${subdomainConfig.login}/login`;
+  // Production uses clean URL
+  if (redirectTo) {
+    return `${subdomainConfig.login}?redirect=${encodeURIComponent(redirectTo)}`;
+  }
+  return subdomainConfig.login;
 }
 
 /**
