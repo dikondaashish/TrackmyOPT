@@ -3,7 +3,7 @@
 import { ArrowRight, CircleCheck, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { subdomainConfig } from "@/lib/subdomain-config";
+import { getDashboardUrl } from "@/lib/subdomain-config";
 import {
   Card,
   CardContent,
@@ -58,8 +58,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          successUrl: `${subdomainConfig.dashboard}/premium/success`,
-          cancelUrl: `${subdomainConfig.dashboard}/dashboard`,
+          successUrl: getDashboardUrl('/premium/success'),
+          cancelUrl: getDashboardUrl(),
         }),
       });
 

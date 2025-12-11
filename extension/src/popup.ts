@@ -5,13 +5,14 @@ import { renderStemApply } from './pages/stem-apply.js';
 import { renderClock } from './pages/clock.js';
 import { renderStemClock } from './pages/stem-clock.js';
 import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
+import { API_ENDPOINTS } from './config.js';
 
 /**
  * Check if user is signed in by calling /api/me
  */
 async function isSignedIn(): Promise<boolean> {
   try {
-    const response = await fetch('https://www.trackmyopt.com/api/me', {
+    const response = await fetch(API_ENDPOINTS.ME, {
       method: 'GET',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

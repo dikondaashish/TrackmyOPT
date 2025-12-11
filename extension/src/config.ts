@@ -1,18 +1,22 @@
 /**
  * Configuration for the TrackMyOPT Chrome Extension
  * 
- * Update WEBSITE_URL before deploying to production!
+ * Subdomain Architecture:
+ * - login.trackmyopt.com - Authentication
+ * - dashboard.trackmyopt.com - Main app and API
+ * - trackmyopt.com - Marketing
  */
 
-// Development: Use localhost
-// Production: Use your deployed URL
-export const WEBSITE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://www.trackmyopt.com'
-  : 'https://www.trackmyopt.com';
+// Dashboard subdomain for API calls
+export const DASHBOARD_URL = 'https://dashboard.trackmyopt.com';
+
+// Login subdomain for authentication
+export const LOGIN_URL = 'https://login.trackmyopt.com';
+
+// Marketing/main domain
+export const MARKETING_URL = 'https://trackmyopt.com';
 
 export const API_ENDPOINTS = {
-  ME: `${WEBSITE_URL}/api/me`,
-  AUTH: process.env.NODE_ENV === 'production' 
-    ? 'https://www.trackmyopt.com/login'
-    : 'https://www.trackmyopt.com/login',
+  ME: `${DASHBOARD_URL}/api/me`,
+  AUTH: `${LOGIN_URL}/login`,
 };

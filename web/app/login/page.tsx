@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import { subdomainConfig } from '@/lib/subdomain-config';
+import { subdomainConfig, getDashboardUrl } from '@/lib/subdomain-config';
 
 type Mode = 'signin' | 'signup';
 
@@ -179,17 +179,14 @@ function LoginPageContent() {
       localStorage.setItem('trackmyopt_last_method', 'email');
       
       // Redirect to dashboard subdomain after successful login
-      // Handle cases where redirectTo is already a full URL or just a path
+      // Uses clean URLs (e.g., dashboard.trackmyopt.com/opt-tools instead of /dashboard/opt-tools)
       let dashboardUrl: string;
       if (redirectTo.startsWith('http://') || redirectTo.startsWith('https://')) {
         // Already a full URL, use as-is
         dashboardUrl = redirectTo;
-      } else if (redirectTo.startsWith('/')) {
-        // Relative path - prepend dashboard subdomain
-        dashboardUrl = `${subdomainConfig.dashboard}${redirectTo}`;
       } else {
-        // Default to dashboard
-        dashboardUrl = `${subdomainConfig.dashboard}/dashboard`;
+        // Use helper to get correct URL with clean path
+        dashboardUrl = getDashboardUrl(redirectTo);
       }
       window.location.href = dashboardUrl;
     } catch (err: any) {
@@ -260,7 +257,7 @@ function LoginPageContent() {
             lastName,
             fullName: `${firstName} ${lastName}`,
           },
-          emailRedirectTo: `${subdomainConfig.dashboard}/dashboard`,
+          emailRedirectTo: getDashboardUrl(),
         },
       });
 
@@ -294,17 +291,14 @@ function LoginPageContent() {
 
       
       // Redirect to dashboard subdomain after OTP verification
-      // Handle cases where redirectTo is already a full URL or just a path
+      // Uses clean URLs (e.g., dashboard.trackmyopt.com instead of /dashboard)
       let dashboardUrl: string;
       if (redirectTo.startsWith('http://') || redirectTo.startsWith('https://')) {
         // Already a full URL, use as-is
         dashboardUrl = redirectTo;
-      } else if (redirectTo.startsWith('/')) {
-        // Relative path - prepend dashboard subdomain
-        dashboardUrl = `${subdomainConfig.dashboard}${redirectTo}`;
       } else {
-        // Default to dashboard
-        dashboardUrl = `${subdomainConfig.dashboard}/dashboard`;
+        // Use helper to get correct URL with clean path
+        dashboardUrl = getDashboardUrl(redirectTo);
       }
       window.location.href = dashboardUrl;
     } catch (err: any) {
@@ -353,7 +347,7 @@ function LoginPageContent() {
             lastName,
             fullName: `${firstName} ${lastName}`,
           },
-          emailRedirectTo: `${subdomainConfig.dashboard}/dashboard`,
+          emailRedirectTo: getDashboardUrl(),
         },
       });
 

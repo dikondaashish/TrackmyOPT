@@ -1,3 +1,5 @@
+import { LOGIN_URL, MARKETING_URL } from './config.js';
+
 /**
  * Renders the locked state when user is not signed in
  */
@@ -58,8 +60,8 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
     </div>
 
     <div class="footer" style="margin-top: 12px; font-size: 11px;">
-      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/privacy">Privacy</a> ·
-      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/terms">Terms</a>
+      <a class="link" target="_blank" rel="noreferrer" href="${MARKETING_URL}/privacy">Privacy</a> ·
+      <a class="link" target="_blank" rel="noreferrer" href="${MARKETING_URL}/terms">Terms</a>
     </div>
   `;
 
@@ -67,7 +69,7 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
   const signinBtn = document.getElementById('signin-btn');
   if (signinBtn) {
     signinBtn.addEventListener('click', () => {
-      chrome.tabs.create({ url: 'https://www.trackmyopt.com/login' });
+      chrome.tabs.create({ url: `${LOGIN_URL}/login` });
     });
     
     // Add hover effect

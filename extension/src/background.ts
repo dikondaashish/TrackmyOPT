@@ -1,4 +1,4 @@
-import { API_ENDPOINTS } from './config';
+import { API_ENDPOINTS, DASHBOARD_URL } from './config';
 
 // Internal message listener (from popup)
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
@@ -81,8 +81,9 @@ async function beginAuth(){
       const responseUrl = changeInfo.url || currentTab.url;
       if (!responseUrl) return;
       
-      // Check if user reached dashboard (successful login)
-      if (responseUrl.includes('/dashboard')) {
+      // Check if user reached dashboard subdomain (successful login)
+      // Works with both dashboard.trackmyopt.com and dashboard.trackmyopt.com/anything
+      if (responseUrl.includes('dashboard.trackmyopt.com') || responseUrl.includes('/dashboard')) {
         clearTimeout(timeout);
         chrome.tabs.onUpdated.removeListener(listener);
         

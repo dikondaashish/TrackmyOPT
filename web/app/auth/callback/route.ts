@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { subdomainConfig, getPostLoginRedirectUrl, getLoginUrl } from '@/lib/subdomain-config';
+import { subdomainConfig, getPostLoginRedirectUrl, getLoginUrl, getDashboardUrl } from '@/lib/subdomain-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -119,19 +119,16 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Determine redirect URL
-    // If next is a relative path like /dashboard, redirect to dashboard subdomain
-    // Otherwise, use the provided URL
+    // Determine redirect URL using clean URLs
+    // e.g., /dashboard → dashboard.trackmyopt.com
+    // e.g., /dashboard/opt-tools → dashboard.trackmyopt.com/opt-tools
     let redirectUrl: string;
-    if (next.startsWith('/dashboard') || next === '/dashboard') {
-      // Redirect to dashboard subdomain
-      redirectUrl = getPostLoginRedirectUrl();
-    } else if (next.startsWith('/')) {
-      // Other relative paths go to dashboard subdomain with that path
-      redirectUrl = subdomainConfig.dashboard + next;
-    } else {
+    if (next.startsWith('http://') || next.startsWith('https://')) {
       // Absolute URL - use as is
       redirectUrl = next;
+    } else {
+      // Relative path - convert to clean dashboard URL
+      redirectUrl = getDashboardUrl(next);
     }
 
     // Redirect to the dashboard subdomain

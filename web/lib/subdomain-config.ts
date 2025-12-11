@@ -60,9 +60,27 @@ export function getOAuthCallbackUrl(): string {
 
 /**
  * Get redirect URL after successful login
+ * Uses clean URL (dashboard.trackmyopt.com instead of dashboard.trackmyopt.com/dashboard)
  */
 export function getPostLoginRedirectUrl(): string {
-  return `${subdomainConfig.dashboard}/dashboard`;
+  // In production, use clean URL (root of dashboard subdomain)
+  // In localhost, use /dashboard path
+  if (isLocalhost) {
+    return `${subdomainConfig.dashboard}/dashboard`;
+  }
+  return subdomainConfig.dashboard;
+}
+
+/**
+ * Get dashboard path URL (converts /dashboard/x to /x for dashboard subdomain)
+ */
+export function getDashboardUrl(path: string = ''): string {
+  // Remove /dashboard prefix if present for clean URLs
+  const cleanPath = path.replace(/^\/dashboard/, '');
+  if (isLocalhost) {
+    return `${subdomainConfig.dashboard}/dashboard${cleanPath}`;
+  }
+  return `${subdomainConfig.dashboard}${cleanPath}`;
 }
 
 /**
