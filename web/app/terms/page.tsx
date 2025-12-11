@@ -172,7 +172,7 @@ export default function TermsPage() {
           <ul>
             <li><strong>Supabase</strong>: Database and authentication</li>
             <li><strong>Google OAuth</strong>: Sign-in option</li>
-            <li><strong>Resend</strong>: Email notifications</li>
+            <li><strong>Hostinger SMTP</strong>: Email notifications via our own domain (emails sent from @trackmyopt.com)</li>
           </ul>
           <p>
             Your use of these services is subject to their respective terms and privacy policies. We are not responsible for third-party services.
