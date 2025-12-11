@@ -47,8 +47,19 @@ const isLocalhost = (hostname: string) =>
 const isDashboardSubdomain = (hostname: string) => 
   hostname === `dashboard.${ROOT_DOMAIN}` || hostname === 'dashboard.trackmyopt.com';
 
+// Check if on login subdomain
+const isLoginSubdomain = (hostname: string) => 
+  hostname === `login.${ROOT_DOMAIN}` || hostname === 'login.trackmyopt.com';
+
+// Check if on marketing/root domain (www or apex)
+const isMarketingDomain = (hostname: string) => 
+  hostname === ROOT_DOMAIN || 
+  hostname === `www.${ROOT_DOMAIN}` || 
+  hostname === 'trackmyopt.com' || 
+  hostname === 'www.trackmyopt.com';
+
 // Routes that require authentication on dashboard subdomain (clean URLs)
-const protectedPaths = ['/', '/opt-dates', '/case-status', '/opt-tools', '/documents', '/settings', '/premium'];
+const protectedPaths = ['/', '/opt-dates', '/case-status', '/opt-tools', '/documents', '/settings', '/premium', '/tax-filing', '/opt-health-insurance-finder'];
 
 // Public routes on dashboard subdomain (no login required)
 const publicPaths = [
@@ -68,6 +79,15 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   const isLocal = isLocalhost(hostname);
   const isDashboard = isDashboardSubdomain(hostname);
+  const isLogin = isLoginSubdomain(hostname);
+  const isMarketing = isMarketingDomain(hostname);
+  
+  // === MARKETING DOMAIN: NO PROTECTION ===
+  // Marketing site (www.trackmyopt.com / trackmyopt.com) is fully public
+  // Just pass through without any auth checks
+  if (isMarketing && !isLocal) {
+    return NextResponse.next();
+  }
   
   // === URL REWRITING FOR DASHBOARD SUBDOMAIN ===
   // On dashboard.trackmyopt.com, rewrite URLs to add /dashboard prefix internally
@@ -77,17 +97,18 @@ export async function middleware(request: NextRequest) {
     rewritePath = `/dashboard${pathname === '/' ? '' : pathname}`;
   }
   
-  // Check if path is public (no auth needed)
+  // Check if path is public (no auth needed) - only relevant for dashboard subdomain
   const isPublicPath = publicPaths.some(route => 
     pathname === route || pathname.startsWith(`${route}/`)
   );
   
-  // Check if path needs protection
-  const isProtectedPath = !isPublicPath && protectedPaths.some(route => 
+  // Check if path needs protection - ONLY on dashboard subdomain
+  const isProtectedPath = isDashboard && !isPublicPath && protectedPaths.some(route => 
     pathname === route || pathname.startsWith(`${route}/`)
   );
   
-  const isAuthRoute = authRoutes.some(route => pathname === route);
+  // Auth route is only on login subdomain
+  const isAuthRoute = isLogin && authRoutes.some(route => pathname === route);
 
   // Create response - use rewrite for dashboard subdomain
   let response: NextResponse;
