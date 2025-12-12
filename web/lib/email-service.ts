@@ -130,13 +130,13 @@ function getDynamicSubject(tools: EmailReminderData['tools']): string {
   const minDays = Math.min(...tools.map(t => t.daysLeft));
   
   if (minDays <= 7) {
-    return `URGENT: ${minDays} ${minDays === 1 ? 'day' : 'days'} left - Action required!`;
+    return `🚨 URGENT: ${minDays} ${minDays === 1 ? 'day' : 'days'} left - Action required!`;
   } else if (minDays <= 14) {
-    return `${minDays} days remaining - Don't delay!`;
+    return `⚠️ ${minDays} days remaining - Don't delay!`;
   } else if (minDays <= 30) {
-    return `${minDays} days left - Time to prepare`;
+    return `📅 ${minDays} days left - Time to prepare`;
   } else {
-    return `OPT Daily Update - ${minDays} days remaining`;
+    return `✅ OPT Daily Update - ${minDays} days remaining`;
   }
 }
 
@@ -284,7 +284,7 @@ function generateOptApplySection(tool: ToolReminderDetail): string {
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); border-radius: 12px 12px 0 0; padding: 20px; text-align: center;">
         <h2 style="margin: 0; color: white; font-size: 22px; font-weight: 700;">
-          OPT Application Dates
+          📋 OPT Application Dates
         </h2>
         <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
           Track Your OPT Filing Window
@@ -338,7 +338,7 @@ function generateOptApplySection(tool: ToolReminderDetail): string {
       <!-- What to Do Now -->
       <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
-          ${urgencyConfig.actionHeadline}
+          ✅ ${urgencyConfig.actionHeadline}
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           ${actionItems.map(item => `<li>${item}</li>`).join('')}
@@ -364,7 +364,7 @@ function generateOptApplySection(tool: ToolReminderDetail): string {
       <!-- Common Mistakes to Avoid -->
       <div style="background: #FEF2F2; border: 2px solid #DC2626; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #991B1B; font-size: 16px; font-weight: 700;">
-          Common Mistakes That Cause Denials/RFEs:
+          🚨 Common Mistakes That Cause Denials/RFEs:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #7F1D1D; font-size: 14px; line-height: 1.8;">
           <li><strong>❌ Unsigned I-20:</strong> ALWAYS sign your I-20 before submitting - unsigned = automatic denial!</li>
@@ -482,7 +482,7 @@ function getUrgencyConfig(daysLeft: number, totalDays: number): {
     };
   } else if (percentRemaining > 50) {
     return {
-      emoji: 'INFO',
+      emoji: '📋',
       headline: 'Your OPT Filing Window is Open',
       subtitle: 'Good progress! Continue preparing your documents and schedule your DSO appointment.',
       bgGradient: '#EFF6FF 0%, #DBEAFE 100%',
@@ -497,7 +497,7 @@ function getUrgencyConfig(daysLeft: number, totalDays: number): {
     };
   } else if (percentRemaining > 25) {
     return {
-      emoji: 'TIME',
+      emoji: '⏰',
       headline: 'Time to Submit Your OPT Application',
       subtitle: 'The clock is ticking! Prioritize finalizing and submitting your application.',
       bgGradient: '#FFFBEB 0%, #FEF3C7 100%',
@@ -508,11 +508,11 @@ function getUrgencyConfig(daysLeft: number, totalDays: number): {
       actionBg: '#FFFBEB',
       actionBorder: '#F59E0B',
       actionTitle: '#92400E',
-      actionHeadline: 'Urgent - Submit Your Application Soon',
+      actionHeadline: '⚠️ Urgent - Submit Your Application Soon',
     };
   } else if (percentRemaining > 10) {
     return {
-      emoji: 'URGENT',
+      emoji: '🚨',
       headline: 'URGENT: Limited Time Remaining!',
       subtitle: 'You must submit your application immediately to avoid missing your deadline.',
       bgGradient: '#FEF2F2 0%, #FEE2E2 100%',
@@ -523,11 +523,11 @@ function getUrgencyConfig(daysLeft: number, totalDays: number): {
       actionBg: '#FEF2F2',
       actionBorder: '#EF4444',
       actionTitle: '#991B1B',
-      actionHeadline: 'CRITICAL - Submit TODAY!',
+      actionHeadline: '🚨 CRITICAL - Submit TODAY!',
     };
   } else {
     return {
-      emoji: 'EMERGENCY',
+      emoji: '🆘',
       headline: 'FINAL DAYS - ACT NOW!',
       subtitle: 'This is your last chance. Submit your application immediately or you will miss your OPT window.',
       bgGradient: '#7F1D1D 0%, #991B1B 100%',
@@ -538,7 +538,7 @@ function getUrgencyConfig(daysLeft: number, totalDays: number): {
       actionBg: '#FEF2F2',
       actionBorder: '#DC2626',
       actionTitle: '#7F1D1D',
-      actionHeadline: 'EMERGENCY - SUBMIT IMMEDIATELY!',
+      actionHeadline: '🆘 EMERGENCY - SUBMIT IMMEDIATELY!',
     };
   }
 }
@@ -567,7 +567,7 @@ function getOptApplyActionItems(daysLeft: number, totalDays: number): string[] {
     ];
   } else if (percentRemaining > 25) {
     return [
-      '<strong>Finalize your application package</strong> this week',
+      '⚠️ <strong>Finalize your application package</strong> this week',
       'Make copies of all documents before mailing',
       'Use <strong>USPS certified mail with tracking</strong>',
       'Mail to the correct USCIS lockbox address for your state',
@@ -575,7 +575,7 @@ function getOptApplyActionItems(daysLeft: number, totalDays: number): string[] {
     ];
   } else if (percentRemaining > 10) {
     return [
-      '<strong>Submit your application TODAY</strong>',
+      '🚨 <strong>Submit your application TODAY</strong>',
       'If not submitted, contact your DSO immediately for emergency assistance',
       'Consider premium processing if available for your case type',
       'Use overnight shipping (FedEx/UPS) if mailing',
@@ -583,7 +583,7 @@ function getOptApplyActionItems(daysLeft: number, totalDays: number): string[] {
     ];
   } else {
     return [
-      '<strong>SUBMIT IMMEDIATELY</strong> - Every hour counts!',
+      '🆘 <strong>SUBMIT IMMEDIATELY</strong> - Every hour counts!',
       'Contact your DSO for emergency support',
       'Use overnight shipping only at this point',
       'Keep proof of submission with timestamp',
@@ -612,18 +612,18 @@ function generateOptClockSection(tool: ToolReminderDetail): string {
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#ECFDF5';
   let statusBorder = '#10B981';
-  let statusEmoji = 'Active';
+  let statusEmoji = '✅';
   let motivationalMessage = 'You have time on your side! Stay consistent and you\'ll find the right opportunity.';
   
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
-    statusEmoji = 'Critical';
+    statusEmoji = '🚨';
     motivationalMessage = 'Time is running short! Intensify your job search efforts immediately.';
   } else if (percentRemaining <= 66) {
     statusBg = '#FFFBEB';
     statusBorder = '#F59E0B';
-    statusEmoji = 'Warning';
+    statusEmoji = '⚠️';
     motivationalMessage = 'You\'re making progress! Stay focused and consistent with your job search.';
   }
 
@@ -633,7 +633,7 @@ function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 12px 12px 0 0; padding: 20px; text-align: center;">
         <h2 style="margin: 0; color: white; font-size: 22px; font-weight: 700;">
-          OPT Unemployment Clock
+          ⏰ OPT Unemployment Clock
         </h2>
         <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
           Track Your 90-Day Unemployment Limit
@@ -672,7 +672,7 @@ function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Strategic Approach -->
       <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
-          Strategic Approach:
+          📋 Strategic Approach:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li>Apply to 5-10 quality jobs daily (focus on fit)</li>
@@ -725,7 +725,7 @@ function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Critical Reminder -->
       <div style="background: #FEF2F2; border: 2px solid #DC2626; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 12px 0; color: #991B1B; font-size: 16px; font-weight: 700;">
-          Critical Reminder:
+          🚨 Critical Reminder:
         </h3>
         <p style="margin: 0 0 16px 0; color: #991B1B; font-size: 14px; font-weight: 600;">
           Update SEVP portal within 10 days of starting work!
@@ -769,18 +769,18 @@ function generateStemApplySection(tool: ToolReminderDetail): string {
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#F5F3FF';
   let statusBorder = '#8B5CF6';
-  let statusEmoji = 'Active';
+  let statusEmoji = '✅';
   let motivationalMessage = 'You have time to prepare your STEM OPT extension carefully. Start gathering documents now!';
   
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
-    statusEmoji = 'Critical';
+    statusEmoji = '🚨';
     motivationalMessage = 'URGENT! Your OPT expires soon. Submit your STEM extension application immediately!';
   } else if (percentRemaining <= 66) {
     statusBg = '#FFFBEB';
     statusBorder = '#F59E0B';
-    statusEmoji = 'Warning';
+    statusEmoji = '⚠️';
     motivationalMessage = 'Time is moving! Don\'t wait - apply for your STEM extension now.';
   }
 
@@ -840,7 +840,7 @@ function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- STEM Extension Requirements -->
       <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
-          Key Requirements for STEM Extension:
+          ✅ Key Requirements for STEM Extension:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><strong>STEM Degree:</strong> Your degree must be on the STEM Designated Degree Program List</li>
@@ -886,7 +886,7 @@ function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- I-983 Form Tips -->
       <div style="background: #F5F3FF; border: 1px solid #8B5CF6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">
-          I-983 Training Plan Tips:
+          📝 I-983 Training Plan Tips:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><strong>Learning Goals:</strong> Be specific about skills you'll develop</li>
@@ -970,18 +970,18 @@ function generateStemClockSection(tool: ToolReminderDetail): string {
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#ECFDF5';
   let statusBorder = '#10B981';
-  let statusEmoji = 'Active';
+  let statusEmoji = '✅';
   let motivationalMessage = 'You have time to find the right opportunity! Focus on quality applications and networking.';
   
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
-    statusEmoji = 'Critical';
+    statusEmoji = '🚨';
     motivationalMessage = 'Time is critical! Intensify your job search immediately - consider all options including NGOs and internships.';
   } else if (percentRemaining <= 66) {
     statusBg = '#FFFBEB';
     statusBorder = '#F59E0B';
-    statusEmoji = 'Warning';
+    statusEmoji = '⚠️';
     motivationalMessage = 'Stay focused on your job search. Consistency is key - apply daily and follow up on applications.';
   }
 
@@ -1034,7 +1034,7 @@ function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- Strategic Approach -->
       <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
-          Strategic Job Search Approach:
+          📋 Strategic Job Search Approach:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li>Apply to <strong>10-15 quality jobs daily</strong> - focus on STEM roles matching your degree</li>
@@ -1077,7 +1077,7 @@ function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- STEM Employment Rules -->
       <div style="background: #FEF2F2; border: 2px solid #DC2626; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #991B1B; font-size: 16px; font-weight: 700;">
-          Critical STEM OPT Employment Rules:
+          🚨 Critical STEM OPT Employment Rules:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #7F1D1D; font-size: 14px; line-height: 1.8;">
           <li><strong>60-Day Limit:</strong> Maximum unemployment during STEM period (separate from OPT's 90 days)</li>
@@ -1092,7 +1092,7 @@ function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- H-1B Planning -->
       <div style="background: #F5F3FF; border: 1px solid #8B5CF6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">
-          H-1B Planning (Think Ahead):
+          📅 H-1B Planning (Think Ahead):
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><strong>H-1B Cap Season:</strong> Registration typically in March for October start</li>
@@ -1106,7 +1106,7 @@ function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- SEVP Portal Reminder -->
       <div style="background: #FFFBEB; border: 1px solid #F59E0B; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 12px 0; color: #92400E; font-size: 16px; font-weight: 700;">
-          Important SEVP Reminders:
+          ⚠️ Important SEVP Reminders:
         </h3>
         <ul style="margin: 0 0 16px 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><strong>Update within 10 days</strong> when starting new employment</li>
@@ -1175,15 +1175,15 @@ function getUrgencyTextColor(urgency: string): string {
 function getUrgencyEmoji(urgency: string): string {
   switch (urgency) {
     case 'safe':
-      return 'Active';
+      return '✅';
     case 'moderate':
-      return 'Approaching';
+      return '📅';
     case 'urgent':
-      return 'Urgent';
+      return '⚠️';
     case 'critical':
-      return 'Critical';
+      return '🚨';
     default:
-      return 'Info';
+      return '📋';
   }
 }
 
@@ -1353,7 +1353,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         gradient: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
         timelineHtml: data?.startDate && data?.endDate ? `
           <div style="background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #0369A1; font-size: 16px; font-weight: 600;">Your OPT Filing Window</h3>
+            <h3 style="margin: 0 0 16px 0; color: #0369A1; font-size: 16px; font-weight: 600;">📅 Your OPT Filing Window</h3>
             <div style="display: flex; justify-content: space-between; gap: 16px;">
               <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
                 <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">Earliest Apply Date</p>
@@ -1370,7 +1370,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         ` : '',
         preparationHtml: `
           <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">Documents to Prepare</h3>
+            <h3 style="${baseStyles.sectionTitle}">📝 Documents to Prepare</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Form I-765</strong> - Application for Employment Authorization</li>
               <li style="${baseStyles.listItem}"><strong>2 Passport-Size Photos</strong> - Recent, with white background (2x2 inches)</li>
@@ -1429,7 +1429,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         ` : '',
         preparationHtml: `
           <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">Important Rules to Remember</h3>
+            <h3 style="${baseStyles.sectionTitle}">🚨 Important Rules to Remember</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>90-Day Limit:</strong> You can only be unemployed for 90 cumulative days during your entire OPT period</li>
               <li style="${baseStyles.listItem}"><strong>Count Starts:</strong> Clock begins from your OPT start date, not EAD receipt date</li>
@@ -1470,7 +1470,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
         timelineHtml: data?.startDate && data?.endDate ? `
           <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">Your STEM OPT Filing Window</h3>
+            <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">📅 Your STEM OPT Filing Window</h3>
             <div style="display: flex; justify-content: space-between; gap: 16px;">
               <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
                 <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">Earliest Apply Date</p>
@@ -1485,7 +1485,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         ` : '',
         preparationHtml: `
           <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">Documents Required for STEM Extension</h3>
+            <h3 style="${baseStyles.sectionTitle}">📝 Documents Required for STEM Extension</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Form I-983</strong> - Training Plan (signed by you and employer)</li>
               <li style="${baseStyles.listItem}"><strong>Form I-765</strong> - Employment Authorization Application</li>
@@ -1542,7 +1542,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         ` : '',
         preparationHtml: `
           <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">STEM OPT Employment Rules</h3>
+            <h3 style="${baseStyles.sectionTitle}">🚨 STEM OPT Employment Rules</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>60-Day Limit:</strong> You have 60 additional unemployment days during your STEM OPT period (separate from the 90 days during initial OPT)</li>
               <li style="${baseStyles.listItem}"><strong>E-Verify Required:</strong> You can only work for E-Verify enrolled employers</li>
@@ -1622,7 +1622,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         timelineHtml: '',
         preparationHtml: `
           <div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">How Case Tracking Works</h3>
+            <h3 style="${baseStyles.sectionTitle}">📋 How Case Tracking Works</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Automatic Checks:</strong> We check your case status every 6 hours</li>
               <li style="${baseStyles.listItem}"><strong>Instant Alerts:</strong> Get notified immediately when status changes</li>
@@ -1689,7 +1689,7 @@ export async function sendEnrollmentEmail(
     const info = await sendMailWithRetry({
       from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: email,
-      subject: `Welcome to ${content.title} - You're All Set!`,
+      subject: `✅ Welcome to ${content.title} - You're All Set!`,
       html: `
         <!DOCTYPE html>
         <html>
