@@ -151,6 +151,45 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId)
       .single();
 
+    // Query employment spans
+    const { data: employmentSpans } = await supabase
+      .from('employment_spans')
+      .select('id, employer_name, start_date, end_date, is_current, job_title, location')
+      .eq('user_id', userId)
+      .order('start_date', { ascending: false });
+
+    // Calculate unemployment days if we have OPT status
+    let unemploymentDays = 0;
+    if (status?.opt_start_date) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const optStart = new Date(status.opt_start_date);
+      const optEnd = status.opt_ead_end_date ? new Date(status.opt_ead_end_date) : today;
+      const effectiveEnd = optEnd < today ? optEnd : today;
+
+      // Total OPT days so far
+      const totalDays = Math.max(0, Math.ceil((effectiveEnd.getTime() - optStart.getTime()) / (1000 * 60 * 60 * 24)));
+
+      // Calculate employed days
+      let employedDays = 0;
+      if (employmentSpans && employmentSpans.length > 0) {
+        employmentSpans.forEach((span: { start_date: string; end_date: string | null }) => {
+          const spanStart = new Date(span.start_date);
+          const spanEnd = span.end_date ? new Date(span.end_date) : today;
+          
+          // Clamp to OPT period
+          const effectiveSpanStart = spanStart > optStart ? spanStart : optStart;
+          const effectiveSpanEnd = spanEnd < effectiveEnd ? spanEnd : effectiveEnd;
+          
+          if (effectiveSpanEnd > effectiveSpanStart) {
+            employedDays += Math.ceil((effectiveSpanEnd.getTime() - effectiveSpanStart.getTime()) / (1000 * 60 * 60 * 24));
+          }
+        });
+      }
+
+      unemploymentDays = Math.max(0, totalDays - employedDays);
+    }
+
     if (statusError) {
       // OPT status might not exist yet for new users
       if (statusError.code === 'PGRST116') {
@@ -160,7 +199,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
           user: currentUser,
           profile,
-          status: null,
+          optStatus: null,
+          employmentSpans: employmentSpans || [],
+          unemploymentDays: 0,
         }, { headers: corsHeaders });
       }
 
@@ -178,7 +219,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       user: currentUser,
       profile,
-      status,
+      optStatus: status,
+      employmentSpans: employmentSpans || [],
+      unemploymentDays,
     }, { headers: corsHeaders });
   } catch (error) {
     console.error('API /me error:', error);
