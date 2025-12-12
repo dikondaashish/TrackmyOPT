@@ -182,40 +182,41 @@ export async function POST(req: NextRequest) {
     if (isNewEnrollment) {
       console.log(`📧 Case status enrollment - Receipt: ${receipt_number}, Notifications: ${notifications_enabled}`);
       
-      // Get user's email and name from profiles
+      // Get user's email, name, and premium status from profiles
       const { data: profile } = await supabaseAdmin
         .from('profiles')
-        .select('first_name')
+        .select('first_name, premium_status')
         .eq('user_id', userId)
         .single();
       
-      const { data: authUser } = await supabaseAdmin
-        .from('auth.users')
-        .select('email')
-        .eq('id', userId)
-        .single();
+      // Only send enrollment email to premium users
+      const isPremium = profile?.premium_status === true;
       
-      // Try to get email from auth.users table directly
-      const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
-      const userEmail = userData?.user?.email;
-      
-      if (userEmail) {
-        const firstName = profile?.first_name || 'there';
-        
-        console.log(`📤 Sending case-status enrollment email to ${userEmail}`);
-        
-        try {
-          const result = await sendEnrollmentEmail(userEmail, firstName, 'case-status');
-          if (result.success) {
-            console.log(`✅ Case status enrollment email sent successfully to ${userEmail}`);
-          } else {
-            console.error(`❌ Failed to send case-status enrollment email:`, result.error);
-          }
-        } catch (err) {
-          console.error(`❌ Case-status enrollment email error:`, err);
-        }
+      if (!isPremium) {
+        console.log(`⏭️ Skipping case-status enrollment email - user is not premium`);
       } else {
-        console.log(`⚠️ Could not find user email for case-status enrollment`);
+        // Try to get email from auth.users table directly
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+        const userEmail = userData?.user?.email;
+        
+        if (userEmail) {
+          const firstName = profile?.first_name || 'there';
+          
+          console.log(`📤 Sending case-status enrollment email to ${userEmail} (Premium user)`);
+          
+          try {
+            const result = await sendEnrollmentEmail(userEmail, firstName, 'case-status');
+            if (result.success) {
+              console.log(`✅ Case status enrollment email sent successfully to ${userEmail}`);
+            } else {
+              console.error(`❌ Failed to send case-status enrollment email:`, result.error);
+            }
+          } catch (err) {
+            console.error(`❌ Case-status enrollment email error:`, err);
+          }
+        } else {
+          console.log(`⚠️ Could not find user email for case-status enrollment`);
+        }
       }
     }
 

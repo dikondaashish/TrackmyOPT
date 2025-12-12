@@ -181,14 +181,16 @@ export async function POST(req: NextRequest) {
     // First, check if profile exists and get current email for this tool
     const { data: existingProfile } = await supabase
       .from('profiles')
-      .select('user_id, first_name, opt_apply_email, opt_clock_email, stem_apply_email, stem_clock_email')
+      .select('user_id, first_name, premium_status, opt_apply_email, opt_clock_email, stem_apply_email, stem_clock_email')
       .eq('user_id', userId)
       .single();
 
     // Check if this is a new enrollment (email being set for first time or changed)
     const profileData = existingProfile as Record<string, any> | null;
     const previousEmail = profileData?.[columnName];
-    const isNewEnrollment = email && (!previousEmail || previousEmail !== email);
+    const isPremium = profileData?.premium_status === true;
+    // Only send enrollment email to premium users
+    const isNewEnrollment = email && (!previousEmail || previousEmail !== email) && isPremium;
 
     let error;
     
@@ -227,8 +229,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Send enrollment confirmation email if this is a new enrollment
-    console.log(`📧 Tool email save - Tool: ${tool}, Email: ${email}, PreviousEmail: ${previousEmail}, IsNewEnrollment: ${isNewEnrollment}`);
+    // Send enrollment confirmation email if this is a new enrollment (premium users only)
+    console.log(`📧 Tool email save - Tool: ${tool}, Email: ${email}, PreviousEmail: ${previousEmail}, IsPremium: ${isPremium}, IsNewEnrollment: ${isNewEnrollment}`);
+    
+    if (!isPremium && email && (!previousEmail || previousEmail !== email)) {
+      console.log(`⏭️ Skipping tool enrollment email for ${tool} - user is not premium`);
+    }
     
     if (isNewEnrollment) {
       const toolNameForEmail = tool.replace('_', '-'); // Convert opt_apply to opt-apply

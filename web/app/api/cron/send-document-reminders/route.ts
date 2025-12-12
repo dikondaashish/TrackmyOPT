@@ -120,6 +120,23 @@ export async function GET(request: NextRequest) {
 
         const userEmail = userData.user.email;
 
+        // Check if user is premium - only premium users get document reminder emails
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('premium_status')
+          .eq('user_id', reminder.user_id)
+          .single();
+
+        if (!profile?.premium_status) {
+          console.log(`⏭️ Skipping document reminder for ${reminder.user_id} - user is not premium`);
+          // Mark as skipped for non-premium users
+          await supabase
+            .from('document_reminders')
+            .update({ status: 'skipped' })
+            .eq('id', reminder.id);
+          continue;
+        }
+
         // Check if user has email notifications enabled
         const { data: emailPrefs } = await supabase
           .from('email_preferences')
