@@ -12,14 +12,16 @@ export interface WidgetConfig {
 
 const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "notifications", label: "Notifications", visible: true, order: 0 },
-  { id: "metrics", label: "Metrics Cards", visible: true, order: 1 },
-  { id: "deadlines", label: "Upcoming Deadlines", visible: true, order: 2 },
-  { id: "reminders", label: "Action Items", visible: true, order: 3 },
-  { id: "employment", label: "Employment History", visible: true, order: 4 },
-  { id: "tools", label: "Your Toolkit", visible: true, order: 5 },
-  { id: "charts", label: "Status Charts", visible: true, order: 6 },
-  { id: "resources", label: "Resource Center", visible: false, order: 7 },
-  { id: "export", label: "Quick Export", visible: true, order: 8 },
+  { id: "metrics", label: "Key Metrics", visible: true, order: 1 },
+  { id: "quickactions", label: "Quick Actions", visible: true, order: 2 },
+  { id: "casestatus", label: "Case Status", visible: true, order: 3 },
+  { id: "deadlines", label: "Upcoming Deadlines", visible: true, order: 4 },
+  { id: "tips", label: "Personalized Tips", visible: true, order: 5 },
+  { id: "reminders", label: "Tasks & Reminders", visible: true, order: 6 },
+  { id: "employment", label: "Employment History", visible: true, order: 7 },
+  { id: "tools", label: "Your Toolkit", visible: true, order: 8 },
+  { id: "charts", label: "Status Charts", visible: true, order: 9 },
+  { id: "resources", label: "Resource Center", visible: false, order: 10 },
 ];
 
 interface DashboardWidgetsProps {

@@ -11,7 +11,9 @@ import { ActionableReminders } from "./ActionableReminders";
 import { NotificationBanner } from "./NotificationBanner";
 import { EmploymentHistoryLog } from "./EmploymentHistoryLog";
 import { ResourceCenter } from "./ResourceCenter";
-import { QuickExport } from "./QuickExport";
+import { CaseStatusSummary } from "./CaseStatusSummary";
+import { QuickActions } from "./QuickActions";
+import { PersonalizedTips } from "./PersonalizedTips";
 import { 
   useDashboardWidgets, 
   DashboardWidgetsSettings, 
@@ -114,12 +116,27 @@ export function DashboardContent({ user }: DashboardContentProps) {
         );
       case "metrics":
         return <MetricCards key="metrics" />;
+      case "quickactions":
+        return <QuickActions key="quickactions" />;
+      case "casestatus":
+        return <CaseStatusSummary key="casestatus" />;
       case "deadlines":
         return (
           <UpcomingDeadlinesPanel
             key="deadlines"
             optStatus={optStatus}
             isStemEligible={profile?.is_stem_eligible}
+          />
+        );
+      case "tips":
+        return (
+          <PersonalizedTips
+            key="tips"
+            optStatus={optStatus}
+            unemploymentDays={unemploymentDays}
+            maxUnemploymentDays={maxUnemploymentDays}
+            isStemEligible={profile?.is_stem_eligible}
+            hasEmployment={employmentSpans.length > 0}
           />
         );
       case "reminders":
@@ -140,8 +157,6 @@ export function DashboardContent({ user }: DashboardContentProps) {
         return <ChartsSection key="charts" />;
       case "resources":
         return <ResourceCenter key="resources" />;
-      case "export":
-        return <QuickExport key="export" />;
       default:
         return null;
     }
