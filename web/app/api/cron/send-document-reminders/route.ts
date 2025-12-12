@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
           await transporter.sendMail({
             from: `Zyene Inc <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
             to: userEmail,
-            subject: `⏰ Document Expiring Soon: ${reminder.document.filename}`,
+            subject: `Document Expiring Soon: ${reminder.document.filename}`,
             html: generateReminderEmail(reminder),
           });
         } catch (emailError) {
@@ -235,50 +235,50 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
   if (daysUntilExpiry <= 0) {
     urgencyColor = '#dc2626';
     urgencyBg = '#FEF2F2';
-    urgencyLabel = '⚠️ EXPIRES TODAY';
-    headerEmoji = '🚨';
+    urgencyLabel = 'EXPIRES TODAY';
+    headerEmoji = 'CRITICAL';
     actionMessage = 'Your document has expired or expires today! Take immediate action to renew it.';
   } else if (daysUntilExpiry <= 3) {
     urgencyColor = '#dc2626';
     urgencyBg = '#FEF2F2';
     urgencyLabel = 'CRITICAL - EXPIRING VERY SOON';
-    headerEmoji = '🚨';
+    headerEmoji = 'CRITICAL';
     actionMessage = 'This is your final reminder! Renew this document immediately to avoid any issues.';
   } else if (daysUntilExpiry <= 5) {
     urgencyColor = '#dc2626';
     urgencyBg = '#FEF2F2';
     urgencyLabel = 'CRITICAL';
-    headerEmoji = '🚨';
+    headerEmoji = 'CRITICAL';
     actionMessage = 'Time is running out! Schedule your renewal appointment today.';
   } else if (daysUntilExpiry <= 10) {
     urgencyColor = '#ea580c';
     urgencyBg = '#FFF7ED';
     urgencyLabel = 'URGENT';
-    headerEmoji = '⚠️';
+    headerEmoji = 'WARNING';
     actionMessage = 'Your document expires soon. Start the renewal process now to avoid last-minute rush.';
   } else if (daysUntilExpiry <= 20) {
     urgencyColor = '#d97706';
     urgencyBg = '#FFFBEB';
     urgencyLabel = 'IMPORTANT';
-    headerEmoji = '📢';
+    headerEmoji = 'NOTICE';
     actionMessage = 'Plan ahead! Begin gathering required documents for your renewal.';
   } else if (daysUntilExpiry <= 30) {
     urgencyColor = '#ca8a04';
     urgencyBg = '#FEFCE8';
     urgencyLabel = 'ATTENTION';
-    headerEmoji = '📅';
+    headerEmoji = 'REMINDER';
     actionMessage = 'You have about a month left. Good time to check renewal requirements.';
   } else if (daysUntilExpiry <= 45) {
     urgencyColor = '#0891b2';
     urgencyBg = '#ECFEFF';
     urgencyLabel = 'UPCOMING';
-    headerEmoji = '📋';
+    headerEmoji = 'INFO';
     actionMessage = 'Still plenty of time, but it\'s good to plan ahead for your document renewal.';
   } else {
     urgencyColor = '#2563eb';
     urgencyBg = '#EFF6FF';
     urgencyLabel = 'ADVANCE NOTICE';
-    headerEmoji = '📋';
+    headerEmoji = 'INFO';
     actionMessage = 'This is an early reminder. Mark your calendar for the renewal date.';
   }
 
@@ -372,7 +372,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
 
                     <!-- Why You're Receiving This -->
                     <div style="background-color: #EFF6FF; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-                      <p style="margin: 0 0 8px 0; color: #1E40AF; font-weight: 600; font-size: 14px;">📧 Why am I receiving this email?</p>
+                      <p style="margin: 0 0 8px 0; color: #1E40AF; font-weight: 600; font-size: 14px;">Why am I receiving this email?</p>
                       <p style="margin: 0; color: #374151; font-size: 13px; line-height: 1.6;">
                         You added your <strong>${documentType}</strong> to your Document Vault with an expiry date of <strong>${expiryDate}</strong>. 
                         We send reminders at 60, 45, 30, 20, 15, 10, 5, 3, 2, and 1 day before expiry to help you stay on top of your documents.
@@ -381,7 +381,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
 
                     <!-- Already Renewed Section -->
                     <div style="background-color: #ECFDF5; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-                      <p style="margin: 0 0 8px 0; color: #065F46; font-weight: 600; font-size: 14px;">✅ Already renewed this document?</p>
+                      <p style="margin: 0 0 8px 0; color: #065F46; font-weight: 600; font-size: 14px;">Already renewed this document?</p>
                       <p style="margin: 0; color: #374151; font-size: 13px; line-height: 1.6;">
                         Great! Simply update the expiry date in your Document Vault and you won't receive any more reminders for this document.
                       </p>
@@ -405,7 +405,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
                 <tr>
                   <td style="padding: 0 30px 24px 30px;">
                     <div style="background-color: #F5F3FF; border-radius: 8px; padding: 16px 20px;">
-                      <p style="margin: 0 0 8px 0; color: #5B21B6; font-weight: 600; font-size: 14px;">📅 Reminder Schedule</p>
+                      <p style="margin: 0 0 8px 0; color: #5B21B6; font-weight: 600; font-size: 14px;">Reminder Schedule</p>
                       <p style="margin: 0; color: #374151; font-size: 12px; line-height: 1.6;">
                         We'll remind you at: <strong>60 days</strong> → <strong>45 days</strong> → <strong>30 days</strong> → <strong>20 days</strong> → <strong>15 days</strong> → <strong>10 days</strong> → <strong>5 days</strong> → <strong>3 days</strong> → <strong>2 days</strong> → <strong>1 day</strong> before expiry
                       </p>
@@ -448,7 +448,7 @@ function getDocumentRenewalTips(documentType: string): string {
   if (type.includes('passport')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">📝 Passport Renewal Tips:</p>
+        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">Passport Renewal Tips:</p>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #78350F; font-size: 13px; line-height: 1.8;">
           <li>Start the renewal process at least <strong>3-4 months</strong> before expiry for international travel</li>
           <li>Many countries require <strong>6 months validity</strong> beyond your travel dates</li>
@@ -462,7 +462,7 @@ function getDocumentRenewalTips(documentType: string): string {
   if (type.includes('visa') || type.includes('i-94')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">📝 Visa/Immigration Document Tips:</p>
+        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">Visa/Immigration Document Tips:</p>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #78350F; font-size: 13px; line-height: 1.8;">
           <li>Consult with your DSO or immigration attorney before expiry</li>
           <li>Check USCIS processing times for visa extensions</li>
@@ -476,7 +476,7 @@ function getDocumentRenewalTips(documentType: string): string {
   if (type.includes('ead') || type.includes('employment') || type.includes('work')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">📝 EAD/Work Authorization Tips:</p>
+        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">EAD/Work Authorization Tips:</p>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #78350F; font-size: 13px; line-height: 1.8;">
           <li>Apply for renewal <strong>up to 180 days</strong> before expiration</li>
           <li>You may qualify for automatic extension while renewal is pending</li>
@@ -490,7 +490,7 @@ function getDocumentRenewalTips(documentType: string): string {
   if (type.includes('driver') || type.includes('license') || type.includes('driving')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">📝 Driver's License Renewal Tips:</p>
+        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">Driver's License Renewal Tips:</p>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #78350F; font-size: 13px; line-height: 1.8;">
           <li>Check your state's DMV for online renewal options</li>
           <li>Bring valid immigration documents for REAL ID compliance</li>
@@ -504,7 +504,7 @@ function getDocumentRenewalTips(documentType: string): string {
   if (type.includes('i-20')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">📝 I-20 Tips:</p>
+        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">I-20 Tips:</p>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #78350F; font-size: 13px; line-height: 1.8;">
           <li>Contact your DSO for I-20 extension if still in program</li>
           <li>Request travel signature if planning international travel</li>
@@ -518,7 +518,7 @@ function getDocumentRenewalTips(documentType: string): string {
   if (type.includes('insurance') || type.includes('health')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">📝 Insurance Document Tips:</p>
+        <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">Insurance Document Tips:</p>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #78350F; font-size: 13px; line-height: 1.8;">
           <li>Review your coverage options before renewal</li>
           <li>Check for open enrollment periods</li>
@@ -532,7 +532,7 @@ function getDocumentRenewalTips(documentType: string): string {
   // Default tips for other document types
   return `
     <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-      <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">📝 Renewal Tips:</p>
+      <p style="margin: 0 0 12px 0; color: #92400E; font-weight: 600; font-size: 14px;">Renewal Tips:</p>
       <ul style="margin: 0; padding: 0 0 0 20px; color: #78350F; font-size: 13px; line-height: 1.8;">
         <li>Start the renewal process well in advance of the expiry date</li>
         <li>Gather all required supporting documents</li>

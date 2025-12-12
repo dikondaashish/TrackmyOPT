@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
       const info = await transporter.sendMail({
         from: `Zyene Inc <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
         to: userEmail,
-        subject: `🔔 Your USCIS Case Status Has Changed - ${receipt_number}`,
+        subject: `Your USCIS Case Status Has Changed - ${receipt_number}`,
         html: generateEmailHTML({
           name: userData.full_name || 'there',
           receipt_number,

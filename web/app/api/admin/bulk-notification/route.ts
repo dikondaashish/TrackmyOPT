@@ -217,7 +217,7 @@ export async function GET(request: NextRequest) {
       plainTextContent: `Hi {{firstName}}, TrackMyOPT ownership is being transferred. Visit https://www.trackmyopt.com/dashboard/settings to delete your account before transfer if you prefer.`,
     },
     data_breach: {
-      subject: '🚨 Security Notice: TrackMyOPT Data Incident',
+      subject: 'Security Notice: TrackMyOPT Data Incident',
       htmlContent: `
         <!DOCTYPE html>
         <html>
