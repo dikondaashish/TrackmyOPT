@@ -12,7 +12,7 @@ export default function PrivacyPage() {
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">Privacy Policy</h1>
         
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
-          Last Updated: December 9, 2025
+          Last Updated: December 12, 2025
         </p>
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -43,6 +43,15 @@ export default function PrivacyPage() {
             <li>STEM eligibility status</li>
           </ul>
 
+          <h3>USCIS Case Status Data (Personal Identifiable Information)</h3>
+          <p>If you use our Case Status Tracking feature, you may voluntarily provide:</p>
+          <ul>
+            <li><strong>USCIS Receipt Number</strong>: Your 13-character case receipt number (e.g., EAC1234567890) used to track your immigration case status with USCIS</li>
+          </ul>
+          <p>
+            <strong>Important:</strong> USCIS Receipt Numbers are considered <strong>Personal Identifiable Information (PII)</strong> as they are unique identifiers linked to your individual immigration case. We treat this data with the highest level of security and confidentiality.
+          </p>
+
           <h3>Usage Data</h3>
           <p>We automatically collect:</p>
           <ul>
@@ -61,6 +70,23 @@ export default function PrivacyPage() {
             <li>Authenticate your account and secure your data</li>
             <li>Improve our services and user experience</li>
             <li>Respond to your support requests</li>
+          </ul>
+
+          <h3>How We Use Your USCIS Receipt Number</h3>
+          <p>Your USCIS Receipt Number is used exclusively for the following purposes:</p>
+          <ul>
+            <li><strong>Case Status Monitoring</strong>: We use your receipt number to periodically check the public USCIS Case Status Online system (egov.uscis.gov) on your behalf to retrieve your current case status</li>
+            <li><strong>Status Change Notifications</strong>: When your case status changes, we notify you via email (premium feature) so you stay informed about updates to your immigration case</li>
+            <li><strong>Dashboard Display</strong>: We display your current case status within your TrackMyOPT dashboard for easy reference</li>
+          </ul>
+          <p>
+            <strong>We do NOT:</strong>
+          </p>
+          <ul>
+            <li>Share your receipt number with any third parties</li>
+            <li>Use your receipt number for any purpose other than checking your case status</li>
+            <li>Store any case history beyond the current status</li>
+            <li>Sell or monetize your receipt number data in any way</li>
           </ul>
 
           <h2>Data Storage and Security</h2>
