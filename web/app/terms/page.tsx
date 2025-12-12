@@ -12,7 +12,7 @@ export default function TermsPage() {
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">Terms & Conditions</h1>
         
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
-          Last Updated: December 9, 2025
+          Last Updated: December 12, 2025
         </p>
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -29,8 +29,9 @@ export default function TermsPage() {
             <li>OPT and STEM OPT application deadline calculations</li>
             <li>Real-time unemployment day tracking</li>
             <li>Timeline visualization and reminders</li>
-            <li>Document checklist and resources</li>
-            <li>Email notifications for important dates (optional)</li>
+            <li>Document vault for storing immigration documents</li>
+            <li>USCIS Case Status Tracking using your receipt number</li>
+            <li>Email notifications for important dates (optional, premium feature)</li>
           </ul>
 
           <h2>3. Eligibility</h2>
@@ -65,6 +66,19 @@ export default function TermsPage() {
           <h2>5. User Data and Privacy</h2>
           <p>
             Your use of TrackMyOPT is also governed by our <a href="/privacy" className="text-blue-600 hover:text-blue-700">Privacy Policy</a>. By using our Service, you consent to our collection and use of your information as described in the Privacy Policy.
+          </p>
+
+          <h3>5.1 Personal Identifiable Information (PII)</h3>
+          <p>
+            Certain features of TrackMyOPT require you to provide Personal Identifiable Information (PII), including:
+          </p>
+          <ul>
+            <li><strong>USCIS Receipt Number</strong>: If you use our Case Status Tracking feature, you may provide your 13-character USCIS receipt number (e.g., EAC1234567890). This is used exclusively to check your case status via the public USCIS Case Status Online system.</li>
+            <li><strong>Email Address</strong>: Used for account authentication and optional notifications.</li>
+            <li><strong>Immigration Dates</strong>: OPT/STEM dates you voluntarily provide for timeline calculations.</li>
+          </ul>
+          <p>
+            We treat all PII with the highest level of security. Your USCIS receipt number and other sensitive data are encrypted and never shared with third parties. See our <a href="/privacy" className="text-blue-600 hover:text-blue-700">Privacy Policy</a> for complete details on how we collect, use, and protect your data.
           </p>
 
           <h2>6. Acceptable Use</h2>
@@ -173,6 +187,7 @@ export default function TermsPage() {
             <li><strong>Supabase</strong>: Database and authentication</li>
             <li><strong>Google OAuth</strong>: Sign-in option</li>
             <li><strong>Hostinger SMTP</strong>: Email notifications via our own domain (emails sent from @trackmyopt.com)</li>
+            <li><strong>USCIS Case Status Online</strong>: We query the public USCIS case status system (egov.uscis.gov) on your behalf to retrieve your case status. We do not store or share any data with USCIS.</li>
           </ul>
           <p>
             Your use of these services is subject to their respective terms and privacy policies. We are not responsible for third-party services.
