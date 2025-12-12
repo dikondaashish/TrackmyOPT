@@ -24,7 +24,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/email-service-v2';
+import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max execution time
@@ -383,75 +383,75 @@ function getUrgency(daysLeft: number, total: number): 'safe' | 'moderate' | 'urg
 }
 
 /**
- * OPT Apply reminder messages - simplified for better email deliverability
+ * OPT Apply reminder messages based on timeline position
  */
 function getOptApplyMessage(daysLeft: number, programEnd: Date, today: Date): string {
   const daysToProgEnd = Math.ceil((programEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   
-  // Before program ends
+  // Before program ends (daysToProgEnd > 0)
   if (daysToProgEnd > 60) {
-    return `Start gathering required documents: passport copies, I-94, I-20s, and passport photos.`;
+    return `📋 START EARLY: Request official transcripts and gather required documents. You'll need: passport copies, I-94, I-20s, and 2 passport photos.`;
   } else if (daysToProgEnd > 45) {
-    return `Begin filling out Form I-765 carefully. Review each entry for accuracy.`;
+    return `📝 PREPARE FORMS: Begin filling out Form I-765 carefully. Double-check every entry - errors cause delays!`;
   } else if (daysToProgEnd > 30) {
-    return `Schedule an appointment with your DSO for OPT recommendation on your I-20.`;
+    return `🏫 DSO MEETING: Schedule appointment with your DSO for OPT recommendation on your I-20. This is required!`;
   } else if (daysToProgEnd > 14) {
-    return `Get passport photos taken and make copies of all documents before mailing.`;
+    return `📸 FINAL PREP: Get passport photos taken (2 identical, 2x2 inches). Make copies of ALL documents before mailing.`;
   } else if (daysToProgEnd > 0) {
-    return `Mail your complete application with tracking. Processing takes 3-5 months.`;
+    return `⚠️ SUBMIT NOW: Mail your complete application with USPS tracking. Processing takes 3-5 months!`;
   }
   
-  // After program ends
+  // After program ends (counting down to 60-day deadline)
   if (daysLeft > 45) {
-    return `Your program has ended. Submit your OPT application soon - ${daysLeft} days remaining.`;
+    return `⚠️ POST-GRADUATION: Your program has ended. Submit OPT application ASAP - you have ${daysLeft} days left.`;
   } else if (daysLeft > 30) {
-    return `${daysLeft} days remaining in your filing window. Consider mailing this week.`;
+    return `🚨 URGENT: Only ${daysLeft} days remaining! Mail your application THIS WEEK with tracking.`;
   } else if (daysLeft > 14) {
-    return `${daysLeft} days until deadline. Submit your application as soon as possible.`;
+    return `🚨 CRITICAL: ${daysLeft} days until deadline! Submit TODAY - consider premium processing if available.`;
   } else if (daysLeft > 7) {
-    return `Only ${daysLeft} days left. Contact your DSO if you need assistance.`;
+    return `🆘 EMERGENCY: Just ${daysLeft} days left! Contact your DSO immediately if you haven't submitted!`;
   } else {
-    return `${daysLeft} days remaining. Please submit your application immediately.`;
+    return `🆘 FINAL DAYS: Only ${daysLeft} days remaining! Submit NOW or you will miss your OPT window entirely!`;
   }
 }
 
 /**
- * STEM Apply reminder messages - simplified
+ * STEM Apply reminder messages
  */
 function getStemApplyMessage(daysLeft: number): string {
   if (daysLeft > 75) {
-    return `Start gathering STEM documents. You need Form I-983 from your employer.`;
+    return `📋 STEM PREP: Start gathering documents. You'll need Form I-983 completed with your employer and proof they're E-Verified.`;
   } else if (daysLeft > 60) {
-    return `Work with your employer to complete the I-983 Training Plan.`;
+    return `📝 FORM I-983: Work with your employer to complete the Training Plan. This requires detailed mentorship info.`;
   } else if (daysLeft > 45) {
-    return `Schedule an appointment with your DSO for STEM I-20 recommendation.`;
+    return `🏫 DSO MEETING: Schedule appointment for STEM I-20 recommendation. Have Form I-983 ready!`;
   } else if (daysLeft > 30) {
-    return `Get new passport photos and verify your degree is STEM-eligible.`;
+    return `📸 PREPARE APPLICATION: Get new passport photos. Verify your degree is STEM-eligible (check CIP code).`;
   } else if (daysLeft > 14) {
-    return `Your OPT expires in ${daysLeft} days. Mail your STEM application with tracking.`;
+    return `⚠️ SUBMIT SOON: Your current OPT expires in ${daysLeft} days. Mail STEM application with tracking!`;
   } else if (daysLeft > 7) {
-    return `${daysLeft} days before OPT expires. Submit soon to maintain work authorization.`;
+    return `🚨 URGENT: Only ${daysLeft} days before OPT expires! Submit NOW to maintain work authorization!`;
   } else {
-    return `${daysLeft} days remaining. Please file your STEM extension application.`;
+    return `🆘 CRITICAL: ${daysLeft} days left! A gap in filing could void your work authorization - submit TODAY!`;
   }
 }
 
 /**
- * Unemployment clock reminder messages - simplified
+ * Unemployment clock reminder messages
  */
 function getUnemploymentMessage(daysLeft: number, total: number, type: 'OPT' | 'STEM'): string {
   const used = total - daysLeft;
   const threshold = type === 'OPT' ? 90 : 60;
   
   if (daysLeft > threshold * 0.75) {
-    return `${used} of ${total} unemployment days used. Continue your job search efforts.`;
+    return `⏰ ${used}/${total} unemployment days used. Apply to 3+ jobs daily and document your search!`;
   } else if (daysLeft > threshold * 0.5) {
-    return `${used} days used, ${daysLeft} remaining. Consider expanding your job search.`;
+    return `⚠️ ${used} days used, ${daysLeft} remaining. Intensify job search - network actively on LinkedIn!`;
   } else if (daysLeft > threshold * 0.33) {
-    return `${used} of ${total} days used. Widen your geographic area and industry focus.`;
+    return `🚨 WARNING: ${used}/${total} days used! Consider widening your geographic area and industry.`;
   } else if (daysLeft > threshold * 0.17) {
-    return `Only ${daysLeft} days remaining. Prioritize securing employment soon.`;
+    return `🆘 CRITICAL: Only ${daysLeft} days left! Accept reasonable offers - negotiate after starting!`;
   } else {
-    return `${daysLeft} days remaining. Finding employment is time-sensitive.`;
+    return `🆘 EMERGENCY: Just ${daysLeft} days remaining! Accept ANY qualifying offer and contact your DSO immediately!`;
   }
 }
