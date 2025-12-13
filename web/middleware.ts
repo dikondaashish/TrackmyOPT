@@ -2,7 +2,7 @@
  * Next.js Middleware for Route Protection
  * 
  * Protects dashboard routes by checking for valid Supabase session.
- * Redirects unauthenticated users to home page (trackmyopt.com).
+ * Redirects unauthenticated users to login page with returnTo parameter.
  * 
  * Protected routes (require login):
  * - /dashboard (main dashboard)
@@ -119,10 +119,12 @@ export async function middleware(request: NextRequest) {
 
   // Log for debugging (remove in production)
 
-  // Protected route + not authenticated = redirect to home page
+  // Protected route + not authenticated = redirect to login page
   if (isProtectedRoute && !isAuthenticated) {
-    // Redirect to home page (trackmyopt.com)
-    return NextResponse.redirect(new URL('/', request.url));
+    // Redirect to login page with return URL so user can come back after login
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('returnTo', pathname + request.nextUrl.search);
+    return NextResponse.redirect(loginUrl);
   }
 
   // Auth route + authenticated = optionally redirect to dashboard

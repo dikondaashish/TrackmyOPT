@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -70,8 +71,14 @@ interface ExtensionStatus {
 }
 
 export function SettingsSection() {
-  // Active tab
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  // Get URL search params to handle tab query parameter
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab') as SettingsTab | null;
+  
+  // Active tab - initialize from URL param if valid, otherwise default to 'profile'
+  const validTabs: SettingsTab[] = ['profile', 'security', 'documents', 'notifications', 'privacy', 'extension', 'appearance'];
+  const initialTab = tabParam && validTabs.includes(tabParam) ? tabParam : 'profile';
+  const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
   
   // State
   const [isLoading, setIsLoading] = useState(true);
@@ -165,6 +172,14 @@ export function SettingsSection() {
   const [zipExportOtpVerifying, setZipExportOtpVerifying] = useState(false);
   const [zipExportCountdown, setZipExportCountdown] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  // Update active tab when URL param changes
+  useEffect(() => {
+    if (tabParam && validTabs.includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabParam]);
 
   // Load user data
   useEffect(() => {
