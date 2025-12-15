@@ -62,6 +62,7 @@ async function getUSCISAccessToken(): Promise<string | null> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'demo_id': '3333',
       },
       body: new URLSearchParams({
         grant_type: 'client_credentials',
@@ -129,6 +130,7 @@ export async function checkUSCISStatus(
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Accept': 'application/json',
+        'demo_id': '3333',
       },
     });
 
