@@ -58,11 +58,13 @@ async function getUSCISAccessToken(): Promise<string | null> {
       return null;
     }
 
+    console.log('🔐 Requesting USCIS OAuth token...');
+    console.log('📍 Token URL:', tokenUrl);
+
     const response = await fetch(tokenUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'demo_id': '3333',
       },
       body: new URLSearchParams({
         grant_type: 'client_credentials',
@@ -80,7 +82,7 @@ async function getUSCISAccessToken(): Promise<string | null> {
     }
 
     const data = await response.json();
-    
+
     const { access_token, expires_in } = data;
 
     if (!access_token) {
@@ -111,26 +113,27 @@ export async function checkUSCISStatus(
   receiptNumber: string
 ): Promise<USCISStatus | null> {
   try {
+    console.log(`🔍 Checking USCIS status for: ${receiptNumber}`);
 
     // Get OAuth access token
     const accessToken = await getUSCISAccessToken();
     if (!accessToken) {
-      console.error('❌ Failed to get access token');
+      console.error('❌ Failed to get access token - check USCIS_CLIENT_ID and USCIS_CLIENT_SECRET');
       return null;
     }
+    console.log('✅ Got access token');
 
     // USCIS API endpoint
     const baseUrl = process.env.USCIS_API_BASE_URL || 'https://api-int.uscis.gov/case-status';
     const url = `${baseUrl}/${receiptNumber}`;
+    console.log('📍 API URL:', url);
 
-
-    // Make GET request to USCIS API
+    // Make GET request to USCIS API (matching official curl example headers)
     const response = await fetch(url, {
       method: 'GET',
       headers: {
+        'accept': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
-        'Accept': 'application/json',
-        'demo_id': '3333',
       },
     });
 
@@ -138,10 +141,10 @@ export async function checkUSCISStatus(
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       console.error(`❌ USCIS API returned ${response.status}:`, errorData);
-      
+
       // Check if using sandbox
       const isSandbox = baseUrl.includes('api-int');
-      
+
       // Handle specific error codes
       if (response.status === 404) {
         if (isSandbox) {
@@ -166,11 +169,13 @@ export async function checkUSCISStatus(
           console.error(`⚠️  USCIS API temporarily unavailable (503)`);
         }
       }
-      
+
       return null;
     }
 
+    console.log('✅ USCIS API returned 200 OK');
     const data: USCISAPIResponse = await response.json();
+    console.log('📦 Raw USCIS response:', JSON.stringify(data, null, 2));
 
     // Transform API response to our format
     const status: USCISStatus = {
@@ -181,6 +186,7 @@ export async function checkUSCISStatus(
       description: data.case_status.current_case_status_desc_en,
     };
 
+    console.log('✅ Parsed status:', JSON.stringify(status, null, 2));
     return status;
   } catch (error) {
     console.error('❌ Error checking USCIS status:', error);
@@ -230,7 +236,7 @@ export function mockUSCISStatus(receiptNumber: string): USCISStatus {
   ];
 
   const formTypes = ['I-765', 'I-130', 'I-485', 'I-140', 'I-539'];
-  
+
   const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
   const randomForm = formTypes[Math.floor(Math.random() * formTypes.length)];
 
