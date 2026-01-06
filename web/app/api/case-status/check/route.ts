@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     // Verify internal request or cron authorization
     const authHeader = req.headers.get('authorization');
     const internalHeader = req.headers.get('X-Internal-Request');
-    
+
     // Check if this is a cron job request
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && internalHeader !== 'true') {
       return NextResponse.json(
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     // Fetch USCIS status
     // Note: Use mockUSCISStatus for development, checkUSCISStatus for production
     const isDevelopment = process.env.NODE_ENV === 'development';
-    
+
     const uscisStatus = isDevelopment
       ? mockUSCISStatus(receipt_number)
       : await checkUSCISStatus(receipt_number);
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
         { status: 500, headers: corsHeaders }
       );
     }
-    
+
 
     // Get current case status from database
     const { data: currentCase, error: fetchError } = await supabase
@@ -81,14 +81,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if status has changed
-    const hasStatusChanged = currentCase && 
+    // Check if status has changed OR this is the first check (no previous status)
+    const isFirstCheck = currentCase && !currentCase.current_status;
+    const hasStatusChanged = currentCase &&
+      currentCase.current_status !== null &&
       currentCase.current_status !== uscisStatus.status;
 
     // Prepare status history
     let statusHistory = currentCase?.status_history || [];
-    
-    if (hasStatusChanged) {
+
+    // Add to history if this is the first check OR if status changed
+    if (isFirstCheck || hasStatusChanged) {
       // Add new status to history
       statusHistory = [
         {
@@ -100,6 +103,7 @@ export async function POST(req: NextRequest) {
       ].slice(0, 20); // Keep only last 20 status updates
     }
 
+
     // Update database
     const { error: updateError } = await supabase
       .from('case_status')
@@ -108,7 +112,7 @@ export async function POST(req: NextRequest) {
         case_type: uscisStatus.caseType,
         received_date: uscisStatus.receivedDate,
         last_checked_at: new Date().toISOString(),
-        last_status_change_at: hasStatusChanged
+        last_status_change_at: (isFirstCheck || hasStatusChanged)
           ? new Date().toISOString()
           : currentCase?.last_status_change_at,
         status_history: statusHistory,
@@ -127,7 +131,7 @@ export async function POST(req: NextRequest) {
 
     // If status changed, send notification (only for premium users)
     if (hasStatusChanged && currentCase) {
-      
+
       // Trigger notification (async, don't wait)
       fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/notify`, {
         method: 'POST',
@@ -153,6 +157,7 @@ export async function POST(req: NextRequest) {
           receipt_number,
           status: uscisStatus.status,
           changed: hasStatusChanged,
+          isFirstCheck,
         },
       },
       { status: 200, headers: corsHeaders }
