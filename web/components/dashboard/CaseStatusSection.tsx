@@ -316,20 +316,33 @@ export function CaseStatusSection() {
       return;
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!notificationEmail || !emailRegex.test(notificationEmail)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
     try {
       const response = await fetch('/api/user/notification-email', {
-        method: 'PATCH',
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: notificationEmail }),
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok && result.success) {
         setIsEditingEmail(false);
         setSuccess(true);
+        setError(null);
         setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.error || 'Failed to save email');
       }
     } catch (err) {
+      setError('An error occurred while saving email');
     }
   };
 
