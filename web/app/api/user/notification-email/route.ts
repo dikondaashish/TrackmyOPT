@@ -78,7 +78,7 @@ export async function GET() {
 // POST - Update user's notification email
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
+    const { email, toolType } = await request.json();
 
     if (!email || typeof email !== 'string') {
       return NextResponse.json(
@@ -152,7 +152,7 @@ export async function POST(request: Request) {
     if (upsertError) {
       console.error('Error upserting notification email:', upsertError);
       console.error('Error details:', JSON.stringify(upsertError, null, 2));
-      
+
       // Check if column doesn't exist
       if (upsertError.code === '42703' || upsertError.message?.includes('column') || upsertError.message?.includes('does not exist')) {
         return NextResponse.json(
@@ -160,7 +160,7 @@ export async function POST(request: Request) {
           { status: 500 }
         );
       }
-      
+
       return NextResponse.json(
         { error: `Failed to save notification email: ${upsertError.message || 'Unknown error'}` },
         { status: 500 }
@@ -168,26 +168,28 @@ export async function POST(request: Request) {
     }
 
     // Send enrollment confirmation email if this is a new enrollment
-    console.log(`📧 Notification email save - Email: ${email}, PreviousEmail: ${previousEmail}, IsNewEnrollment: ${isNewEnrollment}`);
-    
+    // Use toolType from request, default to 'documents' for backward compatibility
+    const emailToolType = toolType || 'documents';
+    console.log(`📧 Notification email save - Email: ${email}, PreviousEmail: ${previousEmail}, IsNewEnrollment: ${isNewEnrollment}, ToolType: ${emailToolType}`);
+
     if (isNewEnrollment) {
       const firstName = existingProfile?.first_name || 'there';
-      
-      console.log(`📤 Sending document reminder enrollment email to ${email}`);
-      
+
+      console.log(`📤 Sending ${emailToolType} enrollment email to ${email}`);
+
       // Send enrollment email and wait for result
       try {
-        const result = await sendEnrollmentEmail(email, firstName, 'documents');
+        const result = await sendEnrollmentEmail(email, firstName, emailToolType);
         if (result.success) {
-          console.log(`✅ Document reminder enrollment email sent successfully to ${email}`);
+          console.log(`✅ ${emailToolType} enrollment email sent successfully to ${email}`);
         } else {
-          console.error(`❌ Failed to send document enrollment email:`, result.error);
+          console.error(`❌ Failed to send ${emailToolType} enrollment email:`, result.error);
         }
       } catch (err) {
-        console.error(`❌ Document enrollment email error:`, err);
+        console.error(`❌ ${emailToolType} enrollment email error:`, err);
       }
     } else {
-      console.log(`ℹ️ Skipping enrollment email - not a new enrollment for documents`);
+      console.log(`ℹ️ Skipping enrollment email - not a new enrollment for ${emailToolType}`);
     }
 
     return NextResponse.json({

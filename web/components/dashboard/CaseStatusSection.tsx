@@ -328,7 +328,7 @@ export function CaseStatusSection() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: notificationEmail }),
+        body: JSON.stringify({ email: notificationEmail, toolType: 'case-status' }),
       });
 
       const result = await response.json();
@@ -699,8 +699,8 @@ export function CaseStatusSection() {
                         <div key={index} className="relative pl-10">
                           {/* Timeline Dot with Checkmark */}
                           <div className={`absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all ${isFirst
-                              ? 'bg-gradient-to-br from-emerald-500 to-teal-600 ring-4 ring-emerald-100 dark:ring-emerald-900/30'
-                              : 'bg-white dark:bg-gray-800 border-2 border-emerald-500'
+                            ? 'bg-gradient-to-br from-emerald-500 to-teal-600 ring-4 ring-emerald-100 dark:ring-emerald-900/30'
+                            : 'bg-white dark:bg-gray-800 border-2 border-emerald-500'
                             }`}>
                             {isFirst ? (
                               <CheckCircle2 className="w-4 h-4 text-white" />
@@ -711,14 +711,14 @@ export function CaseStatusSection() {
 
                           {/* Content Card */}
                           <div className={`p-4 rounded-xl transition-all ${isFirst
-                              ? 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-2 border-emerald-200 dark:border-emerald-800 shadow-lg'
-                              : 'bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700 hover:shadow-md'
+                            ? 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-2 border-emerald-200 dark:border-emerald-800 shadow-lg'
+                            : 'bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700 hover:shadow-md'
                             }`}>
                             {/* Date Badge */}
                             <div className="flex items-center gap-2 mb-2">
                               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isFirst
-                                  ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
-                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                                ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                                 }`}>
                                 {formatDateShort(item.date)}
                               </span>
@@ -731,8 +731,8 @@ export function CaseStatusSection() {
 
                             {/* Status Text */}
                             <p className={`text-sm leading-relaxed ${isFirst
-                                ? 'font-medium text-gray-800 dark:text-gray-100'
-                                : 'text-gray-600 dark:text-gray-400'
+                              ? 'font-medium text-gray-800 dark:text-gray-100'
+                              : 'text-gray-600 dark:text-gray-400'
                               }`}>
                               {item.description || item.status}
                             </p>
