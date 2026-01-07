@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   try {
     // Verify internal request
     const internalHeader = req.headers.get('X-Internal-Request');
-    
+
     if (internalHeader !== 'true') {
       return NextResponse.json(
         { ok: false, error: 'Unauthorized' },
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { user_id, receipt_number, old_status, new_status } = body;
+    const { user_id, receipt_number, old_status, new_status, description, case_type, received_date } = body;
 
     if (!user_id || !receipt_number || !new_status) {
       return NextResponse.json(
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
 
     // Get user's email from auth.users table
     const { data: authData, error: authError } = await supabase.auth.admin.getUserById(user_id);
-    
+
     if (authError || !authData.user) {
       console.error('Error fetching auth user:', authError);
       return NextResponse.json(
@@ -123,6 +123,9 @@ export async function POST(req: NextRequest) {
           receipt_number,
           old_status,
           new_status,
+          description,
+          case_type,
+          received_date,
         }),
       });
 
@@ -156,11 +159,17 @@ function generateEmailHTML({
   receipt_number,
   old_status,
   new_status,
+  description,
+  case_type,
+  received_date,
 }: {
   name: string;
   receipt_number: string;
   old_status: string | null;
   new_status: string;
+  description?: string;
+  case_type?: string;
+  received_date?: string | null;
 }): string {
   return `
     <!DOCTYPE html>
@@ -206,6 +215,28 @@ function generateEmailHTML({
                       </p>
                     </div>
 
+                    <!-- Case Details -->
+                    <div style="background-color: #f3f4f6; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                      <table width="100%" cellpadding="0" cellspacing="0">
+                        ${case_type ? `
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-weight: 600;">Case Type:</td>
+                          <td style="padding: 8px 0; color: #111827; font-size: 14px; text-align: right;">${case_type}</td>
+                        </tr>
+                        ` : ''}
+                        ${received_date ? `
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-weight: 600;">Submitted Date:</td>
+                          <td style="padding: 8px 0; color: #111827; font-size: 14px; text-align: right;">${received_date}</td>
+                        </tr>
+                        ` : ''}
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-weight: 600;">Notification Date:</td>
+                          <td style="padding: 8px 0; color: #111827; font-size: 14px; text-align: right;">${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</td>
+                        </tr>
+                      </table>
+                    </div>
+
                     <!-- Status Change -->
                     <div style="border-left: 4px solid #10b981; background-color: #f0fdf4; padding: 20px; border-radius: 4px; margin-bottom: 30px;">
                       ${old_status ? `
@@ -224,6 +255,18 @@ function generateEmailHTML({
                         ${new_status}
                       </p>
                     </div>
+
+                    <!-- Description -->
+                    ${description ? `
+                    <div style="background-color: #eff6ff; border-radius: 8px; padding: 20px; margin-bottom: 30px; border-left: 4px solid #3b82f6;">
+                      <p style="margin: 0 0 8px 0; color: #1e40af; font-size: 14px; font-weight: 600;">
+                        📋 Status Description
+                      </p>
+                      <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.6;">
+                        ${description}
+                      </p>
+                    </div>
+                    ` : ''}
 
                     <!-- CTA Button -->
                     <div style="text-align: center; margin: 40px 0 30px 0;">
