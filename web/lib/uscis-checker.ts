@@ -22,6 +22,19 @@ export interface USCISStatus {
   histCaseStatus: USCISHistoryItem[];
 }
 
+// Error response structure for USCIS API errors
+export interface USCISError {
+  code: number;
+  message: string;
+  userMessage: string;  // User-friendly message for UI display
+  details?: string;     // Additional technical details for logging
+}
+
+// Result type that can be either success or error
+export type USCISResult =
+  | { success: true; data: USCISStatus }
+  | { success: false; error: USCISError };
+
 interface USCISAPIResponse {
   case_status: {
     receiptNumber: string;
@@ -111,24 +124,34 @@ async function getUSCISAccessToken(): Promise<string | null> {
 /**
  * Fetch case status from official USCIS API
  * @param receiptNumber - USCIS receipt number (e.g., IOE1234567890)
- * @returns Case status information or null if not found
+ * @returns USCISResult with either success data or structured error
  */
 export async function checkUSCISStatus(
   receiptNumber: string
-): Promise<USCISStatus | null> {
+): Promise<USCISResult> {
   try {
-
     // Get OAuth access token
     const accessToken = await getUSCISAccessToken();
     if (!accessToken) {
-      console.error('❌ Failed to get access token');
-      return null;
+      console.error('❌ [USCIS API] ERROR 401: Failed to get OAuth access token');
+      console.error('💡 Check USCIS_CLIENT_ID and USCIS_CLIENT_SECRET environment variables');
+      return {
+        success: false,
+        error: {
+          code: 401,
+          message: 'Authentication failed',
+          userMessage: '🔐 Authentication Error: Unable to connect to USCIS. Please try again later.',
+          details: 'Failed to obtain OAuth access token from USCIS API',
+        },
+      };
     }
 
     // USCIS API endpoint
     const baseUrl = process.env.USCIS_API_BASE_URL || 'https://api-int.uscis.gov/case-status';
     const url = `${baseUrl}/${receiptNumber}`;
+    const isSandbox = baseUrl.includes('api-int');
 
+    console.log(`📡 [USCIS API] Calling: GET ${url}`);
 
     // Make GET request to USCIS API
     const response = await fetch(url, {
@@ -140,43 +163,136 @@ export async function checkUSCISStatus(
       },
     });
 
+    // Log the response status
+    console.log(`📡 [USCIS API] Response Status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      console.error(`❌ USCIS API returned ${response.status}:`, errorData);
+      const errorMessage = errorData?.message || 'Unknown error';
 
-      // Check if using sandbox
-      const isSandbox = baseUrl.includes('api-int');
+      console.error(`❌ [USCIS API] ERROR ${response.status}: ${errorMessage}`);
+      console.error(`📦 [USCIS API] Error Response:`, JSON.stringify(errorData, null, 2));
 
-      // Handle specific error codes
-      if (response.status === 404) {
-        if (isSandbox) {
-          console.error(`❌ SANDBOX MODE: Receipt number ${receiptNumber} not found`);
-          console.error(`ℹ️  Sandbox only accepts STAGING receipt numbers like:`);
-          console.error(`   - EAC9999103403 (Approved case)`);
-          console.error(`   - SRC9999102777 (Active case)`);
-          console.error(`   - LIN9999106498 (Pending case)`);
-          console.error(`💡 For REAL receipt numbers, you need PRODUCTION access.`);
-          console.error(`📧 Request production access: developersupport@uscis.dhs.gov`);
-        } else {
-        }
-      } else if (response.status === 422) {
-      } else if (response.status === 429) {
-      } else if (response.status === 503) {
-        if (isSandbox) {
-          console.error(`⏰ SANDBOX CLOSED: The USCIS Sandbox API is offline`);
-          console.error(`📅 Operating Hours: Monday-Friday, 7:00 AM - 8:00 PM EST`);
-          console.error(`💡 Current time is outside business hours.`);
-          console.error(`🕐 Please test during: Mon-Fri 7AM-8PM EST`);
-        } else {
-          console.error(`⚠️  USCIS API temporarily unavailable (503)`);
-        }
+      // Handle specific error codes with detailed logging
+      switch (response.status) {
+        case 401:
+          console.error('🔐 [USCIS API] 401 Unauthorized - Invalid or expired access token');
+          console.error('💡 Your access token may have expired. Will retry with fresh token.');
+          return {
+            success: false,
+            error: {
+              code: 401,
+              message: errorMessage,
+              userMessage: '🔐 Unauthorized (401): Your session has expired. Please refresh and try again.',
+              details: 'USCIS API returned 401 - access token is invalid or expired',
+            },
+          };
+
+        case 404:
+          console.error(`🔍 [USCIS API] 404 Not Found - Receipt number: ${receiptNumber}`);
+          if (isSandbox) {
+            console.error('📋 [SANDBOX MODE] Only staging receipt numbers are accepted:');
+            console.error('   ✓ EAC9999103403 (Approved case)');
+            console.error('   ✓ SRC9999102777 (Active case)');
+            console.error('   ✓ LIN9999106498 (Pending case)');
+            console.error('💡 For REAL receipt numbers, request PRODUCTION access: developersupport@uscis.dhs.gov');
+            return {
+              success: false,
+              error: {
+                code: 404,
+                message: errorMessage,
+                userMessage: `� Receipt Not Found (404): "${receiptNumber}" is not valid in Sandbox mode. Please use a staging receipt number like EAC9999103403.`,
+                details: 'Sandbox mode only accepts staging receipt numbers',
+              },
+            };
+          }
+          return {
+            success: false,
+            error: {
+              code: 404,
+              message: errorMessage,
+              userMessage: `🔍 Case Not Found (404): USCIS does not recognize receipt number "${receiptNumber}". Please check and try again.`,
+              details: 'Receipt number not found in USCIS system',
+            },
+          };
+
+        case 422:
+          console.error(`⚠️ [USCIS API] 422 Unprocessable Entity - Invalid format: ${receiptNumber}`);
+          console.error('📋 Receipt number must be 13 characters: 3-letter prefix + 10 digits');
+          console.error('   Example: IOE1234567890, EAC9999103403');
+          return {
+            success: false,
+            error: {
+              code: 422,
+              message: errorMessage,
+              userMessage: `⚠️ Invalid Format (422): Receipt number "${receiptNumber}" is not formatted correctly. It should be 13 characters (3-letter prefix + 10 digits). Example: IOE1234567890`,
+              details: 'Receipt number does not match expected 13-character format',
+            },
+          };
+
+        case 429:
+          console.error('⏱️ [USCIS API] 429 Too Many Requests - Rate limit exceeded');
+          console.error('📋 Sandbox limits: 5 requests/second, 1,000 requests/day');
+          console.error('💡 Please wait and try again in a few seconds');
+          return {
+            success: false,
+            error: {
+              code: 429,
+              message: errorMessage,
+              userMessage: '⏱️ Rate Limit Exceeded (429): Too many requests. Please wait a few seconds and try again.',
+              details: 'USCIS API rate limit exceeded (5 TPS or 1,000/day in sandbox)',
+            },
+          };
+
+        case 503:
+          console.error('🔴 [USCIS API] 503 Service Unavailable');
+          if (isSandbox) {
+            console.error('⏰ [SANDBOX] Operating Hours: Monday-Friday, 7:00 AM - 8:00 PM EST');
+            console.error('💡 The sandbox API is offline outside business hours');
+            return {
+              success: false,
+              error: {
+                code: 503,
+                message: errorMessage,
+                userMessage: '🔴 Service Unavailable (503): USCIS Sandbox is offline. Operating hours are Monday-Friday, 7:00 AM - 8:00 PM EST.',
+                details: 'Sandbox API is only available during business hours',
+              },
+            };
+          }
+          return {
+            success: false,
+            error: {
+              code: 503,
+              message: errorMessage,
+              userMessage: '🔴 Service Unavailable (503): USCIS service is temporarily unavailable. Please try again later.',
+              details: 'USCIS API is temporarily unavailable',
+            },
+          };
+
+        default:
+          console.error(`❓ [USCIS API] Unexpected error ${response.status}`);
+          return {
+            success: false,
+            error: {
+              code: response.status,
+              message: errorMessage,
+              userMessage: `❌ Error (${response.status}): Unable to check case status. ${errorMessage}`,
+              details: `Unexpected HTTP status code: ${response.status}`,
+            },
+          };
       }
-
-      return null;
     }
 
+    // SUCCESS - 200 OK
+    console.log(`✅ [USCIS API] SUCCESS 200: Case status retrieved for ${receiptNumber}`);
+
     const data: USCISAPIResponse = await response.json();
+    console.log(`📦 [USCIS API] Response Data:`, JSON.stringify({
+      receiptNumber: data.case_status.receiptNumber,
+      status: data.case_status.current_case_status_text_en,
+      formType: data.case_status.formType,
+      historyCount: data.case_status.hist_case_status?.length || 0,
+    }, null, 2));
 
     // Transform API response to our format
     const histCaseStatus: USCISHistoryItem[] = (data.case_status.hist_case_status || []).map(item => ({
@@ -193,10 +309,18 @@ export async function checkUSCISStatus(
       histCaseStatus,
     };
 
-    return status;
+    return { success: true, data: status };
   } catch (error) {
-    console.error('❌ Error checking USCIS status:', error);
-    return null;
+    console.error('❌ [USCIS API] EXCEPTION:', error);
+    return {
+      success: false,
+      error: {
+        code: 500,
+        message: String(error),
+        userMessage: '❌ Connection Error: Unable to connect to USCIS. Please check your internet connection and try again.',
+        details: `Exception: ${String(error)}`,
+      },
+    };
   }
 }
 

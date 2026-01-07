@@ -52,19 +52,76 @@ export async function POST(req: NextRequest) {
     // Note: Use mockUSCISStatus for development, checkUSCISStatus for production
     const isDevelopment = process.env.NODE_ENV === 'development';
 
-    const uscisStatus = isDevelopment
-      ? mockUSCISStatus(receipt_number)
-      : await checkUSCISStatus(receipt_number);
+    // In development, use mock data
+    if (isDevelopment) {
+      const mockStatus = mockUSCISStatus(receipt_number);
+      // Mock always succeeds - use the mock data directly
+      const statusHistory = mockStatus.histCaseStatus.map((item: { completedText: string; date: string }) => ({
+        status: item.completedText,
+        date: item.date,
+        description: item.completedText,
+      }));
 
-    if (!uscisStatus) {
-      console.error(`❌ Could not fetch status for ${receipt_number}`);
-      console.error('💡 Check USCIS API credentials and connectivity');
+      // Get current case for comparison
+      const { data: currentCase } = await supabase
+        .from('case_status')
+        .select('*')
+        .eq('receipt_number', receipt_number)
+        .single();
+
+      const isFirstCheck = currentCase && !currentCase.current_status;
+      const hasStatusChanged = currentCase &&
+        currentCase.current_status !== null &&
+        currentCase.current_status !== mockStatus.status;
+
+      await supabase
+        .from('case_status')
+        .update({
+          current_status: mockStatus.status,
+          case_type: mockStatus.caseType,
+          received_date: mockStatus.receivedDate,
+          last_checked_at: new Date().toISOString(),
+          last_status_change_at: (isFirstCheck || hasStatusChanged)
+            ? new Date().toISOString()
+            : currentCase?.last_status_change_at,
+          status_history: statusHistory,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('receipt_number', receipt_number);
+
       return NextResponse.json(
-        { ok: false, error: 'Could not fetch case status from USCIS' },
-        { status: 500, headers: corsHeaders }
+        {
+          ok: true,
+          data: {
+            receipt_number,
+            status: mockStatus.status,
+            changed: hasStatusChanged,
+            isFirstCheck,
+          },
+        },
+        { status: 200, headers: corsHeaders }
       );
     }
 
+    // Production: Call USCIS API
+    const uscisResult = await checkUSCISStatus(receipt_number);
+
+    // Handle USCIS API errors
+    if (!uscisResult.success) {
+      console.error(`❌ USCIS API Error for ${receipt_number}:`, uscisResult.error);
+      return NextResponse.json(
+        {
+          ok: false,
+          error: uscisResult.error.userMessage,
+          errorCode: uscisResult.error.code,
+          errorDetails: uscisResult.error.details,
+        },
+        { status: uscisResult.error.code === 500 ? 500 : 400, headers: corsHeaders }
+      );
+    }
+
+    // SUCCESS: Extract data from result
+    const uscisStatus = uscisResult.data;
 
     // Get current case status from database
     const { data: currentCase, error: fetchError } = await supabase
