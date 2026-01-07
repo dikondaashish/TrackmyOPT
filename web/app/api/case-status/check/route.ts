@@ -129,8 +129,8 @@ export async function POST(req: NextRequest) {
     }
 
 
-    // If status changed OR this is the first check, send notification (only for premium users)
-    if ((hasStatusChanged || isFirstCheck) && currentCase) {
+    // If status changed, send notification (only for premium users)
+    if (hasStatusChanged && currentCase) {
 
       // Trigger notification (async, don't wait)
       fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/notify`, {
@@ -144,9 +144,6 @@ export async function POST(req: NextRequest) {
           receipt_number,
           old_status: currentCase.current_status,
           new_status: uscisStatus.status,
-          description: uscisStatus.description,
-          case_type: uscisStatus.caseType,
-          received_date: uscisStatus.receivedDate,
         }),
       }).catch((err) => {
         console.error('Failed to send notification:', err);

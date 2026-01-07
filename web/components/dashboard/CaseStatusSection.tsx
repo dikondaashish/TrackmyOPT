@@ -5,13 +5,13 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Collapsible } from "@/components/ui/collapsible";
 import { PremiumUpsellModal } from "@/components/dashboard/PremiumUpsellModal";
-import { 
-  ClipboardCheck, 
-  RefreshCw, 
-  Bell, 
-  BellOff, 
-  CheckCircle2, 
-  Clock, 
+import {
+  ClipboardCheck,
+  RefreshCw,
+  Bell,
+  BellOff,
+  CheckCircle2,
+  Clock,
   AlertCircle,
   Loader2,
   Globe,
@@ -52,6 +52,7 @@ export function CaseStatusSection() {
   const [notificationEmail, setNotificationEmail] = useState("");
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [nextCheckTime, setNextCheckTime] = useState<string>("");
+  const [isPolling, setIsPolling] = useState(false);
 
   useEffect(() => {
     loadCaseStatus();
@@ -144,37 +145,40 @@ export function CaseStatusSection() {
 
       if (response.ok && result.ok) {
         setSuccess(true);
-        
+        setIsPolling(true);
+
         let attempts = 0;
         const maxAttempts = 10;
-        
+
         const pollForStatus = async () => {
           for (let i = 0; i < maxAttempts; i++) {
             attempts++;
             await new Promise(resolve => setTimeout(resolve, 2000));
-            
+
             const data = await loadCaseStatus();
-            
-            const hasStatus = data?.current_status && 
-                             data.current_status !== 'Status will be fetched shortly...' &&
-                             data.last_checked_at;
-            
+
+            const hasStatus = data?.current_status &&
+              data.current_status !== 'Status will be fetched shortly...' &&
+              data.last_checked_at;
+
             if (hasStatus) {
               setSuccess(true);
+              setIsPolling(false);
               setTimeout(() => setSuccess(false), 3000);
               return;
             }
           }
-          
+
           const isStagingNumber = /^(EAC|SRC|LIN)9999\d{6}$/i.test(receiptNumber);
-          
+
           if (!isStagingNumber) {
             setError(`⚠️ Sandbox Mode: Cannot check real receipt numbers yet. We're currently in testing mode and can only check staging numbers like EAC9999103403.`);
           }
+          setIsPolling(false);
         };
-        
+
         pollForStatus();
-        
+
       } else {
         setError(result.error || 'Failed to save receipt number');
       }
@@ -239,9 +243,9 @@ export function CaseStatusSection() {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '—';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -250,10 +254,10 @@ export function CaseStatusSection() {
 
   const formatDateShort = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
@@ -294,12 +298,12 @@ export function CaseStatusSection() {
     const lastCheck = new Date(lastCheckedAt);
     const nextCheck = new Date(lastCheck.getTime() + 6 * 60 * 60 * 1000); // Add 6 hours
     const now = new Date();
-    
+
     if (nextCheck <= now) return 'Checking soon...';
-    
+
     const hoursLeft = Math.floor((nextCheck.getTime() - now.getTime()) / (1000 * 60 * 60));
     const minutesLeft = Math.floor(((nextCheck.getTime() - now.getTime()) % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (hoursLeft > 0) {
       return `Next check in ${hoursLeft}h ${minutesLeft}m`;
     }
@@ -311,7 +315,7 @@ export function CaseStatusSection() {
       setShowPremiumModal(true);
       return;
     }
-    
+
     try {
       const response = await fetch('/api/user/notification-email', {
         method: 'PATCH',
@@ -319,7 +323,7 @@ export function CaseStatusSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: notificationEmail }),
       });
-      
+
       if (response.ok) {
         setIsEditingEmail(false);
         setSuccess(true);
@@ -361,7 +365,7 @@ export function CaseStatusSection() {
             <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
               We're currently in testing mode using USCIS's sandbox API. This means we can ONLY check <strong>staging/test receipt numbers</strong>, not real ones.
             </p>
-            
+
             <div className="mb-3 p-3 bg-amber-100 dark:bg-amber-900/40 border border-amber-400 dark:border-amber-600 rounded">
               <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">
                 🕐 <strong>Sandbox Operating Hours:</strong>
@@ -383,7 +387,7 @@ export function CaseStatusSection() {
               </ul>
               <p><strong>❌ Real receipt numbers (like IOE9645083446) won't work yet.</strong></p>
               <p className="mt-2 text-xs">
-                💡 <strong>For real receipt tracking:</strong> We're testing for 5 days, then we'll request production API access from USCIS. 
+                💡 <strong>For real receipt tracking:</strong> We're testing for 5 days, then we'll request production API access from USCIS.
                 Check your real status at <a href="https://egov.uscis.gov" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-600">egov.uscis.gov</a>
               </p>
             </div>
@@ -441,6 +445,12 @@ export function CaseStatusSection() {
           {success && (
             <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
               ✓ Receipt number saved successfully!
+            </div>
+          )}
+          {isPolling && (
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center gap-3">
+              <Loader2 className="w-5 h-5 animate-spin text-blue-600 dark:text-blue-400" />
+              <span className="text-blue-700 dark:text-blue-300">Fetching status from USCIS... This may take a few seconds.</span>
             </div>
           )}
         </div>
@@ -598,7 +608,7 @@ export function CaseStatusSection() {
                 </div>
                 <h2 className="text-xl font-bold">Recent Updated Case Message</h2>
               </div>
-              
+
               {(() => {
                 const statusInfo = getStatusExplanation(caseStatus.status_history[0].status);
                 return (
@@ -653,11 +663,11 @@ export function CaseStatusSection() {
               {/* Left: Case Message History */}
               <Card className="p-6">
                 <h2 className="text-lg font-bold mb-6">Case Message History</h2>
-                
+
                 <div className="relative">
                   {/* Timeline Line */}
                   <div className="absolute left-[13px] top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-700"></div>
-                  
+
                   {/* Timeline Items */}
                   <div className="space-y-6">
                     {caseStatus.status_history.map((item, index) => (
@@ -666,12 +676,12 @@ export function CaseStatusSection() {
                         <div className="absolute left-0 top-2 w-7 h-7 rounded-full bg-white dark:bg-gray-900 border-2 border-blue-500 flex items-center justify-center">
                           <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                         </div>
-                        
+
                         {/* Date */}
                         <p className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-300">
                           {formatDateShort(item.date)}
                         </p>
-                        
+
                         {/* Status Card */}
                         {item.description ? (
                           <Collapsible
@@ -769,6 +779,35 @@ export function CaseStatusSection() {
           )}
         </>
       )}
+
+      {/* Fallback: Show current status if status_history is empty */}
+      {caseStatus && caseStatus.current_status &&
+        (!caseStatus.status_history || caseStatus.status_history.length === 0) && (
+          <Card className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <ClipboardCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h2 className="text-xl font-bold">Current Status</h2>
+            </div>
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="font-medium text-gray-900 dark:text-gray-100">{caseStatus.current_status}</p>
+              <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600 dark:text-gray-400">Case Type:</span>
+                  <p className="font-semibold">{caseStatus.case_type || 'N/A'}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600 dark:text-gray-400">Received:</span>
+                  <p className="font-semibold">{caseStatus.received_date || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+              We'll check your status every 6 hours and notify you when it changes.
+            </p>
+          </Card>
+        )}
 
       {/* Help Text */}
       {!caseStatus && (
