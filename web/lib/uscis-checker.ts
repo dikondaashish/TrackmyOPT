@@ -43,14 +43,13 @@ async function getUSCISAccessToken(): Promise<string | null> {
   try {
     // Check if we have a valid cached token
     if (cachedToken && Date.now() < cachedToken.expiresAt) {
+      console.log('🔑 Using cached USCIS access token');
       return cachedToken.token;
     }
-
 
     const clientId = process.env.USCIS_CLIENT_ID;
     const clientSecret = process.env.USCIS_CLIENT_SECRET;
     const tokenUrl = process.env.USCIS_TOKEN_URL || 'https://api-int.uscis.gov/oauth/accesstoken';
-
 
     if (!clientId || !clientSecret) {
       console.error('❌ USCIS credentials not configured');
@@ -58,21 +57,32 @@ async function getUSCISAccessToken(): Promise<string | null> {
       return null;
     }
 
-    console.log('🔐 Requesting USCIS OAuth token...');
-    console.log('📍 Token URL:', tokenUrl);
+    // Log the request details (mask sensitive data)
+    console.log('🔐 USCIS OAuth Token Request:');
+    console.log(`   URL: ${tokenUrl}`);
+    console.log(`   Method: POST`);
+    console.log(`   Headers: Content-Type: application/x-www-form-urlencoded, demo_id: 3333`);
+    console.log(`   Client ID: ${clientId.substring(0, 8)}...`);
+    console.log(`   Grant Type: client_credentials`);
+
+    const requestBody = new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: clientId,
+      client_secret: clientSecret,
+    }).toString();
 
     const response = await fetch(tokenUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'demo_id': '3333',
       },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-        client_secret: clientSecret,
-      }).toString(),
+      body: requestBody,
     });
 
+    console.log(`📥 USCIS OAuth Response:`);
+    console.log(`   Status: ${response.status} ${response.statusText}`);
+    console.log(`   Headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -82,6 +92,8 @@ async function getUSCISAccessToken(): Promise<string | null> {
     }
 
     const data = await response.json();
+    console.log(`   Token received: ${data.access_token ? 'Yes (length: ' + data.access_token.length + ')' : 'No'}`);
+    console.log(`   Expires in: ${data.expires_in} seconds`);
 
     const { access_token, expires_in } = data;
 
@@ -97,6 +109,7 @@ async function getUSCISAccessToken(): Promise<string | null> {
       expiresAt: Date.now() + expiresInMs,
     };
 
+    console.log('✅ USCIS access token obtained and cached');
     return access_token;
   } catch (error) {
     console.error('❌ Error getting USCIS access token:', error);
@@ -113,30 +126,39 @@ export async function checkUSCISStatus(
   receiptNumber: string
 ): Promise<USCISStatus | null> {
   try {
-    console.log(`🔍 Checking USCIS status for: ${receiptNumber}`);
+    console.log('📋 USCIS Case Status Check:');
+    console.log(`   Receipt Number: ${receiptNumber}`);
 
     // Get OAuth access token
     const accessToken = await getUSCISAccessToken();
     if (!accessToken) {
-      console.error('❌ Failed to get access token - check USCIS_CLIENT_ID and USCIS_CLIENT_SECRET');
+      console.error('❌ Failed to get access token');
       return null;
     }
-    console.log('✅ Got access token');
 
     // USCIS API endpoint
     const baseUrl = process.env.USCIS_API_BASE_URL || 'https://api-int.uscis.gov/case-status';
     const url = `${baseUrl}/${receiptNumber}`;
-    console.log('📍 API URL:', url);
 
-    // Make GET request to USCIS API (matching official curl example headers)
+    // Log the request details
+    console.log('📤 USCIS Case Status API Request:');
+    console.log(`   URL: ${url}`);
+    console.log(`   Method: GET`);
+    console.log(`   Headers: Authorization: Bearer ${accessToken.substring(0, 20)}..., Accept: application/json, demo_id: 3333`);
+
+    // Make GET request to USCIS API
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'accept': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json',
+        'demo_id': '3333',
       },
     });
 
+    console.log('📥 USCIS Case Status API Response:');
+    console.log(`   Status: ${response.status} ${response.statusText}`);
+    console.log(`   Headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
@@ -173,9 +195,11 @@ export async function checkUSCISStatus(
       return null;
     }
 
-    console.log('✅ USCIS API returned 200 OK');
     const data: USCISAPIResponse = await response.json();
-    console.log('📦 Raw USCIS response:', JSON.stringify(data, null, 2));
+    console.log('📥 USCIS Case Status Response Body:');
+    console.log(`   Receipt: ${data.case_status?.receiptNumber}`);
+    console.log(`   Form Type: ${data.case_status?.formType}`);
+    console.log(`   Status: ${data.case_status?.current_case_status_text_en}`);
 
     // Transform API response to our format
     const status: USCISStatus = {
@@ -186,7 +210,7 @@ export async function checkUSCISStatus(
       description: data.case_status.current_case_status_desc_en,
     };
 
-    console.log('✅ Parsed status:', JSON.stringify(status, null, 2));
+    console.log('✅ USCIS Case Status successfully retrieved');
     return status;
   } catch (error) {
     console.error('❌ Error checking USCIS status:', error);
