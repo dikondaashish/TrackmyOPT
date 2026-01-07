@@ -18,8 +18,11 @@ import {
   Mail,
   Crown,
   Info,
-  Edit
+  Edit,
+  AlertTriangle
 } from "lucide-react";
+import { CaseProgressStepper } from "./CaseProgressStepper";
+import { CaseHistoryTimeline } from "./CaseHistoryTimeline";
 
 interface CaseStatus {
   id: string;
@@ -41,6 +44,7 @@ interface CaseStatus {
 
 export function CaseStatusSection() {
   const [receiptNumber, setReceiptNumber] = useState("");
+  const [showSandboxWarning, setShowSandboxWarning] = useState(false);
   const [caseStatus, setCaseStatus] = useState<CaseStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -346,6 +350,23 @@ export function CaseStatusSection() {
     }
   };
 
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.toUpperCase();
+    setReceiptNumber(val);
+
+    // Smart Validation Logic
+    // In sandbox mode, we only support specific test numbers starting with EAC9999, SRC9999, LIN9999
+    // If user types a real formatted number that isn't a test number, show warning
+    const isTestNumber = /^(EAC|SRC|LIN)9999/i.test(val);
+    const looksLikeRealNumber = /^[A-Z]{3}\d{3,}/i.test(val);
+
+    if (looksLikeRealNumber && !isTestNumber) {
+      setShowSandboxWarning(true);
+    } else {
+      setShowSandboxWarning(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -367,46 +388,7 @@ export function CaseStatusSection() {
         </p>
       </div>
 
-      {/* Sandbox Mode Notice */}
-      <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-lg">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
-              ⚠️ Sandbox Mode (Testing)
-            </h3>
-            <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
-              We're currently in testing mode using USCIS's sandbox API. This means we can ONLY check <strong>staging/test receipt numbers</strong>, not real ones.
-            </p>
 
-            <div className="mb-3 p-3 bg-amber-100 dark:bg-amber-900/40 border border-amber-400 dark:border-amber-600 rounded">
-              <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">
-                🕐 <strong>Sandbox Operating Hours:</strong>
-              </p>
-              <p className="text-sm text-amber-800 dark:text-amber-200">
-                <strong>Monday - Friday: 7:00 AM - 8:00 PM EST</strong>
-              </p>
-              <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-                ❌ Closed: Weekends and outside business hours (you'll get 503 errors)
-              </p>
-            </div>
-
-            <div className="text-sm text-amber-800 dark:text-amber-200 space-y-1">
-              <p><strong>✅ Test numbers that work (during business hours):</strong></p>
-              <ul className="list-disc list-inside ml-2 mb-2">
-                <li><code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">EAC9999103403</code> - Approved case</li>
-                <li><code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">SRC9999102777</code> - Active case</li>
-                <li><code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">LIN9999106498</code> - Pending case</li>
-              </ul>
-              <p><strong>❌ Real receipt numbers (like IOE9645083446) won't work yet.</strong></p>
-              <p className="mt-2 text-xs">
-                💡 <strong>For real receipt tracking:</strong> We're testing for 5 days, then we'll request production API access from USCIS.
-                Check your real status at <a href="https://egov.uscis.gov" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-600">egov.uscis.gov</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Receipt Number Input */}
       <Card className="p-6">
@@ -417,18 +399,34 @@ export function CaseStatusSection() {
               USCIS Receipt Number
             </label>
             <div className="flex gap-3">
-              <Input
-                id="receipt-number-input"
-                type="text"
-                placeholder="Try: EAC9999103403 (test number)"
-                value={receiptNumber}
-                onChange={(e) => setReceiptNumber(e.target.value.toUpperCase())}
-                className="flex-1 font-mono"
-                maxLength={13}
-                aria-label="Enter your USCIS receipt number"
-                aria-describedby="receipt-number-help"
-                aria-required="true"
-              />
+              <div className="flex-1">
+                <Input
+                  id="receipt-number-input"
+                  type="text"
+                  placeholder="Try: EAC9999103403 (test number)"
+                  value={receiptNumber}
+                  onChange={handleReceiptChange}
+                  className={`font-mono transition-all duration-300 ${showSandboxWarning
+                      ? 'border-amber-400 focus-visible:ring-amber-400 bg-amber-50 dark:bg-amber-900/10'
+                      : ''
+                    }`}
+                  maxLength={13}
+                  aria-label="Enter your USCIS receipt number"
+                  aria-describedby="receipt-number-help"
+                  aria-required="true"
+                />
+
+                {/* Smart Validation Warning */}
+                {showSandboxWarning && (
+                  <div className="mt-2 text-sm text-amber-700 dark:text-amber-400 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>
+                      <strong>Sandbox Mode:</strong> Real receipt numbers (like IOE...) aren't supported yet.
+                      Please use a test number (e.g., EAC9999103403).
+                    </span>
+                  </div>
+                )}
+              </div>
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
@@ -612,7 +610,10 @@ export function CaseStatusSection() {
             </div>
           </Card>
 
-          {/* 1. Recent Updated Case Message */}
+          {/* 1. Case Progress Stepper - Visual Lifecycle */}
+          <CaseProgressStepper currentStatus={caseStatus.current_status || ''} />
+
+          {/* 2. Recent Updated Case Message */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 && (
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -670,79 +671,11 @@ export function CaseStatusSection() {
             </Card>
           )}
 
-          {/* 2 & 3. Case Message History and My Case Info - Side by Side */}
+          {/* 3. Case Message History and My Case Info - Side by Side */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left: Case Message History - Enhanced Timeline */}
-              <Card className="p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold">Case Timeline</h2>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Your case journey from USCIS</p>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  {/* Timeline Line - Gradient */}
-                  <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500 via-blue-500 to-gray-300 dark:to-gray-700"></div>
-
-                  {/* Timeline Items */}
-                  <div className="space-y-4">
-                    {caseStatus.status_history.map((item, index) => {
-                      const isFirst = index === 0;
-                      const isCompleted = true; // All items from USCIS are completed events
-
-                      return (
-                        <div key={index} className="relative pl-10">
-                          {/* Timeline Dot with Checkmark */}
-                          <div className={`absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all ${isFirst
-                            ? 'bg-gradient-to-br from-emerald-500 to-teal-600 ring-4 ring-emerald-100 dark:ring-emerald-900/30'
-                            : 'bg-white dark:bg-gray-800 border-2 border-emerald-500'
-                            }`}>
-                            {isFirst ? (
-                              <CheckCircle2 className="w-4 h-4 text-white" />
-                            ) : (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            )}
-                          </div>
-
-                          {/* Content Card */}
-                          <div className={`p-4 rounded-xl transition-all ${isFirst
-                            ? 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-2 border-emerald-200 dark:border-emerald-800 shadow-lg'
-                            : 'bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700 hover:shadow-md'
-                            }`}>
-                            {/* Date Badge */}
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isFirst
-                                ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                                }`}>
-                                {formatDateShort(item.date)}
-                              </span>
-                              {isFirst && (
-                                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                                  ✓ Most Recent
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Status Text */}
-                            <p className={`text-sm leading-relaxed ${isFirst
-                              ? 'font-medium text-gray-800 dark:text-gray-100'
-                              : 'text-gray-600 dark:text-gray-400'
-                              }`}>
-                              {item.description || item.status}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </Card>
+              {/* Left: Case Message History - Standardized Component */}
+              <CaseHistoryTimeline history={caseStatus.status_history} />
 
               {/* Right: My Case Info */}
               <Card className="p-6">
