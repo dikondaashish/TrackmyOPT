@@ -87,21 +87,13 @@ export async function POST(req: NextRequest) {
       currentCase.current_status !== null &&
       currentCase.current_status !== uscisStatus.status;
 
-    // Prepare status history
-    let statusHistory = currentCase?.status_history || [];
-
-    // Add to history if this is the first check OR if status changed
-    if (isFirstCheck || hasStatusChanged) {
-      // Add new status to history
-      statusHistory = [
-        {
-          status: uscisStatus.status,
-          date: new Date().toISOString(),
-          description: uscisStatus.description,
-        },
-        ...statusHistory,
-      ].slice(0, 20); // Keep only last 20 status updates
-    }
+    // Use USCIS-provided history timeline as the primary source
+    // Transform histCaseStatus to our status_history format
+    const statusHistory = uscisStatus.histCaseStatus.map(item => ({
+      status: item.completedText,
+      date: item.date,
+      description: item.completedText,
+    }));
 
 
     // Update database

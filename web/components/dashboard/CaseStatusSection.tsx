@@ -673,49 +673,73 @@ export function CaseStatusSection() {
           {/* 2 & 3. Case Message History and My Case Info - Side by Side */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left: Case Message History */}
+              {/* Left: Case Message History - Enhanced Timeline */}
               <Card className="p-6">
-                <h2 className="text-lg font-bold mb-6">Case Message History</h2>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                    <CheckCircle2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold">Case Timeline</h2>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Your case journey from USCIS</p>
+                  </div>
+                </div>
 
                 <div className="relative">
-                  {/* Timeline Line */}
-                  <div className="absolute left-[13px] top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-700"></div>
+                  {/* Timeline Line - Gradient */}
+                  <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500 via-blue-500 to-gray-300 dark:to-gray-700"></div>
 
                   {/* Timeline Items */}
-                  <div className="space-y-6">
-                    {caseStatus.status_history.map((item, index) => (
-                      <div key={index} className="relative pl-9">
-                        {/* Timeline Dot */}
-                        <div className="absolute left-0 top-2 w-7 h-7 rounded-full bg-white dark:bg-gray-900 border-2 border-blue-500 flex items-center justify-center">
-                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                        </div>
+                  <div className="space-y-4">
+                    {caseStatus.status_history.map((item, index) => {
+                      const isFirst = index === 0;
+                      const isCompleted = true; // All items from USCIS are completed events
 
-                        {/* Date */}
-                        <p className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                          {formatDateShort(item.date)}
-                        </p>
+                      return (
+                        <div key={index} className="relative pl-10">
+                          {/* Timeline Dot with Checkmark */}
+                          <div className={`absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all ${isFirst
+                              ? 'bg-gradient-to-br from-emerald-500 to-teal-600 ring-4 ring-emerald-100 dark:ring-emerald-900/30'
+                              : 'bg-white dark:bg-gray-800 border-2 border-emerald-500'
+                            }`}>
+                            {isFirst ? (
+                              <CheckCircle2 className="w-4 h-4 text-white" />
+                            ) : (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                            )}
+                          </div>
 
-                        {/* Status Card */}
-                        {item.description ? (
-                          <Collapsible
-                            title={item.status}
-                            defaultOpen={index === 0}
-                            className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800"
-                            titleClassName="bg-gray-100 dark:bg-gray-800/50"
-                          >
-                            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                              {item.description}
-                            </p>
-                          </Collapsible>
-                        ) : (
-                          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                            <p className="text-xs font-medium text-blue-900 dark:text-blue-100">
-                              {item.status}
+                          {/* Content Card */}
+                          <div className={`p-4 rounded-xl transition-all ${isFirst
+                              ? 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-2 border-emerald-200 dark:border-emerald-800 shadow-lg'
+                              : 'bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700 hover:shadow-md'
+                            }`}>
+                            {/* Date Badge */}
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isFirst
+                                  ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                                }`}>
+                                {formatDateShort(item.date)}
+                              </span>
+                              {isFirst && (
+                                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                  ✓ Most Recent
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Status Text */}
+                            <p className={`text-sm leading-relaxed ${isFirst
+                                ? 'font-medium text-gray-800 dark:text-gray-100'
+                                : 'text-gray-600 dark:text-gray-400'
+                              }`}>
+                              {item.description || item.status}
                             </p>
                           </div>
-                        )}
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </Card>

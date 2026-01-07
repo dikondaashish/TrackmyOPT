@@ -8,12 +8,18 @@
  * - Production: 10 TPS, 400,000 requests/day
  */
 
+export interface USCISHistoryItem {
+  date: string;
+  completedText: string;
+}
+
 export interface USCISStatus {
   receiptNumber: string;
   status: string;
   caseType: string;
   receivedDate: string | null;
   description: string;
+  histCaseStatus: USCISHistoryItem[];
 }
 
 interface USCISAPIResponse {
@@ -173,12 +179,18 @@ export async function checkUSCISStatus(
     const data: USCISAPIResponse = await response.json();
 
     // Transform API response to our format
+    const histCaseStatus: USCISHistoryItem[] = (data.case_status.hist_case_status || []).map(item => ({
+      date: item.date,
+      completedText: item.completed_text_en,
+    }));
+
     const status: USCISStatus = {
       receiptNumber: data.case_status.receiptNumber,
       status: data.case_status.current_case_status_text_en,
       caseType: data.case_status.formType,
       receivedDate: parseUSCISDate(data.case_status.submittedDate),
       description: data.case_status.current_case_status_desc_en,
+      histCaseStatus,
     };
 
     return status;
@@ -240,6 +252,20 @@ export function mockUSCISStatus(receiptNumber: string): USCISStatus {
     caseType: randomForm,
     receivedDate: 'January 15, 2024',
     description: `On January 15, 2024, we received your Form ${randomForm}, and sent you the acceptance notice. Your case is being processed.`,
+    histCaseStatus: [
+      {
+        date: '2024-01-20',
+        completedText: `We approved your Form ${randomForm}.`,
+      },
+      {
+        date: '2024-01-18',
+        completedText: `We are actively reviewing your Form ${randomForm}.`,
+      },
+      {
+        date: '2024-01-15',
+        completedText: `We received your Form ${randomForm} and sent you the acceptance notice.`,
+      },
+    ],
   };
 }
 
