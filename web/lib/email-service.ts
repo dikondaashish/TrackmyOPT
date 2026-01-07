@@ -51,7 +51,7 @@ async function sendMailWithRetry(
   maxRetries: number = 3
 ): Promise<nodemailer.SentMessageInfo> {
   let lastError: Error | null = null;
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const transport = getTransporter();
@@ -60,7 +60,7 @@ async function sendMailWithRetry(
     } catch (error) {
       lastError = error as Error;
       console.error(`Email attempt ${attempt}/${maxRetries} failed:`, (error as Error).message);
-      
+
       // If it's a timeout error, close and recreate the transporter
       if ((error as Error).message?.includes('timeout') || (error as Error).message?.includes('421')) {
         console.log('Recreating transporter due to timeout...');
@@ -69,7 +69,7 @@ async function sendMailWithRetry(
           transporter = null;
         }
       }
-      
+
       // Wait before retry (exponential backoff)
       if (attempt < maxRetries) {
         const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
@@ -78,7 +78,7 @@ async function sendMailWithRetry(
       }
     }
   }
-  
+
   throw lastError || new Error('Failed to send email after retries');
 }
 
@@ -128,7 +128,7 @@ export async function sendDailyReminder(data: EmailReminderData) {
  */
 function getDynamicSubject(tools: EmailReminderData['tools']): string {
   const minDays = Math.min(...tools.map(t => t.daysLeft));
-  
+
   if (minDays <= 7) {
     return `🚨 URGENT: ${minDays} ${minDays === 1 ? 'day' : 'days'} left - Action required!`;
   } else if (minDays <= 14) {
@@ -263,7 +263,7 @@ function generateOptApplySection(tool: ToolReminderDetail): string {
   const actionItems = getOptApplyActionItems(tool.daysLeft, tool.totalDays);
   const daysUsed = tool.totalDays - tool.daysLeft;
   const progressPercent = Math.round((daysUsed / tool.totalDays) * 100);
-  const today = new Date().toLocaleString('en-US', { 
+  const today = new Date().toLocaleString('en-US', {
     timeZone: 'America/New_York',
     year: 'numeric', month: 'numeric', day: 'numeric',
     hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
@@ -596,25 +596,25 @@ function getOptApplyActionItems(daysLeft: number, totalDays: number): string[] {
  * Generate OPT Clock (unemployment tracker) section - Comprehensive version
  */
 function generateOptClockSection(tool: ToolReminderDetail): string {
-  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' : 
-                       tool.urgency === 'urgent' ? '#D97706' : 
-                       tool.urgency === 'moderate' ? '#2563EB' : '#059669';
-  
+  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' :
+    tool.urgency === 'urgent' ? '#D97706' :
+      tool.urgency === 'moderate' ? '#2563EB' : '#059669';
+
   const daysElapsed = tool.totalDays - tool.daysLeft;
   const unemploymentDaysUsed = daysElapsed; // Simplified - actual would come from tracking
-  const today = new Date().toLocaleString('en-US', { 
+  const today = new Date().toLocaleString('en-US', {
     timeZone: 'America/New_York',
     year: 'numeric', month: 'numeric', day: 'numeric',
     hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
   });
-  
+
   // Get urgency-based headline and color scheme
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#ECFDF5';
   let statusBorder = '#10B981';
   let statusEmoji = '✅';
   let motivationalMessage = 'You have time on your side! Stay consistent and you\'ll find the right opportunity.';
-  
+
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
@@ -754,12 +754,12 @@ function generateOptClockSection(tool: ToolReminderDetail): string {
  * Generate comprehensive STEM Apply section
  */
 function generateStemApplySection(tool: ToolReminderDetail): string {
-  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' : 
-                       tool.urgency === 'urgent' ? '#D97706' : '#2563EB';
-  
+  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' :
+    tool.urgency === 'urgent' ? '#D97706' : '#2563EB';
+
   const daysElapsed = tool.totalDays - tool.daysLeft;
   const progressPercent = Math.round((daysElapsed / tool.totalDays) * 100);
-  const today = new Date().toLocaleString('en-US', { 
+  const today = new Date().toLocaleString('en-US', {
     timeZone: 'America/New_York',
     year: 'numeric', month: 'numeric', day: 'numeric',
     hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
@@ -771,7 +771,7 @@ function generateStemApplySection(tool: ToolReminderDetail): string {
   let statusBorder = '#8B5CF6';
   let statusEmoji = '✅';
   let motivationalMessage = 'You have time to prepare your STEM OPT extension carefully. Start gathering documents now!';
-  
+
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
@@ -955,24 +955,24 @@ function generateStemApplySection(tool: ToolReminderDetail): string {
  * Generate comprehensive STEM Clock section
  */
 function generateStemClockSection(tool: ToolReminderDetail): string {
-  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' : 
-                       tool.urgency === 'urgent' ? '#D97706' : '#059669';
-  
+  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' :
+    tool.urgency === 'urgent' ? '#D97706' : '#059669';
+
   const daysElapsed = tool.totalDays - tool.daysLeft;
   const unemploymentDaysUsed = daysElapsed;
-  const today = new Date().toLocaleString('en-US', { 
+  const today = new Date().toLocaleString('en-US', {
     timeZone: 'America/New_York',
     year: 'numeric', month: 'numeric', day: 'numeric',
     hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
   });
-  
+
   // Get urgency-based styling
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#ECFDF5';
   let statusBorder = '#10B981';
   let statusEmoji = '✅';
   let motivationalMessage = 'You have time to find the right opportunity! Focus on quality applications and networking.';
-  
+
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
@@ -1201,7 +1201,7 @@ function getRandomTip(): string {
     'Save all receipts and confirmation emails from USCIS for your records.',
     'Join OPT communities online to stay informed about processing times and updates.',
   ];
-  
+
   return tips[Math.floor(Math.random() * tips.length)];
 }
 
@@ -1615,11 +1615,19 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
 
     case 'case-status':
       return {
-        title: 'USCIS Case Status Alerts',
-        subtitle: 'Instant Notifications When Your Case Updates',
+        title: 'Case Status Tracker',
+        subtitle: 'Track Your USCIS Case Status Automatically',
         icon: '🔔',
         gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
-        timelineHtml: '',
+        timelineHtml: `
+          <div style="background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 16px; font-weight: 600;">🎉 You're All Set!</h3>
+            <p style="margin: 0; color: #166534; font-size: 15px; line-height: 1.6;">
+              Congratulations! You've successfully enrolled in <strong>Case Status Tracker</strong>. 
+              We'll help you track and stay on top of your case status with timely reminders and instant notifications when your status changes.
+            </p>
+          </div>
+        `,
         preparationHtml: `
           <div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="${baseStyles.sectionTitle}">📋 How Case Tracking Works</h3>
@@ -1751,7 +1759,7 @@ export async function sendEnrollmentEmail(
 
               <!-- CTA Button -->
               <div style="text-align: center; margin: 32px 0 24px 0;">
-                <a href="https://www.trackmyopt.com/dashboard/opt-tools/${toolName}" 
+                <a href="https://www.trackmyopt.com/dashboard/${toolName === 'case-status' ? 'case-status' : 'opt-tools/' + toolName}" 
                    style="display: inline-block; background: ${content.gradient}; color: white; text-decoration: none; padding: 14px 32px; border-radius: 10px; font-weight: 600; font-size: 15px;">
                   Go to ${content.title} →
                 </a>
