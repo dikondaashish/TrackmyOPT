@@ -1,153 +1,149 @@
 "use client";
-
-import React from 'react';
-import { Check, Circle } from "lucide-react";
-
-const STEPS = [
-    {
-        id: 'received',
-        label: 'Received',
-        description: 'Application received',
-        keywords: ['received', 'submitted', 'validation', 'receipt', 'accepted']
-    },
-    {
-        id: 'biometrics',
-        label: 'Biometrics',
-        description: 'Biometrics appointment',
-        keywords: ['biometric', 'fingerprint']
-    },
-    {
-        id: 'review',
-        label: 'Active Review',
-        description: 'Being processed',
-        keywords: ['review', 'active', 'pending']
-    },
-    {
-        id: 'decision',
-        label: 'Decision',
-        description: 'Approved or denied',
-        keywords: ['approved', 'denied', 'decision', 'notice']
-    },
-    {
-        id: 'produced',
-        label: 'Card Produced',
-        description: 'Card mailed to you',
-        keywords: ['card', 'produced', 'mailed', 'delivered', 'picked up', 'returned']
-    },
-];
+import { CheckCircle2, Circle, Loader2 } from "lucide-react";
 
 interface CaseProgressStepperProps {
-    currentStatus: string;
+    currentStatus: string | null;
+}
+
+// Define the case lifecycle steps
+const CASE_STEPS = [
+    { id: "received", label: "Received", keywords: ["received", "accepted"] },
+    { id: "biometrics", label: "Biometrics", keywords: ["fingerprint", "biometric", "scheduled"] },
+    { id: "review", label: "Active Review", keywords: ["review", "reviewing", "actively"] },
+    { id: "decision", label: "Decision", keywords: ["approved", "denied", "decision", "completed"] },
+    { id: "card", label: "Card Produced", keywords: ["card", "mailed", "delivered", "produced", "picked up"] },
+];
+
+/**
+ * Maps USCIS status text to a step index
+ */
+function getStepFromStatus(status: string | null): number {
+    if (!status) return -1;
+
+    const lowerStatus = status.toLowerCase();
+
+    // Check each step for matching keywords
+    for (let i = CASE_STEPS.length - 1; i >= 0; i--) {
+        const step = CASE_STEPS[i];
+        if (step.keywords.some(keyword => lowerStatus.includes(keyword))) {
+            return i;
+        }
+    }
+
+    // Default to "received" if we have any status
+    return 0;
 }
 
 export function CaseProgressStepper({ currentStatus }: CaseProgressStepperProps) {
-    const getStepStatus = (status: string) => {
-        const statusLower = status.toLowerCase();
+    const currentStepIndex = getStepFromStatus(currentStatus);
 
-        // Check keywords in reverse order to find the most advanced step
-        for (let i = STEPS.length - 1; i >= 0; i--) {
-            const step = STEPS[i];
-            if (step.keywords.some(keyword => statusLower.includes(keyword))) {
-                return i;
-            }
-        }
-        return 0; // Default to 'Received'
-    };
-
-    const activeStepIndex = getStepStatus(currentStatus || '');
+    if (currentStepIndex < 0) {
+        return null; // Don't show stepper if no status
+    }
 
     return (
-        <div className="w-full py-6">
-            <div className="relative">
-                {/* Desktop View: Horizontal Stepper */}
-                <div className="hidden md:flex justify-between items-center relative z-10">
-                    {/* Connecting Line */}
-                    <div className="absolute top-4 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700 -z-10" />
-
-                    {/* Progress Line */}
-                    <div
-                        className="absolute top-4 left-0 h-1 bg-green-500 transition-all duration-500 -z-10"
-                        style={{ width: `${(activeStepIndex / (STEPS.length - 1)) * 100}%` }}
-                    />
-
-                    {STEPS.map((step, index) => {
-                        const isCompleted = index < activeStepIndex;
-                        const isActive = index === activeStepIndex;
-                        const isPending = index > activeStepIndex;
+        <div className="w-full">
+            {/* Desktop: Horizontal Stepper */}
+            <div className="hidden md:block">
+                <div className="flex items-center justify-between">
+                    {CASE_STEPS.map((step, index) => {
+                        const isCompleted = index < currentStepIndex;
+                        const isCurrent = index === currentStepIndex;
+                        const isPending = index > currentStepIndex;
 
                         return (
-                            <div key={step.id} className="flex flex-col items-center">
-                                <div
-                                    className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300 bg-white dark:bg-gray-800
-                    ${isCompleted ? 'border-green-500 bg-green-500 text-white' : ''}
-                    ${isActive ? 'border-green-500 ring-4 ring-green-100 dark:ring-green-900/30 text-green-600 scale-110' : ''}
-                    ${isPending ? 'border-gray-300 dark:border-gray-600 text-gray-300' : ''}
-                  `}
-                                >
-                                    {isCompleted ? (
-                                        <Check className="w-5 h-5" />
-                                    ) : (
-                                        <span className={`text-xs font-bold ${isActive ? 'text-green-600' : 'text-gray-400'}`}>
-                                            {index + 1}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="mt-2 text-center">
-                                    <p className={`text-sm font-semibold ${isActive ? 'text-green-700 dark:text-green-400' :
-                                            isCompleted ? 'text-gray-700 dark:text-gray-300' :
-                                                'text-gray-400 dark:text-gray-500'
-                                        }`}>
+                            <div key={step.id} className="flex items-center flex-1">
+                                {/* Step Circle */}
+                                <div className="flex flex-col items-center relative">
+                                    <div
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isCompleted
+                                                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30"
+                                                : isCurrent
+                                                    ? "bg-blue-600 text-white ring-4 ring-blue-100 dark:ring-blue-900/50 shadow-lg shadow-blue-500/30"
+                                                    : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500"
+                                            }`}
+                                    >
+                                        {isCompleted ? (
+                                            <CheckCircle2 className="w-5 h-5" />
+                                        ) : isCurrent ? (
+                                            <Loader2 className="w-5 h-5 animate-pulse" />
+                                        ) : (
+                                            <Circle className="w-5 h-5" />
+                                        )}
+                                    </div>
+                                    <span
+                                        className={`mt-2 text-xs font-medium text-center ${isCompleted
+                                                ? "text-emerald-600 dark:text-emerald-400"
+                                                : isCurrent
+                                                    ? "text-blue-600 dark:text-blue-400 font-semibold"
+                                                    : "text-gray-400 dark:text-gray-500"
+                                            }`}
+                                    >
                                         {step.label}
-                                    </p>
+                                    </span>
                                 </div>
+
+                                {/* Connector Line (not after last step) */}
+                                {index < CASE_STEPS.length - 1 && (
+                                    <div
+                                        className={`flex-1 h-1 mx-2 rounded transition-all duration-300 ${index < currentStepIndex
+                                                ? "bg-emerald-500"
+                                                : "bg-gray-200 dark:bg-gray-700"
+                                            }`}
+                                    />
+                                )}
                             </div>
                         );
                     })}
                 </div>
+            </div>
 
-                {/* Mobile View: Vertical Stepper */}
-                <div className="md:hidden space-y-0 relative">
-                    {/* Vertical Grid Line */}
-                    <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-gray-200 dark:bg-gray-700 -z-10" />
-                    {/* Vertical Progress Line (Simplified representation for mobile) */}
-                    <div
-                        className="absolute left-[15px] top-4 w-0.5 bg-green-500 transition-all duration-500 -z-10"
-                        style={{ height: `${(activeStepIndex / (STEPS.length - 1)) * 100}%` }}
-                    />
-
-                    {STEPS.map((step, index) => {
-                        const isCompleted = index < activeStepIndex;
-                        const isActive = index === activeStepIndex;
-                        const isPending = index > activeStepIndex;
+            {/* Mobile: Vertical Stepper */}
+            <div className="md:hidden">
+                <div className="flex flex-col space-y-4">
+                    {CASE_STEPS.map((step, index) => {
+                        const isCompleted = index < currentStepIndex;
+                        const isCurrent = index === currentStepIndex;
+                        const isPending = index > currentStepIndex;
 
                         return (
-                            <div key={step.id} className="flex items-start gap-4 pb-6 last:pb-0">
+                            <div key={step.id} className="flex items-center gap-3">
+                                {/* Step Circle */}
                                 <div
-                                    className={`flex flex-shrink-0 items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300 bg-white dark:bg-gray-800
-                    ${isCompleted ? 'border-green-500 bg-green-500 text-white' : ''}
-                    ${isActive ? 'border-green-500 ring-4 ring-green-100 dark:ring-green-900/30 text-green-600 scale-110' : ''}
-                    ${isPending ? 'border-gray-300 dark:border-gray-600 text-gray-300' : ''}
-                  `}
+                                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isCompleted
+                                            ? "bg-emerald-500 text-white"
+                                            : isCurrent
+                                                ? "bg-blue-600 text-white ring-2 ring-blue-200 dark:ring-blue-800"
+                                                : "bg-gray-200 dark:bg-gray-700 text-gray-400"
+                                        }`}
                                 >
                                     {isCompleted ? (
-                                        <Check className="w-5 h-5" />
+                                        <CheckCircle2 className="w-4 h-4" />
+                                    ) : isCurrent ? (
+                                        <Loader2 className="w-4 h-4 animate-pulse" />
                                     ) : (
-                                        <span className={`text-xs font-bold ${isActive ? 'text-green-600' : 'text-gray-400'}`}>
-                                            {index + 1}
-                                        </span>
+                                        <Circle className="w-4 h-4" />
                                     )}
                                 </div>
-                                <div className={index === STEPS.length - 1 ? "pb-2" : ""}>
-                                    <p className={`text-sm font-semibold ${isActive ? 'text-green-700 dark:text-green-400' :
-                                            isCompleted ? 'text-gray-700 dark:text-gray-300' :
-                                                'text-gray-400 dark:text-gray-500'
-                                        }`}>
-                                        {step.label}
-                                    </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {step.description}
-                                    </p>
-                                </div>
+
+                                {/* Label */}
+                                <span
+                                    className={`text-sm font-medium ${isCompleted
+                                            ? "text-emerald-600 dark:text-emerald-400"
+                                            : isCurrent
+                                                ? "text-blue-600 dark:text-blue-400 font-semibold"
+                                                : "text-gray-400 dark:text-gray-500"
+                                        }`}
+                                >
+                                    {step.label}
+                                </span>
+
+                                {/* Current indicator */}
+                                {isCurrent && (
+                                    <span className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">
+                                        Current
+                                    </span>
+                                )}
                             </div>
                         );
                     })}

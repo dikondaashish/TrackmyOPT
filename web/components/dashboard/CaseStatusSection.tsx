@@ -1,10 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Collapsible } from "@/components/ui/collapsible";
 import { PremiumUpsellModal } from "@/components/dashboard/PremiumUpsellModal";
+import { CaseProgressStepper } from "@/components/dashboard/CaseProgressStepper";
+import { CaseHistory } from "@/components/dashboard/CaseHistory";
 import {
   ClipboardCheck,
   RefreshCw,
@@ -19,10 +21,8 @@ import {
   Crown,
   Info,
   Edit,
-  AlertTriangle
+  X
 } from "lucide-react";
-import { CaseProgressStepper } from "./CaseProgressStepper";
-import { CaseHistoryTimeline } from "./CaseHistoryTimeline";
 
 interface CaseStatus {
   id: string;
@@ -44,7 +44,6 @@ interface CaseStatus {
 
 export function CaseStatusSection() {
   const [receiptNumber, setReceiptNumber] = useState("");
-  const [showSandboxWarning, setShowSandboxWarning] = useState(false);
   const [caseStatus, setCaseStatus] = useState<CaseStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -57,6 +56,20 @@ export function CaseStatusSection() {
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [nextCheckTime, setNextCheckTime] = useState<string>("");
   const [isPolling, setIsPolling] = useState(false);
+  const [showSandboxBanner, setShowSandboxBanner] = useState(true);
+
+  // Real-time sandbox warning: detect real receipt number prefixes
+  const isSandboxMode = true; // TODO: Set this based on environment
+  const realReceiptPrefixes = ["IOE", "MSC", "WAC", "LIN2", "SRC2", "EAC2"]; // Real prefixes (not test 9999 ones)
+  const sandboxWarning = useMemo(() => {
+    if (!isSandboxMode || !receiptNumber || receiptNumber.length < 3) return null;
+    const prefix = receiptNumber.substring(0, 3).toUpperCase();
+    const isTestNumber = /^(EAC|SRC|LIN)9999/i.test(receiptNumber);
+    if (!isTestNumber && (realReceiptPrefixes.includes(prefix) || /^[A-Z]{3}\d/.test(receiptNumber.substring(0, 4)))) {
+      return "Real receipt numbers are not supported in Sandbox mode. Please use a test number (e.g., EAC9999103403).";
+    }
+    return null;
+  }, [receiptNumber, isSandboxMode]);
 
   useEffect(() => {
     loadCaseStatus();
@@ -350,23 +363,6 @@ export function CaseStatusSection() {
     }
   };
 
-  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.toUpperCase();
-    setReceiptNumber(val);
-
-    // Smart Validation Logic
-    // In sandbox mode, we only support specific test numbers starting with EAC9999, SRC9999, LIN9999
-    // If user types a real formatted number that isn't a test number, show warning
-    const isTestNumber = /^(EAC|SRC|LIN)9999/i.test(val);
-    const looksLikeRealNumber = /^[A-Z]{3}\d{3,}/i.test(val);
-
-    if (looksLikeRealNumber && !isTestNumber) {
-      setShowSandboxWarning(true);
-    } else {
-      setShowSandboxWarning(false);
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -388,7 +384,27 @@ export function CaseStatusSection() {
         </p>
       </div>
 
-
+      {/* Minimized Sandbox Banner */}
+      {showSandboxBanner && isSandboxMode && (
+        <div className="relative p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg">
+          <div className="flex items-center gap-3 pr-8">
+            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            <div className="flex-1 text-sm text-amber-800 dark:text-amber-200">
+              <strong>⚠️ Sandbox Mode</strong> — Testing only (Mon-Fri 7AM-8PM EST). Use test numbers:
+              <code className="ml-1 px-1 bg-amber-100 dark:bg-amber-900/50 rounded text-xs">EAC9999103403</code>,
+              <code className="ml-1 px-1 bg-amber-100 dark:bg-amber-900/50 rounded text-xs">SRC9999102777</code>,
+              <code className="ml-1 px-1 bg-amber-100 dark:bg-amber-900/50 rounded text-xs">LIN9999106498</code>
+            </div>
+            <button
+              onClick={() => setShowSandboxBanner(false)}
+              className="absolute right-2 top-2 p-1 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 transition-colors"
+              aria-label="Dismiss sandbox notice"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Receipt Number Input */}
       <Card className="p-6">
@@ -399,34 +415,21 @@ export function CaseStatusSection() {
               USCIS Receipt Number
             </label>
             <div className="flex gap-3">
-              <div className="flex-1">
-                <Input
-                  id="receipt-number-input"
-                  type="text"
-                  placeholder="Try: EAC9999103403 (test number)"
-                  value={receiptNumber}
-                  onChange={handleReceiptChange}
-                  className={`font-mono transition-all duration-300 ${showSandboxWarning
-                      ? 'border-amber-400 focus-visible:ring-amber-400 bg-amber-50 dark:bg-amber-900/10'
-                      : ''
-                    }`}
-                  maxLength={13}
-                  aria-label="Enter your USCIS receipt number"
-                  aria-describedby="receipt-number-help"
-                  aria-required="true"
-                />
-
-                {/* Smart Validation Warning */}
-                {showSandboxWarning && (
-                  <div className="mt-2 text-sm text-amber-700 dark:text-amber-400 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
-                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span>
-                      <strong>Sandbox Mode:</strong> Real receipt numbers (like IOE...) aren't supported yet.
-                      Please use a test number (e.g., EAC9999103403).
-                    </span>
-                  </div>
-                )}
-              </div>
+              <Input
+                id="receipt-number-input"
+                type="text"
+                placeholder="Try: EAC9999103403 (test number)"
+                value={receiptNumber}
+                onChange={(e) => setReceiptNumber(e.target.value.toUpperCase())}
+                className={`flex-1 font-mono transition-colors ${sandboxWarning
+                  ? "border-orange-400 dark:border-orange-500 focus:border-orange-500 focus:ring-orange-200 dark:focus:ring-orange-900/50"
+                  : ""
+                  }`}
+                maxLength={13}
+                aria-label="Enter your USCIS receipt number"
+                aria-describedby="receipt-number-help"
+                aria-required="true"
+              />
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
@@ -443,9 +446,20 @@ export function CaseStatusSection() {
                 )}
               </Button>
             </div>
-            <p id="receipt-number-help" className="text-sm text-muted-foreground mt-2">
-              <strong>Sandbox Mode:</strong> Use staging numbers like EAC9999103403, SRC9999102777, or LIN9999106498
-            </p>
+
+            {/* Real-time Sandbox Warning */}
+            {sandboxWarning ? (
+              <div className="mt-2 p-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-300 dark:border-orange-700 rounded-lg">
+                <p className="text-sm text-orange-700 dark:text-orange-300 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  {sandboxWarning}
+                </p>
+              </div>
+            ) : (
+              <p id="receipt-number-help" className="text-sm text-muted-foreground mt-2">
+                <strong>Sandbox Mode:</strong> Use staging numbers like EAC9999103403, SRC9999102777, or LIN9999106498
+              </p>
+            )}
           </div>
 
           {error && (
@@ -466,6 +480,14 @@ export function CaseStatusSection() {
           )}
         </div>
       </Card>
+
+      {/* Progress Stepper - Show when we have a case status */}
+      {caseStatus && caseStatus.current_status && (
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Case Progress</h2>
+          <CaseProgressStepper currentStatus={caseStatus.current_status} />
+        </Card>
+      )}
 
       {/* Case Status Sections - NEW DESIGN */}
       {caseStatus && (
@@ -610,10 +632,7 @@ export function CaseStatusSection() {
             </div>
           </Card>
 
-          {/* 1. Case Progress Stepper - Visual Lifecycle */}
-          <CaseProgressStepper currentStatus={caseStatus.current_status || ''} />
-
-          {/* 2. Recent Updated Case Message */}
+          {/* 1. Recent Updated Case Message */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 && (
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -671,11 +690,16 @@ export function CaseStatusSection() {
             </Card>
           )}
 
-          {/* 3. Case Message History and My Case Info - Side by Side */}
+          {/* 2 & 3. Case Message History and My Case Info - Side by Side */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left: Case Message History - Standardized Component */}
-              <CaseHistoryTimeline history={caseStatus.status_history} />
+              {/* Left: Case Message History - Using CaseHistory Component */}
+              <Card className="p-6">
+                <CaseHistory
+                  history={caseStatus.status_history}
+                  formatDate={formatDateShort}
+                />
+              </Card>
 
               {/* Right: My Case Info */}
               <Card className="p-6">
