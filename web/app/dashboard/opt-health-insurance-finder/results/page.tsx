@@ -91,7 +91,7 @@ function ResultsContent() {
   const isLowIncome = income < 2500;
   const isEligibleForFree = freeState && isLowIncome;
   const isPartialEligible = partialState && isLowIncome;
-  
+
   // Special case: New York Essential Plan redirects to Kimber Health
   const isNYEssentialPlan = state === "NY" && isEligibleForFree;
   const kimberPriceForNY = isNYEssentialPlan ? 0 : pricing.kimberPrice;
@@ -134,7 +134,7 @@ function ResultsContent() {
       {/* Plans Grid */}
       <div className="max-w-6xl mx-auto px-4 pb-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          
+
           {/* STATE ELIGIBILITY CARD - Always show first */}
           {isEligibleForFree ? (
             /* FREE State Plan Card */
@@ -149,7 +149,7 @@ function ResultsContent() {
               </div>
               <h3 className="font-bold text-slate-900">{freeState.plan}</h3>
               <p className="text-xs text-slate-500 mt-0.5">{freeState.name}</p>
-              
+
               <div className="mt-3">
                 <span className="text-2xl font-bold text-emerald-600">$0</span>
                 <span className="text-slate-500 text-sm">/mo</span>
@@ -185,7 +185,7 @@ function ResultsContent() {
               </div>
               <h3 className="font-bold text-slate-900">Limited State Coverage</h3>
               <p className="text-xs text-slate-500 mt-0.5">{partialState.name}</p>
-              
+
               <div className="mt-3">
                 <span className="text-lg font-semibold text-amber-700">May Qualify</span>
               </div>
@@ -213,7 +213,7 @@ function ResultsContent() {
               </div>
               <h3 className="font-bold text-slate-900">No Free State Plan</h3>
               <p className="text-xs text-slate-500 mt-0.5">{stateName}</p>
-              
+
               <div className="mt-3">
                 <span className="text-lg font-semibold text-slate-500">Not Available</span>
               </div>
@@ -244,7 +244,7 @@ function ResultsContent() {
             </div>
             <h3 className="font-bold text-slate-900">ISO OPTima Plan</h3>
             <p className="text-xs text-slate-500 mt-0.5">International Student Insurance</p>
-            
+
             <div className="mt-3">
               <span className="text-2xl font-bold text-slate-900">${pricing.isoPrice}</span>
               <span className="text-slate-500 text-sm">/mo</span>
@@ -270,7 +270,7 @@ function ResultsContent() {
             </div>
 
             <button
-              onClick={() => handleApply("https://www.isoa.org/")}
+              onClick={() => handleApply("https://www.isoa.org/?ref=trackmyopt")}
               className="w-full mt-4 h-10 bg-[#8B1538] hover:bg-[#6d1029] text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
             >
               View Plans
@@ -292,7 +292,7 @@ function ResultsContent() {
             </div>
             <h3 className="font-bold text-slate-900">ISI Student Health</h3>
             <p className="text-xs text-slate-500 mt-0.5">Student Health Insurance</p>
-            
+
             <div className="mt-3">
               <span className="text-2xl font-bold text-slate-900">${pricing.isiPrice}</span>
               <span className="text-slate-500 text-sm">/mo</span>
@@ -340,7 +340,7 @@ function ResultsContent() {
             </div>
             <h3 className="font-bold text-slate-900">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber Essential"}</h3>
             <p className="text-xs text-slate-500 mt-0.5">{isNYEssentialPlan ? "Free via Kimber Health" : "by NYWPG"}</p>
-            
+
             <div className="mt-3">
               <span className="text-2xl font-bold text-slate-900">${kimberPriceForNY}</span>
               <span className="text-slate-500 text-sm">/mo</span>
@@ -420,7 +420,7 @@ function ResultsContent() {
             <div>
               <h3 className="text-xl font-bold text-slate-900">Protect Yourself & Your Loved Ones</h3>
               <p className="text-slate-600 mt-2 leading-relaxed">
-                Don't risk your OPT status or financial future. A single ER visit in the US can cost <span className="font-semibold text-red-600">$3,000 - $10,000+</span>. 
+                Don't risk your OPT status or financial future. A single ER visit in the US can cost <span className="font-semibold text-red-600">$3,000 - $10,000+</span>.
                 Health insurance is not just a safety net—it's essential for your peace of mind while you focus on your career.
               </p>
             </div>
@@ -460,9 +460,8 @@ function ResultsContent() {
               >
                 <span className="font-medium text-slate-900 pr-4">{item.title}</span>
                 <ChevronDown
-                  className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${
-                    expandedInfo === i ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${expandedInfo === i ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <div className={`overflow-hidden transition-all duration-200 ${expandedInfo === i ? "max-h-96" : "max-h-0"}`}>
