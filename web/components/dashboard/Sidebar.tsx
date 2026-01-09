@@ -3,6 +3,7 @@ import { LayoutDashboard, Calendar, ClipboardCheck, Clock, FileText, Settings, H
 import { useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -16,22 +17,22 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
   const [isSigningOut, setIsSigningOut] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  
+
   // Get user initials from email or name
   const getUserInitials = () => {
-    
+
     if (!user) {
       return "U";
     }
-    
+
     if (user.user_metadata?.full_name) {
       const names = user.user_metadata.full_name.split(' ');
-      const initials = names.length > 1 
+      const initials = names.length > 1
         ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
         : names[0][0].toUpperCase();
       return initials;
     }
-    
+
     if (user.email) {
       const emailParts = user.email.split('@')[0].split('.');
       const initials = emailParts.length > 1
@@ -39,10 +40,10 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
         : emailParts[0].substring(0, 2).toUpperCase();
       return initials;
     }
-    
+
     return "U";
   };
-  
+
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", badge: null },
     { icon: Calendar, label: "OPT Dates", path: "/dashboard/opt-dates", badge: null },
@@ -54,25 +55,25 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
     { icon: Settings, label: "Settings", path: "/dashboard/settings", badge: null },
     { icon: HelpCircle, label: "Help", path: "/dashboard/help", badge: null },
   ];
-  
+
   const handleSignOut = async () => {
     if (isSigningOut) return; // Prevent double-clicks
-    
+
     setIsSigningOut(true);
     try {
       // Call signout API
-      await fetch('/auth/signout', { 
+      await fetch('/auth/signout', {
         method: 'POST',
         credentials: 'include', // Include cookies
       });
-      
+
       // Clear any client-side storage
       try {
         localStorage.clear();
         sessionStorage.clear();
       } catch (e) {
       }
-      
+
       // Redirect to home
       window.location.href = '/';
     } catch (error) {
@@ -82,16 +83,21 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
   };
 
   return (
-    <div 
-      className={`fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 ${
-        collapsed ? 'w-20' : 'w-64'
-      }`}
+    <div
+      className={`fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'
+        }`}
     >
       {/* Header with Logo and Collapse Button */}
       <div className="p-6 border-b border-sidebar-border flex items-center justify-between">
         <div className={`flex items-center gap-2 ${collapsed ? 'justify-center w-full' : ''}`}>
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white">🔷</span>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <Image
+              src="/TrackMyOPT Logo/1.png"
+              alt="TrackMyOPT Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8 object-contain"
+            />
           </div>
           {!collapsed && <span className="font-semibold">TrackMyOPT</span>}
         </div>
@@ -118,34 +124,33 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
           </button>
         </div>
       )}
-      
+
       {/* Navigation */}
       <nav className="flex-1 p-4 overflow-y-auto">
         {menuItems.map((item, index) => {
           const isActive = pathname === item.path;
           return (
-          <button
-            key={index}
+            <button
+              key={index}
               onClick={() => router.push(item.path)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${
-                isActive
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${isActive
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-            } ${collapsed ? 'justify-center' : ''}`}
-            title={collapsed ? item.label : undefined}
-          >
-            <item.icon className="w-5 h-5 flex-shrink-0" />
-            {!collapsed && (
-              <span className="flex-1 flex items-center justify-between min-w-0">
-                <span className="truncate">{item.label}</span>
-                {item.badge && (
-                  <span className="ml-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
-                    {item.badge}
-                  </span>
-                )}
-              </span>
-            )}
-          </button>
+                } ${collapsed ? 'justify-center' : ''}`}
+              title={collapsed ? item.label : undefined}
+            >
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && (
+                <span className="flex-1 flex items-center justify-between min-w-0">
+                  <span className="truncate">{item.label}</span>
+                  {item.badge && (
+                    <span className="ml-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+                      {item.badge}
+                    </span>
+                  )}
+                </span>
+              )}
+            </button>
           );
         })}
       </nav>
@@ -155,8 +160,8 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
         <div className={`flex items-center gap-3 px-2 ${collapsed ? 'justify-center' : ''}`}>
           <div className="relative flex-shrink-0">
             {/* User Avatar Circle */}
-            <div 
-                className="w-10 h-10 bg-muted rounded-full flex items-center justify-center text-sm font-semibold shadow-md" 
+            <div
+              className="w-10 h-10 bg-muted rounded-full flex items-center justify-center text-sm font-semibold shadow-md"
               title={collapsed ? user?.email || "User" : undefined}
             >
               {getUserInitials()}
@@ -184,12 +189,11 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
             </div>
           )}
         </div>
-        <button 
+        <button
           onClick={handleSignOut}
           disabled={isSigningOut}
-          className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-            collapsed ? 'justify-center' : ''
-          }`}
+          className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${collapsed ? 'justify-center' : ''
+            }`}
           title={collapsed ? "Sign Out" : undefined}
         >
           <LogOut className={`w-4 h-4 flex-shrink-0 ${isSigningOut ? 'animate-spin' : ''}`} />
