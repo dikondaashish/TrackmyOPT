@@ -308,15 +308,15 @@ export function CaseStatusSection() {
   const getStatusExplanation = (status: string) => {
     const statusLower = status.toLowerCase();
     if (statusLower.includes('approved')) {
-      return { color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-green-200', explanation: 'Your case has been approved. You should receive an approval notice soon.' };
+      return { color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-950/30', borderColor: 'border-green-200 dark:border-green-800', explanation: 'Your case has been approved. You should receive an approval notice soon.' };
     } else if (statusLower.includes('pending') || statusLower.includes('received')) {
-      return { color: 'text-yellow-600', bgColor: 'bg-yellow-50', borderColor: 'border-yellow-200', explanation: 'Your case is currently being reviewed by USCIS.' };
+      return { color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-50 dark:bg-yellow-950/30', borderColor: 'border-yellow-200 dark:border-yellow-800', explanation: 'Your case is currently being reviewed by USCIS.' };
     } else if (statusLower.includes('ready') || statusLower.includes('scheduled')) {
-      return { color: 'text-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', explanation: 'USCIS is preparing for the next step in your case.' };
+      return { color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-50 dark:bg-blue-950/30', borderColor: 'border-blue-200 dark:border-blue-800', explanation: 'USCIS is preparing for the next step in your case.' };
     } else if (statusLower.includes('produced') || statusLower.includes('mailed')) {
-      return { color: 'text-purple-600', bgColor: 'bg-purple-50', borderColor: 'border-purple-200', explanation: 'Your document has been produced and is being mailed to you.' };
+      return { color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-50 dark:bg-purple-950/30', borderColor: 'border-purple-200 dark:border-purple-800', explanation: 'Your document has been produced and is being mailed to you.' };
     }
-    return { color: 'text-gray-600', bgColor: 'bg-gray-50', borderColor: 'border-gray-200', explanation: 'Your case is being processed.' };
+    return { color: 'text-gray-600 dark:text-gray-400', bgColor: 'bg-gray-50 dark:bg-gray-900/30', borderColor: 'border-gray-200 dark:border-gray-700', explanation: 'Your case is being processed.' };
   };
 
   const calculateNextCheck = (lastCheckedAt: string | null) => {
