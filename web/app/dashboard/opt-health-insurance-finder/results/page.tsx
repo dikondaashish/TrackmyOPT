@@ -138,39 +138,46 @@ function ResultsContent() {
           {/* STATE ELIGIBILITY CARD - Always show first */}
           {isEligibleForFree ? (
             /* FREE State Plan Card */
-            <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 rounded-2xl border-2 border-emerald-200 dark:border-emerald-700 p-5 relative">
-              <div className="absolute top-3 right-3">
-                <span className="bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                  FREE
-                </span>
-              </div>
-              <div className="w-11 h-11 bg-emerald-100 rounded-xl flex items-center justify-center mb-3">
-                <Building2 className="w-5 h-5 text-emerald-600" />
-              </div>
-              <h3 className="font-bold text-slate-900 dark:text-foreground">{freeState.plan}</h3>
-              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{freeState.name}</p>
+            <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/40 dark:via-emerald-950/60 dark:to-green-950/40 rounded-2xl border-2 border-emerald-200 dark:border-emerald-500/40 p-5 hover:shadow-xl dark:hover:shadow-emerald-500/20 hover:scale-[1.02] transition-all duration-300">
+              {/* Animated background glow */}
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-400/20 dark:bg-emerald-400/10 rounded-full blur-3xl group-hover:bg-emerald-400/30 transition-all duration-500" />
 
-              <div className="mt-3">
-                <span className="text-2xl font-bold text-emerald-600">$0</span>
-                <span className="text-slate-500 dark:text-muted-foreground text-sm">/mo</span>
-              </div>
+              <div className="relative z-10">
+                <div className="absolute top-0 right-0">
+                  <span className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-emerald-500/30">
+                    ✨ FREE
+                  </span>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30">
+                  <Building2 className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="font-bold text-lg text-slate-900 dark:text-white">{freeState.plan}</h3>
+                <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">{freeState.name}</p>
 
-              <div className="mt-3 space-y-1.5">
-                {freeState.benefits.slice(0, 4).map((benefit, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
-                    <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                    {benefit}
-                  </div>
-                ))}
-              </div>
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-400 bg-clip-text text-transparent">$0</span>
+                  <span className="text-slate-500 dark:text-slate-400">/mo</span>
+                </div>
 
-              <button
-                onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : freeState.link)}
-                className="w-full mt-4 h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
-              >
-                Apply Now
-                <ExternalLink className="w-3.5 h-3.5" />
-              </button>
+                <div className="mt-4 space-y-2">
+                  {freeState.benefits.slice(0, 4).map((benefit, i) => (
+                    <div key={i} className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center flex-shrink-0">
+                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      {benefit}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : freeState.link)}
+                  className="w-full mt-5 h-11 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
+                >
+                  Apply Now
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ) : isPartialEligible ? (
             /* Partial Coverage Card */
@@ -231,147 +238,186 @@ function ResultsContent() {
           )}
 
           {/* ISO Card */}
-          <div className="bg-white dark:bg-gradient-to-br dark:from-rose-950/40 dark:to-pink-950/30 rounded-2xl border border-slate-200 dark:border-rose-500/30 p-5 hover:shadow-lg dark:hover:shadow-rose-500/20 hover:border-[#8B1538]/30 dark:hover:border-rose-400/50 transition-all">
-            {/* ISO Logo */}
-            <div className="mb-3 flex items-center">
-              <Image
-                src="/partners/logo.svg"
-                alt="ISO Insurance logo"
-                width={110}
-                height={32}
-                className="h-8 w-auto object-contain"
-              />
-            </div>
-            <h3 className="font-bold text-slate-900 dark:text-foreground">ISO OPTima Plan</h3>
-            <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">International Student Insurance</p>
+          <div className="group relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-rose-900/30 dark:via-rose-950/50 dark:to-pink-950/30 rounded-2xl border border-slate-200 dark:border-rose-500/30 p-5 hover:shadow-xl dark:hover:shadow-rose-500/20 hover:scale-[1.02] hover:border-[#8B1538]/50 dark:hover:border-rose-400/50 transition-all duration-300">
+            {/* Animated background glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-rose-400/10 dark:bg-rose-400/5 rounded-full blur-3xl group-hover:bg-rose-400/20 transition-all duration-500" />
 
-            <div className="mt-3">
-              <span className="text-2xl font-bold text-slate-900 dark:text-foreground">${pricing.isoPrice}</span>
-              <span className="text-slate-500 dark:text-muted-foreground text-sm">/mo</span>
-            </div>
+            <div className="relative z-10">
+              {/* ISO Logo */}
+              <div className="mb-4 flex items-center">
+                <Image
+                  src="/partners/logo.svg"
+                  alt="ISO Insurance logo"
+                  width={110}
+                  height={32}
+                  className="h-8 w-auto object-contain dark:brightness-110"
+                />
+              </div>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISO OPTima Plan</h3>
+              <p className="text-sm text-[#8B1538] dark:text-rose-400 font-medium mt-0.5">International Student Insurance</p>
 
-            <div className="mt-3 space-y-1.5">
-              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
-                <Check className="w-3.5 h-3.5 text-[#8B1538] flex-shrink-0" />
-                OPT, CPT & F-1 eligible
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${pricing.isoPrice}</span>
+                <span className="text-slate-500 dark:text-slate-400">/mo</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <Check className="w-3.5 h-3.5 text-[#8B1538] flex-shrink-0" />
-                Aetna PPO network
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <Check className="w-3.5 h-3.5 text-[#8B1538] flex-shrink-0" />
-                University waiver approved
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <Check className="w-3.5 h-3.5 text-[#8B1538] flex-shrink-0" />
-                Prescription coverage
-              </div>
-            </div>
 
-            <button
-              onClick={() => handleApply("https://www.isoa.org/?ref=trackmyopt")}
-              className="w-full mt-4 h-10 bg-[#8B1538] hover:bg-[#6d1029] text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
-            >
-              View Plans
-              <ExternalLink className="w-3.5 h-3.5" />
-            </button>
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-400" />
+                  </div>
+                  OPT, CPT & F-1 eligible
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-400" />
+                  </div>
+                  Aetna PPO network
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-400" />
+                  </div>
+                  University waiver approved
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-400" />
+                  </div>
+                  Prescription coverage
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleApply("https://www.isoa.org/?ref=trackmyopt")}
+                className="w-full mt-5 h-11 bg-gradient-to-r from-[#8B1538] to-[#a91d45] hover:from-[#6d1029] hover:to-[#8B1538] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 hover:shadow-rose-500/30 hover:-translate-y-0.5"
+              >
+                View Plans
+                <ExternalLink className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* ISI Card */}
-          <div className="bg-white dark:bg-gradient-to-br dark:from-indigo-950/40 dark:to-blue-950/30 rounded-2xl border border-slate-200 dark:border-indigo-500/30 p-5 hover:shadow-lg dark:hover:shadow-indigo-500/20 hover:border-[#3D4F8F]/30 dark:hover:border-indigo-400/50 transition-all">
-            {/* ISI Logo */}
-            <div className="mb-3 flex items-center">
-              <Image
-                src="/partners/Logo-ISI.png"
-                alt="ISI Student Insurance logo"
-                width={80}
-                height={32}
-                className="h-8 w-auto object-contain"
-              />
-            </div>
-            <h3 className="font-bold text-slate-900 dark:text-foreground">ISI Student Health</h3>
-            <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">Student Health Insurance</p>
+          <div className="group relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-indigo-900/30 dark:via-indigo-950/50 dark:to-blue-950/30 rounded-2xl border border-slate-200 dark:border-indigo-500/30 p-5 hover:shadow-xl dark:hover:shadow-indigo-500/20 hover:scale-[1.02] hover:border-[#3D4F8F]/50 dark:hover:border-indigo-400/50 transition-all duration-300">
+            {/* Animated background glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-400/10 dark:bg-indigo-400/5 rounded-full blur-3xl group-hover:bg-indigo-400/20 transition-all duration-500" />
 
-            <div className="mt-3">
-              <span className="text-2xl font-bold text-slate-900 dark:text-foreground">${pricing.isiPrice}</span>
-              <span className="text-slate-500 dark:text-muted-foreground text-sm">/mo</span>
-            </div>
+            <div className="relative z-10">
+              {/* ISI Logo */}
+              <div className="mb-4 flex items-center">
+                <Image
+                  src="/partners/Logo-ISI.png"
+                  alt="ISI Student Insurance logo"
+                  width={80}
+                  height={32}
+                  className="h-8 w-auto object-contain dark:brightness-110"
+                />
+              </div>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISI Student Health</h3>
+              <p className="text-sm text-[#3D4F8F] dark:text-indigo-400 font-medium mt-0.5">Student Health Insurance</p>
 
-            <div className="mt-3 space-y-1.5">
-              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
-                <Check className="w-3.5 h-3.5 text-[#3D4F8F] flex-shrink-0" />
-                United Healthcare network
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${pricing.isiPrice}</span>
+                <span className="text-slate-500 dark:text-slate-400">/mo</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <Check className="w-3.5 h-3.5 text-[#3D4F8F] flex-shrink-0" />
-                Mental health included
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <Check className="w-3.5 h-3.5 text-[#3D4F8F] flex-shrink-0" />
-                Telemedicine 24/7
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <Check className="w-3.5 h-3.5 text-[#3D4F8F] flex-shrink-0" />
-                Emergency coverage
-              </div>
-            </div>
 
-            <button
-              onClick={() => handleApply("https://www.isistudentinsurance.com/")}
-              className="w-full mt-4 h-10 bg-[#3D4F8F] hover:bg-[#2d3a6b] text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
-            >
-              View Plans
-              <ExternalLink className="w-3.5 h-3.5" />
-            </button>
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-400" />
+                  </div>
+                  United Healthcare network
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-400" />
+                  </div>
+                  Mental health included
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-400" />
+                  </div>
+                  Telemedicine 24/7
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-400" />
+                  </div>
+                  Emergency coverage
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleApply("https://www.isistudentinsurance.com/")}
+                className="w-full mt-5 h-11 bg-gradient-to-r from-[#3D4F8F] to-[#5563a8] hover:from-[#2d3a6b] hover:to-[#3D4F8F] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:-translate-y-0.5"
+              >
+                View Plans
+                <ExternalLink className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Kimber Health Card */}
-          <div className="bg-white dark:bg-gradient-to-br dark:from-cyan-950/40 dark:to-teal-950/30 rounded-2xl border border-slate-200 dark:border-cyan-500/30 p-5 hover:shadow-lg dark:hover:shadow-cyan-500/20 hover:border-cyan-300 dark:hover:border-cyan-400/50 transition-all">
-            {/* Kimber Health Logo */}
-            <div className="mb-3 flex items-center">
-              <Image
-                src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
-                alt="Kimber Health logo"
-                width={150}
-                height={36}
-                className="h-9 w-auto object-contain"
-              />
-            </div>
-            <h3 className="font-bold text-slate-900 dark:text-foreground">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber Essential"}</h3>
-            <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{isNYEssentialPlan ? "Free via Kimber Health" : "by NYWPG"}</p>
+          <div className="group relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-cyan-900/30 dark:via-cyan-950/50 dark:to-teal-950/30 rounded-2xl border border-slate-200 dark:border-cyan-500/30 p-5 hover:shadow-xl dark:hover:shadow-cyan-500/20 hover:scale-[1.02] hover:border-cyan-400/50 dark:hover:border-cyan-400/50 transition-all duration-300">
+            {/* Animated background glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-400/10 dark:bg-cyan-400/5 rounded-full blur-3xl group-hover:bg-cyan-400/20 transition-all duration-500" />
 
-            <div className="mt-3">
-              <span className="text-2xl font-bold text-slate-900 dark:text-foreground">${kimberPriceForNY}</span>
-              <span className="text-slate-500 dark:text-muted-foreground text-sm">/mo</span>
-            </div>
+            <div className="relative z-10">
+              {/* Kimber Health Logo */}
+              <div className="mb-4 flex items-center">
+                <Image
+                  src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
+                  alt="Kimber Health logo"
+                  width={150}
+                  height={36}
+                  className="h-9 w-auto object-contain dark:brightness-110"
+                />
+              </div>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber Essential"}</h3>
+              <p className="text-sm text-cyan-600 dark:text-cyan-400 font-medium mt-0.5">{isNYEssentialPlan ? "Free via Kimber Health" : "by NYWPG"}</p>
 
-            <div className="mt-3 space-y-1.5">
-              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
-                <Check className="w-3.5 h-3.5 text-cyan-600 flex-shrink-0" />
-                No waiting period
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${kimberPriceForNY}</span>
+                <span className="text-slate-500 dark:text-slate-400">/mo</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <Check className="w-3.5 h-3.5 text-cyan-600 flex-shrink-0" />
-                Preventive care covered
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <Check className="w-3.5 h-3.5 text-cyan-600 flex-shrink-0" />
-                24/7 customer support
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <Check className="w-3.5 h-3.5 text-cyan-600 flex-shrink-0" />
-                Vision & dental options
-              </div>
-            </div>
 
-            <button
-              onClick={() => handleApply("https://www.kimberhealth.com/")}
-              className="w-full mt-4 h-10 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
-            >
-              View Plans
-              <ExternalLink className="w-3.5 h-3.5" />
-            </button>
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  No waiting period
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  Preventive care covered
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  24/7 customer support
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  Vision & dental options
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleApply("https://www.kimberhealth.com/")}
+                className="w-full mt-5 h-11 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/40 hover:-translate-y-0.5"
+              >
+                View Plans
+                <ExternalLink className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
