@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowLeft, Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Crown, Tag } from "lucide-react";
-import Link from "next/link";
+import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Crown, Tag } from "lucide-react";
 import { useState } from "react";
 
 // Sample offers data - using consistent icons from the project (Sidebar, health insurance page)
@@ -85,18 +84,6 @@ export default function OffersPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            {/* Header */}
-            <div className="border-b border-border/50 backdrop-blur-xl bg-background/80 sticky top-0 z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <Link
-                        href="/dashboard"
-                        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        <span className="text-sm font-medium">Back to Dashboard</span>
-                    </Link>
-                </div>
-            </div>
 
             {/* Hero Section */}
             <div className="relative overflow-hidden">
