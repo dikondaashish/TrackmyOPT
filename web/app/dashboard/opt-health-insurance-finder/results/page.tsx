@@ -432,26 +432,26 @@ function ResultsContent() {
       {/* Quick Info */}
       <div className="max-w-6xl mx-auto px-4 pb-8">
         <div className="grid sm:grid-cols-3 gap-4">
-          <div className="bg-slate-50 dark:bg-gradient-to-br dark:from-blue-950/40 dark:to-indigo-950/30 dark:border dark:border-blue-500/20 rounded-xl p-5">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center mb-3">
-              <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <div className="bg-slate-50 dark:bg-gradient-to-br dark:from-blue-800/40 dark:via-blue-900/60 dark:to-indigo-900/40 dark:border dark:border-blue-400/40 rounded-xl p-5">
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-700/60 rounded-lg flex items-center justify-center mb-3">
+              <Clock className="w-5 h-5 text-blue-600 dark:text-blue-300" />
             </div>
-            <h4 className="font-semibold text-slate-900 dark:text-foreground">Quick Enrollment</h4>
-            <p className="text-sm text-slate-600 dark:text-muted-foreground mt-1">Get covered in as little as 24 hours</p>
+            <h4 className="font-semibold text-slate-900 dark:text-white">Quick Enrollment</h4>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Get covered in as little as 24 hours</p>
           </div>
-          <div className="bg-slate-50 dark:bg-gradient-to-br dark:from-emerald-950/40 dark:to-green-950/30 dark:border dark:border-emerald-500/20 rounded-xl p-5">
-            <div className="w-10 h-10 bg-green-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center mb-3">
-              <CreditCard className="w-5 h-5 text-green-600 dark:text-emerald-400" />
+          <div className="bg-slate-50 dark:bg-gradient-to-br dark:from-emerald-800/40 dark:via-emerald-900/60 dark:to-green-900/40 dark:border dark:border-emerald-400/40 rounded-xl p-5">
+            <div className="w-10 h-10 bg-green-100 dark:bg-emerald-700/60 rounded-lg flex items-center justify-center mb-3">
+              <CreditCard className="w-5 h-5 text-green-600 dark:text-emerald-300" />
             </div>
-            <h4 className="font-semibold text-slate-900 dark:text-foreground">Instant ID Card</h4>
-            <p className="text-sm text-slate-600 dark:text-muted-foreground mt-1">Digital card after payment</p>
+            <h4 className="font-semibold text-slate-900 dark:text-white">Instant ID Card</h4>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Digital card after payment</p>
           </div>
-          <div className="bg-slate-50 dark:bg-gradient-to-br dark:from-purple-950/40 dark:to-violet-950/30 dark:border dark:border-purple-500/20 rounded-xl p-5">
-            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center mb-3">
-              <Star className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+          <div className="bg-slate-50 dark:bg-gradient-to-br dark:from-purple-800/40 dark:via-purple-900/60 dark:to-violet-900/40 dark:border dark:border-purple-400/40 rounded-xl p-5">
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-700/60 rounded-lg flex items-center justify-center mb-3">
+              <Star className="w-5 h-5 text-purple-600 dark:text-purple-300" />
             </div>
-            <h4 className="font-semibold text-slate-900 dark:text-foreground">No SSN Required</h4>
-            <p className="text-sm text-slate-600 dark:text-muted-foreground mt-1">Passport & visa docs accepted</p>
+            <h4 className="font-semibold text-slate-900 dark:text-white">No SSN Required</h4>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Passport & visa docs accepted</p>
           </div>
         </div>
       </div>
