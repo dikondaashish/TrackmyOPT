@@ -10,6 +10,8 @@
  * - Documents by type
  */
 
+import { FileText, Clock, AlertCircle, BarChart3 } from 'lucide-react';
+
 interface Document {
   id: string;
   expiryDate: string | null;
@@ -48,7 +50,7 @@ export function DocumentStats({ documents }: DocumentStatsProps) {
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       {/* Total Documents */}
       <StatCard
-        icon="📁"
+        icon={<FileText className="w-5 h-5" />}
         label="Total Documents"
         value={total}
         color="blue"
@@ -56,7 +58,7 @@ export function DocumentStats({ documents }: DocumentStatsProps) {
 
       {/* Expiring Soon */}
       <StatCard
-        icon="⚠️"
+        icon={<Clock className="w-5 h-5" />}
         label="Expiring Soon"
         value={expiringSoon}
         color="orange"
@@ -65,7 +67,7 @@ export function DocumentStats({ documents }: DocumentStatsProps) {
 
       {/* Expired */}
       <StatCard
-        icon="❌"
+        icon={<AlertCircle className="w-5 h-5" />}
         label="Expired"
         value={expired}
         color="red"
@@ -74,7 +76,7 @@ export function DocumentStats({ documents }: DocumentStatsProps) {
 
       {/* Most Common Type */}
       <StatCard
-        icon="📊"
+        icon={<BarChart3 className="w-5 h-5" />}
         label="Most Common"
         value={mostCommonType?.[0]?.replace(/_/g, ' ') || 'None'}
         color="purple"
@@ -93,7 +95,7 @@ function StatCard({
   subtitle,
   isText = false,
 }: {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   value: string | number;
   color: 'blue' | 'orange' | 'red' | 'cyan' | 'purple';
@@ -111,7 +113,7 @@ function StatCard({
   return (
     <div className={`rounded-lg border p-4 ${colorClasses[color]}`}>
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-2xl">{icon}</span>
+        {icon}
         <span className="text-sm font-medium">{label}</span>
       </div>
       <div className={`${isText ? 'text-xl' : 'text-3xl'} font-bold capitalize`}>
