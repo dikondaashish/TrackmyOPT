@@ -27,7 +27,7 @@ export default function PremiumCheckout() {
     try {
       const response = await fetch('/api/premium/status');
       const data = await response.json();
-      
+
       if (data.isPremium) {
         setIsPremium(true);
         // Redirect to dashboard after 2 seconds
@@ -35,7 +35,7 @@ export default function PremiumCheckout() {
           router.push('/dashboard');
         }, 2000);
       }
-      
+
       // Get user email if available
       const userRes = await fetch('/api/me');
       if (userRes.ok) {
@@ -47,17 +47,17 @@ export default function PremiumCheckout() {
       setChecking(false);
     }
   }
-  
+
   function handleClose() {
     router.push('/dashboard');
   }
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-background dark:to-background flex items-center justify-center p-4">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-          <p className="mt-4 text-gray-600">Checking status...</p>
+          <p className="mt-4 text-gray-600 dark:text-muted-foreground">Checking status...</p>
         </div>
       </div>
     );
@@ -65,13 +65,13 @@ export default function PremiumCheckout() {
 
   if (isPremium) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-background dark:to-background flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white dark:bg-card rounded-2xl shadow-xl p-8 text-center">
           <div className="text-6xl mb-4">✅</div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2">
             You're Already Premium!
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-muted-foreground mb-6">
             You already have lifetime access to premium features.
           </p>
           <button
@@ -86,7 +86,7 @@ export default function PremiumCheckout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center p-4">
       <PricingModal
         open={true}
         onClose={handleClose}

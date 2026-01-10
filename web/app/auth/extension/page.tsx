@@ -67,15 +67,15 @@ function ExtensionAuthContent() {
 
   if (!redirectUri || !state) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background p-4">
+        <div className="bg-white dark:bg-card rounded-2xl shadow-xl p-8 max-w-md w-full">
           <div className="text-center">
             <div className="text-6xl mb-4">⚠️</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Login Link</h1>
-            <p className="text-gray-600 mb-4">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Invalid Login Link</h1>
+            <p className="text-gray-600 dark:text-muted-foreground mb-4">
               This authentication page must be accessed from the OPT Hub extension.
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-muted-foreground">
               Missing required parameters: redirect_uri or state
             </p>
           </div>
@@ -91,7 +91,7 @@ function ExtensionAuthContent() {
       const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { 
+        options: {
           redirectTo: callbackUrl,
           queryParams: {
             access_type: 'offline',
@@ -113,7 +113,7 @@ function ExtensionAuthContent() {
     setLoading(true);
     setSignInError(null);
     setError(null);
-    
+
     try {
       const res = await fetch('/api/manual/login', {
         method: 'POST',
@@ -121,11 +121,11 @@ function ExtensionAuthContent() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      
+
       if (!data.ok) {
         throw new Error(data.error || 'Login failed');
       }
-      
+
       window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
       setSignInError(err.message || 'Sign in failed. Please check your credentials.');
@@ -170,11 +170,11 @@ function ExtensionAuthContent() {
         }),
       });
       const data = await res.json();
-      
+
       if (!data.ok) {
         throw new Error(data.error || 'Signup failed');
       }
-      
+
       window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
     } catch (err: any) {
       setSignUpError(err.message || 'Sign up failed. Please try again.');
@@ -183,14 +183,14 @@ function ExtensionAuthContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-background dark:via-background dark:to-background p-4">
+      <div className="bg-white dark:bg-card rounded-2xl shadow-2xl p-8 max-w-lg w-full">
         {/* Page Title */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-foreground mb-2">
             Sign in or Create account
           </h1>
-          <p className="text-gray-600">Choose your preferred method to continue</p>
+          <p className="text-gray-600 dark:text-muted-foreground">Choose your preferred method to continue</p>
         </div>
 
         {error && (
@@ -204,22 +204,20 @@ function ExtensionAuthContent() {
           <button
             onClick={() => setTab('google')}
             disabled={loading}
-            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${
-              tab === 'google'
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${tab === 'google'
                 ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+                : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted/80'
+              }`}
           >
             Google
           </button>
           <button
             onClick={() => setTab('manual')}
             disabled={loading}
-            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${
-              tab === 'manual'
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${tab === 'manual'
                 ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+                : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted/80'
+              }`}
           >
             Manual
           </button>
@@ -231,7 +229,7 @@ function ExtensionAuthContent() {
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full py-4 px-6 bg-white border-2 border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg shadow-sm"
+              className="w-full py-4 px-6 bg-white dark:bg-card border-2 border-gray-300 dark:border-border rounded-xl font-semibold text-gray-700 dark:text-foreground hover:bg-gray-50 dark:hover:bg-muted hover:border-gray-400 dark:hover:border-muted-foreground transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg shadow-sm"
             >
               {loading ? (
                 <>
@@ -269,11 +267,11 @@ function ExtensionAuthContent() {
         {tab === 'manual' && (
           <div className="space-y-4">
             {/* Sign In Collapsible */}
-            <div className="border-2 border-gray-200 rounded-xl overflow-hidden">
+            <div className="border-2 border-gray-200 dark:border-border rounded-xl overflow-hidden">
               <button
                 onClick={() => setShowSignIn(!showSignIn)}
                 disabled={loading}
-                className="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900"
+                className="w-full px-6 py-4 bg-gray-50 dark:bg-muted hover:bg-gray-100 dark:hover:bg-muted/80 transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900 dark:text-foreground"
               >
                 <span>Sign In</span>
                 <span className="text-xl">{showSignIn ? '−' : '+'}</span>
@@ -307,11 +305,11 @@ function ExtensionAuthContent() {
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                     />
                   </div>
-                  
+
                   {signInError && (
                     <p className="text-red-500 text-sm">{signInError}</p>
                   )}
-                  
+
                   <button
                     type="submit"
                     disabled={loading}
@@ -324,11 +322,11 @@ function ExtensionAuthContent() {
             </div>
 
             {/* Create Account Collapsible */}
-            <div className="border-2 border-gray-200 rounded-xl overflow-hidden">
+            <div className="border-2 border-gray-200 dark:border-border rounded-xl overflow-hidden">
               <button
                 onClick={() => setShowSignUp(!showSignUp)}
                 disabled={loading}
-                className="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900"
+                className="w-full px-6 py-4 bg-gray-50 dark:bg-muted hover:bg-gray-100 dark:hover:bg-muted/80 transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900 dark:text-foreground"
               >
                 <span>Create Account</span>
                 <span className="text-xl">{showSignUp ? '−' : '+'}</span>
@@ -535,10 +533,10 @@ function ExtensionAuthContent() {
 export default function ExtensionAuthPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-background dark:via-background dark:to-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600 dark:text-muted-foreground">Loading...</p>
         </div>
       </div>
     }>

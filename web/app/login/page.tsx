@@ -10,7 +10,7 @@ function LoginPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const errorParam = searchParams.get('error');
-  
+
   // Get redirect URL from query params (set by middleware for protected routes)
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
@@ -23,7 +23,7 @@ function LoginPageContent() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
-  
+
   // OTP Verification
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [otpCode, setOtpCode] = useState('');
@@ -33,11 +33,11 @@ function LoginPageContent() {
   const [canResend, setCanResend] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
   const [lastUsedMethod, setLastUsedMethod] = useState<'email' | 'google' | null>(null);
-  
+
   // Password visibility toggles
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   // Sign In/Up Fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -65,7 +65,7 @@ function LoginPageContent() {
       setEmail(savedEmail);
       setRememberMe(true);
     }
-    
+
     const savedMethod = localStorage.getItem('trackmyopt_last_method') as 'email' | 'google' | null;
     if (savedMethod) {
       setLastUsedMethod(savedMethod);
@@ -109,13 +109,13 @@ function LoginPageContent() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
-    
+
     // Save last used method
     localStorage.setItem('trackmyopt_last_method', 'google');
-    
+
     try {
       const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
-      
+
       // Use auth callback route for proper session handling
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -127,11 +127,11 @@ function LoginPageContent() {
           },
         },
       });
-      
+
       if (oauthError) {
         throw oauthError;
       }
-      
+
       // OAuth will redirect automatically, don't set loading to false
     } catch (err: any) {
       setError(err.message || 'Google sign-in failed');
@@ -152,7 +152,7 @@ function LoginPageContent() {
         body: JSON.stringify({ email }),
       });
       const blockedData = await blockedRes.json();
-      
+
       if (blockedData.blocked) {
         throw new Error('This email has been permanently blocked. Previously deleted accounts cannot be recreated or used to sign in.');
       }
@@ -173,10 +173,10 @@ function LoginPageContent() {
       } else {
         localStorage.removeItem('trackmyopt_remember_email');
       }
-      
+
       // Save last used method
       localStorage.setItem('trackmyopt_last_method', 'email');
-      
+
       // Redirect to intended page or dashboard - session is now in cookies
       window.location.href = redirectTo;
     } catch (err: any) {
@@ -279,7 +279,7 @@ function LoginPageContent() {
 
       if (error) throw error;
 
-      
+
       // Redirect to intended page or dashboard
       window.location.href = redirectTo;
     } catch (err: any) {
@@ -314,7 +314,7 @@ function LoginPageContent() {
         body: JSON.stringify({ email }),
       });
       const blockedData = await blockedRes.json();
-      
+
       if (blockedData.blocked) {
         throw new Error('This email has been permanently blocked. Previously deleted accounts cannot be recreated.');
       }
@@ -368,19 +368,19 @@ function LoginPageContent() {
   ];
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50 dark:bg-background">
       {/* OTP Verification Modal */}
       {showOTPModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+          <div className="bg-white dark:bg-card rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify Your Email</h2>
-              <p className="text-gray-600 text-sm">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Verify Your Email</h2>
+              <p className="text-gray-600 dark:text-muted-foreground text-sm">
                 We've sent a 6-digit verification code to <strong>{signupEmail}</strong>. Please check your inbox and enter the code below.
               </p>
             </div>
@@ -394,14 +394,14 @@ function LoginPageContent() {
                   maxLength={6}
                   required
                   disabled={otpLoading}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-center text-2xl font-mono tracking-widest focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-border rounded-lg text-center text-2xl font-mono tracking-widest focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-muted dark:text-foreground"
                   placeholder="Enter 6-digit code"
                 />
               </div>
 
               <div className="text-center">
-                <p className="text-sm text-gray-500">
-                  Code expires in <span className="font-semibold text-gray-700">{formatTime(countdown)}</span>
+                <p className="text-sm text-gray-500 dark:text-muted-foreground">
+                  Code expires in <span className="font-semibold text-gray-700 dark:text-foreground">{formatTime(countdown)}</span>
                 </p>
               </div>
 
@@ -427,7 +427,7 @@ function LoginPageContent() {
                     setOtpCode('');
                     setOtpError('');
                   }}
-                  className="text-gray-600 hover:text-gray-800"
+                  className="text-gray-600 dark:text-muted-foreground hover:text-gray-800 dark:hover:text-foreground"
                 >
                   Cancel
                 </button>
@@ -435,11 +435,10 @@ function LoginPageContent() {
                   type="button"
                   onClick={handleResendOTP}
                   disabled={!canResend || otpLoading}
-                  className={`font-medium ${
-                    canResend
+                  className={`font-medium ${canResend
                       ? 'text-blue-600 hover:text-blue-700 cursor-pointer'
                       : 'text-gray-400 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   Resend Code
                 </button>
@@ -452,22 +451,22 @@ function LoginPageContent() {
       {/* Forgot Password Modal */}
       {showForgotPassword && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative">
+          <div className="bg-white dark:bg-card rounded-xl shadow-2xl max-w-md w-full p-6 relative">
             <button
               onClick={() => {
                 setShowForgotPassword(false);
                 setError(null);
                 setResetEmail('');
               }}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              className="absolute top-4 right-4 text-gray-400 dark:text-muted-foreground hover:text-gray-600 dark:hover:text-foreground"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Reset Password</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Reset Password</h2>
+            <p className="text-gray-600 dark:text-muted-foreground mb-6">
               Enter your email address and we'll send you a link to reset your password.
             </p>
 
@@ -478,7 +477,7 @@ function LoginPageContent() {
             ) : (
               <form onSubmit={handleForgotPassword} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
                     Email Address
                   </label>
                   <input
@@ -487,7 +486,7 @@ function LoginPageContent() {
                     onChange={(e) => setResetEmail(e.target.value)}
                     required
                     disabled={resetLoading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-muted dark:text-foreground"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -507,7 +506,7 @@ function LoginPageContent() {
                       setResetEmail('');
                     }}
                     disabled={resetLoading}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition disabled:opacity-50"
+                    className="flex-1 px-4 py-3 border border-gray-300 dark:border-border rounded-lg text-gray-700 dark:text-foreground font-medium hover:bg-gray-50 dark:hover:bg-muted transition disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -530,13 +529,12 @@ function LoginPageContent() {
           {images.map((img, index) => (
             <div
               key={index}
-              className={`absolute w-full max-w-lg transition-all duration-1000 ${
-                index === currentImageIndex
+              className={`absolute w-full max-w-lg transition-all duration-1000 ${index === currentImageIndex
                   ? 'opacity-100 transform translate-x-0 scale-100'
                   : index < currentImageIndex
-                  ? 'opacity-0 transform -translate-x-full scale-95'
-                  : 'opacity-0 transform translate-x-full scale-95'
-              }`}
+                    ? 'opacity-0 transform -translate-x-full scale-95'
+                    : 'opacity-0 transform translate-x-full scale-95'
+                }`}
             >
               <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-12 shadow-2xl">
                 <div className="relative mb-12">
@@ -545,7 +543,7 @@ function LoginPageContent() {
                     <div className={`w-32 h-32 rounded-full bg-gradient-to-br ${img.gradient} animate-pulse shadow-2xl`}></div>
                   </div>
                 </div>
-                
+
                 <div className="text-center text-white space-y-4">
                   <h2 className="text-3xl font-bold">{img.title}</h2>
                   <p className="text-lg text-blue-100 leading-relaxed">{img.description}</p>
@@ -559,11 +557,10 @@ function LoginPageContent() {
               <button
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentImageIndex
+                className={`h-2 rounded-full transition-all duration-300 ${index === currentImageIndex
                     ? 'bg-white w-12 shadow-lg'
                     : 'bg-white/40 w-2 hover:bg-white/60'
-                }`}
+                  }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
@@ -579,15 +576,15 @@ function LoginPageContent() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">TrackMyOPT</h1>
-            <p className="text-gray-600 text-sm mt-1">Your OPT Timeline Companion</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground">TrackMyOPT</h1>
+            <p className="text-gray-600 dark:text-muted-foreground text-sm mt-1">Your OPT Timeline Companion</p>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2">
               TrackMyOPT
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-muted-foreground">
               Calculate filing windows, track unemployment days, and get reminders.
             </p>
           </div>
@@ -602,7 +599,7 @@ function LoginPageContent() {
           {mode === 'signin' && (
             <form onSubmit={handleSignIn} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
                   Enter your email address
                 </label>
                 <input
@@ -611,13 +608,13 @@ function LoginPageContent() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
                   placeholder="your@email.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
                   Enter your password
                 </label>
                 <div className="relative">
@@ -627,13 +624,13 @@ function LoginPageContent() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={loading}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                    className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground"
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -657,7 +654,7 @@ function LoginPageContent() {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Remember me</span>
+                  <span className="ml-2 text-sm text-gray-700 dark:text-foreground">Remember me</span>
                 </label>
                 <button
                   type="button"
@@ -692,7 +689,7 @@ function LoginPageContent() {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-gray-50 text-gray-500">or login with</span>
+                  <span className="px-2 bg-gray-50 dark:bg-background text-gray-500 dark:text-muted-foreground">or login with</span>
                 </div>
               </div>
 
@@ -701,13 +698,13 @@ function LoginPageContent() {
                   type="button"
                   onClick={handleGoogleSignIn}
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-3 bg-white dark:bg-card border-2 border-gray-300 dark:border-border hover:border-gray-400 dark:hover:border-muted-foreground text-gray-700 dark:text-foreground font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
                   Google
                 </button>
@@ -719,7 +716,7 @@ function LoginPageContent() {
               </div>
 
               <div className="text-center mt-6">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-muted-foreground">
                   Don't have an account?{' '}
                   <button
                     type="button"
@@ -737,7 +734,7 @@ function LoginPageContent() {
               </div>
 
               <div className="text-center mt-4">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-muted-foreground">
                   <a href="/privacy" className="hover:text-blue-600">Privacy Policy</a>
                   {' · '}
                   <a href="/terms" className="hover:text-blue-600">Terms & Conditions</a>
@@ -751,7 +748,7 @@ function LoginPageContent() {
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
                     First Name
                   </label>
                   <input
@@ -760,12 +757,12 @@ function LoginPageContent() {
                     onChange={(e) => setFirstName(e.target.value)}
                     required
                     disabled={loading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
                     placeholder="John"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
                     Last Name
                   </label>
                   <input
@@ -774,14 +771,14 @@ function LoginPageContent() {
                     onChange={(e) => setLastName(e.target.value)}
                     required
                     disabled={loading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
                     placeholder="Doe"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
                   Email
                 </label>
                 <input
@@ -790,7 +787,7 @@ function LoginPageContent() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
                   placeholder="your@email.com"
                 />
               </div>
@@ -806,13 +803,13 @@ function LoginPageContent() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={loading}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                    className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground"
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -826,11 +823,11 @@ function LoginPageContent() {
                     )}
                   </button>
                 </div>
-                
+
                 {/* Password criteria - only show when typing */}
                 {password.length > 0 && (
                   <div className="mt-3 space-y-1">
-                    <p className="text-xs text-gray-600 font-medium mb-2">Password must contain:</p>
+                    <p className="text-xs text-gray-600 dark:text-muted-foreground font-medium mb-2">Password must contain:</p>
                     {[
                       { label: 'At least 8 characters', valid: passwordCriteria.hasMinLength },
                       { label: 'One uppercase letter (A-Z)', valid: passwordCriteria.hasUpperCase },
@@ -852,7 +849,7 @@ function LoginPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -862,13 +859,13 @@ function LoginPageContent() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     disabled={loading}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                    className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground"
                   >
                     {showConfirmPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -896,11 +893,11 @@ function LoginPageContent() {
                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
-                <label htmlFor="terms-checkbox" className="text-sm text-gray-600 cursor-pointer select-none">
+                <label htmlFor="terms-checkbox" className="text-sm text-gray-600 dark:text-muted-foreground cursor-pointer select-none">
                   I agree to the{' '}
-                  <a 
-                    href="/privacy" 
-                    target="_blank" 
+                  <a
+                    href="/privacy"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
                     onClick={(e) => e.stopPropagation()}
@@ -908,9 +905,9 @@ function LoginPageContent() {
                     Privacy Policy
                   </a>
                   {' '}and{' '}
-                  <a 
-                    href="/terms" 
-                    target="_blank" 
+                  <a
+                    href="/terms"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
                     onClick={(e) => e.stopPropagation()}
@@ -929,7 +926,7 @@ function LoginPageContent() {
               </button>
 
               <div className="text-center mt-6">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-muted-foreground">
                   Already have an account?{' '}
                   <button
                     type="button"
@@ -957,10 +954,10 @@ function LoginPageContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600 dark:text-muted-foreground">Loading...</p>
         </div>
       </div>
     }>

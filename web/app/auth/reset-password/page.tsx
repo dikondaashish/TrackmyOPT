@@ -64,15 +64,15 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background p-4">
+        <div className="bg-white dark:bg-card rounded-2xl shadow-xl p-8 max-w-md w-full">
           <div className="text-center">
             <div className="text-6xl mb-4">✅</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Password Reset Successful!</h1>
-            <p className="text-gray-600 mb-4">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Password Reset Successful!</h1>
+            <p className="text-gray-600 dark:text-muted-foreground mb-4">
               Your password has been successfully reset. You can now sign in with your new password.
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-muted-foreground">
               Redirecting to home page...
             </p>
           </div>
@@ -82,11 +82,11 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background p-4">
+      <div className="bg-white dark:bg-card rounded-2xl shadow-xl p-8 max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Reset Your Password</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2">Reset Your Password</h1>
+          <p className="text-gray-600 dark:text-muted-foreground">
             Enter your new password below
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handlePasswordReset} className="space-y-4" method="post">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
               New Password
             </label>
             <input
@@ -112,14 +112,14 @@ export default function ResetPasswordPage() {
               required
               disabled={loading}
               minLength={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
               placeholder="••••••••"
             />
-            <p className="mt-1 text-xs text-gray-500">Must be at least 6 characters</p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-muted-foreground">Must be at least 6 characters</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
               Confirm New Password
             </label>
             <input
@@ -132,7 +132,7 @@ export default function ResetPasswordPage() {
               required
               disabled={loading}
               minLength={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
               placeholder="••••••••"
             />
           </div>
