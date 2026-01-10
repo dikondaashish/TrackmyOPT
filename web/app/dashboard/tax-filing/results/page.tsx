@@ -23,8 +23,8 @@ const TAX_PARTNERS = [
     name: "Sprintax",
     logo: null,
     color: "from-emerald-500 to-teal-600",
-    bgColor: "from-emerald-50 to-teal-50",
-    borderColor: "border-emerald-200",
+    bgColor: "from-emerald-50 to-teal-50 dark:from-emerald-900/40 dark:to-teal-900/40",
+    borderColor: "border-emerald-200 dark:border-emerald-700/50",
     tagline: "Most Popular for F-1 Students",
     description: "Specialized in non-resident tax returns. Guides you through Form 8843 and 1040-NR step by step.",
     features: ["Form 8843 & 1040-NR", "State tax returns", "24/7 live chat support", "FICA refund assistance"],
@@ -35,8 +35,8 @@ const TAX_PARTNERS = [
     name: "Glacier Tax Prep",
     logo: null,
     color: "from-blue-500 to-indigo-600",
-    bgColor: "from-blue-50 to-indigo-50",
-    borderColor: "border-blue-200",
+    bgColor: "from-blue-50 to-indigo-50 dark:from-blue-900/40 dark:to-indigo-900/40",
+    borderColor: "border-blue-200 dark:border-blue-700/50",
     tagline: "University Partner",
     description: "Used by 600+ universities. Determines tax residency status and prepares all required forms.",
     features: ["Tax residency wizard", "Form preparation", "University discounts", "Expert support"],
@@ -47,8 +47,8 @@ const TAX_PARTNERS = [
     name: "Taxback",
     logo: null,
     color: "from-purple-500 to-pink-600",
-    bgColor: "from-purple-50 to-pink-50",
-    borderColor: "border-purple-200",
+    bgColor: "from-purple-50 to-pink-50 dark:from-purple-900/40 dark:to-pink-900/40",
+    borderColor: "border-purple-200 dark:border-purple-700/50",
     tagline: "Maximum Refund Guarantee",
     description: "Experts in tax refunds for international students. They handle everything for you hussle free.",
     features: ["Full-service filing", "Refund maximization", "FICA recovery", "Multi-year filing"],
@@ -184,33 +184,33 @@ function TaxResultsContent() {
       {/* Filing Requirement Result */}
       <div className="max-w-5xl mx-auto px-4 pb-6">
         <div className={`rounded-2xl p-5 ${filingRequirement.color === "amber" ? "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800" :
-            filingRequirement.color === "blue" ? "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" :
-              "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800"
+          filingRequirement.color === "blue" ? "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" :
+            "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800"
           }`}>
           <div className="flex items-start gap-4">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900/50" :
-                filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50" :
-                  "bg-emerald-100 dark:bg-emerald-900/50"
+              filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50" :
+                "bg-emerald-100 dark:bg-emerald-900/50"
               }`}>
               <FileText className={`w-6 h-6 ${filingRequirement.color === "amber" ? "text-amber-600" :
-                  filingRequirement.color === "blue" ? "text-blue-600" :
-                    "text-emerald-600"
+                filingRequirement.color === "blue" ? "text-blue-600" :
+                  "text-emerald-600"
                 }`} />
             </div>
             <div>
               <h2 className={`text-lg font-bold ${filingRequirement.color === "amber" ? "text-amber-900 dark:text-amber-300" :
-                  filingRequirement.color === "blue" ? "text-blue-900 dark:text-blue-300" :
-                    "text-emerald-900 dark:text-emerald-300"
+                filingRequirement.color === "blue" ? "text-blue-900 dark:text-blue-300" :
+                  "text-emerald-900 dark:text-emerald-300"
                 }`}>{filingRequirement.status}</h2>
               <p className={`text-sm mt-1 ${filingRequirement.color === "amber" ? "text-amber-800 dark:text-amber-400" :
-                  filingRequirement.color === "blue" ? "text-blue-800 dark:text-blue-400" :
-                    "text-emerald-800 dark:text-emerald-400"
+                filingRequirement.color === "blue" ? "text-blue-800 dark:text-blue-400" :
+                  "text-emerald-800 dark:text-emerald-400"
                 }`}>{filingRequirement.message}</p>
               <div className="flex flex-wrap gap-2 mt-3">
                 {filingRequirement.forms.map((form, i) => (
                   <span key={i} className={`text-xs font-semibold px-3 py-1.5 rounded-full ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300" :
-                      filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300" :
-                        "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300"
+                    filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300" :
+                      "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300"
                     }`}>
                     {form}
                   </span>
@@ -250,14 +250,14 @@ function TaxResultsContent() {
                 <Receipt className="w-6 h-6 text-white" />
               </div>
 
-              <h3 className="font-bold text-slate-900 dark:text-foreground text-lg">{partner.name}</h3>
-              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{partner.tagline}</p>
-              <p className="text-sm text-slate-600 dark:text-muted-foreground mt-2">{partner.description}</p>
+              <h3 className="font-bold text-slate-900 dark:text-white text-lg">{partner.name}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">{partner.tagline}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">{partner.description}</p>
 
               <div className="mt-4 space-y-1.5">
                 {partner.features.map((feature, j) => (
-                  <div key={j} className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                  <div key={j} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-200">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
                     {feature}
                   </div>
                 ))}
@@ -273,7 +273,7 @@ function TaxResultsContent() {
                 </button>
                 <button
                   onClick={() => handleGetCoupon(partner)}
-                  className="w-full h-9 bg-white dark:bg-card border border-slate-200 dark:border-border text-slate-700 dark:text-foreground font-medium text-sm rounded-xl transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 flex items-center justify-center gap-1.5"
+                  className="w-full h-9 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm rounded-xl transition-all hover:border-emerald-300 dark:hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 flex items-center justify-center gap-1.5"
                 >
                   <Gift className="w-3.5 h-3.5" />
                   Get Free Coupon
@@ -420,8 +420,8 @@ function TaxResultsContent() {
                     <button
                       onClick={copyCoupon}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${couponCopied
-                          ? "bg-emerald-500 text-white"
-                          : "bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                        ? "bg-emerald-500 text-white"
+                        : "bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50"
                         }`}
                     >
                       {couponCopied ? (
