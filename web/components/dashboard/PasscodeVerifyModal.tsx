@@ -35,7 +35,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
             setLockoutDuration(data.lockoutDuration);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [open]);
 
@@ -113,11 +113,10 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
+      <div className="bg-white dark:bg-card rounded-lg max-w-md w-full p-6">
         {/* Icon */}
-        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-          isLocked ? 'bg-red-100' : 'bg-blue-100'
-        }`}>
+        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isLocked ? 'bg-red-100' : 'bg-blue-100'
+          }`}>
           {isLocked ? (
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -133,8 +132,8 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
         <h2 className="text-2xl font-bold text-center mb-2">
           {isLocked ? '🔒 Account Locked' : 'Unlock Document Vault'}
         </h2>
-        <p className="text-gray-600 text-center mb-6">
-          {isLocked 
+        <p className="text-gray-600 dark:text-muted-foreground text-center mb-6">
+          {isLocked
             ? `Too many failed attempts. Try again in ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}.`
             : 'Enter your 6-digit passcode to continue'
           }
@@ -143,9 +142,9 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off" data-form-type="other">
           {/* Hidden fake inputs to trick password managers */}
-          <input type="text" name="fake-username" autoComplete="username" style={{display: 'none'}} readOnly value="" />
-          <input type="password" name="fake-password" autoComplete="current-password" style={{display: 'none'}} readOnly value="" />
-          
+          <input type="text" name="fake-username" autoComplete="username" style={{ display: 'none' }} readOnly value="" />
+          <input type="password" name="fake-password" autoComplete="current-password" style={{ display: 'none' }} readOnly value="" />
+
           {/* Passcode Input */}
           <div>
             <input
@@ -156,7 +155,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
               value={passcode}
               onChange={(e) => setPasscode(e.target.value.replace(/\D/g, ''))}
               disabled={isLocked || loading}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest [text-security:disc] [-webkit-text-security:disc] focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg text-center text-2xl font-bold tracking-widest [text-security:disc] [-webkit-text-security:disc] focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-muted disabled:cursor-not-allowed bg-white dark:bg-muted dark:text-foreground"
               placeholder="● ● ● ● ● ●"
               autoFocus
               autoComplete="one-time-code"
@@ -182,7 +181,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
 
           {/* Info */}
           {!error && (
-            <div className="text-xs text-gray-500 text-center">
+            <div className="text-xs text-gray-500 dark:text-muted-foreground text-center">
               You have 3 attempts before a {lockoutDuration}-minute lockout
             </div>
           )}
@@ -192,7 +191,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              className="flex-1 py-3 border border-gray-300 dark:border-border text-gray-700 dark:text-foreground rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors font-medium"
             >
               Cancel
             </button>

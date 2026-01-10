@@ -138,7 +138,7 @@ function ResultsContent() {
           {/* STATE ELIGIBILITY CARD - Always show first */}
           {isEligibleForFree ? (
             /* FREE State Plan Card */
-            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border-2 border-emerald-200 p-5 relative">
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 rounded-2xl border-2 border-emerald-200 dark:border-emerald-700 p-5 relative">
               <div className="absolute top-3 right-3">
                 <span className="bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                   FREE
@@ -174,7 +174,7 @@ function ResultsContent() {
             </div>
           ) : isPartialEligible ? (
             /* Partial Coverage Card */
-            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl border-2 border-amber-200 p-5 relative">
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-2xl border-2 border-amber-200 dark:border-amber-700 p-5 relative">
               <div className="absolute top-3 right-3">
                 <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                   PARTIAL
@@ -202,7 +202,7 @@ function ResultsContent() {
             </div>
           ) : (
             /* Not Eligible Card */
-            <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl border-2 border-slate-200 p-5 relative">
+            <div className="bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/30 dark:to-gray-900/30 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-5 relative">
               <div className="absolute top-3 right-3">
                 <span className="bg-slate-400 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                   N/A
@@ -211,19 +211,19 @@ function ResultsContent() {
               <div className="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center mb-3">
                 <X className="w-5 h-5 text-slate-400" />
               </div>
-              <h3 className="font-bold text-slate-900">No Free State Plan</h3>
-              <p className="text-xs text-slate-500 mt-0.5">{stateName}</p>
+              <h3 className="font-bold text-slate-900 dark:text-foreground">No Free State Plan</h3>
+              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{stateName}</p>
 
               <div className="mt-3">
-                <span className="text-lg font-semibold text-slate-500">Not Available</span>
+                <span className="text-lg font-semibold text-slate-500 dark:text-muted-foreground">Not Available</span>
               </div>
 
-              <p className="mt-3 text-xs text-slate-600 leading-relaxed">
+              <p className="mt-3 text-xs text-slate-600 dark:text-muted-foreground leading-relaxed">
                 Your state doesn't offer free health insurance for international students or OPT workers.
               </p>
 
-              <div className="mt-3 p-2.5 bg-blue-50 rounded-lg">
-                <p className="text-xs text-blue-700">
+              <div className="mt-3 p-2.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                <p className="text-xs text-blue-700 dark:text-blue-300">
                   ✨ Don't worry! Check our partner plans for affordable coverage starting at ${Math.min(pricing.isoPrice, pricing.isiPrice, pricing.kimberPrice)}/mo.
                 </p>
               </div>
@@ -231,7 +231,7 @@ function ResultsContent() {
           )}
 
           {/* ISO Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-[#8B1538]/30 transition-all">
+          <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-border p-5 hover:shadow-lg hover:border-[#8B1538]/30 transition-all">
             {/* ISO Logo */}
             <div className="mb-3 flex items-center">
               <Image
@@ -242,16 +242,16 @@ function ResultsContent() {
                 className="h-8 w-auto object-contain"
               />
             </div>
-            <h3 className="font-bold text-slate-900">ISO OPTima Plan</h3>
-            <p className="text-xs text-slate-500 mt-0.5">International Student Insurance</p>
+            <h3 className="font-bold text-slate-900 dark:text-foreground">ISO OPTima Plan</h3>
+            <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">International Student Insurance</p>
 
             <div className="mt-3">
-              <span className="text-2xl font-bold text-slate-900">${pricing.isoPrice}</span>
-              <span className="text-slate-500 text-sm">/mo</span>
+              <span className="text-2xl font-bold text-slate-900 dark:text-foreground">${pricing.isoPrice}</span>
+              <span className="text-slate-500 dark:text-muted-foreground text-sm">/mo</span>
             </div>
 
             <div className="mt-3 space-y-1.5">
-              <div className="flex items-center gap-2 text-xs text-slate-700">
+              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
                 <Check className="w-3.5 h-3.5 text-[#8B1538] flex-shrink-0" />
                 OPT, CPT & F-1 eligible
               </div>
@@ -279,7 +279,7 @@ function ResultsContent() {
           </div>
 
           {/* ISI Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-[#3D4F8F]/30 transition-all">
+          <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-border p-5 hover:shadow-lg hover:border-[#3D4F8F]/30 transition-all">
             {/* ISI Logo */}
             <div className="mb-3 flex items-center">
               <Image
@@ -290,16 +290,16 @@ function ResultsContent() {
                 className="h-8 w-auto object-contain"
               />
             </div>
-            <h3 className="font-bold text-slate-900">ISI Student Health</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Student Health Insurance</p>
+            <h3 className="font-bold text-slate-900 dark:text-foreground">ISI Student Health</h3>
+            <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">Student Health Insurance</p>
 
             <div className="mt-3">
-              <span className="text-2xl font-bold text-slate-900">${pricing.isiPrice}</span>
-              <span className="text-slate-500 text-sm">/mo</span>
+              <span className="text-2xl font-bold text-slate-900 dark:text-foreground">${pricing.isiPrice}</span>
+              <span className="text-slate-500 dark:text-muted-foreground text-sm">/mo</span>
             </div>
 
             <div className="mt-3 space-y-1.5">
-              <div className="flex items-center gap-2 text-xs text-slate-700">
+              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
                 <Check className="w-3.5 h-3.5 text-[#3D4F8F] flex-shrink-0" />
                 United Healthcare network
               </div>
@@ -327,7 +327,7 @@ function ResultsContent() {
           </div>
 
           {/* Kimber Health Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:border-cyan-300 transition-all">
+          <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-border p-5 hover:shadow-lg hover:border-cyan-300 dark:hover:border-cyan-600 transition-all">
             {/* Kimber Health Logo */}
             <div className="mb-3 flex items-center">
               <Image
@@ -338,16 +338,16 @@ function ResultsContent() {
                 className="h-9 w-auto object-contain"
               />
             </div>
-            <h3 className="font-bold text-slate-900">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber Essential"}</h3>
-            <p className="text-xs text-slate-500 mt-0.5">{isNYEssentialPlan ? "Free via Kimber Health" : "by NYWPG"}</p>
+            <h3 className="font-bold text-slate-900 dark:text-foreground">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber Essential"}</h3>
+            <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{isNYEssentialPlan ? "Free via Kimber Health" : "by NYWPG"}</p>
 
             <div className="mt-3">
-              <span className="text-2xl font-bold text-slate-900">${kimberPriceForNY}</span>
-              <span className="text-slate-500 text-sm">/mo</span>
+              <span className="text-2xl font-bold text-slate-900 dark:text-foreground">${kimberPriceForNY}</span>
+              <span className="text-slate-500 dark:text-muted-foreground text-sm">/mo</span>
             </div>
 
             <div className="mt-3 space-y-1.5">
-              <div className="flex items-center gap-2 text-xs text-slate-700">
+              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
                 <Check className="w-3.5 h-3.5 text-cyan-600 flex-shrink-0" />
                 No waiting period
               </div>
@@ -377,7 +377,7 @@ function ResultsContent() {
 
         {/* Pricing Disclaimer */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-400 dark:text-muted-foreground">
             * Prices are estimates for age {pricing.age} ({pricing.bracket}). Actual prices may vary based on your specific details and our partners' latest rates.
           </p>
         </div>
@@ -386,40 +386,40 @@ function ResultsContent() {
       {/* Quick Info */}
       <div className="max-w-6xl mx-auto px-4 pb-8">
         <div className="grid sm:grid-cols-3 gap-4">
-          <div className="bg-slate-50 rounded-xl p-5">
+          <div className="bg-slate-50 dark:bg-muted rounded-xl p-5">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
               <Clock className="w-5 h-5 text-blue-600" />
             </div>
-            <h4 className="font-semibold text-slate-900">Quick Enrollment</h4>
-            <p className="text-sm text-slate-600 mt-1">Get covered in as little as 24 hours</p>
+            <h4 className="font-semibold text-slate-900 dark:text-foreground">Quick Enrollment</h4>
+            <p className="text-sm text-slate-600 dark:text-muted-foreground mt-1">Get covered in as little as 24 hours</p>
           </div>
-          <div className="bg-slate-50 rounded-xl p-5">
+          <div className="bg-slate-50 dark:bg-muted rounded-xl p-5">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-3">
               <CreditCard className="w-5 h-5 text-green-600" />
             </div>
-            <h4 className="font-semibold text-slate-900">Instant ID Card</h4>
-            <p className="text-sm text-slate-600 mt-1">Digital card after payment</p>
+            <h4 className="font-semibold text-slate-900 dark:text-foreground">Instant ID Card</h4>
+            <p className="text-sm text-slate-600 dark:text-muted-foreground mt-1">Digital card after payment</p>
           </div>
-          <div className="bg-slate-50 rounded-xl p-5">
+          <div className="bg-slate-50 dark:bg-muted rounded-xl p-5">
             <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
               <Star className="w-5 h-5 text-purple-600" />
             </div>
-            <h4 className="font-semibold text-slate-900">No SSN Required</h4>
-            <p className="text-sm text-slate-600 mt-1">Passport & visa docs accepted</p>
+            <h4 className="font-semibold text-slate-900 dark:text-foreground">No SSN Required</h4>
+            <p className="text-sm text-slate-600 dark:text-muted-foreground mt-1">Passport & visa docs accepted</p>
           </div>
         </div>
       </div>
 
       {/* Protect Yourself Section */}
       <div className="max-w-6xl mx-auto px-4 pb-8">
-        <div className="bg-gradient-to-br from-blue-50 via-cyan-50 to-emerald-50 rounded-2xl p-6 sm:p-8 border border-blue-100">
+        <div className="bg-gradient-to-br from-blue-50 via-cyan-50 to-emerald-50 dark:from-blue-950/30 dark:via-cyan-950/30 dark:to-emerald-950/30 rounded-2xl p-6 sm:p-8 border border-blue-100 dark:border-blue-800">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
               <Shield className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900">Protect Yourself & Your Loved Ones</h3>
-              <p className="text-slate-600 mt-2 leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-foreground">Protect Yourself & Your Loved Ones</h3>
+              <p className="text-slate-600 dark:text-muted-foreground mt-2 leading-relaxed">
                 Don't risk your OPT status or financial future. A single ER visit in the US can cost <span className="font-semibold text-red-600">$3,000 - $10,000+</span>.
                 Health insurance is not just a safety net—it's essential for your peace of mind while you focus on your career.
               </p>
@@ -430,7 +430,7 @@ function ResultsContent() {
 
       {/* Why Health Insurance Matters - Accordion */}
       <div className="max-w-6xl mx-auto px-4 pb-8">
-        <h3 className="text-lg font-bold text-slate-900 mb-4">Why Health Insurance Matters in the US</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-foreground mb-4">Why Health Insurance Matters in the US</h3>
         <div className="space-y-3">
           {[
             {
@@ -452,20 +452,20 @@ function ResultsContent() {
           ].map((item, i) => (
             <div
               key={i}
-              className="bg-white rounded-xl border border-slate-100 overflow-hidden"
+              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden"
             >
               <button
                 onClick={() => setExpandedInfo(expandedInfo === i ? null : i)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 dark:hover:bg-muted transition-colors"
               >
-                <span className="font-medium text-slate-900 pr-4">{item.title}</span>
+                <span className="font-medium text-slate-900 dark:text-foreground pr-4">{item.title}</span>
                 <ChevronDown
                   className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${expandedInfo === i ? "rotate-180" : ""
                     }`}
                 />
               </button>
               <div className={`overflow-hidden transition-all duration-200 ${expandedInfo === i ? "max-h-96" : "max-h-0"}`}>
-                <div className="px-4 pb-4 text-slate-600 text-sm leading-relaxed">
+                <div className="px-4 pb-4 text-slate-600 dark:text-muted-foreground text-sm leading-relaxed">
                   {item.content}
                 </div>
               </div>
@@ -476,10 +476,10 @@ function ResultsContent() {
 
       {/* Trusted Partners Section */}
       <div className="max-w-6xl mx-auto px-4 pb-12">
-        <h3 className="text-lg font-bold text-slate-900 mb-4 text-center">Our Trusted Partners</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-foreground mb-4 text-center">Our Trusted Partners</h3>
         <div className="grid sm:grid-cols-3 gap-4">
           {/* Kimber Health */}
-          <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl p-5 border border-cyan-100 text-center">
+          <div className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/30 dark:to-blue-950/30 rounded-xl p-5 border border-cyan-100 dark:border-cyan-800 text-center">
             <div className="flex justify-center mb-3">
               <Image
                 src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
@@ -492,11 +492,11 @@ function ResultsContent() {
             <div className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
               <span>Starts from $0</span>
             </div>
-            <p className="text-xs text-slate-600">Excellent service & specialty insurance that meets your needs. Free NY Essential Plan available.</p>
+            <p className="text-xs text-slate-600 dark:text-muted-foreground">Excellent service & specialty insurance that meets your needs. Free NY Essential Plan available.</p>
           </div>
 
           {/* ISO */}
-          <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-5 border border-rose-100 text-center">
+          <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30 rounded-xl p-5 border border-rose-100 dark:border-rose-800 text-center">
             <div className="flex justify-center mb-3">
               <Image
                 src="/partners/logo.svg"
@@ -510,11 +510,11 @@ function ResultsContent() {
               <Users className="w-3 h-3" />
               <span>3M+ Students Since 1958</span>
             </div>
-            <p className="text-xs text-slate-600">Trusted by students from 158+ countries. Comprehensive coverage with Aetna PPO network.</p>
+            <p className="text-xs text-slate-600 dark:text-muted-foreground">Trusted by students from 158+ countries. Comprehensive coverage with Aetna PPO network.</p>
           </div>
 
           {/* ISI */}
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-100 text-center">
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl p-5 border border-indigo-100 dark:border-indigo-800 text-center">
             <div className="flex justify-center mb-3">
               <Image
                 src="/partners/Logo-ISI.png"
@@ -528,7 +528,7 @@ function ResultsContent() {
               <Globe className="w-3 h-3" />
               <span>1M+ Students Insured</span>
             </div>
-            <p className="text-xs text-slate-600">United Healthcare network with 24/7 telemedicine and mental health coverage included.</p>
+            <p className="text-xs text-slate-600 dark:text-muted-foreground">United Healthcare network with 24/7 telemedicine and mental health coverage included.</p>
           </div>
         </div>
       </div>
@@ -536,18 +536,18 @@ function ResultsContent() {
       {/* Exit Modal */}
       {showExitModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-card rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <ExternalLink className="w-6 h-6 text-blue-600" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 text-center">Leaving TrackMyOPT</h3>
-            <p className="text-slate-600 text-sm text-center mt-2">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-foreground text-center">Leaving TrackMyOPT</h3>
+            <p className="text-slate-600 dark:text-muted-foreground text-sm text-center mt-2">
               You'll be redirected to complete enrollment on the partner's website.
             </p>
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowExitModal(false)}
-                className="flex-1 h-11 border border-slate-200 rounded-xl font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex-1 h-11 border border-slate-200 dark:border-border rounded-xl font-medium text-slate-700 dark:text-foreground hover:bg-slate-50 dark:hover:bg-muted transition-colors"
               >
                 Cancel
               </button>
