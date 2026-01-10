@@ -4,6 +4,14 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/jwt';
 import { sendEnrollmentEmail } from '@/lib/email-service';
+import {
+  API_RATE_LIMIT,
+  checkRateLimitByIP,
+  checkRateLimitByUser,
+  rateLimitResponse,
+  addRateLimitHeaders
+} from '@/lib/api-rate-limit';
+import { caseStatusRequestSchema, validateRequest } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,7 +96,7 @@ export async function GET(req: NextRequest) {
           { status: 200, headers: corsHeaders }
         );
       }
-      
+
       console.error('Database error fetching case status:', dbError);
       return NextResponse.json(
         { ok: false, error: 'Failed to fetch case status' },
@@ -178,32 +186,32 @@ export async function POST(req: NextRequest) {
     // Check if this is a new case enrollment (first time saving)
     // If caseStatus was just created (no previous current_status), send enrollment email
     const isNewEnrollment = notifications_enabled && !caseStatus?.current_status;
-    
+
     if (isNewEnrollment) {
       console.log(`📧 Case status enrollment - Receipt: ${receipt_number}, Notifications: ${notifications_enabled}`);
-      
+
       // Get user's email, name, and premium status from profiles
       const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('first_name, premium_status')
         .eq('user_id', userId)
         .single();
-      
+
       // Only send enrollment email to premium users
       const isPremium = profile?.premium_status === true;
-      
+
       if (!isPremium) {
         console.log(`⏭️ Skipping case-status enrollment email - user is not premium`);
       } else {
         // Try to get email from auth.users table directly
         const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
         const userEmail = userData?.user?.email;
-        
+
         if (userEmail) {
           const firstName = profile?.first_name || 'there';
-          
+
           console.log(`📤 Sending case-status enrollment email to ${userEmail} (Premium user)`);
-          
+
           try {
             const result = await sendEnrollmentEmail(userEmail, firstName, 'case-status');
             if (result.success) {

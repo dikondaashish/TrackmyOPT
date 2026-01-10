@@ -43,17 +43,17 @@ const authRoutes = ['/login'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   // Check if current path is a public route (exceptions)
-  const isPublicRoute = publicRoutes.some(route => 
+  const isPublicRoute = publicRoutes.some(route =>
     pathname === route || pathname.startsWith(`${route}/`)
   );
-  
+
   // Check if current path needs protection (but not if it's a public exception)
-  const isProtectedRoute = !isPublicRoute && protectedRoutes.some(route => 
+  const isProtectedRoute = !isPublicRoute && protectedRoutes.some(route =>
     pathname === route || pathname.startsWith(`${route}/`)
   );
-  
+
   const isAuthRoute = authRoutes.some(route => pathname === route);
 
   // Create response to modify
@@ -114,7 +114,7 @@ export async function middleware(request: NextRequest) {
 
   // Check for valid session
   const { data: { user }, error } = await supabase.auth.getUser();
-  
+
   const isAuthenticated = !!user && !error;
 
   // Log for debugging (remove in production)
@@ -132,6 +132,13 @@ export async function middleware(request: NextRequest) {
   // if (isAuthRoute && isAuthenticated) {
   //   return NextResponse.redirect(new URL('/dashboard', request.url));
   // }
+
+  // SECURITY: Add security headers to all responses
+  // These headers protect against common web vulnerabilities
+  response.headers.set('X-Content-Type-Options', 'nosniff');      // Prevent MIME type sniffing
+  response.headers.set('X-Frame-Options', 'DENY');                 // Prevent clickjacking
+  response.headers.set('X-XSS-Protection', '1; mode=block');       // Enable XSS filter
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin'); // Control referrer info
 
   return response;
 }

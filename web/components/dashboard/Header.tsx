@@ -1,7 +1,6 @@
 "use client";
-import { Moon, Sun, Tag } from "lucide-react";
+import { Moon, Sun, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 interface HeaderProps {
   darkMode: boolean;
@@ -9,24 +8,31 @@ interface HeaderProps {
 }
 
 export function Header({ darkMode, setDarkMode }: HeaderProps) {
-  const pathname = usePathname();
-  const isOffersActive = pathname === "/dashboard/offers";
-
   return (
     <header className="sticky top-0 z-10 border-b border-border/50 backdrop-blur-xl bg-background/80 px-8 py-4">
-      <div className="flex items-center justify-end gap-3">
-        {/* Offers Button - Matches sidebar nav style */}
+      <div className="flex items-center justify-end gap-4">
+        {/* Offers Button - Premium Look */}
         <Link
           href="/dashboard/offers"
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isOffersActive
-              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-              : "text-muted-foreground hover:bg-accent hover:text-foreground"
-            }`}
+          className="group relative flex items-center gap-2 px-4 py-2 rounded-full 
+                     bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 
+                     hover:from-purple-500/20 hover:via-pink-500/20 hover:to-orange-500/20
+                     dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20
+                     dark:hover:from-purple-500/30 dark:hover:via-pink-500/30 dark:hover:to-orange-500/30
+                     border border-purple-200/50 dark:border-purple-500/30
+                     hover:border-purple-300 dark:hover:border-purple-400/50
+                     hover:scale-[1.03] hover:shadow-lg hover:shadow-purple-500/10
+                     transition-all duration-200 ease-out"
         >
-          <Tag className="w-4 h-4" />
-          <span>Offers</span>
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full">
-            New
+          <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:animate-pulse" />
+          <span className="font-medium text-sm text-purple-700 dark:text-purple-300">
+            Offers
+          </span>
+          {/* NEW Badge */}
+          <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[10px] font-bold uppercase
+                          bg-gradient-to-r from-orange-500 to-pink-500 text-white 
+                          rounded-full shadow-sm animate-pulse">
+            Hot
           </span>
         </Link>
 
