@@ -92,7 +92,7 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
         <div className={`flex items-center gap-2 ${collapsed ? 'justify-center w-full' : ''}`}>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
             <Image
-              src="/TrackMyOPT Logo/1.png"
+              src="/TrackMyOPT Logo/1.gif"
               alt="TrackMyOPT Logo"
               width={32}
               height={32}
