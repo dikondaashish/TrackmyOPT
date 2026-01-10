@@ -1,5 +1,5 @@
 "use client";
-import { Moon, Sun, Sparkles } from "lucide-react";
+import { Moon, Sun, Tag } from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
@@ -24,7 +24,7 @@ export function Header({ darkMode, setDarkMode }: HeaderProps) {
                      hover:scale-[1.03] hover:shadow-lg hover:shadow-purple-500/10
                      transition-all duration-200 ease-out"
         >
-          <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:animate-pulse" />
+          <Tag className="w-4 h-4 text-purple-600 dark:text-purple-400" />
           <span className="font-medium text-sm text-purple-700 dark:text-purple-300">
             Offers
           </span>
