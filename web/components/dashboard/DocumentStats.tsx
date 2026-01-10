@@ -23,7 +23,7 @@ interface DocumentStatsProps {
 export function DocumentStats({ documents }: DocumentStatsProps) {
   // Calculate stats
   const total = documents.length;
-  
+
   const expiringSoon = documents.filter(doc => {
     if (!doc.expiryDate) return false;
     const daysUntilExpiry = Math.ceil(
@@ -101,11 +101,11 @@ function StatCard({
   isText?: boolean;
 }) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200',
-    orange: 'bg-orange-50 text-orange-600 border-orange-200',
-    red: 'bg-red-50 text-red-600 border-red-200',
-    cyan: 'bg-cyan-50 text-cyan-600 border-cyan-200',
-    purple: 'bg-purple-50 text-purple-600 border-purple-200',
+    blue: 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-gradient-to-br dark:from-blue-800/40 dark:via-blue-900/60 dark:to-indigo-900/40 dark:text-blue-300 dark:border-blue-400/40',
+    orange: 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-gradient-to-br dark:from-orange-800/40 dark:via-orange-900/60 dark:to-amber-900/40 dark:text-orange-300 dark:border-orange-400/40',
+    red: 'bg-red-50 text-red-600 border-red-200 dark:bg-gradient-to-br dark:from-red-800/40 dark:via-red-900/60 dark:to-rose-900/40 dark:text-red-300 dark:border-red-400/40',
+    cyan: 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-gradient-to-br dark:from-cyan-800/40 dark:via-cyan-900/60 dark:to-teal-900/40 dark:text-cyan-300 dark:border-cyan-400/40',
+    purple: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-gradient-to-br dark:from-purple-800/40 dark:via-purple-900/60 dark:to-violet-900/40 dark:text-purple-300 dark:border-purple-400/40',
   };
 
   return (

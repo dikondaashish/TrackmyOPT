@@ -43,7 +43,7 @@ export function DocumentFilters({
   // Merge default categories with custom ones (excluding duplicates)
   const defaultValues = DEFAULT_CATEGORIES.map(c => c.value);
   const uniqueCustomCategories = customCategories.filter(c => !defaultValues.includes(c));
-  
+
   // Create category list with custom types added before "Other"
   const categories = [
     ...DEFAULT_CATEGORIES.slice(0, -1), // All except "Other"
@@ -70,11 +70,10 @@ export function DocumentFilters({
           <button
             key={category.value}
             onClick={() => onCategoryChange(category.value)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
-              selectedCategory === category.value
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${selectedCategory === category.value
                 ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-            }`}
+                : 'bg-white dark:bg-slate-800/60 text-gray-700 dark:text-slate-200 border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30'
+              }`}
           >
             <span className="text-sm">{category.icon}</span>
             <span>{category.label}</span>
@@ -87,7 +86,7 @@ export function DocumentFilters({
         {/* Search */}
         <div className="flex-1 relative">
           <svg
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -104,7 +103,7 @@ export function DocumentFilters({
             placeholder="Search documents..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800/60 dark:text-white dark:placeholder-slate-400"
           />
         </div>
 
@@ -112,7 +111,7 @@ export function DocumentFilters({
         <select
           value={sortBy}
           onChange={(e) => onSortChange(e.target.value)}
-          className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          className="px-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800/60 dark:text-white"
         >
           {sortOptions.map((option) => (
             <option key={option.value} value={option.value}>

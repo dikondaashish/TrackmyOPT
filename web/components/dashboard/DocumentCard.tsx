@@ -38,24 +38,24 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
   const icon = getDocumentIcon(displayType);
 
   return (
-    <div className="group bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 overflow-hidden">
+    <div className="group bg-white dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg dark:hover:shadow-blue-500/10 transition-all duration-200 overflow-hidden">
       {/* Modern Header */}
       <div className={`p-4 ${getHeaderColor(expiryStatus)}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="text-3xl">{icon}</div>
             <div>
-              <h3 className="font-semibold text-gray-900 capitalize text-sm">
+              <h3 className="font-semibold text-gray-900 dark:text-white capitalize text-sm">
                 {displayType?.replace(/_/g, ' ') || 'Document'}
               </h3>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                 {document.uploadedAt && isValidDate(document.uploadedAt)
                   ? new Date(document.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                   : 'Recently uploaded'}
               </p>
             </div>
           </div>
-          
+
           {/* Expiry Badge */}
           {document.expiryDate && isValidDate(document.expiryDate) ? (
             <div className={`flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium ${getExpiryBadgeColor(expiryStatus)}`}>
@@ -63,7 +63,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
               <span>{Math.ceil((new Date(document.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}d</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1 text-xs bg-gray-100 text-gray-600 rounded-full px-2.5 py-1 font-medium">
+            <div className="flex items-center gap-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-full px-2.5 py-1 font-medium">
               <span>—</span>
             </div>
           )}
@@ -74,28 +74,28 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
       <div className="p-4 space-y-3">
         {/* Filename */}
         <div>
-          <p className="text-sm font-medium text-gray-900 truncate" title={document.filename}>
+          <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={document.filename}>
             {document.filename}
           </p>
         </div>
 
         {/* Summary */}
         {document.summary && (
-          <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-gray-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
             {document.summary}
           </p>
         )}
 
         {/* Expiry Date - Prominent Display */}
         {document.expiryDate && isValidDate(document.expiryDate) ? (
-          <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 border border-gray-100 dark:border-slate-600">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-600">Expires on</span>
+              <span className="text-xs text-gray-600 dark:text-slate-400">Expires on</span>
               <span className={`text-sm font-semibold ${getExpiryTextColor(expiryStatus)}`}>
-                {new Date(document.expiryDate).toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric', 
-                  year: 'numeric' 
+                {new Date(document.expiryDate).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
                 })}
               </span>
             </div>
@@ -103,11 +103,11 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
         ) : (
           <button
             onClick={onAddExpiry}
-            className="w-full bg-amber-50 hover:bg-amber-100 rounded-lg p-3 border border-amber-200 hover:border-amber-300 transition-colors"
+            className="w-full bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg p-3 border border-amber-200 dark:border-amber-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs text-amber-700">No expiry date</span>
-              <span className="text-sm font-semibold text-amber-700 flex items-center gap-1">
+              <span className="text-xs text-amber-700 dark:text-amber-400">No expiry date</span>
+              <span className="text-sm font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -127,7 +127,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
           </button>
           <button
             onClick={onDownload}
-            className="px-3 py-2 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all"
+            className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
             title="Download document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
           </button>
           <button
             onClick={onDelete}
-            className="px-3 py-2 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-all"
+            className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-all"
             title="Delete document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,26 +186,26 @@ function getExpiryStatus(expiryDate: string | null): 'good' | 'attention' | 'war
 
 function getHeaderColor(status: string): string {
   const colors: Record<string, string> = {
-    good: 'bg-green-50',
-    attention: 'bg-yellow-50',
-    warning: 'bg-orange-50',
-    critical: 'bg-red-50',
-    expired: 'bg-gray-100',
-    no_expiry: 'bg-blue-50',
+    good: 'bg-green-50 dark:bg-green-900/30',
+    attention: 'bg-yellow-50 dark:bg-yellow-900/30',
+    warning: 'bg-orange-50 dark:bg-orange-900/30',
+    critical: 'bg-red-50 dark:bg-red-900/30',
+    expired: 'bg-gray-100 dark:bg-slate-700/50',
+    no_expiry: 'bg-blue-50 dark:bg-blue-900/30',
   };
-  return colors[status] || 'bg-gray-50';
+  return colors[status] || 'bg-gray-50 dark:bg-slate-700/50';
 }
 
 function getExpiryTextColor(status: string): string {
   const colors: Record<string, string> = {
-    good: 'text-green-600',
-    attention: 'text-yellow-600',
-    warning: 'text-orange-600',
-    critical: 'text-red-600',
-    expired: 'text-gray-600',
-    no_expiry: 'text-blue-600',
+    good: 'text-green-600 dark:text-green-400',
+    attention: 'text-yellow-600 dark:text-yellow-400',
+    warning: 'text-orange-600 dark:text-orange-400',
+    critical: 'text-red-600 dark:text-red-400',
+    expired: 'text-gray-600 dark:text-gray-400',
+    no_expiry: 'text-blue-600 dark:text-blue-400',
   };
-  return colors[status] || 'text-gray-600';
+  return colors[status] || 'text-gray-600 dark:text-gray-400';
 }
 
 function getExpiryBadge(status: string, expiryDate: string) {
@@ -234,14 +234,14 @@ function getExpiryBadge(status: string, expiryDate: string) {
 
 function getExpiryBadgeColor(status: string): string {
   const colors: Record<string, string> = {
-    good: 'bg-green-100 text-green-700',
-    attention: 'bg-yellow-100 text-yellow-700',
-    warning: 'bg-orange-100 text-orange-700',
-    critical: 'bg-red-100 text-red-700',
-    expired: 'bg-gray-100 text-gray-700',
-    no_expiry: 'bg-blue-100 text-blue-700',
+    good: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300',
+    attention: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300',
+    warning: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300',
+    critical: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300',
+    expired: 'bg-gray-100 text-gray-700 dark:bg-slate-600 dark:text-slate-300',
+    no_expiry: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
   };
-  return colors[status] || 'bg-gray-100 text-gray-600';
+  return colors[status] || 'bg-gray-100 text-gray-600 dark:bg-slate-600 dark:text-slate-300';
 }
 
 function getExpiryIcon(status: string): string {
