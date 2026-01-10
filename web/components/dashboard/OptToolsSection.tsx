@@ -26,12 +26,12 @@ export function OptToolsSection() {
         if (data.status) {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
-          
+
           if (data.status.program_end_date) {
             const programEnd = new Date(data.status.program_end_date);
             const mustArriveBy = new Date(programEnd);
             mustArriveBy.setDate(mustArriveBy.getDate() + 60);
-            
+
             const daysUntil = Math.ceil((mustArriveBy.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
             if (daysUntil > 0) {
               setStats(prev => ({
@@ -89,7 +89,7 @@ export function OptToolsSection() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 -m-6 p-6 sm:-m-8 sm:p-8">
+    <div className="space-y-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -110,7 +110,7 @@ export function OptToolsSection() {
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-48 translate-x-48"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-32 -translate-x-32"></div>
             <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-            
+
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -123,7 +123,7 @@ export function OptToolsSection() {
               </div>
               <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm px-6 py-3 rounded-2xl">
                 <span className="text-4xl font-bold tabular-nums">{stats.nextDeadline.days}</span>
-                <span className="text-sm text-blue-100">days<br/>remaining</span>
+                <span className="text-sm text-blue-100">days<br />remaining</span>
               </div>
             </div>
           </div>
@@ -149,15 +149,15 @@ export function OptToolsSection() {
                 {/* Animated background elements */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32 group-hover:scale-150 transition-transform duration-700"></div>
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-24 -translate-x-24 group-hover:scale-150 transition-transform duration-700"></div>
-                
+
                 {/* Shine sweep effect */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-all duration-1000"></div>
-                
+
                 {/* Floating particles */}
                 <div className="absolute top-6 right-12 w-2 h-2 bg-white/30 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-opacity" style={{ animationDelay: '0s' }}></div>
                 <div className="absolute top-16 right-6 w-1.5 h-1.5 bg-white/20 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-opacity" style={{ animationDelay: '0.2s' }}></div>
                 <div className="absolute bottom-12 right-20 w-1 h-1 bg-white/25 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-opacity" style={{ animationDelay: '0.4s' }}></div>
-                
+
                 {/* Content */}
                 <div className="relative z-10">
                   {/* Icon */}
@@ -200,7 +200,7 @@ export function OptToolsSection() {
               </p>
             </div>
           </div>
-          
+
           <div className="group relative overflow-hidden p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400/10 to-teal-400/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
             <div className="relative z-10">
@@ -213,7 +213,7 @@ export function OptToolsSection() {
               </p>
             </div>
           </div>
-          
+
           <div className="group relative overflow-hidden p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-400/10 to-orange-400/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
             <div className="relative z-10">
