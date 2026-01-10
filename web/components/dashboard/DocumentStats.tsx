@@ -114,13 +114,13 @@ function StatCard({
     <div className={`rounded-lg border p-4 ${colorClasses[color]}`}>
       <div className="flex items-center gap-2 mb-2">
         {icon}
-        <span className="text-sm font-medium">{label}</span>
+        <span className="text-sm font-medium dark:text-white">{label}</span>
       </div>
-      <div className={`${isText ? 'text-xl' : 'text-3xl'} font-bold capitalize`}>
+      <div className={`${isText ? 'text-xl' : 'text-3xl'} font-bold capitalize dark:text-white`}>
         {value}
       </div>
       {subtitle && (
-        <div className="text-xs mt-1 opacity-75">
+        <div className="text-xs mt-1 opacity-75 dark:opacity-100 dark:text-slate-200">
           {subtitle}
         </div>
       )}
