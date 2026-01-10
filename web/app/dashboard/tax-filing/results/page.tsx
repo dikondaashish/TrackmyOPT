@@ -2,10 +2,10 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useEffect } from "react";
-import { 
-  Receipt, 
-  ChevronDown, 
-  ExternalLink, 
+import {
+  Receipt,
+  ChevronDown,
+  ExternalLink,
   ArrowLeft,
   CheckCircle2,
   Gift,
@@ -60,7 +60,7 @@ const TAX_PARTNERS = [
 function TaxResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   const [showExitModal, setShowExitModal] = useState(false);
   const [exitUrl, setExitUrl] = useState("");
   const [showCouponModal, setShowCouponModal] = useState(false);
@@ -85,7 +85,7 @@ function TaxResultsContent() {
         forms: ["Consult a CPA or tax advisor"]
       };
     }
-    
+
     if (income === "no-income") {
       return {
         status: "Form 8843 Required",
@@ -94,7 +94,7 @@ function TaxResultsContent() {
         forms: ["Form 8843"]
       };
     }
-    
+
     return {
       status: "Full Tax Return Required",
       color: "emerald",
@@ -116,7 +116,7 @@ function TaxResultsContent() {
             'Content-Type': 'application/json',
           },
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           setIsPremium(data.isPremium || false);
@@ -125,7 +125,7 @@ function TaxResultsContent() {
         console.error('Error checking premium status:', error);
       }
     };
-    
+
     checkPremiumStatus();
   }, []);
 
@@ -159,12 +159,12 @@ function TaxResultsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
       {/* Header */}
       <div className="max-w-5xl mx-auto px-4 pt-6 pb-4">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors mb-4"
+          className="flex items-center gap-2 text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Tax Filing
@@ -175,49 +175,43 @@ function TaxResultsContent() {
             <Receipt className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Your Tax Filing Plan</h1>
-            <p className="text-sm text-slate-600">Based on your responses</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-foreground">Your Tax Filing Plan</h1>
+            <p className="text-sm text-slate-600 dark:text-muted-foreground">Based on your responses</p>
           </div>
         </div>
       </div>
 
       {/* Filing Requirement Result */}
       <div className="max-w-5xl mx-auto px-4 pb-6">
-        <div className={`rounded-2xl p-5 ${
-          filingRequirement.color === "amber" ? "bg-amber-50 border border-amber-200" :
-          filingRequirement.color === "blue" ? "bg-blue-50 border border-blue-200" :
-          "bg-emerald-50 border border-emerald-200"
-        }`}>
+        <div className={`rounded-2xl p-5 ${filingRequirement.color === "amber" ? "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800" :
+            filingRequirement.color === "blue" ? "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" :
+              "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800"
+          }`}>
           <div className="flex items-start gap-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-              filingRequirement.color === "amber" ? "bg-amber-100" :
-              filingRequirement.color === "blue" ? "bg-blue-100" :
-              "bg-emerald-100"
-            }`}>
-              <FileText className={`w-6 h-6 ${
-                filingRequirement.color === "amber" ? "text-amber-600" :
-                filingRequirement.color === "blue" ? "text-blue-600" :
-                "text-emerald-600"
-              }`} />
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900/50" :
+                filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50" :
+                  "bg-emerald-100 dark:bg-emerald-900/50"
+              }`}>
+              <FileText className={`w-6 h-6 ${filingRequirement.color === "amber" ? "text-amber-600" :
+                  filingRequirement.color === "blue" ? "text-blue-600" :
+                    "text-emerald-600"
+                }`} />
             </div>
             <div>
-              <h2 className={`text-lg font-bold ${
-                filingRequirement.color === "amber" ? "text-amber-900" :
-                filingRequirement.color === "blue" ? "text-blue-900" :
-                "text-emerald-900"
-              }`}>{filingRequirement.status}</h2>
-              <p className={`text-sm mt-1 ${
-                filingRequirement.color === "amber" ? "text-amber-800" :
-                filingRequirement.color === "blue" ? "text-blue-800" :
-                "text-emerald-800"
-              }`}>{filingRequirement.message}</p>
+              <h2 className={`text-lg font-bold ${filingRequirement.color === "amber" ? "text-amber-900 dark:text-amber-300" :
+                  filingRequirement.color === "blue" ? "text-blue-900 dark:text-blue-300" :
+                    "text-emerald-900 dark:text-emerald-300"
+                }`}>{filingRequirement.status}</h2>
+              <p className={`text-sm mt-1 ${filingRequirement.color === "amber" ? "text-amber-800 dark:text-amber-400" :
+                  filingRequirement.color === "blue" ? "text-blue-800 dark:text-blue-400" :
+                    "text-emerald-800 dark:text-emerald-400"
+                }`}>{filingRequirement.message}</p>
               <div className="flex flex-wrap gap-2 mt-3">
                 {filingRequirement.forms.map((form, i) => (
-                  <span key={i} className={`text-xs font-semibold px-3 py-1.5 rounded-full ${
-                    filingRequirement.color === "amber" ? "bg-amber-100 text-amber-700" :
-                    filingRequirement.color === "blue" ? "bg-blue-100 text-blue-700" :
-                    "bg-emerald-100 text-emerald-700"
-                  }`}>
+                  <span key={i} className={`text-xs font-semibold px-3 py-1.5 rounded-full ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300" :
+                      filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300" :
+                        "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300"
+                    }`}>
                     {form}
                   </span>
                 ))}
@@ -230,17 +224,17 @@ function TaxResultsContent() {
       {/* Partner Cards */}
       <div className="max-w-5xl mx-auto px-4 pb-8">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-3">
+          <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-full text-sm font-medium mb-3">
             <Sparkles className="w-4 h-4" />
             Recommended Partners
           </div>
-          <h2 className="text-xl font-bold text-slate-900">File Your Taxes Online</h2>
-          <p className="text-slate-600 text-sm mt-1">Trusted partners specializing in non-resident tax returns</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-foreground">File Your Taxes Online</h2>
+          <p className="text-slate-600 dark:text-muted-foreground text-sm mt-1">Trusted partners specializing in non-resident tax returns</p>
         </div>
-        
+
         <div className="grid sm:grid-cols-3 gap-4">
           {TAX_PARTNERS.map((partner, i) => (
-            <div 
+            <div
               key={i}
               className={`bg-gradient-to-br ${partner.bgColor} rounded-2xl border ${partner.borderColor} p-5 relative hover:shadow-lg transition-all`}
             >
@@ -251,24 +245,24 @@ function TaxResultsContent() {
                   </span>
                 </div>
               )}
-              
+
               <div className={`w-12 h-12 bg-gradient-to-br ${partner.color} rounded-xl flex items-center justify-center mb-3`}>
                 <Receipt className="w-6 h-6 text-white" />
               </div>
-              
-              <h3 className="font-bold text-slate-900 text-lg">{partner.name}</h3>
-              <p className="text-xs text-slate-500 mt-0.5">{partner.tagline}</p>
-              <p className="text-sm text-slate-600 mt-2">{partner.description}</p>
-              
+
+              <h3 className="font-bold text-slate-900 dark:text-foreground text-lg">{partner.name}</h3>
+              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{partner.tagline}</p>
+              <p className="text-sm text-slate-600 dark:text-muted-foreground mt-2">{partner.description}</p>
+
               <div className="mt-4 space-y-1.5">
                 {partner.features.map((feature, j) => (
-                  <div key={j} className="flex items-center gap-2 text-xs text-slate-700">
+                  <div key={j} className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
                     {feature}
                   </div>
                 ))}
               </div>
-              
+
               <div className="mt-4 space-y-2">
                 <button
                   onClick={() => handleApply(partner.link)}
@@ -279,7 +273,7 @@ function TaxResultsContent() {
                 </button>
                 <button
                   onClick={() => handleGetCoupon(partner)}
-                  className="w-full h-9 bg-white border border-slate-200 text-slate-700 font-medium text-sm rounded-xl transition-all hover:border-emerald-300 hover:text-emerald-700 flex items-center justify-center gap-1.5"
+                  className="w-full h-9 bg-white dark:bg-card border border-slate-200 dark:border-border text-slate-700 dark:text-foreground font-medium text-sm rounded-xl transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 flex items-center justify-center gap-1.5"
                 >
                   <Gift className="w-3.5 h-3.5" />
                   Get Free Coupon
@@ -288,15 +282,15 @@ function TaxResultsContent() {
             </div>
           ))}
         </div>
-        
+
         <p className="text-center text-xs text-slate-400 mt-4">
-          * We may receive compensation if you purchase through our links. This helps support TrackMyOPT at no extra cost to you.
+          * We may receive compensation if you purchase through our links.
         </p>
       </div>
 
       {/* Step-by-Step Guides */}
       <div className="max-w-4xl mx-auto px-4 pb-8">
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Step-by-Step Filing Guides</h2>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-foreground mb-4">Step-by-Step Filing Guides</h2>
         <div className="space-y-3">
           {[
             {
@@ -339,21 +333,20 @@ function TaxResultsContent() {
           ].map((guide, i) => (
             <div
               key={i}
-              className="bg-white rounded-xl border border-slate-100 overflow-hidden"
+              className="bg-white dark:bg-card rounded-xl border border-slate-100 dark:border-border overflow-hidden"
             >
               <button
                 onClick={() => setExpandedGuide(expandedGuide === i ? null : i)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 dark:hover:bg-muted transition-colors"
               >
-                <span className="font-medium text-slate-900 pr-4">{guide.title}</span>
+                <span className="font-medium text-slate-900 dark:text-foreground pr-4">{guide.title}</span>
                 <ChevronDown
-                  className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${
-                    expandedGuide === i ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${expandedGuide === i ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <div className={`overflow-hidden transition-all duration-200 ${expandedGuide === i ? "max-h-[500px]" : "max-h-0"}`}>
-                <div className="px-4 pb-4 text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+                <div className="px-4 pb-4 text-slate-600 dark:text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
                   {guide.content}
                 </div>
               </div>
@@ -364,9 +357,9 @@ function TaxResultsContent() {
 
       {/* Disclaimer */}
       <div className="max-w-4xl mx-auto px-4 pb-12">
-        <div className="bg-slate-50 rounded-xl p-4 text-center">
-          <p className="text-xs text-slate-500">
-            <strong>Disclaimer:</strong> TrackMyOPT provides general information and is not a substitute for professional tax or legal advice. 
+        <div className="bg-slate-50 dark:bg-muted rounded-xl p-4 text-center">
+          <p className="text-xs text-slate-500 dark:text-muted-foreground">
+            <strong>Disclaimer:</strong> TrackMyOPT provides general information and is not a substitute for professional tax or legal advice.
             Tax rules can be complex—please consult a certified tax professional for your specific situation.
           </p>
         </div>
@@ -375,18 +368,18 @@ function TaxResultsContent() {
       {/* Exit Modal */}
       {showExitModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-card rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <ExternalLink className="w-6 h-6 text-emerald-600" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 text-center">Leaving TrackMyOPT</h3>
-            <p className="text-slate-600 text-sm text-center mt-2">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-foreground text-center">Leaving TrackMyOPT</h3>
+            <p className="text-slate-600 dark:text-muted-foreground text-sm text-center mt-2">
               You'll be redirected to complete your tax filing on the partner's website.
             </p>
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowExitModal(false)}
-                className="flex-1 h-11 border border-slate-200 rounded-xl font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex-1 h-11 border border-slate-200 dark:border-border rounded-xl font-medium text-slate-700 dark:text-foreground hover:bg-slate-50 dark:hover:bg-muted transition-colors"
               >
                 Cancel
               </button>
@@ -404,7 +397,7 @@ function TaxResultsContent() {
       {/* Coupon Modal */}
       {showCouponModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-card rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             {isPremium ? (
               /* Pro Member - Show Coupon */
               <>
@@ -415,22 +408,21 @@ function TaxResultsContent() {
                   <Crown className="w-4 h-4 text-amber-500" />
                   <span className="text-xs font-semibold text-amber-600">PRO MEMBER EXCLUSIVE</span>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 text-center">Your Free Coupon</h3>
-                <p className="text-slate-600 text-sm text-center mt-2">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-foreground text-center">Your Free Coupon</h3>
+                <p className="text-slate-600 dark:text-muted-foreground text-sm text-center mt-2">
                   Use this code at {selectedPartner?.name} for exclusive savings!
                 </p>
-                
+
                 {/* Coupon Code Box */}
                 <div className="mt-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-dashed border-emerald-300 rounded-xl p-4">
                   <div className="flex items-center justify-between">
                     <code className="text-xl font-bold text-emerald-700 tracking-wider">{COUPON_CODE}</code>
                     <button
                       onClick={copyCoupon}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        couponCopied 
-                          ? "bg-emerald-500 text-white" 
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${couponCopied
+                          ? "bg-emerald-500 text-white"
                           : "bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                      }`}
+                        }`}
                     >
                       {couponCopied ? (
                         <>
@@ -450,7 +442,7 @@ function TaxResultsContent() {
                 <div className="flex gap-3 mt-6">
                   <button
                     onClick={() => setShowCouponModal(false)}
-                    className="flex-1 h-11 border border-slate-200 rounded-xl font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="flex-1 h-11 border border-slate-200 dark:border-border rounded-xl font-medium text-slate-700 dark:text-foreground hover:bg-slate-50 dark:hover:bg-muted transition-colors"
                   >
                     Close
                   </button>
@@ -469,24 +461,24 @@ function TaxResultsContent() {
                 <div className="w-14 h-14 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Lock className="w-7 h-7 text-slate-500" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 text-center">Pro Members Only</h3>
-                <p className="text-slate-600 text-sm text-center mt-2">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-foreground text-center">Pro Members Only</h3>
+                <p className="text-slate-600 dark:text-muted-foreground text-sm text-center mt-2">
                   Upgrade to Pro to unlock free filing coupons and exclusive discounts on tax services!
                 </p>
-                
+
                 {/* Benefits */}
                 <div className="mt-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-slate-700 mb-2">Pro Benefits Include:</p>
+                  <p className="text-xs font-semibold text-slate-700 dark:text-foreground mb-2">Pro Benefits Include:</p>
                   <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-muted-foreground">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                       Free tax filing coupons
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-muted-foreground">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                       Priority support
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-muted-foreground">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                       Advanced OPT tools
                     </div>
@@ -496,7 +488,7 @@ function TaxResultsContent() {
                 <div className="flex gap-3 mt-6">
                   <button
                     onClick={() => setShowCouponModal(false)}
-                    className="flex-1 h-11 border border-slate-200 rounded-xl font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="flex-1 h-11 border border-slate-200 dark:border-border rounded-xl font-medium text-slate-700 dark:text-foreground hover:bg-slate-50 dark:hover:bg-muted transition-colors"
                   >
                     Cancel
                   </button>

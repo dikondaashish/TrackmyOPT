@@ -107,13 +107,13 @@ function ResultsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
       {/* Header */}
-      <div className="border-b border-slate-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+      <div className="border-b border-slate-100 dark:border-border bg-white/80 dark:bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
+            className="flex items-center gap-2 text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back</span>
@@ -123,10 +123,10 @@ function ResultsContent() {
 
       {/* Title */}
       <div className="max-w-6xl mx-auto px-4 pt-6 pb-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-foreground">
           Your Recommended Plans
         </h1>
-        <p className="text-slate-600 mt-1 text-sm">
+        <p className="text-slate-600 dark:text-muted-foreground mt-1 text-sm">
           {stateName} • Age {pricing.age} ({pricing.bracket}) • {visa}
         </p>
       </div>
@@ -147,17 +147,17 @@ function ResultsContent() {
               <div className="w-11 h-11 bg-emerald-100 rounded-xl flex items-center justify-center mb-3">
                 <Building2 className="w-5 h-5 text-emerald-600" />
               </div>
-              <h3 className="font-bold text-slate-900">{freeState.plan}</h3>
-              <p className="text-xs text-slate-500 mt-0.5">{freeState.name}</p>
+              <h3 className="font-bold text-slate-900 dark:text-foreground">{freeState.plan}</h3>
+              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{freeState.name}</p>
 
               <div className="mt-3">
                 <span className="text-2xl font-bold text-emerald-600">$0</span>
-                <span className="text-slate-500 text-sm">/mo</span>
+                <span className="text-slate-500 dark:text-muted-foreground text-sm">/mo</span>
               </div>
 
               <div className="mt-3 space-y-1.5">
                 {freeState.benefits.slice(0, 4).map((benefit, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-slate-700">
+                  <div key={i} className="flex items-center gap-2 text-xs text-slate-700 dark:text-foreground">
                     <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
                     {benefit}
                   </div>
@@ -183,14 +183,14 @@ function ResultsContent() {
               <div className="w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center mb-3">
                 <AlertTriangle className="w-5 h-5 text-amber-600" />
               </div>
-              <h3 className="font-bold text-slate-900">Limited State Coverage</h3>
-              <p className="text-xs text-slate-500 mt-0.5">{partialState.name}</p>
+              <h3 className="font-bold text-slate-900 dark:text-foreground">Limited State Coverage</h3>
+              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{partialState.name}</p>
 
               <div className="mt-3">
                 <span className="text-lg font-semibold text-amber-700">May Qualify</span>
               </div>
 
-              <p className="mt-3 text-xs text-slate-600 leading-relaxed">
+              <p className="mt-3 text-xs text-slate-600 dark:text-muted-foreground leading-relaxed">
                 {partialState.note}. Check your state's marketplace for eligibility requirements.
               </p>
 
