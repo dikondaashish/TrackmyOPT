@@ -231,7 +231,7 @@ function ResultsContent() {
           )}
 
           {/* ISO Card */}
-          <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-border p-5 hover:shadow-lg hover:border-[#8B1538]/30 transition-all">
+          <div className="bg-white dark:bg-gradient-to-br dark:from-rose-950/40 dark:to-pink-950/30 rounded-2xl border border-slate-200 dark:border-rose-500/30 p-5 hover:shadow-lg dark:hover:shadow-rose-500/20 hover:border-[#8B1538]/30 dark:hover:border-rose-400/50 transition-all">
             {/* ISO Logo */}
             <div className="mb-3 flex items-center">
               <Image
@@ -279,7 +279,7 @@ function ResultsContent() {
           </div>
 
           {/* ISI Card */}
-          <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-border p-5 hover:shadow-lg hover:border-[#3D4F8F]/30 transition-all">
+          <div className="bg-white dark:bg-gradient-to-br dark:from-indigo-950/40 dark:to-blue-950/30 rounded-2xl border border-slate-200 dark:border-indigo-500/30 p-5 hover:shadow-lg dark:hover:shadow-indigo-500/20 hover:border-[#3D4F8F]/30 dark:hover:border-indigo-400/50 transition-all">
             {/* ISI Logo */}
             <div className="mb-3 flex items-center">
               <Image
@@ -327,7 +327,7 @@ function ResultsContent() {
           </div>
 
           {/* Kimber Health Card */}
-          <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-border p-5 hover:shadow-lg hover:border-cyan-300 dark:hover:border-cyan-600 transition-all">
+          <div className="bg-white dark:bg-gradient-to-br dark:from-cyan-950/40 dark:to-teal-950/30 rounded-2xl border border-slate-200 dark:border-cyan-500/30 p-5 hover:shadow-lg dark:hover:shadow-cyan-500/20 hover:border-cyan-300 dark:hover:border-cyan-400/50 transition-all">
             {/* Kimber Health Logo */}
             <div className="mb-3 flex items-center">
               <Image
@@ -386,23 +386,23 @@ function ResultsContent() {
       {/* Quick Info */}
       <div className="max-w-6xl mx-auto px-4 pb-8">
         <div className="grid sm:grid-cols-3 gap-4">
-          <div className="bg-slate-50 dark:bg-muted rounded-xl p-5">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
-              <Clock className="w-5 h-5 text-blue-600" />
+          <div className="bg-slate-50 dark:bg-gradient-to-br dark:from-blue-950/40 dark:to-indigo-950/30 dark:border dark:border-blue-500/20 rounded-xl p-5">
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center mb-3">
+              <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <h4 className="font-semibold text-slate-900 dark:text-foreground">Quick Enrollment</h4>
             <p className="text-sm text-slate-600 dark:text-muted-foreground mt-1">Get covered in as little as 24 hours</p>
           </div>
-          <div className="bg-slate-50 dark:bg-muted rounded-xl p-5">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-3">
-              <CreditCard className="w-5 h-5 text-green-600" />
+          <div className="bg-slate-50 dark:bg-gradient-to-br dark:from-emerald-950/40 dark:to-green-950/30 dark:border dark:border-emerald-500/20 rounded-xl p-5">
+            <div className="w-10 h-10 bg-green-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center mb-3">
+              <CreditCard className="w-5 h-5 text-green-600 dark:text-emerald-400" />
             </div>
             <h4 className="font-semibold text-slate-900 dark:text-foreground">Instant ID Card</h4>
             <p className="text-sm text-slate-600 dark:text-muted-foreground mt-1">Digital card after payment</p>
           </div>
-          <div className="bg-slate-50 dark:bg-muted rounded-xl p-5">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
-              <Star className="w-5 h-5 text-purple-600" />
+          <div className="bg-slate-50 dark:bg-gradient-to-br dark:from-purple-950/40 dark:to-violet-950/30 dark:border dark:border-purple-500/20 rounded-xl p-5">
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center mb-3">
+              <Star className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <h4 className="font-semibold text-slate-900 dark:text-foreground">No SSN Required</h4>
             <p className="text-sm text-slate-600 dark:text-muted-foreground mt-1">Passport & visa docs accepted</p>
@@ -479,7 +479,7 @@ function ResultsContent() {
         <h3 className="text-lg font-bold text-slate-900 dark:text-foreground mb-4 text-center">Our Trusted Partners</h3>
         <div className="grid sm:grid-cols-3 gap-4">
           {/* Kimber Health */}
-          <div className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/30 dark:to-blue-950/30 rounded-xl p-5 border border-cyan-100 dark:border-cyan-800 text-center">
+          <div className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/50 dark:to-blue-950/40 rounded-xl p-5 border border-cyan-100 dark:border-cyan-500/30 text-center hover:shadow-lg dark:hover:shadow-cyan-500/10 transition-all">
             <div className="flex justify-center mb-3">
               <Image
                 src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
@@ -489,14 +489,14 @@ function ResultsContent() {
                 className="h-8 w-auto object-contain"
               />
             </div>
-            <div className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
+            <div className="inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
               <span>Starts from $0</span>
             </div>
             <p className="text-xs text-slate-600 dark:text-muted-foreground">Excellent service & specialty insurance that meets your needs. Free NY Essential Plan available.</p>
           </div>
 
           {/* ISO */}
-          <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30 rounded-xl p-5 border border-rose-100 dark:border-rose-800 text-center">
+          <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/50 dark:to-pink-950/40 rounded-xl p-5 border border-rose-100 dark:border-rose-500/30 text-center hover:shadow-lg dark:hover:shadow-rose-500/10 transition-all">
             <div className="flex justify-center mb-3">
               <Image
                 src="/partners/logo.svg"
@@ -506,7 +506,7 @@ function ResultsContent() {
                 className="h-8 w-auto object-contain"
               />
             </div>
-            <div className="inline-flex items-center gap-1 bg-rose-100 text-rose-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
+            <div className="inline-flex items-center gap-1 bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
               <Users className="w-3 h-3" />
               <span>3M+ Students Since 1958</span>
             </div>
@@ -514,7 +514,7 @@ function ResultsContent() {
           </div>
 
           {/* ISI */}
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl p-5 border border-indigo-100 dark:border-indigo-800 text-center">
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/40 rounded-xl p-5 border border-indigo-100 dark:border-indigo-500/30 text-center hover:shadow-lg dark:hover:shadow-indigo-500/10 transition-all">
             <div className="flex justify-center mb-3">
               <Image
                 src="/partners/Logo-ISI.png"
@@ -524,7 +524,7 @@ function ResultsContent() {
                 className="h-8 w-auto object-contain"
               />
             </div>
-            <div className="inline-flex items-center gap-1 bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
+            <div className="inline-flex items-center gap-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">
               <Globe className="w-3 h-3" />
               <span>1M+ Students Insured</span>
             </div>
