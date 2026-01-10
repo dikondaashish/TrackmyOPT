@@ -137,46 +137,66 @@ function ResultsContent() {
 
           {/* STATE ELIGIBILITY CARD - Always show first */}
           {isEligibleForFree ? (
-            /* FREE State Plan Card */
-            <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/40 dark:via-emerald-950/60 dark:to-green-950/40 rounded-2xl border-2 border-emerald-200 dark:border-emerald-500/40 p-5 hover:shadow-xl dark:hover:shadow-emerald-500/20 hover:scale-[1.02] transition-all duration-300">
-              {/* Animated background glow */}
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-400/20 dark:bg-emerald-400/10 rounded-full blur-3xl group-hover:bg-emerald-400/30 transition-all duration-500" />
+            /* FREE State Plan Card - Premium Design */
+            <div className="group relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-emerald-400 via-green-500 to-teal-400 dark:from-emerald-500 dark:via-green-400 dark:to-teal-500 hover:shadow-2xl hover:shadow-emerald-500/40 dark:hover:shadow-emerald-400/30 hover:scale-[1.02] transition-all duration-300">
+              {/* Inner card with glassmorphism */}
+              <div className="relative h-full bg-white dark:bg-gray-900/95 rounded-[14px] p-5 backdrop-blur-xl">
+                {/* Multiple animated glow orbs */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-400/30 dark:bg-emerald-400/20 rounded-full blur-3xl group-hover:bg-emerald-400/50 group-hover:scale-110 transition-all duration-700" />
+                <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-green-400/20 dark:bg-green-400/15 rounded-full blur-2xl group-hover:bg-green-400/40 transition-all duration-700" />
 
-              <div className="relative z-10">
-                <div className="absolute top-0 right-0">
-                  <span className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-emerald-500/30">
-                    ✨ FREE
-                  </span>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30">
-                  <Building2 className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-bold text-lg text-slate-900 dark:text-white">{freeState.plan}</h3>
-                <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">{freeState.name}</p>
+                {/* Animated shine sweep */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-all duration-1000" />
 
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-400 bg-clip-text text-transparent">$0</span>
-                  <span className="text-slate-500 dark:text-slate-400">/mo</span>
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  {freeState.benefits.slice(0, 4).map((benefit, i) => (
-                    <div key={i} className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                      <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                      </div>
-                      {benefit}
+                <div className="relative z-10">
+                  {/* Premium FREE badge */}
+                  <div className="absolute -top-1 -right-1">
+                    <div className="relative">
+                      <span className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-green-400 rounded-full blur-sm animate-pulse" />
+                      <span className="relative bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-xl shadow-emerald-500/50 flex items-center gap-1">
+                        <span className="text-base">✨</span> FREE
+                      </span>
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                <button
-                  onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : freeState.link)}
-                  className="w-full mt-5 h-11 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
-                >
-                  Apply Now
-                  <ExternalLink className="w-4 h-4" />
-                </button>
+                  {/* Gradient icon with ring */}
+                  <div className="relative w-14 h-14 mb-4">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl blur-lg opacity-50 group-hover:opacity-70 transition-opacity" />
+                    <div className="relative w-full h-full bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center shadow-xl shadow-emerald-500/40">
+                      <Building2 className="w-7 h-7 text-white" />
+                    </div>
+                  </div>
+
+                  <h3 className="font-bold text-xl text-slate-900 dark:text-white">{freeState.plan}</h3>
+                  <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-1">{freeState.name}</p>
+
+                  {/* Big gradient price */}
+                  <div className="mt-5 flex items-baseline gap-1">
+                    <span className="text-4xl font-black bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 dark:from-emerald-400 dark:via-green-400 dark:to-teal-400 bg-clip-text text-transparent">$0</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">/mo</span>
+                  </div>
+
+                  {/* Benefits with better styling */}
+                  <div className="mt-5 space-y-2.5">
+                    {freeState.benefits.slice(0, 4).map((benefit, i) => (
+                      <div key={i} className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/60 dark:to-green-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-emerald-200 dark:ring-emerald-700">
+                          <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <span className="font-medium">{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Premium CTA button */}
+                  <button
+                    onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : freeState.link)}
+                    className="w-full mt-6 h-12 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white font-bold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/40 hover:shadow-emerald-500/60 hover:-translate-y-1 active:translate-y-0"
+                  >
+                    Apply Now
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ) : isPartialEligible ? (
@@ -237,186 +257,204 @@ function ResultsContent() {
             </div>
           )}
 
-          {/* ISO Card */}
-          <div className="group relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-rose-900/30 dark:via-rose-950/50 dark:to-pink-950/30 rounded-2xl border border-slate-200 dark:border-rose-500/30 p-5 hover:shadow-xl dark:hover:shadow-rose-500/20 hover:scale-[1.02] hover:border-[#8B1538]/50 dark:hover:border-rose-400/50 transition-all duration-300">
-            {/* Animated background glow */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-rose-400/10 dark:bg-rose-400/5 rounded-full blur-3xl group-hover:bg-rose-400/20 transition-all duration-500" />
+          {/* ISO Card - Premium Design */}
+          <div className="group relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-rose-400 via-pink-500 to-red-400 dark:from-rose-500 dark:via-pink-400 dark:to-red-500 hover:shadow-2xl hover:shadow-rose-500/40 dark:hover:shadow-rose-400/30 hover:scale-[1.02] transition-all duration-300">
+            <div className="relative h-full bg-white dark:bg-gray-900/95 rounded-[14px] p-5 backdrop-blur-xl">
+              {/* Multiple animated glow orbs */}
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-rose-400/20 dark:bg-rose-400/15 rounded-full blur-3xl group-hover:bg-rose-400/40 group-hover:scale-110 transition-all duration-700" />
+              <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-pink-400/15 dark:bg-pink-400/10 rounded-full blur-2xl group-hover:bg-pink-400/30 transition-all duration-700" />
 
-            <div className="relative z-10">
-              {/* ISO Logo */}
-              <div className="mb-4 flex items-center">
-                <Image
-                  src="/partners/logo.svg"
-                  alt="ISO Insurance logo"
-                  width={110}
-                  height={32}
-                  className="h-8 w-auto object-contain dark:brightness-110"
-                />
+              {/* Animated shine sweep */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-all duration-1000" />
+
+              <div className="relative z-10">
+                {/* ISO Logo */}
+                <div className="mb-4 flex items-center">
+                  <Image
+                    src="/partners/logo.svg"
+                    alt="ISO Insurance logo"
+                    width={110}
+                    height={32}
+                    className="h-9 w-auto object-contain dark:brightness-110"
+                  />
+                </div>
+                <h3 className="font-bold text-xl text-slate-900 dark:text-white">ISO OPTima Plan</h3>
+                <p className="text-sm font-semibold text-[#8B1538] dark:text-rose-400 mt-1">International Student Insurance</p>
+
+                <div className="mt-5 flex items-baseline gap-1">
+                  <span className="text-4xl font-black text-slate-900 dark:text-white">${pricing.isoPrice}</span>
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">/mo</span>
+                </div>
+
+                <div className="mt-5 space-y-2.5">
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/60 dark:to-pink-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-rose-200 dark:ring-rose-700">
+                      <Check className="w-3.5 h-3.5 text-[#8B1538] dark:text-rose-400" />
+                    </div>
+                    <span className="font-medium">OPT, CPT & F-1 eligible</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/60 dark:to-pink-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-rose-200 dark:ring-rose-700">
+                      <Check className="w-3.5 h-3.5 text-[#8B1538] dark:text-rose-400" />
+                    </div>
+                    <span className="font-medium">Aetna PPO network</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/60 dark:to-pink-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-rose-200 dark:ring-rose-700">
+                      <Check className="w-3.5 h-3.5 text-[#8B1538] dark:text-rose-400" />
+                    </div>
+                    <span className="font-medium">University waiver approved</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/60 dark:to-pink-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-rose-200 dark:ring-rose-700">
+                      <Check className="w-3.5 h-3.5 text-[#8B1538] dark:text-rose-400" />
+                    </div>
+                    <span className="font-medium">Prescription coverage</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleApply("https://www.isoa.org/?ref=trackmyopt")}
+                  className="w-full mt-6 h-12 bg-gradient-to-r from-[#8B1538] via-rose-600 to-pink-600 hover:from-[#6d1029] hover:via-rose-700 hover:to-pink-700 text-white font-bold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-xl shadow-rose-500/40 hover:shadow-rose-500/60 hover:-translate-y-1 active:translate-y-0"
+                >
+                  View Plans
+                  <ExternalLink className="w-4 h-4" />
+                </button>
               </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISO OPTima Plan</h3>
-              <p className="text-sm text-[#8B1538] dark:text-rose-400 font-medium mt-0.5">International Student Insurance</p>
-
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${pricing.isoPrice}</span>
-                <span className="text-slate-500 dark:text-slate-400">/mo</span>
-              </div>
-
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-400" />
-                  </div>
-                  OPT, CPT & F-1 eligible
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-400" />
-                  </div>
-                  Aetna PPO network
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-400" />
-                  </div>
-                  University waiver approved
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-400" />
-                  </div>
-                  Prescription coverage
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleApply("https://www.isoa.org/?ref=trackmyopt")}
-                className="w-full mt-5 h-11 bg-gradient-to-r from-[#8B1538] to-[#a91d45] hover:from-[#6d1029] hover:to-[#8B1538] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 hover:shadow-rose-500/30 hover:-translate-y-0.5"
-              >
-                View Plans
-                <ExternalLink className="w-4 h-4" />
-              </button>
             </div>
           </div>
 
-          {/* ISI Card */}
-          <div className="group relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-indigo-900/30 dark:via-indigo-950/50 dark:to-blue-950/30 rounded-2xl border border-slate-200 dark:border-indigo-500/30 p-5 hover:shadow-xl dark:hover:shadow-indigo-500/20 hover:scale-[1.02] hover:border-[#3D4F8F]/50 dark:hover:border-indigo-400/50 transition-all duration-300">
-            {/* Animated background glow */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-400/10 dark:bg-indigo-400/5 rounded-full blur-3xl group-hover:bg-indigo-400/20 transition-all duration-500" />
+          {/* ISI Card - Premium Design */}
+          <div className="group relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-indigo-400 via-blue-500 to-purple-400 dark:from-indigo-500 dark:via-blue-400 dark:to-purple-500 hover:shadow-2xl hover:shadow-indigo-500/40 dark:hover:shadow-indigo-400/30 hover:scale-[1.02] transition-all duration-300">
+            <div className="relative h-full bg-white dark:bg-gray-900/95 rounded-[14px] p-5 backdrop-blur-xl">
+              {/* Multiple animated glow orbs */}
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-indigo-400/20 dark:bg-indigo-400/15 rounded-full blur-3xl group-hover:bg-indigo-400/40 group-hover:scale-110 transition-all duration-700" />
+              <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-blue-400/15 dark:bg-blue-400/10 rounded-full blur-2xl group-hover:bg-blue-400/30 transition-all duration-700" />
 
-            <div className="relative z-10">
-              {/* ISI Logo */}
-              <div className="mb-4 flex items-center">
-                <Image
-                  src="/partners/Logo-ISI.png"
-                  alt="ISI Student Insurance logo"
-                  width={80}
-                  height={32}
-                  className="h-8 w-auto object-contain dark:brightness-110"
-                />
+              {/* Animated shine sweep */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-all duration-1000" />
+
+              <div className="relative z-10">
+                {/* ISI Logo */}
+                <div className="mb-4 flex items-center">
+                  <Image
+                    src="/partners/Logo-ISI.png"
+                    alt="ISI Student Insurance logo"
+                    width={80}
+                    height={32}
+                    className="h-9 w-auto object-contain dark:brightness-110"
+                  />
+                </div>
+                <h3 className="font-bold text-xl text-slate-900 dark:text-white">ISI Student Health</h3>
+                <p className="text-sm font-semibold text-[#3D4F8F] dark:text-indigo-400 mt-1">Student Health Insurance</p>
+
+                <div className="mt-5 flex items-baseline gap-1">
+                  <span className="text-4xl font-black text-slate-900 dark:text-white">${pricing.isiPrice}</span>
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">/mo</span>
+                </div>
+
+                <div className="mt-5 space-y-2.5">
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/60 dark:to-blue-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-indigo-200 dark:ring-indigo-700">
+                      <Check className="w-3.5 h-3.5 text-[#3D4F8F] dark:text-indigo-400" />
+                    </div>
+                    <span className="font-medium">United Healthcare network</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/60 dark:to-blue-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-indigo-200 dark:ring-indigo-700">
+                      <Check className="w-3.5 h-3.5 text-[#3D4F8F] dark:text-indigo-400" />
+                    </div>
+                    <span className="font-medium">Mental health included</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/60 dark:to-blue-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-indigo-200 dark:ring-indigo-700">
+                      <Check className="w-3.5 h-3.5 text-[#3D4F8F] dark:text-indigo-400" />
+                    </div>
+                    <span className="font-medium">Telemedicine 24/7</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/60 dark:to-blue-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-indigo-200 dark:ring-indigo-700">
+                      <Check className="w-3.5 h-3.5 text-[#3D4F8F] dark:text-indigo-400" />
+                    </div>
+                    <span className="font-medium">Emergency coverage</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleApply("https://www.isistudentinsurance.com/")}
+                  className="w-full mt-6 h-12 bg-gradient-to-r from-[#3D4F8F] via-indigo-600 to-blue-600 hover:from-[#2d3a6b] hover:via-indigo-700 hover:to-blue-700 text-white font-bold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/40 hover:shadow-indigo-500/60 hover:-translate-y-1 active:translate-y-0"
+                >
+                  View Plans
+                  <ExternalLink className="w-4 h-4" />
+                </button>
               </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISI Student Health</h3>
-              <p className="text-sm text-[#3D4F8F] dark:text-indigo-400 font-medium mt-0.5">Student Health Insurance</p>
-
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${pricing.isiPrice}</span>
-                <span className="text-slate-500 dark:text-slate-400">/mo</span>
-              </div>
-
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-400" />
-                  </div>
-                  United Healthcare network
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-400" />
-                  </div>
-                  Mental health included
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-400" />
-                  </div>
-                  Telemedicine 24/7
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-400" />
-                  </div>
-                  Emergency coverage
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleApply("https://www.isistudentinsurance.com/")}
-                className="w-full mt-5 h-11 bg-gradient-to-r from-[#3D4F8F] to-[#5563a8] hover:from-[#2d3a6b] hover:to-[#3D4F8F] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:-translate-y-0.5"
-              >
-                View Plans
-                <ExternalLink className="w-4 h-4" />
-              </button>
             </div>
           </div>
 
-          {/* Kimber Health Card */}
-          <div className="group relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-cyan-900/30 dark:via-cyan-950/50 dark:to-teal-950/30 rounded-2xl border border-slate-200 dark:border-cyan-500/30 p-5 hover:shadow-xl dark:hover:shadow-cyan-500/20 hover:scale-[1.02] hover:border-cyan-400/50 dark:hover:border-cyan-400/50 transition-all duration-300">
-            {/* Animated background glow */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-400/10 dark:bg-cyan-400/5 rounded-full blur-3xl group-hover:bg-cyan-400/20 transition-all duration-500" />
+          {/* Kimber Health Card - Premium Design */}
+          <div className="group relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-400 dark:from-cyan-500 dark:via-teal-400 dark:to-emerald-500 hover:shadow-2xl hover:shadow-cyan-500/40 dark:hover:shadow-cyan-400/30 hover:scale-[1.02] transition-all duration-300">
+            <div className="relative h-full bg-white dark:bg-gray-900/95 rounded-[14px] p-5 backdrop-blur-xl">
+              {/* Multiple animated glow orbs */}
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-400/20 dark:bg-cyan-400/15 rounded-full blur-3xl group-hover:bg-cyan-400/40 group-hover:scale-110 transition-all duration-700" />
+              <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-teal-400/15 dark:bg-teal-400/10 rounded-full blur-2xl group-hover:bg-teal-400/30 transition-all duration-700" />
 
-            <div className="relative z-10">
-              {/* Kimber Health Logo */}
-              <div className="mb-4 flex items-center">
-                <Image
-                  src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
-                  alt="Kimber Health logo"
-                  width={150}
-                  height={36}
-                  className="h-9 w-auto object-contain dark:brightness-110"
-                />
+              {/* Animated shine sweep */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-all duration-1000" />
+
+              <div className="relative z-10">
+                {/* Kimber Health Logo */}
+                <div className="mb-4 flex items-center">
+                  <Image
+                    src="/partners/KimberHealthLogoDarkBlueSmall_R.png"
+                    alt="Kimber Health logo"
+                    width={150}
+                    height={36}
+                    className="h-10 w-auto object-contain dark:brightness-110"
+                  />
+                </div>
+                <h3 className="font-bold text-xl text-slate-900 dark:text-white">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber Essential"}</h3>
+                <p className="text-sm font-semibold text-cyan-600 dark:text-cyan-400 mt-1">{isNYEssentialPlan ? "Free via Kimber Health" : "by NYWPG"}</p>
+
+                <div className="mt-5 flex items-baseline gap-1">
+                  <span className="text-4xl font-black text-slate-900 dark:text-white">${kimberPriceForNY}</span>
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">/mo</span>
+                </div>
+
+                <div className="mt-5 space-y-2.5">
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-100 to-teal-100 dark:from-cyan-900/60 dark:to-teal-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-cyan-200 dark:ring-cyan-700">
+                      <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <span className="font-medium">No waiting period</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-100 to-teal-100 dark:from-cyan-900/60 dark:to-teal-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-cyan-200 dark:ring-cyan-700">
+                      <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <span className="font-medium">Preventive care covered</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-100 to-teal-100 dark:from-cyan-900/60 dark:to-teal-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-cyan-200 dark:ring-cyan-700">
+                      <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <span className="font-medium">24/7 customer support</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-100 to-teal-100 dark:from-cyan-900/60 dark:to-teal-900/60 flex items-center justify-center flex-shrink-0 ring-1 ring-cyan-200 dark:ring-cyan-700">
+                      <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <span className="font-medium">Vision & dental options</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleApply("https://www.kimberhealth.com/")}
+                  className="w-full mt-6 h-12 bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-600 hover:via-teal-600 hover:to-emerald-600 text-white font-bold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-xl shadow-cyan-500/40 hover:shadow-cyan-500/60 hover:-translate-y-1 active:translate-y-0"
+                >
+                  View Plans
+                  <ExternalLink className="w-4 h-4" />
+                </button>
               </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber Essential"}</h3>
-              <p className="text-sm text-cyan-600 dark:text-cyan-400 font-medium mt-0.5">{isNYEssentialPlan ? "Free via Kimber Health" : "by NYWPG"}</p>
-
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${kimberPriceForNY}</span>
-                <span className="text-slate-500 dark:text-slate-400">/mo</span>
-              </div>
-
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
-                  </div>
-                  No waiting period
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
-                  </div>
-                  Preventive care covered
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
-                  </div>
-                  24/7 customer support
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
-                  </div>
-                  Vision & dental options
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleApply("https://www.kimberhealth.com/")}
-                className="w-full mt-5 h-11 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/40 hover:-translate-y-0.5"
-              >
-                View Plans
-                <ExternalLink className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>
