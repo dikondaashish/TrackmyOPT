@@ -5,7 +5,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   root.innerHTML = `
     <div class="header" role="region" aria-label="TrackMyOPT header">
       <div class="logo-icon">
-        <img src="icons/logo.gif" alt="TrackMyOPT Logo" style="width: 28px; height: 28px; object-fit: contain;">
+        <img src="icons/logo.gif" alt="TrackMyOPT Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
       </div>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
