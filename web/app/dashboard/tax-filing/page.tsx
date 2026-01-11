@@ -195,8 +195,8 @@ export default function TaxFilingPage() {
                 <button
                   onClick={() => setTaxStatus(prev => ({ ...prev, years: "non-resident" }))}
                   className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${taxStatus.years === "non-resident"
-                      ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400"
-                      : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
+                    ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400"
+                    : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
                     }`}
                 >
                   Less than 5 years
@@ -204,8 +204,8 @@ export default function TaxFilingPage() {
                 <button
                   onClick={() => setTaxStatus(prev => ({ ...prev, years: "may-be-resident" }))}
                   className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${taxStatus.years === "may-be-resident"
-                      ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
-                      : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
+                    ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
+                    : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
                     }`}
                 >
                   5 or more years
@@ -222,8 +222,8 @@ export default function TaxFilingPage() {
                 <button
                   onClick={() => setTaxStatus(prev => ({ ...prev, income: "has-income" }))}
                   className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${taxStatus.income === "has-income"
-                      ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400"
-                      : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
+                    ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400"
+                    : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
                     }`}
                 >
                   Yes (wages, scholarship, stipend)
@@ -231,8 +231,8 @@ export default function TaxFilingPage() {
                 <button
                   onClick={() => setTaxStatus(prev => ({ ...prev, income: "no-income" }))}
                   className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${taxStatus.income === "no-income"
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400"
-                      : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400"
+                    : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
                     }`}
                 >
                   No U.S. income
@@ -244,33 +244,33 @@ export default function TaxFilingPage() {
           {/* Result Preview */}
           {filingRequirement && (
             <div className={`rounded-xl p-4 ${filingRequirement.color === "amber" ? "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800" :
-                filingRequirement.color === "blue" ? "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" :
-                  "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800"
+              filingRequirement.color === "blue" ? "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" :
+                "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800"
               }`}>
               <div className="flex items-start gap-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900/50" :
-                    filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50" :
-                      "bg-emerald-100 dark:bg-emerald-900/50"
+                  filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50" :
+                    "bg-emerald-100 dark:bg-emerald-900/50"
                   }`}>
                   <FileText className={`w-4 h-4 ${filingRequirement.color === "amber" ? "text-amber-600" :
-                      filingRequirement.color === "blue" ? "text-blue-600" :
-                        "text-emerald-600"
+                    filingRequirement.color === "blue" ? "text-blue-600" :
+                      "text-emerald-600"
                     }`} />
                 </div>
                 <div className="flex-1">
                   <h4 className={`font-semibold ${filingRequirement.color === "amber" ? "text-amber-900 dark:text-amber-300" :
-                      filingRequirement.color === "blue" ? "text-blue-900 dark:text-blue-300" :
-                        "text-emerald-900 dark:text-emerald-300"
+                    filingRequirement.color === "blue" ? "text-blue-900 dark:text-blue-300" :
+                      "text-emerald-900 dark:text-emerald-300"
                     }`}>{filingRequirement.status}</h4>
                   <p className={`text-sm mt-1 ${filingRequirement.color === "amber" ? "text-amber-800 dark:text-amber-400" :
-                      filingRequirement.color === "blue" ? "text-blue-800 dark:text-blue-400" :
-                        "text-emerald-800 dark:text-emerald-400"
+                    filingRequirement.color === "blue" ? "text-blue-800 dark:text-blue-400" :
+                      "text-emerald-800 dark:text-emerald-400"
                     }`}>{filingRequirement.message}</p>
                   <div className="flex flex-wrap gap-2 mt-3">
                     {filingRequirement.forms.map((form, i) => (
                       <span key={i} className={`text-xs font-medium px-2 py-1 rounded-full ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300" :
-                          filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300" :
-                            "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300"
+                        filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300" :
+                          "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300"
                         }`}>
                         {form}
                       </span>
@@ -290,8 +290,8 @@ export default function TaxFilingPage() {
             }}
             disabled={!taxStatus.years || !taxStatus.income}
             className={`w-full h-12 rounded-xl font-semibold text-base transition-all flex items-center justify-center gap-2 ${taxStatus.years && taxStatus.income
-                ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 shadow-lg"
-                : "bg-slate-100 dark:bg-muted text-slate-400 dark:text-muted-foreground cursor-not-allowed"
+              ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 shadow-lg"
+              : "bg-slate-100 dark:bg-muted text-slate-400 dark:text-muted-foreground cursor-not-allowed"
               }`}
           >
             Show Results
@@ -305,12 +305,27 @@ export default function TaxFilingPage() {
         <h2 className="text-xl font-bold text-slate-900 dark:text-foreground mb-4">Important Tax Deadlines</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {TAX_DEADLINES.map((deadline, i) => (
-            <div key={i} className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border p-4">
-              <div className="w-10 h-10 bg-slate-100 dark:bg-muted rounded-lg flex items-center justify-center mb-3">
-                <deadline.icon className="w-5 h-5 text-slate-600 dark:text-muted-foreground" />
+            <div key={i} className={`relative rounded-xl p-[1.5px] overflow-hidden group bg-slate-200 dark:bg-gradient-to-br ${i === 0 ? "dark:from-emerald-400 dark:via-cyan-500 dark:to-blue-500" :
+                i === 1 ? "dark:from-blue-400 dark:via-indigo-500 dark:to-purple-500" :
+                  i === 2 ? "dark:from-purple-400 dark:via-fuchsia-500 dark:to-pink-500" :
+                    "dark:from-pink-400 dark:via-rose-500 dark:to-amber-500"
+              }`}>
+              <div className="absolute inset-0 bg-white dark:bg-slate-900 rounded-xl" />
+              <div className="relative h-full bg-white dark:bg-slate-900 rounded-xl p-4 transition-colors">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${i === 0 ? "bg-emerald-50 dark:bg-emerald-900/20" :
+                    i === 1 ? "bg-blue-50 dark:bg-blue-900/20" :
+                      i === 2 ? "bg-purple-50 dark:bg-purple-900/20" :
+                        "bg-pink-50 dark:bg-pink-900/20"
+                  }`}>
+                  <deadline.icon className={`w-5 h-5 ${i === 0 ? "text-emerald-600 dark:text-emerald-400" :
+                      i === 1 ? "text-blue-600 dark:text-blue-400" :
+                        i === 2 ? "text-purple-600 dark:text-purple-400" :
+                          "text-pink-600 dark:text-pink-400"
+                    }`} />
+                </div>
+                <p className="text-lg font-bold text-slate-900 dark:text-white">{deadline.date}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">{deadline.description}</p>
               </div>
-              <p className="text-lg font-bold text-slate-900 dark:text-foreground">{deadline.date}</p>
-              <p className="text-xs text-slate-600 dark:text-muted-foreground mt-1">{deadline.description}</p>
             </div>
           ))}
         </div>
