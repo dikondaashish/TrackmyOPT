@@ -3,12 +3,29 @@
  * Runs on trackmyopt.com to mark extension as connected
  */
 
+// Helper to safely get extension version
+function getExtensionVersion(): string | null {
+  try {
+    return chrome.runtime.getManifest().version;
+  } catch (error) {
+    // Extension context invalidated - extension was reloaded
+    console.warn('[TrackMyOPT] Extension context invalidated, please refresh the page');
+    return null;
+  }
+}
+
 // Mark extension as connected in localStorage
 function markExtensionConnected() {
-  const version = chrome.runtime.getManifest().version;
-  localStorage.setItem('tmo_extension_connected', 'true');
-  localStorage.setItem('tmo_extension_version', version);
-  localStorage.setItem('tmo_extension_last_sync', new Date().toISOString());
+  try {
+    const version = getExtensionVersion();
+    if (!version) return; // Extension context invalidated
+
+    localStorage.setItem('tmo_extension_connected', 'true');
+    localStorage.setItem('tmo_extension_version', version);
+    localStorage.setItem('tmo_extension_last_sync', new Date().toISOString());
+  } catch (error) {
+    console.warn('[TrackMyOPT] Failed to mark extension connected:', error);
+  }
 }
 
 // Run immediately when content script loads
@@ -18,16 +35,23 @@ markExtensionConnected();
 window.addEventListener('message', (event) => {
   // Only accept messages from the same origin
   if (event.origin !== window.location.origin) return;
-  
+
   if (event.data?.type === 'TMO_CHECK_EXTENSION') {
-    // Respond that extension is installed
-    window.postMessage({
-      type: 'TMO_EXTENSION_PRESENT',
-      version: chrome.runtime.getManifest().version,
-    }, '*');
-    
-    // Also update localStorage
-    markExtensionConnected();
+    try {
+      const version = getExtensionVersion();
+      if (!version) return; // Extension context invalidated
+
+      // Respond that extension is installed
+      window.postMessage({
+        type: 'TMO_EXTENSION_PRESENT',
+        version,
+      }, '*');
+
+      // Also update localStorage
+      markExtensionConnected();
+    } catch (error) {
+      console.warn('[TrackMyOPT] Failed to respond to extension check:', error);
+    }
   }
 });
 
