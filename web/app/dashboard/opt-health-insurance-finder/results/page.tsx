@@ -56,17 +56,17 @@ function ResultsContent() {
   });
 
   // Determine if state program should be highlighted
-  const showFreeStateCard = eligibility.showStateProgram && (
-    eligibility.status === 'FREE_ELIGIBLE' ||
-    eligibility.status === 'UNDER_19_ELIGIBLE' ||
-    eligibility.status === 'PREGNANCY_ELIGIBLE'
+  const showEligibleCard = eligibility.showStateProgram && (
+    eligibility.status === 'UNDER_19_ONLY' ||
+    eligibility.status === 'PREGNANCY_ONLY'
   );
-  const showPossibleCard = eligibility.showStateProgram && eligibility.status === 'POSSIBLY_ELIGIBLE';
+  const showPossibleCard = eligibility.showStateProgram && eligibility.status === 'LIMITED_POSSIBLE';
   const showWaitlistCard = eligibility.showStateProgram && eligibility.status === 'WAITLIST';
-  const showNotEligibleCard = !showFreeStateCard && !showPossibleCard && !showWaitlistCard;
+  const showProgramEndedCard = eligibility.showStateProgram && eligibility.status === 'PROGRAM_ENDED';
+  const showNotEligibleCard = !showEligibleCard && !showPossibleCard && !showWaitlistCard && !showProgramEndedCard;
 
-  // NY Essential Plan special case
-  const isNYEssentialPlan = state === "NY" && showFreeStateCard;
+  // NY Essential Plan special case - now shows as possible, not free
+  const isNYEssentialPlan = state === "NY" && showPossibleCard;
   const kimberPriceForNY = isNYEssentialPlan ? 0 : pricing.kimberPrice;
 
   const handleApply = (url: string) => {
@@ -109,8 +109,8 @@ function ResultsContent() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
           {/* STATE ELIGIBILITY CARD - Always show first */}
-          {showFreeStateCard ? (
-            /* FREE State Plan Card */
+          {showEligibleCard ? (
+            /* Eligible State Plan Card (Under 19 or Pregnant) */
             <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-800/50 dark:via-emerald-900/70 dark:to-green-900/50 rounded-2xl border-2 border-emerald-200 dark:border-emerald-400/50 p-5 hover:shadow-xl dark:hover:shadow-emerald-400/30 hover:scale-[1.02] transition-all duration-300">
               {/* Animated background glow */}
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-400/20 dark:bg-emerald-400/30 rounded-full blur-3xl group-hover:bg-emerald-400/40 transition-all duration-500" />
@@ -118,11 +118,11 @@ function ResultsContent() {
               <div className="relative z-10">
                 <div className="absolute top-0 right-0">
                   <span className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-emerald-500/30">
-                    {eligibility.status === 'PREGNANCY_ELIGIBLE' ? '🤰 FREE' : eligibility.status === 'UNDER_19_ELIGIBLE' ? '👶 FREE' : '✨ FREE'}
+                    {eligibility.status === 'PREGNANCY_ONLY' ? '🤰 MAY QUALIFY' : '👶 MAY QUALIFY'}
                   </span>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30">
-                  {eligibility.status === 'PREGNANCY_ELIGIBLE' ? <Baby className="w-6 h-6 text-white" /> : <Building2 className="w-6 h-6 text-white" />}
+                  {eligibility.status === 'PREGNANCY_ONLY' ? <Baby className="w-6 h-6 text-white" /> : <Building2 className="w-6 h-6 text-white" />}
                 </div>
                 <h3 className="font-bold text-lg text-slate-900 dark:text-white">{eligibility.stateConfig.programName}</h3>
                 <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">{eligibility.stateName}</p>
@@ -233,22 +233,22 @@ function ResultsContent() {
                 <ExternalLink className="w-4 h-4" />
               </button>
             </div>
-          ) : (
-            /* Not Eligible Card */
-            <div className="bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/30 dark:to-gray-900/30 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-5 relative">
+          ) : showProgramEndedCard ? (
+            /* Program Ended Card (Minnesota) */
+            <div className="bg-gradient-to-br from-red-50 to-gray-50 dark:from-red-950/30 dark:to-gray-900/30 rounded-2xl border-2 border-red-200 dark:border-red-700 p-5 relative">
               <div className="absolute top-3 right-3">
-                <span className="bg-slate-400 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                  N/A
+                <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                  ❌ ENDED
                 </span>
               </div>
-              <div className="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center mb-3">
-                <X className="w-5 h-5 text-slate-400" />
+              <div className="w-11 h-11 bg-red-100 dark:bg-red-900/50 rounded-xl flex items-center justify-center mb-3">
+                <X className="w-5 h-5 text-red-500" />
               </div>
-              <h3 className="font-bold text-slate-900 dark:text-foreground">No Free State Plan</h3>
+              <h3 className="font-bold text-slate-900 dark:text-foreground">{eligibility.stateConfig.programName}</h3>
               <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{eligibility.stateName}</p>
 
               <div className="mt-3">
-                <span className="text-lg font-semibold text-slate-500 dark:text-muted-foreground">Not Available</span>
+                <span className="text-lg font-semibold text-red-600 dark:text-red-400">Program Ended</span>
               </div>
 
               <p className="mt-3 text-xs text-slate-600 dark:text-muted-foreground leading-relaxed">
@@ -257,7 +257,35 @@ function ResultsContent() {
 
               <div className="mt-3 p-2.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
                 <p className="text-xs text-blue-700 dark:text-blue-300">
-                  ✨ Don&apos;t worry! Check our partner plans for affordable coverage starting at ${Math.min(pricing.isoPrice, pricing.isiPrice, pricing.kimberPrice)}/mo.
+                  💡 {eligibility.recommendedAction}
+                </p>
+              </div>
+            </div>
+          ) : (
+            /* Not Eligible Card */
+            <div className="bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/30 dark:to-gray-900/30 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-5 relative">
+              <div className="absolute top-3 right-3">
+                <span className="bg-slate-400 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                  LIMITED
+                </span>
+              </div>
+              <div className="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center mb-3">
+                <X className="w-5 h-5 text-slate-400" />
+              </div>
+              <h3 className="font-bold text-slate-900 dark:text-foreground">State Coverage Limited</h3>
+              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{eligibility.stateName}</p>
+
+              <div className="mt-3">
+                <span className="text-lg font-semibold text-slate-500 dark:text-muted-foreground">Not Eligible</span>
+              </div>
+
+              <p className="mt-3 text-xs text-slate-600 dark:text-muted-foreground leading-relaxed">
+                {eligibility.eligibilityReason}
+              </p>
+
+              <div className="mt-3 p-2.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                <p className="text-xs text-blue-700 dark:text-blue-300">
+                  ✨ Consider University SHIP ($1,400-$4,500/yr) or International Student Insurance ($372-$2,000/yr)
                 </p>
               </div>
             </div>
@@ -606,34 +634,36 @@ function ResultsContent() {
       </div>
 
       {/* Exit Modal */}
-      {showExitModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-card rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ExternalLink className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-foreground text-center">Leaving TrackMyOPT</h3>
-            <p className="text-slate-600 dark:text-muted-foreground text-sm text-center mt-2">
-              You'll be redirected to complete enrollment on the partner's website.
-            </p>
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowExitModal(false)}
-                className="flex-1 h-11 border border-slate-200 dark:border-border rounded-xl font-medium text-slate-700 dark:text-foreground hover:bg-slate-50 dark:hover:bg-muted transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmExit}
-                className="flex-1 h-11 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
-              >
-                Continue
-              </button>
+      {
+        showExitModal && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-card rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ExternalLink className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-foreground text-center">Leaving TrackMyOPT</h3>
+              <p className="text-slate-600 dark:text-muted-foreground text-sm text-center mt-2">
+                You'll be redirected to complete enrollment on the partner's website.
+              </p>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowExitModal(false)}
+                  className="flex-1 h-11 border border-slate-200 dark:border-border rounded-xl font-medium text-slate-700 dark:text-foreground hover:bg-slate-50 dark:hover:bg-muted transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmExit}
+                  className="flex-1 h-11 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Continue
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }
 
