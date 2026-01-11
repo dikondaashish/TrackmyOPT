@@ -1167,7 +1167,9 @@ export function HelpSection() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <a
-                  href="mailto:support@trackmyopt.com"
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=support@trackmyopt.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   <Mail className="w-4 h-4" />
