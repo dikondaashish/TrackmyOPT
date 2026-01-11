@@ -3,52 +3,8 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, AlertTriangle, ChevronDown, Users, Globe, AlertCircle, Baby } from "lucide-react";
-import { calculateEligibility, calculateAge, FPL_2026, type EligibilityStatus } from "@/lib/state-eligibility";
-
-// States with free insurance programs
-const FREE_STATES: Record<string, { name: string; plan: string; link: string; benefits: string[] }> = {
-  NY: { name: "New York", plan: "Essential Plan", link: "https://nystateofhealth.ny.gov/", benefits: ["$0 monthly premium", "No deductible", "Doctor visits covered", "Prescriptions included", "Mental health services", "Dental & vision care"] },
-  CA: { name: "California", plan: "Medi-Cal", link: "https://www.coveredca.com/", benefits: ["$0 monthly premium", "Full medical coverage", "Dental care included", "Vision coverage", "Mental health", "Prescription drugs"] },
-  WA: { name: "Washington", plan: "Apple Health", link: "https://www.wahealthplanfinder.org/", benefits: ["$0 monthly cost", "Doctor & hospital care", "Prescriptions covered", "Mental health services", "Preventive care", "Maternity care"] },
-  OR: { name: "Oregon", plan: "Oregon Health Plan", link: "https://healthcare.oregon.gov/", benefits: ["$0 premium", "Medical care", "Dental services", "Mental health", "Vision care", "Prescription drugs"] },
-  IL: { name: "Illinois", plan: "Medicaid", link: "https://abe.illinois.gov/", benefits: ["$0 monthly cost", "Doctor visits", "Hospital care", "Lab tests", "Prescriptions", "Preventive care"] },
-  CO: { name: "Colorado", plan: "Health First Colorado", link: "https://www.healthfirstcolorado.com/", benefits: ["$0 premium", "Primary care", "Specialist care", "Hospital services", "Prescriptions", "Mental health"] },
-  MA: { name: "Massachusetts", plan: "MassHealth", link: "https://www.mass.gov/masshealth", benefits: ["$0 monthly premium", "Comprehensive medical", "Dental coverage", "Vision care", "Behavioral health", "Prescription drugs"] },
-  CT: { name: "Connecticut", plan: "HUSKY Health", link: "https://www.accesshealthct.com/", benefits: ["$0 premium", "Primary care", "Specialist visits", "Hospital care", "Mental health", "Prescriptions"] },
-  VT: { name: "Vermont", plan: "Green Mountain Care", link: "https://portal.healthconnect.vermont.gov/", benefits: ["$0 monthly cost", "Doctor visits", "Hospital care", "Prescriptions", "Mental health", "Preventive care"] },
-  MN: { name: "Minnesota", plan: "MinnesotaCare", link: "https://www.mnsure.org/", benefits: ["Low-cost coverage", "Doctor visits", "Hospital care", "Prescriptions", "Mental health", "Dental & vision"] },
-  NJ: { name: "New Jersey", plan: "NJ FamilyCare", link: "https://www.njfamilycare.org/", benefits: ["$0 premium option", "Medical care", "Dental services", "Prescriptions", "Mental health", "Hospital care"] },
-  MD: { name: "Maryland", plan: "Maryland Health Connection", link: "https://www.marylandhealthconnection.gov/", benefits: ["Low-cost plans", "Doctor visits", "Prescriptions", "Preventive care", "Mental health", "Hospital services"] },
-  DC: { name: "Washington D.C.", plan: "DC Health Link", link: "https://dchealthlink.com/", benefits: ["Affordable plans", "Primary care", "Specialist visits", "Prescriptions", "Preventive care", "Mental health"] },
-};
-
-// States with partial coverage
-const PARTIAL_STATES: Record<string, { name: string; note: string }> = {
-  PA: { name: "Pennsylvania", note: "Limited Medicaid expansion available" },
-  NV: { name: "Nevada", note: "Some low-cost options through Silver State Health" },
-  NM: { name: "New Mexico", note: "Centennial Care available for some" },
-  RI: { name: "Rhode Island", note: "RIte Care offers limited coverage" },
-  DE: { name: "Delaware", note: "Diamond State Health Plan available" },
-  HI: { name: "Hawaii", note: "Med-QUEST offers some coverage" },
-  ME: { name: "Maine", note: "MaineCare available for qualifying individuals" },
-  MI: { name: "Michigan", note: "Healthy Michigan Plan available" },
-};
-
-// Get state display name
-const STATE_NAMES: Record<string, string> = {
-  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",
-  CO: "Colorado", CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia",
-  HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa",
-  KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland",
-  MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri",
-  MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
-  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio",
-  OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina",
-  SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont",
-  VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
-  DC: "Washington D.C."
-};
+import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, Baby } from "lucide-react";
+import { calculateEligibility, type EligibilityStatus } from "@/lib/state-eligibility";
 
 // Age-based pricing for insurance partners
 function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {
