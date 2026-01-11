@@ -129,8 +129,9 @@ function TaxResultsContent() {
     checkPremiumStatus();
   }, []);
 
-  const handleApply = (url: string) => {
-    setExitUrl(url);
+  const handleApply = (partner: typeof TAX_PARTNERS[0]) => {
+    setSelectedPartner(partner);
+    setExitUrl(partner.link);
     setShowExitModal(true);
   };
 
@@ -265,7 +266,7 @@ function TaxResultsContent() {
 
               <div className="mt-4 space-y-2">
                 <button
-                  onClick={() => handleApply(partner.link)}
+                  onClick={() => handleApply(partner)}
                   className={`w-full h-10 bg-gradient-to-r ${partner.color} text-white font-medium text-sm rounded-xl transition-all hover:opacity-90 flex items-center justify-center gap-1.5`}
                 >
                   File Now
@@ -368,24 +369,24 @@ function TaxResultsContent() {
       {/* Exit Modal */}
       {showExitModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-card rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ExternalLink className="w-6 h-6 text-emerald-600" />
+          <div className={`bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200 border ${selectedPartner?.borderColor || 'border-slate-200'} dark:border-opacity-50`}>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 bg-gradient-to-br ${selectedPartner?.color || 'from-emerald-500 to-teal-600'} bg-opacity-10`}>
+              <ExternalLink className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-foreground text-center">Leaving TrackMyOPT</h3>
-            <p className="text-slate-600 dark:text-muted-foreground text-sm text-center mt-2">
-              You'll be redirected to complete your tax filing on the partner's website.
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white text-center">Leaving TrackMyOPT</h3>
+            <p className="text-slate-600 dark:text-slate-300 text-sm text-center mt-2">
+              You'll be redirected to complete your tax filing on <span className="font-semibold">{selectedPartner?.name}</span>'s website.
             </p>
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowExitModal(false)}
-                className="flex-1 h-11 border border-slate-200 dark:border-border rounded-xl font-medium text-slate-700 dark:text-foreground hover:bg-slate-50 dark:hover:bg-muted transition-colors"
+                className="flex-1 h-11 border border-slate-200 dark:border-slate-600 rounded-xl font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmExit}
-                className="flex-1 h-11 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+                className={`flex-1 h-11 bg-gradient-to-r ${selectedPartner?.color || 'from-emerald-500 to-teal-600'} text-white rounded-xl font-medium hover:opacity-90 transition-colors shadow-lg shadow-emerald-500/20`}
               >
                 Continue
               </button>
@@ -401,27 +402,27 @@ function TaxResultsContent() {
             {isPremium ? (
               /* Pro Member - Show Coupon */
               <>
-                <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className={`w-14 h-14 bg-gradient-to-br ${selectedPartner?.color || 'from-emerald-400 to-teal-500'} rounded-full flex items-center justify-center mx-auto mb-4 bg-opacity-10`}>
                   <Gift className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <Crown className="w-4 h-4 text-amber-500" />
                   <span className="text-xs font-semibold text-amber-600">PRO MEMBER EXCLUSIVE</span>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-foreground text-center">Your Free Coupon</h3>
-                <p className="text-slate-600 dark:text-muted-foreground text-sm text-center mt-2">
-                  Use this code at {selectedPartner?.name} for exclusive savings!
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white text-center">Your Free Coupon</h3>
+                <p className="text-slate-600 dark:text-slate-300 text-sm text-center mt-2">
+                  Use this code at <span className="font-semibold text-slate-900 dark:text-white">{selectedPartner?.name}</span> for exclusive savings!
                 </p>
 
                 {/* Coupon Code Box */}
-                <div className="mt-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-dashed border-emerald-300 rounded-xl p-4">
+                <div className={`mt-5 bg-gradient-to-r ${selectedPartner?.bgColor || 'from-emerald-50 to-teal-50'} border-2 border-dashed ${selectedPartner?.borderColor || 'border-emerald-300'} rounded-xl p-4`}>
                   <div className="flex items-center justify-between">
-                    <code className="text-xl font-bold text-emerald-700 tracking-wider">{COUPON_CODE}</code>
+                    <code className="text-xl font-bold text-slate-900 dark:text-white tracking-wider">{COUPON_CODE}</code>
                     <button
                       onClick={copyCoupon}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${couponCopied
-                        ? "bg-emerald-500 text-white"
-                        : "bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                        ? "bg-green-500 text-white"
+                        : `bg-white dark:bg-slate-800 border ${selectedPartner?.borderColor || 'border-emerald-200'} text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700`
                         }`}
                     >
                       {couponCopied ? (
@@ -442,13 +443,13 @@ function TaxResultsContent() {
                 <div className="flex gap-3 mt-6">
                   <button
                     onClick={() => setShowCouponModal(false)}
-                    className="flex-1 h-11 border border-slate-200 dark:border-border rounded-xl font-medium text-slate-700 dark:text-foreground hover:bg-slate-50 dark:hover:bg-muted transition-colors"
+                    className="flex-1 h-11 border border-slate-200 dark:border-slate-600 rounded-xl font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                   >
                     Close
                   </button>
                   <button
                     onClick={openPartnerWithCoupon}
-                    className="flex-1 h-11 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1.5"
+                    className={`flex-1 h-11 bg-gradient-to-r ${selectedPartner?.color || 'from-emerald-500 to-teal-600'} text-white rounded-xl font-medium hover:opacity-90 transition-colors flex items-center justify-center gap-1.5 shadow-lg`}
                   >
                     Open Website
                     <ExternalLink className="w-4 h-4" />
