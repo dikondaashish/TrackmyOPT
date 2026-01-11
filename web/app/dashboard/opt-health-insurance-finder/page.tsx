@@ -78,9 +78,13 @@ export default function HealthInsuranceFinderPage() {
   const [monthlyIncome, setMonthlyIncome] = useState("");
   const [visaType, setVisaType] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
   const [isPregnant, setIsPregnant] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
+  // Show pregnancy question only for genders that can give birth
+  const showPregnancyQuestion = gender === "female" || gender === "other";
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -239,37 +243,72 @@ export default function HealthInsuranceFinderPage() {
               />
             </div>
 
-            {/* Pregnancy */}
+            {/* Gender */}
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-foreground mb-2">
-                Are you currently pregnant?
+                Gender
               </label>
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setIsPregnant(false)}
-                  className={`flex-1 h-12 rounded-xl border transition-all font-medium ${!isPregnant
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { value: "male", label: "Male" },
+                  { value: "female", label: "Female" },
+                  { value: "other", label: "Other" },
+                  { value: "prefer_not_to_say", label: "Prefer not to say" },
+                ].map((g) => (
+                  <button
+                    key={g.value}
+                    type="button"
+                    onClick={() => {
+                      setGender(g.value);
+                      // Reset pregnancy if switching to non-applicable gender
+                      if (g.value === "male" || g.value === "prefer_not_to_say") {
+                        setIsPregnant(false);
+                      }
+                    }}
+                    className={`h-12 rounded-xl border transition-all font-medium text-sm ${gender === g.value
                       ? "bg-blue-600 border-blue-600 text-white"
                       : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted/80"
-                    }`}
-                >
-                  No
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsPregnant(true)}
-                  className={`flex-1 h-12 rounded-xl border transition-all font-medium ${isPregnant
+                      }`}
+                  >
+                    {g.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Pregnancy - Only show for Female or Other */}
+            {showPregnancyQuestion && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-foreground mb-2">
+                  Are you currently pregnant?
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsPregnant(false)}
+                    className={`flex-1 h-12 rounded-xl border transition-all font-medium ${!isPregnant
+                      ? "bg-blue-600 border-blue-600 text-white"
+                      : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted/80"
+                      }`}
+                  >
+                    No
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsPregnant(true)}
+                    className={`flex-1 h-12 rounded-xl border transition-all font-medium ${isPregnant
                       ? "bg-pink-600 border-pink-600 text-white"
                       : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted/80"
-                    }`}
-                >
-                  Yes
-                </button>
+                      }`}
+                  >
+                    Yes
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-muted-foreground mt-1.5">
+                  Pregnant individuals may qualify for additional coverage options
+                </p>
               </div>
-              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-1.5">
-                Pregnant individuals may qualify for additional coverage options
-              </p>
-            </div>
+            )}
 
             {/* Submit */}
             <button
