@@ -56,17 +56,14 @@ function ResultsContent() {
   });
 
   // Determine if state program should be highlighted
-  const showEligibleCard = eligibility.showStateProgram && (
-    eligibility.status === 'UNDER_19_ONLY' ||
-    eligibility.status === 'PREGNANCY_ONLY'
-  );
-  const showPossibleCard = eligibility.showStateProgram && eligibility.status === 'LIMITED_POSSIBLE';
+  const showEligibleCard = eligibility.showStateProgram && eligibility.status === 'ELIGIBLE';
+  const showPossibleCard = eligibility.showStateProgram && eligibility.status === 'POSSIBLY_ELIGIBLE';
   const showWaitlistCard = eligibility.showStateProgram && eligibility.status === 'WAITLIST';
-  const showProgramEndedCard = eligibility.showStateProgram && eligibility.status === 'PROGRAM_ENDED';
-  const showNotEligibleCard = !showEligibleCard && !showPossibleCard && !showWaitlistCard && !showProgramEndedCard;
+  const showProgramEndingCard = eligibility.showStateProgram && eligibility.status === 'PROGRAM_ENDING';
+  const showNotEligibleCard = !showEligibleCard && !showPossibleCard && !showWaitlistCard && !showProgramEndingCard;
 
-  // NY Essential Plan special case - now shows as possible, not free
-  const isNYEssentialPlan = state === "NY" && showPossibleCard;
+  // NY Essential Plan special case - now F-1 students CAN qualify with residency
+  const isNYEssentialPlan = state === "NY" && showEligibleCard;
   const kimberPriceForNY = isNYEssentialPlan ? 0 : pricing.kimberPrice;
 
   const handleApply = (url: string) => {
@@ -118,11 +115,11 @@ function ResultsContent() {
               <div className="relative z-10">
                 <div className="absolute top-0 right-0">
                   <span className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-emerald-500/30">
-                    {eligibility.status === 'PREGNANCY_ONLY' ? '🤰 MAY QUALIFY' : '👶 MAY QUALIFY'}
+                    ✅ ELIGIBLE
                   </span>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30">
-                  {eligibility.status === 'PREGNANCY_ONLY' ? <Baby className="w-6 h-6 text-white" /> : <Building2 className="w-6 h-6 text-white" />}
+                  <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="font-bold text-lg text-slate-900 dark:text-white">{eligibility.stateConfig.programName}</h3>
                 <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">{eligibility.stateName}</p>
@@ -233,30 +230,30 @@ function ResultsContent() {
                 <ExternalLink className="w-4 h-4" />
               </button>
             </div>
-          ) : showProgramEndedCard ? (
-            /* Program Ended Card (Minnesota) */
-            <div className="bg-gradient-to-br from-red-50 to-gray-50 dark:from-red-950/30 dark:to-gray-900/30 rounded-2xl border-2 border-red-200 dark:border-red-700 p-5 relative">
+          ) : showProgramEndingCard ? (
+            /* Program Ending Card (Vermont - Oct 2026) */
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-900/30 rounded-2xl border-2 border-orange-200 dark:border-orange-700 p-5 relative">
               <div className="absolute top-3 right-3">
-                <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                  ❌ ENDED
+                <span className="bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                  ⚠️ ENDING
                 </span>
               </div>
-              <div className="w-11 h-11 bg-red-100 dark:bg-red-900/50 rounded-xl flex items-center justify-center mb-3">
-                <X className="w-5 h-5 text-red-500" />
+              <div className="w-11 h-11 bg-orange-100 dark:bg-orange-900/50 rounded-xl flex items-center justify-center mb-3">
+                <Clock className="w-5 h-5 text-orange-600" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-foreground">{eligibility.stateConfig.programName}</h3>
               <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{eligibility.stateName}</p>
 
               <div className="mt-3">
-                <span className="text-lg font-semibold text-red-600 dark:text-red-400">Program Ended</span>
+                <span className="text-lg font-semibold text-orange-600 dark:text-orange-400">Ending Oct 2026</span>
               </div>
 
               <p className="mt-3 text-xs text-slate-600 dark:text-muted-foreground leading-relaxed">
                 {eligibility.eligibilityReason}
               </p>
 
-              <div className="mt-3 p-2.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-                <p className="text-xs text-blue-700 dark:text-blue-300">
+              <div className="mt-3 p-2.5 bg-orange-100/50 dark:bg-orange-900/30 rounded-lg">
+                <p className="text-xs text-orange-800 dark:text-orange-200">
                   💡 {eligibility.recommendedAction}
                 </p>
               </div>
