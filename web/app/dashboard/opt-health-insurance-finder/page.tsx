@@ -107,6 +107,8 @@ export default function HealthInsuranceFinderPage() {
         monthly_income: monthlyIncome ? parseFloat(monthlyIncome) : 0,
         visa_type: visaType,
         date_of_birth: dateOfBirth || null,
+        gender: gender || null,
+        is_pregnant: isPregnant,
         has_employer_insurance: false,
         checked_at: new Date().toISOString(),
       });
