@@ -423,6 +423,36 @@ export function HelpSection() {
               </ul>
             </div>
           </Card>
+
+          {/* Still Need Help */}
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+            <div className="text-center">
+              <h3 className="text-xl font-bold mb-2">Still Have Questions?</h3>
+              <p className="text-muted-foreground mb-4">
+                We're here to help! Reach out to our support team.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=support@trackmyopt.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  <Mail className="w-4 h-4" />
+                  Email Support
+                </a>
+                <a
+                  href="https://uscis.gov"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border bg-card rounded-lg hover:bg-accent transition-colors font-medium"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  USCIS Official Site
+                </a>
+              </div>
+            </div>
+          </Card>
         </div>
       )}
 
@@ -988,6 +1018,36 @@ export function HelpSection() {
               </div>
             </CollapsibleSection>
           </div>
+
+          {/* Still Need Help */}
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+            <div className="text-center">
+              <h3 className="text-xl font-bold mb-2">Still Have Questions?</h3>
+              <p className="text-muted-foreground mb-4">
+                We're here to help! Reach out to our support team.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=support@trackmyopt.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  <Mail className="w-4 h-4" />
+                  Email Support
+                </a>
+                <a
+                  href="https://uscis.gov"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border bg-card rounded-lg hover:bg-accent transition-colors font-medium"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  USCIS Official Site
+                </a>
+              </div>
+            </div>
+          </Card>
         </div>
       )}
 
