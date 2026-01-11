@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, Baby } from "lucide-react";
+import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, Baby, AlertTriangle, Lightbulb, CheckCircle2, CirclePause } from "lucide-react";
 import { calculateEligibility, type EligibilityStatus } from "@/lib/state-eligibility";
 
 // Age-based pricing for insurance partners
@@ -114,8 +114,8 @@ function ResultsContent() {
 
               <div className="relative z-10">
                 <div className="absolute top-0 right-0">
-                  <span className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-emerald-500/30">
-                    ✅ ELIGIBLE
+                  <span className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-emerald-500/30 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> ELIGIBLE
                   </span>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30">
@@ -160,8 +160,8 @@ function ResultsContent() {
 
               <div className="relative z-10">
                 <div className="absolute top-0 right-0">
-                  <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                    🎯 WORTH TRYING
+                  <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5" /> WORTH TRYING
                   </span>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/30">
@@ -180,8 +180,8 @@ function ResultsContent() {
                 </p>
 
                 <div className="mt-3 p-2.5 bg-blue-100/50 dark:bg-blue-900/30 rounded-lg">
-                  <p className="text-xs text-blue-800 dark:text-blue-200">
-                    💡 {eligibility.recommendedAction}
+                  <p className="text-xs text-blue-800 dark:text-blue-200 flex items-start gap-1.5">
+                    <Lightbulb className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" /> {eligibility.recommendedAction}
                   </p>
                 </div>
 
@@ -198,8 +198,8 @@ function ResultsContent() {
             /* Waitlist Card */
             <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-2xl border-2 border-amber-200 dark:border-amber-700 p-5 relative">
               <div className="absolute top-3 right-3">
-                <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                  ⏸️ WAITLIST
+                <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <CirclePause className="w-3.5 h-3.5" /> WAITLIST
                 </span>
               </div>
               <div className="w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center mb-3">
@@ -217,8 +217,8 @@ function ResultsContent() {
               </p>
 
               <div className="mt-3 p-2.5 bg-amber-100/50 dark:bg-amber-900/30 rounded-lg">
-                <p className="text-xs text-amber-800 dark:text-amber-200">
-                  💡 {eligibility.recommendedAction}
+                <p className="text-xs text-amber-800 dark:text-amber-200 flex items-start gap-1.5">
+                  <Lightbulb className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" /> {eligibility.recommendedAction}
                 </p>
               </div>
 
@@ -234,8 +234,8 @@ function ResultsContent() {
             /* Program Ending Card (Vermont - Oct 2026) */
             <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-900/30 rounded-2xl border-2 border-orange-200 dark:border-orange-700 p-5 relative">
               <div className="absolute top-3 right-3">
-                <span className="bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                  ⚠️ ENDING
+                <span className="bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5" /> ENDING
                 </span>
               </div>
               <div className="w-11 h-11 bg-orange-100 dark:bg-orange-900/50 rounded-xl flex items-center justify-center mb-3">
@@ -253,8 +253,8 @@ function ResultsContent() {
               </p>
 
               <div className="mt-3 p-2.5 bg-orange-100/50 dark:bg-orange-900/30 rounded-lg">
-                <p className="text-xs text-orange-800 dark:text-orange-200">
-                  💡 {eligibility.recommendedAction}
+                <p className="text-xs text-orange-800 dark:text-orange-200 flex items-start gap-1.5">
+                  <Lightbulb className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" /> {eligibility.recommendedAction}
                 </p>
               </div>
             </div>

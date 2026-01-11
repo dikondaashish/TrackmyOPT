@@ -84,10 +84,10 @@ const TIER_1_STATES: Record<string, StateEligibilityConfig> = {
             "Mental health services",
             "Emergency care"
         ],
-        status2026: "ACTIVE ✅ - Best option for F-1 students",
+        status2026: "ACTIVE [YES] - Best option for F-1 students",
         enrollmentStatus: 'active',
         importantNotes: [
-            "✅ F-1 students with NY residency CAN enroll",
+            "[YES] F-1 students with NY residency CAN enroll",
             "Establish residency: lease, utility bill, employment letter",
             "F-1 visa = 'Lawfully Present' status",
             "Income up to $39,125/year qualifies",
@@ -113,15 +113,15 @@ const TIER_1_STATES: Record<string, StateEligibilityConfig> = {
             "Dental and vision coverage",
             "Health Safety Net for emergencies"
         ],
-        status2026: "ACTIVE ✅ (changes Oct 1, 2026)",
+        status2026: "ACTIVE [YES] (changes Oct 1, 2026)",
         enrollmentStatus: 'active',
         importantNotes: [
-            "✅ F-1 students with MA residency CAN enroll",
+            "[YES] F-1 students with MA residency CAN enroll",
             "F-1 visa = 'Lawfully Present' status",
             "ConnectorCare offers subsidized ACA plans",
             "Health Safety Net available for emergency care"
         ],
-        deadlineWarning: "⚠️ DEADLINE: Oct 1, 2026 - Medicaid changes under H.R.1 may affect F-1 eligibility",
+        deadlineWarning: "[!] DEADLINE: Oct 1, 2026 - Medicaid changes under H.R.1 may affect F-1 eligibility",
     },
     CO: {
         programName: "Health First Colorado",
@@ -143,12 +143,12 @@ const TIER_1_STATES: Record<string, StateEligibilityConfig> = {
             "Dental care",
             "Emergency Medicaid for all ages"
         ],
-        status2026: "ACTIVE ✅",
+        status2026: "ACTIVE",
         enrollmentStatus: 'active',
         importantNotes: [
-            "✅ Under 19: Full coverage eligible",
-            "✅ Pregnant: Full coverage eligible (all ages)",
-            "✅ All ages: Emergency Medicaid available",
+            "[YES] Under 19: Full coverage eligible",
+            "[YES] Pregnant: Full coverage eligible (all ages)",
+            "[YES] All ages: Emergency Medicaid available",
             "F-1 = 'Lawfully Present' status",
             "No 183-day residency minimum required"
         ],
@@ -174,12 +174,12 @@ const TIER_2_STATES: Record<string, StateEligibilityConfig> = {
             "Dental and vision (under 19)",
             "Mental health services"
         ],
-        status2026: "⚠️ FROZEN for adults 19+ (Jan 1, 2026)",
+        status2026: "[!] FROZEN for adults 19+ (Jan 1, 2026)",
         enrollmentStatus: 'frozen',
         importantNotes: [
-            "❌ Adults 19+ NOT eligible (enrollment frozen Jan 2026)",
-            "✅ Under 19: Full eligibility",
-            "✅ Pregnant: Emergency/pregnancy services only",
+            "[NO] Adults 19+ NOT eligible (enrollment frozen Jan 2026)",
+            "[YES] Under 19: Full eligibility",
+            "[YES] Pregnant: Emergency/pregnancy services only",
             "Consider private insurance for adults 19+"
         ],
     },
@@ -200,12 +200,12 @@ const TIER_2_STATES: Record<string, StateEligibilityConfig> = {
             "Prescriptions covered",
             "Mental health services"
         ],
-        status2026: "⚠️ WAITLIST for adults (cap reached July 2024)",
+        status2026: "[!] WAITLIST for adults (cap reached July 2024)",
         enrollmentStatus: 'waitlist',
         importantNotes: [
-            "⚠️ Adults 19+: WAITLIST only (enrollment cap reached)",
-            "✅ Under 19: NO CAP - still available",
-            "✅ Pregnant: NO CAP - still available",
+            "[!] Adults 19+: WAITLIST only (enrollment cap reached)",
+            "[YES] Under 19: NO CAP - still available",
+            "[YES] Pregnant: NO CAP - still available",
             "Get private insurance while waiting"
         ],
     },
@@ -230,7 +230,7 @@ const TIER_2_STATES: Record<string, StateEligibilityConfig> = {
         status2026: "ACTIVE but F-1 eligibility unclear",
         enrollmentStatus: 'active',
         importantNotes: [
-            "⚠️ F-1 eligibility NOT confirmed",
+            "[!] F-1 eligibility NOT confirmed",
             "Program designed for undocumented immigrants",
             "Worth applying - have backup insurance ready",
             "Under 19: More likely to qualify"
@@ -253,14 +253,14 @@ const TIER_2_STATES: Record<string, StateEligibilityConfig> = {
             "Prescriptions",
             "Preventive care"
         ],
-        status2026: "⚠️ ENDING Oct 1, 2026 for adult F-1 students",
+        status2026: "[!] ENDING Oct 1, 2026 for adult F-1 students",
         enrollmentStatus: 'ending',
         importantNotes: [
-            "❌ ENDING: Adult F-1 coverage ends Oct 1, 2026",
-            "✅ Under 19: Coverage continues (not affected)",
+            "[NO] ENDING: Adult F-1 coverage ends Oct 1, 2026",
+            "[YES] Under 19: Coverage continues (not affected)",
             "Get private insurance before Oct 2026"
         ],
-        deadlineWarning: "⚠️ DEADLINE: Oct 1, 2026 - Adult F-1 coverage ends",
+        deadlineWarning: "[!] DEADLINE: Oct 1, 2026 - Adult F-1 coverage ends",
     },
 };
 
@@ -290,9 +290,9 @@ const CHILDREN_PREGNANT_CONFIG: StateEligibilityConfig = {
     status2026: "Limited - children & pregnant only",
     enrollmentStatus: 'limited',
     importantNotes: [
-        "✅ Under 19: May qualify",
-        "✅ Pregnant: Coverage available",
-        "❌ Adults 19+ (not pregnant): NOT eligible",
+        "[YES] Under 19: May qualify",
+        "[YES] Pregnant: Coverage available",
+        "[NO] Adults 19+ (not pregnant): NOT eligible",
         "Consider private insurance for adults"
     ],
 };
@@ -314,10 +314,10 @@ const NO_COVERAGE_CONFIG: StateEligibilityConfig = {
         "Emergency labor and delivery",
         "Severe injury or illness"
     ],
-    status2026: "❌ No state programs for F-1 students",
+    status2026: "[NO] No state programs for F-1 students",
     enrollmentStatus: 'limited',
     importantNotes: [
-        "❌ This is a non-expansion state",
+        "[NO] This is a non-expansion state",
         "No Medicaid expansion for F-1 students",
         "ACA Marketplace expensive ($400-$800/mo)",
         "Use University SHIP or private insurance"
