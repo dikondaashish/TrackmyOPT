@@ -23,6 +23,11 @@ import {
   Bell,
   Calculator,
   Search,
+  Heart,
+  Tag,
+  Settings,
+  Puzzle,
+  DollarSign,
 } from "lucide-react";
 
 // Collapsible section component
@@ -152,11 +157,10 @@ export function HelpSection() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === tab.id
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-accent"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${activeTab === tab.id
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-accent"
+              }`}
           >
             <tab.icon className="w-4 h-4" />
             {tab.label}
@@ -177,18 +181,18 @@ export function HelpSection() {
             </div>
             <div className="prose prose-sm dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed">
-                <strong>Optional Practical Training (OPT)</strong> is a temporary employment authorization 
-                that allows F-1 visa students to work in the United States for up to 12 months after 
+                <strong>Optional Practical Training (OPT)</strong> is a temporary employment authorization
+                that allows F-1 visa students to work in the United States for up to 12 months after
                 completing their academic program. OPT must be directly related to your major area of study.
               </p>
-              
+
               <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                   <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
                     Pre-Completion OPT
                   </h4>
                   <p className="text-sm text-blue-700 dark:text-blue-400">
-                    Work authorization while still enrolled in school. Limited to 20 hours/week during 
+                    Work authorization while still enrolled in school. Limited to 20 hours/week during
                     classes, full-time during breaks. Time used reduces post-completion OPT.
                   </p>
                 </div>
@@ -197,7 +201,7 @@ export function HelpSection() {
                     Post-Completion OPT
                   </h4>
                   <p className="text-sm text-green-700 dark:text-green-400">
-                    12-month work authorization after graduation. Must apply within 60 days of program 
+                    12-month work authorization after graduation. Must apply within 60 days of program
                     end date. Most common type of OPT that TrackMyOPT helps you manage.
                   </p>
                 </div>
@@ -213,12 +217,12 @@ export function HelpSection() {
               </div>
               <h2 className="text-xl font-bold">OPT Timeline & Key Dates</h2>
             </div>
-            
+
             <div className="space-y-4">
               {/* Timeline Steps */}
               <div className="relative">
                 <div className="absolute left-4 top-8 bottom-8 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-green-500" />
-                
+
                 {[
                   {
                     title: "Apply for OPT",
@@ -252,20 +256,18 @@ export function HelpSection() {
                   },
                 ].map((step, index) => (
                   <div key={index} className="relative pl-10 pb-6 last:pb-0">
-                    <div className={`absolute left-2 w-5 h-5 rounded-full border-2 bg-background ${
-                      step.color === "blue" ? "border-blue-500" :
+                    <div className={`absolute left-2 w-5 h-5 rounded-full border-2 bg-background ${step.color === "blue" ? "border-blue-500" :
                       step.color === "purple" ? "border-purple-500" :
-                      step.color === "amber" ? "border-amber-500" :
-                      step.color === "green" ? "border-green-500" :
-                      "border-red-500"
-                    }`} />
-                    <div className={`p-4 rounded-lg ${
-                      step.color === "blue" ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800" :
+                        step.color === "amber" ? "border-amber-500" :
+                          step.color === "green" ? "border-green-500" :
+                            "border-red-500"
+                      }`} />
+                    <div className={`p-4 rounded-lg ${step.color === "blue" ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800" :
                       step.color === "purple" ? "bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800" :
-                      step.color === "amber" ? "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800" :
-                      step.color === "green" ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800" :
-                      "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
-                    }`}>
+                        step.color === "amber" ? "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800" :
+                          step.color === "green" ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800" :
+                            "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+                      }`}>
                       <h4 className="font-semibold">{step.title}</h4>
                       <p className="text-xs text-muted-foreground mt-1 mb-2">{step.date}</p>
                       <p className="text-sm">{step.description}</p>
@@ -284,14 +286,14 @@ export function HelpSection() {
               </div>
               <h2 className="text-xl font-bold">The Unemployment Clock</h2>
             </div>
-            
+
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-red-800 dark:text-red-300">Critical: Understanding Your Limits</h4>
                   <p className="text-sm text-red-700 dark:text-red-400 mt-1">
-                    You are limited to <strong>90 days of unemployment</strong> during your 12-month OPT period. 
+                    You are limited to <strong>90 days of unemployment</strong> during your 12-month OPT period.
                     STEM OPT has a separate <strong>60-day limit</strong>. Exceeding these limits can result in loss of F-1 status.
                   </p>
                 </div>
@@ -350,7 +352,7 @@ export function HelpSection() {
             </div>
 
             <p className="text-muted-foreground mb-4">
-              Students with STEM (Science, Technology, Engineering, or Mathematics) degrees can apply 
+              Students with STEM (Science, Technology, Engineering, or Mathematics) degrees can apply
               for an additional 24-month extension, giving you a total of 36 months of OPT.
             </p>
 
@@ -387,7 +389,7 @@ export function HelpSection() {
                 <div>
                   <h4 className="font-semibold text-amber-800 dark:text-amber-300">Important Note</h4>
                   <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                    You can apply for STEM OPT up to 2 times in your lifetime if you earn multiple 
+                    You can apply for STEM OPT up to 2 times in your lifetime if you earn multiple
                     qualifying STEM degrees at different education levels (e.g., Bachelor's then Master's).
                   </p>
                 </div>
@@ -405,7 +407,7 @@ export function HelpSection() {
             </div>
 
             <p className="text-muted-foreground mb-4">
-              If your employer files an H-1B petition on your behalf that is selected in the lottery, 
+              If your employer files an H-1B petition on your behalf that is selected in the lottery,
               you may be eligible for a "cap gap" extension of your OPT and F-1 status.
             </p>
 
@@ -431,10 +433,10 @@ export function HelpSection() {
           <Card className="p-6">
             <h2 className="text-xl font-bold mb-4">TrackMyOPT Features</h2>
             <p className="text-muted-foreground mb-6">
-              TrackMyOPT provides comprehensive tools to help you manage your OPT journey. 
+              TrackMyOPT provides comprehensive tools to help you manage your OPT journey.
               Click on any feature to learn more or navigate directly to it.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FeatureCard
                 icon={<Calendar className="w-5 h-5 text-blue-600" />}
@@ -450,8 +452,8 @@ export function HelpSection() {
               />
               <FeatureCard
                 icon={<Clock className="w-5 h-5 text-red-600" />}
-                title="Unemployment Clock"
-                description="Track your unemployment days and stay compliant with the 90-day limit."
+                title="OPT Tools & Calculators"
+                description="Track your unemployment days and calculate key OPT/STEM dates with our specialized tools."
                 link="/dashboard/opt-tools"
               />
               <FeatureCard
@@ -459,6 +461,30 @@ export function HelpSection() {
                 title="Document Vault"
                 description="Securely store and organize your OPT documents with AI-powered analysis."
                 link="/dashboard/documents"
+              />
+              <FeatureCard
+                icon={<DollarSign className="w-5 h-5 text-emerald-600" />}
+                title="Tax Filing Guide"
+                description="Navigate US tax requirements as an international student. Access trusted partners like Sprintax."
+                link="/dashboard/tax-filing"
+              />
+              <FeatureCard
+                icon={<Heart className="w-5 h-5 text-pink-600" />}
+                title="Health Insurance Finder"
+                description="Find affordable health insurance plans that meet OPT requirements and your budget."
+                link="/dashboard/opt-health-insurance-finder"
+              />
+              <FeatureCard
+                icon={<Tag className="w-5 h-5 text-orange-600" />}
+                title="Exclusive Offers"
+                description="Access curated discounts and deals from our trusted partners for international students."
+                link="/dashboard/offers"
+              />
+              <FeatureCard
+                icon={<Settings className="w-5 h-5 text-slate-600" />}
+                title="Settings & Account"
+                description="Manage your profile, notification preferences, and account security settings."
+                link="/dashboard/settings"
               />
             </div>
           </Card>
@@ -476,7 +502,7 @@ export function HelpSection() {
                 <p className="text-sm text-muted-foreground">
                   The OPT Dates Calculator helps you determine critical dates in your OPT journey.
                 </p>
-                
+
                 <div className="space-y-3">
                   <h4 className="font-semibold">How to Use:</h4>
                   <ol className="text-sm space-y-2 text-muted-foreground list-decimal list-inside">
@@ -491,7 +517,7 @@ export function HelpSection() {
 
                 <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    <strong>Tip:</strong> The calculator will automatically compute your filing window, 
+                    <strong>Tip:</strong> The calculator will automatically compute your filing window,
                     grace period dates, and STEM extension deadlines.
                   </p>
                 </div>
@@ -506,7 +532,7 @@ export function HelpSection() {
                 <p className="text-sm text-muted-foreground">
                   Track your USCIS case status and receive notifications when it changes.
                 </p>
-                
+
                 <div className="space-y-3">
                   <h4 className="font-semibold">How to Use:</h4>
                   <ol className="text-sm space-y-2 text-muted-foreground list-decimal list-inside">
@@ -532,7 +558,7 @@ export function HelpSection() {
                   <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                     <h5 className="font-medium text-sm mb-1 text-green-700 dark:text-green-300">Premium Feature</h5>
                     <p className="text-xs text-green-600 dark:text-green-400">
-                      Premium users get instant email notifications when their case status changes, 
+                      Premium users get instant email notifications when their case status changes,
                       so you never miss an important update.
                     </p>
                   </div>
@@ -548,7 +574,7 @@ export function HelpSection() {
                 <p className="text-sm text-muted-foreground">
                   Monitor your unemployment days and maintain F-1 status compliance.
                 </p>
-                
+
                 <div className="space-y-3">
                   <h4 className="font-semibold">Understanding the Clock:</h4>
                   <ul className="text-sm space-y-2 text-muted-foreground">
@@ -561,7 +587,7 @@ export function HelpSection() {
 
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
                   <p className="text-sm text-red-700 dark:text-red-300">
-                    <strong>Warning:</strong> Exceeding your unemployment limit violates your F-1 status. 
+                    <strong>Warning:</strong> Exceeding your unemployment limit violates your F-1 status.
                     Use this tracker diligently to stay compliant.
                   </p>
                 </div>
@@ -577,11 +603,11 @@ export function HelpSection() {
                   <Crown className="w-4 h-4 text-amber-500" />
                   <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Premium Feature</span>
                 </div>
-                
+
                 <p className="text-sm text-muted-foreground">
                   Securely store all your immigration documents with passcode protection and AI-powered organization.
                 </p>
-                
+
                 <div className="space-y-3">
                   <h4 className="font-semibold">Features:</h4>
                   <ul className="text-sm space-y-2 text-muted-foreground">
@@ -625,7 +651,7 @@ export function HelpSection() {
                 <p className="text-sm text-muted-foreground">
                   Stay on top of important deadlines with our notification system.
                 </p>
-                
+
                 <div className="space-y-3">
                   <h4 className="font-semibold">Notification Types:</h4>
                   <ul className="text-sm space-y-2 text-muted-foreground">
@@ -638,8 +664,325 @@ export function HelpSection() {
 
                 <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
                   <p className="text-sm text-amber-700 dark:text-amber-300">
-                    Configure your notification preferences in <strong>Settings</strong> to choose 
+                    Configure your notification preferences in <strong>Settings</strong> to choose
                     which alerts you want to receive.
+                  </p>
+                </div>
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Tax Filing for International Students"
+              icon={<DollarSign className="w-5 h-5 text-emerald-600" />}
+            >
+              <div className="pt-4 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h5 className="font-medium text-sm mb-1">👤 Who Should Use This?</h5>
+                    <p className="text-xs text-muted-foreground">
+                      All F-1 students (including those on OPT) who were in the US for any part of the tax year.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h5 className="font-medium text-sm mb-1">📍 Where To Find It?</h5>
+                    <p className="text-xs text-muted-foreground">
+                      Navigate to <strong>Tax Filing</strong> from the sidebar menu.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">📝 What Does This Feature Do?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    The Tax Filing Guide helps you navigate US tax requirements as an international student.
+                    It connects you with trusted tax preparation partners who specialize in non-resident returns.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">⏰ When Should You Use It?</h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>• <strong>Tax Season:</strong> January 1 - April 15 each year</li>
+                    <li>• <strong>Form 8843:</strong> Required even if you had no income</li>
+                    <li>• <strong>Form 1040-NR:</strong> If you earned income in the US</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">❓ Why Is This Important?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Filing taxes correctly is a legal requirement. Using the wrong tax forms (like 1040 instead of 1040-NR)
+                    can cause visa issues. USCIS checks tax compliance for green card applications.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                  <h5 className="font-medium text-sm mb-2 text-emerald-700 dark:text-emerald-300">🚀 How To Use:</h5>
+                  <ol className="text-sm space-y-1 text-emerald-600 dark:text-emerald-400 list-decimal list-inside">
+                    <li>Go to <strong>Tax Filing</strong> from the sidebar</li>
+                    <li>Answer the tax status questions to determine your requirements</li>
+                    <li>Review the <strong>Important Tax Deadlines</strong> section</li>
+                    <li>Choose a trusted partner (Sprintax, Glacier Tax Prep, etc.)</li>
+                    <li>Use exclusive coupon codes if available</li>
+                  </ol>
+                </div>
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Health Insurance Finder"
+              icon={<Heart className="w-5 h-5 text-pink-600" />}
+            >
+              <div className="pt-4 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h5 className="font-medium text-sm mb-1">👤 Who Should Use This?</h5>
+                    <p className="text-xs text-muted-foreground">
+                      OPT students who lost school-sponsored coverage or need affordable insurance during their work authorization period.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h5 className="font-medium text-sm mb-1">📍 Where To Find It?</h5>
+                    <p className="text-xs text-muted-foreground">
+                      Navigate to <strong>Insurance Finder</strong> from the sidebar or go to <strong>/dashboard/opt-health-insurance-finder</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">📝 What Does This Feature Do?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Helps you find health insurance plans suitable for international students on OPT.
+                    Compare options ranging from short-term plans to ACA-compliant coverage.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">⏰ When Should You Use It?</h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>• <strong>After Graduation:</strong> When school insurance ends</li>
+                    <li>• <strong>Before OPT Starts:</strong> To avoid coverage gaps</li>
+                    <li>• <strong>Job Change:</strong> If losing employer coverage</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">❓ Why Is This Important?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Medical bills in the US can be financially devastating without insurance.
+                    A single ER visit can cost $5,000+. Having coverage protects your finances and health.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+                  <h5 className="font-medium text-sm mb-2 text-pink-700 dark:text-pink-300">🚀 How To Use:</h5>
+                  <ol className="text-sm space-y-1 text-pink-600 dark:text-pink-400 list-decimal list-inside">
+                    <li>Go to <strong>Insurance Finder</strong></li>
+                    <li>Enter your eligibility information (visa status, dates)</li>
+                    <li>Browse recommended insurance plans</li>
+                    <li>Compare coverage, deductibles, and premiums</li>
+                    <li>Click through to apply with our partner providers</li>
+                  </ol>
+                </div>
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Exclusive Offers & Discounts"
+              icon={<Tag className="w-5 h-5 text-orange-600" />}
+            >
+              <div className="pt-4 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h5 className="font-medium text-sm mb-1">👤 Who Should Use This?</h5>
+                    <p className="text-xs text-muted-foreground">
+                      All TrackMyOPT users who want to save money on services designed for international students.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h5 className="font-medium text-sm mb-1">📍 Where To Find It?</h5>
+                    <p className="text-xs text-muted-foreground">
+                      Click <strong>Offers</strong> in the header or navigate via sidebar to <strong>/dashboard/offers</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">📝 What Does This Feature Do?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Curates exclusive discounts and deals from our trusted partners. These offers are
+                    specifically negotiated for TrackMyOPT users and may include tax services, insurance,
+                    banking, and more.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                  <h5 className="font-medium text-sm mb-2 text-orange-700 dark:text-orange-300">🎁 Current Offer Categories:</h5>
+                  <ul className="text-sm text-orange-600 dark:text-orange-400 space-y-1">
+                    <li>✓ Tax Preparation Services</li>
+                    <li>✓ Health Insurance</li>
+                    <li>✓ Banking & Credit Cards</li>
+                    <li>✓ Career Services</li>
+                    <li>✓ Immigration Assistance</li>
+                  </ul>
+                </div>
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="OPT Tools & Calculators"
+              icon={<Calculator className="w-5 h-5 text-indigo-600" />}
+            >
+              <div className="pt-4 space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  TrackMyOPT provides 4 specialized calculators to help you manage your OPT timeline:
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <h5 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">📅 OPT Apply Date Calculator</h5>
+                    <p className="text-xs text-blue-700 dark:text-blue-400 mb-2">
+                      <strong>What:</strong> Calculates your OPT application window (90 days before to 60 days after program end).
+                    </p>
+                    <p className="text-xs text-blue-700 dark:text-blue-400">
+                      <strong>How:</strong> Enter your program end date → Get earliest/latest filing dates.
+                    </p>
+                  </div>
+
+                  <div className="p-4 border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <h5 className="font-semibold text-red-800 dark:text-red-300 mb-2">⏱️ OPT Clock Tracker</h5>
+                    <p className="text-xs text-red-700 dark:text-red-400 mb-2">
+                      <strong>What:</strong> Tracks your 90-day unemployment limit during initial OPT.
+                    </p>
+                    <p className="text-xs text-red-700 dark:text-red-400">
+                      <strong>How:</strong> Enter OPT start date + employment spans → See days used/remaining.
+                    </p>
+                  </div>
+
+                  <div className="p-4 border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <h5 className="font-semibold text-green-800 dark:text-green-300 mb-2">🎓 STEM Apply Date Calculator</h5>
+                    <p className="text-xs text-green-700 dark:text-green-400 mb-2">
+                      <strong>What:</strong> Calculates your STEM OPT extension application window.
+                    </p>
+                    <p className="text-xs text-green-700 dark:text-green-400">
+                      <strong>How:</strong> Enter current OPT end date → Get 90-day filing window.
+                    </p>
+                  </div>
+
+                  <div className="p-4 border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    <h5 className="font-semibold text-purple-800 dark:text-purple-300 mb-2">⏲️ STEM Clock Tracker</h5>
+                    <p className="text-xs text-purple-700 dark:text-purple-400 mb-2">
+                      <strong>What:</strong> Tracks your separate 60-day unemployment limit during STEM OPT.
+                    </p>
+                    <p className="text-xs text-purple-700 dark:text-purple-400">
+                      <strong>How:</strong> Enter STEM start date + employment → Track compliance.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                  <p className="text-sm text-indigo-700 dark:text-indigo-300">
+                    <strong>🆓 Free Access:</strong> All OPT Tools are available without login. Use them directly from
+                    <strong> /dashboard/opt-tools</strong> or the Chrome extension.
+                  </p>
+                </div>
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Chrome Extension"
+              icon={<Puzzle className="w-5 h-5 text-cyan-600" />}
+            >
+              <div className="pt-4 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h5 className="font-medium text-sm mb-1">👤 Who Should Use This?</h5>
+                    <p className="text-xs text-muted-foreground">
+                      Anyone who wants quick access to OPT tools and case status without visiting the full website.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h5 className="font-medium text-sm mb-1">📍 Where To Get It?</h5>
+                    <p className="text-xs text-muted-foreground">
+                      Download from the Chrome Web Store (search "TrackMyOPT") or visit our homepage.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">📝 What Does The Extension Do?</h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>✓ Quick access to all 4 OPT calculators</li>
+                    <li>✓ View unemployment days at a glance</li>
+                    <li>✓ Check case status without leaving your tab</li>
+                    <li>✓ Dark mode support</li>
+                    <li>✓ Syncs with your account</li>
+                  </ul>
+                </div>
+
+                <div className="p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
+                  <h5 className="font-medium text-sm mb-2 text-cyan-700 dark:text-cyan-300">🚀 How To Install:</h5>
+                  <ol className="text-sm space-y-1 text-cyan-600 dark:text-cyan-400 list-decimal list-inside">
+                    <li>Visit Chrome Web Store and search "TrackMyOPT"</li>
+                    <li>Click <strong>Add to Chrome</strong></li>
+                    <li>Pin the extension to your toolbar</li>
+                    <li>Click the icon and sign in with your account</li>
+                    <li>Access tools instantly from any webpage!</li>
+                  </ol>
+                </div>
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Settings & Account"
+              icon={<Settings className="w-5 h-5 text-slate-600" />}
+            >
+              <div className="pt-4 space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Manage your TrackMyOPT account, notification preferences, and security settings.
+                </p>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">⚙️ Available Settings:</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="p-3 border border-border rounded-lg">
+                      <h5 className="font-medium text-sm mb-1">Profile</h5>
+                      <ul className="text-xs text-muted-foreground space-y-0.5">
+                        <li>• Update email address</li>
+                        <li>• Change password</li>
+                        <li>• Set timezone</li>
+                      </ul>
+                    </div>
+                    <div className="p-3 border border-border rounded-lg">
+                      <h5 className="font-medium text-sm mb-1">Notifications</h5>
+                      <ul className="text-xs text-muted-foreground space-y-0.5">
+                        <li>• Case status alerts</li>
+                        <li>• Document expiry reminders</li>
+                        <li>• Tool usage notifications</li>
+                      </ul>
+                    </div>
+                    <div className="p-3 border border-border rounded-lg">
+                      <h5 className="font-medium text-sm mb-1">Security</h5>
+                      <ul className="text-xs text-muted-foreground space-y-0.5">
+                        <li>• View active sessions</li>
+                        <li>• Logout from all devices</li>
+                        <li>• Document Vault passcode</li>
+                      </ul>
+                    </div>
+                    <div className="p-3 border border-border rounded-lg">
+                      <h5 className="font-medium text-sm mb-1">Subscription</h5>
+                      <ul className="text-xs text-muted-foreground space-y-0.5">
+                        <li>• View current plan</li>
+                        <li>• Upgrade to Premium</li>
+                        <li>• Manage billing</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    <strong>📍 Navigate to:</strong> Sidebar → <strong>Settings</strong> or go to <strong>/dashboard/settings</strong>
                   </p>
                 </div>
               </div>
@@ -653,7 +996,7 @@ export function HelpSection() {
         <div className="space-y-6">
           <Card className="p-6">
             <h2 className="text-xl font-bold mb-4">Frequently Asked Questions</h2>
-            
+
             {/* OPT FAQs */}
             <div className="mb-6">
               <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
@@ -710,6 +1053,76 @@ export function HelpSection() {
                 <FAQItem
                   question="What is the I-983 Training Plan?"
                   answer="The I-983 is a training plan form required for STEM OPT. It must be completed with your employer and outlines your training goals, supervision, and how the work relates to your STEM degree. It must be submitted to your DSO."
+                />
+              </div>
+            </div>
+
+            {/* Tax Filing FAQs */}
+            <div className="mb-6">
+              <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-emerald-600" />
+                Tax Filing for International Students
+              </h3>
+              <div className="border border-border rounded-lg divide-y divide-border">
+                <FAQItem
+                  question="Do I need to file taxes as an F-1 student?"
+                  answer="Yes, all F-1 students who were present in the US during the tax year must file at least Form 8843 (even with no income). If you earned income, you'll also need to file Form 1040-NR. Filing correctly is a legal requirement."
+                />
+                <FAQItem
+                  question="What tax form should I use as a non-resident?"
+                  answer="Most F-1 students should file Form 1040-NR (Non-Resident). Do NOT use Form 1040 unless you meet the Substantial Presence Test. Using the wrong form can cause issues with future visa applications."
+                />
+                <FAQItem
+                  question="When are taxes due?"
+                  answer="Federal taxes are due April 15. Form 8843 is also due April 15 (or June 15 if you had no US income). State tax deadlines vary. Use our Tax Filing page to see all important dates."
+                />
+                <FAQItem
+                  question="Can I get a tax refund on OPT?"
+                  answer="Possibly! If taxes were withheld from your paycheck, you may get a refund. F-1 students are also exempt from FICA taxes (Social Security & Medicare) during their first 5 years—if your employer incorrectly withheld these, you can request a refund."
+                />
+              </div>
+            </div>
+
+            {/* Health Insurance FAQs */}
+            <div className="mb-6">
+              <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                <Heart className="w-5 h-5 text-pink-600" />
+                Health Insurance on OPT
+              </h3>
+              <div className="border border-border rounded-lg divide-y divide-border">
+                <FAQItem
+                  question="Do I need health insurance on OPT?"
+                  answer="While not legally required, having health insurance is strongly recommended. Medical costs in the US are extremely high. A single ER visit can cost $5,000+. Many employers offer coverage, but if not, use our Insurance Finder."
+                />
+                <FAQItem
+                  question="What insurance options do I have on OPT?"
+                  answer="Options include: (1) Employer-sponsored insurance, (2) ACA Marketplace plans (healthcare.gov), (3) Short-term health insurance, (4) International student plans. Our Insurance Finder helps you compare these options."
+                />
+                <FAQItem
+                  question="Does my school insurance cover me after graduation?"
+                  answer="Usually no. Most school-sponsored plans end at graduation or shortly after. Check with your school for exact dates. You may have a gap between graduation and employer coverage—consider short-term plans."
+                />
+              </div>
+            </div>
+
+            {/* Extension FAQs */}
+            <div className="mb-6">
+              <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                <Puzzle className="w-5 h-5 text-cyan-600" />
+                Chrome Extension
+              </h3>
+              <div className="border border-border rounded-lg divide-y divide-border">
+                <FAQItem
+                  question="How do I install the TrackMyOPT extension?"
+                  answer="Visit the Chrome Web Store and search 'TrackMyOPT'. Click 'Add to Chrome' and then pin it to your toolbar for quick access. Sign in with your TrackMyOPT account to sync your data."
+                />
+                <FAQItem
+                  question="Is the extension free?"
+                  answer="Yes! The Chrome extension is completely free. It provides quick access to all OPT tools and calculators. Premium features like Document Vault are available through your subscription."
+                />
+                <FAQItem
+                  question="Does the extension work offline?"
+                  answer="The OPT calculators work offline once loaded. However, features like Case Status Tracker require an internet connection to check USCIS for updates."
                 />
               </div>
             </div>
@@ -802,8 +1215,8 @@ export function HelpSection() {
       {/* Disclaimer */}
       <div className="text-center text-xs text-muted-foreground p-4 bg-card border border-border rounded-lg">
         <p>
-          <strong>Disclaimer:</strong> TrackMyOPT provides general information and tools to help manage your OPT. 
-          This is not legal advice. Immigration rules can change. Always consult with your DSO or an immigration 
+          <strong>Disclaimer:</strong> TrackMyOPT provides general information and tools to help manage your OPT.
+          This is not legal advice. Immigration rules can change. Always consult with your DSO or an immigration
           attorney for specific guidance on your situation.
         </p>
       </div>
