@@ -3,7 +3,8 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, AlertTriangle, Stethoscope, Pill, Eye, Brain, Phone, FileCheck, Heart, Activity, ChevronDown, AlertCircle, Users, Globe, Award } from "lucide-react";
+import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, AlertTriangle, ChevronDown, Users, Globe, AlertCircle, Baby } from "lucide-react";
+import { calculateEligibility, calculateAge, FPL_2026, type EligibilityStatus } from "@/lib/state-eligibility";
 
 // States with free insurance programs
 const FREE_STATES: Record<string, { name: string; plan: string; link: string; benefits: string[] }> = {
@@ -83,17 +84,33 @@ function ResultsContent() {
   const income = parseFloat(searchParams.get("income") || "0");
   const visa = searchParams.get("visa") || "";
   const dob = searchParams.get("dob") || "";
+  const isPregnant = searchParams.get("pregnant") === "true";
 
-  const stateName = STATE_NAMES[state] || state;
-  const freeState = FREE_STATES[state];
-  const partialState = PARTIAL_STATES[state];
   const pricing = getAgeBracket(dob);
-  const isLowIncome = income < 2500;
-  const isEligibleForFree = freeState && isLowIncome;
-  const isPartialEligible = partialState && isLowIncome;
+  const age = pricing.age;
+  const annualIncome = income * 12; // Convert monthly to annual
 
-  // Special case: New York Essential Plan redirects to Kimber Health
-  const isNYEssentialPlan = state === "NY" && isEligibleForFree;
+  // Calculate eligibility using the new system
+  const eligibility = calculateEligibility({
+    stateCode: state,
+    age,
+    annualIncome,
+    isPregnant,
+    visaType: visa,
+  });
+
+  // Determine if state program should be highlighted
+  const showFreeStateCard = eligibility.showStateProgram && (
+    eligibility.status === 'FREE_ELIGIBLE' ||
+    eligibility.status === 'UNDER_19_ELIGIBLE' ||
+    eligibility.status === 'PREGNANCY_ELIGIBLE'
+  );
+  const showPossibleCard = eligibility.showStateProgram && eligibility.status === 'POSSIBLY_ELIGIBLE';
+  const showWaitlistCard = eligibility.showStateProgram && eligibility.status === 'WAITLIST';
+  const showNotEligibleCard = !showFreeStateCard && !showPossibleCard && !showWaitlistCard;
+
+  // NY Essential Plan special case
+  const isNYEssentialPlan = state === "NY" && showFreeStateCard;
   const kimberPriceForNY = isNYEssentialPlan ? 0 : pricing.kimberPrice;
 
   const handleApply = (url: string) => {
@@ -127,7 +144,7 @@ function ResultsContent() {
           Your Recommended Plans
         </h1>
         <p className="text-slate-600 dark:text-muted-foreground mt-1 text-sm">
-          {stateName} • Age {pricing.age} ({pricing.bracket}) • {visa}
+          {eligibility.stateName} • Age {pricing.age} ({pricing.bracket}) • {visa}{isPregnant ? " • Pregnant" : ""}
         </p>
       </div>
 
@@ -136,7 +153,7 @@ function ResultsContent() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
           {/* STATE ELIGIBILITY CARD - Always show first */}
-          {isEligibleForFree ? (
+          {showFreeStateCard ? (
             /* FREE State Plan Card */
             <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-800/50 dark:via-emerald-900/70 dark:to-green-900/50 rounded-2xl border-2 border-emerald-200 dark:border-emerald-400/50 p-5 hover:shadow-xl dark:hover:shadow-emerald-400/30 hover:scale-[1.02] transition-all duration-300">
               {/* Animated background glow */}
@@ -145,22 +162,26 @@ function ResultsContent() {
               <div className="relative z-10">
                 <div className="absolute top-0 right-0">
                   <span className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-emerald-500/30">
-                    ✨ FREE
+                    {eligibility.status === 'PREGNANCY_ELIGIBLE' ? '🤰 FREE' : eligibility.status === 'UNDER_19_ELIGIBLE' ? '👶 FREE' : '✨ FREE'}
                   </span>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30">
-                  <Building2 className="w-6 h-6 text-white" />
+                  {eligibility.status === 'PREGNANCY_ELIGIBLE' ? <Baby className="w-6 h-6 text-white" /> : <Building2 className="w-6 h-6 text-white" />}
                 </div>
-                <h3 className="font-bold text-lg text-slate-900 dark:text-white">{freeState.plan}</h3>
-                <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">{freeState.name}</p>
+                <h3 className="font-bold text-lg text-slate-900 dark:text-white">{eligibility.stateConfig.programName}</h3>
+                <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">{eligibility.stateName}</p>
 
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-400 bg-clip-text text-transparent">$0</span>
                   <span className="text-slate-500 dark:text-slate-400">/mo</span>
                 </div>
 
+                <p className="mt-3 text-xs text-emerald-700 dark:text-emerald-300 leading-relaxed">
+                  {eligibility.eligibilityReason}
+                </p>
+
                 <div className="mt-4 space-y-2">
-                  {freeState.benefits.slice(0, 4).map((benefit, i) => (
+                  {eligibility.stateConfig.benefits.slice(0, 4).map((benefit, i) => (
                     <div key={i} className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
                       <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-700/60 flex items-center justify-center flex-shrink-0">
                         <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-300" />
@@ -171,7 +192,7 @@ function ResultsContent() {
                 </div>
 
                 <button
-                  onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : freeState.link)}
+                  onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : eligibility.stateConfig.programLink)}
                   className="w-full mt-5 h-11 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
                 >
                   Apply Now
@@ -179,33 +200,82 @@ function ResultsContent() {
                 </button>
               </div>
             </div>
-          ) : isPartialEligible ? (
-            /* Partial Coverage Card */
+          ) : showPossibleCard ? (
+            /* Possibly Eligible Card */
+            <div className="group relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-800/40 dark:via-blue-900/60 dark:to-cyan-900/40 rounded-2xl border-2 border-blue-200 dark:border-blue-400/50 p-5 hover:shadow-xl dark:hover:shadow-blue-400/30 hover:scale-[1.02] transition-all duration-300">
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-400/20 dark:bg-blue-400/30 rounded-full blur-3xl group-hover:bg-blue-400/40 transition-all duration-500" />
+
+              <div className="relative z-10">
+                <div className="absolute top-0 right-0">
+                  <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold px-3 py-1.5 rounded-full">
+                    🎯 WORTH TRYING
+                  </span>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/30">
+                  <Building2 className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="font-bold text-lg text-slate-900 dark:text-white">{eligibility.stateConfig.programName}</h3>
+                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mt-0.5">{eligibility.stateName}</p>
+
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="text-3xl font-extrabold text-blue-600 dark:text-blue-400">$0</span>
+                  <span className="text-slate-500 dark:text-slate-400">/mo (if eligible)</span>
+                </div>
+
+                <p className="mt-3 text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                  {eligibility.eligibilityReason}
+                </p>
+
+                <div className="mt-3 p-2.5 bg-blue-100/50 dark:bg-blue-900/30 rounded-lg">
+                  <p className="text-xs text-blue-800 dark:text-blue-200">
+                    💡 {eligibility.recommendedAction}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => handleApply(eligibility.stateConfig.programLink)}
+                  className="w-full mt-5 h-11 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30"
+                >
+                  Try Applying
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ) : showWaitlistCard ? (
+            /* Waitlist Card */
             <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-2xl border-2 border-amber-200 dark:border-amber-700 p-5 relative">
               <div className="absolute top-3 right-3">
                 <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                  PARTIAL
+                  ⏸️ WAITLIST
                 </span>
               </div>
               <div className="w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center mb-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                <Clock className="w-5 h-5 text-amber-600" />
               </div>
-              <h3 className="font-bold text-slate-900 dark:text-foreground">Limited State Coverage</h3>
-              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{partialState.name}</p>
+              <h3 className="font-bold text-slate-900 dark:text-foreground">{eligibility.stateConfig.programName}</h3>
+              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{eligibility.stateName}</p>
 
               <div className="mt-3">
-                <span className="text-lg font-semibold text-amber-700">May Qualify</span>
+                <span className="text-lg font-semibold text-amber-700 dark:text-amber-400">Enrollment Frozen</span>
               </div>
 
               <p className="mt-3 text-xs text-slate-600 dark:text-muted-foreground leading-relaxed">
-                {partialState.note}. Check your state's marketplace for eligibility requirements.
+                {eligibility.eligibilityReason}
               </p>
 
-              <div className="mt-3 p-2.5 bg-amber-100/50 rounded-lg">
-                <p className="text-xs text-amber-800">
-                  💡 We recommend checking partner plans below for guaranteed coverage.
+              <div className="mt-3 p-2.5 bg-amber-100/50 dark:bg-amber-900/30 rounded-lg">
+                <p className="text-xs text-amber-800 dark:text-amber-200">
+                  💡 {eligibility.recommendedAction}
                 </p>
               </div>
+
+              <button
+                onClick={() => handleApply(eligibility.stateConfig.programLink)}
+                className="w-full mt-4 h-11 border-2 border-amber-400 text-amber-700 dark:text-amber-400 font-semibold text-sm rounded-xl transition-all hover:bg-amber-50 dark:hover:bg-amber-900/30 flex items-center justify-center gap-2"
+              >
+                Join Waitlist
+                <ExternalLink className="w-4 h-4" />
+              </button>
             </div>
           ) : (
             /* Not Eligible Card */
@@ -219,19 +289,19 @@ function ResultsContent() {
                 <X className="w-5 h-5 text-slate-400" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-foreground">No Free State Plan</h3>
-              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{stateName}</p>
+              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{eligibility.stateName}</p>
 
               <div className="mt-3">
                 <span className="text-lg font-semibold text-slate-500 dark:text-muted-foreground">Not Available</span>
               </div>
 
               <p className="mt-3 text-xs text-slate-600 dark:text-muted-foreground leading-relaxed">
-                Your state doesn't offer free health insurance for international students or OPT workers.
+                {eligibility.eligibilityReason}
               </p>
 
               <div className="mt-3 p-2.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
                 <p className="text-xs text-blue-700 dark:text-blue-300">
-                  ✨ Don't worry! Check our partner plans for affordable coverage starting at ${Math.min(pricing.isoPrice, pricing.isiPrice, pricing.kimberPrice)}/mo.
+                  ✨ Don&apos;t worry! Check our partner plans for affordable coverage starting at ${Math.min(pricing.isoPrice, pricing.isiPrice, pricing.kimberPrice)}/mo.
                 </p>
               </div>
             </div>

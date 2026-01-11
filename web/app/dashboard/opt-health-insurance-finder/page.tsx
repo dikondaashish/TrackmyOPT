@@ -78,6 +78,7 @@ export default function HealthInsuranceFinderPage() {
   const [monthlyIncome, setMonthlyIncome] = useState("");
   const [visaType, setVisaType] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [isPregnant, setIsPregnant] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
@@ -115,6 +116,7 @@ export default function HealthInsuranceFinderPage() {
       income: monthlyIncome || "0",
       visa: visaType,
       dob: dateOfBirth,
+      pregnant: isPregnant ? "true" : "false",
     });
 
     router.push(`/dashboard/opt-health-insurance-finder/results?${params.toString()}`);
@@ -235,6 +237,38 @@ export default function HealthInsuranceFinderPage() {
                 onChange={(e) => setDateOfBirth(e.target.value)}
                 className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
+            </div>
+
+            {/* Pregnancy */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-foreground mb-2">
+                Are you currently pregnant?
+              </label>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setIsPregnant(false)}
+                  className={`flex-1 h-12 rounded-xl border transition-all font-medium ${!isPregnant
+                      ? "bg-blue-600 border-blue-600 text-white"
+                      : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted/80"
+                    }`}
+                >
+                  No
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPregnant(true)}
+                  className={`flex-1 h-12 rounded-xl border transition-all font-medium ${isPregnant
+                      ? "bg-pink-600 border-pink-600 text-white"
+                      : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-slate-700 dark:text-foreground hover:bg-slate-100 dark:hover:bg-muted/80"
+                    }`}
+                >
+                  Yes
+                </button>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-1.5">
+                Pregnant individuals may qualify for additional coverage options
+              </p>
             </div>
 
             {/* Submit */}
