@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Crown, Tag, Fuel, Gift, X, MapPin } from "lucide-react";
+import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin } from "lucide-react";
 import { useState } from "react";
 
 // Fuel deal popup content
@@ -118,18 +118,6 @@ const OFFERS = [
     },
     {
         id: 5,
-        title: "Premium Upgrade",
-        description: "Unlock Document Vault, AI analysis, and advanced email notifications.",
-        discount: "Only $2.99",
-        category: "TrackMyOPT",
-        badge: "One-Time",
-        badgeColor: "from-yellow-500 to-orange-500",
-        icon: Crown,
-        link: "/premium",
-        featured: false,
-    },
-    {
-        id: 6,
         title: "Chrome Extension",
         description: "Quick access to your OPT countdown and case status right from your browser.",
         discount: "FREE",
