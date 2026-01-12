@@ -135,10 +135,12 @@ const OFFERS = [
 export default function OffersPage() {
     const [hoveredCard, setHoveredCard] = useState<number | null>(null);
     const [selectedFuelDeal, setSelectedFuelDeal] = useState<FuelDeal | null>(null);
+    const [showStepsPopup, setShowStepsPopup] = useState(false);
 
     const handleClaimDeal = (link: string) => {
         window.open(link, "_blank", "noopener,noreferrer");
         setSelectedFuelDeal(null);
+        setShowStepsPopup(false);
     };
 
     return (
@@ -469,39 +471,91 @@ export default function OffersPage() {
                                 </div>
                             </div>
 
-                            {/* Steps to Get This Offer */}
+                            {/* Steps to Get This Offer - Clickable Button */}
                             {selectedFuelDeal.id === "fuel-discount" && (
-                                <details className="mb-4">
-                                    <summary className="text-sm font-medium text-blue-700 dark:text-blue-400 cursor-pointer hover:text-blue-900 dark:hover:text-blue-300 flex items-center gap-2">
+                                <button
+                                    onClick={() => setShowStepsPopup(true)}
+                                    className="w-full mb-4 px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all text-left flex items-center justify-between group"
+                                >
+                                    <span className="text-sm font-medium text-blue-700 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-blue-300 flex items-center gap-2">
                                         📋 Steps to Get This Offer
-                                    </summary>
-                                    <div className="mt-3 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800">
-                                        <ol className="space-y-3">
-                                            <li className="flex gap-3">
-                                                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
-                                                <span className="text-sm">Click the <strong>"Claim This Offer"</strong> button below</span>
-                                            </li>
-                                            <li className="flex gap-3">
-                                                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
-                                                <span className="text-sm">Create your free account on the sign-up page</span>
-                                            </li>
-                                            <li className="flex gap-3">
-                                                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
-                                                <span className="text-sm">Verify your email to activate your account & earn points</span>
-                                            </li>
-                                            <li className="flex gap-3">
-                                                <span className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
-                                                <div className="text-sm">
-                                                    <span>Go to a participating gas station, select the app at the pump, enter your <strong>Alt ID</strong>, and </span>
-                                                    <span className="text-green-600 dark:text-green-400 font-semibold">save $0.50/gal</span>
-                                                    <span> (up to </span>
-                                                    <span className="text-green-600 dark:text-green-400 font-semibold">$17.50</span>
-                                                    <span> on 35 gallons!) 🎉</span>
-                                                </div>
-                                            </li>
-                                        </ol>
+                                    </span>
+                                    <span className="text-blue-400 dark:text-blue-500 group-hover:text-blue-600 dark:group-hover:text-blue-300">
+                                        →
+                                    </span>
+                                </button>
+                            )}
+
+                            {/* Steps Popup Modal */}
+                            {showStepsPopup && (
+                                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                                    <div
+                                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                        onClick={() => setShowStepsPopup(false)}
+                                    />
+                                    <div className="relative w-full max-w-md bg-card rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                                        {/* Header */}
+                                        <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-5 text-white">
+                                            <button
+                                                onClick={() => setShowStepsPopup(false)}
+                                                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                            <h3 className="text-lg font-bold flex items-center gap-2">
+                                                📋 Steps to Get This Offer
+                                            </h3>
+                                        </div>
+
+                                        {/* Steps Content */}
+                                        <div className="p-5">
+                                            <ol className="space-y-4">
+                                                <li className="flex gap-3">
+                                                    <span className="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                                                    <div>
+                                                        <span className="text-sm font-medium">Click "Claim This Offer"</span>
+                                                        <p className="text-xs text-muted-foreground">The button at the bottom of this popup</p>
+                                                    </div>
+                                                </li>
+                                                <li className="flex gap-3">
+                                                    <span className="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                                                    <div>
+                                                        <span className="text-sm font-medium">Create Your Account</span>
+                                                        <p className="text-xs text-muted-foreground">Fill in your details on the sign-up page</p>
+                                                    </div>
+                                                </li>
+                                                <li className="flex gap-3">
+                                                    <span className="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</span>
+                                                    <div>
+                                                        <span className="text-sm font-medium">Verify Your Email</span>
+                                                        <p className="text-xs text-muted-foreground">Check your inbox & confirm to earn points</p>
+                                                    </div>
+                                                </li>
+                                                <li className="flex gap-3">
+                                                    <span className="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</span>
+                                                    <div>
+                                                        <span className="text-sm font-medium text-green-700 dark:text-green-400">Save at the Pump! 🎉</span>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Go to a participating gas station, select the app, enter your <strong>Alt ID</strong>
+                                                        </p>
+                                                        <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/40 rounded-lg">
+                                                            <span className="text-sm font-bold text-green-700 dark:text-green-400">
+                                                                Save $0.50/gal → Up to $17.50!
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ol>
+
+                                            <button
+                                                onClick={() => setShowStepsPopup(false)}
+                                                className="w-full mt-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors"
+                                            >
+                                                Got It!
+                                            </button>
+                                        </div>
                                     </div>
-                                </details>
+                                </div>
                             )}
 
                             {/* Terms */}
