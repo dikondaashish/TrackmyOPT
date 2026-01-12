@@ -18,6 +18,7 @@ interface FuelDeal {
     badge: string;
     badgeColor: string;
     icon: typeof Fuel;
+    maxSavings?: string; // e.g., "Save $17.50 on 35 gal"
 }
 
 const FUEL_DEALS: FuelDeal[] = [
@@ -26,10 +27,12 @@ const FUEL_DEALS: FuelDeal[] = [
         title: "Fuel Savings",
         subtitle: "Bee's Knees Benefits™",
         discount: "$0.50/gal OFF",
-        description: "Save $0.50 per gallon on fuel, up to 35 gallons per fill-up. Join the Bee's Knees Benefits program and start saving on every tank!",
+        maxSavings: "Save $17.50 on 35 gal",
+        description: "Save $0.50 per gallon on fuel, up to 35 gallons per fill-up. That's up to $17.50 in savings every time you fill up!",
         benefits: [
             "$0.50 off per gallon",
             "Up to 35 gallons per transaction",
+            "Save up to $17.50 per fill-up",
             "No minimum purchase required",
             "Works at participating locations"
         ],
@@ -37,7 +40,7 @@ const FUEL_DEALS: FuelDeal[] = [
         link: "https://beesknees.myguestaccount.com/en-us/guest/enroll?card-template=gz6U71JdL9Y%3d&template=0",
         availableStates: ["TX", "VA", "NY", "CT", "MA", "RI", "NH", "VT", "ME"],
         category: "Fuel & Gas",
-        badge: "New Partner",
+        badge: "Hot Deal",
         badgeColor: "from-amber-500 to-orange-500",
         icon: Fuel,
     },
@@ -285,9 +288,16 @@ export default function OffersPage() {
                                     </p>
 
                                     <div className="flex items-center justify-between mt-4">
-                                        <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                                            {deal.discount}
-                                        </span>
+                                        <div className="flex flex-col">
+                                            <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                                {deal.discount}
+                                            </span>
+                                            {deal.maxSavings && (
+                                                <span className="text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full mt-1">
+                                                    💰 {deal.maxSavings}
+                                                </span>
+                                            )}
+                                        </div>
 
                                         <span className="inline-flex items-center gap-1 text-sm font-medium text-amber-600 dark:text-amber-400 group-hover:gap-2 transition-all">
                                             View Details
@@ -426,8 +436,15 @@ export default function OffersPage() {
                                 </div>
                             </div>
 
-                            <div className="mt-4 inline-block px-4 py-2 bg-white/20 rounded-full">
-                                <span className="text-xl font-bold">{selectedFuelDeal.discount}</span>
+                            <div className="mt-4 flex flex-wrap items-center gap-3">
+                                <div className="px-4 py-2 bg-white/20 rounded-full">
+                                    <span className="text-xl font-bold">{selectedFuelDeal.discount}</span>
+                                </div>
+                                {selectedFuelDeal.maxSavings && (
+                                    <div className="px-4 py-2 bg-white/30 rounded-full border border-white/40">
+                                        <span className="text-lg font-semibold">💰 {selectedFuelDeal.maxSavings}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
