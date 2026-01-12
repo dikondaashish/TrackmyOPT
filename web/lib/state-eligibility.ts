@@ -116,10 +116,10 @@ const TIER_1_STATES: Record<string, StateEligibilityConfig> = {
         status2026: "ACTIVE [YES] (changes Oct 1, 2026)",
         enrollmentStatus: 'active',
         importantNotes: [
-            "[YES] F-1 students with MA residency CAN enroll",
-            "F-1 visa = 'Lawfully Present' status",
-            "ConnectorCare offers subsidized ACA plans",
-            "Health Safety Net available for emergency care"
+            "[YES] F-1 with MA residency CAN enroll",
+            "Income < $21,750: Likely MassHealth (FREE)",
+            "Income $21,750 - $62,600: ConnectorCare (Subsidized)",
+            "F-1 visa = 'Lawfully Present' status"
         ],
         deadlineWarning: "[!] DEADLINE: Oct 1, 2026 - Medicaid changes under H.R.1 may affect F-1 eligibility",
     },
