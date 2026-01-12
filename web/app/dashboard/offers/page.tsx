@@ -1,7 +1,67 @@
 "use client";
 
-import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Crown, Tag } from "lucide-react";
+import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Crown, Tag, Fuel, Gift, X, MapPin } from "lucide-react";
 import { useState } from "react";
+
+// Fuel deal popup content
+interface FuelDeal {
+    id: string;
+    title: string;
+    subtitle: string;
+    discount: string;
+    description: string;
+    benefits: string[];
+    terms: string;
+    link: string;
+    availableStates: string[];
+    category: string;
+    badge: string;
+    badgeColor: string;
+    icon: typeof Fuel;
+}
+
+const FUEL_DEALS: FuelDeal[] = [
+    {
+        id: "fuel-discount",
+        title: "Fuel Savings",
+        subtitle: "Bee's Knees Benefits™",
+        discount: "$0.50/gal OFF",
+        description: "Save $0.50 per gallon on fuel, up to 35 gallons per fill-up. Join the Bee's Knees Benefits program and start saving on every tank!",
+        benefits: [
+            "$0.50 off per gallon",
+            "Up to 35 gallons per transaction",
+            "No minimum purchase required",
+            "Works at participating locations"
+        ],
+        terms: "Valid at participating locations. Savings applied at pump with registered account. Maximum 35 gallons per transaction.",
+        link: "https://beesknees.myguestaccount.com/en-us/guest/enroll?card-template=gz6U71JdL9Y%3d&template=0",
+        availableStates: ["TX", "VA", "NY", "CT", "MA", "RI", "NH", "VT", "ME"],
+        category: "Fuel & Gas",
+        badge: "New Partner",
+        badgeColor: "from-amber-500 to-orange-500",
+        icon: Fuel,
+    },
+    {
+        id: "weekly-freebees",
+        title: "Weekly FreeBees",
+        subtitle: "Bee's Knees Benefits™",
+        discount: "FREE Items",
+        description: "Get one FREE item every Wednesday! Enrolled members receive exclusive weekly freebies at participating stores.",
+        benefits: [
+            "1 FREE item every Wednesday",
+            "New product each week",
+            "Valid 12:00 AM - 11:59 PM EST",
+            "While supplies last"
+        ],
+        terms: "Weekly FreeBees is a program for enrolled, registered, and valid Bee's Knees Benefits™ members. Each offer is valid one day only, Wednesday, between 12:00 AM - 11:59 PM EST, while supplies last. Offer is for one (1) free item per member per week. Use your account at a participating location; to redeem, select YES on the pin pad at POS when prompted. Offer subject to change at any time. Offer valid on participating products only. Offer is non-transferable and cannot be combined with other offers, discounts, or redeemed for cash. Void where prohibited.",
+        link: "https://beesknees.myguestaccount.com/en-us/guest/enroll?card-template=gz6U71JdL9Y%3d&template=0",
+        availableStates: ["TX", "VA", "NY", "CT", "MA", "RI", "NH", "VT", "ME"],
+        category: "Free Rewards",
+        badge: "Weekly",
+        badgeColor: "from-green-500 to-emerald-500",
+        icon: Gift,
+    },
+];
 
 // Sample offers data - using consistent icons from the project (Sidebar, health insurance page)
 const OFFERS = [
@@ -81,6 +141,12 @@ const OFFERS = [
 
 export default function OffersPage() {
     const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+    const [selectedFuelDeal, setSelectedFuelDeal] = useState<FuelDeal | null>(null);
+
+    const handleClaimDeal = (link: string) => {
+        window.open(link, "_blank", "noopener,noreferrer");
+        setSelectedFuelDeal(null);
+    };
 
     return (
         <div className="min-h-screen bg-background">
@@ -175,6 +241,76 @@ export default function OffersPage() {
                     ))}
                 </div>
 
+                {/* Fuel & Rewards Deals */}
+                <div className="flex items-center gap-2 mb-6">
+                    <Fuel className="w-5 h-5 text-amber-500" />
+                    <h2 className="text-xl font-semibold">Fuel & Rewards Deals</h2>
+                    <span className="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase text-white rounded-full bg-gradient-to-r from-amber-500 to-orange-500">
+                        New Partner
+                    </span>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6 mb-12">
+                    {FUEL_DEALS.map((deal) => (
+                        <button
+                            key={deal.id}
+                            onClick={() => setSelectedFuelDeal(deal)}
+                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-700 p-6 hover:shadow-2xl hover:shadow-amber-500/10 hover:border-amber-300 dark:hover:border-amber-500/50 transition-all duration-300 hover:scale-[1.02] text-left"
+                        >
+                            {/* Badge */}
+                            <div className={`absolute top-4 right-4 px-3 py-1 text-xs font-bold uppercase text-white rounded-full bg-gradient-to-r ${deal.badgeColor}`}>
+                                {deal.badge}
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex items-start gap-4">
+                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${deal.badgeColor} flex items-center justify-center flex-shrink-0`}>
+                                    <deal.icon className="w-6 h-6 text-white" />
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                            {deal.category}
+                                        </span>
+                                    </div>
+
+                                    <h3 className="text-lg font-bold text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                                        {deal.title}
+                                    </h3>
+                                    <p className="text-xs text-muted-foreground">{deal.subtitle}</p>
+
+                                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                                        {deal.description}
+                                    </p>
+
+                                    <div className="flex items-center justify-between mt-4">
+                                        <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                            {deal.discount}
+                                        </span>
+
+                                        <span className="inline-flex items-center gap-1 text-sm font-medium text-amber-600 dark:text-amber-400 group-hover:gap-2 transition-all">
+                                            View Details
+                                            <ExternalLink className="w-4 h-4" />
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Available states */}
+                            <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-700/50">
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <MapPin className="w-3 h-3" />
+                                    <span>Available in: {deal.availableStates.join(", ")}</span>
+                                </div>
+                            </div>
+
+                            {/* Hover gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/5 group-hover:to-orange-500/5 transition-all duration-300 pointer-events-none" />
+                        </button>
+                    ))}
+                </div>
+
                 {/* All Offers */}
                 <div className="flex items-center gap-2 mb-6">
                     <Tag className="w-5 h-5 text-purple-500" />
@@ -259,6 +395,99 @@ export default function OffersPage() {
                     </p>
                 </div>
             </footer>
+
+            {/* Fuel Deal Popup Modal */}
+            {selectedFuelDeal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={() => setSelectedFuelDeal(null)}
+                    />
+
+                    {/* Modal */}
+                    <div className="relative w-full max-w-lg bg-card rounded-2xl shadow-2xl overflow-hidden">
+                        {/* Header */}
+                        <div className={`bg-gradient-to-r ${selectedFuelDeal.badgeColor} p-6 text-white`}>
+                            <button
+                                onClick={() => setSelectedFuelDeal(null)}
+                                className="absolute top-4 right-4 p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                                    <selectedFuelDeal.icon className="w-7 h-7" />
+                                </div>
+                                <div>
+                                    <p className="text-sm opacity-80">{selectedFuelDeal.subtitle}</p>
+                                    <h3 className="text-2xl font-bold">{selectedFuelDeal.title}</h3>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 inline-block px-4 py-2 bg-white/20 rounded-full">
+                                <span className="text-xl font-bold">{selectedFuelDeal.discount}</span>
+                            </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6">
+                            <p className="text-muted-foreground mb-4">
+                                {selectedFuelDeal.description}
+                            </p>
+
+                            {/* Benefits */}
+                            <div className="mb-4">
+                                <h4 className="font-semibold mb-2">What You Get:</h4>
+                                <ul className="space-y-2">
+                                    {selectedFuelDeal.benefits.map((benefit, i) => (
+                                        <li key={i} className="flex items-center gap-2 text-sm">
+                                            <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+                                                <span className="text-green-600 dark:text-green-400 text-xs">✓</span>
+                                            </div>
+                                            {benefit}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            {/* Available States */}
+                            <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg">
+                                <div className="flex items-center gap-2 text-sm">
+                                    <MapPin className="w-4 h-4 text-amber-600" />
+                                    <span className="font-medium text-amber-700 dark:text-amber-400">
+                                        Available in: {selectedFuelDeal.availableStates.join(", ")}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Terms */}
+                            <details className="mb-6">
+                                <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                                    View Terms & Conditions
+                                </summary>
+                                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                                    {selectedFuelDeal.terms}
+                                </p>
+                            </details>
+
+                            {/* CTA Button */}
+                            <button
+                                onClick={() => handleClaimDeal(selectedFuelDeal.link)}
+                                className={`w-full py-3 px-6 bg-gradient-to-r ${selectedFuelDeal.badgeColor} text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2`}
+                            >
+                                Claim This Offer
+                                <ExternalLink className="w-4 h-4" />
+                            </button>
+
+                            <p className="text-xs text-center text-muted-foreground mt-3">
+                                You'll be redirected to Bee's Knees Benefits™ to complete enrollment
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
