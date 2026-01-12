@@ -49,9 +49,11 @@ const FUEL_DEALS: FuelDeal[] = [
         title: "Weekly FreeBees",
         subtitle: "Bee's Knees Benefits™",
         discount: "FREE Items",
+        maxSavings: "Free product worth $3-$15",
         description: "Get one FREE item every Wednesday! Enrolled members receive exclusive weekly freebies at participating stores.",
         benefits: [
             "1 FREE item every Wednesday",
+            "Products worth $3 to $15",
             "New product each week",
             "Valid 12:00 AM - 11:59 PM EST",
             "While supplies last"
