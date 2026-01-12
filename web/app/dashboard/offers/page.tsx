@@ -469,35 +469,37 @@ export default function OffersPage() {
 
                             {/* Steps to Get This Offer */}
                             {selectedFuelDeal.id === "fuel-discount" && (
-                                <div className="mb-4 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800">
-                                    <h4 className="font-semibold mb-3 text-blue-800 dark:text-blue-300 flex items-center gap-2">
-                                        📋 Steps to Get This Offer:
-                                    </h4>
-                                    <ol className="space-y-3">
-                                        <li className="flex gap-3">
-                                            <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
-                                            <span className="text-sm">Click the <strong>"Claim This Offer"</strong> button below</span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
-                                            <span className="text-sm">Create your free account on the sign-up page</span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
-                                            <span className="text-sm">Verify your email to activate your account & earn points</span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <span className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
-                                            <div className="text-sm">
-                                                <span>Go to a participating gas station, select the app at the pump, enter your <strong>Alt ID</strong>, and </span>
-                                                <span className="text-green-600 dark:text-green-400 font-semibold">save $0.50/gal</span>
-                                                <span> (up to </span>
-                                                <span className="text-green-600 dark:text-green-400 font-semibold">$17.50</span>
-                                                <span> on 35 gallons!) 🎉</span>
-                                            </div>
-                                        </li>
-                                    </ol>
-                                </div>
+                                <details className="mb-4">
+                                    <summary className="text-sm font-medium text-blue-700 dark:text-blue-400 cursor-pointer hover:text-blue-900 dark:hover:text-blue-300 flex items-center gap-2">
+                                        📋 Steps to Get This Offer
+                                    </summary>
+                                    <div className="mt-3 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800">
+                                        <ol className="space-y-3">
+                                            <li className="flex gap-3">
+                                                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+                                                <span className="text-sm">Click the <strong>"Claim This Offer"</strong> button below</span>
+                                            </li>
+                                            <li className="flex gap-3">
+                                                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+                                                <span className="text-sm">Create your free account on the sign-up page</span>
+                                            </li>
+                                            <li className="flex gap-3">
+                                                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+                                                <span className="text-sm">Verify your email to activate your account & earn points</span>
+                                            </li>
+                                            <li className="flex gap-3">
+                                                <span className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
+                                                <div className="text-sm">
+                                                    <span>Go to a participating gas station, select the app at the pump, enter your <strong>Alt ID</strong>, and </span>
+                                                    <span className="text-green-600 dark:text-green-400 font-semibold">save $0.50/gal</span>
+                                                    <span> (up to </span>
+                                                    <span className="text-green-600 dark:text-green-400 font-semibold">$17.50</span>
+                                                    <span> on 35 gallons!) 🎉</span>
+                                                </div>
+                                            </li>
+                                        </ol>
+                                    </div>
+                                </details>
                             )}
 
                             {/* Terms */}
