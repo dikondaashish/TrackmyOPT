@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin } from "lucide-react";
+import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Briefcase } from "lucide-react";
 import { useState } from "react";
 
 // Fuel deal popup content
@@ -96,6 +96,18 @@ const OFFERS = [
     },
     {
         id: 3,
+        title: "Migrate Mate",
+        description: "Find 500,000+ verified jobs at companies that sponsor H-1B, OPT, TN, E-3, J-1 & Green Cards. Land your dream job in the U.S.",
+        discount: "30 Days FREE",
+        category: "Job Search",
+        badge: "New Partner",
+        badgeColor: "from-indigo-500 to-purple-500",
+        icon: Briefcase,
+        link: "https://www.migratemate.co/trackmyopt",
+        featured: true,
+    },
+    {
+        id: 4,
         title: "ISI Student Insurance",
         description: "Affordable student health coverage with United Healthcare network and 24/7 telemedicine.",
         discount: "From $35/mo",
@@ -107,7 +119,7 @@ const OFFERS = [
         featured: false,
     },
     {
-        id: 4,
+        id: 5,
         title: "Tax Filing Assistance",
         description: "Get help filing your taxes as an international student. Special rates for F-1/OPT holders.",
         discount: "20% OFF",
@@ -119,7 +131,7 @@ const OFFERS = [
         featured: false,
     },
     {
-        id: 5,
+        id: 6,
         title: "Chrome Extension",
         description: "Quick access to your OPT countdown and case status right from your browser.",
         discount: "FREE",
