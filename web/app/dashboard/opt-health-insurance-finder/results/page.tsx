@@ -7,9 +7,7 @@ import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Buildi
 import { calculateEligibility, type EligibilityStatus } from "@/lib/state-eligibility";
 
 // Age-based pricing for insurance partners
-// ISO uses flat rates based on Visa Type: F-1 ($31) vs OPT/STEM OPT ($39)
-// Others (StudentSecure/Kimber) use age brackets
-function calculatePrices(dob: string, visaType: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {
+function getAgeBracket(dob: string, visaType: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {
   const birthDate = new Date(dob);
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
@@ -18,14 +16,12 @@ function calculatePrices(dob: string, visaType: string): { bracket: string; age:
     age--;
   }
 
-  // ISO Flat Rate Logic
-  // F-1 Student: Silver Plan $31/mo
-  // OPT/STEM OPT: OPTima Basic $39/mo
-  // Default to F-1 price if unknown
+  // ISO Pricing Logic: Flat rate based on visa status
+  // F-1: $31/mo (Silver)
+  // OPT/STEM OPT: $39/mo (OPTima Basic)
   const isOPT = visaType.includes("OPT");
   const isoPrice = isOPT ? 39 : 31;
 
-  // Age brackets for other providers (ISI, Kimber/StudentSecure)
   if (age < 25) {
     return { bracket: "Under 25", age, isoPrice, isiPrice: 35, kimberPrice: 42 };
   } else if (age < 30) {
@@ -52,7 +48,7 @@ function ResultsContent() {
   const dob = searchParams.get("dob") || "";
   const isPregnant = searchParams.get("pregnant") === "true";
 
-  const pricing = calculatePrices(dob, visa);
+  const pricing = getAgeBracket(dob, visa);
   const age = pricing.age;
   const annualIncome = income * 12; // Convert monthly to annual
 
@@ -314,7 +310,9 @@ function ResultsContent() {
                   className="h-8 w-auto object-contain dark:brightness-110"
                 />
               </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISO OPTima Plan</h3>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">
+                {visa.includes("OPT") ? "ISO OPTima Plan" : "ISO Student Plan"}
+              </h3>
               <p className="text-sm text-[#8B1538] dark:text-rose-400 font-medium mt-0.5">International Student Insurance</p>
 
               <div className="mt-4 flex items-baseline gap-1">

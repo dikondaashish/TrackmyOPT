@@ -74,7 +74,7 @@ const OFFERS = [
         id: 1,
         title: "ISO Insurance",
         description: "Get comprehensive health insurance designed for international students and OPT workers.",
-        discount: "Starting $31/mo",
+        discount: "Starting $38/mo",
         category: "Health Insurance",
         badge: "Popular",
         badgeColor: "from-blue-500 to-cyan-500",
