@@ -132,6 +132,164 @@ export type Database = {
                 }
                 Relationships: []
             }
+            h1b_filings: {
+                Row: {
+                    agent_attorney_email: string | null
+                    agent_attorney_name: string | null
+                    begin_date: string | null
+                    case_number: string
+                    created_at: string | null
+                    decision_date: string | null
+                    employer_address1: string | null
+                    employer_address2: string | null
+                    employer_city: string | null
+                    employer_country: string | null
+                    employer_name: string | null
+                    employer_phone: string | null
+                    employer_poc_email: string | null
+                    employer_poc_name: string | null
+                    employer_postal_code: string | null
+                    employer_state: string | null
+                    end_date: string | null
+                    full_time_position: string | null
+                    id: string
+                    job_title: string | null
+                    lawfirm_name: string | null
+                    naics_code: string | null
+                    original_cert_date: string | null
+                    prevailing_wage: number | null
+                    pw_source: string | null
+                    pw_source_year: number | null
+                    pw_unit: string | null
+                    pw_wage_level: string | null
+                    received_date: string | null
+                    secondary_entity: string | null
+                    secondary_entity_business_name: string | null
+                    soc_code: string | null
+                    soc_title: string | null
+                    sponsor_id: string | null
+                    status: string | null
+                    total_workers: number | null
+                    visa_class: string | null
+                    wage_rate_from: number | null
+                    wage_rate_to: number | null
+                    wage_unit: string | null
+                    worksite_address1: string | null
+                    worksite_address2: string | null
+                    worksite_city: string | null
+                    worksite_county: string | null
+                    worksite_postal_code: string | null
+                    worksite_state: string | null
+                    worksite_workers: number | null
+                }
+                Insert: {
+                    agent_attorney_email?: string | null
+                    agent_attorney_name?: string | null
+                    begin_date?: string | null
+                    case_number: string
+                    created_at?: string | null
+                    decision_date?: string | null
+                    employer_address1?: string | null
+                    employer_address2?: string | null
+                    employer_city?: string | null
+                    employer_country?: string | null
+                    employer_name?: string | null
+                    employer_phone?: string | null
+                    employer_poc_email?: string | null
+                    employer_poc_name?: string | null
+                    employer_postal_code?: string | null
+                    employer_state?: string | null
+                    end_date?: string | null
+                    full_time_position?: string | null
+                    id?: string
+                    job_title?: string | null
+                    lawfirm_name?: string | null
+                    naics_code?: string | null
+                    original_cert_date?: string | null
+                    prevailing_wage?: number | null
+                    pw_source?: string | null
+                    pw_source_year?: number | null
+                    pw_unit?: string | null
+                    pw_wage_level?: string | null
+                    received_date?: string | null
+                    secondary_entity?: string | null
+                    secondary_entity_business_name?: string | null
+                    soc_code?: string | null
+                    soc_title?: string | null
+                    sponsor_id?: string | null
+                    status?: string | null
+                    total_workers?: number | null
+                    visa_class?: string | null
+                    wage_rate_from?: number | null
+                    wage_rate_to?: number | null
+                    wage_unit?: string | null
+                    worksite_address1?: string | null
+                    worksite_address2?: string | null
+                    worksite_city?: string | null
+                    worksite_county?: string | null
+                    worksite_postal_code?: string | null
+                    worksite_state?: string | null
+                    worksite_workers?: number | null
+                }
+                Update: {
+                    agent_attorney_email?: string | null
+                    agent_attorney_name?: string | null
+                    begin_date?: string | null
+                    case_number?: string
+                    created_at?: string | null
+                    decision_date?: string | null
+                    employer_address1?: string | null
+                    employer_address2?: string | null
+                    employer_city?: string | null
+                    employer_country?: string | null
+                    employer_name?: string | null
+                    employer_phone?: string | null
+                    employer_poc_email?: string | null
+                    employer_poc_name?: string | null
+                    employer_postal_code?: string | null
+                    employer_state?: string | null
+                    end_date?: string | null
+                    full_time_position?: string | null
+                    id?: string
+                    job_title?: string | null
+                    lawfirm_name?: string | null
+                    naics_code?: string | null
+                    original_cert_date?: string | null
+                    prevailing_wage?: number | null
+                    pw_source?: string | null
+                    pw_source_year?: number | null
+                    pw_unit?: string | null
+                    pw_wage_level?: string | null
+                    received_date?: string | null
+                    secondary_entity?: string | null
+                    secondary_entity_business_name?: string | null
+                    soc_code?: string | null
+                    soc_title?: string | null
+                    sponsor_id?: string | null
+                    status?: string | null
+                    total_workers?: number | null
+                    visa_class?: string | null
+                    wage_rate_from?: number | null
+                    wage_rate_to?: number | null
+                    wage_unit?: string | null
+                    worksite_address1?: string | null
+                    worksite_address2?: string | null
+                    worksite_city?: string | null
+                    worksite_county?: string | null
+                    worksite_postal_code?: string | null
+                    worksite_state?: string | null
+                    worksite_workers?: number | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "h1b_filings_sponsor_id_fkey"
+                        columns: ["sponsor_id"]
+                        isOneToOne: false
+                        referencedRelation: "h1b_sponsors"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
             job_tracker: {
                 Row: {
                     company: string
