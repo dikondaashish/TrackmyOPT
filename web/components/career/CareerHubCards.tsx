@@ -12,8 +12,8 @@ interface CareerCard {
     ctaText: string;
     href: string;
     gradient: string;
-    iconBg: string;
-    iconColor: string;
+    shadowColor: string;
+    hoverShadow: string;
 }
 
 const CAREER_CARDS: CareerCard[] = [
@@ -29,9 +29,9 @@ const CAREER_CARDS: CareerCard[] = [
         ],
         ctaText: "Browse Sponsors",
         href: "/dashboard/career/h1b-sponsors",
-        gradient: "from-blue-500 to-indigo-600",
-        iconBg: "bg-blue-100 dark:bg-blue-900/40",
-        iconColor: "text-blue-600 dark:text-blue-400",
+        gradient: "from-blue-500 via-blue-600 to-indigo-600",
+        shadowColor: "shadow-blue-500/25",
+        hoverShadow: "hover:shadow-blue-500/40",
     },
     {
         id: "job-tracker",
@@ -45,9 +45,9 @@ const CAREER_CARDS: CareerCard[] = [
         ],
         ctaText: "Open Tracker",
         href: "/dashboard/career/job-tracker",
-        gradient: "from-emerald-500 to-teal-600",
-        iconBg: "bg-emerald-100 dark:bg-emerald-900/40",
-        iconColor: "text-emerald-600 dark:text-emerald-400",
+        gradient: "from-emerald-500 via-green-500 to-teal-600",
+        shadowColor: "shadow-emerald-500/25",
+        hoverShadow: "hover:shadow-emerald-500/40",
     },
     {
         id: "resume-generator",
@@ -61,9 +61,9 @@ const CAREER_CARDS: CareerCard[] = [
         ],
         ctaText: "Generate Resume",
         href: "/dashboard/career/resume-generator",
-        gradient: "from-purple-500 to-pink-600",
-        iconBg: "bg-purple-100 dark:bg-purple-900/40",
-        iconColor: "text-purple-600 dark:text-purple-400",
+        gradient: "from-purple-500 via-violet-500 to-violet-600",
+        shadowColor: "shadow-purple-500/25",
+        hoverShadow: "hover:shadow-purple-500/40",
     },
     {
         id: "ats-scanner",
@@ -77,9 +77,9 @@ const CAREER_CARDS: CareerCard[] = [
         ],
         ctaText: "Scan Resume",
         href: "/dashboard/career/ats-scanner",
-        gradient: "from-amber-500 to-orange-600",
-        iconBg: "bg-amber-100 dark:bg-amber-900/40",
-        iconColor: "text-amber-600 dark:text-amber-400",
+        gradient: "from-amber-500 via-orange-500 to-orange-600",
+        shadowColor: "shadow-amber-500/25",
+        hoverShadow: "hover:shadow-amber-500/40",
     },
 ];
 
@@ -87,55 +87,63 @@ export function CareerHubCards() {
     const router = useRouter();
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-            {CAREER_CARDS.map((card) => (
-                <div
-                    key={card.id}
-                    className="group relative overflow-hidden rounded-xl bg-card border border-border/50 shadow-lg hover:shadow-xl hover:border-border transition-all duration-300 flex flex-col"
-                >
-                    {/* Gradient top accent */}
-                    <div className={`h-1 bg-gradient-to-r ${card.gradient}`} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 h-full">
+            {CAREER_CARDS.map((card) => {
+                const Icon = card.icon;
+                return (
+                    <button
+                        key={card.id}
+                        onClick={() => router.push(card.href)}
+                        className={`
+                            group relative overflow-hidden rounded-3xl p-6 text-left text-white
+                            bg-gradient-to-br ${card.gradient}
+                            shadow-xl ${card.shadowColor} ${card.hoverShadow}
+                            hover:shadow-2xl transition-all duration-500
+                            hover:scale-[1.02] hover:-translate-y-1
+                            focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2
+                            flex flex-col
+                        `}
+                    >
+                        {/* Animated background elements */}
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -translate-y-24 translate-x-24 group-hover:scale-150 transition-transform duration-700" />
+                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-16 -translate-x-16 group-hover:scale-125 transition-transform duration-700" />
 
-                    <div className="p-4 flex flex-col flex-1">
-                        {/* Icon & Title */}
-                        <div className="flex items-start gap-3 mb-3">
-                            <div className={`p-2.5 rounded-lg ${card.iconBg} group-hover:scale-110 transition-transform duration-300`}>
-                                <card.icon className={`w-5 h-5 ${card.iconColor}`} />
+                        {/* Content */}
+                        <div className="relative z-10 flex flex-col flex-1">
+                            {/* Icon */}
+                            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <Icon className="w-6 h-6" />
                             </div>
-                            <div className="flex-1">
-                                <h3 className="text-base font-bold text-foreground group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">
-                                    {card.title}
-                                </h3>
-                                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
-                                    {card.description}
-                                </p>
+
+                            {/* Title */}
+                            <h3 className="text-xl font-bold mb-2">
+                                {card.title}
+                            </h3>
+
+                            {/* Description */}
+                            <p className="text-white/80 text-sm mb-4 line-clamp-2">
+                                {card.description}
+                            </p>
+
+                            {/* Highlights */}
+                            <ul className="space-y-1 mb-4 flex-1">
+                                {card.highlights.map((highlight, idx) => (
+                                    <li key={idx} className="flex items-center gap-2 text-xs text-white/70">
+                                        <span className="w-1 h-1 rounded-full bg-white/60" />
+                                        {highlight}
+                                    </li>
+                                ))}
+                            </ul>
+
+                            {/* CTA */}
+                            <div className="flex items-center gap-2 font-semibold text-sm mt-auto">
+                                <span>{card.ctaText}</span>
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
                             </div>
                         </div>
-
-                        {/* Highlights */}
-                        <ul className="space-y-1.5 mb-4 flex-1">
-                            {card.highlights.map((highlight, idx) => (
-                                <li key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <span className={`w-1 h-1 rounded-full bg-gradient-to-r ${card.gradient}`} />
-                                    {highlight}
-                                </li>
-                            ))}
-                        </ul>
-
-                        {/* CTA Button */}
-                        <button
-                            onClick={() => router.push(card.href)}
-                            className={`w-full py-2.5 px-4 rounded-lg font-semibold text-white text-sm bg-gradient-to-r ${card.gradient} hover:opacity-90 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 group/btn`}
-                        >
-                            {card.ctaText}
-                            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </button>
-                    </div>
-
-                    {/* Hover glow effect */}
-                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 bg-gradient-to-br ${card.gradient} transition-opacity duration-300 pointer-events-none`} />
-                </div>
-            ))}
+                    </button>
+                );
+            })}
         </div>
     );
 }
