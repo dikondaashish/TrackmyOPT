@@ -8,6 +8,7 @@ interface H1BSponsorListProps {
     sponsors: H1BSponsor[];
     savedIds: string[];
     onToggleSave: (id: string) => void;
+    onAddToTracker: (sponsor: H1BSponsor) => void;
     isLoading?: boolean;
 }
 
@@ -36,7 +37,7 @@ function SponsorCardSkeleton() {
     );
 }
 
-export function H1BSponsorList({ sponsors, savedIds, onToggleSave, isLoading }: H1BSponsorListProps) {
+export function H1BSponsorList({ sponsors, savedIds, onToggleSave, onAddToTracker, isLoading }: H1BSponsorListProps) {
     if (isLoading) {
         return (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -69,6 +70,7 @@ export function H1BSponsorList({ sponsors, savedIds, onToggleSave, isLoading }: 
                     sponsor={sponsor}
                     isSaved={savedIds.includes(sponsor.id)}
                     onToggleSave={onToggleSave}
+                    onAddToTracker={onAddToTracker}
                 />
             ))}
         </div>
