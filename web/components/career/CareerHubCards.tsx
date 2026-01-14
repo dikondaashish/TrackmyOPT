@@ -48,16 +48,35 @@ export function CareerHubCards() {
     return (
         <div className="space-y-8">
             <div className="max-w-7xl mx-auto space-y-8">
-                {/* Header */}
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/25">
-                        <Rocket className="w-7 h-7 text-white" />
+                {/* Header with Stats */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    {/* Left: Title */}
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/25">
+                            <Rocket className="w-7 h-7 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Career Hub</h1>
+                            <p className="text-gray-600 dark:text-gray-400">
+                                Everything you need to get hired on OPT/STEM OPT
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Career Hub</h1>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Everything you need to get hired on OPT/STEM OPT
-                        </p>
+
+                    {/* Right: Quick Stats */}
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800">
+                            <span className="text-xs text-gray-600 dark:text-gray-400">Applications:</span>
+                            <span className="font-bold text-blue-600 dark:text-blue-400">0</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
+                            <span className="text-xs text-gray-600 dark:text-gray-400">Interviews:</span>
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">0</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800">
+                            <span className="text-xs text-gray-600 dark:text-gray-400">Follow-ups:</span>
+                            <span className="font-bold text-amber-600 dark:text-amber-400">0</span>
+                        </div>
                     </div>
                 </div>
 
