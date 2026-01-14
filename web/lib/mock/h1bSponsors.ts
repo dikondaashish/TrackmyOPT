@@ -14,6 +14,7 @@ export interface H1BSponsor {
     approvals_2022: number;
     approvals_2023: number;
     approvals_2024?: number;
+    approvals_2025?: number;
     total_approvals?: number;
     sponsorship_strength: "High" | "Medium" | "Low";
     common_roles: string[];
@@ -811,5 +812,5 @@ export function getSponsorById(id: string): H1BSponsor | undefined {
 
 // Get total approvals for a sponsor
 export function getTotalApprovals(sponsor: H1BSponsor): number {
-    return sponsor.approvals_2021 + sponsor.approvals_2022 + sponsor.approvals_2023 + (sponsor.approvals_2024 || 0);
+    return sponsor.approvals_2021 + sponsor.approvals_2022 + sponsor.approvals_2023 + (sponsor.approvals_2024 || 0) + (sponsor.approvals_2025 || 0);
 }

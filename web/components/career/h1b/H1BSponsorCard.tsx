@@ -69,16 +69,16 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave }: H1BSponsorCar
                         <p className="text-lg font-bold text-gray-900 dark:text-white">{totalApprovals.toLocaleString()}</p>
                     </div>
                     <div className="text-center border-l border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">2025</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{(sponsor.approvals_2025 || 0).toLocaleString()}</p>
+                    </div>
+                    <div className="text-center border-l border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">2024</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{(sponsor.approvals_2024 || 0).toLocaleString()}</p>
+                    </div>
+                    <div className="text-center border-l border-gray-200 dark:border-gray-700">
                         <p className="text-xs text-gray-500 dark:text-gray-400">2023</p>
                         <p className="text-sm font-semibold text-gray-900 dark:text-white">{sponsor.approvals_2023.toLocaleString()}</p>
-                    </div>
-                    <div className="text-center border-l border-gray-200 dark:border-gray-700">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">2022</p>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{sponsor.approvals_2022.toLocaleString()}</p>
-                    </div>
-                    <div className="text-center border-l border-gray-200 dark:border-gray-700">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">2021</p>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{sponsor.approvals_2021.toLocaleString()}</p>
                     </div>
                 </div>
 
@@ -87,8 +87,8 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave }: H1BSponsorCar
                     <button
                         onClick={() => onToggleSave(sponsor.id)}
                         className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${isSaved
-                                ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
-                                : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
+                            : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
                             }`}
                     >
                         <Star className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />

@@ -81,6 +81,7 @@ export type Database = {
                     approvals_2022: number
                     approvals_2023: number
                     approvals_2024: number
+                    approvals_2025: number
                     common_roles: Json
                     created_at: string | null
                     h1b_dependent: boolean | null
@@ -99,6 +100,7 @@ export type Database = {
                     approvals_2022?: number
                     approvals_2023?: number
                     approvals_2024?: number
+                    approvals_2025?: number
                     common_roles?: Json
                     created_at?: string | null
                     h1b_dependent?: boolean | null
@@ -117,6 +119,7 @@ export type Database = {
                     approvals_2022?: number
                     approvals_2023?: number
                     approvals_2024?: number
+                    approvals_2025?: number
                     common_roles?: Json
                     created_at?: string | null
                     h1b_dependent?: boolean | null

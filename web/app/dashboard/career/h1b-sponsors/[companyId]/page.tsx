@@ -190,7 +190,7 @@ export default function SponsorDetailPage({ params }: { params: { companyId: str
                         <div className="text-center">
                             <p className="text-sm text-gray-500 dark:text-gray-400">Total Approvals</p>
                             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                {(sponsor.approvals_2021 + sponsor.approvals_2022 + sponsor.approvals_2023).toLocaleString()}
+                                {(sponsor.approvals_2021 + sponsor.approvals_2022 + sponsor.approvals_2023 + (sponsor.approvals_2024 || 0) + (sponsor.approvals_2025 || 0)).toLocaleString()}
                             </p>
                         </div>
                     </div>
