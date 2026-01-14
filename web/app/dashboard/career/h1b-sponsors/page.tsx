@@ -1,37 +1,40 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { Search, Filter, Briefcase, Bookmark, Building2, TrendingUp, Users, AlertCircle } from "lucide-react";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
-import { filterSponsors, FilterOptions } from "@/lib/career/h1b/filterSponsors";
-import { H1BSponsorStatsRow } from "@/components/career/h1b/H1BSponsorStatsRow";
-import { H1BSponsorSearchFilters } from "@/components/career/h1b/H1BSponsorSearchFilters";
-import { H1BSponsorList } from "@/components/career/h1b/H1BSponsorList";
-import { supabase } from "@/lib/supabaseClient";
-import { Database } from "@/types/supabase";
+import { H1BSponsorRow } from "@/types/supabase";
+import { H1BSponsorCard } from "@/components/career/h1b/H1BSponsorCard";
+import { H1BSponsorTabs } from "@/components/career/h1b/H1BSponsorTabs";
+import { AddToTrackerModal, JobTrackerItem } from "@/components/career/h1b/AddToTrackerModal";
+import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
 
-// LocalStorage key for saved sponsors
-const SAVED_SPONSORS_KEY = "trackmyopt_saved_sponsors";
-
-// Type alias for DB row
-type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
+// Initialize Supabase client
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function H1BSponsorsPage() {
-    const [filters, setFilters] = useState<FilterOptions>({
-        search: "",
-        location: "All",
-        industry: "All",
-        size: "All",
-        strength: "All",
-        sort: "most-sponsorship",
-    });
-    const [savedIds, setSavedIds] = useState<string[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [sponsors, setSponsors] = useState<H1BSponsor[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedIndustry, setSelectedIndustry] = useState("All");
+    const [selectedSize, setSelectedSize] = useState("All");
 
-    // Fetch sponsors from Supabase
+    // New Filters
+    const [hiringFilter, setHiringFilter] = useState<"All" | "Hiring">("All");
+    const [trendFilter, setTrendFilter] = useState<"All" | "Trending">("All");
+
+    const [activeTab, setActiveTab] = useState<"all" | "saved">("all");
+    const [sponsors, setSponsors] = useState<H1BSponsor[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [savedSponsors, setSavedSponsors] = useState<Set<string>>(new Set());
+
+    // Modal State
+    const [isTrackerModalOpen, setIsTrackerModalOpen] = useState(false);
+    const [selectedSponsorForTracker, setSelectedSponsorForTracker] = useState<H1BSponsor | null>(null);
+
+    // Initial Data Fetch
     useEffect(() => {
         async function fetchSponsors() {
             setIsLoading(true);
@@ -39,34 +42,29 @@ export default function H1BSponsorsPage() {
                 const { data, error } = await supabase
                     .from('h1b_sponsors')
                     .select('*')
-                    .order('total_approvals', { ascending: false }); // Default sorting
+                    .order('total_approvals', { ascending: false });
 
                 if (error) {
                     console.error("Error fetching sponsors:", error);
-                    // Fallback to empty or show error
                 } else if (data) {
-                    // Map DB rows to Frontend model
                     const mappedSponsors: H1BSponsor[] = data.map((row: H1BSponsorRow) => ({
                         id: row.id,
                         name: row.name,
                         industry: row.industry,
-                        // Cast string to union type - assuming DB has valid values
                         size: row.size as H1BSponsor['size'],
                         location: row.location,
                         website: row.website,
+                        logo: row.logo,
                         approvals_2021: row.approvals_2021,
                         approvals_2022: row.approvals_2022,
                         approvals_2023: row.approvals_2023,
                         approvals_2024: row.approvals_2024 ?? 0,
                         approvals_2025: row.approvals_2025 ?? 0,
-                        // Calculate total or use fetched total (if available/computed)
-                        // Note: Mock interface doesn't have total_approvals, but helper uses it?
-                        // Actually mock interface has approvals_2021-2023
                         sponsorship_strength: row.sponsorship_strength as H1BSponsor['sponsorship_strength'],
                         common_roles: Array.isArray(row.common_roles)
                             ? (row.common_roles as string[])
                             : typeof row.common_roles === 'string'
-                                ? JSON.parse(row.common_roles) // Handle double-encoded JSON if applicable
+                                ? JSON.parse(row.common_roles)
                                 : [],
                     }));
                     setSponsors(mappedSponsors);
@@ -78,113 +76,206 @@ export default function H1BSponsorsPage() {
             }
         }
 
+        // Load saved state from LocalStorage
+        const saved = localStorage.getItem("trackmyopt_saved_sponsors");
+        if (saved) {
+            setSavedSponsors(new Set(JSON.parse(saved)));
+        }
+
         fetchSponsors();
     }, []);
 
-    // Load saved sponsors from localStorage
-    useEffect(() => {
-        try {
-            const saved = localStorage.getItem(SAVED_SPONSORS_KEY);
-            if (saved) {
-                setSavedIds(JSON.parse(saved));
-            }
-        } catch (e) {
-            console.error("Failed to load saved sponsors:", e);
+    const toggleSaveSponsor = (id: string) => {
+        const newSaved = new Set(savedSponsors);
+        if (newSaved.has(id)) {
+            newSaved.delete(id);
+        } else {
+            newSaved.add(id);
         }
-    }, []);
-
-    // Debounce search input
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(filters.search);
-        }, 250);
-        return () => clearTimeout(timer);
-    }, [filters.search]);
-
-    // Filter sponsors
-    const filteredSponsors = useMemo(() => {
-        return filterSponsors(sponsors, { ...filters, search: debouncedSearch });
-    }, [sponsors, filters, debouncedSearch]);
-
-    // Calculate stats
-    const highSponsors = sponsors.filter(s => s.sponsorship_strength === "High").length;
-
-    // Toggle save sponsor
-    const handleToggleSave = (id: string) => {
-        setSavedIds(prev => {
-            const newSaved = prev.includes(id)
-                ? prev.filter(s => s !== id)
-                : [...prev, id];
-
-            // Persist to localStorage
-            try {
-                localStorage.setItem(SAVED_SPONSORS_KEY, JSON.stringify(newSaved));
-            } catch (e) {
-                console.error("Failed to save sponsors:", e);
-            }
-
-            return newSaved;
-        });
+        setSavedSponsors(newSaved);
+        localStorage.setItem("trackmyopt_saved_sponsors", JSON.stringify(Array.from(newSaved)));
     };
 
+    const handleAddToTrackerClick = (sponsor: H1BSponsor) => {
+        setSelectedSponsorForTracker(sponsor);
+        setIsTrackerModalOpen(true);
+    };
+
+    const handleSaveJob = (job: JobTrackerItem) => {
+        // Save to localStorage for now
+        const existingDefault = localStorage.getItem("trackmyopt_job_tracker_items");
+        const items: JobTrackerItem[] = existingDefault ? JSON.parse(existingDefault) : [];
+        items.push(job);
+        localStorage.setItem("trackmyopt_job_tracker_items", JSON.stringify(items));
+
+        // Show simplified Toast
+        const toast = document.createElement("div");
+        toast.className = "fixed bottom-5 right-5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-lg shadow-lg text-sm font-medium z-50 animate-fade-in-up";
+        toast.innerText = "Added to Job Tracker ✅";
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    };
+
+    // Filter Logic
+    const filteredSponsors = useMemo(() => {
+        return sponsors.filter((sponsor) => {
+            // Tab Filter
+            if (activeTab === "saved" && !savedSponsors.has(sponsor.id)) {
+                return false;
+            }
+
+            // Search Filter
+            const matchesSearch =
+                sponsor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                sponsor.location.toLowerCase().includes(searchQuery.toLowerCase());
+
+            // Dropdown Filters
+            const matchesIndustry = selectedIndustry === "All" || sponsor.industry === selectedIndustry;
+            const matchesSize = selectedSize === "All" || sponsor.size === selectedSize;
+
+            // Hiring Filter
+            const isHiring = (sponsor.approvals_2025 || 0) > 0;
+            if (hiringFilter === "Hiring" && !isHiring) return false;
+
+            // Trend Filter
+            if (trendFilter === "Trending") {
+                const score = calculateSponsorScore(sponsor);
+                if (score.trend !== "Up") return false;
+            }
+
+            return matchesSearch && matchesIndustry && matchesSize;
+        });
+    }, [sponsors, searchQuery, selectedIndustry, selectedSize, hiringFilter, trendFilter, activeTab, savedSponsors]);
+
+    const industries = ["All", ...Array.from(new Set(sponsors.map((s) => s.industry)))];
+
     return (
-        <div className="space-y-6">
-            <div className="max-w-7xl mx-auto space-y-6">
-                {/* Back Link */}
-                <Link
-                    href="/dashboard/career"
-                    className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to Career Hub
-                </Link>
+        <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Header */}
+            <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    Sponsor Intelligence Dashboard
+                </h1>
+                <p className="text-gray-500 dark:text-gray-400 max-w-2xl">
+                    Discover H-1B sponsors actively hiring in FY2025. Analyze trends, sponsorship scores, and save target companies to your job tracker.
+                </p>
+            </div>
 
-                {/* Header */}
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/25">
-                        <Building2 className="w-7 h-7 text-white" />
+            {/* Controls Section */}
+            <div className="flex flex-col gap-6">
+
+                {/* Tabs */}
+                <H1BSponsorTabs
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    savedCount={savedSponsors.size}
+                />
+
+                <div className="flex flex-col lg:flex-row gap-4">
+                    {/* Search Bar */}
+                    <div className="relative flex-1 group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Search company (Amazon, Infosys, Deloitte...)"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
+                        />
                     </div>
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">H-1B Sponsor Database</h1>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Explore companies that sponsor H-1B and hire international students
-                        </p>
+
+                    {/* Filters */}
+                    <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0 no-scrollbar">
+                        <div className="relative min-w-[140px]">
+                            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            <select
+                                value={hiringFilter}
+                                onChange={(e) => setHiringFilter(e.target.value as any)}
+                                className="w-full pl-9 pr-8 py-3 appearance-none rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none cursor-pointer hover:border-blue-500/50 transition-colors"
+                            >
+                                <option value="All">All Status</option>
+                                <option value="Hiring">Hiring Now (FY25)</option>
+                            </select>
+                        </div>
+
+                        <div className="relative min-w-[140px]">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                                <TrendingUp className="w-4 h-4" />
+                            </div>
+                            <select
+                                value={trendFilter}
+                                onChange={(e) => setTrendFilter(e.target.value as any)}
+                                className="w-full pl-9 pr-8 py-3 appearance-none rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none cursor-pointer hover:border-blue-500/50 transition-colors"
+                            >
+                                <option value="All">All Trends</option>
+                                <option value="Trending">Trending Up 📈</option>
+                            </select>
+                        </div>
+
+                        <div className="relative min-w-[160px]">
+                            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            <select
+                                value={selectedIndustry}
+                                onChange={(e) => setSelectedIndustry(e.target.value)}
+                                className="w-full pl-9 pr-8 py-3 appearance-none rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none cursor-pointer hover:border-blue-500/50 transition-colors"
+                            >
+                                {industries.map(ind => (
+                                    <option key={ind} value={ind}>{ind === "All" ? "All Industries" : ind}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-                </div>
-
-                {/* Stats Row */}
-                <H1BSponsorStatsRow
-                    totalSponsors={sponsors.length}
-                    highSponsors={highSponsors}
-                    savedCount={savedIds.length}
-                />
-
-                {/* Search & Filters */}
-                <H1BSponsorSearchFilters
-                    filters={filters}
-                    onFilterChange={setFilters}
-                />
-
-                {/* Results Count */}
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Showing <span className="font-semibold text-gray-900 dark:text-white">{filteredSponsors.length}</span> sponsors
-                    </p>
-                </div>
-
-                {/* Sponsor List */}
-                <H1BSponsorList
-                    sponsors={filteredSponsors}
-                    savedIds={savedIds}
-                    onToggleSave={handleToggleSave}
-                    isLoading={isLoading}
-                />
-
-                {/* Footer Info */}
-                <div className="text-center py-6 text-sm text-gray-500 dark:text-gray-400">
-                    Data based on DOL LCA disclosure records. Updated monthly.
                 </div>
             </div>
+
+            {/* Content Grid */}
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i} className="h-64 rounded-2xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                    ))}
+                </div>
+            ) : filteredSponsors.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredSponsors.map((sponsor) => (
+                        <H1BSponsorCard
+                            key={sponsor.id}
+                            sponsor={sponsor}
+                            isSaved={savedSponsors.has(sponsor.id)}
+                            onToggleSave={toggleSaveSponsor}
+                            onAddToTracker={handleAddToTrackerClick}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                        <Search className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No sponsors found</h3>
+                    <p className="text-gray-500 max-w-md mx-auto">
+                        {activeTab === "saved"
+                            ? "You haven't saved any sponsors yet. Browse the full list and save companies to track them here."
+                            : "Try adjusting your filters or search query to find more results."}
+                    </p>
+                    {activeTab === "saved" && (
+                        <button
+                            onClick={() => setActiveTab("all")}
+                            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+                        >
+                            Browse All Sponsors
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Modals */}
+            <AddToTrackerModal
+                isOpen={isTrackerModalOpen}
+                onClose={() => setIsTrackerModalOpen(false)}
+                companyName={selectedSponsorForTracker?.name || ""}
+                onSave={handleSaveJob}
+            />
         </div>
     );
 }
