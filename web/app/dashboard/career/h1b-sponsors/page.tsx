@@ -56,7 +56,7 @@ export default function H1BSponsorsPage() {
                         size: row.size as H1BSponsor['size'],
                         location: row.location,
                         website: row.website,
-                        logo: row.logo,
+
                         approvals_2021: row.approvals_2021,
                         approvals_2022: row.approvals_2022,
                         approvals_2023: row.approvals_2023,
