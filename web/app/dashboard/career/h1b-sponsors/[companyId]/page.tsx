@@ -27,9 +27,10 @@ interface Filing {
     visa_class: string | null;
 }
 
-export default function SponsorDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function SponsorDetailPage({ params }: { params: Promise<{ companyId: string }> }) {
     const router = useRouter();
-    const { id } = use(params); // Unwrap params
+    const { companyId } = use(params); // Unwrap params
+    const id = companyId; // Use companyId as id for queries
 
     // State
     const [sponsor, setSponsor] = useState<H1BSponsor | null>(null);
@@ -255,8 +256,8 @@ export default function SponsorDetailPage({ params }: { params: Promise<{ id: st
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${filing.status === 'Certified'
-                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
-                                                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+                                                : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
                                                 }`}>
                                                 {filing.status === 'Certified' ? (
                                                     <CheckCircle className="w-3 h-3" />
