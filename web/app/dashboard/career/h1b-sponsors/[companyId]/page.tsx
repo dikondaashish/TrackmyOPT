@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import { ArrowLeft, Building2, MapPin, Globe, Briefcase, TrendingUp, DollarSign, Calendar, FileText, CheckCircle, XCircle } from "lucide-react";
@@ -27,9 +27,9 @@ interface Filing {
     visa_class: string | null;
 }
 
-export default function SponsorDetailPage({ params }: { params: Promise<{ companyId: string }> }) {
+export default function SponsorDetailPage({ params }: { params: { companyId: string } }) {
     const router = useRouter();
-    const { companyId } = use(params); // Unwrap params
+    const { companyId } = params; // Unwrap params directly
     const id = companyId; // Use companyId as id for queries
 
     // State
