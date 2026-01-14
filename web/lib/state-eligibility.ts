@@ -439,7 +439,7 @@ export function calculateEligibility(params: EligibilityParams): EligibilityResu
             ...baseResult,
             status: 'EMERGENCY_ONLY',
             eligibilityReason: `${stateName} does not offer state health programs for F-1 students. This is a non-expansion state.`,
-            recommendedAction: "Use University SHIP ($1,400-$4,500/yr) or private insurance (ISO: $31-$85/mo).",
+            recommendedAction: "Use University SHIP ($1,400-$4,500/yr) or private insurance (ISO: $31-$118/mo).",
             showStateProgram: false,
         };
     }
@@ -524,7 +524,7 @@ export function calculateEligibility(params: EligibilityParams): EligibilityResu
                     ...baseResult,
                     status: 'NOT_ELIGIBLE',
                     eligibilityReason: `${config.programName} adult enrollment is NOT available for F-1 students 19+.`,
-                    recommendedAction: `Use University SHIP or private insurance (ISO: $31-$85/mo, Compass: similar).`,
+                    recommendedAction: `Use University SHIP or private insurance (ISO: $31-$118/mo, Compass: similar).`,
                     showStateProgram: false,
                 };
             }

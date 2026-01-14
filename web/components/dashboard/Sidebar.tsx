@@ -1,5 +1,5 @@
 "use client";
-import { LayoutDashboard, Calendar, ClipboardCheck, Clock, FileText, Settings, HelpCircle, LogOut, ChevronLeft, ChevronRight, Shield, Receipt } from "lucide-react";
+import { LayoutDashboard, Calendar, ClipboardCheck, Clock, FileText, Settings, HelpCircle, LogOut, ChevronLeft, ChevronRight, Shield, Receipt, Briefcase } from "lucide-react";
 import { useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { usePathname, useRouter } from "next/navigation";
@@ -49,6 +49,7 @@ export function Sidebar({ collapsed, setCollapsed, user, isPremium, onUpgradeCli
     { icon: Calendar, label: "OPT Dates", path: "/dashboard/opt-dates", badge: null },
     { icon: ClipboardCheck, label: "Case Status", path: "/dashboard/case-status", badge: null },
     { icon: Clock, label: "OPT Tools", path: "/dashboard/opt-tools", badge: null },
+    { icon: Briefcase, label: "Job Tracker", path: "/dashboard/career", badge: "New" },
     { icon: Shield, label: "Health Insurance", path: "/dashboard/opt-health-insurance-finder", badge: "From $0" },
     { icon: FileText, label: "Documents", path: "/dashboard/documents", badge: null },
     { icon: Receipt, label: "Tax Filing", path: "/dashboard/tax-filing", badge: "Free" },

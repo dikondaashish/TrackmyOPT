@@ -7,7 +7,7 @@ import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Buildi
 import { calculateEligibility, type EligibilityStatus } from "@/lib/state-eligibility";
 
 // Age-based pricing for insurance partners
-function getAgeBracket(dob: string, visaType: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {
+function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {
   const birthDate = new Date(dob);
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
@@ -16,22 +16,16 @@ function getAgeBracket(dob: string, visaType: string): { bracket: string; age: n
     age--;
   }
 
-  // ISO Pricing Logic: Flat rate based on visa status
-  // F-1: $31/mo (Silver)
-  // OPT/STEM OPT: $39/mo (OPTima Basic)
-  const isOPT = visaType.includes("OPT");
-  const isoPrice = isOPT ? 39 : 31;
-
   if (age < 25) {
-    return { bracket: "Under 25", age, isoPrice, isiPrice: 35, kimberPrice: 42 };
+    return { bracket: "Under 25", age, isoPrice: 38, isiPrice: 35, kimberPrice: 42 };
   } else if (age < 30) {
-    return { bracket: "25-29", age, isoPrice, isiPrice: 48, kimberPrice: 56 };
+    return { bracket: "25-29", age, isoPrice: 52, isiPrice: 48, kimberPrice: 56 };
   } else if (age < 35) {
-    return { bracket: "30-34", age, isoPrice, isiPrice: 62, kimberPrice: 72 };
+    return { bracket: "30-34", age, isoPrice: 68, isiPrice: 62, kimberPrice: 72 };
   } else if (age < 40) {
-    return { bracket: "35-39", age, isoPrice, isiPrice: 78, kimberPrice: 89 };
+    return { bracket: "35-39", age, isoPrice: 85, isiPrice: 78, kimberPrice: 89 };
   } else {
-    return { bracket: "40+", age, isoPrice, isiPrice: 98, kimberPrice: 115 };
+    return { bracket: "40+", age, isoPrice: 105, isiPrice: 98, kimberPrice: 115 };
   }
 }
 
@@ -48,7 +42,7 @@ function ResultsContent() {
   const dob = searchParams.get("dob") || "";
   const isPregnant = searchParams.get("pregnant") === "true";
 
-  const pricing = getAgeBracket(dob, visa);
+  const pricing = getAgeBracket(dob);
   const age = pricing.age;
   const annualIncome = income * 12; // Convert monthly to annual
 
@@ -310,9 +304,7 @@ function ResultsContent() {
                   className="h-8 w-auto object-contain dark:brightness-110"
                 />
               </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">
-                {visa.includes("OPT") ? "ISO OPTima Plan" : "ISO Student Plan"}
-              </h3>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISO OPTima Plan</h3>
               <p className="text-sm text-[#8B1538] dark:text-rose-400 font-medium mt-0.5">International Student Insurance</p>
 
               <div className="mt-4 flex items-baseline gap-1">
