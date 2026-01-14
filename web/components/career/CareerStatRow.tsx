@@ -1,49 +1,58 @@
 "use client";
 
-import { Briefcase, Users, Clock } from "lucide-react";
-
-interface CareerStats {
-    applications: number;
-    interviews: number;
-    followUps: number;
-}
+import { FileText, Calendar, AlertCircle } from "lucide-react";
 
 interface CareerStatRowProps {
-    stats: CareerStats;
+    applicationsCount: number;
+    interviewsCount: number;
+    followUpsDueCount: number;
 }
 
-export function CareerStatRow({ stats }: CareerStatRowProps) {
+export function CareerStatRow({
+    applicationsCount,
+    interviewsCount,
+    followUpsDueCount
+}: CareerStatRowProps) {
+    const stats = [
+        {
+            label: "Applications",
+            count: applicationsCount,
+            icon: FileText,
+            color: "text-blue-600 dark:text-blue-400",
+            bg: "bg-blue-100 dark:bg-blue-900/30"
+        },
+        {
+            label: "Interviews",
+            count: interviewsCount,
+            icon: Calendar,
+            color: "text-green-600 dark:text-green-400",
+            bg: "bg-green-100 dark:bg-green-900/30"
+        },
+        {
+            label: "Follow-ups Due",
+            count: followUpsDueCount,
+            icon: AlertCircle,
+            color: "text-amber-600 dark:text-amber-400",
+            bg: "bg-amber-100 dark:bg-amber-900/30"
+        },
+    ];
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
-                <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                    <Briefcase className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+        <div className="flex flex-wrap gap-4 sm:gap-6">
+            {stats.map((stat) => (
+                <div
+                    key={stat.label}
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-card border border-border"
+                >
+                    <div className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                        <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                    </div>
+                    <div>
+                        <p className="text-xs text-muted-foreground">{stat.label}</p>
+                        <p className={`text-lg font-bold ${stat.color}`}>{stat.count}</p>
+                    </div>
                 </div>
-                <div>
-                    <p className="text-sm text-muted-foreground">Applications</p>
-                    <p className="text-2xl font-bold">{stats.applications}</p>
-                </div>
-            </div>
-
-            <div className="bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
-                <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                    <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                    <p className="text-sm text-muted-foreground">Interviews</p>
-                    <p className="text-2xl font-bold">{stats.interviews}</p>
-                </div>
-            </div>
-
-            <div className="bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
-                <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-                    <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                    <p className="text-sm text-muted-foreground">Follow-ups Due</p>
-                    <p className="text-2xl font-bold">{stats.followUps}</p>
-                </div>
-            </div>
+            ))}
         </div>
     );
 }
