@@ -9,29 +9,30 @@ interface HeaderProps {
 
 export function Header({ darkMode, setDarkMode }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background px-8 py-2">
+    <header className="sticky top-0 z-50 border-b border-border bg-background px-8 py-4">
       <div className="flex items-center justify-end gap-4">
-        {/* Offers Button - Compact */}
+        {/* Deals Button - Compact */}
         <Link
           href="/dashboard/offers"
-          className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full 
+          className="group relative flex flex-col items-center px-3 py-1 rounded-full 
                      bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 
                      hover:from-purple-500/20 hover:via-pink-500/20 hover:to-orange-500/20
                      dark:from-purple-500/20 dark:via-pink-500/20 dark:to-orange-500/20
                      dark:hover:from-purple-500/30 dark:hover:via-pink-500/30 dark:hover:to-orange-500/30
                      border border-purple-200/50 dark:border-purple-500/30
                      hover:border-purple-300 dark:hover:border-purple-400/50
-                     hover:scale-[1.02] transition-all duration-200 ease-out"
+                     hover:scale-[1.03] hover:shadow-lg hover:shadow-purple-500/10
+                     transition-all duration-200 ease-out"
         >
-          <Tag className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-          <div className="flex flex-col leading-tight">
+          <div className="flex items-center gap-1.5">
+            <Tag className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
             <span className="font-medium text-xs text-purple-700 dark:text-purple-300">
               Deals
             </span>
-            <span className="text-[8px] text-purple-600/70 dark:text-purple-300/70">
-              Get premium back
-            </span>
           </div>
+          <span className="text-[8px] text-purple-600/70 dark:text-purple-300/70 leading-tight">
+            💰 Get your premium back
+          </span>
           {/* Hot Badge */}
           <span className="absolute -top-1 -right-1 px-1 py-0.5 text-[8px] font-bold uppercase
                           bg-gradient-to-r from-orange-500 to-pink-500 text-white 
