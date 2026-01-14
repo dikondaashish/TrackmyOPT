@@ -16,8 +16,8 @@ const supabase = createBrowserClient<Database>(
 interface Filing {
     id: string;
     case_number: string;
-    job_title: string;
-    status: string;
+    job_title: string | null;
+    status: string | null;
     wage_rate_from: number | null;
     wage_rate_to: number | null;
     wage_unit: string | null;
