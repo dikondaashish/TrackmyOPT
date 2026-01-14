@@ -63,7 +63,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout this session');
+        throw new Error('Failed to create checkout session');
       }
 
       const { url } = await response.json();
