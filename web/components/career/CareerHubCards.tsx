@@ -2,7 +2,8 @@
 
 import { Building2, ClipboardList, FileText, ScanSearch, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface CareerCard {
     id: string;
@@ -12,9 +13,9 @@ interface CareerCard {
     highlights: string[];
     ctaText: string;
     href: string;
-    badge: string;
-    badgeColor: string;
-    category: string;
+    iconBg: string;
+    iconColor: string;
+    buttonColor: string;
 }
 
 const CAREER_CARDS: CareerCard[] = [
@@ -30,9 +31,9 @@ const CAREER_CARDS: CareerCard[] = [
         ],
         ctaText: "Browse Sponsors",
         href: "/dashboard/career/h1b-sponsors",
-        badge: "Database",
-        badgeColor: "from-blue-500 to-indigo-600",
-        category: "Company Search",
+        iconBg: "bg-blue-100 dark:bg-blue-900/30",
+        iconColor: "text-blue-600 dark:text-blue-400",
+        buttonColor: "bg-blue-600 hover:bg-blue-700",
     },
     {
         id: "job-tracker",
@@ -46,9 +47,9 @@ const CAREER_CARDS: CareerCard[] = [
         ],
         ctaText: "Open Tracker",
         href: "/dashboard/career/job-tracker",
-        badge: "CRM",
-        badgeColor: "from-emerald-500 to-teal-600",
-        category: "Organization",
+        iconBg: "bg-emerald-100 dark:bg-emerald-900/30",
+        iconColor: "text-emerald-600 dark:text-emerald-400",
+        buttonColor: "bg-emerald-600 hover:bg-emerald-700",
     },
     {
         id: "resume-generator",
@@ -62,9 +63,9 @@ const CAREER_CARDS: CareerCard[] = [
         ],
         ctaText: "Generate Resume",
         href: "/dashboard/career/resume-generator",
-        badge: "AI",
-        badgeColor: "from-purple-500 to-pink-600",
-        category: "AI Tools",
+        iconBg: "bg-purple-100 dark:bg-purple-900/30",
+        iconColor: "text-purple-600 dark:text-purple-400",
+        buttonColor: "bg-purple-600 hover:bg-purple-700",
     },
     {
         id: "ats-scanner",
@@ -78,77 +79,53 @@ const CAREER_CARDS: CareerCard[] = [
         ],
         ctaText: "Scan Resume",
         href: "/dashboard/career/ats-scanner",
-        badge: "Score",
-        badgeColor: "from-amber-500 to-orange-600",
-        category: "Analysis",
+        iconBg: "bg-amber-100 dark:bg-amber-900/30",
+        iconColor: "text-amber-600 dark:text-amber-400",
+        buttonColor: "bg-amber-600 hover:bg-amber-700",
     },
 ];
 
 export function CareerHubCards() {
     const router = useRouter();
-    const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {CAREER_CARDS.map((card) => (
-                <button
-                    key={card.id}
-                    onClick={() => router.push(card.href)}
-                    onMouseEnter={() => setHoveredCard(card.id)}
-                    onMouseLeave={() => setHoveredCard(null)}
-                    className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl hover:shadow-purple-500/10 hover:border-purple-300 dark:hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02] text-left"
-                >
-                    {/* Badge */}
-                    <div className={`absolute top-4 right-4 px-3 py-1 text-xs font-bold uppercase text-white rounded-full bg-gradient-to-r ${card.badgeColor}`}>
-                        {card.badge}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex items-start gap-4">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.badgeColor} flex items-center justify-center flex-shrink-0`}>
-                            <card.icon className="w-6 h-6 text-white" />
+                <Card key={card.id} className="p-6 hover:shadow-lg transition-shadow">
+                    {/* Icon & Title */}
+                    <div className="flex items-start gap-4 mb-4">
+                        <div className={`p-3 rounded-xl ${card.iconBg}`}>
+                            <card.icon className={`w-6 h-6 ${card.iconColor}`} />
                         </div>
-
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                    {card.category}
-                                </span>
-                            </div>
-
-                            <h3 className="text-lg font-bold text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                        <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-foreground">
                                 {card.title}
                             </h3>
-
-                            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                            <p className="text-sm text-muted-foreground mt-1">
                                 {card.description}
                             </p>
                         </div>
                     </div>
 
                     {/* Highlights */}
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700/50">
-                        <ul className="space-y-1.5">
-                            {card.highlights.map((highlight, idx) => (
-                                <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${card.badgeColor}`} />
-                                    {highlight}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                    <ul className="space-y-2 mb-6 ml-1">
+                        {card.highlights.map((highlight, idx) => (
+                            <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <span className={`w-1.5 h-1.5 rounded-full ${card.iconBg.replace('100', '500').replace('/30', '')}`} />
+                                {highlight}
+                            </li>
+                        ))}
+                    </ul>
 
-                    {/* CTA */}
-                    <div className="mt-4 flex items-center justify-end">
-                        <span className="inline-flex items-center gap-1 text-sm font-medium text-purple-600 dark:text-purple-400 group-hover:gap-2 transition-all">
-                            {card.ctaText}
-                            <ArrowRight className="w-4 h-4" />
-                        </span>
-                    </div>
-
-                    {/* Hover gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/5 group-hover:to-pink-500/5 transition-all duration-300 pointer-events-none" />
-                </button>
+                    {/* CTA Button */}
+                    <Button
+                        onClick={() => router.push(card.href)}
+                        className={`w-full ${card.buttonColor} text-white`}
+                    >
+                        {card.ctaText}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                </Card>
             ))}
         </div>
     );
