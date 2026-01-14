@@ -1,16 +1,16 @@
 "use client";
 
-import { Kanban, ArrowLeft } from "lucide-react";
+import { ClipboardList, ArrowLeft, Kanban, Bell, FileText } from "lucide-react";
 import Link from "next/link";
 
 export default function JobTrackerPage() {
     return (
         <div className="min-h-screen bg-background">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* Back Link */}
                 <Link
                     href="/dashboard/career"
-                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Back to Career Hub
@@ -18,12 +18,12 @@ export default function JobTrackerPage() {
 
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                        <Kanban className="w-7 h-7 text-white" />
+                    <div className="p-3 rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
+                        <ClipboardList className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
                         <h1 className="text-2xl sm:text-3xl font-bold">Job Application Tracker</h1>
-                        <p className="text-muted-foreground mt-1">
+                        <p className="text-muted-foreground">
                             Track applications, interviews, follow-ups, and offers in one place
                         </p>
                     </div>
@@ -31,14 +31,22 @@ export default function JobTrackerPage() {
 
                 {/* Placeholder Content */}
                 <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-12 text-center">
-                    <Kanban className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <div className="flex justify-center gap-4 mb-6">
+                        <div className="p-3 rounded-xl bg-card border border-border">
+                            <Kanban className="w-6 h-6 text-emerald-500" />
+                        </div>
+                        <div className="p-3 rounded-xl bg-card border border-border">
+                            <Bell className="w-6 h-6 text-amber-500" />
+                        </div>
+                        <div className="p-3 rounded-xl bg-card border border-border">
+                            <FileText className="w-6 h-6 text-blue-500" />
+                        </div>
+                    </div>
                     <h2 className="text-xl font-semibold mb-2">Coming Soon</h2>
                     <p className="text-muted-foreground max-w-md mx-auto">
-                        Manage your job applications with a visual Kanban board. Never miss a follow-up again.
+                        Organize your job search with a Kanban board, set follow-up reminders,
+                        and keep detailed notes on each application.
                     </p>
-                    <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium">
-                        🚀 Under Development
-                    </div>
                 </div>
             </div>
         </div>
