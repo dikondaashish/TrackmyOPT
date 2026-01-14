@@ -4,7 +4,9 @@ import { useState, useMemo, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { Search, Filter, Briefcase, Bookmark, Building2, TrendingUp, Users, AlertCircle } from "lucide-react";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
-import { H1BSponsorRow } from "@/types/supabase";
+import { Database } from "@/types/supabase";
+
+type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 import { H1BSponsorCard } from "@/components/career/h1b/H1BSponsorCard";
 import { H1BSponsorTabs } from "@/components/career/h1b/H1BSponsorTabs";
 import { AddToTrackerModal, JobTrackerItem } from "@/components/career/h1b/AddToTrackerModal";

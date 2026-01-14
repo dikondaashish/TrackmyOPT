@@ -49,6 +49,11 @@ next-env.d.ts
 extension/dist/
 
 
+
 # Local documentation (not tracked)
 PROJECT_OVERVIEW.md
 USCIS_API_DEMO_DOCUMENTATION.md
+
+# Large Data Sets
+ITContractorsUnion-Main/
+
