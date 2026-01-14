@@ -105,11 +105,21 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave }: H1BSponsorCar
 
                     <button
                         onClick={() => router.push(`/dashboard/career/h1b-sponsors/${sponsor.id}`)}
-                        className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium hover:shadow-lg transition-all"
+                        className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 text-sm font-medium transition-all"
                     >
                         View Details
                         <ArrowRight className="w-4 h-4" />
                     </button>
+
+                    <a
+                        href={sponsor.website}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium hover:shadow-lg transition-all"
+                    >
+                        Apply Now
+                        <ExternalLink className="w-4 h-4" />
+                    </a>
                 </div>
             </div>
         </div>

@@ -57,7 +57,8 @@ export default function H1BSponsorsPage() {
                         approvals_2021: row.approvals_2021,
                         approvals_2022: row.approvals_2022,
                         approvals_2023: row.approvals_2023,
-                        approvals_2024: row.approvals_2024 ?? 0, // Handle missing column if needed, or update interface
+                        approvals_2024: row.approvals_2024 ?? 0,
+                        approvals_2025: row.approvals_2025 ?? 0,
                         // Calculate total or use fetched total (if available/computed)
                         // Note: Mock interface doesn't have total_approvals, but helper uses it?
                         // Actually mock interface has approvals_2021-2023
