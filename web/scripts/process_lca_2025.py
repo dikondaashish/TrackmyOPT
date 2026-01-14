@@ -7,13 +7,18 @@ import urllib.error
 import json
 import time
 
+from dotenv import load_dotenv
+
+# Load env variables from .env.local
+load_dotenv(".env.local")
+
 # Configuration
 INPUT_FILE = "ITContractorsUnion-Main/Data/LCA_Disclosure_Data_FY2025_Q4.csv"
-SUPABASE_URL = "https://deknauqkqqzwuvopqott.supabase.co"
-# Key from .env.local (Service Role Key)
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRla25hdXFrcXF6d3V2b3Bxb3R0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDM3OTgxNSwiZXhwIjoyMDc1OTU1ODE1fQ.KuPDI7zwhLcDmdjxvdw6UHj7bC6tiOITODZ_P3Awhec"
+SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL", "https://deknauqkqqzwuvopqott.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-FILINGS_TABLE = "h1b_filings"
+if not SUPABASE_KEY:
+    raise ValueError("SUPABASE_SERVICE_ROLE_KEY not found in environment variables.")FILINGS_TABLE = "h1b_filings"
 SPONSORS_TABLE = "h1b_sponsors"
 BATCH_SIZE = 1000  # API Batch size
 
