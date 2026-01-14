@@ -9,7 +9,7 @@ interface HeaderProps {
 
 export function Header({ darkMode, setDarkMode }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background px-8 py-6">
+    <header className="sticky top-0 z-50 border-b border-border bg-background px-8 py-4">
       <div className="flex items-center justify-end gap-4">
         {/* Deals Button - Compact */}
         <Link
