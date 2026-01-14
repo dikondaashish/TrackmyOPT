@@ -1,52 +1,134 @@
 "use client";
 
-import { Building2, ArrowLeft, Search, Filter, Bookmark } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { ArrowLeft, Building2 } from "lucide-react";
+import { H1B_SPONSORS } from "@/lib/mock/h1bSponsors";
+import { filterSponsors, FilterOptions } from "@/lib/career/h1b/filterSponsors";
+import { H1BSponsorStatsRow } from "@/components/career/h1b/H1BSponsorStatsRow";
+import { H1BSponsorSearchFilters } from "@/components/career/h1b/H1BSponsorSearchFilters";
+import { H1BSponsorList } from "@/components/career/h1b/H1BSponsorList";
 
-export default function H1BSponsorPage() {
+// LocalStorage key for saved sponsors
+const SAVED_SPONSORS_KEY = "trackmyopt_saved_sponsors";
+
+export default function H1BSponsorsPage() {
+    const [filters, setFilters] = useState<FilterOptions>({
+        search: "",
+        location: "All",
+        industry: "All",
+        size: "All",
+        strength: "All",
+        sort: "most-sponsorship",
+    });
+    const [savedIds, setSavedIds] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    // Load saved sponsors from localStorage
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(SAVED_SPONSORS_KEY);
+            if (saved) {
+                setSavedIds(JSON.parse(saved));
+            }
+        } catch (e) {
+            console.error("Failed to load saved sponsors:", e);
+        }
+        // Simulate loading
+        setTimeout(() => setIsLoading(false), 500);
+    }, []);
+
+    // Debounce search input
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(filters.search);
+        }, 250);
+        return () => clearTimeout(timer);
+    }, [filters.search]);
+
+    // Filter sponsors
+    const filteredSponsors = useMemo(() => {
+        return filterSponsors(H1B_SPONSORS, { ...filters, search: debouncedSearch });
+    }, [filters, debouncedSearch]);
+
+    // Calculate stats
+    const highSponsors = H1B_SPONSORS.filter(s => s.sponsorship_strength === "High").length;
+
+    // Toggle save sponsor
+    const handleToggleSave = (id: string) => {
+        setSavedIds(prev => {
+            const newSaved = prev.includes(id)
+                ? prev.filter(s => s !== id)
+                : [...prev, id];
+
+            // Persist to localStorage
+            try {
+                localStorage.setItem(SAVED_SPONSORS_KEY, JSON.stringify(newSaved));
+            } catch (e) {
+                console.error("Failed to save sponsors:", e);
+            }
+
+            return newSaved;
+        });
+    };
+
     return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="space-y-6">
+            <div className="max-w-7xl mx-auto space-y-6">
                 {/* Back Link */}
                 <Link
                     href="/dashboard/career"
-                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+                    className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Back to Career Hub
                 </Link>
 
                 {/* Header */}
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="p-3 rounded-xl bg-blue-100 dark:bg-blue-900/40">
-                        <Building2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/25">
+                        <Building2 className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold">H-1B Sponsor Database</h1>
-                        <p className="text-muted-foreground">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">H-1B Sponsor Database</h1>
+                        <p className="text-gray-600 dark:text-gray-400">
                             Explore companies that sponsor H-1B and hire international students
                         </p>
                     </div>
                 </div>
 
-                {/* Placeholder Content */}
-                <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-12 text-center">
-                    <div className="flex justify-center gap-4 mb-6">
-                        <div className="p-3 rounded-xl bg-card border border-border">
-                            <Search className="w-6 h-6 text-blue-500" />
-                        </div>
-                        <div className="p-3 rounded-xl bg-card border border-border">
-                            <Filter className="w-6 h-6 text-purple-500" />
-                        </div>
-                        <div className="p-3 rounded-xl bg-card border border-border">
-                            <Bookmark className="w-6 h-6 text-amber-500" />
-                        </div>
-                    </div>
-                    <h2 className="text-xl font-semibold mb-2">Coming Soon</h2>
-                    <p className="text-muted-foreground max-w-md mx-auto">
-                        Search and filter through thousands of H-1B sponsoring companies.
-                        Save your favorites and track sponsor history.
+                {/* Stats Row */}
+                <H1BSponsorStatsRow
+                    totalSponsors={12000}
+                    highSponsors={highSponsors}
+                    savedCount={savedIds.length}
+                />
+
+                {/* Search & Filters */}
+                <H1BSponsorSearchFilters
+                    filters={filters}
+                    onFilterChange={setFilters}
+                />
+
+                {/* Results Count */}
+                <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Showing <span className="font-semibold text-gray-900 dark:text-white">{filteredSponsors.length}</span> sponsors
                     </p>
+                </div>
+
+                {/* Sponsor List */}
+                <H1BSponsorList
+                    sponsors={filteredSponsors}
+                    savedIds={savedIds}
+                    onToggleSave={handleToggleSave}
+                    isLoading={isLoading}
+                />
+
+                {/* Footer Info */}
+                <div className="text-center py-6 text-sm text-gray-500 dark:text-gray-400">
+                    Data based on DOL LCA disclosure records. Updated monthly.
                 </div>
             </div>
         </div>
