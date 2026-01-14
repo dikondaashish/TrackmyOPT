@@ -5,7 +5,7 @@
 import { H1BSponsor, getTotalApprovals } from "@/lib/mock/h1bSponsors";
 
 export type LocationFilter = "All" | "Remote" | "CA" | "NY" | "TX" | "MA" | "WA" | "NJ" | "IL";
-export type IndustryFilter = "All" | "Tech" | "Finance" | "Consulting" | "Healthcare" | "Education" | "Retail";
+export type IndustryFilter = "All" | "Tech" | "Finance" | "Consulting" | "Healthcare" | "Education" | "Retail" | "Manufacturing" | "Travel";
 export type SizeFilter = "All" | "Startup" | "Mid" | "Enterprise";
 export type StrengthFilter = "All" | "High" | "Medium" | "Low";
 export type SortOption = "most-sponsorship" | "recently-updated" | "alphabetical";
@@ -69,7 +69,7 @@ export function filterSponsors(sponsors: H1BSponsor[], options: FilterOptions): 
 }
 
 export const LOCATION_OPTIONS: LocationFilter[] = ["All", "CA", "NY", "TX", "MA", "WA", "NJ", "IL"];
-export const INDUSTRY_OPTIONS: IndustryFilter[] = ["All", "Tech", "Finance", "Consulting", "Healthcare", "Retail"];
+export const INDUSTRY_OPTIONS: IndustryFilter[] = ["All", "Tech", "Finance", "Consulting", "Healthcare", "Retail", "Manufacturing", "Travel"];
 export const SIZE_OPTIONS: SizeFilter[] = ["All", "Startup", "Mid", "Enterprise"];
 export const STRENGTH_OPTIONS: StrengthFilter[] = ["All", "High", "Medium", "Low"];
 export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
