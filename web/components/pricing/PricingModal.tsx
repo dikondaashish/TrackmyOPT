@@ -63,7 +63,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout session');
+        throw new Error('Failed to create checkout this session');
       }
 
       const { url } = await response.json();
@@ -169,8 +169,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
                   </p>
                 </div>
               ) : (
-                <Button 
-                  onClick={handleUpgrade} 
+                <Button
+                  onClick={handleUpgrade}
                   disabled={isLoading}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-xs py-2"
                 >
