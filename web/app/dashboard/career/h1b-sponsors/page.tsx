@@ -3,14 +3,19 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, Building2 } from "lucide-react";
-import { H1B_SPONSORS } from "@/lib/mock/h1bSponsors";
+import { H1BSponsor } from "@/lib/mock/h1bSponsors";
 import { filterSponsors, FilterOptions } from "@/lib/career/h1b/filterSponsors";
 import { H1BSponsorStatsRow } from "@/components/career/h1b/H1BSponsorStatsRow";
 import { H1BSponsorSearchFilters } from "@/components/career/h1b/H1BSponsorSearchFilters";
 import { H1BSponsorList } from "@/components/career/h1b/H1BSponsorList";
+import { supabase } from "@/lib/supabaseClient";
+import { Database } from "@/types/supabase";
 
 // LocalStorage key for saved sponsors
 const SAVED_SPONSORS_KEY = "trackmyopt_saved_sponsors";
+
+// Type alias for DB row
+type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 
 export default function H1BSponsorsPage() {
     const [filters, setFilters] = useState<FilterOptions>({
@@ -24,6 +29,56 @@ export default function H1BSponsorsPage() {
     const [savedIds, setSavedIds] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [sponsors, setSponsors] = useState<H1BSponsor[]>([]);
+
+    // Fetch sponsors from Supabase
+    useEffect(() => {
+        async function fetchSponsors() {
+            setIsLoading(true);
+            try {
+                const { data, error } = await supabase
+                    .from('h1b_sponsors')
+                    .select('*')
+                    .order('total_approvals', { ascending: false }); // Default sorting
+
+                if (error) {
+                    console.error("Error fetching sponsors:", error);
+                    // Fallback to empty or show error
+                } else if (data) {
+                    // Map DB rows to Frontend model
+                    const mappedSponsors: H1BSponsor[] = data.map((row: H1BSponsorRow) => ({
+                        id: row.id,
+                        name: row.name,
+                        industry: row.industry,
+                        // Cast string to union type - assuming DB has valid values
+                        size: row.size as H1BSponsor['size'],
+                        location: row.location,
+                        website: row.website,
+                        approvals_2021: row.approvals_2021,
+                        approvals_2022: row.approvals_2022,
+                        approvals_2023: row.approvals_2023,
+                        approvals_2024: row.approvals_2024 ?? 0, // Handle missing column if needed, or update interface
+                        // Calculate total or use fetched total (if available/computed)
+                        // Note: Mock interface doesn't have total_approvals, but helper uses it?
+                        // Actually mock interface has approvals_2021-2023
+                        sponsorship_strength: row.sponsorship_strength as H1BSponsor['sponsorship_strength'],
+                        common_roles: Array.isArray(row.common_roles)
+                            ? (row.common_roles as string[])
+                            : typeof row.common_roles === 'string'
+                                ? JSON.parse(row.common_roles) // Handle double-encoded JSON if applicable
+                                : [],
+                    }));
+                    setSponsors(mappedSponsors);
+                }
+            } catch (err) {
+                console.error("Unexpected error:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        fetchSponsors();
+    }, []);
 
     // Load saved sponsors from localStorage
     useEffect(() => {
@@ -35,8 +90,6 @@ export default function H1BSponsorsPage() {
         } catch (e) {
             console.error("Failed to load saved sponsors:", e);
         }
-        // Simulate loading
-        setTimeout(() => setIsLoading(false), 500);
     }, []);
 
     // Debounce search input
@@ -49,11 +102,11 @@ export default function H1BSponsorsPage() {
 
     // Filter sponsors
     const filteredSponsors = useMemo(() => {
-        return filterSponsors(H1B_SPONSORS, { ...filters, search: debouncedSearch });
-    }, [filters, debouncedSearch]);
+        return filterSponsors(sponsors, { ...filters, search: debouncedSearch });
+    }, [sponsors, filters, debouncedSearch]);
 
     // Calculate stats
-    const highSponsors = H1B_SPONSORS.filter(s => s.sponsorship_strength === "High").length;
+    const highSponsors = sponsors.filter(s => s.sponsorship_strength === "High").length;
 
     // Toggle save sponsor
     const handleToggleSave = (id: string) => {
@@ -100,7 +153,7 @@ export default function H1BSponsorsPage() {
 
                 {/* Stats Row */}
                 <H1BSponsorStatsRow
-                    totalSponsors={12000}
+                    totalSponsors={sponsors.length}
                     highSponsors={highSponsors}
                     savedCount={savedIds.length}
                 />
