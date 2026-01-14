@@ -87,36 +87,36 @@ export function CareerHubCards() {
     const router = useRouter();
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
             {CAREER_CARDS.map((card) => (
                 <div
                     key={card.id}
-                    className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-lg hover:shadow-xl hover:border-border transition-all duration-300"
+                    className="group relative overflow-hidden rounded-xl bg-card border border-border/50 shadow-lg hover:shadow-xl hover:border-border transition-all duration-300 flex flex-col"
                 >
                     {/* Gradient top accent */}
-                    <div className={`h-1.5 bg-gradient-to-r ${card.gradient}`} />
+                    <div className={`h-1 bg-gradient-to-r ${card.gradient}`} />
 
-                    <div className="p-6">
+                    <div className="p-4 flex flex-col flex-1">
                         {/* Icon & Title */}
-                        <div className="flex items-start gap-4 mb-4">
-                            <div className={`p-3 rounded-xl ${card.iconBg} group-hover:scale-110 transition-transform duration-300`}>
-                                <card.icon className={`w-6 h-6 ${card.iconColor}`} />
+                        <div className="flex items-start gap-3 mb-3">
+                            <div className={`p-2.5 rounded-lg ${card.iconBg} group-hover:scale-110 transition-transform duration-300`}>
+                                <card.icon className={`w-5 h-5 ${card.iconColor}`} />
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-lg font-bold text-foreground group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">
+                                <h3 className="text-base font-bold text-foreground group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">
                                     {card.title}
                                 </h3>
-                                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
                                     {card.description}
                                 </p>
                             </div>
                         </div>
 
                         {/* Highlights */}
-                        <ul className="space-y-2 mb-6">
+                        <ul className="space-y-1.5 mb-4 flex-1">
                             {card.highlights.map((highlight, idx) => (
-                                <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${card.gradient}`} />
+                                <li key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <span className={`w-1 h-1 rounded-full bg-gradient-to-r ${card.gradient}`} />
                                     {highlight}
                                 </li>
                             ))}
@@ -125,7 +125,7 @@ export function CareerHubCards() {
                         {/* CTA Button */}
                         <button
                             onClick={() => router.push(card.href)}
-                            className={`w-full py-3 px-4 rounded-xl font-semibold text-white bg-gradient-to-r ${card.gradient} hover:opacity-90 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 group/btn`}
+                            className={`w-full py-2.5 px-4 rounded-lg font-semibold text-white text-sm bg-gradient-to-r ${card.gradient} hover:opacity-90 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 group/btn`}
                         >
                             {card.ctaText}
                             <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
