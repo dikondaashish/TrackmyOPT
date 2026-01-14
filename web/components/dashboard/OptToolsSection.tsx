@@ -1,245 +1,186 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Calendar, Clock, GraduationCap, Timer, TrendingUp, CheckCircle2, AlertCircle, Sparkles, Shield, Zap, ArrowRight } from "lucide-react";
+import { Calculator, Clock, CalendarCheck, FileSpreadsheet, ArrowRight, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-interface QuickStats {
-  nextDeadline: { label: string; days: number } | null;
-  unemploymentStatus: { used: number; max: number } | null;
+interface OptTool {
+  id: string;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  highlights: string[];
+  ctaText: string;
+  href: string;
+  badge: string;
+  badgeColor: string;
+  category: string;
 }
+
+const OPT_TOOLS: OptTool[] = [
+  {
+    id: "day-counter",
+    icon: Clock,
+    title: "90-Day Counter",
+    description: "Track your unemployment days and stay compliant with OPT requirements.",
+    highlights: [
+      "Real-time day tracking",
+      "Email alerts",
+      "Compliance dashboard",
+    ],
+    ctaText: "Start Tracking",
+    href: "/dashboard",
+    badge: "Essential",
+    badgeColor: "from-blue-500 to-cyan-600",
+    category: "Compliance",
+  },
+  {
+    id: "opt-calculator",
+    icon: Calculator,
+    title: "OPT Calculator",
+    description: "Calculate your OPT/STEM OPT end dates and important deadlines.",
+    highlights: [
+      "Automatic calculations",
+      "STEM extension dates",
+      "Grace period tracking",
+    ],
+    ctaText: "Calculate Dates",
+    href: "/dashboard/opt-dates",
+    badge: "Calculator",
+    badgeColor: "from-emerald-500 to-teal-600",
+    category: "Planning",
+  },
+  {
+    id: "timeline",
+    icon: CalendarCheck,
+    title: "OPT Timeline",
+    description: "Visual timeline of your OPT journey with key milestones and deadlines.",
+    highlights: [
+      "Visual milestones",
+      "Key dates reminder",
+      "Status updates",
+    ],
+    ctaText: "View Timeline",
+    href: "/dashboard/opt-dates",
+    badge: "Timeline",
+    badgeColor: "from-purple-500 to-pink-600",
+    category: "Visualization",
+  },
+  {
+    id: "document-checklist",
+    icon: FileSpreadsheet,
+    title: "Document Checklist",
+    description: "Keep track of all required documents for your OPT and STEM applications.",
+    highlights: [
+      "Document vault",
+      "Expiry reminders",
+      "Secure storage",
+    ],
+    ctaText: "Manage Documents",
+    href: "/dashboard/documents",
+    badge: "Vault",
+    badgeColor: "from-amber-500 to-orange-600",
+    category: "Documents",
+  },
+];
 
 export function OptToolsSection() {
   const router = useRouter();
-  const [stats, setStats] = useState<QuickStats>({ nextDeadline: null, unemploymentStatus: null });
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadQuickStats();
-  }, []);
-
-  const loadQuickStats = async () => {
-    try {
-      const response = await fetch('/api/opt-status', { credentials: 'include' });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-
-          if (data.status.program_end_date) {
-            const programEnd = new Date(data.status.program_end_date);
-            const mustArriveBy = new Date(programEnd);
-            mustArriveBy.setDate(mustArriveBy.getDate() + 60);
-
-            const daysUntil = Math.ceil((mustArriveBy.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-            if (daysUntil > 0) {
-              setStats(prev => ({
-                ...prev,
-                nextDeadline: { label: 'OPT Filing Deadline', days: daysUntil }
-              }));
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load stats:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const tools = [
-    {
-      title: "OPT Apply Dates",
-      description: "Calculate your I-765 filing window and track important deadlines",
-      icon: Calendar,
-      href: "/dashboard/opt-tools/opt-apply",
-      gradient: "from-blue-500 via-blue-600 to-indigo-600",
-      shadowColor: "shadow-blue-500/25",
-      hoverShadow: "hover:shadow-blue-500/40",
-    },
-    {
-      title: "OPT Clock Tracker",
-      description: "Monitor your 90-day unemployment limit and stay compliant",
-      icon: Clock,
-      href: "/dashboard/opt-tools/opt-clock",
-      gradient: "from-amber-500 via-orange-500 to-orange-600",
-      shadowColor: "shadow-amber-500/25",
-      hoverShadow: "hover:shadow-amber-500/40",
-    },
-    {
-      title: "STEM OPT Apply",
-      description: "Plan your STEM extension filing and cap-gap protection",
-      icon: GraduationCap,
-      href: "/dashboard/opt-tools/stem-apply",
-      gradient: "from-emerald-500 via-green-500 to-teal-600",
-      shadowColor: "shadow-emerald-500/25",
-      hoverShadow: "hover:shadow-emerald-500/40",
-    },
-    {
-      title: "STEM Clock Tracker",
-      description: "Track your 60-day STEM OPT unemployment limit",
-      icon: Timer,
-      href: "/dashboard/opt-tools/stem-clock",
-      gradient: "from-purple-500 via-violet-500 to-violet-600",
-      shadowColor: "shadow-purple-500/25",
-      hoverShadow: "hover:shadow-purple-500/40",
-    },
-  ];
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   return (
-    <div className="space-y-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/25">
-            <Sparkles className="w-7 h-7 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">OPT Tools</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Calculate deadlines, track unemployment, and stay compliant
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-500/10 via-transparent to-transparent" />
 
-        {/* Quick Stats Banner */}
-        {!isLoading && stats.nextDeadline && (
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 text-white shadow-2xl shadow-blue-500/20">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-48 translate-x-48"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-32 -translate-x-32"></div>
-            <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <AlertCircle className="w-7 h-7" />
-                </div>
-                <div>
-                  <p className="text-sm text-blue-100">Upcoming Deadline</p>
-                  <p className="font-bold text-xl">{stats.nextDeadline.label}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm px-6 py-3 rounded-2xl">
-                <span className="text-4xl font-bold tabular-nums">{stats.nextDeadline.days}</span>
-                <span className="text-sm text-blue-100">days<br />remaining</span>
-              </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+          {/* Badge */}
+          <div className="flex justify-center mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/50 dark:border-blue-500/30">
+              <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                OPT Tools
+              </span>
             </div>
           </div>
-        )}
 
-        {/* Tool Cards Grid */}
+          {/* Title */}
+          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+              OPT Tools & Resources
+            </span>
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Essential tools to manage your OPT journey and stay compliant
+          </p>
+        </div>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {tools.map((tool) => {
-            const Icon = tool.icon;
-            return (
-              <button
-                key={tool.href}
-                onClick={() => router.push(tool.href)}
-                className={`
-                  group relative overflow-hidden rounded-3xl p-8 text-left text-white
-                  bg-gradient-to-br ${tool.gradient}
-                  shadow-xl ${tool.shadowColor} ${tool.hoverShadow}
-                  hover:shadow-2xl transition-all duration-500
-                  hover:scale-[1.02] hover:-translate-y-1
-                  focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2
-                `}
-              >
-                {/* Animated background elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32 group-hover:scale-150 transition-transform duration-700"></div>
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-24 -translate-x-24 group-hover:scale-150 transition-transform duration-700"></div>
+          {OPT_TOOLS.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => router.push(tool.href)}
+              onMouseEnter={() => setHoveredCard(tool.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300 hover:scale-[1.02] text-left"
+            >
+              {/* Badge */}
+              <div className={`absolute top-4 right-4 px-3 py-1 text-xs font-bold uppercase text-white rounded-full bg-gradient-to-r ${tool.badgeColor}`}>
+                {tool.badge}
+              </div>
 
-                {/* Shine sweep effect */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-all duration-1000"></div>
+              {/* Content */}
+              <div className="flex items-start gap-4">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tool.badgeColor} flex items-center justify-center flex-shrink-0`}>
+                  <tool.icon className="w-6 h-6 text-white" />
+                </div>
 
-                {/* Floating particles */}
-                <div className="absolute top-6 right-12 w-2 h-2 bg-white/30 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-opacity" style={{ animationDelay: '0s' }}></div>
-                <div className="absolute top-16 right-6 w-1.5 h-1.5 bg-white/20 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-opacity" style={{ animationDelay: '0.2s' }}></div>
-                <div className="absolute bottom-12 right-20 w-1 h-1 bg-white/25 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-opacity" style={{ animationDelay: '0.4s' }}></div>
-
-                {/* Content */}
-                <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-5 group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg">
-                    <Icon className="w-8 h-8" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {tool.category}
+                    </span>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="text-2xl font-bold mb-3">
+                  <h3 className="text-lg font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {tool.title}
                   </h3>
 
-                  {/* Description */}
-                  <p className="text-white/80 mb-6 line-clamp-2">
+                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                     {tool.description}
                   </p>
-
-                  {/* CTA */}
-                  <div className="flex items-center gap-2 font-semibold">
-                    <span>Open Tool</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
-                  </div>
                 </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Features Info - Premium Widgets */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="group relative overflow-hidden p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Auto-Sync</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Your dates sync automatically with OPT Dates page in real-time
-              </p>
-            </div>
-          </div>
 
-          <div className="group relative overflow-hidden p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400/10 to-teal-400/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
-                <CheckCircle2 className="w-6 h-6 text-white" />
+              {/* Highlights */}
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700/50">
+                <ul className="space-y-1.5">
+                  {tool.highlights.map((highlight, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${tool.badgeColor}`} />
+                      {highlight}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Live Stats</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                See real-time community approval and processing data
-              </p>
-            </div>
-          </div>
 
-          <div className="group relative overflow-hidden p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-400/10 to-orange-400/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mb-4 shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
-                <Zap className="w-6 h-6 text-white" />
+              {/* CTA */}
+              <div className="mt-4 flex items-center justify-end">
+                <span className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:gap-2 transition-all">
+                  {tool.ctaText}
+                  <ArrowRight className="w-4 h-4" />
+                </span>
               </div>
-              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Smart Alerts</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Get notified about approaching deadlines via email
-              </p>
-            </div>
-          </div>
-        </div>
 
-        {/* Bottom Info Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-800 dark:to-gray-900 p-6 text-white">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
-          <div className="relative z-10 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
-              <Shield className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="font-semibold">Stay Compliant with USCIS Requirements</p>
-              <p className="text-sm text-gray-400">All calculations follow official USCIS guidelines and regulations</p>
-            </div>
-          </div>
+              {/* Hover gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/5 group-hover:to-cyan-500/5 transition-all duration-300 pointer-events-none" />
+            </button>
+          ))}
         </div>
       </div>
     </div>
