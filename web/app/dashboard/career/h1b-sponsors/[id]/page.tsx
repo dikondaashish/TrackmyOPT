@@ -200,8 +200,28 @@ export default function CompanyProfilePage() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 flex items-center justify-center shadow-sm">
-                            <Building2 className="w-8 h-8 text-gray-400" />
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 flex items-center justify-center shadow-sm overflow-hidden">
+                            {(() => {
+                                if (!sponsor.website) return null;
+                                try {
+                                    const urlStr = sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`;
+                                    const hostname = new URL(urlStr).hostname.replace('www.', '');
+                                    return (
+                                        <img
+                                            src={`https://logo.clearbit.com/${hostname}`}
+                                            alt={sponsor.name}
+                                            className="w-full h-full object-cover p-2"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                            }}
+                                        />
+                                    );
+                                } catch (e) {
+                                    return null;
+                                }
+                            })()}
+                            <Building2 className={`w-8 h-8 text-gray-400 ${sponsor.website ? "hidden" : ""}`} />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{sponsor.name}</h1>

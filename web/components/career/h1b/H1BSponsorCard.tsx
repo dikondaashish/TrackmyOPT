@@ -45,12 +45,29 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                         {/* Company Info */}
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                             {/* Logo */}
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-sm">
-                                {sponsor.logo ? (
-                                    <img src={sponsor.logo} alt={sponsor.name} className="w-7 h-7 object-contain" />
-                                ) : (
-                                    <Building2 className="w-6 h-6 text-gray-400 dark:text-gray-500" />
-                                )}
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-sm overflow-hidden">
+                                {(() => {
+                                    if (!sponsor.website) return null;
+                                    try {
+                                        // Ensure protocol exists for URL constructor
+                                        const urlStr = sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`;
+                                        const hostname = new URL(urlStr).hostname.replace('www.', '');
+                                        return (
+                                            <img
+                                                src={`https://logo.clearbit.com/${hostname}`}
+                                                alt={sponsor.name}
+                                                className="w-full h-full object-cover p-1.5"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                                }}
+                                            />
+                                        );
+                                    } catch (e) {
+                                        return null;
+                                    }
+                                })()}
+                                <Building2 className={`w-6 h-6 text-gray-400 dark:text-gray-500 ${sponsor.website ? "hidden" : ""}`} />
                             </div>
 
                             <div className="min-w-0">
