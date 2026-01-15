@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { Briefcase, Search } from "lucide-react";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
@@ -152,6 +152,40 @@ export default function H1BSponsorsPage() {
         return filterSponsors(result, filters);
     }, [sponsors, filters, activeTab, savedSponsors]);
 
+    // Infinite Scroll State
+    const [visibleCount, setVisibleCount] = useState(9);
+    const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    // Reset visible count when filters change
+    useEffect(() => {
+        setVisibleCount(9);
+    }, [filters, activeTab, sponsors]);
+
+    // Intersection Observer for Infinite Scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setVisibleCount((prev) => prev + 9);
+                }
+            },
+            { threshold: 0.1, rootMargin: '100px' }
+        );
+
+        const currentTarget = loadMoreRef.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
+            }
+        };
+    }, [filteredSponsors]);
+
+    const visibleSponsors = filteredSponsors.slice(0, visibleCount);
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header */}
@@ -197,17 +231,26 @@ export default function H1BSponsorsPage() {
                     ))}
                 </div>
             ) : filteredSponsors.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filteredSponsors.map((sponsor) => (
-                        <H1BSponsorCard
-                            key={sponsor.id}
-                            sponsor={sponsor}
-                            isSaved={savedSponsors.has(sponsor.id)}
-                            onToggleSave={toggleSaveSponsor}
-                            onAddToTracker={handleAddToTrackerClick}
-                        />
-                    ))}
-                </div>
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {visibleSponsors.map((sponsor) => (
+                            <H1BSponsorCard
+                                key={sponsor.id}
+                                sponsor={sponsor}
+                                isSaved={savedSponsors.has(sponsor.id)}
+                                onToggleSave={toggleSaveSponsor}
+                                onAddToTracker={handleAddToTrackerClick}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Infinite Scroll Sentinel */}
+                    {visibleCount < filteredSponsors.length && (
+                        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+                            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                        </div>
+                    )}
+                </>
             ) : (
                 <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">

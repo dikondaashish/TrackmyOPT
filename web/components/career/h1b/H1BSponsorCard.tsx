@@ -13,11 +13,7 @@ interface H1BSponsorCardProps {
     onAddToTracker: (sponsor: H1BSponsor) => void;
 }
 
-const cleanState = (loc: string) => {
-    if (!loc) return "USA";
-    const parts = loc.split(",");
-    return parts[parts.length - 1].trim();
-}
+
 
 // Get score color based on value
 const getScoreColor = (score: number) => {
@@ -87,7 +83,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                                 <div className="flex items-center gap-2 mt-0.5">
                                     <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                                         <MapPin className="w-3 h-3" />
-                                        {cleanState(sponsor.location)}
+                                        {sponsor.location || "USA"}
                                     </span>
                                     <span className="text-gray-300 dark:text-gray-600">•</span>
                                     <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{sponsor.industry}</span>
