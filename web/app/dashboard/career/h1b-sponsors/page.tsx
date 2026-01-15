@@ -159,7 +159,7 @@ export default function H1BSponsorsPage() {
                     Sponsor Intelligence Dashboard
                 </h1>
                 <p className="text-gray-500 dark:text-gray-400 max-w-2xl">
-                    Discover H-1B sponsors actively hiring in FY2025. Analyze trends, sponsorship scores, and save target companies to your job tracker.
+                    Discover H-1B sponsors actively hiring with the latest Q4 2025 data. Analyze trends, sponsorship scores, and save target companies to your job tracker.
                 </p>
             </div>
 
