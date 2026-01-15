@@ -212,8 +212,15 @@ export default function CompanyProfilePage() {
                                             alt={sponsor.name}
                                             className="w-full h-full object-cover p-2"
                                             onError={(e) => {
-                                                (e.target as HTMLImageElement).style.display = 'none';
-                                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                                const img = e.target as HTMLImageElement;
+                                                // Try Google Favicon as fallback
+                                                if (img.src.includes('clearbit')) {
+                                                    img.src = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+                                                } else {
+                                                    // Both failed, hide image and show icon
+                                                    img.style.display = 'none';
+                                                    img.nextElementSibling?.classList.remove('hidden');
+                                                }
                                             }}
                                         />
                                     );
