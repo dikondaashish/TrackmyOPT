@@ -9,12 +9,7 @@ interface H1BSponsorStatsRowProps {
 }
 
 export function H1BSponsorStatsRow({ totalSponsors, highSponsors, savedSponsors }: H1BSponsorStatsRowProps) {
-    const formatNumber = (num: number) => {
-        if (num >= 1000) {
-            return `${(num / 1000).toFixed(1).replace(/\.0$/, '')}K+`;
-        }
-        return num.toLocaleString();
-    };
+
 
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -25,7 +20,7 @@ export function H1BSponsorStatsRow({ totalSponsors, highSponsors, savedSponsors 
                 </div>
                 <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Sponsors</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{formatNumber(totalSponsors)}</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{totalSponsors.toLocaleString()}</p>
                 </div>
             </div>
 
