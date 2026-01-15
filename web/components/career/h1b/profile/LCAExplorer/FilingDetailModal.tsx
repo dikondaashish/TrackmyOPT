@@ -75,7 +75,7 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                     { label: "Wage Rate To", value: formatCurrency(filing.wage_rate_to) },
                     { label: "Wage Unit", value: filing.wage_unit },
                     { label: "Prevailing Wage", value: formatCurrency(filing.prevailing_wage) },
-                    { label: "PW Unit", value: filing.pw_unit_of_pay },
+                    { label: "PW Unit", value: filing.pw_unit },
                     { label: "PW Source", value: filing.pw_source },
                     { label: "PW Source Year", value: filing.pw_source_year },
                     { label: "PW Other Source", value: filing.pw_other_source },
@@ -120,7 +120,7 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                 title: "Employer Point of Contact",
                 icon: User,
                 items: [
-                    { label: "Name", value: `${filing.employer_poc_first_name || ''} ${filing.employer_poc_middle_name || ''} ${filing.employer_poc_last_name || ''}`.trim() },
+                    { label: "Name", value: filing.employer_poc_name },
                     { label: "Job Title", value: filing.employer_poc_job_title },
                     { label: "Email", value: filing.employer_poc_email },
                     { label: "Phone", value: `${filing.employer_poc_phone}${filing.employer_poc_phone_ext ? ' x' + filing.employer_poc_phone_ext : ''}` },
@@ -131,11 +131,11 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                 title: "Legal Representation",
                 icon: Scale,
                 items: [
-                    { label: "Law Firm", value: filing.lawfirm_name_business_name },
+                    { label: "Law Firm", value: filing.lawfirm_name },
                     { label: "Firm FEIN", value: filing.lawfirm_business_fein },
                     { label: "Agent Representing", value: filing.agent_representing_employer },
-                    { label: "Attorney Name", value: `${filing.agent_attorney_first_name || ''} ${filing.agent_attorney_middle_name || ''} ${filing.agent_attorney_last_name || ''}`.trim() },
-                    { label: "Attorney Email", value: filing.agent_attorney_email_address },
+                    { label: "Attorney Name", value: filing.agent_attorney_name },
+                    { label: "Attorney Email", value: filing.agent_attorney_email },
                     { label: "Attorney Phone", value: `${filing.agent_attorney_phone}${filing.agent_attorney_phone_ext ? ' x' + filing.agent_attorney_phone_ext : ''}` },
                     { label: "Attorney Address", value: `${filing.agent_attorney_address1 || ''}, ${filing.agent_attorney_city || ''}` },
                     { label: "State of Highest Court", value: filing.state_of_highest_court },
@@ -165,8 +165,8 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                         <div className="flex items-center gap-3 mb-1">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">LCA Case Details</h2>
                             <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${filing.status === "Certified"
-                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                    : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
                                 }`}>
                                 {filing.status}
                             </span>
@@ -197,8 +197,8 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                                                 {item.label}
                                             </span>
                                             <span className={`text-sm break-words ${item.highlight
-                                                    ? "font-semibold text-emerald-600 dark:text-emerald-400"
-                                                    : "text-gray-900 dark:text-gray-200"
+                                                ? "font-semibold text-emerald-600 dark:text-emerald-400"
+                                                : "text-gray-900 dark:text-gray-200"
                                                 }`}>
                                                 {item.value || "N/A"}
                                             </span>

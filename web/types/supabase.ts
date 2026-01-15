@@ -184,6 +184,57 @@ export type Database = {
                     worksite_postal_code: string | null
                     worksite_state: string | null
                     worksite_workers: number | null
+                    trade_name_dba: string | null
+                    employer_poc_job_title: string | null
+                    employer_poc_phone: string | null
+                    employer_poc_phone_ext: string | null
+                    employer_poc_address1: string | null
+                    employer_poc_address2: string | null
+                    employer_poc_city: string | null
+                    employer_poc_state: string | null
+                    employer_poc_postal_code: string | null
+                    employer_poc_country: string | null
+                    employer_poc_province: string | null
+                    lawfirm_business_fein: string | null
+                    state_of_highest_court: string | null
+                    name_of_highest_state_court: string | null
+                    agent_representing_employer: string | null
+                    new_employment: number | null
+                    continued_employment: number | null
+                    change_previous_employment: number | null
+                    new_concurrent_employment: number | null
+                    change_employer: number | null
+                    amended_petition: number | null
+                    h_1b_dependent: string | null
+                    willful_violator: string | null
+                    support_h1b: string | null
+                    appendix_a_attached: string | null
+                    public_disclosure: string | null
+                    preparer_last_name: string | null
+                    preparer_first_name: string | null
+                    preparer_middle_initial: string | null
+                    preparer_business_name: string | null
+                    preparer_email: string | null
+                    total_worksite_locations: number | null
+                    agree_to_lc_statement: string | null
+                    statutory_basis: string | null
+                    agent_attorney_city: string | null
+                    agent_attorney_state: string | null
+                    agent_attorney_postal_code: string | null
+                    agent_attorney_phone: string | null
+                    agent_attorney_phone_ext: string | null
+                    agent_attorney_country: string | null
+                    agent_attorney_province: string | null
+                    employer_phone_ext: string | null
+                    employer_fein: string | null
+                    employer_province: string | null
+                    agent_attorney_address1: string | null
+                    agent_attorney_address2: string | null
+                    pw_other_source: string | null
+                    pw_other_year: number | null
+                    pw_survey_publisher: string | null
+                    pw_survey_name: string | null
+                    pw_tracking_number: string | null
                 }
                 Insert: {
                     agent_attorney_email?: string | null

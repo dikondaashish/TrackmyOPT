@@ -57,3 +57,8 @@ USCIS_API_DEMO_DOCUMENTATION.md
 # Large Data Sets
 ITContractorsUnion-Main/
 
+
+# Python venv
+.venv/
+__pycache__/
+*.pyc

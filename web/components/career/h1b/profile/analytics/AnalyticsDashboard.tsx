@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Database } from "@/types/supabase";
-import { TrendingUp, DollarSign, Clock, PieChart, Briefcase } from "lucide-react";
+import { TrendingUp, DollarSign, Clock, PieChart, Briefcase, Scale } from "lucide-react";
 
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];
 
@@ -45,6 +45,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
             return acc;
         }, {} as Record<string, number>);
 
+
         // 4. Job Roles
         const jobRoles = filings.reduce((acc, f) => {
             const title = f.job_title || 'Unknown';
@@ -56,12 +57,39 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
             .sort((a, b) => b[1] - a[1])
             .slice(0, 5);
 
+        // 5. Legal Intelligence
+        const lawFirms = filings.reduce((acc, f) => {
+            // Using lawfirm_name as primary based on type definition
+            const firm = f.lawfirm_name || 'In-House/Other';
+            acc[firm] = (acc[firm] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+
+        const topLawFirms = Object.entries(lawFirms)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3);
+
+        // 6. Geographic Presence
+        const cities = filings.reduce((acc, f) => {
+            if (f.worksite_city && f.worksite_state) {
+                const loc = `${f.worksite_city}, ${f.worksite_state}`;
+                acc[loc] = (acc[loc] || 0) + 1;
+            }
+            return acc;
+        }, {} as Record<string, number>);
+
+        const topLocations = Object.entries(cities)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
         return {
             medianSalary,
             salaryRange: { p25, p75 },
             avgProcessingTime,
             statusCounts,
             topRoles,
+            topLawFirms,
+            topLocations,
             total: filings.length
         };
     }, [filings]);
@@ -69,68 +97,103 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
     if (!stats) return null;
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Salary Insights */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
-                <div className="flex items-center gap-2 mb-4">
-                    <div className="p-2 bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 rounded-lg">
-                        <DollarSign className="w-5 h-5" />
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Top Row: Core Metrics */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* ... existing Salary, Processing, Roles cards ... */}
+                {/* Refactored slightly to fit new layout structure if needed, but keeping simple for now */}
+                {/* Salary Insights */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="p-2 bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 rounded-lg">
+                            <DollarSign className="w-5 h-5" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Salary Insights</h3>
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Salary Insights</h3>
-                </div>
 
-                <div className="mt-auto">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Median Salary</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
-                        ${(stats.medianSalary / 1000).toFixed(0)}k
-                    </p>
+                    <div className="mt-auto">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Median Salary</p>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                            ${(stats.medianSalary / 1000).toFixed(0)}k
+                        </p>
 
-                    <div className="mt-4 relative h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                        {/* Simple range visualization */}
-                        <div className="absolute h-full bg-green-200 dark:bg-green-900/40 w-full" />
-                        <div
-                            className="absolute h-full bg-green-500 dark:bg-green-500"
-                            style={{
-                                left: '20%', // Simplified visualization
-                                width: '60%'
-                            }}
-                        />
-                    </div>
-                    <div className="flex justify-between mt-2 text-xs text-gray-500">
-                        <span>${(stats.salaryRange.p25 / 1000).toFixed(0)}k (25th)</span>
-                        <span>${(stats.salaryRange.p75 / 1000).toFixed(0)}k (75th)</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Processing Speed */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
-                <div className="flex items-center gap-2 mb-4">
-                    <div className="p-2 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg">
-                        <Clock className="w-5 h-5" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Processing Speed</h3>
-                </div>
-
-                <div className="mt-auto">
-                    <div className="flex items-center gap-4">
-                        <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Avg Decision Time</p>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
-                                {stats.avgProcessingTime < 1 ? "< 1" : stats.avgProcessingTime} <span className="text-sm font-normal text-gray-500">days</span>
-                            </p>
+                        <div className="mt-4 relative h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div className="absolute h-full bg-green-200 dark:bg-green-900/40 w-full" />
+                            <div
+                                className="absolute h-full bg-green-500 dark:bg-green-500"
+                                style={{
+                                    left: '20%',
+                                    width: '60%'
+                                }}
+                            />
+                        </div>
+                        <div className="flex justify-between mt-2 text-xs text-gray-500">
+                            <span>${(stats.salaryRange.p25 / 1000).toFixed(0)}k (25th)</span>
+                            <span>${(stats.salaryRange.p75 / 1000).toFixed(0)}k (75th)</span>
                         </div>
                     </div>
+                </div>
 
-                    <div className="mt-6 space-y-2">
-                        {Object.entries(stats.statusCounts).map(([status, count]) => (
-                            <div key={status} className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${status === 'Certified' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
-                                    <span className="text-gray-600 dark:text-gray-300">{status}</span>
+                {/* Processing Speed */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="p-2 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg">
+                            <Clock className="w-5 h-5" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Processing Speed</h3>
+                    </div>
+
+                    <div className="mt-auto">
+                        <div className="flex items-center gap-4">
+                            <div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Avg Decision Time</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                                    {stats.avgProcessingTime < 1 ? "< 1" : stats.avgProcessingTime} <span className="text-sm font-normal text-gray-500">days</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 space-y-2">
+                            {Object.entries(stats.statusCounts).map(([status, count]) => (
+                                <div key={status} className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-2 h-2 rounded-full ${status === 'Certified' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                                        <span className="text-gray-600 dark:text-gray-300">{status}</span>
+                                    </div>
+                                    <span className="font-medium text-gray-900 dark:text-white">
+                                        {Math.round((count / stats.total) * 100)}%
+                                    </span>
                                 </div>
-                                <span className="font-medium text-gray-900 dark:text-white">
-                                    {Math.round((count / stats.total) * 100)}%
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Job Roles */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className="p-2 bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 rounded-lg">
+                            <Briefcase className="w-5 h-5" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Top Roles</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        {stats.topRoles.map(([role, count]: [string, number], i: number) => (
+                            <div key={role} className="flex items-center justify-between group">
+                                <div className="flex-1 min-w-0 pr-4">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={role}>
+                                        {role}
+                                    </p>
+                                    <div className="w-full bg-gray-100 dark:bg-gray-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                                        <div
+                                            className="h-full bg-purple-500 rounded-full group-hover:bg-purple-400 transition-colors"
+                                            style={{ width: `${(count / stats.topRoles[0][1]) * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
+                                <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 shrink-0">
+                                    {count}
                                 </span>
                             </div>
                         ))}
@@ -138,36 +201,48 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 </div>
             </div>
 
-            {/* Job Roles */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="p-2 bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 rounded-lg">
-                        <Briefcase className="w-5 h-5" />
+            {/* Bottom Row: Advanced Insights (Legal & Geo) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Geographic Presence */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className="p-2 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-lg">
+                            <PieChart className="w-5 h-5" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Worksite Hotspots</h3>
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Top Roles</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                        {stats.topLocations.map(([loc, count], i) => (
+                            <div key={loc} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
+                                <p className="text-xs text-gray-500 uppercase font-medium">Location #{i + 1}</p>
+                                <p className="font-semibold text-gray-900 dark:text-white truncate" title={loc}>{loc}</p>
+                                <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">{count} filings</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                <div className="space-y-4">
-                    {stats.topRoles.map(([role, count], i) => (
-                        <div key={role} className="flex items-center justify-between group">
-                            <div className="flex-1 min-w-0 pr-4">
-                                <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={role}>
-                                    {role}
-                                </p>
-                                <div className="w-full bg-gray-100 dark:bg-gray-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
-                                    <div
-                                        className="h-full bg-purple-500 rounded-full group-hover:bg-purple-400 transition-colors"
-                                        style={{ width: `${(count / stats.topRoles[0][1]) * 100}%` }}
-                                    />
-                                </div>
-                            </div>
-                            <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 shrink-0">
-                                {count}
-                            </span>
+                {/* Legal Partners */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className="p-2 bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 rounded-lg">
+                            <Scale className="w-5 h-5" />
                         </div>
-                    ))}
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Legal Representation</h3>
+                    </div>
+                    <div className="space-y-4">
+                        {stats.topLawFirms.map(([firm, count], i) => (
+                            <div key={firm} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-900/50 rounded-xl transition-colors">
+                                <span className="text-sm font-medium text-gray-900 dark:text-white truncate flex-1 pr-4">{firm}</span>
+                                <span className="px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs rounded-lg font-semibold">
+                                    {count} cases
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
+
