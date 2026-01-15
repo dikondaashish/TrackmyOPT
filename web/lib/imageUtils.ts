@@ -1,9 +1,17 @@
 
 // Shared state for logo fetching reliability
-// We use module-level variables to persist state across component re-renders during the session
 let isClearbitBlocked = false;
 let clearbitFailures = 0;
-const MAX_FAILURES = 3;
+const MAX_FAILURES = 1; // Lowered to 1 for faster reaction
+const STORAGE_KEY = 'trackmyopt_clearbit_blocked';
+
+// Initialize from storage if available (client-side)
+if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'true') {
+        isClearbitBlocked = true;
+    }
+}
 
 /**
  * Generates the initial logo URL.
@@ -25,13 +33,30 @@ export const handleLogoError = (currentSrc: string, hostname: string): string | 
     // If we were using Clearbit and it failed
     if (currentSrc.includes('clearbit')) {
         clearbitFailures++;
-        // If we hit the threshold, block Clearbit for future requests in this session
-        if (clearbitFailures >= MAX_FAILURES) {
+
+        // If we hit the threshold, block Clearbit for future requests globally
+        if (!isClearbitBlocked && clearbitFailures >= MAX_FAILURES) {
             isClearbitBlocked = true;
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(STORAGE_KEY, 'true');
+            }
         }
-        // Fallback to Google
+
+        // Return fallback to Google
         return `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
     }
+
     // If it wasn't Clearbit (likely already Google), then we have no other fallback
     return null;
+};
+
+/**
+ * Reset function mainly for testing or manual overrides
+ */
+export const resetLogoPreferences = () => {
+    isClearbitBlocked = false;
+    clearbitFailures = 0;
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem(STORAGE_KEY);
+    }
 };
