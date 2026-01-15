@@ -70,8 +70,8 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                     <button
                         onClick={() => onToggleSave(sponsor.id)}
                         className={`p-2 rounded-lg transition-all shrink-0 ${isSaved
-                                ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 shadow-sm"
-                                : "text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-gray-700"
+                            ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 shadow-sm"
+                            : "text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-gray-700"
                             }`}
                         title={isSaved ? "Saved" : "Save"}
                     >
@@ -103,7 +103,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                             ) : (
                                 <div className="w-3.5 h-3.5" />
                             )}
-                            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">FY25</span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">FY25Q4</span>
                         </div>
                         <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-bold text-gray-900 dark:text-white">{approvals.toLocaleString()}</span>
