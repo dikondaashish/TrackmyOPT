@@ -104,67 +104,115 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 {/* Refactored slightly to fit new layout structure if needed, but keeping simple for now */}
                 {/* Salary Insights */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="p-2 bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 rounded-lg">
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className="p-2 bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-lg">
                             <DollarSign className="w-5 h-5" />
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Salary Insights</h3>
                     </div>
 
-                    <div className="mt-auto">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Median Salary</p>
-                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
-                            ${(stats.medianSalary / 1000).toFixed(0)}k
-                        </p>
-
-                        <div className="mt-4 relative h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                            <div className="absolute h-full bg-green-200 dark:bg-green-900/40 w-full" />
-                            <div
-                                className="absolute h-full bg-green-500 dark:bg-green-500"
-                                style={{
-                                    left: '20%',
-                                    width: '60%'
-                                }}
-                            />
+                    <div className="mt-auto space-y-6">
+                        <div>
+                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Median Salary</p>
+                            <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1 tracking-tight">
+                                ${(stats.medianSalary / 1000).toFixed(0)}k
+                            </p>
                         </div>
-                        <div className="flex justify-between mt-2 text-xs text-gray-500">
-                            <span>${(stats.salaryRange.p25 / 1000).toFixed(0)}k (25th)</span>
-                            <span>${(stats.salaryRange.p75 / 1000).toFixed(0)}k (75th)</span>
+
+                        {/* Custom Range Visualization */}
+                        <div className="relative pt-6 pb-2">
+                            {/* Track */}
+                            <div className="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden" />
+
+                            {/* Range Bar (25th to 75th) - Centered roughly for visual effect since we don't have max */}
+                            {/* Ideally dynamic width based on range spread relative to median, but static visual for now is safer without max salary */}
+                            <div className="absolute top-6 h-2 bg-emerald-500/30 dark:bg-emerald-500/20 rounded-full left-[15%] right-[15%]" />
+                            <div className="absolute top-6 h-2 bg-emerald-500 rounded-full left-[35%] right-[35%]" />
+
+                            {/* Markers */}
+                            {/* Median Marker */}
+                            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                                <div className="w-1 h-3 bg-emerald-600 dark:bg-emerald-400 mb-9" /> {/* Tick */}
+                            </div>
+
+                            {/* Labels */}
+                            <div className="flex justify-between items-center mt-2 text-sm">
+                                <div className="text-left">
+                                    <span className="block font-bold text-gray-900 dark:text-white">${(stats.salaryRange.p25 / 1000).toFixed(0)}k</span>
+                                    <span className="text-xs text-gray-500">25th Percentile</span>
+                                </div>
+                                <div className="text-right">
+                                    <span className="block font-bold text-gray-900 dark:text-white">${(stats.salaryRange.p75 / 1000).toFixed(0)}k</span>
+                                    <span className="text-xs text-gray-500">75th Percentile</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Processing Speed */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
-                    <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-2 mb-6">
                         <div className="p-2 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg">
                             <Clock className="w-5 h-5" />
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Processing Speed</h3>
                     </div>
 
-                    <div className="mt-auto">
-                        <div className="flex items-center gap-4">
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Avg Decision Time</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
-                                    {stats.avgProcessingTime < 1 ? "< 1" : stats.avgProcessingTime} <span className="text-sm font-normal text-gray-500">days</span>
-                                </p>
-                            </div>
+                    <div className="mt-auto grid grid-cols-2 gap-4 items-center">
+                        {/* Speed Metric */}
+                        <div>
+                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Avg Time</p>
+                            <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1 tracking-tight">
+                                {stats.avgProcessingTime < 1 ? "< 1" : stats.avgProcessingTime}
+                                <span className="text-lg font-medium text-gray-500 ml-1">days</span>
+                            </p>
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium bg-emerald-50 dark:bg-emerald-900/20 inline-block px-2 py-1 rounded">
+                                Fast Processing
+                            </p>
                         </div>
 
-                        <div className="mt-6 space-y-2">
-                            {Object.entries(stats.statusCounts).map(([status, count]) => (
-                                <div key={status} className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-2 h-2 rounded-full ${status === 'Certified' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
-                                        <span className="text-gray-600 dark:text-gray-300">{status}</span>
+                        {/* Status Donut Chart */}
+                        <div className="relative flex flex-col items-center justify-center">
+                            {/* CSS Conic Gradient Donut */}
+                            {(() => {
+                                const certified = stats.statusCounts['Certified'] || 0;
+                                const certifiedPct = Math.round((certified / stats.total) * 100);
+                                const withdrawn = stats.statusCounts['Withdrawn'] || 0;
+                                const withdrawnPct = Math.round((withdrawn / stats.total) * 100);
+                                const denied = (stats.statusCounts['Denied'] || 0) + (stats.statusCounts['Certified - Withdrawn'] || 0);
+
+                                // Colors: Certified=Emerald, Withdrawn=Gray, Denied=Red
+                                const gradient = `conic-gradient(
+                                    #10B981 0% ${certifiedPct}%, 
+                                    #9CA3AF ${certifiedPct}% ${certifiedPct + withdrawnPct}%,
+                                    #EF4444 ${certifiedPct + withdrawnPct}% 100%
+                                )`;
+
+                                return (
+                                    <div className="relative w-24 h-24 rounded-full" style={{ background: gradient }}>
+                                        {/* Inner White Circle making it a donut */}
+                                        <div className="absolute inset-2 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center">
+                                            <div className="text-center">
+                                                <span className="block text-xl font-bold text-gray-900 dark:text-white">{certifiedPct}%</span>
+                                                <span className="text-[10px] text-gray-500 uppercase">Success</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="font-medium text-gray-900 dark:text-white">
-                                        {Math.round((count / stats.total) * 100)}%
-                                    </span>
+                                );
+                            })()}
+
+                            {/* Legend */}
+                            <div className="flex gap-3 justify-center mt-3">
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                    <span className="text-[10px] text-gray-500">Certified</span>
                                 </div>
-                            ))}
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                                    <span className="text-[10px] text-gray-500">Other</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
