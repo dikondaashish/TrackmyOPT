@@ -2,15 +2,16 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { Search, Filter, Briefcase, Bookmark, Building2, TrendingUp, Users, AlertCircle } from "lucide-react";
+import { Briefcase, Search } from "lucide-react";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
 import { Database } from "@/types/supabase";
 
 type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 import { H1BSponsorCard } from "@/components/career/h1b/H1BSponsorCard";
 import { H1BSponsorTabs } from "@/components/career/h1b/H1BSponsorTabs";
+import { H1BSponsorSearchFilters } from "@/components/career/h1b/H1BSponsorSearchFilters";
 import { AddToTrackerModal, JobTrackerItem } from "@/components/career/h1b/AddToTrackerModal";
-import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
+import { FilterOptions, filterSponsors } from "@/lib/career/h1b/filterSponsors";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -19,13 +20,13 @@ const supabase = createClient(
 );
 
 export default function H1BSponsorsPage() {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedIndustry, setSelectedIndustry] = useState("All");
-    const [selectedSize, setSelectedSize] = useState("All");
-
-    // New Filters
-    const [hiringFilter, setHiringFilter] = useState<"All" | "Hiring">("All");
-    const [trendFilter, setTrendFilter] = useState<"All" | "Trending">("All");
+    // Consolidated Filter State
+    const [filters, setFilters] = useState<FilterOptions>({
+        search: "",
+        status: "All",
+        trend: "All",
+        industry: "All"
+    });
 
     const [activeTab, setActiveTab] = useState<"all" | "saved">("all");
     const [sponsors, setSponsors] = useState<H1BSponsor[]>([]);
@@ -120,36 +121,15 @@ export default function H1BSponsorsPage() {
 
     // Filter Logic
     const filteredSponsors = useMemo(() => {
-        return sponsors.filter((sponsor) => {
-            // Tab Filter
-            if (activeTab === "saved" && !savedSponsors.has(sponsor.id)) {
-                return false;
-            }
+        // First filter by tab
+        let result = sponsors;
+        if (activeTab === "saved") {
+            result = result.filter(s => savedSponsors.has(s.id));
+        }
 
-            // Search Filter
-            const matchesSearch =
-                sponsor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                sponsor.location.toLowerCase().includes(searchQuery.toLowerCase());
-
-            // Dropdown Filters
-            const matchesIndustry = selectedIndustry === "All" || sponsor.industry === selectedIndustry;
-            const matchesSize = selectedSize === "All" || sponsor.size === selectedSize;
-
-            // Hiring Filter
-            const isHiring = (sponsor.approvals_2025 || 0) > 0;
-            if (hiringFilter === "Hiring" && !isHiring) return false;
-
-            // Trend Filter
-            if (trendFilter === "Trending") {
-                const score = calculateSponsorScore(sponsor);
-                if (score.trend !== "Up") return false;
-            }
-
-            return matchesSearch && matchesIndustry && matchesSize;
-        });
-    }, [sponsors, searchQuery, selectedIndustry, selectedSize, hiringFilter, trendFilter, activeTab, savedSponsors]);
-
-    const industries = ["All", ...Array.from(new Set(sponsors.map((s) => s.industry)))];
+        // Then apply search/filter logic
+        return filterSponsors(result, filters);
+    }, [sponsors, filters, activeTab, savedSponsors]);
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -173,61 +153,12 @@ export default function H1BSponsorsPage() {
                     savedCount={savedSponsors.size}
                 />
 
-                <div className="flex flex-col lg:flex-row gap-4">
-                    {/* Search Bar */}
-                    <div className="relative flex-1 group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                        <input
-                            type="text"
-                            placeholder="Search company (Amazon, Infosys, Deloitte...)"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm"
-                        />
-                    </div>
-
-                    {/* Filters */}
-                    <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0 no-scrollbar">
-                        <div className="relative min-w-[140px]">
-                            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                            <select
-                                value={hiringFilter}
-                                onChange={(e) => setHiringFilter(e.target.value as any)}
-                                className="w-full pl-9 pr-8 py-3 appearance-none rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none cursor-pointer hover:border-blue-500/50 transition-colors"
-                            >
-                                <option value="All">All Status</option>
-                                <option value="Hiring">Hiring Now (FY25)</option>
-                            </select>
-                        </div>
-
-                        <div className="relative min-w-[140px]">
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                                <TrendingUp className="w-4 h-4" />
-                            </div>
-                            <select
-                                value={trendFilter}
-                                onChange={(e) => setTrendFilter(e.target.value as any)}
-                                className="w-full pl-9 pr-8 py-3 appearance-none rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none cursor-pointer hover:border-blue-500/50 transition-colors"
-                            >
-                                <option value="All">All Trends</option>
-                                <option value="Trending">Trending Up 📈</option>
-                            </select>
-                        </div>
-
-                        <div className="relative min-w-[160px]">
-                            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                            <select
-                                value={selectedIndustry}
-                                onChange={(e) => setSelectedIndustry(e.target.value)}
-                                className="w-full pl-9 pr-8 py-3 appearance-none rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none cursor-pointer hover:border-blue-500/50 transition-colors"
-                            >
-                                {industries.map(ind => (
-                                    <option key={ind} value={ind}>{ind === "All" ? "All Industries" : ind}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                </div>
+                {/* New Search & Filters Component */}
+                <H1BSponsorSearchFilters
+                    filters={filters}
+                    onFilterChange={setFilters}
+                    allIndustries={Array.from(new Set(sponsors.map((s) => s.industry)))}
+                />
             </div>
 
             {/* Content Grid */}

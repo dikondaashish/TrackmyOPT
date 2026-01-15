@@ -1,79 +1,58 @@
-// lib/career/h1b/filterSponsors.ts
-// Filtering and sorting utilities for H-1B sponsors
-// TODO: Phase 2 - Move filtering to Supabase queries
+import { H1BSponsor } from "@/lib/mock/h1bSponsors";
+import { calculateSponsorScore } from "./sponsorScore";
 
-import { H1BSponsor, getTotalApprovals } from "@/lib/mock/h1bSponsors";
-
-export type LocationFilter = "All" | "Remote" | "CA" | "NY" | "TX" | "MA" | "WA" | "NJ" | "IL";
-export type IndustryFilter = "All" | "Tech" | "Finance" | "Consulting" | "Healthcare" | "Education" | "Retail" | "Manufacturing" | "Travel";
-export type SizeFilter = "All" | "Startup" | "Mid" | "Enterprise";
-export type StrengthFilter = "All" | "High" | "Medium" | "Low";
-export type SortOption = "most-sponsorship" | "recently-updated" | "alphabetical";
+export type StatusFilter = "All" | "Hiring Now" | "Inactive";
+export type TrendFilter = "All" | "Trending Up" | "Stable" | "Trending Down";
+export type IndustryFilter = "All" | "Technology" | "Finance" | "Consulting" | "Education" | "Manufacturing" | "Retail" | "Healthcare" | "Other";
 
 export interface FilterOptions {
     search: string;
-    location: LocationFilter;
+    status: StatusFilter;
+    trend: TrendFilter;
     industry: IndustryFilter;
-    size: SizeFilter;
-    strength: StrengthFilter;
-    sort: SortOption;
 }
 
-export function filterSponsors(sponsors: H1BSponsor[], options: FilterOptions): H1BSponsor[] {
-    let filtered = [...sponsors];
+export const STATUS_OPTIONS: StatusFilter[] = ["All", "Hiring Now", "Inactive"];
+export const TREND_OPTIONS: TrendFilter[] = ["All", "Trending Up", "Stable", "Trending Down"];
+export const INDUSTRY_OPTIONS: IndustryFilter[] = ["All", "Technology", "Finance", "Consulting", "Education", "Manufacturing", "Retail", "Healthcare", "Other"];
 
-    // Search filter
-    if (options.search.trim()) {
-        const searchLower = options.search.toLowerCase().trim();
-        filtered = filtered.filter(s =>
-            s.name.toLowerCase().includes(searchLower) ||
-            s.industry.toLowerCase().includes(searchLower)
-        );
-    }
+export function filterSponsors(sponsors: H1BSponsor[], filters: FilterOptions): H1BSponsor[] {
+    return sponsors.filter((sponsor) => {
+        const scoreData = calculateSponsorScore(sponsor);
 
-    // Location filter
-    if (options.location !== "All") {
-        filtered = filtered.filter(s => s.location === options.location);
-    }
+        // Search
+        if (filters.search) {
+            const query = filters.search.toLowerCase();
+            const matchesName = sponsor.name.toLowerCase().includes(query);
+            const matchesState = sponsor.location.toLowerCase().includes(query);
+            if (!matchesName && !matchesState) return false;
+        }
 
-    // Industry filter
-    if (options.industry !== "All") {
-        filtered = filtered.filter(s => s.industry === options.industry);
-    }
+        // Status
+        if (filters.status !== "All") {
+            const isHiring = (sponsor.approvals_2025 || 0) > 0;
+            if (filters.status === "Hiring Now" && !isHiring) return false;
+            if (filters.status === "Inactive" && isHiring) return false;
+        }
 
-    // Size filter
-    if (options.size !== "All") {
-        filtered = filtered.filter(s => s.size === options.size);
-    }
+        // Trend
+        if (filters.trend !== "All") {
+            if (filters.trend === "Trending Up" && scoreData.trend !== "Up") return false;
+            if (filters.trend === "Trending Down" && scoreData.trend !== "Down") return false;
+            if (filters.trend === "Stable" && scoreData.trend !== "Same") return false;
+        }
 
-    // Strength filter
-    if (options.strength !== "All") {
-        filtered = filtered.filter(s => s.sponsorship_strength === options.strength);
-    }
+        // Industry
+        if (filters.industry !== "All") {
+            // Simple mapping or exact match if your data supports it
+            // Assuming sponsor.industry matches the options or we do loose matching
+            if (sponsor.industry !== filters.industry && filters.industry !== "Other") {
+                // If it's a specific industry, it must match
+                // You might want to robustify this if industries are freer text
+                if (!sponsor.industry?.includes(filters.industry)) return false;
+            }
+        }
 
-    // Sorting
-    switch (options.sort) {
-        case "most-sponsorship":
-            filtered.sort((a, b) => getTotalApprovals(b) - getTotalApprovals(a));
-            break;
-        case "alphabetical":
-            filtered.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-        case "recently-updated":
-            // For MVP, sort by 2023 approvals as proxy for "recent activity"
-            filtered.sort((a, b) => b.approvals_2023 - a.approvals_2023);
-            break;
-    }
-
-    return filtered;
+        return true;
+    });
 }
-
-export const LOCATION_OPTIONS: LocationFilter[] = ["All", "CA", "NY", "TX", "MA", "WA", "NJ", "IL"];
-export const INDUSTRY_OPTIONS: IndustryFilter[] = ["All", "Tech", "Finance", "Consulting", "Healthcare", "Retail", "Manufacturing", "Travel"];
-export const SIZE_OPTIONS: SizeFilter[] = ["All", "Startup", "Mid", "Enterprise"];
-export const STRENGTH_OPTIONS: StrengthFilter[] = ["All", "High", "Medium", "Low"];
-export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-    { value: "most-sponsorship", label: "Most Sponsorship" },
-    { value: "recently-updated", label: "Recently Updated" },
-    { value: "alphabetical", label: "Alphabetical" },
-];
