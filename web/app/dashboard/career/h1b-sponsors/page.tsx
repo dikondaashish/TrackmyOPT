@@ -38,6 +38,8 @@ export default function H1BSponsorsPage() {
     const [sponsors, setSponsors] = useState<H1BSponsor[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [savedSponsors, setSavedSponsors] = useState<Set<string>>(new Set());
+    const [totalSponsorCount, setTotalSponsorCount] = useState(0);
+    const [highSponsorCount, setHighSponsorCount] = useState(0);
 
     // Modal State
     const [isTrackerModalOpen, setIsTrackerModalOpen] = useState(false);
@@ -48,10 +50,19 @@ export default function H1BSponsorsPage() {
         async function fetchSponsors() {
             setIsLoading(true);
             try {
+                // Get total count first
+                const { count: totalCount } = await supabase
+                    .from('h1b_sponsors')
+                    .select('*', { count: 'exact', head: true });
+
+                setTotalSponsorCount(totalCount || 0);
+
+                // Fetch sponsors with increased range (Supabase default is 1000)
                 const { data, error } = await supabase
                     .from('h1b_sponsors')
                     .select('*')
-                    .order('total_approvals', { ascending: false });
+                    .order('total_approvals', { ascending: false })
+                    .range(0, 9999); // Load up to 10,000 sponsors
 
                 if (error) {
                     console.error("Error fetching sponsors:", error);
@@ -77,6 +88,10 @@ export default function H1BSponsorsPage() {
                                 : [],
                     }));
                     setSponsors(mappedSponsors);
+
+                    // Calculate high sponsors count (Strong rating)
+                    const highCount = mappedSponsors.filter(s => calculateSponsorScore(s).label === "Strong").length;
+                    setHighSponsorCount(highCount);
                 }
             } catch (err) {
                 console.error("Unexpected error:", err);
@@ -150,8 +165,8 @@ export default function H1BSponsorsPage() {
 
                 {/* Stats Row */}
                 <H1BSponsorStatsRow
-                    totalSponsors={sponsors.length}
-                    highSponsors={sponsors.filter(s => calculateSponsorScore(s).label === "Strong").length}
+                    totalSponsors={totalSponsorCount}
+                    highSponsors={highSponsorCount}
                     savedSponsors={savedSponsors.size}
                 />
             </div>
