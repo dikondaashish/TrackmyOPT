@@ -10,8 +10,10 @@ type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 import { H1BSponsorCard } from "@/components/career/h1b/H1BSponsorCard";
 import { H1BSponsorTabs } from "@/components/career/h1b/H1BSponsorTabs";
 import { H1BSponsorSearchFilters } from "@/components/career/h1b/H1BSponsorSearchFilters";
+import { H1BSponsorStatsRow } from "@/components/career/h1b/H1BSponsorStatsRow";
 import { AddToTrackerModal, JobTrackerItem } from "@/components/career/h1b/AddToTrackerModal";
 import { FilterOptions, filterSponsors } from "@/lib/career/h1b/filterSponsors";
+import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -142,9 +144,16 @@ export default function H1BSponsorsPage() {
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     Sponsor Intelligence Dashboard
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 max-w-2xl">
+                <p className="text-gray-500 dark:text-gray-400 max-w-2xl mb-6">
                     Discover H-1B sponsors actively hiring with the latest Q4 2025 data. Analyze trends, sponsorship scores, and save target companies to your job tracker.
                 </p>
+
+                {/* Stats Row */}
+                <H1BSponsorStatsRow
+                    totalSponsors={sponsors.length}
+                    highSponsors={sponsors.filter(s => calculateSponsorScore(s).label === "Strong").length}
+                    savedSponsors={savedSponsors.size}
+                />
             </div>
 
             {/* Controls Section */}

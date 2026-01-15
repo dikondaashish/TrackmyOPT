@@ -5,60 +5,58 @@ import { Building2, TrendingUp, Bookmark, Calendar } from "lucide-react";
 interface H1BSponsorStatsRowProps {
     totalSponsors: number;
     highSponsors: number;
-    savedCount: number;
+    savedSponsors: number;
 }
 
-export function H1BSponsorStatsRow({ totalSponsors, highSponsors, savedCount }: H1BSponsorStatsRowProps) {
+export function H1BSponsorStatsRow({ totalSponsors, highSponsors, savedSponsors }: H1BSponsorStatsRowProps) {
     const stats = [
         {
-            icon: Building2,
             label: "Total Sponsors",
-            value: `${totalSponsors.toLocaleString()}+`,
-            gradient: "from-blue-500 to-indigo-600",
-            bgColor: "bg-blue-50 dark:bg-blue-900/30",
-            borderColor: "border-blue-200 dark:border-blue-800",
+            value: totalSponsors > 1000 ? `${(totalSponsors / 1000).toFixed(0)}K+` : totalSponsors.toLocaleString(),
+            icon: Building2,
+            bgColor: "bg-blue-50 dark:bg-blue-900/20",
+            iconColor: "text-blue-500",
+            borderColor: "border-blue-100 dark:border-blue-800/30"
         },
         {
-            icon: TrendingUp,
             label: "High Sponsors",
             value: highSponsors.toLocaleString(),
-            gradient: "from-emerald-500 to-teal-600",
-            bgColor: "bg-emerald-50 dark:bg-emerald-900/30",
-            borderColor: "border-emerald-200 dark:border-emerald-800",
+            icon: TrendingUp,
+            bgColor: "bg-amber-50 dark:bg-amber-900/20",
+            iconColor: "text-amber-500",
+            borderColor: "border-amber-100 dark:border-amber-800/30"
         },
         {
-            icon: Bookmark,
             label: "Saved Sponsors",
-            value: savedCount.toString(),
-            gradient: "from-purple-500 to-violet-600",
-            bgColor: "bg-purple-50 dark:bg-purple-900/30",
-            borderColor: "border-purple-200 dark:border-purple-800",
+            value: savedSponsors.toLocaleString(),
+            icon: Bookmark,
+            bgColor: "bg-purple-50 dark:bg-purple-900/20",
+            iconColor: "text-purple-500",
+            borderColor: "border-purple-100 dark:border-purple-800/30"
         },
         {
-            icon: Calendar,
             label: "Updated",
             value: "Monthly",
-            gradient: "from-amber-500 to-orange-600",
-            bgColor: "bg-amber-50 dark:bg-amber-900/30",
-            borderColor: "border-amber-200 dark:border-amber-800",
-        },
+            icon: Calendar,
+            bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
+            iconColor: "text-yellow-600",
+            borderColor: "border-yellow-100 dark:border-yellow-800/30"
+        }
     ];
 
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {stats.map((stat) => (
+            {stats.map((stat, index) => (
                 <div
-                    key={stat.label}
-                    className={`relative overflow-hidden rounded-xl ${stat.bgColor} border ${stat.borderColor} p-4`}
+                    key={index}
+                    className={`rounded-xl ${stat.bgColor} border ${stat.borderColor} p-4 flex items-center gap-3 transition-all hover:scale-[1.02]`}
                 >
-                    <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
-                            <stat.icon className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">{stat.label}</p>
-                            <p className="text-lg font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                        </div>
+                    <div className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center`}>
+                        <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
+                    </div>
+                    <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{stat.label}</p>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white">{stat.value}</p>
                     </div>
                 </div>
             ))}
