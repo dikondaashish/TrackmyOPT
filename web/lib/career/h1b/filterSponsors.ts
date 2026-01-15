@@ -39,7 +39,7 @@ export function filterSponsors(sponsors: H1BSponsor[], filters: FilterOptions): 
         if (filters.trend !== "All") {
             if (filters.trend === "Trending Up" && scoreData.trend !== "Up") return false;
             if (filters.trend === "Trending Down" && scoreData.trend !== "Down") return false;
-            if (filters.trend === "Stable" && scoreData.trend !== "Same") return false;
+            if (filters.trend === "Stable" && scoreData.trend !== "Flat") return false;
         }
 
         // Industry
