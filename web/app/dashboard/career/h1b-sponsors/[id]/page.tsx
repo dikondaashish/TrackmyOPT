@@ -5,12 +5,12 @@ import { useParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import {
-    ArrowLeft, Building2, MapPin, Globe, Briefcase, TrendingUp, TrendingDown,
-    DollarSign, Users, FileText, Bookmark, ExternalLink, Linkedin, ChevronDown,
-    Sparkles, Calendar
+    ArrowLeft, Building2, MapPin, Globe, Bookmark, ExternalLink, Linkedin, Sparkles
 } from "lucide-react";
 import { Database } from "@/types/supabase";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
+import { AnalyticsDashboard } from "@/components/career/h1b/profile/analytics/AnalyticsDashboard";
+import { LCAFilingsTable } from "@/components/career/h1b/profile/LCAExplorer/LCAFilingsTable";
 
 type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];
@@ -36,7 +36,6 @@ export default function CompanyProfilePage() {
     const [filings, setFilings] = useState<H1BFilingRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaved, setIsSaved] = useState(false);
-    const [showAllFilings, setShowAllFilings] = useState(false);
 
     useEffect(() => {
         async function fetchData() {
@@ -56,18 +55,45 @@ export default function CompanyProfilePage() {
                 setSponsor(sponsorData);
 
                 // Fetch related LCA filings
-                const { data: filingsData, error: filingsError } = await supabase
+                let filingsData: H1BFilingRow[] = [];
+
+                // 1. Try by sponsor_id
+                const { data: byId, error: byIdError } = await supabase
                     .from('h1b_filings')
                     .select('*')
                     .eq('sponsor_id', sponsorId)
                     .order('received_date', { ascending: false })
-                    .limit(100);
+                    .limit(500);
 
-                if (filingsError) {
-                    console.error("Error fetching filings:", filingsError);
+                if (byId && byId.length > 0) {
+                    filingsData = byId;
                 } else {
-                    setFilings(filingsData || []);
+                    // 2. Fallback: Try by employer name (exact match)
+                    if (sponsorData.name) {
+                        const { data: byName, error: byNameError } = await supabase
+                            .from('h1b_filings')
+                            .select('*')
+                            .eq('employer_name', sponsorData.name)
+                            .order('received_date', { ascending: false })
+                            .limit(500);
+
+                        if (byName && byName.length > 0) {
+                            filingsData = byName;
+                        } else {
+                            // 3. Fallback: Case-insensitive search
+                            const { data: byNameLike, error: byNameLikeError } = await supabase
+                                .from('h1b_filings')
+                                .select('*')
+                                .ilike('employer_name', sponsorData.name)
+                                .order('received_date', { ascending: false })
+                                .limit(500);
+
+                            if (byNameLike) filingsData = byNameLike;
+                        }
+                    }
                 }
+
+                setFilings(filingsData || []);
 
                 // Check if saved
                 const saved = localStorage.getItem("trackmyopt_saved_sponsors");
@@ -146,17 +172,6 @@ export default function CompanyProfilePage() {
     });
     const scoreColors = getScoreColor(scoreData.score);
 
-    // Calculate filing stats
-    const certifiedFilings = filings.filter(f => f.status === "Certified").length;
-    const approvalRate = filings.length > 0 ? Math.round((certifiedFilings / filings.length) * 100) : 0;
-
-    const avgSalary = filings.length > 0
-        ? Math.round(filings.reduce((sum, f) => sum + (f.wage_rate_from || 0), 0) / filings.filter(f => f.wage_rate_from).length)
-        : 0;
-
-    // Get unique job titles
-    const jobTitles = [...new Set(filings.map(f => f.job_title).filter(Boolean))];
-
     // Get worksite locations
     const worksiteLocations = filings.reduce((acc, f) => {
         const key = `${f.worksite_city}, ${f.worksite_state}`;
@@ -169,8 +184,6 @@ export default function CompanyProfilePage() {
     const sortedLocations = Object.entries(worksiteLocations)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
-
-    const displayFilings = showAllFilings ? filings : filings.slice(0, 10);
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -251,41 +264,9 @@ export default function CompanyProfilePage() {
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <FileText className="w-4 h-4 text-blue-500" />
-                        <span className="text-xs font-medium text-gray-500">Total LCA Filings</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{filings.length}</p>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <TrendingUp className="w-4 h-4 text-emerald-500" />
-                        <span className="text-xs font-medium text-gray-500">Approval Rate</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{approvalRate}%</p>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="w-4 h-4 text-amber-500" />
-                        <span className="text-xs font-medium text-gray-500">Avg Salary</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {avgSalary > 0 ? `$${(avgSalary / 1000).toFixed(0)}K` : "N/A"}
-                    </p>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Briefcase className="w-4 h-4 text-purple-500" />
-                        <span className="text-xs font-medium text-gray-500">Job Types</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{jobTitles.length}</p>
-                </div>
+            {/* Analytics Dashboard */}
+            <div className="space-y-6">
+                <AnalyticsDashboard filings={filings} />
             </div>
 
             {/* Approval History */}
@@ -307,76 +288,10 @@ export default function CompanyProfilePage() {
                 </div>
             </div>
 
-            {/* LCA Filings Table */}
-            {filings.length > 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">LCA Filings History</h2>
-                        <p className="text-sm text-gray-500 mt-1">Recent Labor Condition Applications filed by this employer</p>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50 dark:bg-gray-800/50">
-                                <tr>
-                                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Job Title</th>
-                                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Wage Range</th>
-                                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Location</th>
-                                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
-                                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {displayFilings.map((filing) => (
-                                    <tr key={filing.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                                        <td className="px-6 py-4">
-                                            <p className="font-medium text-gray-900 dark:text-white">{filing.job_title || "N/A"}</p>
-                                            <p className="text-xs text-gray-500">{filing.soc_title}</p>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-gray-900 dark:text-white">
-                                                {filing.wage_rate_from
-                                                    ? `$${(filing.wage_rate_from / 1000).toFixed(0)}K`
-                                                    : "N/A"}
-                                                {filing.wage_rate_to && ` - $${(filing.wage_rate_to / 1000).toFixed(0)}K`}
-                                            </p>
-                                            <p className="text-xs text-gray-500">{filing.wage_unit || "Year"}</p>
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
-                                            {filing.worksite_city}, {filing.worksite_state}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${filing.status === "Certified"
-                                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                                    : filing.status === "Denied"
-                                                        ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                                        : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-                                                }`}>
-                                                {filing.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                            {filing.received_date ? new Date(filing.received_date).toLocaleDateString() : "N/A"}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {filings.length > 10 && (
-                        <div className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">
-                            <button
-                                onClick={() => setShowAllFilings(!showAllFilings)}
-                                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-                            >
-                                {showAllFilings ? "Show Less" : `Show All ${filings.length} Filings`}
-                                <ChevronDown className={`w-4 h-4 transition-transform ${showAllFilings ? "rotate-180" : ""}`} />
-                            </button>
-                        </div>
-                    )}
-                </div>
-            )}
+            {/* LCA Filings Explorer */}
+            <div className="min-h-[600px]">
+                <LCAFilingsTable filings={filings} />
+            </div>
 
             {/* Worksite Locations */}
             {sortedLocations.length > 0 && (
