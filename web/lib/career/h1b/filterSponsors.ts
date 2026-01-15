@@ -6,6 +6,8 @@ export type TrendFilter = "All" | "Trending Up" | "Stable" | "Trending Down";
 export type IndustryFilter = string; // Dynamic from data
 export type StateFilter = string; // Dynamic from data
 export type CompanySizeFilter = "All" | "Startup" | "Mid-Size" | "Enterprise (MNC)";
+export type StrengthFilter = "All" | "Strong" | "Medium" | "Low";
+export type SortOption = "Most Sponsorship" | "Alphabetical" | "Highest Score" | "Newest Activity";
 
 export interface FilterOptions {
     search: string;
@@ -14,11 +16,15 @@ export interface FilterOptions {
     industry: IndustryFilter;
     state: StateFilter;
     companySize: CompanySizeFilter;
+    strength: StrengthFilter;
+    sort: SortOption;
 }
 
 export const STATUS_OPTIONS: StatusFilter[] = ["All", "Hiring Now", "Inactive"];
 export const TREND_OPTIONS: TrendFilter[] = ["All", "Trending Up", "Stable", "Trending Down"];
 export const COMPANY_SIZE_OPTIONS: CompanySizeFilter[] = ["All", "Startup", "Mid-Size", "Enterprise (MNC)"];
+export const STRENGTH_OPTIONS: StrengthFilter[] = ["All", "Strong", "Medium", "Low"];
+export const SORT_OPTIONS: SortOption[] = ["Most Sponsorship", "Alphabetical", "Highest Score", "Newest Activity"];
 
 // US States for the dropdown
 export const US_STATES = [
@@ -54,7 +60,7 @@ function mapSizeToFilter(size: string | undefined): CompanySizeFilter {
 }
 
 export function filterSponsors(sponsors: H1BSponsor[], filters: FilterOptions): H1BSponsor[] {
-    return sponsors.filter((sponsor) => {
+    let result = sponsors.filter((sponsor) => {
         const scoreData = calculateSponsorScore(sponsor);
 
         // Search (by name or location)
@@ -100,6 +106,36 @@ export function filterSponsors(sponsors: H1BSponsor[], filters: FilterOptions): 
             if (sponsorSize !== filters.companySize) return false;
         }
 
+        // Strength
+        if (filters.strength !== "All") {
+            if (scoreData.label !== filters.strength) return false;
+        }
+
         return true;
+    });
+
+    // Sorting
+    result = sortSponsors(result, filters.sort);
+
+    return result;
+}
+
+function sortSponsors(sponsors: H1BSponsor[], sortOption: SortOption): H1BSponsor[] {
+    return [...sponsors].sort((a, b) => {
+        switch (sortOption) {
+            case "Most Sponsorship":
+                return (b.approvals_2025 || 0) - (a.approvals_2025 || 0);
+            case "Alphabetical":
+                return a.name.localeCompare(b.name);
+            case "Highest Score":
+                return calculateSponsorScore(b).score - calculateSponsorScore(a).score;
+            case "Newest Activity":
+                // Prefer companies with recent approvals
+                const aRecent = (a.approvals_2025 || 0) + (a.approvals_2024 || 0);
+                const bRecent = (b.approvals_2025 || 0) + (b.approvals_2024 || 0);
+                return bRecent - aRecent;
+            default:
+                return 0;
+        }
     });
 }

@@ -27,7 +27,9 @@ export default function H1BSponsorsPage() {
         trend: "All",
         industry: "All",
         state: "All",
-        companySize: "All"
+        companySize: "All",
+        strength: "All",
+        sort: "Most Sponsorship"
     });
 
     const [activeTab, setActiveTab] = useState<"all" | "saved">("all");
