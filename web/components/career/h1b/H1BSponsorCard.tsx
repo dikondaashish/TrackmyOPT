@@ -1,9 +1,8 @@
 "use client";
 
-import { Building2, MapPin, Globe, Bookmark, TrendingUp, TrendingDown, Minus, ExternalLink, Linkedin, ArrowRight, Briefcase } from "lucide-react";
+import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Linkedin, Briefcase, Sparkles } from "lucide-react";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
-import { SponsorScoreBadge } from "./SponsorScoreBadge";
 
 interface H1BSponsorCardProps {
     sponsor: H1BSponsor;
@@ -12,176 +11,162 @@ interface H1BSponsorCardProps {
     onAddToTracker: (sponsor: H1BSponsor) => void;
 }
 
-// Mock top locations helper
-const getMockTopLocations = (state: string) => {
-    // Return random locations for MVP visual
-    const locs = [
-        { state: "TX", count: Math.floor(Math.random() * 50) + 10 },
-        { state: "CA", count: Math.floor(Math.random() * 40) + 5 },
-        { state: "NY", count: Math.floor(Math.random() * 30) + 5 },
-    ];
-    // Ensure the sponsor's main state is first
-    return [
-        { state: cleanState(state), count: Math.floor(Math.random() * 100) + 20 },
-        ...locs.filter(l => l.state !== cleanState(state)).slice(0, 2)
-    ];
-};
-
 const cleanState = (loc: string) => {
-    // Normalize "NJ" or "EAST BRUNSWICK, NJ" -> "NJ"
     if (!loc) return "USA";
     const parts = loc.split(",");
     return parts[parts.length - 1].trim();
 }
 
+// Get score color based on value
+const getScoreColor = (score: number) => {
+    if (score >= 80) return { bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50 dark:bg-emerald-900/20" };
+    if (score >= 60) return { bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50 dark:bg-blue-900/20" };
+    if (score >= 40) return { bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50 dark:bg-amber-900/20" };
+    return { bg: "bg-gray-400", text: "text-gray-600", light: "bg-gray-50 dark:bg-gray-800" };
+};
+
 export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker }: H1BSponsorCardProps) {
     const scoreData = calculateSponsorScore(sponsor);
-    const topLocations = getMockTopLocations(sponsor.location);
-
-    // Hiring Status Badge Logic
-    const isHiring = (sponsor.approvals_2025 || 0) > 0;
+    const scoreColors = getScoreColor(scoreData.score);
+    const approvals = sponsor.approvals_2025 || 0;
+    const isActivelyHiring = approvals > 0;
 
     return (
-        <div className="group relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 hover:shadow-xl hover:border-blue-500/30 dark:hover:border-blue-500/30 transition-all duration-300">
-            {/* Hiring Badge */}
-            <div className="absolute top-5 right-5 z-10">
-                {isHiring ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shadow-sm">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        Hiring Now (FY25)
-                    </span>
-                ) : (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
-                        <Minus className="w-3 h-3" />
-                        Not Active Recently
-                    </span>
-                )}
-            </div>
+        <div className="group relative bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-200/80 dark:border-gray-700/50 overflow-hidden hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-300 dark:hover:border-blue-600/50 transition-all duration-300">
 
-            <div className="flex flex-col h-full">
-                {/* Header Section */}
-                <div className="flex items-start gap-4 mb-4">
-                    {/* Logo / Icon */}
-                    <div className="w-14 h-14 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                        {sponsor.logo ? (
-                            <img src={sponsor.logo} alt={sponsor.name} className="w-8 h-8 object-contain" />
-                        ) : (
-                            <Building2 className="w-7 h-7 text-gray-400 dark:text-gray-600" />
-                        )}
-                    </div>
+            {/* Top Color Bar - Visual Indicator */}
+            <div className={`h-1 ${scoreColors.bg} opacity-80`} />
 
-                    <div className="flex-1 pr-24"> {/* Padding for badge */}
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors cursor-pointer">
-                            {sponsor.name}
-                        </h3>
+            <div className="p-5">
+                {/* Header Row */}
+                <div className="flex items-start justify-between gap-3 mb-4">
+                    {/* Company Info */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {/* Logo */}
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+                            {sponsor.logo ? (
+                                <img src={sponsor.logo} alt={sponsor.name} className="w-7 h-7 object-contain" />
+                            ) : (
+                                <Building2 className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                            )}
+                        </div>
 
-                        <div className="flex flex-wrap gap-y-2 mt-1">
-                            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                                <span className="flex items-center gap-1">
+                        <div className="min-w-0">
+                            <h3 className="text-base font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                {sponsor.name}
+                            </h3>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                                     <MapPin className="w-3 h-3" />
                                     {cleanState(sponsor.location)}
                                 </span>
-                                <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
-                                <span>{sponsor.industry}</span>
+                                <span className="text-gray-300 dark:text-gray-600">•</span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{sponsor.industry}</span>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Save Button */}
+                    <button
+                        onClick={() => onToggleSave(sponsor.id)}
+                        className={`p-2 rounded-lg transition-all shrink-0 ${isSaved
+                                ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 shadow-sm"
+                                : "text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-gray-700"
+                            }`}
+                        title={isSaved ? "Saved" : "Save"}
+                    >
+                        <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
+                    </button>
+                </div>
+
+                {/* Stats Row - Clean and Scannable */}
+                <div className="flex items-stretch gap-3 mb-4">
+                    {/* Sponsor Score */}
+                    <div className={`flex-1 rounded-xl p-3 ${scoreColors.light} border border-transparent`}>
+                        <div className="flex items-center gap-1.5 mb-1">
+                            <Sparkles className={`w-3.5 h-3.5 ${scoreColors.text}`} />
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Score</span>
+                        </div>
+                        <div className="flex items-baseline gap-1.5">
+                            <span className={`text-2xl font-bold ${scoreColors.text} dark:opacity-90`}>{scoreData.score}</span>
+                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">/100</span>
+                        </div>
+                    </div>
+
+                    {/* 2025 Approvals */}
+                    <div className="flex-1 rounded-xl p-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50">
+                        <div className="flex items-center gap-1.5 mb-1">
+                            {scoreData.trend === "Up" ? (
+                                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                            ) : scoreData.trend === "Down" ? (
+                                <TrendingDown className="w-3.5 h-3.5 text-red-500" />
+                            ) : (
+                                <div className="w-3.5 h-3.5" />
+                            )}
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">FY25</span>
+                        </div>
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-2xl font-bold text-gray-900 dark:text-white">{approvals.toLocaleString()}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">visas</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Intelligence Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-5">
-                    {/* Left: Score & Stats */}
-                    <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50 space-y-3">
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium text-gray-500">Sponsor Score</span>
-                            <SponsorScoreBadge scoreData={scoreData} />
+                {/* Status Badge */}
+                <div className="mb-4">
+                    {isActivelyHiring ? (
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/30">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Actively Sponsoring H-1B</span>
                         </div>
-
-                        <div className="space-y-1">
-                            <div className="flex items-baseline justify-between">
-                                <span className="text-xs text-gray-500">2025 Approvals</span>
-                                <div className="flex items-center gap-1">
-                                    <span className="text-sm font-bold text-gray-900 dark:text-white">
-                                        {(sponsor.approvals_2025 || 0).toLocaleString()}
-                                    </span>
-                                    {/* Trend Icon */}
-                                    {scoreData.trend === "Up" && <TrendingUp className="w-3 h-3 text-emerald-500" />}
-                                    {scoreData.trend === "Down" && <TrendingDown className="w-3 h-3 text-red-500" />}
-                                </div>
-                            </div>
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
-                                <div
-                                    className={`h-full rounded-full ${scoreData.trend === 'Up' ? 'bg-emerald-500' : 'bg-blue-500'}`}
-                                    style={{ width: `${Math.min(100, ((sponsor.approvals_2025 || 0) / 100) * 100)}%` }}
-                                />
-                            </div>
+                    ) : (
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/30">
+                            <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">No recent FY25 activity</span>
                         </div>
-                    </div>
-
-                    {/* Right: Top Locations MVP */}
-                    <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50">
-                        <span className="text-xs font-medium text-gray-500 block mb-2">Top Locations</span>
-                        <div className="flex flex-wrap gap-2">
-                            {topLocations.map((loc, i) => (
-                                <span key={i} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 text-gray-600 dark:text-gray-300">
-                                    {loc.state} <span className="ml-1 text-gray-400">({loc.count})</span>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
+                    )}
                 </div>
 
-                {/* Actions Footer */}
-                <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => onToggleSave(sponsor.id)}
-                            className={`p-2 rounded-lg transition-colors ${isSaved
-                                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                                    : "bg-gray-50 text-gray-400 hover:text-gray-600 dark:bg-gray-800 dark:text-gray-500 dark:hover:text-gray-300"
-                                }`}
-                            title={isSaved ? "Remove from Saved" : "Save Sponsor"}
-                        >
-                            <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
-                        </button>
-
-                        <button
-                            onClick={() => onAddToTracker(sponsor)}
-                            className="p-2 rounded-lg bg-gray-50 text-gray-400 hover:text-gray-600 dark:bg-gray-800 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
-                            title="Add to Job Tracker"
-                        >
-                            <Briefcase className="w-4 h-4" />
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2">
+                    {/* Primary CTA - Careers */}
+                    {sponsor.website ? (
                         <a
-                            href={`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(sponsor.name)}`}
+                            href={sponsor.website}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors"
-                            title="Search LinkedIn Jobs"
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
                         >
-                            <Linkedin className="w-4 h-4" />
+                            View Careers
+                            <ArrowRight className="w-4 h-4" />
                         </a>
+                    ) : (
+                        <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-sm font-medium cursor-not-allowed">
+                            No Career Page
+                        </div>
+                    )}
 
-                        {sponsor.website ? (
-                            <a
-                                href={sponsor.website}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-gray-500/20"
-                            >
-                                Careers
-                                <ArrowRight className="w-3 h-3" />
-                            </a>
-                        ) : (
-                            <span className="text-xs text-gray-400 italic px-2">No site</span>
-                        )}
-                    </div>
+                    {/* Secondary Actions */}
+                    <a
+                        href={`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(sponsor.name)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white transition-colors shadow-md"
+                        title="Find Jobs on LinkedIn"
+                    >
+                        <Linkedin className="w-4 h-4" />
+                    </a>
+
+                    <button
+                        onClick={() => onAddToTracker(sponsor)}
+                        className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
+                        title="Add to Job Tracker"
+                    >
+                        <Briefcase className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
         </div>
