@@ -11,6 +11,7 @@ import { Database } from "@/types/supabase";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
 import { AnalyticsDashboard } from "@/components/career/h1b/profile/analytics/AnalyticsDashboard";
 import { LCAFilingsTable } from "@/components/career/h1b/profile/LCAExplorer/LCAFilingsTable";
+import { getLogoUrl, handleLogoError } from "@/lib/imageUtils";
 
 type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];
@@ -206,16 +207,18 @@ export default function CompanyProfilePage() {
                                 try {
                                     const urlStr = sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`;
                                     const hostname = new URL(urlStr).hostname.replace('www.', '');
+                                    const initialSrc = getLogoUrl(hostname);
+
                                     return (
                                         <img
-                                            src={`https://logo.clearbit.com/${hostname}`}
+                                            src={initialSrc}
                                             alt={sponsor.name}
                                             className="w-full h-full object-cover p-2"
                                             onError={(e) => {
                                                 const img = e.target as HTMLImageElement;
-                                                // Try Google Favicon as fallback
-                                                if (img.src.includes('clearbit')) {
-                                                    img.src = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+                                                const fallback = handleLogoError(img.src, hostname);
+                                                if (fallback) {
+                                                    img.src = fallback;
                                                 } else {
                                                     // Both failed, hide image and show icon
                                                     img.style.display = 'none';

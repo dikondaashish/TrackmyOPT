@@ -4,6 +4,7 @@ import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Link
 import Link from "next/link";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
+import { getLogoUrl, handleLogoError } from "@/lib/imageUtils";
 
 interface H1BSponsorCardProps {
     sponsor: H1BSponsor;
@@ -52,16 +53,18 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                                         // Ensure protocol exists for URL constructor
                                         const urlStr = sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`;
                                         const hostname = new URL(urlStr).hostname.replace('www.', '');
+                                        const initialSrc = getLogoUrl(hostname);
+
                                         return (
                                             <img
-                                                src={`https://logo.clearbit.com/${hostname}`}
+                                                src={initialSrc}
                                                 alt={sponsor.name}
                                                 className="w-full h-full object-cover p-1.5"
                                                 onError={(e) => {
                                                     const img = e.target as HTMLImageElement;
-                                                    // Try Google Favicon as fallback
-                                                    if (img.src.includes('clearbit')) {
-                                                        img.src = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+                                                    const fallback = handleLogoError(img.src, hostname);
+                                                    if (fallback) {
+                                                        img.src = fallback;
                                                     } else {
                                                         // Both failed, hide image and show icon
                                                         img.style.display = 'none';
