@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
     DndContext,
     DragOverlay,
@@ -23,10 +24,19 @@ import { JobApplicationCard } from "./JobApplicationCard";
 import { JobTrackerStatsRow } from "./JobTrackerStatsRow";
 import { AddApplicationModal } from "./AddApplicationModal";
 import { ApplicationDrawer } from "./ApplicationDrawer";
+import { JobTrackerToolbar } from "./JobTrackerToolbar";
+import { FollowupsDueWidget } from "./FollowupsDueWidget";
 import { updateApplicationStatus } from "@/app/dashboard/career/job-tracker/actions";
+import {
+    searchApplications,
+    filterApplications,
+    sortApplications,
+    SortOption,
+    FollowupFilterOption
+} from "@/lib/career/job-tracker/filtering";
 
 interface JobTrackerBoardProps {
-    initialApplications: any[]; // Using any to include joined interviews/followups
+    initialApplications: any[]; // Includes joined interviews/followups
 }
 
 const dropAnimation: DropAnimation = {
@@ -40,15 +50,96 @@ const dropAnimation: DropAnimation = {
 };
 
 export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
+    const router = useRouter();
     const [applications, setApplications] = useState<JobApplication[]>(initialApplications);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
+
+    // Filter & Sort State
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState<JobStage | "all">("all");
+    const [followupFilter, setFollowupFilter] = useState<FollowupFilterOption>("all");
+    const [sortBy, setSortBy] = useState<SortOption>("recently-added");
+    const [showArchived, setShowArchived] = useState(false);
+
+    // Sync state when server data changes
+    useEffect(() => {
+        setApplications(initialApplications);
+    }, [initialApplications]);
+
+    // Calculate active filter count
+    const activeFilterCount = useMemo(() => {
+        let count = 0;
+        if (searchTerm) count++;
+        if (statusFilter !== "all") count++;
+        if (followupFilter !== "all") count++;
+        if (sortBy !== "recently-added") count++;
+        if (showArchived) count++;
+        return count;
+    }, [searchTerm, statusFilter, followupFilter, sortBy, showArchived]);
+
+    // Clear all filters
+    const handleClearFilters = useCallback(() => {
+        setSearchTerm("");
+        setStatusFilter("all");
+        setFollowupFilter("all");
+        setSortBy("recently-added");
+        setShowArchived(false);
+    }, []);
+
+    // Filtered & Sorted Applications
+    const filteredApplications = useMemo(() => {
+        let results = applications;
+
+        // Search
+        if (searchTerm) {
+            results = searchApplications(results, searchTerm);
+        }
+
+        // Filters
+        results = filterApplications(results, {
+            status: statusFilter,
+            followupFilter,
+            showArchived
+        });
+
+        // Sort
+        results = sortApplications(results, sortBy);
+
+        return results;
+    }, [applications, searchTerm, statusFilter, followupFilter, sortBy, showArchived]);
+
+    // Handlers for Instant UI Updates
+    const handleAdd = (newApp: JobApplication) => {
+        setApplications(prev => [newApp, ...prev]);
+        router.refresh();
+    };
+
+    const handleDelete = (id: string) => {
+        setApplications(prev => prev.filter(a => a.id !== id));
+        setSelectedApp(null);
+        router.refresh();
+    };
+
+    const handleUpdate = (updatedApp: JobApplication) => {
+        setApplications(prev => prev.map(a => a.id === updatedApp.id ? updatedApp : a));
+        router.refresh();
+    };
+
+    const handleArchive = (id: string) => {
+        // For now, just filter it out from display (actual DB update via actions.ts later)
+        setApplications(prev => prev.map(a =>
+            a.id === id ? { ...a, is_archived: true } as any : a
+        ));
+        setSelectedApp(null);
+        router.refresh();
+    };
 
     // Sensors
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 5, // Require slight movement to prevent accidental drags on click
+                distance: 5,
             },
         }),
         useSensor(KeyboardSensor, {
@@ -56,17 +147,17 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
         })
     );
 
-    // Derived columns
+    // Derived columns from filtered applications
     const columns = useMemo(() => {
         const cols = new Map<JobStage, JobApplication[]>();
         JOB_STAGES.forEach(stage => cols.set(stage, []));
 
-        applications.forEach(app => {
+        filteredApplications.forEach(app => {
             cols.get(app.status)?.push(app);
         });
 
         return cols;
-    }, [applications]);
+    }, [filteredApplications]);
 
     // Drag Handlers
     const handleDragStart = (event: DragStartEvent) => {
@@ -74,23 +165,7 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
     };
 
     const handleDragOver = (event: DragOverEvent) => {
-        const { active, over } = event;
-        if (!over) return;
-
-        // Find containers
-        const activeId = active.id;
-        const overId = over.id;
-
-        // Find the application object
-        const activeApp = applications.find(a => a.id === activeId);
-        if (!activeApp) return;
-
-        // If over a container (column) directly
-        if (JOB_STAGES.includes(overId as JobStage)) {
-            // We allow `DragEnd` to handle the final status change to avoid flickering
-            // But for visual sorting, we might want to update local state here if sorting standard is strict
-            // For simple Kanban, moving directly to container is enough in DragEnd usually.
-        }
+        // Visual feedback handled by DndContext
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
@@ -126,6 +201,7 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
 
             try {
                 await updateApplicationStatus(activeAppId, newStatus);
+                // Success toast could go here
             } catch (err) {
                 // Revert on failure
                 console.error("Failed to update status", err);
@@ -141,7 +217,7 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
     // Get joined data for drawer
     const getSelectedAppDetails = () => {
         if (!selectedApp) return { interviews: [], followups: [] };
-        const fullApp = initialApplications.find(a => a.id === selectedApp.id);
+        const fullApp = applications.find(a => a.id === selectedApp.id) as any;
         return {
             interviews: fullApp?.job_interviews || [],
             followups: fullApp?.job_followups || []
@@ -150,13 +226,32 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
 
     return (
         <div className="space-y-6">
+            {/* Stats Row + Add Button */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <JobTrackerStatsRow applications={applications} />
                 <div className="flex justify-end">
-                    <AddApplicationModal />
+                    <AddApplicationModal onAdd={handleAdd} />
                 </div>
             </div>
 
+            {/* Toolbar */}
+            <JobTrackerToolbar
+                onSearchChange={setSearchTerm}
+                onStatusFilterChange={setStatusFilter}
+                onFollowupFilterChange={setFollowupFilter}
+                onSortChange={setSortBy}
+                onShowArchivedChange={setShowArchived}
+                activeFilterCount={activeFilterCount}
+                onClearFilters={handleClearFilters}
+            />
+
+            {/* Follow-ups Widget */}
+            <FollowupsDueWidget
+                applications={applications as any}
+                onCardClick={setSelectedApp}
+            />
+
+            {/* Kanban Board */}
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCorners}
@@ -164,8 +259,7 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
                 onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
             >
-                {/* Horizontal Scroll Container for Columns */}
-                <div className="overflow-x-auto pb-4">
+                <div className="overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory md:snap-none">
                     <div className="flex gap-4 min-w-[200px]">
                         {KANBAN_COLUMNS.map(col => (
                             <JobStageColumn
@@ -181,7 +275,7 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
                 <DragOverlay dropAnimation={dropAnimation}>
                     {activeApplication ? (
                         <div className="transform rotate-3 cursor-grabbing w-[300px]">
-                            <JobApplicationCard application={activeApplication} onClick={() => { }} />
+                            <JobApplicationCard application={activeApplication as any} onClick={() => { }} />
                         </div>
                     ) : null}
                 </DragOverlay>
@@ -190,10 +284,13 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
             {/* Drawer */}
             {selectedApp && (
                 <ApplicationDrawer
-                    application={selectedApp}
+                    application={selectedApp as any}
                     onClose={() => setSelectedApp(null)}
                     interviews={getSelectedAppDetails().interviews}
                     followups={getSelectedAppDetails().followups}
+                    onDelete={handleDelete}
+                    onUpdate={handleUpdate}
+                    onArchive={handleArchive}
                 />
             )}
         </div>

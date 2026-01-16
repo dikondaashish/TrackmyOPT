@@ -6,11 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
-import { JobStage } from "@/lib/career/job-tracker/types";
+import { JobApplication, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES } from "@/lib/career/job-tracker/constants";
 import { createApplication } from "@/app/dashboard/career/job-tracker/actions";
 
-export function AddApplicationModal() {
+interface AddApplicationModalProps {
+    onAdd?: (app: JobApplication) => void;
+}
+
+export function AddApplicationModal({ onAdd }: AddApplicationModalProps) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -30,12 +34,13 @@ export function AddApplicationModal() {
 
         try {
             setLoading(true);
-            await createApplication({
+            const newApp = await createApplication({
                 ...formData,
                 location: formData.location || undefined,
                 job_url: formData.job_url || undefined,
                 applied_at: formData.applied_at || undefined,
             });
+
             setOpen(false);
             setFormData({
                 company_name: "",
@@ -45,7 +50,10 @@ export function AddApplicationModal() {
                 status: "Wishlist",
                 applied_at: ""
             });
-            // Ideally trigger a toast here
+
+            if (onAdd && newApp) {
+                onAdd(newApp);
+            }
         } catch (err) {
             console.error(err);
             alert("Failed to create application");

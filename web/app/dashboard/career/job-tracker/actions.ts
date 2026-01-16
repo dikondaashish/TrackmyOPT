@@ -42,10 +42,10 @@ export async function createApplication(formData: {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Unauthorized");
 
-    const { error } = await supabase.from("job_applications").insert({
+    const { data, error } = await supabase.from("job_applications").insert({
         user_id: user.id,
         ...formData
-    });
+    }).select().single();
 
     if (error) {
         console.error("Error creating application:", error);
@@ -53,6 +53,7 @@ export async function createApplication(formData: {
     }
 
     revalidatePath(APP_PATH);
+    return data as JobApplication;
 }
 
 export async function updateApplicationStatus(id: string, status: JobStage) {
