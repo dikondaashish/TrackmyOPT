@@ -31,7 +31,7 @@ export function Header({ darkMode, setDarkMode }: HeaderProps) {
             </span>
           </div>
           <span className="text-[8px] text-purple-600/70 dark:text-purple-300/70 leading-tight">
-            💰 Get your premium back
+            Get your premium back
           </span>
           {/* Hot Badge */}
           <span className="absolute -top-1 -right-1 px-1 py-0.5 text-[8px] font-bold uppercase
