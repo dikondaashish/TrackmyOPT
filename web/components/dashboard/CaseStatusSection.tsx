@@ -549,9 +549,15 @@ export function CaseStatusSection() {
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Last checked: {formatDate(caseStatus.last_checked_at)}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {calculateNextCheck(caseStatus.last_checked_at)} • Automatic checks every 6 hours
-                  </p>
+                  {isPremium ? (
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {calculateNextCheck(caseStatus.last_checked_at)} • Automatic checks every 6 hours
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                      Manual refresh only • <span className="text-purple-600 dark:text-purple-400 cursor-pointer hover:underline" onClick={() => setShowPremiumModal(true)}>Upgrade for auto-checks</span>
+                    </p>
+                  )}
                 </div>
               </div>
               <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
