@@ -46,17 +46,17 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
     };
 
     return (
-        <header className="fixed top-0 left-0 right-0 h-14 bg-[#1e3a8a] z-50 flex items-center justify-between px-4">
+        <header className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-50 flex items-center justify-between px-4">
             {/* Logo */}
             <div className="flex items-center gap-2">
                 {/* Mobile Menu Toggle */}
                 {onMenuToggle && (
                     <button
                         onClick={onMenuToggle}
-                        className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         aria-label="Toggle menu"
                     >
-                        <Menu className="w-5 h-5 text-white" />
+                        <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                     </button>
                 )}
                 <Link href="/dashboard" className="flex items-center gap-2">
@@ -67,7 +67,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                             className="w-10 h-10 object-contain"
                         />
                     </div>
-                    <span className="text-white font-semibold text-lg hidden sm:block">
+                    <span className="text-gray-900 dark:text-white text-lg hidden sm:block font-normal">
                         TrackMyOPT
                     </span>
                 </Link>
@@ -90,16 +90,16 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                 <div className="relative" ref={menuRef}>
                     <button
                         onClick={() => setShowProfileMenu(!showProfileMenu)}
-                        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
                         {/* Avatar */}
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm">
                             {getInitials(userName, userEmail)}
                         </div>
-                        <span className="text-white text-sm font-medium hidden md:block max-w-[120px] truncate">
+                        <span className="text-gray-700 dark:text-gray-300 text-sm font-medium hidden md:block max-w-[120px] truncate">
                             {userName || userEmail?.split("@")[0] || "User"}
                         </span>
-                        <ChevronDown className="w-4 h-4 text-white/70" />
+                        <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     </button>
 
                     {/* Dropdown Menu */}
