@@ -35,17 +35,13 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium }:
         router.push("/login");
     };
 
-    // Get user initials for avatar: First letter of First Name + First letter of Last Name
+    // Get user initials for avatar
     const getInitials = (name?: string, email?: string) => {
         if (name) {
-            const parts = name.trim().split(" ");
-            if (parts.length >= 2) {
-                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-            }
-            return parts[0].substring(0, 2).toUpperCase();
+            return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
         }
         if (email) {
-            return email.substring(0, 2).toUpperCase();
+            return email[0].toUpperCase();
         }
         return "U";
     };
@@ -56,42 +52,45 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium }:
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className={cn(
                     "flex items-center gap-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left group",
-                    isCollapsed ? "p-0 justify-center w-8 h-8" : "px-2 py-2 w-full"
+                    isCollapsed ? "p-0 justify-center w-8 h-8" : "px-2 py-1.5 w-full"
                 )}
                 aria-label="User menu"
             >
                 {/* Avatar with Badge */}
                 <div className="relative flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-gray-100 font-bold text-sm border border-gray-200 dark:border-gray-700">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white font-bold text-sm border border-gray-200 dark:border-gray-700">
                         {getInitials(userName, userEmail)}
                     </div>
-                    {/* PRO Badge */}
                     {isPremium && (
-                        <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border-2 border-white dark:border-gray-900 leading-none shadow-sm">
-                            PRO
+                        <div className="absolute -bottom-3.5 -right-0.5 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-lg border-2 border-white dark:border-gray-900 uppercase">
+                            Pro
                         </div>
                     )}
                 </div>
 
                 {!isCollapsed && (
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate w-full">
                             {userEmail}
                         </p>
                         {isPremium ? (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
                                 Premium Member
-                            </p>
+                            </span>
                         ) : (
                             <Link
                                 href="/premium/checkout"
-                                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium truncate flex items-center gap-1 hover:underline decoration-blue-600/30"
+                                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 Upgrade to Premium
                             </Link>
                         )}
                     </div>
+                )}
+
+                {!isCollapsed && (
+                    <ChevronDown className="w-4 h-4 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                 )}
             </button>
 
@@ -102,29 +101,13 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium }:
                     isCollapsed ? "left-0" : "left-0 right-0"
                 )}>
                     {/* User Info Header */}
-                    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-gray-100 font-bold text-sm">
-                                {getInitials(userName, userEmail)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                                    {userName || "User"}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                    {userEmail}
-                                </p>
-                            </div>
-                        </div>
-                        {!isPremium && (
-                            <Link
-                                href="/premium/checkout"
-                                className="block w-full py-2 px-3 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white text-xs font-bold text-center rounded-lg transition-all shadow-sm"
-                                onClick={() => setShowProfileMenu(false)}
-                            >
-                                Upgrade to Premium
-                            </Link>
-                        )}
+                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {userName || "User"}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {userEmail}
+                        </p>
                     </div>
 
                     {/* Menu Items */}
