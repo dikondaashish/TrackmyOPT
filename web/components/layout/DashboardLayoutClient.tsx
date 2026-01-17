@@ -96,9 +96,12 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                     "pl-0"
                 )}
             >
-                {/* Inner Container with Light Background */}
+                {/* Outer Padding */}
                 <div className="p-4 min-h-[calc(100vh-56px)]">
-                    {children}
+                    {/* White Container with Border & Shadow */}
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm min-h-[calc(100vh-88px)] p-6">
+                        {children}
+                    </div>
                 </div>
             </main>
         </div>
