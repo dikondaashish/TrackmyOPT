@@ -90,7 +90,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                 className={cn(
                     "fixed top-14 bottom-0 right-0 transition-all duration-300 overflow-hidden",
                     // Desktop: adjust for sidebar
-                    "lg:left-[200px]",
+                    "lg:left-[240px]",
                     isSidebarCollapsed && "lg:left-16",
                     // Mobile: full width
                     "left-0"
