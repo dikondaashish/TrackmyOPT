@@ -27,7 +27,7 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
                 {/* Logo */}
                 <div className="flex items-center gap-2 mb-6">
                     {/* Logo Icon */}
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center bg-white rounded-xl p-2 shadow-sm border border-gray-100">
                         <img
                             src="/TrackMyOPT Logo/logo.gif"
                             alt="TrackMyOPT Logo"
