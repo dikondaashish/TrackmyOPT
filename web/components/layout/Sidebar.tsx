@@ -230,7 +230,7 @@ export function Sidebar({ isCollapsed = false, onToggleCollapse, isMobileOpen = 
                             <div className="relative flex justify-end">
                                 <button
                                     onClick={onToggleCollapse}
-                                    className="group flex items-center justify-center p-2 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                                    className="group flex items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
                                     aria-label="Collapse Sidebar"
                                 >
                                     {isCollapsed ? (
