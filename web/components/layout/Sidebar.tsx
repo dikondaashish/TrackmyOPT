@@ -33,7 +33,10 @@ interface SidebarProps {
     onMobileClose?: () => void;
     userEmail?: string;
     userName?: string;
+    userEmail?: string;
+    userName?: string;
     isPremium?: boolean;
+    isLoading?: boolean;
 }
 
 interface NavLink {
@@ -91,7 +94,8 @@ export function Sidebar({
     onMobileClose,
     userEmail,
     userName,
-    isPremium
+    isPremium,
+    isLoading
 }: SidebarProps) {
     const pathname = usePathname();
     const [expandedSections, setExpandedSections] = useState<string[]>(["Career Tools"]);
@@ -245,6 +249,7 @@ export function Sidebar({
                                 userName={userName}
                                 isCollapsed={isCollapsed}
                                 isPremium={isPremium}
+                                isLoading={isLoading}
                             />
                         </div>
 

@@ -12,9 +12,10 @@ interface UserProfileMenuProps {
     userName?: string;
     isCollapsed?: boolean;
     isPremium?: boolean;
+    isLoading?: boolean;
 }
 
-export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium }: UserProfileMenuProps) {
+export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, isLoading }: UserProfileMenuProps) {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
@@ -73,7 +74,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium }:
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate w-full">
                             {userEmail}
                         </p>
-                        {isPremium === undefined ? (
+                        {isLoading ? (
                             <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 animate-pulse rounded mt-1" />
                         ) : isPremium ? (
                             <span className="text-xs text-gray-500 dark:text-gray-400">

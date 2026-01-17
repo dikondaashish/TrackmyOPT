@@ -13,6 +13,7 @@ interface DashboardLayoutClientProps {
 export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<{
         email?: string;
         name?: string;
@@ -22,23 +23,29 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     // Fetch user data
     useEffect(() => {
         const fetchUser = async () => {
-            const { data: { user: authUser } } = await supabase.auth.getUser();
+            try {
+                const { data: { user: authUser } } = await supabase.auth.getUser();
 
-            if (authUser) {
-                // Get profile for premium status
-                const { data: profile } = await supabase
-                    .from("profiles")
-                    .select("is_premium, first_name, last_name")
-                    .eq("user_id", authUser.id)
-                    .single();
+                if (authUser) {
+                    // Get profile for premium status
+                    const { data: profile } = await supabase
+                        .from("profiles")
+                        .select("is_premium, first_name, last_name")
+                        .eq("user_id", authUser.id)
+                        .single();
 
-                setUser({
-                    email: authUser.email,
-                    name: profile?.first_name
-                        ? `${profile.first_name} ${profile.last_name || ""}`.trim()
-                        : undefined,
-                    isPremium: profile?.is_premium,
-                });
+                    setUser({
+                        email: authUser.email,
+                        name: profile?.first_name
+                            ? `${profile.first_name} ${profile.last_name || ""}`.trim()
+                            : undefined,
+                        isPremium: profile?.is_premium || false,
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching user:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -86,6 +93,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                 userEmail={user.email}
                 userName={user.name}
                 isPremium={user.isPremium}
+                isLoading={isLoading}
             />
 
             {/* Main Content Area - This is the only scrollable section */}
