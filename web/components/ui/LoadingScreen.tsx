@@ -1,31 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 interface LoadingScreenProps {
     message?: string;
 }
 
 export function LoadingScreen({ message }: LoadingScreenProps) {
-    const [progress, setProgress] = useState(0);
-
-    // Animate progress bar
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setProgress(prev => {
-                if (prev >= 90) {
-                    // Slow down near the end to simulate waiting
-                    return prev + 0.5;
-                }
-                return prev + Math.random() * 15;
-            });
-        }, 200);
-
-        return () => clearInterval(interval);
-    }, []);
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] dark:bg-gray-950">
+            <style jsx>{`
+                @keyframes loading-slide {
+                    0% {
+                        transform: translateX(-100%);
+                    }
+                    50% {
+                        transform: translateX(100%);
+                    }
+                    100% {
+                        transform: translateX(300%);
+                    }
+                }
+                .animate-loading-bar {
+                    animation: loading-slide 1.5s infinite linear;
+                }
+            `}</style>
             <div className="flex flex-col items-center">
                 {/* Logo */}
                 <div className="flex items-center gap-2 mb-6">
@@ -40,11 +37,10 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
                 </div>
 
                 {/* Progress Bar Container */}
-                <div className="w-48 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                    {/* Animated Progress */}
+                <div className="w-48 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden relative">
+                    {/* Animated Indeterminate Bar */}
                     <div
-                        className="h-full bg-[#1e3a8a] rounded-full transition-all duration-200 ease-out"
-                        style={{ width: `${Math.min(progress, 100)}%` }}
+                        className="h-full bg-[#1e3a8a] rounded-full w-24 absolute top-0 left-0 animate-loading-bar"
                     />
                 </div>
 
