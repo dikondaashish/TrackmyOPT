@@ -187,51 +187,56 @@ export function Sidebar({ isCollapsed = false, onToggleCollapse, isMobileOpen = 
             )}
             <aside
                 className={cn(
-                    "fixed left-0 top-14 bottom-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col z-40 transition-all duration-300",
+                    "fixed left-0 top-14 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-40 transition-all duration-300",
+                    // Height calculation: 100vh - header height (56px) - some bottom padding
+                    "h-[calc(100vh-56px)]",
                     // Desktop behavior
-                    "hidden lg:flex",
+                    "hidden lg:block",
                     isCollapsed ? "lg:w-16" : "lg:w-[200px]",
                     // Mobile behavior
-                    isMobileOpen && "flex w-[260px] !left-0"
+                    isMobileOpen && "block w-[260px] !left-0"
                 )}
             >
-                {/* Navigation */}
-                <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-                    {/* Main Links */}
-                    {MAIN_LINKS.map(link => (
-                        <NavLinkItem key={link.href} link={link} />
-                    ))}
+                {/* Scrollable Container */}
+                <div className="overflow-x-hidden overflow-y-auto h-[calc(100vh-115px)] flex flex-col justify-between scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+                    {/* Navigation */}
+                    <nav className="p-3 space-y-1">
+                        {/* Main Links */}
+                        {MAIN_LINKS.map(link => (
+                            <NavLinkItem key={link.href} link={link} />
+                        ))}
 
-                    {/* Divider */}
-                    <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
+                        {/* Divider */}
+                        <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
 
-                    {/* Expandable Sections */}
-                    <NavSectionItem section={CAREER_TOOLS} />
-                    <NavSectionItem section={OPT_TOOLS} />
-                </nav>
+                        {/* Expandable Sections */}
+                        <NavSectionItem section={CAREER_TOOLS} />
+                        <NavSectionItem section={OPT_TOOLS} />
+                    </nav>
 
-                {/* Footer Links */}
-                <div className="p-3 border-t border-gray-200 dark:border-gray-700 space-y-1">
-                    {FOOTER_LINKS.map(link => (
-                        <NavLinkItem key={link.href} link={link} />
-                    ))}
+                    {/* Footer Links */}
+                    <div className="p-3 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                        {FOOTER_LINKS.map(link => (
+                            <NavLinkItem key={link.href} link={link} />
+                        ))}
 
-                    {/* Collapse Toggle */}
-                    {onToggleCollapse && (
-                        <button
-                            onClick={onToggleCollapse}
-                            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                        >
-                            {isCollapsed ? (
-                                <ChevronRight className="w-5 h-5" />
-                            ) : (
-                                <>
-                                    <ChevronLeft className="w-5 h-5" />
-                                    <span className="text-xs">Collapse</span>
-                                </>
-                            )}
-                        </button>
-                    )}
+                        {/* Collapse Toggle */}
+                        {onToggleCollapse && (
+                            <button
+                                onClick={onToggleCollapse}
+                                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                            >
+                                {isCollapsed ? (
+                                    <ChevronRight className="w-5 h-5" />
+                                ) : (
+                                    <>
+                                        <ChevronLeft className="w-5 h-5" />
+                                        <span className="text-xs">Collapse</span>
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
                 </div>
             </aside>
         </>
