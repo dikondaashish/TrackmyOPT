@@ -39,7 +39,13 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
     // Get user initials for avatar
     const getInitials = (name?: string, email?: string) => {
         if (name) {
-            return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+            const initials = name
+                .split(" ")
+                .filter(Boolean) // Filter out empty strings from multiple spaces
+                .map(n => n[0])
+                .join("")
+                .toUpperCase();
+            return initials.slice(0, 2);
         }
         if (email) {
             return email[0].toUpperCase();
