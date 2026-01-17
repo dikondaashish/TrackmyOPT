@@ -20,11 +20,10 @@ import {
     ChevronDown,
     Settings,
     HelpCircle,
-    Wrench,
-    LogOut
+    Wrench
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { UserProfileMenu } from "./UserProfileMenu";
 import { useState } from "react";
 
 interface SidebarProps {
@@ -104,42 +103,6 @@ export function Sidebar({
         if (onMobileClose) {
             onMobileClose();
         }
-    };
-
-    // Sign out handler
-    const [isSigningOut, setIsSigningOut] = useState(false);
-
-    const handleSignOut = async () => {
-        if (isSigningOut) return;
-        setIsSigningOut(true);
-        try {
-            await import("@/lib/supabaseClient").then(m => m.supabase.auth.signOut());
-            // Force redirect to login
-            window.location.href = '/login';
-        } catch (error) {
-            window.location.href = '/login';
-        }
-    };
-
-    // Get user initials matching reference logic
-    const getUserInitials = () => {
-        if (userName) {
-            const names = userName.split(' ').filter(Boolean);
-            const initials = names.length > 1
-                ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
-                : names[0][0].toUpperCase();
-            return initials;
-        }
-
-        if (userEmail) {
-            const emailParts = userEmail.split('@')[0].split('.');
-            const initials = emailParts.length > 1
-                ? `${emailParts[0][0]}${emailParts[1][0]}`.toUpperCase()
-                : emailParts[0].substring(0, 2).toUpperCase();
-            return initials;
-        }
-
-        return "U";
     };
 
     const toggleSection = (label: string) => {
@@ -275,69 +238,47 @@ export function Sidebar({
                         </nav>
                     </div>
 
-                    {/* Footer Section: Profile + SignOut + Toggle */}
-                    <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-4 bg-white dark:bg-gray-900">
-                        <div className={cn("flex items-center gap-3 px-1", isCollapsed ? "justify-center" : "")}>
-                            <div className="relative flex-shrink-0">
-                                {/* User Avatar Circle */}
-                                <div
-                                    className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-sm font-bold text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 shadow-sm"
-                                    title={isCollapsed ? userEmail : undefined}
-                                >
-                                    {getUserInitials()}
-                                </div>
-                                {/* PRO Badge */}
-                                {isPremium && (
-                                    <div className="absolute -bottom-3.5 -right-0.5 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-lg border-2 border-white dark:border-gray-900 uppercase">
-                                        Pro
-                                    </div>
-                                )}
-                            </div>
-                            {!isCollapsed && (
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                                        {userEmail || "Loading..."}
-                                    </p>
-                                    {isLoading ? (
-                                        <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 animate-pulse rounded mt-1" />
-                                    ) : isPremium ? (
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Premium Member</p>
-                                    ) : (
-                                        <Link
-                                            href="/premium/checkout"
-                                            className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                                        >
-                                            Upgrade to Pro
-                                        </Link>
-                                    )}
-                                </div>
-                            )}
+                    {/* Fixed/Sticky Bottom Area for Profile & Collapse Toggle */}
+                    <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 flex items-center justify-between gap-2">
+                        {/* Profile Menu */}
+                        <div className="flex-1 min-w-0">
+                            <UserProfileMenu
+                                userEmail={userEmail}
+                                userName={userName}
+                                isCollapsed={isCollapsed}
+                                isPremium={isPremium}
+                                isLoading={isLoading}
+                            />
                         </div>
 
-                        {/* Sign Out Button */}
-                        <button
-                            onClick={handleSignOut}
-                            disabled={isSigningOut}
-                            className={cn(
-                                "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                                isCollapsed ? "justify-center" : ""
-                            )}
-                            title={isCollapsed ? "Sign Out" : undefined}
-                        >
-                            <LogOut className={cn("w-4 h-4 flex-shrink-0", isSigningOut ? "animate-spin" : "")} />
-                            {!isCollapsed && <span className="text-sm font-medium">{isSigningOut ? 'Signing out...' : 'Sign Out'}</span>}
-                        </button>
-
-                        {/* Collapse Toggle (Desktop) */}
-                        <div className="hidden lg:flex justify-end pt-2">
+                        {/* Collapse Toggle */}
+                        {onToggleCollapse && (
                             <button
                                 onClick={onToggleCollapse}
-                                className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                                className="group flex-shrink-0 flex items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
+                                aria-label="Collapse Sidebar"
                             >
-                                {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+                                {isCollapsed ? (
+                                    <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className="transform rotate-180">
+                                        <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                                        <path d="M15 4v16"></path>
+                                        <path d="M10 10l-2 2l2 2"></path>
+                                    </svg>
+                                ) : (
+                                    <>
+                                        <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                                            <path d="M15 4v16"></path>
+                                            <path d="M10 10l-2 2l2 2"></path>
+                                        </svg>
+                                        {/* Tooltip */}
+                                        <div className="absolute right-full mr-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                                            Collapse
+                                        </div>
+                                    </>
+                                )}
                             </button>
-                        </div>
+                        )}
                     </div>
                 </div>
             </aside>
