@@ -187,8 +187,8 @@ export function Sidebar({ isCollapsed = false, onToggleCollapse, isMobileOpen = 
             )}
             <aside
                 className={cn(
-                    "fixed left-0 top-14 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-40 transition-all duration-300 flex flex-col",
-                    // Height calculation: 100vh - header height (56px)
+                    "fixed left-0 top-14 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-40 transition-all duration-300",
+                    // Height calculation: 100vh - header height (56px) - some bottom padding
                     "h-[calc(100vh-56px)]",
                     // Desktop behavior
                     "hidden lg:block",
@@ -197,61 +197,66 @@ export function Sidebar({ isCollapsed = false, onToggleCollapse, isMobileOpen = 
                     isMobileOpen && "block w-[260px] !left-0"
                 )}
             >
-                {/* Scrollable Container */}
-                <div className="flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
-                    {/* Navigation */}
-                    <nav className="p-3 space-y-1">
-                        {/* Main Links */}
-                        {MAIN_LINKS.map(link => (
-                            <NavLinkItem key={link.href} link={link} />
-                        ))}
+                {/* Sidebar Flex Container */}
+                <div className="flex flex-col h-full">
+                    {/* Scrollable Navigation Area */}
+                    <div className="flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+                        <nav className="p-3 space-y-1">
+                            {/* Main Links */}
+                            {MAIN_LINKS.map(link => (
+                                <NavLinkItem key={link.href} link={link} />
+                            ))}
 
-                        {/* Divider */}
-                        <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
+                            {/* Divider */}
+                            <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
 
-                        {/* Expandable Sections */}
-                        <NavSectionItem section={CAREER_TOOLS} />
-                        <NavSectionItem section={OPT_TOOLS} />
-                    </nav>
+                            {/* Expandable Sections */}
+                            <NavSectionItem section={CAREER_TOOLS} />
+                            <NavSectionItem section={OPT_TOOLS} />
 
-                    {/* Footer Links */}
-                    <div className="p-3 border-t border-gray-200 dark:border-gray-700 space-y-1">
-                        {FOOTER_LINKS.map(link => (
-                            <NavLinkItem key={link.href} link={link} />
-                        ))}
+                            {/* Divider before Footer Links */}
+                            <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
+
+                            {/* Footer Links */}
+                            {FOOTER_LINKS.map(link => (
+                                <NavLinkItem key={link.href} link={link} />
+                            ))}
+                        </nav>
                     </div>
+
+                    {/* Fixed/Sticky Bottom Area for Collapse Toggle */}
+                    {onToggleCollapse && (
+                        <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10">
+                            <div className="relative flex justify-end">
+                                <button
+                                    onClick={onToggleCollapse}
+                                    className="group flex items-center justify-center p-2 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                                    aria-label="Collapse Sidebar"
+                                >
+                                    {isCollapsed ? (
+                                        <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className="transform rotate-180">
+                                            <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                                            <path d="M15 4v16"></path>
+                                            <path d="M10 10l-2 2l2 2"></path>
+                                        </svg>
+                                    ) : (
+                                        <>
+                                            <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                                                <path d="M15 4v16"></path>
+                                                <path d="M10 10l-2 2l2 2"></path>
+                                            </svg>
+                                            {/* Tooltip */}
+                                            <div className="absolute right-full mr-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                                Collapse
+                                            </div>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
-
-                {/* Sticky Bottom Collapse Button */}
-                {onToggleCollapse && (
-                    <div className="p-3 flex justify-end bg-white dark:bg-gray-900 pb-6">
-                        <button
-                            onClick={onToggleCollapse}
-                            className="group flex items-center justify-center p-2 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors border border-gray-200 dark:border-gray-700 shadow-sm"
-                            aria-label="Collapse Sidebar"
-                        >
-                            {isCollapsed ? (
-                                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className="transform rotate-180">
-                                    <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                                    <path d="M15 4v16"></path>
-                                    <path d="M10 10l-2 2l2 2"></path>
-                                </svg>
-                            ) : (
-                                <>
-                                    <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                                        <path d="M15 4v16"></path>
-                                        <path d="M10 10l-2 2l2 2"></path>
-                                    </svg>
-                                    {/* Tooltip */}
-                                    <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-                                        Collapse
-                                    </div>
-                                </>
-                            )}
-                        </button>
-                    </div>
-                )}
             </aside>
         </>
     );
