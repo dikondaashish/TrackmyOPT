@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 type Mode = 'signin' | 'signup';
 
@@ -436,8 +437,8 @@ function LoginPageContent() {
                   onClick={handleResendOTP}
                   disabled={!canResend || otpLoading}
                   className={`font-medium ${canResend
-                      ? 'text-blue-600 hover:text-blue-700 cursor-pointer'
-                      : 'text-gray-400 cursor-not-allowed'
+                    ? 'text-blue-600 hover:text-blue-700 cursor-pointer'
+                    : 'text-gray-400 cursor-not-allowed'
                     }`}
                 >
                   Resend Code
@@ -530,10 +531,10 @@ function LoginPageContent() {
             <div
               key={index}
               className={`absolute w-full max-w-lg transition-all duration-1000 ${index === currentImageIndex
-                  ? 'opacity-100 transform translate-x-0 scale-100'
-                  : index < currentImageIndex
-                    ? 'opacity-0 transform -translate-x-full scale-95'
-                    : 'opacity-0 transform translate-x-full scale-95'
+                ? 'opacity-100 transform translate-x-0 scale-100'
+                : index < currentImageIndex
+                  ? 'opacity-0 transform -translate-x-full scale-95'
+                  : 'opacity-0 transform translate-x-full scale-95'
                 }`}
             >
               <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-12 shadow-2xl">
@@ -558,8 +559,8 @@ function LoginPageContent() {
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
                 className={`h-2 rounded-full transition-all duration-300 ${index === currentImageIndex
-                    ? 'bg-white w-12 shadow-lg'
-                    : 'bg-white/40 w-2 hover:bg-white/60'
+                  ? 'bg-white w-12 shadow-lg'
+                  : 'bg-white/40 w-2 hover:bg-white/60'
                   }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
@@ -953,14 +954,7 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<LoadingScreen />}>
       <LoginPageContent />
     </Suspense>
   );

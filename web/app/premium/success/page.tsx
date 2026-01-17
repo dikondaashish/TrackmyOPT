@@ -8,6 +8,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 function PremiumSuccessContent() {
   const router = useRouter();
@@ -132,14 +133,7 @@ function PremiumSuccessContent() {
 
 export default function PremiumSuccess() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-background dark:via-background dark:to-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600 dark:text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<LoadingScreen />}>
       <PremiumSuccessContent />
     </Suspense>
   );

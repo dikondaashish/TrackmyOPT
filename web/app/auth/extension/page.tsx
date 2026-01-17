@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 type Tab = 'google' | 'manual';
 
@@ -205,8 +206,8 @@ function ExtensionAuthContent() {
             onClick={() => setTab('google')}
             disabled={loading}
             className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${tab === 'google'
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted/80'
+              ? 'bg-blue-600 text-white shadow-lg'
+              : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted/80'
               }`}
           >
             Google
@@ -215,8 +216,8 @@ function ExtensionAuthContent() {
             onClick={() => setTab('manual')}
             disabled={loading}
             className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${tab === 'manual'
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted/80'
+              ? 'bg-blue-600 text-white shadow-lg'
+              : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted/80'
               }`}
           >
             Manual
@@ -532,14 +533,7 @@ function ExtensionAuthContent() {
 
 export default function ExtensionAuthPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-background dark:via-background dark:to-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<LoadingScreen />}>
       <ExtensionAuthContent />
     </Suspense>
   );
