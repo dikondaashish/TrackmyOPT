@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import Image from 'next/image';
 
 type Mode = 'signin' | 'signup';
 
@@ -577,14 +578,30 @@ function LoginPageContent() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground">TrackMyOPT</h1>
+            <div className="relative h-16 w-48 mx-auto mb-2">
+              <Image
+                src="/TrackMyOPT Logo/logo.gif"
+                alt="TrackMyOPT"
+                fill
+                className="object-contain"
+                unoptimized
+                priority
+              />
+            </div>
             <p className="text-gray-600 dark:text-muted-foreground text-sm mt-1">Your OPT Timeline Companion</p>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2">
-              TrackMyOPT
-            </h2>
+            <div className="relative h-16 w-48 mb-2">
+              <Image
+                src="/TrackMyOPT Logo/logo.gif"
+                alt="TrackMyOPT"
+                fill
+                className="object-contain object-left"
+                unoptimized
+                priority
+              />
+            </div>
             <p className="text-gray-600 dark:text-muted-foreground">
               Calculate filing windows, track unemployment days, and get reminders.
             </p>

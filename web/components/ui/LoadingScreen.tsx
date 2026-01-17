@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 interface LoadingScreenProps {
     message?: string;
 }
@@ -25,15 +27,15 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
             `}</style>
             <div className="flex flex-col items-center">
                 {/* Logo */}
-                <div className="flex items-center gap-2 mb-6">
-                    {/* Logo Icon */}
-                    <div className="w-10 h-10 rounded-full bg-[#1e3a8a] flex items-center justify-center">
-                        <span className="text-white font-bold text-xl">T</span>
-                    </div>
-                    {/* Logo Text */}
-                    <span className="text-2xl font-semibold text-gray-900 dark:text-white">
-                        TrackMyOPT
-                    </span>
+                <div className="relative w-64 h-24 mb-6">
+                    <Image
+                        src="/TrackMyOPT Logo/logo.gif"
+                        alt="TrackMyOPT"
+                        fill
+                        className="object-contain"
+                        unoptimized
+                        priority
+                    />
                 </div>
 
                 {/* Progress Bar Container */}
