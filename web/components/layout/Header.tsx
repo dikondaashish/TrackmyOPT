@@ -60,7 +60,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                     </button>
                 )}
                 <Link href="/dashboard" className="flex items-center gap-2">
-                    <div className="flex items-center justify-center bg-white rounded-lg p-1">
+                    <div className="flex items-center justify-center bg-[#226BE7] rounded-lg p-1">
                         <img
                             src="/TrackMyOPT Logo/logo.gif"
                             alt="TrackMyOPT Logo"
