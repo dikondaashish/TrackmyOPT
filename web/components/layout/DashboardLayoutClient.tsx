@@ -68,8 +68,8 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     };
 
     return (
-        <div className="min-h-screen bg-[#e8edf5] dark:bg-gray-950">
-            {/* Header */}
+        <div className="h-screen overflow-hidden bg-[#e8edf5] dark:bg-gray-950">
+            {/* Fixed Header */}
             <Header
                 userEmail={user.email}
                 userName={user.name}
@@ -77,7 +77,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                 onMenuToggle={handleMobileMenuToggle}
             />
 
-            {/* Sidebar */}
+            {/* Fixed Sidebar */}
             <Sidebar
                 isCollapsed={isSidebarCollapsed}
                 onToggleCollapse={handleToggleCollapse}
@@ -85,22 +85,25 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                 onMobileClose={handleMobileMenuClose}
             />
 
-            {/* Main Content Area */}
+            {/* Main Content Area - This is the only scrollable section */}
             <main
                 className={cn(
-                    "pt-14 min-h-screen transition-all duration-300",
+                    "fixed top-14 bottom-0 right-0 transition-all duration-300 overflow-hidden",
                     // Desktop: adjust for sidebar
-                    "lg:pl-[200px]",
-                    isSidebarCollapsed && "lg:pl-16",
-                    // Mobile: no padding for sidebar
-                    "pl-0"
+                    "lg:left-[200px]",
+                    isSidebarCollapsed && "lg:left-16",
+                    // Mobile: full width
+                    "left-0"
                 )}
             >
-                {/* Outer Padding */}
-                <div className="p-4 min-h-[calc(100vh-56px)]">
-                    {/* White Container with Border & Shadow */}
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm min-h-[calc(100vh-88px)] p-6">
-                        {children}
+                {/* Outer Padding Container */}
+                <div className="h-full p-4 overflow-hidden">
+                    {/* White Container - THIS IS THE SCROLLABLE AREA */}
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm h-full overflow-y-auto">
+                        {/* Inner Padding */}
+                        <div className="p-6">
+                            {children}
+                        </div>
                     </div>
                 </div>
             </main>
