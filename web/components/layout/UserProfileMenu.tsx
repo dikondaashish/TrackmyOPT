@@ -39,7 +39,11 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
     // Get user initials for avatar
     const getInitials = (name?: string, email?: string) => {
         if (name) {
-            const names = name.trim().split(/\s+/).filter(Boolean);
+            const names = name
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean);
+
             if (names.length === 0) return "U";
 
             const firstInitial = names[0]?.[0] || "";
@@ -50,10 +54,9 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
 
         if (email) {
             const emailParts = email.split("@")[0].split(".");
-            const initials = emailParts.length > 1
+            return emailParts.length > 1
                 ? `${emailParts[0][0]}${emailParts[1][0]}`.toUpperCase()
                 : emailParts[0].substring(0, 2).toUpperCase();
-            return initials;
         }
 
         return "U";

@@ -34,11 +34,13 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                         .eq("user_id", authUser.id)
                         .single();
 
+                    const fullName = profile?.first_name
+                        ? `${profile.first_name} ${profile.last_name || ""}`.trim()
+                        : authUser.user_metadata?.full_name || authUser.user_metadata?.name || undefined;
+
                     setUser({
                         email: authUser.email,
-                        name: profile?.first_name
-                            ? `${profile.first_name} ${profile.last_name || ""}`.trim()
-                            : undefined,
+                        name: fullName,
                         isPremium: profile?.is_premium || false,
                     });
                 }
