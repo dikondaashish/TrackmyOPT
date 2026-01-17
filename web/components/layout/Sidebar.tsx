@@ -21,8 +21,7 @@ import {
     Settings,
     HelpCircle,
     Wrench
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { UserProfileMenu } from "./UserProfileMenu";
 import { useState } from "react";
 
 interface SidebarProps {
@@ -30,6 +29,8 @@ interface SidebarProps {
     onToggleCollapse?: () => void;
     isMobileOpen?: boolean;
     onMobileClose?: () => void;
+    userEmail?: string;
+    userName?: string;
 }
 
 interface NavLink {
@@ -80,7 +81,14 @@ const FOOTER_LINKS: NavLink[] = [
     { label: "Help", href: "/dashboard/help", icon: HelpCircle },
 ];
 
-export function Sidebar({ isCollapsed = false, onToggleCollapse, isMobileOpen = false, onMobileClose }: SidebarProps) {
+export function Sidebar({
+    isCollapsed = false,
+    onToggleCollapse,
+    isMobileOpen = false,
+    onMobileClose,
+    userEmail,
+    userName
+}: SidebarProps) {
     const pathname = usePathname();
     const [expandedSections, setExpandedSections] = useState<string[]>(["Career Tools"]);
 
@@ -224,38 +232,46 @@ export function Sidebar({ isCollapsed = false, onToggleCollapse, isMobileOpen = 
                         </nav>
                     </div>
 
-                    {/* Fixed/Sticky Bottom Area for Collapse Toggle */}
-                    {onToggleCollapse && (
-                        <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10">
-                            <div className="relative flex justify-end">
-                                <button
-                                    onClick={onToggleCollapse}
-                                    className="group flex items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
-                                    aria-label="Collapse Sidebar"
-                                >
-                                    {isCollapsed ? (
-                                        <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className="transform rotate-180">
+                    {/* Fixed/Sticky Bottom Area for Profile & Collapse Toggle */}
+                    <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 flex items-center justify-between gap-2">
+                        {/* Profile Menu */}
+                        <div className="flex-1 min-w-0">
+                            <UserProfileMenu
+                                userEmail={userEmail}
+                                userName={userName}
+                                isCollapsed={isCollapsed}
+                            />
+                        </div>
+
+                        {/* Collapse Toggle */}
+                        {onToggleCollapse && (
+                            <button
+                                onClick={onToggleCollapse}
+                                className="group flex-shrink-0 flex items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
+                                aria-label="Collapse Sidebar"
+                            >
+                                {isCollapsed ? (
+                                    <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className="transform rotate-180">
+                                        <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                                        <path d="M15 4v16"></path>
+                                        <path d="M10 10l-2 2l2 2"></path>
+                                    </svg>
+                                ) : (
+                                    <>
+                                        <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
                                             <path d="M15 4v16"></path>
                                             <path d="M10 10l-2 2l2 2"></path>
                                         </svg>
-                                    ) : (
-                                        <>
-                                            <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                                                <path d="M15 4v16"></path>
-                                                <path d="M10 10l-2 2l2 2"></path>
-                                            </svg>
-                                            {/* Tooltip */}
-                                            <div className="absolute right-full mr-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                                Collapse
-                                            </div>
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                                        {/* Tooltip */}
+                                        <div className="absolute right-full mr-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                                            Collapse
+                                        </div>
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
                 </div>
             </aside>
         </>

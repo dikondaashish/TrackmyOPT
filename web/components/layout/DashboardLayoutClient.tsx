@@ -83,6 +83,8 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                 onToggleCollapse={handleToggleCollapse}
                 isMobileOpen={isMobileMenuOpen}
                 onMobileClose={handleMobileMenuClose}
+                userEmail={user.email}
+                userName={user.name}
             />
 
             {/* Main Content Area - This is the only scrollable section */}
