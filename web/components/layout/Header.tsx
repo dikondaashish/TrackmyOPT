@@ -60,8 +60,12 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                     </button>
                 )}
                 <Link href="/dashboard" className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">T</span>
+                    <div className="flex items-center justify-center">
+                        <img
+                            src="/TrackMyOPT Logo/logo.gif"
+                            alt="TrackMyOPT Logo"
+                            className="w-10 h-10 object-contain"
+                        />
                     </div>
                     <span className="text-white font-semibold text-lg hidden sm:block">
                         TrackMyOPT
