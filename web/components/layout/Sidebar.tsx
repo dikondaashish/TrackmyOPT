@@ -96,7 +96,7 @@ export function Sidebar({
     isLoading
 }: SidebarProps) {
     const pathname = usePathname();
-    const [expandedSections, setExpandedSections] = useState<string[]>(["Career Tools"]);
+    const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
     // Close mobile menu on navigation
     const handleLinkClick = () => {
