@@ -21,6 +21,8 @@ import {
     Settings,
     HelpCircle,
     Wrench
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { UserProfileMenu } from "./UserProfileMenu";
 import { useState } from "react";
 
