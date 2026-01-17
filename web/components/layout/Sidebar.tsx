@@ -222,19 +222,33 @@ export function Sidebar({ isCollapsed = false, onToggleCollapse, isMobileOpen = 
 
                         {/* Collapse Toggle */}
                         {onToggleCollapse && (
-                            <button
-                                onClick={onToggleCollapse}
-                                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                            >
-                                {isCollapsed ? (
-                                    <ChevronRight className="w-5 h-5" />
-                                ) : (
-                                    <>
-                                        <ChevronLeft className="w-5 h-5" />
-                                        <span className="text-xs">Collapse</span>
-                                    </>
-                                )}
-                            </button>
+                            <div className="relative flex justify-end">
+                                <button
+                                    onClick={onToggleCollapse}
+                                    className="group flex items-center justify-center p-2 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                                    aria-label="Collapse Sidebar"
+                                >
+                                    {isCollapsed ? (
+                                        <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className="transform rotate-180">
+                                            <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                                            <path d="M15 4v16"></path>
+                                            <path d="M10 10l-2 2l2 2"></path>
+                                        </svg>
+                                    ) : (
+                                        <>
+                                            <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                                                <path d="M15 4v16"></path>
+                                                <path d="M10 10l-2 2l2 2"></path>
+                                            </svg>
+                                            {/* Tooltip */}
+                                            <div className="absolute right-full mr-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                                Collapse
+                                            </div>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
