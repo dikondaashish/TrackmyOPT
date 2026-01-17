@@ -35,7 +35,7 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
                         />
                     </div>
                     {/* Logo Text */}
-                    <span className="text-2xl font-semibold text-gray-900 dark:text-white">
+                    <span className="text-3xl font-bold text-gray-900 dark:text-white">
                         TrackMyOPT
                     </span>
                 </div>
