@@ -33,8 +33,6 @@ interface SidebarProps {
     onMobileClose?: () => void;
     userEmail?: string;
     userName?: string;
-    userEmail?: string;
-    userName?: string;
     isPremium?: boolean;
     isLoading?: boolean;
 }
