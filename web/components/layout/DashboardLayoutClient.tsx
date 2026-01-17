@@ -37,7 +37,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                     name: profile?.first_name
                         ? `${profile.first_name} ${profile.last_name || ""}`.trim()
                         : undefined,
-                    isPremium: profile?.is_premium || false,
+                    isPremium: profile?.is_premium,
                 });
             }
         };
