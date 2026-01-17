@@ -192,7 +192,7 @@ export function Sidebar({ isCollapsed = false, onToggleCollapse, isMobileOpen = 
                     "h-[calc(100vh-56px)]",
                     // Desktop behavior
                     "hidden lg:block",
-                    isCollapsed ? "lg:w-16" : "lg:w-[240px]",
+                    isCollapsed ? "lg:w-16" : "lg:w-[225px]",
                     // Mobile behavior
                     isMobileOpen && "block w-[260px] !left-0"
                 )}
