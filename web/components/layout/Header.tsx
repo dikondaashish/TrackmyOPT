@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Crown, ChevronDown, LogOut, Settings, HelpCircle, Menu } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -61,16 +60,12 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                     </button>
                 )}
                 <Link href="/dashboard" className="flex items-center gap-2">
-                    <div className="relative h-10 w-40">
-                        <Image
-                            src="/TrackMyOPT Logo/logo.gif"
-                            alt="TrackMyOPT"
-                            fill
-                            className="object-contain object-left"
-                            unoptimized
-                            priority
-                        />
+                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">T</span>
                     </div>
+                    <span className="text-white font-semibold text-lg hidden sm:block">
+                        TrackMyOPT
+                    </span>
                 </Link>
             </div>
 
