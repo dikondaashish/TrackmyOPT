@@ -46,7 +46,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
     };
 
     return (
-        <header className="fixed top-0 left-0 right-0 h-14 bg-[#1e3a8a] z-50 flex items-center justify-between px-4">
+        <header className="fixed top-0 left-0 right-0 h-14 bg-[#0F3162] z-50 flex items-center justify-between px-4">
             {/* Logo */}
             <div className="flex items-center gap-2">
                 {/* Mobile Menu Toggle */}
