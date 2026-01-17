@@ -37,22 +37,25 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
     };
 
     // Get user initials for avatar
-    // Get user initials for avatar
     const getInitials = (name?: string, email?: string) => {
         if (name) {
-            const names = name.split(" ").filter(Boolean);
-            if (names.length > 0) {
-                return names.length > 1
-                    ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
-                    : names[0][0].toUpperCase();
-            }
+            const names = name.trim().split(/\s+/).filter(Boolean);
+            if (names.length === 0) return "U";
+
+            const firstInitial = names[0]?.[0] || "";
+            const lastInitial = names.length > 1 ? names[names.length - 1]?.[0] || "" : "";
+
+            return `${firstInitial}${lastInitial}`.toUpperCase();
         }
+
         if (email) {
-            const emailParts = email.split('@')[0].split('.');
-            return emailParts.length > 1
+            const emailParts = email.split("@")[0].split(".");
+            const initials = emailParts.length > 1
                 ? `${emailParts[0][0]}${emailParts[1][0]}`.toUpperCase()
                 : emailParts[0].substring(0, 2).toUpperCase();
+            return initials;
         }
+
         return "U";
     };
 
