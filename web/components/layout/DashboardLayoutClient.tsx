@@ -30,7 +30,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                     // Get profile for premium status
                     const { data: profile } = await supabase
                         .from("profiles")
-                        .select("is_premium, first_name, last_name")
+                        .select("premium_status, first_name, last_name")
                         .eq("user_id", authUser.id)
                         .single();
 
@@ -41,7 +41,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                     setUser({
                         email: authUser.email,
                         name: fullName,
-                        isPremium: profile?.is_premium || false,
+                        isPremium: profile?.premium_status || false,
                     });
                 }
             } catch (error) {
