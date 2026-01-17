@@ -85,6 +85,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                 onMobileClose={handleMobileMenuClose}
                 userEmail={user.email}
                 userName={user.name}
+                isPremium={user.isPremium}
             />
 
             {/* Main Content Area - This is the only scrollable section */}
