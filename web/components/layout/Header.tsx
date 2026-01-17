@@ -67,7 +67,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                             className="w-8 h-8 object-contain"
                         />
                     </div>
-                    <span className="text-white font-normal text-lg hidden sm:block">
+                    <span className="text-white font-semibold text-lg hidden sm:block">
                         TrackMyOPT
                     </span>
                 </Link>
