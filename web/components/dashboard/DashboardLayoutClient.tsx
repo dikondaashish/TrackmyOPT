@@ -13,14 +13,14 @@ interface DashboardLayoutClientProps {
 
 export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) {
   const searchParams = useSearchParams();
-  const [darkMode, setDarkMode] = useState(false); // Default to light
+  const [darkMode, setDarkMode] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isPremium, setIsPremium] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
 
+  // Apply dark mode class to html element
   useEffect(() => {
-    // Apply dark mode class to html element
     const root = document.documentElement;
     if (darkMode) {
       root.classList.add("dark");
@@ -33,15 +33,13 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   useEffect(() => {
     const savedMode = localStorage.getItem('tmo_dark_mode');
     if (savedMode !== null) {
-      // User has a saved preference
       setDarkMode(savedMode === 'true');
     } else {
-      // No saved preference, check system preference
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setDarkMode(prefersDark);
     }
 
-    // Listen for storage changes (when settings page changes dark mode - cross tab)
+    // Listen for storage changes (cross tab sync)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'tmo_dark_mode' && e.newValue !== null) {
         setDarkMode(e.newValue === 'true');
@@ -64,26 +62,23 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   // Fetch user data and premium status
   useEffect(() => {
     let mounted = true;
-    
+
     const fetchUserData = async () => {
       try {
         const response = await fetch('/api/me', {
           credentials: 'include',
           cache: 'no-store',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
-        
-        
+
         if (!mounted) return;
-        
+
         if (response.ok) {
           const data = await response.json();
-          
+
           if (data.user && mounted) {
             setUser(data.user);
-            
+
             // Record web session for login activity tracking
             fetch('/api/user/sessions', {
               method: 'POST',
@@ -92,41 +87,34 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
               body: JSON.stringify({
                 device_type: 'web',
                 device_info: navigator.userAgent.includes('Chrome') ? 'Chrome Browser' :
-                             navigator.userAgent.includes('Firefox') ? 'Firefox Browser' :
-                             navigator.userAgent.includes('Safari') ? 'Safari Browser' :
-                             'Web Browser',
+                  navigator.userAgent.includes('Firefox') ? 'Firefox Browser' :
+                    navigator.userAgent.includes('Safari') ? 'Safari Browser' :
+                      'Web Browser',
               }),
-            }).catch(() => {}); // Silently fail - not critical
+            }).catch(() => { });
           }
-        } else {
-          // Auth failed
         }
 
         // Fetch premium status
         const premiumResponse = await fetch('/api/premium/status', {
           credentials: 'include',
           cache: 'no-store',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
-        
-        
+
         if (!mounted) return;
-        
+
         if (premiumResponse.ok) {
           const premiumData = await premiumResponse.json();
           if (mounted) {
             setIsPremium(premiumData.isPremium || false);
           }
-        } else {
-          const errorText = await premiumResponse.text();
         }
       } catch (error) {
+        // Silently fail
       }
     };
 
-    // Immediate fetch
     fetchUserData();
 
     return () => {
@@ -139,7 +127,6 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     const upgrade = searchParams.get('upgrade');
     if (upgrade === 'true') {
       setShowPricingModal(true);
-      // Clean up URL without reload
       window.history.replaceState({}, '', '/dashboard');
     }
   }, [searchParams]);
@@ -147,33 +134,35 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   const handleDarkModeToggle = (value: boolean) => {
     setDarkMode(value);
     localStorage.setItem('tmo_dark_mode', String(value));
-    // Dispatch custom event to sync with settings page
     window.dispatchEvent(new CustomEvent('darkModeChanged', { detail: { darkMode: value } }));
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Fixed Sidebar */}
-      <Sidebar 
-        key={user?.email || 'no-user'} // Force re-render when user changes
-        collapsed={sidebarCollapsed} 
-        setCollapsed={setSidebarCollapsed}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-foreground">
+      {/* Fixed Header - Full Width at Top */}
+      <Header
+        darkMode={darkMode}
+        setDarkMode={handleDarkModeToggle}
         user={user}
         isPremium={isPremium}
         onUpgradeClick={() => setShowPricingModal(true)}
       />
-      
+
+      {/* Fixed Sidebar - Below Header */}
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+      />
+
       {/* Main Content Area - shifts based on sidebar state */}
-      <div 
-        className={`transition-all duration-300 ${
-          sidebarCollapsed ? 'ml-20' : 'ml-64'
-        }`}
+      <div
+        className={`transition-all duration-300 pt-0 ${sidebarCollapsed ? 'ml-16' : 'ml-60'
+          }`}
       >
-        {/* Fixed Header */}
-        <Header darkMode={darkMode} setDarkMode={handleDarkModeToggle} />
-        
         {/* Scrollable Content */}
-        <main className="px-6 py-6">{children}</main>
+        <main className="min-h-[calc(100vh-56px)] p-6">
+          {children}
+        </main>
       </div>
 
       {/* Pricing Modal */}

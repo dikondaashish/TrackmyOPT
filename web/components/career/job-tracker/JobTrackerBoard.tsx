@@ -26,6 +26,11 @@ import { AddApplicationModal } from "./AddApplicationModal";
 import { ApplicationDrawer } from "./ApplicationDrawer";
 import { JobTrackerToolbar } from "./JobTrackerToolbar";
 import { FollowupsDueWidget } from "./FollowupsDueWidget";
+import { ViewSwitcher, JobTrackerView } from "./ViewSwitcher";
+import { JobTrackerTableView } from "./JobTrackerTableView";
+import { JobTrackerCalendarView } from "./JobTrackerCalendarView";
+import { TodaysTasksWidget } from "./TodaysTasksWidget";
+import { InsightsPanel } from "./InsightsPanel";
 import { updateApplicationStatus } from "@/app/dashboard/career/job-tracker/actions";
 import {
     searchApplications,
@@ -49,11 +54,28 @@ const dropAnimation: DropAnimation = {
     }),
 };
 
+const STORAGE_KEY = "trackmyopt_job_tracker_view";
+
 export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
     const router = useRouter();
     const [applications, setApplications] = useState<JobApplication[]>(initialApplications);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
+
+    // View State with localStorage persistence
+    const [currentView, setCurrentView] = useState<JobTrackerView>("board");
+
+    useEffect(() => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && ["board", "table", "calendar"].includes(saved)) {
+            setCurrentView(saved as JobTrackerView);
+        }
+    }, []);
+
+    const handleViewChange = (view: JobTrackerView) => {
+        setCurrentView(view);
+        localStorage.setItem(STORAGE_KEY, view);
+    };
 
     // Filter & Sort State
     const [searchTerm, setSearchTerm] = useState("");
@@ -127,11 +149,37 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
     };
 
     const handleArchive = (id: string) => {
-        // For now, just filter it out from display (actual DB update via actions.ts later)
         setApplications(prev => prev.map(a =>
             a.id === id ? { ...a, is_archived: true } as any : a
         ));
         setSelectedApp(null);
+        router.refresh();
+    };
+
+    const handleStageChange = async (appId: string, newStage: JobStage) => {
+        const app = applications.find(a => a.id === appId);
+        if (!app || app.status === newStage) return;
+
+        // Optimistic update
+        setApplications(prev => prev.map(a =>
+            a.id === appId ? { ...a, status: newStage } : a
+        ));
+
+        try {
+            await updateApplicationStatus(appId, newStage);
+        } catch (err) {
+            // Revert on failure
+            setApplications(prev => prev.map(a =>
+                a.id === appId ? { ...a, status: app.status } : a
+            ));
+        }
+    };
+
+    const handleMarkFollowupDone = (appId: string) => {
+        // Clear the follow-up (in real implementation, update via server action)
+        setApplications(prev => prev.map(a =>
+            a.id === appId ? { ...a, next_follow_up_at: null } as any : a
+        ));
         router.refresh();
     };
 
@@ -194,21 +242,7 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
         }
 
         if (newStatus && newStatus !== activeApp.status) {
-            // Optimistic Update
-            setApplications(prev => prev.map(a =>
-                a.id === activeAppId ? { ...a, status: newStatus as JobStage } : a
-            ));
-
-            try {
-                await updateApplicationStatus(activeAppId, newStatus);
-                // Success toast could go here
-            } catch (err) {
-                // Revert on failure
-                console.error("Failed to update status", err);
-                setApplications(prev => prev.map(a =>
-                    a.id === activeAppId ? { ...a, status: activeApp.status } : a
-                ));
-            }
+            await handleStageChange(activeAppId, newStatus);
         }
     };
 
@@ -226,60 +260,94 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
 
     return (
         <div className="space-y-6">
-            {/* Stats Row + Add Button */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Header Row: Stats + View Switcher + Add Button */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <JobTrackerStatsRow applications={applications} />
-                <div className="flex justify-end">
+                <div className="flex items-center gap-3">
+                    <ViewSwitcher currentView={currentView} onViewChange={handleViewChange} />
                     <AddApplicationModal onAdd={handleAdd} />
                 </div>
             </div>
 
-            {/* Toolbar */}
-            <JobTrackerToolbar
-                onSearchChange={setSearchTerm}
-                onStatusFilterChange={setStatusFilter}
-                onFollowupFilterChange={setFollowupFilter}
-                onSortChange={setSortBy}
-                onShowArchivedChange={setShowArchived}
-                activeFilterCount={activeFilterCount}
-                onClearFilters={handleClearFilters}
-            />
+            {/* Today's Tasks + Insights Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <TodaysTasksWidget
+                    applications={applications as any}
+                    onCardClick={setSelectedApp}
+                    onMarkFollowupDone={handleMarkFollowupDone}
+                />
+                <InsightsPanel applications={applications} />
+            </div>
 
-            {/* Follow-ups Widget */}
-            <FollowupsDueWidget
-                applications={applications as any}
-                onCardClick={setSelectedApp}
-            />
+            {/* Toolbar - Only show for Board/Table */}
+            {currentView !== "calendar" && (
+                <JobTrackerToolbar
+                    onSearchChange={setSearchTerm}
+                    onStatusFilterChange={setStatusFilter}
+                    onFollowupFilterChange={setFollowupFilter}
+                    onSortChange={setSortBy}
+                    onShowArchivedChange={setShowArchived}
+                    activeFilterCount={activeFilterCount}
+                    onClearFilters={handleClearFilters}
+                />
+            )}
 
-            {/* Kanban Board */}
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCorners}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDragEnd={handleDragEnd}
-            >
-                <div className="overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory md:snap-none">
-                    <div className="flex gap-4 min-w-[200px]">
-                        {KANBAN_COLUMNS.map(col => (
-                            <JobStageColumn
-                                key={col.id}
-                                column={col}
-                                applications={columns.get(col.id) || []}
-                                onCardClick={setSelectedApp}
-                            />
-                        ))}
-                    </div>
-                </div>
+            {/* View Content */}
+            {currentView === "board" && (
+                <>
+                    {/* Follow-ups Widget */}
+                    <FollowupsDueWidget
+                        applications={applications as any}
+                        onCardClick={setSelectedApp}
+                    />
 
-                <DragOverlay dropAnimation={dropAnimation}>
-                    {activeApplication ? (
-                        <div className="transform rotate-3 cursor-grabbing w-[300px]">
-                            <JobApplicationCard application={activeApplication as any} onClick={() => { }} />
+                    {/* Kanban Board */}
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCorners}
+                        onDragStart={handleDragStart}
+                        onDragOver={handleDragOver}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <div className="overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory md:snap-none">
+                            <div className="flex gap-4 min-w-[200px]">
+                                {KANBAN_COLUMNS.map(col => (
+                                    <JobStageColumn
+                                        key={col.id}
+                                        column={col}
+                                        applications={columns.get(col.id) || []}
+                                        onCardClick={setSelectedApp}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    ) : null}
-                </DragOverlay>
-            </DndContext>
+
+                        <DragOverlay dropAnimation={dropAnimation}>
+                            {activeApplication ? (
+                                <div className="transform rotate-3 cursor-grabbing w-[300px]">
+                                    <JobApplicationCard application={activeApplication as any} onClick={() => { }} />
+                                </div>
+                            ) : null}
+                        </DragOverlay>
+                    </DndContext>
+                </>
+            )}
+
+            {currentView === "table" && (
+                <JobTrackerTableView
+                    applications={filteredApplications}
+                    onCardClick={setSelectedApp}
+                    onStageChange={handleStageChange}
+                    onDelete={handleDelete}
+                />
+            )}
+
+            {currentView === "calendar" && (
+                <JobTrackerCalendarView
+                    applications={applications}
+                    onCardClick={setSelectedApp}
+                />
+            )}
 
             {/* Drawer */}
             {selectedApp && (
