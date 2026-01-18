@@ -184,7 +184,7 @@ export function Sidebar({
                     active
                         ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
-                    effectiveCollapsed && "justify-center"
+                    effectiveCollapsed && "justify-center px-0 w-10 h-10 mx-auto"
                 )}
             >
                 <Icon className={cn("w-5 h-5 flex-shrink-0", active && "text-blue-600 dark:text-blue-400")} />
@@ -224,7 +224,7 @@ export function Sidebar({
                         hasActiveChild
                             ? "text-blue-700 dark:text-blue-400"
                             : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
-                        effectiveCollapsed && "justify-center cursor-default"
+                        effectiveCollapsed && "justify-center cursor-default px-0 w-10 h-10 mx-auto"
                     )}
                 >
                     <Icon className="w-5 h-5 flex-shrink-0" />
