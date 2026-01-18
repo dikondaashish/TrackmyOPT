@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserProfileMenu } from "./UserProfileMenu";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 interface SidebarProps {
     isCollapsed?: boolean;
@@ -141,28 +141,68 @@ export function Sidebar({
         return pathname.startsWith(href);
     };
 
-    const NavLinkItem = ({ link }: { link: NavLink }) => {
+    // State for hovering sections in collapsed mode
+    const [hoveredSection, setHoveredSection] = useState<{
+        label: string;
+        top: number;
+        links: NavLink[];
+    } | null>(null);
+    const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleSectionMouseEnter = (e: React.MouseEvent, section: NavSection) => {
+        if (!effectiveCollapsed) return;
+
+        if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current);
+            hoverTimeoutRef.current = null;
+        }
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        setHoveredSection({
+            label: section.label,
+            top: rect.top,
+            links: section.links
+        });
+    };
+
+    const handleSectionMouseLeave = () => {
+        if (!effectiveCollapsed) return;
+
+        hoverTimeoutRef.current = setTimeout(() => {
+            setHoveredSection(null);
+        }, 150);
+    };
+
+    const handleMenuMouseEnter = () => {
+        if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current);
+            hoverTimeoutRef.current = null;
+        }
+    };
+
+    const NavLinkItem = ({ link, forceExpanded = false }: { link: NavLink; forceExpanded?: boolean }) => {
         const Icon = link.icon;
         const active = isActive(link.href);
+        const showText = !effectiveCollapsed || forceExpanded;
 
         return (
             <Link
                 href={link.href}
                 onClick={handleLinkClick}
-                onMouseEnter={(e) => handleTooltipEnter(e, link.label)}
+                onMouseEnter={(e) => !forceExpanded && handleTooltipEnter(e, link.label)}
                 onMouseLeave={handleTooltipLeave}
                 className={cn(
-                    "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all w-full",
                     active
                         ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
-                    effectiveCollapsed && "justify-center"
+                    !showText && "justify-center"
                 )}
             >
                 <Icon className={cn("w-5 h-5 flex-shrink-0", active && "text-blue-600 dark:text-blue-400")} />
-                {!effectiveCollapsed && (
+                {showText && (
                     <>
-                        <span className="flex-1">{link.label}</span>
+                        <span className="flex-1 whitespace-nowrap">{link.label}</span>
                         {link.badge && (
                             <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 rounded">
                                 {link.badge}
@@ -183,8 +223,14 @@ export function Sidebar({
             <div>
                 <button
                     onClick={() => toggleSection(section.label)}
-                    onMouseEnter={(e) => handleTooltipEnter(e, section.label)}
-                    onMouseLeave={handleTooltipLeave}
+                    onMouseEnter={(e) => {
+                        handleTooltipEnter(e, section.label);
+                        handleSectionMouseEnter(e, section);
+                    }}
+                    onMouseLeave={(e) => {
+                        handleTooltipLeave();
+                        handleSectionMouseLeave();
+                    }}
                     className={cn(
                         "w-full group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                         hasActiveChild
@@ -205,7 +251,7 @@ export function Sidebar({
                     )}
                 </button>
 
-                {/* Expanded Links */}
+                {/* Expanded Links (Desktop Normal / Mobile) */}
                 {!effectiveCollapsed && isExpanded && (
                     <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
                         {section.links.map(link => (
@@ -313,9 +359,31 @@ export function Sidebar({
                 </div>
             </aside>
 
+            {/* Collapsed Section Submenu Portal */}
+            {hoveredSection && effectiveCollapsed && (
+                <div
+                    className="fixed z-[60] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-xl p-2 w-48 animate-in fade-in zoom-in-95 duration-150"
+                    style={{
+                        top: hoveredSection.top,
+                        left: 70, // Just to the right of the collapsed sidebar (16px * 4 = 64px + margin)
+                    }}
+                    onMouseEnter={handleMenuMouseEnter}
+                    onMouseLeave={handleSectionMouseLeave}
+                >
+                    <div className="px-2 py-1.5 mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
+                        {hoveredSection.label}
+                    </div>
+                    <div className="space-y-1">
+                        {hoveredSection.links.map(link => (
+                            <NavLinkItem key={link.href} link={link} forceExpanded={true} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Global Fixed Tooltip Portal */}
             {
-                tooltip && effectiveCollapsed && (
+                tooltip && effectiveCollapsed && !hoveredSection && (
                     <div
                         className="fixed z-[100] px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none animate-in fade-in duration-200"
                         style={{
