@@ -129,14 +129,15 @@ export function Sidebar({
                 href={link.href}
                 onClick={handleLinkClick}
                 className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                     active
                         ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
+                    isCollapsed && "justify-center"
                 )}
             >
                 <Icon className={cn("w-5 h-5 flex-shrink-0", active && "text-blue-600 dark:text-blue-400")} />
-                {!isCollapsed && (
+                {!isCollapsed ? (
                     <>
                         <span className="flex-1">{link.label}</span>
                         {link.badge && (
@@ -145,6 +146,13 @@ export function Sidebar({
                             </span>
                         )}
                     </>
+                ) : (
+                    /* Tooltip for Collapsed State */
+                    <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                        {link.label}
+                        {/* Arrow */}
+                        <div className="absolute top-1/2 left-[-3px] -translate-y-1/2 bg-gray-900 w-1.5 h-1.5 transform rotate-45" />
+                    </div>
                 )}
             </Link>
         );
@@ -160,14 +168,15 @@ export function Sidebar({
                 <button
                     onClick={() => toggleSection(section.label)}
                     className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                        "w-full group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                         hasActiveChild
                             ? "text-blue-700 dark:text-blue-400"
-                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
+                        isCollapsed && "justify-center"
                     )}
                 >
                     <Icon className="w-5 h-5 flex-shrink-0" />
-                    {!isCollapsed && (
+                    {!isCollapsed ? (
                         <>
                             <span className="flex-1 text-left">{section.label}</span>
                             <ChevronDown className={cn(
@@ -175,6 +184,13 @@ export function Sidebar({
                                 isExpanded && "rotate-180"
                             )} />
                         </>
+                    ) : (
+                        /* Tooltip for Collapsed State */
+                        <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                            {section.label}
+                            {/* Arrow */}
+                            <div className="absolute top-1/2 left-[-3px] -translate-y-1/2 bg-gray-900 w-1.5 h-1.5 transform rotate-45" />
+                        </div>
                     )}
                 </button>
 
