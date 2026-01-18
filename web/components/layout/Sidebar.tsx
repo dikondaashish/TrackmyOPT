@@ -225,7 +225,7 @@ export function Sidebar({
             )}
             <aside
                 className={cn(
-                    "fixed bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transition-transform duration-300 ease-out flex flex-col",
+                    "fixed bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transition-transform duration-300 ease-out",
                     // Desktop: below header, normal sizing
                     "lg:top-14 lg:h-[calc(100vh-56px)] lg:translate-x-0",
                     "lg:block",
@@ -237,7 +237,7 @@ export function Sidebar({
                 )}
             >
                 {/* Mobile Header with Close Button */}
-                <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
                     <span className="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
                     <button
                         onClick={onMobileClose}
@@ -247,7 +247,7 @@ export function Sidebar({
                         <X className="w-5 h-5" />
                     </button>
                 </div>
-                {/* Sidebar Content Container - Takes remaining height */}
+                {/* Sidebar Flex Container - Takes remaining height */}
                 <div className="flex flex-col flex-1 min-h-0">
                     {/* Scrollable Navigation Area */}
                     <div className="flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
@@ -276,8 +276,11 @@ export function Sidebar({
 
                     {/* Fixed/Sticky Bottom Area for Profile & Collapse Toggle */}
                     <div className={cn(
-                        "border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 flex",
-                        isCollapsed ? "flex-col items-center justify-center gap-4 py-4" : "flex-row items-center justify-between gap-2 p-3"
+                        "flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10",
+                        // Desktop: conditional layout based on collapsed state
+                        isCollapsed ? "lg:flex-col lg:items-center lg:justify-center lg:gap-4 lg:py-4" : "lg:flex-row lg:items-center lg:justify-between lg:gap-2",
+                        // Mobile: always show expanded profile
+                        "flex flex-row items-center gap-3 p-3"
                     )}>
                         {/* Profile Menu */}
                         <div className="flex-1 min-w-0">
