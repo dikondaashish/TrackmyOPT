@@ -78,7 +78,7 @@ export function OptApplyTool() {
         }
         setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
       }
-      
+
       if (premiumRes.ok) {
         const premiumData = await premiumRes.json();
         setIsPremium(premiumData.isPremium || false);
@@ -132,17 +132,17 @@ export function OptApplyTool() {
     }
 
     const dsoRec = parseDate(dsoRecommendationDate);
-    
+
     const earliestFile = addDays(programEnd, -90);
     let mustArriveBy = addDays(programEnd, 60);
-    
+
     if (dsoRec) {
       const dsoDeadline = addDays(dsoRec, 30);
       if (dsoDeadline < mustArriveBy) {
         mustArriveBy = dsoDeadline;
       }
     }
-    
+
     const optStartEarliest = programEnd;
     const optStartLatest = addDays(programEnd, 60);
     const today = new Date();
@@ -205,7 +205,7 @@ export function OptApplyTool() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-0">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/dashboard/opt-tools')}
@@ -225,7 +225,7 @@ export function OptApplyTool() {
               </div>
             </div>
           </div>
-          
+
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -236,14 +236,14 @@ export function OptApplyTool() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-16"></div>
               <div className="relative z-10">
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
                     <Info className="w-6 h-6" />
                   </div>
                   <div>
                     <h2 className="text-lg font-bold mb-2">Post-Completion OPT Filing Rules</h2>
                     <p className="text-blue-100 leading-relaxed">
-                      You can apply <span className="font-semibold text-white">90 days before</span> your program ends, up to <span className="font-semibold text-white">60 days after</span>. 
+                      You can apply <span className="font-semibold text-white">90 days before</span> your program ends, up to <span className="font-semibold text-white">60 days after</span>.
                       USCIS must receive your I-765 within <span className="font-semibold text-white">30 days</span> of your DSO's recommendation.
                     </p>
                   </div>
@@ -253,7 +253,7 @@ export function OptApplyTool() {
 
             {/* Date Input Form */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
-              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+              <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                     <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -264,8 +264,8 @@ export function OptApplyTool() {
                   </div>
                 </div>
               </div>
-              
-              <div className="p-6">
+
+              <div className="p-4 sm:p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DateInput
                     label="Program End Date"
@@ -287,11 +287,10 @@ export function OptApplyTool() {
                   <button
                     onClick={handleSave}
                     disabled={isSaving || !programEndDate}
-                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${
-                      saveSuccess 
-                        ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25' 
+                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${saveSuccess
+                        ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25'
                         : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/25'
-                    } disabled:from-gray-400 disabled:to-gray-500 text-white`}
+                      } disabled:from-gray-400 disabled:to-gray-500 text-white`}
                   >
                     <Save className="w-4 h-4" />
                     {isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}
@@ -315,7 +314,7 @@ export function OptApplyTool() {
 
                 {/* Key Dates Grid */}
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-1">
-                  <div className="bg-white dark:bg-gray-900 rounded-[22px] p-6">
+                  <div className="bg-white dark:bg-gray-900 rounded-[22px] p-4 sm:p-6">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
                         <Target className="w-5 h-5 text-white" />
@@ -325,7 +324,7 @@ export function OptApplyTool() {
                         <p className="text-sm text-gray-500 dark:text-gray-400">Key dates based on your I-20</p>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <ResultCard
                         icon="📅"
@@ -379,9 +378,9 @@ export function OptApplyTool() {
                   startDate={results.earliestFile}
                 />
               )}
-              
+
               <LiveStatsWidget toolType="opt-apply" />
-              
+
               {/* Quick Tips */}
               <div className="relative overflow-hidden bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg p-5">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400/10 to-orange-400/10 rounded-full -translate-y-12 translate-x-12"></div>
@@ -418,11 +417,11 @@ export function OptApplyTool() {
           </div>
         </div>
       </div>
-      
+
       {/* Pricing Modal */}
-      <PricingModal 
-        open={showPricingModal} 
-        onClose={() => setShowPricingModal(false)} 
+      <PricingModal
+        open={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
       />
     </div>
   );
