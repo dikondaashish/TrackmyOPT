@@ -74,7 +74,7 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
 
   const handleSave = async () => {
     if (!email.trim() || !email.includes('@')) return;
-    
+
     setIsSaving(true);
     try {
       const response = await fetch('/api/user/tool-email', {
@@ -143,13 +143,13 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
             </p>
           </div>
         </div>
-        
+
         <div className="space-y-4">
           <div className={`p-4 rounded-xl bg-gradient-to-br ${gradient} text-white text-center`}>
             <span className="text-2xl">{icon}</span>
             <p className="text-sm font-medium mt-1">{label}</p>
           </div>
-          
+
           <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <li className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-green-600" />
@@ -168,7 +168,7 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
               Never miss important dates
             </li>
           </ul>
-          
+
           <button
             onClick={onUpgradeClick}
             className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors flex items-center justify-center gap-2"
@@ -185,7 +185,7 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
   return (
     <div className={`rounded-2xl bg-gradient-to-br ${gradient} p-5 shadow-lg text-white`}>
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-4 sm:gap-0">
         <div className="flex items-center gap-3">
           <span className="text-3xl">{icon}</span>
           <div>
@@ -196,21 +196,21 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
             </div>
           </div>
         </div>
-        
+
         {/* Status Badge */}
         {savedEmail ? (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/30 backdrop-blur-sm text-white text-xs font-semibold shadow-sm">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/30 backdrop-blur-sm text-white text-xs font-semibold shadow-sm self-start sm:self-auto">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
             Active
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-500/30 backdrop-blur-sm text-white/70 text-xs font-semibold">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-500/30 backdrop-blur-sm text-white/70 text-xs font-semibold self-start sm:self-auto">
             <span className="w-2 h-2 rounded-full bg-gray-400"></span>
             Inactive
           </span>
         )}
       </div>
-      
+
       {isEditing ? (
         <div className="space-y-3">
           <input
@@ -221,7 +221,7 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
             className="w-full px-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder:text-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
           />
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={handleSave}
               disabled={isSaving || !email.trim() || !email.includes('@')}
               className="flex-1 py-2.5 rounded-xl bg-white/25 hover:bg-white/35 text-white text-sm font-medium shadow-sm transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
@@ -229,7 +229,7 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               {isSaving ? 'Saving...' : 'Save'}
             </button>
-            <button 
+            <button
               onClick={() => { setIsEditing(false); setEmail(savedEmail || ''); }}
               className="px-4 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 text-sm font-medium transition-all duration-200"
             >
@@ -239,16 +239,16 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
         </div>
       ) : (
         /* Email display + Action buttons */
-        <div className="flex items-center justify-between pt-3 border-t border-white/15">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 border-t border-white/15 gap-4 sm:gap-0">
           <div className="flex items-center gap-2">
             <Mail className="w-5 h-5 opacity-80" />
-            <span className="text-sm font-medium">
+            <span className="text-sm font-medium break-all sm:break-normal">
               {savedEmail || 'No email set'}
             </span>
           </div>
-          
+
           {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-start sm:self-auto">
             {savedEmail && (
               <button
                 onClick={handleRemove}

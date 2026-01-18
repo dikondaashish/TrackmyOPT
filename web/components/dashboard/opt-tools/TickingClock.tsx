@@ -21,9 +21,9 @@ interface TimeLeft {
   total: number;
 }
 
-export function TickingClock({ 
-  targetDate, 
-  title, 
+export function TickingClock({
+  targetDate,
+  title,
   subtitle,
   type = 'deadline',
   gradient = 'from-blue-600 via-indigo-600 to-purple-600',
@@ -36,34 +36,34 @@ export function TickingClock({
 
   useEffect(() => {
     setMounted(true);
-    
+
     const calculateTimeLeft = () => {
       // Use Eastern Time for all OPT calculations
       const now = new Date();
       const etOptions = { timeZone: 'America/New_York' };
-      
+
       // Get current time in ET
       const nowET = new Date(now.toLocaleString('en-US', etOptions));
-      
+
       // Check if start date hasn't arrived yet
       if (startDate) {
         const startET = new Date(startDate.toLocaleString('en-US', etOptions));
         startET.setHours(0, 0, 0, 0);
         setIsNotStarted(nowET < startET);
       }
-      
+
       // Target date at end of day in ET (11:59:59 PM)
       const targetET = new Date(targetDate.toLocaleString('en-US', etOptions));
       targetET.setHours(23, 59, 59, 999);
-      
+
       const difference = targetET.getTime() - nowET.getTime();
-      
+
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        
+
         setTimeLeft({ days, hours, minutes, seconds, total: difference });
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
@@ -72,7 +72,7 @@ export function TickingClock({
 
     calculateTimeLeft();
     const timer = setInterval(calculateTimeLeft, 1000);
-    
+
     return () => clearInterval(timer);
   }, [targetDate, startDate]);
 
@@ -101,7 +101,7 @@ export function TickingClock({
       if (toolType === 'stem-apply') return { icon: Clock, message: "⏳ Your STEM OPT application window hasn't opened yet. Be prepared with your docs - I-983 training plan, updated I-20, employer's E-Verify info!", color: "text-emerald-200" };
       return { icon: Clock, message: "⏳ Your dates haven't started yet. Check your start date below and prepare your documents!", color: "text-blue-200" };
     }
-    
+
     // If deadline has passed
     if (isPassed) {
       if (toolType === 'opt-apply' || toolType === 'stem-apply') {
@@ -109,7 +109,7 @@ export function TickingClock({
       }
       return { icon: AlertTriangle, message: "⚠️ Period has ended. Contact your DSO or an immigration attorney if you have concerns about your status.", color: "text-red-200" };
     }
-    
+
     if (isCritical) return { icon: Zap, message: "⚡ URGENT! Submit your application TODAY! You're at risk of missing the deadline!", color: "text-red-200" };
     if (isUrgent) return { icon: Rocket, message: "🚀 Time is running short! Submit now to avoid last-minute issues. USCIS processing takes 3-6 months!", color: "text-amber-200" };
     if (timeLeft.days <= 30) return { icon: FileText, message: "📋 Apply soon! Early filers get processed faster. Don't wait - USCIS queues are long!", color: "text-blue-200" };
@@ -126,16 +126,16 @@ export function TickingClock({
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-48 translate-x-48 animate-pulse"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-32 -translate-x-32"></div>
         <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-        
+
         {/* Floating particles */}
         <div className="absolute top-10 left-20 w-2 h-2 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }}></div>
         <div className="absolute top-20 right-32 w-1.5 h-1.5 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: '0.5s', animationDuration: '4s' }}></div>
         <div className="absolute bottom-16 left-40 w-1 h-1 bg-white/25 rounded-full animate-bounce" style={{ animationDelay: '1s', animationDuration: '3.5s' }}></div>
       </div>
-      
+
       <div className="relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4 sm:gap-0">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
               <Timer className="w-6 h-6 text-white" />
@@ -145,14 +145,13 @@ export function TickingClock({
               {subtitle && <p className="text-sm text-white/70">{subtitle}</p>}
             </div>
           </div>
-          
+
           {/* Status indicator */}
-          <div className={`px-4 py-2 rounded-full backdrop-blur-sm flex items-center gap-2 ${
-            isPassed ? 'bg-green-500/30 text-green-100' :
-            isCritical ? 'bg-red-500/30 text-red-100' :
-            isUrgent ? 'bg-amber-500/30 text-amber-100' :
-            'bg-white/20 text-white'
-          }`}>
+          <div className={`px-4 py-2 rounded-full backdrop-blur-sm flex items-center gap-2 self-start sm:self-auto ${isPassed ? 'bg-green-500/30 text-green-100' :
+              isCritical ? 'bg-red-500/30 text-red-100' :
+                isUrgent ? 'bg-amber-500/30 text-amber-100' :
+                  'bg-white/20 text-white'
+            }`}>
             <StatusIcon className="w-4 h-4" />
             <span className="text-sm font-medium">
               {isPassed ? 'Completed' : isCritical ? 'Critical' : isUrgent ? 'Urgent' : 'On Track'}
@@ -161,7 +160,7 @@ export function TickingClock({
         </div>
 
         {/* Main countdown display */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <TimeBlock value={timeLeft.days} label="Days" highlight={isCritical} />
           <TimeBlock value={timeLeft.hours} label="Hours" />
           <TimeBlock value={timeLeft.minutes} label="Minutes" />
@@ -170,8 +169,8 @@ export function TickingClock({
 
         {/* Dynamic Timeline Message */}
         <div className={`mt-6 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 ${timelineInfo.color}`}>
-          <div className="flex items-center gap-3">
-            <timelineInfo.icon className="w-5 h-5 flex-shrink-0" />
+          <div className="flex items-start gap-3">
+            <timelineInfo.icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <p className="text-sm font-medium">{timelineInfo.message}</p>
           </div>
         </div>
@@ -184,10 +183,9 @@ export function TickingClock({
               <span>{timeLeft.days} days left</span>
             </div>
             <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full transition-all duration-1000 ${
-                  isCritical ? 'bg-red-400' : isUrgent ? 'bg-amber-400' : 'bg-white'
-                }`}
+              <div
+                className={`h-full rounded-full transition-all duration-1000 ${isCritical ? 'bg-red-400' : isUrgent ? 'bg-amber-400' : 'bg-white'
+                  }`}
                 style={{ width: `${Math.max(5, Math.min(100, (timeLeft.days / 90) * 100))}%` }}
               />
             </div>
@@ -198,16 +196,15 @@ export function TickingClock({
   );
 }
 
-function TimeBlock({ value, label, highlight = false, pulse = false }: { 
-  value: number; 
-  label: string; 
+function TimeBlock({ value, label, highlight = false, pulse = false }: {
+  value: number;
+  label: string;
   highlight?: boolean;
   pulse?: boolean;
 }) {
   return (
-    <div className={`text-center p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 ${
-      highlight ? 'ring-2 ring-red-400/50' : ''
-    }`}>
+    <div className={`text-center p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 ${highlight ? 'ring-2 ring-red-400/50' : ''
+      }`}>
       <div className={`text-4xl sm:text-5xl font-bold text-white tabular-nums ${pulse ? 'animate-pulse' : ''}`}>
         {String(value).padStart(2, '0')}
       </div>
@@ -217,8 +214,8 @@ function TimeBlock({ value, label, highlight = false, pulse = false }: {
 }
 
 // Compact version for sidebar or smaller spaces
-export function TickingClockCompact({ 
-  targetDate, 
+export function TickingClockCompact({
+  targetDate,
   title,
   gradient = 'from-blue-600 to-indigo-600',
   toolType = 'opt-apply',
@@ -230,34 +227,34 @@ export function TickingClockCompact({
 
   useEffect(() => {
     setMounted(true);
-    
+
     const calculateTimeLeft = () => {
       // Use Eastern Time for all OPT calculations
       const now = new Date();
       const etOptions = { timeZone: 'America/New_York' };
-      
+
       // Get current time in ET
       const nowET = new Date(now.toLocaleString('en-US', etOptions));
-      
+
       // Check if start date hasn't arrived yet
       if (startDate) {
         const startET = new Date(startDate.toLocaleString('en-US', etOptions));
         startET.setHours(0, 0, 0, 0);
         setIsNotStarted(nowET < startET);
       }
-      
+
       // Target date at end of day in ET (11:59:59 PM)
       const targetET = new Date(targetDate.toLocaleString('en-US', etOptions));
       targetET.setHours(23, 59, 59, 999);
-      
+
       const difference = targetET.getTime() - nowET.getTime();
-      
+
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        
+
         setTimeLeft({ days, hours, minutes, seconds, total: difference });
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
@@ -266,7 +263,7 @@ export function TickingClockCompact({
 
     calculateTimeLeft();
     const timer = setInterval(calculateTimeLeft, 1000);
-    
+
     return () => clearInterval(timer);
   }, [targetDate, startDate]);
 
@@ -302,7 +299,7 @@ export function TickingClockCompact({
         "⏰ Wait until window opens"
       ];
     }
-    
+
     // If deadline has passed
     if (isPassed) {
       return [
@@ -311,7 +308,7 @@ export function TickingClockCompact({
         "👨‍⚖️ Talk to an attorney"
       ];
     }
-    
+
     // OPT Apply specific action items - always encourage early filing
     if (toolType === 'opt-apply') {
       if (isCritical) return [
@@ -340,7 +337,7 @@ export function TickingClockCompact({
         "📖 Review I-765 form instructions"
       ];
     }
-    
+
     // OPT Clock specific action items
     if (toolType === 'opt-clock') {
       if (isCritical) return [
@@ -359,7 +356,7 @@ export function TickingClockCompact({
         "📅 Monitor unemployment days"
       ];
     }
-    
+
     // STEM Apply specific action items
     if (toolType === 'stem-apply') {
       if (isCritical) return [
@@ -378,7 +375,7 @@ export function TickingClockCompact({
         "📝 Update I-20 for STEM"
       ];
     }
-    
+
     // STEM Clock specific action items
     if (toolType === 'stem-clock') {
       if (isCritical) return [
@@ -392,7 +389,7 @@ export function TickingClockCompact({
         "📅 Report changes to DSO"
       ];
     }
-    
+
     // Default fallback
     return [
       "📅 Track your deadlines",
@@ -406,13 +403,13 @@ export function TickingClockCompact({
   return (
     <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-5 shadow-lg`}>
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-      
+
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-3">
           <Clock className="w-4 h-4 text-white/80" />
           <span className="text-sm font-medium text-white/80">{title}</span>
         </div>
-        
+
         <div className="flex items-baseline gap-1 text-white mb-4">
           <span className="text-3xl font-bold tabular-nums">{timeLeft.days}</span>
           <span className="text-sm opacity-70">d</span>
@@ -425,12 +422,11 @@ export function TickingClockCompact({
         </div>
 
         {/* Status Badge */}
-        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mb-3 ${
-          isPassed ? 'bg-green-500/30 text-green-100' :
-          isCritical ? 'bg-red-500/30 text-red-100' :
-          isUrgent ? 'bg-amber-500/30 text-amber-100' :
-          'bg-white/20 text-white'
-        }`}>
+        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mb-3 ${isPassed ? 'bg-green-500/30 text-green-100' :
+            isCritical ? 'bg-red-500/30 text-red-100' :
+              isUrgent ? 'bg-amber-500/30 text-amber-100' :
+                'bg-white/20 text-white'
+          }`}>
           {isPassed ? <CheckCircle2 className="w-3 h-3" /> : isCritical ? <AlertTriangle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
           {isPassed ? 'Done' : isCritical ? 'Critical!' : isUrgent ? 'Act Now!' : 'On Track'}
         </div>
