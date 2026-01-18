@@ -101,10 +101,9 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
             {/* Main Content Area - This is the only scrollable section */}
             <main
                 className={cn(
-                    "fixed top-14 bottom-0 right-0 transition-all duration-300 ease-out overflow-hidden",
+                    "fixed top-14 bottom-0 right-0 transition-all duration-300 overflow-hidden",
                     // Desktop: adjust for sidebar
-                    "lg:left-[230px]",
-                    isSidebarCollapsed && "lg:left-16",
+                    isSidebarCollapsed ? "lg:left-16" : "lg:left-[230px]",
                     // Mobile: full width
                     "left-0"
                 )}
