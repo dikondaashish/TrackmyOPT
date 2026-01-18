@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Crown, Menu } from "lucide-react";
+import { Crown, Menu, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -46,14 +46,38 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
 
 
             {/* Right Side */}
-            <div className="flex items-center gap-3">
-                {/* Deals Button */}
+            <div className="flex items-center gap-3 md:gap-4">
+                {/* Deals Button - Premium UI */}
                 <Link
                     href="/dashboard/offers"
-                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-100 hover:text-white text-sm font-medium rounded-lg transition-colors border border-blue-400/20"
+                    className="group relative hidden sm:flex items-center gap-3 px-4 py-1.5 bg-gray-900/40 dark:bg-black/40 hover:bg-gray-900/60 dark:hover:bg-black/60 border border-white/10 dark:border-white/5 rounded-full transition-all duration-300 backdrop-blur-sm"
                 >
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                    <span>Deals</span>
+                    {/* Icon Circle */}
+                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-indigo-500/20 text-indigo-300 group-hover:bg-indigo-500/30 group-hover:text-indigo-200 transition-colors">
+                        <Tag className="w-4 h-4" />
+                    </div>
+
+                    {/* Text Content */}
+                    <div className="flex flex-col">
+                        <span className="text-xs font-bold text-gray-100 dark:text-gray-100 leading-none mb-0.5">Deals</span>
+                        <span className="text-[10px] font-medium text-gray-400 group-hover:text-gray-300 transition-colors leading-none">
+                            Get your premium back
+                        </span>
+                    </div>
+
+                    {/* HOT Badge */}
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-lg scale-90 animate-bounce-slow">
+                        HOT
+                    </div>
+                </Link>
+
+                {/* Mobile Simple Deals Icon */}
+                <Link
+                    href="/dashboard/offers"
+                    className="sm:hidden p-2 text-gray-300 hover:text-white transition-colors relative"
+                >
+                    <Tag className="w-5 h-5" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-gray-900" />
                 </Link>
 
                 <ThemeToggle />
@@ -62,10 +86,10 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                 {!isPremium && (
                     <Link
                         href="/premium/checkout"
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-sm font-semibold rounded-full hover:from-amber-500 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-sm font-semibold rounded-full hover:from-amber-500 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl ml-1"
                     >
                         <Crown className="w-4 h-4" />
-                        <span className="hidden sm:inline">Upgrade to Premium</span>
+                        <span className="hidden md:inline">Upgrade to Premium</span>
                     </Link>
                 )}
             </div>
