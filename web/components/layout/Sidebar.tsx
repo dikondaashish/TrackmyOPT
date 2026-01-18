@@ -189,7 +189,9 @@ const SidebarNavSection = memo(({
 
     return (
         <div>
-            <button
+            <div
+                role="button"
+                tabIndex={0}
                 onClick={(e) => {
                     e.stopPropagation();
                     if (isCollapsed) {
@@ -214,7 +216,7 @@ const SidebarNavSection = memo(({
                     onSubmenuLeave();
                 }}
                 className={cn(
-                    "w-full group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all outline-none focus:ring-2 focus:ring-blue-500/20",
+                    "w-full group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer",
                     hasActiveChild
                         ? "text-blue-700 dark:text-blue-400"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
@@ -225,13 +227,23 @@ const SidebarNavSection = memo(({
                 {!isCollapsed && (
                     <>
                         <span className="flex-1 text-left">{section.label}</span>
-                        <ChevronDown className={cn(
-                            "w-4 h-4 transition-transform",
-                            isExpanded && "rotate-180"
-                        )} />
+                        <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onToggle(section.label);
+                            }}
+                            className="p-1 -mr-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        >
+                            <ChevronDown className={cn(
+                                "w-4 h-4 transition-transform",
+                                isExpanded && "rotate-180"
+                            )} />
+                        </div>
                     </>
                 )}
-            </button>
+            </div>
 
             {/* Expanded Links */}
             {!isCollapsed && isExpanded && (
