@@ -50,10 +50,10 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                 {/* Deals Button - Premium UI */}
                 <Link
                     href="/dashboard/offers"
-                    className="group relative hidden sm:flex items-center gap-3 px-4 py-1.5 bg-gray-900/40 dark:bg-black/40 hover:bg-gray-900/60 dark:hover:bg-black/60 border border-white/10 dark:border-white/5 rounded-full transition-all duration-300 backdrop-blur-sm"
+                    className="group relative hidden sm:flex items-center gap-3 px-4 py-1 bg-gray-900/40 dark:bg-black/40 hover:bg-gray-900/60 dark:hover:bg-black/60 border border-white/10 dark:border-white/5 rounded-full transition-all duration-300 backdrop-blur-sm"
                 >
                     {/* Icon Circle */}
-                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-indigo-500/20 text-indigo-300 group-hover:bg-indigo-500/30 group-hover:text-indigo-200 transition-colors">
+                    <div className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-indigo-500/20 text-indigo-300 group-hover:bg-indigo-500/30 group-hover:text-indigo-200 transition-colors">
                         <Tag className="w-4 h-4" />
                     </div>
 
