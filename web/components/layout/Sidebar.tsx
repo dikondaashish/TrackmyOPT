@@ -239,7 +239,10 @@ export function Sidebar({
                     </div>
 
                     {/* Fixed/Sticky Bottom Area for Profile & Collapse Toggle */}
-                    <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 flex items-center justify-between gap-2">
+                    <div className={cn(
+                        "border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 flex",
+                        isCollapsed ? "flex-col items-center justify-center gap-4 py-4" : "flex-row items-center justify-between gap-2 p-3"
+                    )}>
                         {/* Profile Menu */}
                         <div className="flex-1 min-w-0">
                             <UserProfileMenu
