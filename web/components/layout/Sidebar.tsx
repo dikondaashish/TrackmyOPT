@@ -426,7 +426,7 @@ export function Sidebar({
 
                     {/* Fixed/Sticky Bottom Area for Profile & Collapse Toggle */}
                     <div className={cn(
-                        "border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 flex",
+                        "border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-30 flex",
                         effectiveCollapsed ? "flex-col items-center justify-center gap-4 py-4" : "flex-row items-center justify-between gap-2 p-3"
                     )}>
                         {/* Profile Menu */}
