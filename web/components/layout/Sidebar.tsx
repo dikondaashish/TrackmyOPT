@@ -45,6 +45,7 @@ interface NavLink {
 interface NavSection {
     label: string;
     icon: typeof Home;
+    href?: string;
     links: NavLink[];
 }
 
@@ -61,6 +62,7 @@ const SIDEBAR_CONFIG: SidebarItem[] = [
         item: {
             label: "OPT Tools",
             icon: Wrench,
+            href: "/dashboard/opt-tools",
             links: [
                 { label: "OPT Apply", href: "/dashboard/opt-tools/opt-apply", icon: FileText },
                 { label: "OPT Clock", href: "/dashboard/opt-tools/opt-clock", icon: Clock },
@@ -179,7 +181,9 @@ const SidebarNavSection = memo(({
     onTooltipLeave: () => void;
     onSubmenuEnter: (e: React.MouseEvent, section: NavSection) => void;
     onSubmenuLeave: () => void;
+    onSubmenuLeave: () => void;
 }) => {
+    const router = useRouter();
     const Icon = section.icon;
     const hasActiveChild = section.links.some(link => isActiveCheck(link.href));
 
@@ -193,7 +197,12 @@ const SidebarNavSection = memo(({
                         // Also open the section so it's ready
                         if (!isExpanded) onToggle(section.label);
                     } else {
-                        onToggle(section.label);
+                        // If already expanded and has an href, navigate
+                        if (isExpanded && section.href) {
+                            router.push(section.href);
+                        } else {
+                            onToggle(section.label);
+                        }
                     }
                 }}
                 onMouseEnter={(e) => {
