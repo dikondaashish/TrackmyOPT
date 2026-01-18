@@ -46,7 +46,7 @@ import { PlanComparisonModal } from "./PlanComparisonModal";
 
 
 // Tab types
-type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'appearance' | 'subscription';
+type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'subscription';
 
 interface UserProfile {
   email: string;
@@ -86,7 +86,7 @@ export function SettingsSection() {
   const tabParam = searchParams.get('tab') as SettingsTab | null;
 
   // Active tab - initialize from URL param if valid, otherwise default to 'profile'
-  const validTabs: SettingsTab[] = ['profile', 'security', 'documents', 'notifications', 'privacy', 'extension', 'appearance', 'subscription'];
+  const validTabs: SettingsTab[] = ['profile', 'security', 'documents', 'notifications', 'privacy', 'extension', 'subscription'];
   const initialTab = tabParam && validTabs.includes(tabParam) ? tabParam : 'profile';
   const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
 
@@ -1086,7 +1086,6 @@ export function SettingsSection() {
     { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
     { id: 'privacy', label: 'Privacy', icon: <Database className="w-4 h-4" /> },
     { id: 'extension', label: 'Extension', icon: <Chrome className="w-4 h-4" /> },
-    { id: 'appearance', label: 'Appearance', icon: <Palette className="w-4 h-4" /> },
   ];
 
   if (isLoading) {
@@ -1240,6 +1239,31 @@ export function SettingsSection() {
                   Save Changes
                 </Button>
               </div>
+
+              {/* Appearance Section (Moved from separate tab) */}
+              <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Appearance</h3>
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      {darkMode ? (
+                        <Moon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                      ) : (
+                        <Sun className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">Dark Mode</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {darkMode ? 'Currently using dark theme' : 'Currently using light theme'}
+                      </p>
+                    </div>
+                  </div>
+                  <Toggle enabled={darkMode} onToggle={handleDarkModeToggle} />
+                </div>
+              </div>
+
+
             </div>
           </div>
         )}
@@ -2373,38 +2397,7 @@ export function SettingsSection() {
           </div>
         )}
 
-        {/* Appearance Tab */}
-        {activeTab === 'appearance' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                  {darkMode ? (
-                    <Moon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-                  ) : (
-                    <Sun className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-                  )}
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Appearance</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Customize how TrackMyOPT looks</p>
-                </div>
-              </div>
 
-              <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Dark Mode</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      {darkMode ? 'Currently using dark theme' : 'Currently using light theme'}
-                    </p>
-                  </div>
-                  <Toggle enabled={darkMode} onToggle={handleDarkModeToggle} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
       </div>
 
