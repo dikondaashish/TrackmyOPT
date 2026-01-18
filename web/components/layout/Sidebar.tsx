@@ -113,6 +113,23 @@ export function Sidebar({
         );
     };
 
+    // Tooltip state for fixed positioning to avoid overflow clipping
+    const [tooltip, setTooltip] = useState<{ label: string; top: number; left: number } | null>(null);
+
+    const handleTooltipEnter = (e: React.MouseEvent, label: string) => {
+        if (!isCollapsed) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        setTooltip({
+            label,
+            top: rect.top + (rect.height / 2),
+            left: rect.right + 10 // Add some spacing
+        });
+    };
+
+    const handleTooltipLeave = () => {
+        setTooltip(null);
+    };
+
     const isActive = (href: string) => {
         if (href === "/dashboard") {
             return pathname === "/dashboard";
@@ -128,6 +145,8 @@ export function Sidebar({
             <Link
                 href={link.href}
                 onClick={handleLinkClick}
+                onMouseEnter={(e) => handleTooltipEnter(e, link.label)}
+                onMouseLeave={handleTooltipLeave}
                 className={cn(
                     "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                     active
@@ -137,7 +156,7 @@ export function Sidebar({
                 )}
             >
                 <Icon className={cn("w-5 h-5 flex-shrink-0", active && "text-blue-600 dark:text-blue-400")} />
-                {!isCollapsed ? (
+                {!isCollapsed && (
                     <>
                         <span className="flex-1">{link.label}</span>
                         {link.badge && (
@@ -146,13 +165,6 @@ export function Sidebar({
                             </span>
                         )}
                     </>
-                ) : (
-                    /* Tooltip for Collapsed State */
-                    <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-                        {link.label}
-                        {/* Arrow */}
-                        <div className="absolute top-1/2 left-[-3px] -translate-y-1/2 bg-gray-900 w-1.5 h-1.5 transform rotate-45" />
-                    </div>
                 )}
             </Link>
         );
@@ -167,6 +179,8 @@ export function Sidebar({
             <div>
                 <button
                     onClick={() => toggleSection(section.label)}
+                    onMouseEnter={(e) => handleTooltipEnter(e, section.label)}
+                    onMouseLeave={handleTooltipLeave}
                     className={cn(
                         "w-full group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                         hasActiveChild
@@ -176,7 +190,7 @@ export function Sidebar({
                     )}
                 >
                     <Icon className="w-5 h-5 flex-shrink-0" />
-                    {!isCollapsed ? (
+                    {!isCollapsed && (
                         <>
                             <span className="flex-1 text-left">{section.label}</span>
                             <ChevronDown className={cn(
@@ -184,13 +198,6 @@ export function Sidebar({
                                 isExpanded && "rotate-180"
                             )} />
                         </>
-                    ) : (
-                        /* Tooltip for Collapsed State */
-                        <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-                            {section.label}
-                            {/* Arrow */}
-                            <div className="absolute top-1/2 left-[-3px] -translate-y-1/2 bg-gray-900 w-1.5 h-1.5 transform rotate-45" />
-                        </div>
                     )}
                 </button>
 
@@ -299,7 +306,26 @@ export function Sidebar({
                         )}
                     </div>
                 </div>
-            </aside>
+            </div>
+        </aside >
+
+            {/* Global Fixed Tooltip Portal */ }
+    {
+        tooltip && isCollapsed && (
+            <div
+                className="fixed z-[100] px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none animate-in fade-in duration-200"
+                style={{
+                    top: tooltip.top,
+                    left: tooltip.left,
+                    transform: 'translateY(-50%)'
+                }}
+            >
+                {tooltip.label}
+                {/* Arrow */}
+                <div className="absolute top-1/2 left-[-4px] -translate-y-1/2 bg-gray-900 w-2 h-2 transform rotate-45" />
+            </div>
+        )
+    }
         </>
     );
 }
