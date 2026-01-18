@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserProfileMenu } from "./UserProfileMenu";
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 
 interface SidebarProps {
     isCollapsed?: boolean;
@@ -175,7 +175,7 @@ export function Sidebar({
     }, [pathname]);
 
     // Standalone Component for Nav Link
-    const SidebarNavLink = ({
+    const SidebarNavLink = memo(({
         link,
         isActive,
         isCollapsed,
@@ -219,10 +219,12 @@ export function Sidebar({
                 )}
             </Link>
         );
-    };
+    });
+
+    SidebarNavLink.displayName = "SidebarNavLink";
 
     // Standalone Component for Nav Section
-    const SidebarNavSection = ({
+    const SidebarNavSection = memo(({
         section,
         isExpanded,
         isActiveCheck,
@@ -306,7 +308,9 @@ export function Sidebar({
                 )}
             </div>
         );
-    };
+    });
+
+    SidebarNavSection.displayName = "SidebarNavSection";
 
     return (
         <>
