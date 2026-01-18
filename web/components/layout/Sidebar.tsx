@@ -258,28 +258,27 @@ export function Sidebar({
                         {onToggleCollapse && (
                             <button
                                 onClick={onToggleCollapse}
-                                className="group flex-shrink-0 flex items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
-                                aria-label="Collapse Sidebar"
+                                className="group relative flex-shrink-0 flex items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
+                                aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                             >
-                                {isCollapsed ? (
-                                    <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className="transform rotate-180">
-                                        <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                                        <path d="M15 4v16"></path>
-                                        <path d="M10 10l-2 2l2 2"></path>
-                                    </svg>
-                                ) : (
-                                    <>
-                                        <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                                            <path d="M15 4v16"></path>
-                                            <path d="M10 10l-2 2l2 2"></path>
-                                        </svg>
-                                        {/* Tooltip */}
-                                        <div className="absolute right-full mr-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-                                            Collapse
-                                        </div>
-                                    </>
-                                )}
+                                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className={cn("transition-transform duration-200", isCollapsed && "rotate-180")}>
+                                    <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                                    <path d="M15 4v16"></path>
+                                    <path d="M10 10l-2 2l2 2"></path>
+                                </svg>
+
+                                {/* Tooltip */}
+                                <div className={cn(
+                                    "absolute px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50",
+                                    isCollapsed ? "left-full ml-2" : "right-full mr-2"
+                                )}>
+                                    {isCollapsed ? "Expand" : "Collapse"}
+                                    {/* Arrow */}
+                                    <div className={cn(
+                                        "absolute top-1/2 -translate-y-1/2 bg-gray-900 w-1.5 h-1.5 transform rotate-45",
+                                        isCollapsed ? "left-[-3px]" : "right-[-3px]"
+                                    )} />
+                                </div>
                             </button>
                         )}
                     </div>
