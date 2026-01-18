@@ -103,8 +103,9 @@ export function Sidebar({
     const effectiveCollapsed = isCollapsed && !isMobileOpen;
 
     // Close mobile menu on navigation
+    // Close mobile menu on navigation
     const handleLinkClick = () => {
-        if (onMobileClose) {
+        if (isMobileOpen && onMobileClose) {
             onMobileClose();
         }
     };
@@ -210,7 +211,15 @@ export function Sidebar({
         return (
             <div>
                 <button
-                    onClick={() => !effectiveCollapsed && toggleSection(section.label)}
+                    onClick={() => {
+                        if (effectiveCollapsed) {
+                            if (onToggleCollapse) onToggleCollapse();
+                            // Also open the section so it's ready
+                            if (!isExpanded) toggleSection(section.label);
+                        } else {
+                            toggleSection(section.label);
+                        }
+                    }}
                     onMouseEnter={(e) => {
                         handleTooltipEnter(e, section.label);
                         handleSubmenuEnter(e, section);
