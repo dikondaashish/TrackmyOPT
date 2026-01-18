@@ -17,7 +17,8 @@ import {
     HelpCircle,
     Wrench,
     X,
-    ChevronDown
+    ChevronDown,
+    Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserProfileMenu } from "./UserProfileMenu";
@@ -54,12 +55,24 @@ type SidebarItem =
 
 const SIDEBAR_CONFIG: SidebarItem[] = [
     { type: 'link', item: { label: "Home", href: "/dashboard", icon: Home } },
-    { type: 'link', item: { label: "OPT Tracker", href: "/dashboard/opt-dates", icon: Calendar } },
-    { type: 'link', item: { label: "Job Tracker", href: "/dashboard/career/job-tracker", icon: ClipboardList } },
-    { type: 'link', item: { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors", icon: Building2 } },
+    { type: 'link', item: { label: "OPT Dates", href: "/dashboard/opt-dates", icon: Calendar } },
+    {
+        type: 'section',
+        item: {
+            label: "OPT Tools",
+            icon: Wrench,
+            links: [
+                { label: "OPT Apply", href: "/dashboard/opt-tools/opt-apply", icon: FileText },
+                { label: "OPT Clock", href: "/dashboard/opt-tools/opt-clock", icon: Clock },
+                { label: "STEM Apply", href: "/dashboard/opt-tools/stem-apply", icon: FileText },
+                { label: "STEM Clock", href: "/dashboard/opt-tools/stem-clock", icon: Clock },
+            ]
+        }
+    },
     { type: 'link', item: { label: "Case Status", href: "/dashboard/case-status", icon: FileSearch } },
     { type: 'link', item: { label: "Documents", href: "/dashboard/documents", icon: FolderOpen } },
-    { type: 'divider' },
+    { type: 'link', item: { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors", icon: Building2 } },
+    { type: 'link', item: { label: "Job Tracker", href: "/dashboard/career/job-tracker", icon: ClipboardList } },
     {
         type: 'section',
         item: {
@@ -68,19 +81,6 @@ const SIDEBAR_CONFIG: SidebarItem[] = [
             links: [
                 { label: "Resume Generator", href: "/dashboard/career/resume-generator", icon: FileText },
                 { label: "ATS Scanner", href: "/dashboard/career/ats-scanner", icon: BarChart3 },
-            ]
-        }
-    },
-    {
-        type: 'section',
-        item: {
-            label: "OPT Tools",
-            icon: Wrench,
-            links: [
-                { label: "OPT Apply", href: "/dashboard/opt-tools/opt-apply", icon: FileText },
-                { label: "OPT Clock", href: "/dashboard/opt-tools/opt-clock", icon: Calendar },
-                { label: "STEM Apply", href: "/dashboard/opt-tools/stem-apply", icon: FileText },
-                { label: "STEM Clock", href: "/dashboard/opt-tools/stem-clock", icon: Calendar },
             ]
         }
     },
