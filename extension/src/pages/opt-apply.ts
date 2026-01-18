@@ -17,13 +17,13 @@ function formatDate(date: Date): string {
 function validateDateInput(input: string): string {
   // Remove any non-digit and non-slash characters
   let cleaned = input.replace(/[^\d/]/g, '');
-  
+
   // Limit to 10 characters (mm/dd/yyyy)
   cleaned = cleaned.substring(0, 10);
-  
+
   // Parse the parts
   const parts = cleaned.split('/');
-  
+
   if (parts.length >= 1 && parts[0].length > 0) {
     // Validate month (01-12)
     let month = parseInt(parts[0]);
@@ -35,16 +35,16 @@ function validateDateInput(input: string): string {
     // Limit month to 2 digits
     parts[0] = parts[0].substring(0, 2);
   }
-  
+
   if (parts.length >= 2 && parts[1].length > 0) {
     // Validate day based on month
     let month = parseInt(parts[0]) || 1;
     let day = parseInt(parts[1]);
-    
+
     // Get max days for the month (assume non-leap year for Feb)
     const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     const maxDay = daysInMonth[month - 1] || 31;
-    
+
     if (day > maxDay) {
       parts[1] = String(maxDay).padStart(2, '0');
     } else if (parts[1].length === 2 && day === 0) {
@@ -53,12 +53,12 @@ function validateDateInput(input: string): string {
     // Limit day to 2 digits
     parts[1] = parts[1].substring(0, 2);
   }
-  
+
   if (parts.length >= 3) {
     // Limit year to 4 digits
     parts[2] = parts[2].substring(0, 4);
   }
-  
+
   return parts.join('/');
 }
 
@@ -71,14 +71,14 @@ function addDateInputValidation(inputElement: HTMLInputElement): void {
     const cursorPosition = target.selectionStart || 0;
     const oldValue = target.value;
     const newValue = validateDateInput(oldValue);
-    
+
     if (newValue !== oldValue) {
       target.value = newValue;
       // Restore cursor position
       target.setSelectionRange(cursorPosition, cursorPosition);
     }
   });
-  
+
   inputElement.addEventListener('keypress', (e) => {
     const char = e.key;
     // Only allow numbers and forward slash
@@ -92,8 +92,8 @@ function addDateInputValidation(inputElement: HTMLInputElement): void {
  * Get month name
  */
 function getMonthName(month: number): string {
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                  'July', 'August', 'September', 'October', 'November', 'December'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
   return months[month];
 }
 
@@ -115,13 +115,13 @@ function getFirstDayOfMonth(year: number, month: number): number {
  * Create date picker calendar
  */
 function createDatePicker(
-  inputId: string, 
+  inputId: string,
   onSelect: (date: Date) => void
 ): HTMLElement {
   const today = new Date();
   let currentYear = today.getFullYear();
   let currentMonth = today.getMonth();
-  
+
   const picker = document.createElement('div');
   picker.style.cssText = `
     position: absolute;
@@ -136,7 +136,7 @@ function createDatePicker(
     z-index: 1000;
     animation: slideDown 0.2s ease;
   `;
-  
+
   // Add animation
   const style = document.createElement('style');
   style.textContent = `
@@ -146,10 +146,10 @@ function createDatePicker(
     }
   `;
   document.head.appendChild(style);
-  
+
   function renderCalendar() {
     picker.innerHTML = '';
-    
+
     // Header with month/year and navigation
     const header = document.createElement('div');
     header.style.cssText = `
@@ -160,7 +160,7 @@ function createDatePicker(
       padding-bottom: 10px;
       border-bottom: 2px solid #e5e7eb;
     `;
-    
+
     const prevBtn = document.createElement('button');
     prevBtn.innerHTML = '↑';
     prevBtn.style.cssText = `
@@ -190,7 +190,7 @@ function createDatePicker(
       }
       renderCalendar();
     });
-    
+
     const monthYear = document.createElement('div');
     monthYear.style.cssText = `
       font-weight: 700;
@@ -198,7 +198,7 @@ function createDatePicker(
       color: #111827;
     `;
     monthYear.innerHTML = `${getMonthName(currentMonth)} ${currentYear} <span style="font-size: 12px; color: #6b7280;">▼</span>`;
-    
+
     const nextBtn = document.createElement('button');
     nextBtn.innerHTML = '↓';
     nextBtn.style.cssText = `
@@ -228,12 +228,12 @@ function createDatePicker(
       }
       renderCalendar();
     });
-    
+
     header.appendChild(prevBtn);
     header.appendChild(monthYear);
     header.appendChild(nextBtn);
     picker.appendChild(header);
-    
+
     // Day headers
     const dayHeaders = document.createElement('div');
     dayHeaders.style.cssText = `
@@ -242,7 +242,7 @@ function createDatePicker(
       gap: 4px;
       margin-bottom: 8px;
     `;
-    
+
     ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(day => {
       const dayHeader = document.createElement('div');
       dayHeader.textContent = day;
@@ -256,7 +256,7 @@ function createDatePicker(
       dayHeaders.appendChild(dayHeader);
     });
     picker.appendChild(dayHeaders);
-    
+
     // Days grid
     const daysGrid = document.createElement('div');
     daysGrid.style.cssText = `
@@ -264,13 +264,13 @@ function createDatePicker(
       grid-template-columns: repeat(7, 1fr);
       gap: 4px;
     `;
-    
+
     const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
-    const prevMonthDays = currentMonth === 0 
-      ? getDaysInMonth(currentYear - 1, 11) 
+    const prevMonthDays = currentMonth === 0
+      ? getDaysInMonth(currentYear - 1, 11)
       : getDaysInMonth(currentYear, currentMonth - 1);
-    
+
     // Previous month's trailing days
     for (let i = firstDay - 1; i >= 0; i--) {
       const dayBtn = document.createElement('button');
@@ -287,17 +287,17 @@ function createDatePicker(
       `;
       daysGrid.appendChild(dayBtn);
     }
-    
+
     // Current month's days
     for (let day = 1; day <= daysInMonth; day++) {
       const dayBtn = document.createElement('button');
       dayBtn.textContent = String(day);
-      
-      const isToday = 
-        day === today.getDate() && 
-        currentMonth === today.getMonth() && 
+
+      const isToday =
+        day === today.getDate() &&
+        currentMonth === today.getMonth() &&
         currentYear === today.getFullYear();
-      
+
       dayBtn.style.cssText = `
         width: 100%;
         aspect-ratio: 1;
@@ -310,29 +310,29 @@ function createDatePicker(
         cursor: pointer;
         transition: all 0.15s;
       `;
-      
+
       dayBtn.addEventListener('mouseenter', () => {
         if (!isToday) {
           dayBtn.style.background = '#f3f4f6';
         }
       });
-      
+
       dayBtn.addEventListener('mouseleave', () => {
         if (!isToday) {
           dayBtn.style.background = 'transparent';
         }
       });
-      
+
       const selectedDate = new Date(currentYear, currentMonth, day);
       dayBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         onSelect(selectedDate);
         picker.remove();
       });
-      
+
       daysGrid.appendChild(dayBtn);
     }
-    
+
     // Next month's leading days
     const remainingCells = 42 - (firstDay + daysInMonth);
     for (let i = 1; i <= remainingCells; i++) {
@@ -350,9 +350,9 @@ function createDatePicker(
       `;
       daysGrid.appendChild(dayBtn);
     }
-    
+
     picker.appendChild(daysGrid);
-    
+
     // Footer with Clear and Today buttons
     const footer = document.createElement('div');
     footer.style.cssText = `
@@ -362,7 +362,7 @@ function createDatePicker(
       padding-top: 10px;
       border-top: 1px solid #e5e7eb;
     `;
-    
+
     const clearBtn = document.createElement('button');
     clearBtn.textContent = 'Clear';
     clearBtn.style.cssText = `
@@ -388,7 +388,7 @@ function createDatePicker(
       if (input) input.value = '';
       picker.remove();
     });
-    
+
     const todayBtn = document.createElement('button');
     todayBtn.textContent = 'Today';
     todayBtn.style.cssText = `
@@ -413,12 +413,12 @@ function createDatePicker(
       onSelect(today);
       picker.remove();
     });
-    
+
     footer.appendChild(clearBtn);
     footer.appendChild(todayBtn);
     picker.appendChild(footer);
   }
-  
+
   renderCalendar();
   return picker;
 }
@@ -455,16 +455,14 @@ function addDays(date: Date, days: number): Date {
 function calculateFilingWindow(programEndDate: Date, dsoRecommendationDate: Date | null) {
   const earliestStart = addDays(programEndDate, -90);
   const latestEnd = addDays(programEndDate, 60);
-  
-  let uscisDeadline: Date | null = null;
-  if (dsoRecommendationDate) {
-    uscisDeadline = addDays(dsoRecommendationDate, 30);
-  }
-  
+
+  // NOTE: Logic explicitly synced with web dashboard
+  // We strictly use Program End + 60 days as the deadline.
+  // We do NOT shorten the window based on DSO recommendation date.
+
   return {
     earliestStart,
     latestEnd,
-    uscisDeadline,
     programEndDate
   };
 }
@@ -473,8 +471,8 @@ function calculateFilingWindow(programEndDate: Date, dsoRecommendationDate: Date
  * Get formatted date for card display
  */
 function getCardDateFormat(date: Date): { day: string; month: string; year: string } {
-  const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 
-                  'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+  const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
+    'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
   return {
     day: String(date.getDate()),
     month: months[date.getMonth()],
@@ -494,16 +492,16 @@ function calculateTimeRemaining(targetDate: Date): {
 } {
   const now = new Date();
   const diff = targetDate.getTime() - now.getTime();
-  
+
   if (diff <= 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 };
   }
-  
+
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-  
+
   return { days, hours, minutes, seconds, total: diff };
 }
 
@@ -526,17 +524,17 @@ async function loadSavedData(): Promise<any> {
       const { idToken } = await chrome.storage.sync.get('idToken');
       if (idToken) {
         response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${idToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
       }
     }
 
     if (!response.ok) return null;
-    
+
     const result = await response.json();
     return result.ok ? result.data : null;
   } catch (error) {
@@ -554,7 +552,7 @@ async function saveDatesToAPI(
   try {
     // First, load existing data to preserve other fields
     const existingData = await loadSavedData();
-    
+
     // Determine which field was most recently updated
     let lastModifiedField = null;
     if (dsoRecommendationDate && dsoRecommendationDate !== existingData?.dso_recommendation_date) {
@@ -564,7 +562,7 @@ async function saveDatesToAPI(
       lastModifiedField = 'program_end_date';
     }
     // If both are new/changed, program_end_date takes priority (checked last)
-    
+
     // Merge: only update the fields this tool manages
     const payload = {
       program_end_date: programEndDate,
@@ -592,13 +590,13 @@ async function saveDatesToAPI(
       const { idToken } = await chrome.storage.sync.get('idToken');
       if (idToken) {
         response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${idToken}`,
-        'Content-Type': 'application/json',
-      },
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify(payload),
-    });
+        });
       }
     }
 
@@ -618,12 +616,12 @@ async function saveDatesToAPI(
  */
 export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   root.innerHTML = '';
-  
+
   renderPageHeader(root, 'OPT Apply Dates', 'Calculate your OPT filing window');
-  
+
   const content = document.createElement('div');
   content.style.cssText = 'margin-top: 12px;';
-  
+
   // Info card
   const infoCard = document.createElement('div');
   infoCard.style.cssText = `
@@ -648,7 +646,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     </div>
   `;
   content.appendChild(infoCard);
-  
+
   // Program End Date card
   const programCard = document.createElement('div');
   programCard.style.cssText = `
@@ -711,7 +709,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     </div>
   `;
   content.appendChild(programCard);
-  
+
   // DSO Recommendation Date card
   const dsoCard = document.createElement('div');
   dsoCard.style.cssText = `
@@ -774,7 +772,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     </div>
   `;
   content.appendChild(dsoCard);
-  
+
   // Calculate button
   const calculateBtn = document.createElement('button');
   calculateBtn.textContent = 'Calculate Filing Window';
@@ -793,21 +791,21 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     font-family: inherit;
   `;
   content.appendChild(calculateBtn);
-  
+
   // Results container
   const resultsContainer = document.createElement('div');
   resultsContainer.id = 'results-container';
   resultsContainer.style.cssText = 'margin-top: 12px;';
   content.appendChild(resultsContainer);
-  
+
   root.appendChild(content);
-  
+
   // Date picker event handlers
   const programDatePickerBtn = document.getElementById('program-date-picker-btn');
   const dsoDatePickerBtn = document.getElementById('dso-date-picker-btn');
-  
+
   let activePicker: HTMLElement | null = null;
-  
+
   // Close picker when clicking outside
   document.addEventListener('click', (e) => {
     if (activePicker && !activePicker.contains(e.target as Node)) {
@@ -819,16 +817,16 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       }
     }
   });
-  
+
   programDatePickerBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
-    
+
     // Close any existing picker
     if (activePicker) {
       activePicker.remove();
       activePicker = null;
     }
-    
+
     const picker = createDatePicker('program-end-date', (date) => {
       const input = document.getElementById('program-end-date') as HTMLInputElement;
       if (input) {
@@ -836,23 +834,23 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       }
       activePicker = null;
     });
-    
+
     const container = programDatePickerBtn.closest('div[style*="position: relative"]');
     if (container) {
       container.appendChild(picker);
       activePicker = picker;
     }
   });
-  
+
   dsoDatePickerBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
-    
+
     // Close any existing picker
     if (activePicker) {
       activePicker.remove();
       activePicker = null;
     }
-    
+
     const picker = createDatePicker('dso-recommendation-date', (date) => {
       const input = document.getElementById('dso-recommendation-date') as HTMLInputElement;
       if (input) {
@@ -860,14 +858,14 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       }
       activePicker = null;
     });
-    
+
     const container = dsoDatePickerBtn.closest('div[style*="position: relative"]');
     if (container) {
       container.appendChild(picker);
       activePicker = picker;
     }
   });
-  
+
   // Hover effects for calendar buttons
   [programDatePickerBtn, dsoDatePickerBtn].forEach(btn => {
     if (btn) {
@@ -879,15 +877,15 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       });
     }
   });
-  
+
   // Auto-save dates when they change
   const autoSaveDates = () => {
     const programEndInput = document.getElementById('program-end-date') as HTMLInputElement;
     const dsoRecommendationInput = document.getElementById('dso-recommendation-date') as HTMLInputElement;
-    
+
     const programEnd = programEndInput.value.trim();
     const dsoRec = dsoRecommendationInput.value.trim();
-    
+
     // Only save if program end date is valid
     if (programEnd && parseDate(programEnd)) {
       saveDatesToAPI(programEnd, dsoRec || null);
@@ -898,7 +896,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   calculateBtn.addEventListener('click', async () => {
     const programEndInput = document.getElementById('program-end-date') as HTMLInputElement;
     const dsoRecommendationInput = document.getElementById('dso-recommendation-date') as HTMLInputElement;
-    
+
     const programEndDate = parseDate(programEndInput.value);
     if (!programEndDate) {
       resultsContainer.innerHTML = `
@@ -908,11 +906,11 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       `;
       return;
     }
-    
-    const dsoRecommendationDate = dsoRecommendationInput.value.trim() 
-      ? parseDate(dsoRecommendationInput.value) 
+
+    const dsoRecommendationDate = dsoRecommendationInput.value.trim()
+      ? parseDate(dsoRecommendationInput.value)
       : null;
-    
+
     if (dsoRecommendationInput.value.trim() && !dsoRecommendationDate) {
       resultsContainer.innerHTML = `
         <div style="padding: 12px; border-radius: 12px; background: #fef2f2; color: #991b1b; font-size: 13px; border: 1px solid #fecaca;">
@@ -921,26 +919,26 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       `;
       return;
     }
-    
+
     // Save dates to database
     await saveDatesToAPI(
       programEndInput.value.trim(),
       dsoRecommendationInput.value.trim() || null
     );
-    
+
     const results = calculateFilingWindow(programEndDate, dsoRecommendationDate);
-    
+
     // Navigate to countdown page
     const { renderOptCountdown } = await import('./opt-countdown.js');
     renderOptCountdown(root, onBack, results);
   });
-  
+
   // Input styling on focus (for both light and dark mode)
   const inputs = [
     document.getElementById('program-end-date'),
     document.getElementById('dso-recommendation-date')
   ];
-  
+
   inputs.forEach(input => {
     if (input) {
       input.addEventListener('focus', (e) => {
@@ -951,40 +949,40 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       });
     }
   });
-  
+
   calculateBtn.addEventListener('mouseenter', () => {
     calculateBtn.style.transform = 'translateY(-1px)';
     calculateBtn.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
   });
-  
+
   calculateBtn.addEventListener('mouseleave', () => {
     calculateBtn.style.transform = 'translateY(0)';
     calculateBtn.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
   });
-  
+
   // Add blur event listeners to auto-save when user finishes entering dates
   const programEndInput = document.getElementById('program-end-date') as HTMLInputElement;
   const dsoRecommendationInput = document.getElementById('dso-recommendation-date') as HTMLInputElement;
-  
+
   if (programEndInput) {
     // Add real-time date validation
     addDateInputValidation(programEndInput);
-    
+
     programEndInput.addEventListener('blur', () => {
       // Delay to allow calendar selection to complete
       setTimeout(autoSaveDates, 300);
     });
   }
-  
+
   if (dsoRecommendationInput) {
     // Add real-time date validation
     addDateInputValidation(dsoRecommendationInput);
-    
+
     dsoRecommendationInput.addEventListener('blur', () => {
       setTimeout(autoSaveDates, 300);
     });
   }
-  
+
   // Load saved data on page load
   loadSavedData().then(savedData => {
     if (savedData && programEndInput) {
@@ -994,10 +992,10 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       if (savedData.dso_recommendation_date && dsoRecommendationInput) {
         dsoRecommendationInput.value = savedData.dso_recommendation_date;
       }
-      
+
     }
   });
-  
+
   setupPageHandlers(onBack);
 }
 
