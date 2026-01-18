@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserProfileMenu } from "./UserProfileMenu";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 interface SidebarProps {
     isCollapsed?: boolean;
@@ -103,25 +103,24 @@ export function Sidebar({
     const effectiveCollapsed = isCollapsed && !isMobileOpen;
 
     // Close mobile menu on navigation
-    // Close mobile menu on navigation
-    const handleLinkClick = () => {
+    const handleLinkClick = useCallback(() => {
         if (isMobileOpen && onMobileClose) {
             onMobileClose();
         }
-    };
+    }, [isMobileOpen, onMobileClose]);
 
-    const toggleSection = (label: string) => {
+    const toggleSection = useCallback((label: string) => {
         setExpandedSections(prev =>
             prev.includes(label)
                 ? prev.filter(l => l !== label)
                 : [...prev, label]
         );
-    };
+    }, []);
 
     // Tooltip state for fixed positioning to avoid overflow clipping
     const [tooltip, setTooltip] = useState<{ label: string; top: number; left: number } | null>(null);
 
-    const handleTooltipEnter = (e: React.MouseEvent, label: string) => {
+    const handleTooltipEnter = useCallback((e: React.MouseEvent, label: string) => {
         if (!effectiveCollapsed) return;
         const rect = e.currentTarget.getBoundingClientRect();
         setTooltip({
@@ -129,17 +128,17 @@ export function Sidebar({
             top: rect.top + (rect.height / 2),
             left: rect.right + 10 // Add some spacing
         });
-    };
+    }, [effectiveCollapsed]);
 
-    const handleTooltipLeave = () => {
+    const handleTooltipLeave = useCallback(() => {
         setTooltip(null);
-    };
+    }, []);
 
     // Submenu state for collapsed sections (Careerflow style)
     const [submenu, setSubmenu] = useState<{ label: string; top: number; left: number; links: NavLink[] } | null>(null);
     const submenuTimeoutRef = useState<{ current: NodeJS.Timeout | null }>({ current: null })[0];
 
-    const handleSubmenuEnter = (e: React.MouseEvent, section: NavSection) => {
+    const handleSubmenuEnter = useCallback((e: React.MouseEvent, section: NavSection) => {
         if (!effectiveCollapsed) return;
         if (submenuTimeoutRef.current) clearTimeout(submenuTimeoutRef.current);
 
@@ -150,25 +149,25 @@ export function Sidebar({
             left: rect.right + 8, // slight gap
             links: section.links
         });
-    };
+    }, [effectiveCollapsed, submenuTimeoutRef]);
 
-    const handleSubmenuLeave = () => {
+    const handleSubmenuLeave = useCallback(() => {
         // Delay hiding to allow moving mouse into the submenu
         submenuTimeoutRef.current = setTimeout(() => {
             setSubmenu(null);
         }, 100);
-    };
+    }, [submenuTimeoutRef]);
 
-    const handleSubmenuContentEnter = () => {
+    const handleSubmenuContentEnter = useCallback(() => {
         if (submenuTimeoutRef.current) clearTimeout(submenuTimeoutRef.current);
-    };
+    }, [submenuTimeoutRef]);
 
-    const isActive = (href: string) => {
+    const isActive = useCallback((href: string) => {
         if (href === "/dashboard") {
             return pathname === "/dashboard";
         }
         return pathname.startsWith(href);
-    };
+    }, [pathname]);
 
     // Standalone Component for Nav Link
     const SidebarNavLink = ({
