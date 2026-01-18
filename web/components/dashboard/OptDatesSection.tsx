@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/components/ui/use-toast";
 import { PricingModal } from "@/components/pricing/PricingModal";
 
 interface OptDatesData {
@@ -20,20 +22,20 @@ interface OptDatesData {
 function addDaysToDate(dateStr: string, days: number): string {
   const parts = dateStr.split('/');
   if (parts.length !== 3) return '';
-  
+
   const month = parseInt(parts[0]) - 1;
   const day = parseInt(parts[1]);
   const year = parseInt(parts[2]);
-  
+
   if (isNaN(month) || isNaN(day) || isNaN(year)) return '';
-  
+
   const date = new Date(year, month, day);
   date.setDate(date.getDate() + days);
-  
+
   const newMonth = String(date.getMonth() + 1).padStart(2, '0');
   const newDay = String(date.getDate()).padStart(2, '0');
   const newYear = date.getFullYear();
-  
+
   return `${newMonth}/${newDay}/${newYear}`;
 }
 
@@ -45,9 +47,10 @@ interface DateInputProps {
   placeholder?: string;
   description?: string;
   optional?: boolean;
+  error?: string | null;
 }
 
-function DateInput({ id, label, value, onChange, placeholder = "MM/DD/YYYY", description, optional = false }: DateInputProps) {
+function DateInput({ id, label, value, onChange, placeholder = "MM/DD/YYYY", description, optional = false, error }: DateInputProps) {
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -93,14 +96,17 @@ function DateInput({ id, label, value, onChange, placeholder = "MM/DD/YYYY", des
         >
           <CalendarIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>
-        
+
         {showCalendar && (
           <div ref={calendarRef} className="absolute top-full mt-2 z-50">
             <DatePicker value={value} onSelect={handleDateSelect} />
           </div>
         )}
       </div>
-      {description && (
+      {error && (
+        <p className="text-xs text-red-500 font-medium animate-in fade-in-0 slide-in-from-top-1">{error}</p>
+      )}
+      {description && !error && (
         <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
       )}
     </div>
@@ -178,15 +184,15 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
   const isToday = (day: number) => {
     const today = new Date();
     return today.getDate() === day &&
-           today.getMonth() === currentDate.getMonth() &&
-           today.getFullYear() === currentDate.getFullYear();
+      today.getMonth() === currentDate.getMonth() &&
+      today.getFullYear() === currentDate.getFullYear();
   };
 
   const isSelected = (day: number) => {
     if (!selectedDate) return false;
     return selectedDate.getDate() === day &&
-           selectedDate.getMonth() === currentDate.getMonth() &&
-           selectedDate.getFullYear() === currentDate.getFullYear();
+      selectedDate.getMonth() === currentDate.getMonth() &&
+      selectedDate.getFullYear() === currentDate.getFullYear();
   };
 
   return (
@@ -233,11 +239,9 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
             key={day}
             type="button"
             onClick={() => handleDateClick(day)}
-            className={`p-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-              isToday(day) ? 'bg-blue-100 dark:bg-blue-900 font-bold' : ''
-            } ${
-              isSelected(day) ? 'bg-blue-600 text-white hover:bg-blue-700' : ''
-            }`}
+            className={`p-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${isToday(day) ? 'bg-blue-100 dark:bg-blue-900 font-bold' : ''
+              } ${isSelected(day) ? 'bg-blue-600 text-white hover:bg-blue-700' : ''
+              }`}
           >
             {day}
           </button>
@@ -303,13 +307,13 @@ const TOOL_INFO: Record<ToolName, { label: string; icon: string; description: st
 };
 
 export function OptDatesSection() {
+  const { toast } = useToast();
   const [dates, setDates] = useState<OptDatesData>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [lastModifiedField, setLastModifiedField] = useState<string | null>(null);
-  
+
   // Premium & Email states - now with 4 separate emails
   const [isPremium, setIsPremium] = useState(false);
   const [toolEmails, setToolEmails] = useState<ToolEmails>({
@@ -329,7 +333,7 @@ export function OptDatesSection() {
     loadToolEmails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   const checkPremiumStatus = async () => {
     try {
       const response = await fetch('/api/premium/status', { credentials: 'include' });
@@ -341,7 +345,7 @@ export function OptDatesSection() {
       // Silently fail
     }
   };
-  
+
   const loadToolEmails = async () => {
     try {
       const response = await fetch('/api/user/tool-email', { credentials: 'include' });
@@ -360,13 +364,13 @@ export function OptDatesSection() {
       // Silently fail
     }
   };
-  
+
   const handleToolEmailSave = async (tool: ToolName) => {
     const email = toolEmails[tool];
     if (!email || !email.includes('@')) {
       return;
     }
-    
+
     try {
       setEmailSaving(tool);
       const response = await fetch('/api/user/tool-email', {
@@ -375,7 +379,7 @@ export function OptDatesSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tool, email }),
       });
-      
+
       if (response.ok) {
         setEditingTool(null);
       }
@@ -385,12 +389,12 @@ export function OptDatesSection() {
       setEmailSaving(null);
     }
   };
-  
+
   const handleToolEmailStop = async (tool: ToolName) => {
     if (!confirm('Stop email reminders for this tool?')) {
       return;
     }
-    
+
     try {
       setEmailSaving(tool);
       const response = await fetch('/api/user/tool-email', {
@@ -399,7 +403,7 @@ export function OptDatesSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tool, email: '' }),
       });
-      
+
       if (response.ok) {
         setToolEmails(prev => ({ ...prev, [tool]: '' }));
       }
@@ -409,7 +413,7 @@ export function OptDatesSection() {
       setEmailSaving(null);
     }
   };
-  
+
   const updateToolEmail = (tool: ToolName, email: string) => {
     setToolEmails(prev => ({ ...prev, [tool]: email }));
   };
@@ -417,7 +421,7 @@ export function OptDatesSection() {
   const loadDates = async () => {
     try {
       setIsLoading(true);
-      
+
       // Use same endpoint as extension for perfect sync
       const response = await fetch('/api/opt/calculator', {
         credentials: 'include',
@@ -441,7 +445,7 @@ export function OptDatesSection() {
   const handleDateChange = (field: keyof OptDatesData, value: string) => {
     setDates(prev => {
       const newDates = { ...prev, [field]: value };
-      
+
       // Logic 1: Sync Program End Date ↔ DSO Recommendation Date
       if (field === 'program_end_date' && value) {
         // When Program End Date is updated, also update DSO Recommendation Date
@@ -450,7 +454,7 @@ export function OptDatesSection() {
         // When DSO Recommendation Date is updated, also update Program End Date
         newDates.program_end_date = value;
       }
-      
+
       // Logic 2: OPT Start Date → OPT EAD End Date (+ 365 days = 1 year)
       // OPT period is 12 months, so end date is 365 days after start date
       if (field === 'opt_start_date' && value) {
@@ -464,52 +468,75 @@ export function OptDatesSection() {
           }
         }
       }
-      
+
+      return newDates;
       return newDates;
     });
-    setLastModifiedField(field); // Track which field user just modified
-    setError(null);
-    setSuccess(false);
+    setLastModifiedField(field);
+
+    // Real-time validation
+    const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+    if (value && value.trim() !== '' && !dateRegex.test(value)) {
+      setErrors(prev => ({ ...prev, [field]: 'Invalid date format (MM/DD/YYYY)' }));
+    } else {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleSave = async () => {
     // Validate: at least one date must be filled
     const hasAtLeastOneDate = Object.values(dates).some(date => date && date.trim() !== '');
-    
+
     if (!hasAtLeastOneDate) {
-      setError('Please enter at least one date');
+      toast({
+        title: "Validation Error",
+        description: "Please enter at least one date.",
+        variant: "destructive",
+      });
       return;
     }
 
     // Validate date format (MM/DD/YYYY) for filled fields
-    // Skip metadata fields like last_updated_field
     const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
     const dateFields = ['program_end_date', 'dso_recommendation_date', 'opt_start_date', 'opt_ead_end_date', 'stem_start_date'];
-    
+
+    let hasError = false;
+    const newErrors: Record<string, string> = {};
+
     for (const field of dateFields) {
       const value = dates[field as keyof OptDatesData];
       if (value && value.trim() !== '' && !dateRegex.test(value)) {
-        setError(`Invalid date format for ${field.replace(/_/g, ' ')}. Use MM/DD/YYYY`);
-        return;
+        newErrors[field] = `Invalid date format`;
+        hasError = true;
       }
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      toast({
+        title: "Validation Error",
+        description: "Please correct the invalid date formats.",
+        variant: "destructive",
+      });
+      return;
     }
 
     try {
       setIsSaving(true);
-      setError(null);
-      
-      // Clean payload: convert empty strings to null
+
       const payload = {
         program_end_date: dates.program_end_date?.trim() || null,
         dso_recommendation_date: dates.dso_recommendation_date?.trim() || null,
         opt_start_date: dates.opt_start_date?.trim() || null,
         opt_ead_end_date: dates.opt_ead_end_date?.trim() || null,
         stem_start_date: dates.stem_start_date?.trim() || null,
-        _lastModifiedField: lastModifiedField, // Tell API which field was modified
+        _lastModifiedField: lastModifiedField,
       };
 
-      
-      // Use same endpoint as extension for perfect sync
       const response = await fetch('/api/opt/calculator', {
         method: 'POST',
         credentials: 'include',
@@ -517,21 +544,31 @@ export function OptDatesSection() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-        cache: 'no-store', // Prevent caching
+        cache: 'no-store',
       });
 
       const result = await response.json();
 
       if (response.ok && result.ok) {
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
-        // Reload to show updated data from database
+        toast({
+          title: "Success",
+          description: "Dates saved successfully!",
+          className: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
+        });
         await loadDates();
       } else {
-        setError(result.error || 'Failed to save dates');
+        toast({
+          title: "Error",
+          description: result.error || 'Failed to save dates',
+          variant: "destructive",
+        });
       }
     } catch (err) {
-      setError('An error occurred while saving');
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -539,8 +576,22 @@ export function OptDatesSection() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-muted-foreground">Loading...</div>
+      <div className="max-w-6xl mx-auto space-y-6 px-4 sm:px-6">
+        <div>
+          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <Card className="p-4 sm:p-6 lg:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-3 w-64" />
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
     );
   }
@@ -610,19 +661,7 @@ export function OptDatesSection() {
             />
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300">
-              {error}
-            </div>
-          )}
 
-          {/* Success Message */}
-          {success && (
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300">
-              ✓ Dates saved successfully!
-            </div>
-          )}
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -655,7 +694,7 @@ export function OptDatesSection() {
               Daily Reminders (9:00 AM ET)
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {isPremium 
+              {isPremium
                 ? "Each tool sends separate email notifications. Set different emails for each tool below."
                 : "Get daily Chrome notifications and email reminders for each tool."
               }
@@ -670,9 +709,9 @@ export function OptDatesSection() {
               const isEditing = editingTool === tool;
               const isSaving = emailSaving === tool;
               const hasEmail = !!toolEmails[tool];
-              
+
               return (
-                <div 
+                <div
                   key={tool}
                   className={`p-5 rounded-2xl bg-gradient-to-br ${info.color} text-white shadow-lg hover:shadow-xl transition-all duration-300`}
                 >
@@ -685,7 +724,7 @@ export function OptDatesSection() {
                         <p className="text-sm opacity-90">{info.description}</p>
                       </div>
                     </div>
-                    
+
                     {/* Status Badge */}
                     {hasEmail ? (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/30 backdrop-blur-sm text-white text-xs font-semibold shadow-sm">
@@ -699,7 +738,7 @@ export function OptDatesSection() {
                       </span>
                     )}
                   </div>
-                  
+
                   {isEditing ? (
                     <div className="space-y-3">
                       <Input
@@ -710,7 +749,7 @@ export function OptDatesSection() {
                         className="bg-white/20 border-white/30 text-white placeholder:text-white/60 text-sm h-11"
                       />
                       <div className="flex gap-2">
-                        <Button 
+                        <Button
                           onClick={() => handleToolEmailSave(tool)}
                           size="sm"
                           className="bg-white/25 hover:bg-white/35 text-white text-sm font-medium px-4 shadow-sm transition-all duration-200"
@@ -718,7 +757,7 @@ export function OptDatesSection() {
                         >
                           {isSaving ? 'Saving...' : 'Save'}
                         </Button>
-                        <Button 
+                        <Button
                           onClick={() => setEditingTool(null)}
                           size="sm"
                           variant="ghost"
@@ -737,7 +776,7 @@ export function OptDatesSection() {
                           {toolEmails[tool] || 'No email set'}
                         </span>
                       </div>
-                      
+
                       {/* Action Buttons */}
                       <div className="flex items-center gap-3">
                         {hasEmail && (
@@ -770,7 +809,7 @@ export function OptDatesSection() {
               {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
                 const info = TOOL_INFO[tool];
                 return (
-                  <div 
+                  <div
                     key={tool}
                     className={`p-3 rounded-lg bg-gradient-to-br ${info.color} text-white text-center`}
                   >
@@ -810,9 +849,9 @@ export function OptDatesSection() {
       </Card>
 
       {/* Premium Modal */}
-      <PricingModal 
-        open={showPremiumModal} 
-        onClose={() => setShowPremiumModal(false)} 
+      <PricingModal
+        open={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
       />
     </div>
   );
