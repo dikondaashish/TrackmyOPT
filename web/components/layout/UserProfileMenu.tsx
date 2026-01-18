@@ -115,8 +115,8 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
             {/* Dropdown Menu */}
             {showProfileMenu && (
                 <div className={cn(
-                    "absolute bottom-full mb-2 left-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 w-60",
-                    "origin-bottom-left animate-in slide-in-from-bottom-2 fade-in zoom-in-95 duration-200 ease-out"
+                    "absolute bottom-full mb-3 left-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 w-56",
+                    "origin-bottom-left animate-in slide-in-from-bottom-4 fade-in zoom-in-95 duration-300 ease-out"
                 )}>
                     {/* User Info Header */}
                     <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
