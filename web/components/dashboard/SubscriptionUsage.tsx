@@ -31,19 +31,10 @@ export function SubscriptionUsage() {
     const isNearLimit = percentage >= 80;
 
     return (
-        <div className="p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-                <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-blue-500" />
-                        Free Plan Usage
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Track your monthly limits</p>
-                </div>
-                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium rounded-full">
-                    Free Tier
-                </span>
-            </div>
+        <div className="space-y-1">
+            <h4 className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400 tracking-wide">
+                Usage Limits
+            </h4>
 
             <div className="space-y-4">
                 <div>
