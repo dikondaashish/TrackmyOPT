@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface UserProfileMenuProps {
     userEmail?: string;
@@ -72,6 +73,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                 )}
                 aria-label="User menu"
             >
+                {/* ... (button content same as before) ... */}
                 {/* Avatar with Badge */}
                 <div className="relative flex-shrink-0">
                     <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white font-bold text-sm border border-gray-200 dark:border-gray-700">
@@ -112,54 +114,62 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                 )}
             </button>
 
-            {/* Dropdown Menu */}
-            {showProfileMenu && (
-                <div className={cn(
-                    "absolute bottom-full mb-3 left-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 w-56",
-                    "origin-bottom-left animate-in slide-in-from-bottom-4 fade-in zoom-in-95 duration-300 ease-out"
-                )}>
-                    {/* User Info Header */}
-                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {userName || "User"}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {userEmail}
-                        </p>
-                    </div>
+            {/* Dropdown Menu with Framer Motion */}
+            <AnimatePresence>
+                {showProfileMenu && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className={cn(
+                            "absolute bottom-full mb-3 left-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 w-52",
+                            "origin-bottom-left"
+                        )}
+                    >
+                        {/* User Info Header */}
+                        <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {userName || "User"}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                {userEmail}
+                            </p>
+                        </div>
 
-                    {/* Menu Items */}
-                    <div className="py-1">
-                        <Link
-                            href="/dashboard/settings"
-                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                            onClick={() => setShowProfileMenu(false)}
-                        >
-                            <Settings className="w-4 h-4" />
-                            Settings
-                        </Link>
-                        <Link
-                            href="/dashboard/help"
-                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                            onClick={() => setShowProfileMenu(false)}
-                        >
-                            <HelpCircle className="w-4 h-4" />
-                            Help & Support
-                        </Link>
-                    </div>
+                        {/* Menu Items */}
+                        <div className="py-1">
+                            <Link
+                                href="/dashboard/settings"
+                                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                onClick={() => setShowProfileMenu(false)}
+                            >
+                                <Settings className="w-4 h-4" />
+                                Settings
+                            </Link>
+                            <Link
+                                href="/dashboard/help"
+                                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                onClick={() => setShowProfileMenu(false)}
+                            >
+                                <HelpCircle className="w-4 h-4" />
+                                Help & Support
+                            </Link>
+                        </div>
 
-                    {/* Sign Out */}
-                    <div className="border-t border-gray-100 dark:border-gray-700 pt-1">
-                        <button
-                            onClick={handleSignOut}
-                            className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full"
-                        >
-                            <LogOut className="w-4 h-4" />
-                            Sign out
-                        </button>
-                    </div>
-                </div>
-            )}
+                        {/* Sign Out */}
+                        <div className="border-t border-gray-100 dark:border-gray-700 pt-1">
+                            <button
+                                onClick={handleSignOut}
+                                className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Sign out
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
