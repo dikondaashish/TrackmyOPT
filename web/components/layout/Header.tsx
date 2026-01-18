@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Crown, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { ThemeToggle } from "@/components/theme-toggle";
+
 interface HeaderProps {
     userEmail?: string;
     userName?: string;
@@ -44,6 +46,8 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
+                <ThemeToggle />
+
                 {/* Upgrade Button */}
                 {!isPremium && (
                     <Link
