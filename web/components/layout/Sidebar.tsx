@@ -170,26 +170,40 @@ export function Sidebar({
         return pathname.startsWith(href);
     };
 
-    const NavLinkItem = ({ link }: { link: NavLink }) => {
+    // Standalone Component for Nav Link
+    const SidebarNavLink = ({
+        link,
+        isActive,
+        isCollapsed,
+        onLinkClick,
+        onTooltipEnter,
+        onTooltipLeave
+    }: {
+        link: NavLink;
+        isActive: boolean;
+        isCollapsed: boolean;
+        onLinkClick: () => void;
+        onTooltipEnter: (e: React.MouseEvent, label: string) => void;
+        onTooltipLeave: () => void;
+    }) => {
         const Icon = link.icon;
-        const active = isActive(link.href);
 
         return (
             <Link
                 href={link.href}
-                onClick={handleLinkClick}
-                onMouseEnter={(e) => handleTooltipEnter(e, link.label)}
-                onMouseLeave={handleTooltipLeave}
+                onClick={onLinkClick}
+                onMouseEnter={(e) => onTooltipEnter(e, link.label)}
+                onMouseLeave={onTooltipLeave}
                 className={cn(
                     "group relative z-20 cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
-                    active
+                    isActive
                         ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
-                    effectiveCollapsed && "justify-center px-0 w-10 h-10 mx-auto"
+                    isCollapsed && "justify-center px-0 w-10 h-10 mx-auto"
                 )}
             >
-                <Icon className={cn("w-5 h-5 flex-shrink-0", active && "text-blue-600 dark:text-blue-400")} />
-                {!effectiveCollapsed && (
+                <Icon className={cn("w-5 h-5 flex-shrink-0", isActive && "text-blue-600 dark:text-blue-400")} />
+                {!isCollapsed && (
                     <>
                         <span className="flex-1">{link.label}</span>
                         {link.badge && (
@@ -203,41 +217,63 @@ export function Sidebar({
         );
     };
 
-    const NavSectionItem = ({ section }: { section: NavSection }) => {
+    // Standalone Component for Nav Section
+    const SidebarNavSection = ({
+        section,
+        isExpanded,
+        isActiveCheck,
+        isCollapsed,
+        onToggle,
+        onToggleCollapse,
+        onTooltipEnter,
+        onTooltipLeave,
+        onSubmenuEnter,
+        onSubmenuLeave
+    }: {
+        section: NavSection;
+        isExpanded: boolean;
+        isActiveCheck: (href: string) => boolean;
+        isCollapsed: boolean;
+        onToggle: (label: string) => void;
+        onToggleCollapse?: () => void;
+        onTooltipEnter: (e: React.MouseEvent, label: string) => void;
+        onTooltipLeave: () => void;
+        onSubmenuEnter: (e: React.MouseEvent, section: NavSection) => void;
+        onSubmenuLeave: () => void;
+    }) => {
         const Icon = section.icon;
-        const isExpanded = expandedSections.includes(section.label);
-        const hasActiveChild = section.links.some(link => isActive(link.href));
+        const hasActiveChild = section.links.some(link => isActiveCheck(link.href));
 
         return (
             <div>
                 <button
                     onClick={() => {
-                        if (effectiveCollapsed) {
+                        if (isCollapsed) {
                             if (onToggleCollapse) onToggleCollapse();
                             // Also open the section so it's ready
-                            if (!isExpanded) toggleSection(section.label);
+                            if (!isExpanded) onToggle(section.label);
                         } else {
-                            toggleSection(section.label);
+                            onToggle(section.label);
                         }
                     }}
                     onMouseEnter={(e) => {
-                        handleTooltipEnter(e, section.label);
-                        handleSubmenuEnter(e, section);
+                        onTooltipEnter(e, section.label);
+                        onSubmenuEnter(e, section);
                     }}
                     onMouseLeave={(e) => {
-                        handleTooltipLeave();
-                        handleSubmenuLeave();
+                        onTooltipLeave();
+                        onSubmenuLeave();
                     }}
                     className={cn(
                         "w-full group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                         hasActiveChild
                             ? "text-blue-700 dark:text-blue-400"
                             : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
-                        effectiveCollapsed && "justify-center cursor-default px-0 w-10 h-10 mx-auto"
+                        isCollapsed && "justify-center cursor-default px-0 w-10 h-10 mx-auto"
                     )}
                 >
                     <Icon className="w-5 h-5 flex-shrink-0" />
-                    {!effectiveCollapsed && (
+                    {!isCollapsed && (
                         <>
                             <span className="flex-1 text-left">{section.label}</span>
                             <ChevronDown className={cn(
@@ -249,10 +285,18 @@ export function Sidebar({
                 </button>
 
                 {/* Expanded Links */}
-                {!effectiveCollapsed && isExpanded && (
+                {!isCollapsed && isExpanded && (
                     <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
                         {section.links.map(link => (
-                            <NavLinkItem key={link.href} link={link} />
+                            <SidebarNavLink
+                                key={link.href}
+                                link={link}
+                                isActive={isActiveCheck(link.href)}
+                                isCollapsed={false} // Always expanded inside submenu
+                                onLinkClick={() => { }} // No mobile close needed usually, or pass it
+                                onTooltipEnter={onTooltipEnter}
+                                onTooltipLeave={onTooltipLeave}
+                            />
                         ))}
                     </div>
                 )}
@@ -271,7 +315,7 @@ export function Sidebar({
             )}
             <aside
                 className={cn(
-                    "fixed bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transition-all duration-300 ease-out",
+                    "fixed bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transition-transform duration-300 ease-out",
                     // Desktop: below header, normal sizing
                     "lg:top-14 lg:h-[calc(100vh-56px)] lg:translate-x-0",
                     "lg:block",
@@ -300,22 +344,60 @@ export function Sidebar({
                         <nav className="p-3 space-y-1">
                             {/* Main Links */}
                             {MAIN_LINKS.map(link => (
-                                <NavLinkItem key={link.href} link={link} />
+                                <SidebarNavLink
+                                    key={link.href}
+                                    link={link}
+                                    isActive={isActive(link.href)}
+                                    isCollapsed={effectiveCollapsed}
+                                    onLinkClick={handleLinkClick}
+                                    onTooltipEnter={handleTooltipEnter}
+                                    onTooltipLeave={handleTooltipLeave}
+                                />
                             ))}
 
                             {/* Divider */}
                             <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
 
                             {/* Expandable Sections */}
-                            <NavSectionItem section={CAREER_TOOLS} />
-                            <NavSectionItem section={OPT_TOOLS} />
+                            <SidebarNavSection
+                                section={CAREER_TOOLS}
+                                isExpanded={expandedSections.includes(CAREER_TOOLS.label)}
+                                isActiveCheck={isActive}
+                                isCollapsed={effectiveCollapsed}
+                                onToggle={toggleSection}
+                                onToggleCollapse={onToggleCollapse}
+                                onTooltipEnter={handleTooltipEnter}
+                                onTooltipLeave={handleTooltipLeave}
+                                onSubmenuEnter={handleSubmenuEnter}
+                                onSubmenuLeave={handleSubmenuLeave}
+                            />
+                            <SidebarNavSection
+                                section={OPT_TOOLS}
+                                isExpanded={expandedSections.includes(OPT_TOOLS.label)}
+                                isActiveCheck={isActive}
+                                isCollapsed={effectiveCollapsed}
+                                onToggle={toggleSection}
+                                onToggleCollapse={onToggleCollapse}
+                                onTooltipEnter={handleTooltipEnter}
+                                onTooltipLeave={handleTooltipLeave}
+                                onSubmenuEnter={handleSubmenuEnter}
+                                onSubmenuLeave={handleSubmenuLeave}
+                            />
 
                             {/* Divider before Footer Links */}
                             <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
 
                             {/* Footer Links */}
                             {FOOTER_LINKS.map(link => (
-                                <NavLinkItem key={link.href} link={link} />
+                                <SidebarNavLink
+                                    key={link.href}
+                                    link={link}
+                                    isActive={isActive(link.href)}
+                                    isCollapsed={effectiveCollapsed}
+                                    onLinkClick={handleLinkClick}
+                                    onTooltipEnter={handleTooltipEnter}
+                                    onTooltipLeave={handleTooltipLeave}
+                                />
                             ))}
                         </nav>
                     </div>
