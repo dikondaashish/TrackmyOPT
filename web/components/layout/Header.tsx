@@ -47,7 +47,16 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
 
             {/* Right Side */}
             <div className="flex items-center gap-3 md:gap-4">
-                <ThemeToggle />
+                {/* Upgrade Button - Moved to Left per request */}
+                {!isPremium && (
+                    <Link
+                        href="/premium/checkout"
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-sm font-semibold rounded-full hover:from-amber-500 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
+                    >
+                        <Crown className="w-4 h-4" />
+                        <span className="hidden md:inline">Upgrade to Premium</span>
+                    </Link>
+                )}
 
                 {/* Deals Button - Premium UI */}
                 <Link
@@ -82,16 +91,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-gray-900" />
                 </Link>
 
-                {/* Upgrade Button */}
-                {!isPremium && (
-                    <Link
-                        href="/premium/checkout"
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-sm font-semibold rounded-full hover:from-amber-500 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl ml-1"
-                    >
-                        <Crown className="w-4 h-4" />
-                        <span className="hidden md:inline">Upgrade to Premium</span>
-                    </Link>
-                )}
+                <ThemeToggle />
             </div>
         </header>
     );
