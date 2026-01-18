@@ -99,6 +99,9 @@ export function Sidebar({
     const pathname = usePathname();
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
+    // On mobile, the sidebar is always "expanded" when open, regardless of desktop state
+    const effectiveCollapsed = isCollapsed && !isMobileOpen;
+
     // Close mobile menu on navigation
     const handleLinkClick = () => {
         if (onMobileClose) {
@@ -118,7 +121,7 @@ export function Sidebar({
     const [tooltip, setTooltip] = useState<{ label: string; top: number; left: number } | null>(null);
 
     const handleTooltipEnter = (e: React.MouseEvent, label: string) => {
-        if (!isCollapsed) return;
+        if (!effectiveCollapsed) return;
         const rect = e.currentTarget.getBoundingClientRect();
         setTooltip({
             label,
@@ -153,11 +156,11 @@ export function Sidebar({
                     active
                         ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
-                    isCollapsed && "justify-center"
+                    effectiveCollapsed && "justify-center"
                 )}
             >
                 <Icon className={cn("w-5 h-5 flex-shrink-0", active && "text-blue-600 dark:text-blue-400")} />
-                {!isCollapsed && (
+                {!effectiveCollapsed && (
                     <>
                         <span className="flex-1">{link.label}</span>
                         {link.badge && (
@@ -187,11 +190,11 @@ export function Sidebar({
                         hasActiveChild
                             ? "text-blue-700 dark:text-blue-400"
                             : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
-                        isCollapsed && "justify-center"
+                        effectiveCollapsed && "justify-center"
                     )}
                 >
                     <Icon className="w-5 h-5 flex-shrink-0" />
-                    {!isCollapsed && (
+                    {!effectiveCollapsed && (
                         <>
                             <span className="flex-1 text-left">{section.label}</span>
                             <ChevronDown className={cn(
@@ -203,7 +206,7 @@ export function Sidebar({
                 </button>
 
                 {/* Expanded Links */}
-                {!isCollapsed && isExpanded && (
+                {!effectiveCollapsed && isExpanded && (
                     <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
                         {section.links.map(link => (
                             <NavLinkItem key={link.href} link={link} />
@@ -277,14 +280,14 @@ export function Sidebar({
                     {/* Fixed/Sticky Bottom Area for Profile & Collapse Toggle */}
                     <div className={cn(
                         "border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 flex",
-                        isCollapsed ? "flex-col items-center justify-center gap-4 py-4" : "flex-row items-center justify-between gap-2 p-3"
+                        effectiveCollapsed ? "flex-col items-center justify-center gap-4 py-4" : "flex-row items-center justify-between gap-2 p-3"
                     )}>
                         {/* Profile Menu */}
                         <div className="flex-1 min-w-0">
                             <UserProfileMenu
                                 userEmail={userEmail}
                                 userName={userName}
-                                isCollapsed={isCollapsed}
+                                isCollapsed={effectiveCollapsed}
                                 isPremium={isPremium}
                                 isLoading={isLoading}
                             />
@@ -312,7 +315,7 @@ export function Sidebar({
 
             {/* Global Fixed Tooltip Portal */}
             {
-                tooltip && isCollapsed && (
+                tooltip && effectiveCollapsed && (
                     <div
                         className="fixed z-[100] px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none animate-in fade-in duration-200"
                         style={{

@@ -68,7 +68,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
             <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className={cn(
-                    "flex items-center gap-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left group",
+                    "flex items-center gap-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 active:scale-[0.98] transition-colors text-left group",
                     isCollapsed ? "p-0 justify-center w-8 h-8" : "px-2 py-1.5 w-full"
                 )}
                 aria-label="User menu"
