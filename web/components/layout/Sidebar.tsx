@@ -281,6 +281,8 @@ export function Sidebar({
                         {onToggleCollapse && (
                             <button
                                 onClick={onToggleCollapse}
+                                onMouseEnter={(e) => handleTooltipEnter(e, isCollapsed ? "Expand" : "Collapse")}
+                                onMouseLeave={handleTooltipLeave}
                                 className="group relative flex-shrink-0 flex items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
                                 aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                             >
@@ -289,43 +291,29 @@ export function Sidebar({
                                     <path d="M15 4v16"></path>
                                     <path d="M10 10l-2 2l2 2"></path>
                                 </svg>
-
-                                {/* Tooltip */}
-                                <div className={cn(
-                                    "absolute px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50",
-                                    isCollapsed ? "left-full ml-2" : "right-full mr-2"
-                                )}>
-                                    {isCollapsed ? "Expand" : "Collapse"}
-                                    {/* Arrow */}
-                                    <div className={cn(
-                                        "absolute top-1/2 -translate-y-1/2 bg-gray-900 w-1.5 h-1.5 transform rotate-45",
-                                        isCollapsed ? "left-[-3px]" : "right-[-3px]"
-                                    )} />
-                                </div>
                             </button>
                         )}
                     </div>
                 </div>
-            </div>
-        </aside >
+            </aside>
 
-            {/* Global Fixed Tooltip Portal */ }
-    {
-        tooltip && isCollapsed && (
-            <div
-                className="fixed z-[100] px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none animate-in fade-in duration-200"
-                style={{
-                    top: tooltip.top,
-                    left: tooltip.left,
-                    transform: 'translateY(-50%)'
-                }}
-            >
-                {tooltip.label}
-                {/* Arrow */}
-                <div className="absolute top-1/2 left-[-4px] -translate-y-1/2 bg-gray-900 w-2 h-2 transform rotate-45" />
-            </div>
-        )
-    }
+            {/* Global Fixed Tooltip Portal */}
+            {
+                tooltip && isCollapsed && (
+                    <div
+                        className="fixed z-[100] px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none animate-in fade-in duration-200"
+                        style={{
+                            top: tooltip.top,
+                            left: tooltip.left,
+                            transform: 'translateY(-50%)'
+                        }}
+                    >
+                        {tooltip.label}
+                        {/* Arrow */}
+                        <div className="absolute top-1/2 left-[-4px] -translate-y-1/2 bg-gray-900 w-2 h-2 transform rotate-45" />
+                    </div>
+                )
+            }
         </>
     );
 }
