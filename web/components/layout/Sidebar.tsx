@@ -181,7 +181,7 @@ const SidebarNavSection = memo(({
     onTooltipLeave: () => void;
     onSubmenuEnter: (e: React.MouseEvent, section: NavSection) => void;
     onSubmenuLeave: () => void;
-    onSubmenuLeave: () => void;
+
 }) => {
     const router = useRouter();
     const Icon = section.icon;
