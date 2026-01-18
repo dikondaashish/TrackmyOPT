@@ -51,39 +51,47 @@ interface NavSection {
     links: NavLink[];
 }
 
-const MAIN_LINKS: NavLink[] = [
-    { label: "Home", href: "/dashboard", icon: Home },
-    { label: "OPT Tracker", href: "/dashboard/opt-dates", icon: Calendar },
-    { label: "Job Tracker", href: "/dashboard/career/job-tracker", icon: ClipboardList },
-    { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors", icon: Building2 },
-    { label: "Case Status", href: "/dashboard/case-status", icon: FileSearch },
-    { label: "Documents", href: "/dashboard/documents", icon: FolderOpen },
-];
+type SidebarItem =
+    | { type: 'link'; item: NavLink }
+    | { type: 'section'; item: NavSection }
+    | { type: 'divider' };
 
-const CAREER_TOOLS: NavSection = {
-    label: "Career Tools",
-    icon: Briefcase,
-    links: [
-        { label: "Resume Generator", href: "/dashboard/career/resume-generator", icon: FileText },
-        { label: "ATS Scanner", href: "/dashboard/career/ats-scanner", icon: BarChart3 },
-    ]
-};
-
-const OPT_TOOLS: NavSection = {
-    label: "OPT Tools",
-    icon: Wrench,
-    links: [
-        { label: "OPT Apply", href: "/dashboard/opt-tools/opt-apply", icon: FileText },
-        { label: "OPT Clock", href: "/dashboard/opt-tools/opt-clock", icon: Calendar },
-        { label: "STEM Apply", href: "/dashboard/opt-tools/stem-apply", icon: FileText },
-        { label: "STEM Clock", href: "/dashboard/opt-tools/stem-clock", icon: Calendar },
-    ]
-};
-
-const FOOTER_LINKS: NavLink[] = [
-    { label: "Chrome Extension", href: "/auth/extension", icon: Chrome },
-    { label: "Settings", href: "/dashboard/settings", icon: Settings },
-    { label: "Help", href: "/dashboard/help", icon: HelpCircle },
+const SIDEBAR_CONFIG: SidebarItem[] = [
+    { type: 'link', item: { label: "Home", href: "/dashboard", icon: Home } },
+    { type: 'link', item: { label: "OPT Tracker", href: "/dashboard/opt-dates", icon: Calendar } },
+    { type: 'link', item: { label: "Job Tracker", href: "/dashboard/career/job-tracker", icon: ClipboardList } },
+    { type: 'link', item: { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors", icon: Building2 } },
+    { type: 'link', item: { label: "Case Status", href: "/dashboard/case-status", icon: FileSearch } },
+    { type: 'link', item: { label: "Documents", href: "/dashboard/documents", icon: FolderOpen } },
+    { type: 'divider' },
+    {
+        type: 'section',
+        item: {
+            label: "Career Tools",
+            icon: Briefcase,
+            links: [
+                { label: "Resume Generator", href: "/dashboard/career/resume-generator", icon: FileText },
+                { label: "ATS Scanner", href: "/dashboard/career/ats-scanner", icon: BarChart3 },
+            ]
+        }
+    },
+    {
+        type: 'section',
+        item: {
+            label: "OPT Tools",
+            icon: Wrench,
+            links: [
+                { label: "OPT Apply", href: "/dashboard/opt-tools/opt-apply", icon: FileText },
+                { label: "OPT Clock", href: "/dashboard/opt-tools/opt-clock", icon: Calendar },
+                { label: "STEM Apply", href: "/dashboard/opt-tools/stem-apply", icon: FileText },
+                { label: "STEM Clock", href: "/dashboard/opt-tools/stem-clock", icon: Calendar },
+            ]
+        }
+    },
+    { type: 'divider' },
+    { type: 'link', item: { label: "Chrome Extension", href: "/auth/extension", icon: Chrome } },
+    { type: 'link', item: { label: "Settings", href: "/dashboard/settings", icon: Settings } },
+    { type: 'link', item: { label: "Help", href: "/dashboard/help", icon: HelpCircle } },
 ];
 
 export function Sidebar({
@@ -100,6 +108,7 @@ export function Sidebar({
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
     // Safety clear for tooltips
+    const [tooltip, setTooltip] = useState<{ label: string; top: number; left: number } | null>(null);
     const handleSidebarLeave = useCallback(() => {
         setTooltip(null);
     }, []);
@@ -107,12 +116,17 @@ export function Sidebar({
     // On mobile, the sidebar is always "expanded" when open, regardless of desktop state
     const effectiveCollapsed = isCollapsed && !isMobileOpen;
 
-    // Close mobile menu on navigation
+    // Handle Link Interaction
+    // On Desktop: we pass NO handler, letting Next.js Link work natively.
+    // On Mobile: we pass a handler to close the menu.
     const handleLinkClick = useCallback(() => {
         if (isMobileOpen && onMobileClose) {
             onMobileClose();
         }
     }, [isMobileOpen, onMobileClose]);
+
+    // Only pass the handler if we are on mobile
+    const linkClickHandler = isMobileOpen ? handleLinkClick : undefined;
 
     const toggleSection = useCallback((label: string) => {
         setExpandedSections(prev =>
@@ -123,7 +137,7 @@ export function Sidebar({
     }, []);
 
     // Tooltip state for fixed positioning to avoid overflow clipping
-    const [tooltip, setTooltip] = useState<{ label: string; top: number; left: number } | null>(null);
+    // const [tooltip, setTooltip] = useState<{ label: string; top: number; left: number } | null>(null); // Moved up
 
     const handleTooltipEnter = useCallback((e: React.MouseEvent, label: string) => {
         if (!effectiveCollapsed) return;
@@ -186,7 +200,7 @@ export function Sidebar({
         link: NavLink;
         isActive: boolean;
         isCollapsed: boolean;
-        onLinkClick: () => void;
+        onLinkClick?: () => void;
         onTooltipEnter: (e: React.MouseEvent, label: string) => void;
         onTooltipLeave: () => void;
     }) => {
@@ -299,7 +313,7 @@ export function Sidebar({
                                 link={link}
                                 isActive={isActiveCheck(link.href)}
                                 isCollapsed={false} // Always expanded inside submenu
-                                onLinkClick={() => { }} // No mobile close needed usually, or pass it
+                                onLinkClick={undefined} // No mobile close needed usually
                                 onTooltipEnter={onTooltipEnter}
                                 onTooltipLeave={onTooltipLeave}
                             />
@@ -322,6 +336,7 @@ export function Sidebar({
                 />
             )}
             <aside
+                onMouseLeave={handleSidebarLeave}
                 className={cn(
                     "fixed bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transition-transform duration-300 ease-out",
                     // Desktop: below header, normal sizing
@@ -350,63 +365,42 @@ export function Sidebar({
                     {/* Scrollable Navigation Area */}
                     <div className="flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                         <nav className="p-3 space-y-1">
-                            {/* Main Links */}
-                            {MAIN_LINKS.map(link => (
-                                <SidebarNavLink
-                                    key={link.href}
-                                    link={link}
-                                    isActive={isActive(link.href)}
-                                    isCollapsed={effectiveCollapsed}
-                                    onLinkClick={handleLinkClick}
-                                    onTooltipEnter={handleTooltipEnter}
-                                    onTooltipLeave={handleTooltipLeave}
-                                />
-                            ))}
-
-                            {/* Divider */}
-                            <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
-
-                            {/* Expandable Sections */}
-                            <SidebarNavSection
-                                section={CAREER_TOOLS}
-                                isExpanded={expandedSections.includes(CAREER_TOOLS.label)}
-                                isActiveCheck={isActive}
-                                isCollapsed={effectiveCollapsed}
-                                onToggle={toggleSection}
-                                onToggleCollapse={onToggleCollapse}
-                                onTooltipEnter={handleTooltipEnter}
-                                onTooltipLeave={handleTooltipLeave}
-                                onSubmenuEnter={handleSubmenuEnter}
-                                onSubmenuLeave={handleSubmenuLeave}
-                            />
-                            <SidebarNavSection
-                                section={OPT_TOOLS}
-                                isExpanded={expandedSections.includes(OPT_TOOLS.label)}
-                                isActiveCheck={isActive}
-                                isCollapsed={effectiveCollapsed}
-                                onToggle={toggleSection}
-                                onToggleCollapse={onToggleCollapse}
-                                onTooltipEnter={handleTooltipEnter}
-                                onTooltipLeave={handleTooltipLeave}
-                                onSubmenuEnter={handleSubmenuEnter}
-                                onSubmenuLeave={handleSubmenuLeave}
-                            />
-
-                            {/* Divider before Footer Links */}
-                            <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
-
-                            {/* Footer Links */}
-                            {FOOTER_LINKS.map(link => (
-                                <SidebarNavLink
-                                    key={link.href}
-                                    link={link}
-                                    isActive={isActive(link.href)}
-                                    isCollapsed={effectiveCollapsed}
-                                    onLinkClick={handleLinkClick}
-                                    onTooltipEnter={handleTooltipEnter}
-                                    onTooltipLeave={handleTooltipLeave}
-                                />
-                            ))}
+                            {SIDEBAR_CONFIG.map((item, index) => {
+                                if (item.type === 'divider') {
+                                    return <div key={`divider-${index}`} className="my-3 border-t border-gray-200 dark:border-gray-700" />;
+                                }
+                                if (item.type === 'link') {
+                                    return (
+                                        <SidebarNavLink
+                                            key={item.item.href}
+                                            link={item.item}
+                                            isActive={isActive(item.item.href)}
+                                            isCollapsed={effectiveCollapsed}
+                                            onLinkClick={linkClickHandler}
+                                            onTooltipEnter={handleTooltipEnter}
+                                            onTooltipLeave={handleTooltipLeave}
+                                        />
+                                    );
+                                }
+                                if (item.type === 'section') {
+                                    return (
+                                        <SidebarNavSection
+                                            key={item.item.label}
+                                            section={item.item}
+                                            isExpanded={expandedSections.includes(item.item.label)}
+                                            isActiveCheck={isActive}
+                                            isCollapsed={effectiveCollapsed}
+                                            onToggle={toggleSection}
+                                            onToggleCollapse={onToggleCollapse}
+                                            onTooltipEnter={handleTooltipEnter}
+                                            onTooltipLeave={handleTooltipLeave}
+                                            onSubmenuEnter={handleSubmenuEnter}
+                                            onSubmenuLeave={handleSubmenuLeave}
+                                        />
+                                    );
+                                }
+                                return null; // Should not happen
+                            })}
                         </nav>
                     </div>
 
@@ -488,7 +482,8 @@ export function Sidebar({
                                     href={link.href}
                                     onClick={() => {
                                         setSubmenu(null);
-                                        handleLinkClick();
+                                        // On desktop, we don't close the menu, so just do nothing (or route)
+                                        if (isMobileOpen && onMobileClose) onMobileClose();
                                     }}
                                     className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                 >
