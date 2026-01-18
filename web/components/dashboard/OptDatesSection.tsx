@@ -196,7 +196,7 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
   };
 
   return (
-    <Card className="p-4 w-80 shadow-lg">
+    <Card className="p-4 w-72 sm:w-80 shadow-lg">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button
@@ -716,7 +716,7 @@ export function OptDatesSection() {
                   className={`p-5 rounded-2xl bg-gradient-to-br ${info.color} text-white shadow-lg hover:shadow-xl transition-all duration-300`}
                 >
                   {/* Top row: Tool info + Status badge */}
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-0 mb-4">
                     <div className="flex items-center gap-3">
                       <span className="text-3xl">{info.icon}</span>
                       <div>
@@ -769,7 +769,7 @@ export function OptDatesSection() {
                     </div>
                   ) : (
                     /* Bottom row: Email + Action buttons */
-                    <div className="flex items-center justify-between pt-3 border-t border-white/15">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 pt-3 border-t border-white/15">
                       <div className="flex items-center gap-2">
                         <Mail className="w-5 h-5 opacity-80" />
                         <span className="text-sm font-medium">
