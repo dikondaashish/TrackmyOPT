@@ -20,7 +20,8 @@ import {
     ChevronDown,
     Settings,
     HelpCircle,
-    Wrench
+    Wrench,
+    X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserProfileMenu } from "./UserProfileMenu";
@@ -218,22 +219,34 @@ export function Sidebar({
             {/* Mobile Overlay */}
             {isMobileOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm"
                     onClick={onMobileClose}
                 />
             )}
             <aside
                 className={cn(
-                    "fixed left-0 top-14 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-40 transition-all duration-300",
-                    // Height calculation: 100vh - header height (56px) - some bottom padding
-                    "h-[calc(100vh-56px)]",
-                    // Desktop behavior
-                    "hidden lg:block",
+                    "fixed bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transition-transform duration-300 ease-out",
+                    // Desktop: below header, normal sizing
+                    "lg:top-14 lg:h-[calc(100vh-56px)] lg:translate-x-0",
+                    "lg:block",
                     isCollapsed ? "lg:w-16" : "lg:w-[230px]",
-                    // Mobile behavior
-                    isMobileOpen && "block w-[260px] !left-0"
+                    // Mobile: full height, slide from left
+                    "top-0 left-0 h-full w-[280px]",
+                    "lg:left-0",
+                    isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
                 )}
             >
+                {/* Mobile Header with Close Button */}
+                <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                    <span className="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
+                    <button
+                        onClick={onMobileClose}
+                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+                        aria-label="Close menu"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
                 {/* Sidebar Flex Container */}
                 <div className="flex flex-col h-full">
                     {/* Scrollable Navigation Area */}
@@ -277,13 +290,13 @@ export function Sidebar({
                             />
                         </div>
 
-                        {/* Collapse Toggle */}
+                        {/* Collapse Toggle - Desktop Only */}
                         {onToggleCollapse && (
                             <button
                                 onClick={onToggleCollapse}
                                 onMouseEnter={(e) => handleTooltipEnter(e, isCollapsed ? "Expand" : "Collapse")}
                                 onMouseLeave={handleTooltipLeave}
-                                className="group relative flex-shrink-0 flex items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
+                                className="hidden lg:flex group relative flex-shrink-0 items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
                                 aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                             >
                                 <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className={cn("transition-transform duration-200", isCollapsed && "rotate-180")}>
