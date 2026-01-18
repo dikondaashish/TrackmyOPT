@@ -134,14 +134,12 @@ export function OptApplyTool() {
     const dsoRec = parseDate(dsoRecommendationDate);
 
     const earliestFile = addDays(programEnd, -90);
-    let mustArriveBy = addDays(programEnd, 60);
 
-    if (dsoRec) {
-      const dsoDeadline = addDays(dsoRec, 30);
-      if (dsoDeadline < mustArriveBy) {
-        mustArriveBy = dsoDeadline;
-      }
-    }
+    // NOTE: Synced with Chrome Extension logic (extension/src/pages/opt-apply.ts)
+    // The extension strictly treats the filing deadline as Program End Date + 60 days.
+    // It does NOT shorten the window based on the DSO recommendation date.
+    // We maintain this behavior for consistency across platforms.
+    const mustArriveBy = addDays(programEnd, 60);
 
     const optStartEarliest = programEnd;
     const optStartLatest = addDays(programEnd, 60);
@@ -288,8 +286,8 @@ export function OptApplyTool() {
                     onClick={handleSave}
                     disabled={isSaving || !programEndDate}
                     className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${saveSuccess
-                        ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25'
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/25'
+                      ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25'
+                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/25'
                       } disabled:from-gray-400 disabled:to-gray-500 text-white`}
                   >
                     <Save className="w-4 h-4" />
