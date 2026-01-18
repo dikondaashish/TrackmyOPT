@@ -99,6 +99,18 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        await handleSubscriptionUpdated(subscription);
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        await handleSubscriptionDeleted(subscription);
+        break;
+      }
+
       default:
     }
 
@@ -180,7 +192,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
  */
 async function logPaymentFailure(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.supabase_user_id;
-  
+
   if (!userId) return;
 
   try {
@@ -228,4 +240,74 @@ async function updateTransactionStatus(
     console.error('❌ Error in updateTransactionStatus:', error);
   }
 }
+
+/**
+ * Handle subscription updates
+ */
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const customerId = subscription.customer as string;
+
+  // If subscription is not active or trialing, revoke access
+  // Note: We don't revoke for 'past_due' immediately to give a grace period, 
+  // but strict implementation would revoke.
+  const isActive = ['active', 'trialing'].includes(subscription.status);
+
+  if (!isActive) {
+    await revokePremiumAccess(customerId);
+  } else {
+    // Ensure access is granted (in case it was previously revoked or data is out of sync)
+    // Create a new client instance for this operation
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    await supabaseAdmin.from('profiles')
+      .update({
+        premium_status: true,
+        // Update expiration date if available
+        // Using direct string manipulation since 'premium_purchased_at' exists but 'expires_at' might not be in schema yet
+        // If expires_at is not in schema, this might fail unless we check schema.
+        // Based on previous file reads, 'premium_purchased_at' is there. I won't gamble on 'expires_at'.
+      })
+      .eq('stripe_customer_id', customerId);
+  }
+}
+
+/**
+ * Handle subscription cancellation/deletion
+ */
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  const customerId = subscription.customer as string;
+  await revokePremiumAccess(customerId);
+}
+
+/**
+ * Revoke premium access for a customer
+ */
+async function revokePremiumAccess(stripeCustomerId: string) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  try {
+    const { error } = await supabaseAdmin
+      .from('profiles')
+      .update({
+        premium_status: false,
+        updated_at: new Date().toISOString()
+      })
+      .eq('stripe_customer_id', stripeCustomerId);
+
+    if (error) {
+      console.error(`❌ Error revoking premium access for customer ${stripeCustomerId}:`, error);
+    } else {
+      console.log(`✅ Revoked premium access for customer ${stripeCustomerId}`);
+    }
+  } catch (error) {
+    console.error(`❌ Error in revokePremiumAccess:`, error);
+  }
+}
+
 

@@ -33,8 +33,17 @@ import {
   Activity,
   History,
   ShieldCheck,
-  CreditCard
+  CreditCard,
+  ChevronDown,
+  ChevronUp,
+  HelpCircle
 } from "lucide-react";
+import { BillingHistory } from "./BillingHistory";
+import { SubscriptionUsage } from "./SubscriptionUsage";
+
+import { SubscriptionFAQ } from "./SubscriptionFAQ";
+import { PlanComparisonModal } from "./PlanComparisonModal";
+
 
 // Tab types
 type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'appearance' | 'subscription';
@@ -2252,6 +2261,12 @@ export function SettingsSection() {
               {!premium.isPremium ? (
                 /* Free User View */
                 <div className="space-y-6">
+                  {/* Usage Stats */}
+                  <div className="flex justify-end mb-2">
+                    <PlanComparisonModal />
+                  </div>
+                  <SubscriptionUsage />
+
                   {/* Current Plan Card */}
                   <div className="p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between mb-4">
@@ -2310,6 +2325,9 @@ export function SettingsSection() {
                       </a>
                     </div>
                   </div>
+
+                  {/* FAQ Section */}
+                  <SubscriptionFAQ />
                 </div>
               ) : (
                 /* Pro User View */
@@ -2346,6 +2364,9 @@ export function SettingsSection() {
                       </p>
                     </div>
                   </div>
+
+                  {/* Billing History */}
+                  <BillingHistory />
                 </div>
               )}
             </div>
