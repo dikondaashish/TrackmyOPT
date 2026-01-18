@@ -47,6 +47,8 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
 
             {/* Right Side */}
             <div className="flex items-center gap-3 md:gap-4">
+                <ThemeToggle />
+
                 {/* Deals Button - Premium UI */}
                 <Link
                     href="/dashboard/offers"
@@ -79,8 +81,6 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                     <Tag className="w-5 h-5" />
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-gray-900" />
                 </Link>
-
-                <ThemeToggle />
 
                 {/* Upgrade Button */}
                 {!isPremium && (
