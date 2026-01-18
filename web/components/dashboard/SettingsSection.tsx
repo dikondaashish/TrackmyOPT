@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  User, 
-  Mail, 
-  Bell, 
-  Moon, 
-  Sun, 
-  Shield, 
+import {
+  User,
+  Mail,
+  Bell,
+  Moon,
+  Sun,
+  Shield,
   Loader2,
   Check,
   AlertCircle,
@@ -74,18 +74,18 @@ export function SettingsSection() {
   // Get URL search params to handle tab query parameter
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab') as SettingsTab | null;
-  
+
   // Active tab - initialize from URL param if valid, otherwise default to 'profile'
   const validTabs: SettingsTab[] = ['profile', 'security', 'documents', 'notifications', 'privacy', 'extension', 'appearance'];
   const initialTab = tabParam && validTabs.includes(tabParam) ? tabParam : 'profile';
   const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
-  
+
   // State
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   // User profile state
   const [profile, setProfile] = useState<UserProfile>({
     email: "",
@@ -94,18 +94,18 @@ export function SettingsSection() {
     notificationEmail: "",
     authProvider: "email",
   });
-  
+
   // Premium status
   const [premium, setPremium] = useState<PremiumStatus>({ isPremium: false });
-  
+
   // Theme
   const [darkMode, setDarkMode] = useState(false);
-  
+
   // Notification preferences
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [caseStatusAlerts, setCaseStatusAlerts] = useState(true);
   const [documentReminders, setDocumentReminders] = useState(true);
-  
+
   // Tool email reminders (synced with OPT Dates)
   const [toolEmails, setToolEmails] = useState<{
     opt_apply: string;
@@ -118,7 +118,7 @@ export function SettingsSection() {
     stem_apply: '',
     stem_clock: '',
   });
-  
+
   // Case Status & Document Vault share the same notification email (from profiles.notification_email)
   const [sharedNotificationEmail, setSharedNotificationEmail] = useState('');
   const [editingSharedEmail, setEditingSharedEmail] = useState<'case' | 'document' | null>(null);
@@ -127,7 +127,7 @@ export function SettingsSection() {
   // Security
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [recentLogins, setRecentLogins] = useState<{device: string; location: string; time: string}[]>([]);
+  const [recentLogins, setRecentLogins] = useState<{ device: string; location: string; time: string }[]>([]);
 
   // Case Status Settings
   const [caseSettings, setCaseSettings] = useState<CaseStatusSettings>({
@@ -147,7 +147,7 @@ export function SettingsSection() {
   const [newPasscode, setNewPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [showPasscodes, setShowPasscodes] = useState(false);
-  
+
   // OTP verification state for passcode change
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [otp, setOtp] = useState('');
@@ -164,7 +164,7 @@ export function SettingsSection() {
 
   // Data Export
   const [isExporting, setIsExporting] = useState(false);
-  
+
   // ZIP Export with OTP verification
   const [showZipExportOtp, setShowZipExportOtp] = useState(false);
   const [zipExportOtp, setZipExportOtp] = useState('');
@@ -269,18 +269,18 @@ export function SettingsSection() {
       setError('Please enter a valid email address');
       return;
     }
-    
+
     try {
       setIsSaving(true);
       setError(null);
-      
+
       const res = await fetch('/api/user/tool-email', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tool: toolKey, email }),
       });
-      
+
       if (res.ok) {
         setSuccess(`Email saved for ${toolKey.replace('_', ' ').toUpperCase()}`);
         setTimeout(() => setSuccess(null), 2000);
@@ -304,7 +304,7 @@ export function SettingsSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tool: toolKey, email: '' }),
       });
-      
+
       if (res.ok) {
         setToolEmails(prev => ({ ...prev, [toolKey]: '' }));
         setSuccess('Email removed');
@@ -337,7 +337,7 @@ export function SettingsSection() {
       setError('Please enter a valid email address');
       return;
     }
-    
+
     try {
       setIsSaving(true);
       const res = await fetch('/api/user/notification-email', {
@@ -346,7 +346,7 @@ export function SettingsSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: tempEmail }),
       });
-      
+
       if (res.ok) {
         setSharedNotificationEmail(tempEmail);
         setEditingSharedEmail(null);
@@ -372,7 +372,7 @@ export function SettingsSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: '' }),
       });
-      
+
       if (res.ok) {
         setSharedNotificationEmail('');
         setSuccess('Notification email removed');
@@ -397,7 +397,7 @@ export function SettingsSection() {
       const extensionConnected = localStorage.getItem('tmo_extension_connected');
       const extensionVersion = localStorage.getItem('tmo_extension_version');
       const lastSync = localStorage.getItem('tmo_extension_last_sync');
-      
+
       if (extensionConnected === 'true') {
         setExtensionStatus({
           isConnected: true,
@@ -424,7 +424,7 @@ export function SettingsSection() {
       // Method 3: Try to detect extension via custom event
       // The extension should listen for this and respond
       window.postMessage({ type: 'TMO_CHECK_EXTENSION' }, '*');
-      
+
       // Listen for response (extension will reply if installed)
       const handleExtensionResponse = (event: MessageEvent) => {
         if (event.data?.type === 'TMO_EXTENSION_PRESENT') {
@@ -441,9 +441,9 @@ export function SettingsSection() {
           localStorage.setItem('tmo_extension_last_sync', new Date().toISOString());
         }
       };
-      
+
       window.addEventListener('message', handleExtensionResponse);
-      
+
       // Clean up listener after 2 seconds
       setTimeout(() => {
         window.removeEventListener('message', handleExtensionResponse);
@@ -473,7 +473,7 @@ export function SettingsSection() {
             const diffMins = Math.floor(diffMs / (1000 * 60));
             const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
             const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-            
+
             let timeAgo = 'Just now';
             if (diffDays > 0) {
               timeAgo = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
@@ -484,8 +484,8 @@ export function SettingsSection() {
             }
 
             // Format device name
-            let device = session.device_type === 'extension' 
-              ? 'Chrome Extension' 
+            let device = session.device_type === 'extension'
+              ? 'Chrome Extension'
               : session.device_info || 'Web Browser';
 
             return {
@@ -506,7 +506,7 @@ export function SettingsSection() {
   const loadUserData = async () => {
     try {
       setIsLoading(true);
-      
+
       // Fetch user data
       const [meRes, premiumRes, notifRes] = await Promise.all([
         fetch('/api/me', { credentials: 'include' }),
@@ -552,7 +552,7 @@ export function SettingsSection() {
     try {
       setIsSaving(true);
       setError(null);
-      
+
       // Save profile to API
       const res = await fetch('/api/profile', {
         method: 'PATCH',
@@ -608,7 +608,7 @@ export function SettingsSection() {
     const newMode = !darkMode;
     setDarkMode(newMode);
     localStorage.setItem('tmo_dark_mode', String(newMode));
-    
+
     // Apply to document
     if (newMode) {
       document.documentElement.classList.add('dark');
@@ -647,7 +647,7 @@ export function SettingsSection() {
 
   const handleSignOut = async () => {
     try {
-      await fetch('/auth/signout', { 
+      await fetch('/auth/signout', {
         method: 'POST',
         credentials: 'include',
       });
@@ -661,7 +661,7 @@ export function SettingsSection() {
 
   // Delete Account
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   const handleDeleteAccount = async () => {
     try {
       setIsDeleting(true);
@@ -828,7 +828,7 @@ export function SettingsSection() {
   const handleAutoLockChange = async (timeout: number) => {
     try {
       setDocSettings(prev => ({ ...prev, autoLockTimeout: timeout }));
-      
+
       const res = await fetch('/api/documents/passcode/status', {
         method: 'PATCH',
         credentials: 'include',
@@ -853,7 +853,7 @@ export function SettingsSection() {
   const handleLockoutDurationChange = async (duration: number) => {
     try {
       setDocSettings(prev => ({ ...prev, lockoutDuration: duration }));
-      
+
       const res = await fetch('/api/documents/passcode/status', {
         method: 'PATCH',
         credentials: 'include',
@@ -878,9 +878,9 @@ export function SettingsSection() {
   const handleExportData = async (format: 'json' | 'csv') => {
     try {
       setIsExporting(true);
-      
+
       const res = await fetch(`/api/user/export?format=${format}`, { credentials: 'include' });
-      
+
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
@@ -933,7 +933,7 @@ export function SettingsSection() {
       setShowUpgradeModal(true);
       return;
     }
-    
+
     // Send OTP for verification
     setZipExportOtpSending(true);
     try {
@@ -941,7 +941,7 @@ export function SettingsSection() {
         method: 'POST',
         credentials: 'include',
       });
-      
+
       if (res.ok) {
         setShowZipExportOtp(true);
         setZipExportCountdown(60);
@@ -964,7 +964,7 @@ export function SettingsSection() {
       setError('Please enter the 6-digit code');
       return;
     }
-    
+
     setZipExportOtpVerifying(true);
     try {
       const res = await fetch('/api/user/export-zip', {
@@ -973,7 +973,7 @@ export function SettingsSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ otp: zipExportOtp }),
       });
-      
+
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
@@ -984,7 +984,7 @@ export function SettingsSection() {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
+
         setShowZipExportOtp(false);
         setZipExportOtp('');
         setSuccess('Data exported successfully!');
@@ -1013,17 +1013,17 @@ export function SettingsSection() {
       localStorage.removeItem('tmo_extension_connected');
       localStorage.removeItem('tmo_extension_version');
       localStorage.removeItem('tmo_extension_last_sync');
-      
+
       // Also clear server session
       const res = await fetch('/api/user/sessions?device_type=extension', {
         method: 'DELETE',
         credentials: 'include',
       });
-      
+
       setExtensionStatus({ isConnected: false, lastSyncTime: null });
       setSuccess('Extension disconnected');
       setTimeout(() => setSuccess(null), 3000);
-      
+
       if (!res.ok) {
         console.error('Failed to clear server session');
       }
@@ -1070,14 +1070,12 @@ export function SettingsSection() {
   const Toggle = ({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) => (
     <button
       onClick={onToggle}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
-        enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-      }`}
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+        }`}
     >
       <span
-        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-          enabled ? 'translate-x-5' : ''
-        }`}
+        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${enabled ? 'translate-x-5' : ''
+          }`}
       />
     </button>
   );
@@ -1094,7 +1092,7 @@ export function SettingsSection() {
 
       {/* Tab Navigation */}
       <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
-        <nav className="flex space-x-8 overflow-x-auto" aria-label="Settings tabs">
+        <nav className="flex space-x-4 sm:space-x-8 overflow-x-auto no-scrollbar pb-1" aria-label="Settings tabs">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -1135,12 +1133,12 @@ export function SettingsSection() {
 
       {/* Tab Content */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
-        
+
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <div className="p-6 sm:p-8">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-8 text-center sm:text-left">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
                 {profile.fullName ? profile.fullName.charAt(0).toUpperCase() : profile.email.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -1295,7 +1293,7 @@ export function SettingsSection() {
                       </Button>
                     )}
                   </div>
-                  
+
                   {/* Delete Confirmation Warning */}
                   {showDeleteConfirm && (
                     <div className="mt-4 p-4 bg-red-100 dark:bg-red-900/30 rounded-lg border border-red-300 dark:border-red-700">
@@ -1351,7 +1349,7 @@ export function SettingsSection() {
         {activeTab === 'notifications' && (
           <div className="p-6 sm:p-8">
             <div className="max-w-2xl space-y-8">
-              
+
               {/* Preferences Section - Combined with Notification Email */}
               <div className="p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-3 mb-5">
@@ -1363,7 +1361,7 @@ export function SettingsSection() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">Manage how you receive updates from TrackMyOPT</p>
                   </div>
                 </div>
-                
+
                 {/* Email Notifications Toggle */}
                 <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg mb-4">
                   <div>
@@ -1377,7 +1375,7 @@ export function SettingsSection() {
                 <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
                   <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">Notification Email</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Email address for receiving notifications</p>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Input
                       type="email"
                       value={profile.notificationEmail}
@@ -1412,7 +1410,7 @@ export function SettingsSection() {
                     PRO
                   </span>
                 </div>
-                
+
                 {/* Blur overlay for non-premium */}
                 {!premium.isPremium && (
                   <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
@@ -1424,7 +1422,7 @@ export function SettingsSection() {
                     </Button>
                   </div>
                 )}
-                
+
                 <div className={`space-y-3 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
                   {[
                     { key: 'opt_apply', label: 'OPT Apply Dates', icon: '📅', description: 'OPT filing deadline reminders' },
@@ -1433,8 +1431,8 @@ export function SettingsSection() {
                     { key: 'stem_clock', label: 'STEM Clock Tracker', icon: '⏲️', description: 'STEM unemployment tracking alerts' },
                   ].map((tool) => (
                     <div key={tool.key} className="p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
                           <span className="text-xl">{tool.icon}</span>
                           <div>
                             <p className="font-medium text-gray-900 dark:text-gray-100">{tool.label}</p>
@@ -1505,7 +1503,7 @@ export function SettingsSection() {
                     PRO
                   </span>
                 </div>
-                
+
                 {/* Blur overlay for non-premium */}
                 {!premium.isPremium && (
                   <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
@@ -1517,10 +1515,10 @@ export function SettingsSection() {
                     </Button>
                   </div>
                 )}
-                
+
                 <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
-                  <div className="flex items-center justify-between">
-                    <div>
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+                    <div className="w-full sm:w-auto text-center sm:text-left mb-2 sm:mb-0">
                       <p className="font-medium text-gray-900 dark:text-gray-100">Case Status Alerts</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Receive email when your case status updates</p>
                     </div>
@@ -1597,7 +1595,7 @@ export function SettingsSection() {
                     PRO
                   </span>
                 </div>
-                
+
                 {/* Blur overlay for non-premium */}
                 {!premium.isPremium && (
                   <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
@@ -1609,7 +1607,7 @@ export function SettingsSection() {
                     </Button>
                   </div>
                 )}
-                
+
                 <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
                   <div className="flex items-center justify-between">
                     <div>
@@ -1785,7 +1783,7 @@ export function SettingsSection() {
                               OTP sent to {otpEmail}
                             </p>
                           </div>
-                          
+
                           <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                               Enter 6-digit OTP
@@ -1806,7 +1804,7 @@ export function SettingsSection() {
                               </p>
                             )}
                           </div>
-                          
+
                           <div className="flex gap-2">
                             <Button
                               onClick={handleVerifyOtp}
@@ -1938,12 +1936,12 @@ export function SettingsSection() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">Download all your data in a portable format</p>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                     <Button
                       variant="outline"
                       onClick={() => handleExportData('json')}
                       disabled={isExporting}
-                      className="h-10"
+                      className="h-10 w-full sm:w-auto"
                     >
                       {isExporting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />}
                       Export as JSON
@@ -1952,7 +1950,7 @@ export function SettingsSection() {
                       variant="outline"
                       onClick={() => handleExportData('csv')}
                       disabled={isExporting}
-                      className="h-10"
+                      className="h-10 w-full sm:w-auto"
                     >
                       Export as CSV
                     </Button>
@@ -1960,7 +1958,7 @@ export function SettingsSection() {
                       variant="outline"
                       onClick={handleZipExportClick}
                       disabled={zipExportOtpSending || showZipExportOtp}
-                      className="h-10 relative"
+                      className="h-10 relative w-full sm:w-auto"
                     >
                       {zipExportOtpSending ? (
                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -1973,7 +1971,7 @@ export function SettingsSection() {
                       </span>
                     </Button>
                   </div>
-                  
+
                   {/* ZIP Export OTP Verification */}
                   {showZipExportOtp && (
                     <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -2023,7 +2021,7 @@ export function SettingsSection() {
                       </div>
                     </div>
                   )}
-                  
+
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
                     <span className="font-medium">ZIP export (Pro):</span> Includes your profile data, OPT dates, case status, and all uploaded documents.
                   </p>
@@ -2082,8 +2080,8 @@ export function SettingsSection() {
               <div className="space-y-6">
                 {/* Connection Status */}
                 <div className={`p-4 rounded-xl border ${extensionStatus.isConnected ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'}`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${extensionStatus.isConnected ? 'bg-green-100 dark:bg-green-900/50' : 'bg-gray-200 dark:bg-gray-700'}`}>
                         {extensionStatus.isConnected ? (
                           <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -2096,7 +2094,7 @@ export function SettingsSection() {
                           {extensionStatus.isConnected ? 'Extension Connected' : 'Not Connected'}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {extensionStatus.isConnected 
+                          {extensionStatus.isConnected
                             ? `Version ${extensionStatus.version || 'Unknown'}`
                             : 'Install the Chrome extension to sync'}
                         </p>
@@ -2128,7 +2126,7 @@ export function SettingsSection() {
                         <div>
                           <p className="font-medium text-gray-900 dark:text-gray-100">Last Sync</p>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {extensionStatus.lastSyncTime 
+                            {extensionStatus.lastSyncTime
                               ? new Date(extensionStatus.lastSyncTime).toLocaleString()
                               : 'Never synced'}
                           </p>
@@ -2169,10 +2167,10 @@ export function SettingsSection() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
                           <svg className="w-5 h-5" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                           </svg>
                         </div>
                         <div>
@@ -2258,7 +2256,7 @@ export function SettingsSection() {
             <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Download className="w-8 h-8 text-purple-600 dark:text-purple-400" />
             </div>
-            
+
             {/* Title */}
             <h3 className="text-xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
               Upgrade to Pro
@@ -2266,7 +2264,7 @@ export function SettingsSection() {
             <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
               ZIP export with documents is a Pro feature. Upgrade to download all your data including uploaded documents.
             </p>
-            
+
             {/* Features */}
             <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 mb-6 space-y-3">
               <div className="flex items-center gap-3 text-sm">
@@ -2286,7 +2284,7 @@ export function SettingsSection() {
                 <span className="text-gray-700 dark:text-gray-300">Secure OTP verification</span>
               </div>
             </div>
-            
+
             {/* Buttons */}
             <div className="flex gap-3">
               <button
