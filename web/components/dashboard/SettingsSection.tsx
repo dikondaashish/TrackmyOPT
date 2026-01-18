@@ -1071,6 +1071,7 @@ export function SettingsSection() {
   const tabs: { id: SettingsTab; label: string; icon: React.ReactNode; isPro?: boolean }[] = [
     { id: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
     { id: 'security', label: 'Security', icon: <Shield className="w-4 h-4" /> },
+    { id: 'subscription', label: 'Subscription', icon: <CreditCard className="w-4 h-4" /> },
     // Only show Documents tab for premium users
     ...(premium.isPremium ? [{ id: 'documents' as SettingsTab, label: 'Documents', icon: <Lock className="w-4 h-4" />, isPro: true }] : []),
     { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
