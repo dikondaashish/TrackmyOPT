@@ -99,6 +99,11 @@ export function Sidebar({
     const pathname = usePathname();
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
+    // Safety clear for tooltips
+    const handleSidebarLeave = useCallback(() => {
+        setTooltip(null);
+    }, []);
+
     // On mobile, the sidebar is always "expanded" when open, regardless of desktop state
     const effectiveCollapsed = isCollapsed && !isMobileOpen;
 
