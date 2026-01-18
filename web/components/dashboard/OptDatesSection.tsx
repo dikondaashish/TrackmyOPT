@@ -716,7 +716,7 @@ export function OptDatesSection() {
                   className={`p-5 rounded-2xl bg-gradient-to-br ${info.color} text-white shadow-lg hover:shadow-xl transition-all duration-300`}
                 >
                   {/* Top row: Tool info + Status badge */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-0 mb-4">
+                  <div className="flex flex-col items-start sm:flex-row sm:items-start justify-between gap-4 sm:gap-0 mb-4">
                     <div className="flex items-center gap-3">
                       <span className="text-3xl">{info.icon}</span>
                       <div>
