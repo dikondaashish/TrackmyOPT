@@ -44,8 +44,18 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                 </Link>
             </div>
 
+
             {/* Right Side */}
             <div className="flex items-center gap-3">
+                {/* Deals Button */}
+                <Link
+                    href="/dashboard/offers"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-100 hover:text-white text-sm font-medium rounded-lg transition-colors border border-blue-400/20"
+                >
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                    <span>Deals</span>
+                </Link>
+
                 <ThemeToggle />
 
                 {/* Upgrade Button */}
