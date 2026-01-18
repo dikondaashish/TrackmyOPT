@@ -80,6 +80,7 @@ const SIDEBAR_CONFIG: SidebarItem[] = [
         item: {
             label: "Career Tools",
             icon: Briefcase,
+            href: "/dashboard/career",
             links: [
                 { label: "Resume Generator", href: "/dashboard/career/resume-generator", icon: FileText },
                 { label: "ATS Scanner", href: "/dashboard/career/ats-scanner", icon: BarChart3 },
