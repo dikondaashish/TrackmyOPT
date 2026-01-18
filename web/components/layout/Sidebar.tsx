@@ -236,19 +236,19 @@ export function Sidebar({
                     isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
                 )}
             >
-                {/* Mobile Header with Close Button */}
-                <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                    <span className="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
-                    <button
-                        onClick={onMobileClose}
-                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
-                        aria-label="Close menu"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
-                {/* Sidebar Flex Container - Takes remaining height */}
-                <div className="flex flex-col flex-1 min-h-0">
+                {/* Sidebar Flex Container */}
+                <div className="flex flex-col h-full">
+                    {/* Mobile Header with Close Button */}
+                    <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                        <span className="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
+                        <button
+                            onClick={onMobileClose}
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+                            aria-label="Close menu"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
                     {/* Scrollable Navigation Area */}
                     <div className="flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                         <nav className="p-3 space-y-1">
@@ -276,11 +276,8 @@ export function Sidebar({
 
                     {/* Fixed/Sticky Bottom Area for Profile & Collapse Toggle */}
                     <div className={cn(
-                        "flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10",
-                        // Desktop: conditional layout based on collapsed state
-                        isCollapsed ? "lg:flex-col lg:items-center lg:justify-center lg:gap-4 lg:py-4" : "lg:flex-row lg:items-center lg:justify-between lg:gap-2",
-                        // Mobile: always show expanded profile
-                        "flex flex-row items-center gap-3 p-3"
+                        "border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 flex",
+                        isCollapsed ? "flex-col items-center justify-center gap-4 py-4" : "flex-row items-center justify-between gap-2 p-3"
                     )}>
                         {/* Profile Menu */}
                         <div className="flex-1 min-w-0">
