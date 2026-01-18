@@ -32,11 +32,12 @@ import {
   Unlink,
   Activity,
   History,
-  ShieldCheck
+  ShieldCheck,
+  CreditCard
 } from "lucide-react";
 
 // Tab types
-type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'appearance';
+type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'appearance' | 'subscription';
 
 interface UserProfile {
   email: string;
@@ -76,7 +77,7 @@ export function SettingsSection() {
   const tabParam = searchParams.get('tab') as SettingsTab | null;
 
   // Active tab - initialize from URL param if valid, otherwise default to 'profile'
-  const validTabs: SettingsTab[] = ['profile', 'security', 'documents', 'notifications', 'privacy', 'extension', 'appearance'];
+  const validTabs: SettingsTab[] = ['profile', 'security', 'documents', 'notifications', 'privacy', 'extension', 'appearance', 'subscription'];
   const initialTab = tabParam && validTabs.includes(tabParam) ? tabParam : 'profile';
   const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
 
@@ -762,6 +763,26 @@ export function SettingsSection() {
       setError(err instanceof Error ? err.message : 'Failed to send OTP');
     } finally {
       setSendingOtp(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/premium/portal', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Failed to redirect');
+      }
+    } catch (error) {
+      console.error('Portal Error:', error);
+      setError('Failed to load subscription portal');
+      setIsLoading(false);
     }
   };
 
@@ -2209,6 +2230,123 @@ export function SettingsSection() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Subscription Tab */}
+        {activeTab === 'subscription' && (
+          <div className="p-6 sm:p-8">
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Subscription</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Manage your billing and plan details</p>
+                </div>
+              </div>
+
+              {!premium.isPremium ? (
+                /* Free User View */
+                <div className="space-y-6">
+                  {/* Current Plan Card */}
+                  <div className="p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Current Plan</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Basic features</p>
+                      </div>
+                      <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">
+                        Active
+                      </span>
+                    </div>
+                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        You are currently on the Free Plan. Upgrade to access premium features.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Upgrade Hero Card */}
+                  <div className="p-6 bg-gradient-to-br from-gray-900 to-gray-800 dark:from-purple-900/20 dark:to-blue-900/20 rounded-2xl text-white relative overflow-hidden">
+                    <div className="relative z-10">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div>
+                          <h3 className="text-xl font-bold mb-1">Unlock Pro Features</h3>
+                          <p className="text-gray-300 text-sm">Get lifetime access to all tools</p>
+                        </div>
+                        <div className="text-right hidden sm:block">
+                          <p className="text-2xl font-bold">$2.99</p>
+                          <p className="text-xs text-gray-400">One-time payment</p>
+                        </div>
+                      </div>
+
+                      <div className="grid sm:grid-cols-2 gap-3 mb-8">
+                        {[
+                          "Unlimited Job Tracking",
+                          "Automated H-1B Insights",
+                          "PDF Case Tracking & Alerts",
+                          "AI-Powered Resume Analysis",
+                          "Daily Email Reminders",
+                          "Document Safe & Export"
+                        ].map((feature, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                              <Check className="w-3 h-3 text-green-400" />
+                            </div>
+                            <span className="text-sm text-gray-200">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <a
+                        href="/premium/checkout"
+                        className="block w-full text-center py-3 bg-white text-gray-900 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-lg"
+                      >
+                        Upgrade Now
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Pro User View */
+                <div className="space-y-6">
+                  {/* Subscription Details */}
+                  <div className="p-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                          {premium.planName || "TrackMyOPT Pro"}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            Member since {premium.expiresAt ? new Date(premium.expiresAt).toLocaleDateString() : 'recently'}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full border border-green-200 dark:border-green-800">
+                        Active
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <Button
+                        onClick={handleManageSubscription}
+                        disabled={isLoading}
+                        className="flex-1 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800"
+                      >
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                        Manage Subscription
+                      </Button>
+                      <p className="text-xs text-center sm:text-left text-gray-500 max-w-xs mt-2 sm:mt-0">
+                        Update payment method, download invoices, or cancel subscription via secure Stripe portal.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
