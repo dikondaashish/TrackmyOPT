@@ -456,10 +456,6 @@ function calculateFilingWindow(programEndDate: Date, dsoRecommendationDate: Date
   const earliestStart = addDays(programEndDate, -90);
   const latestEnd = addDays(programEndDate, 60);
 
-  // NOTE: Logic explicitly synced with web dashboard
-  // We strictly use Program End + 60 days as the deadline.
-  // We do NOT shorten the window based on DSO recommendation date.
-
   return {
     earliestStart,
     latestEnd,
