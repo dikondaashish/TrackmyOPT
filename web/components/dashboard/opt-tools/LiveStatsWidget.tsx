@@ -69,56 +69,7 @@ const TOOL_CONFIGS: Record<ToolType, {
   },
 };
 
-const MOCK_DATA: Record<ToolType, LiveStats> = {
-  'opt-apply': {
-    mainStat: { value: 87, label: 'Average Approval Time', unit: 'days' },
-    secondaryStat: { value: 15, label: 'Approvals in 24h' },
-    trend: 'faster',
-    recentReports: [
-      { value: 45, label: 'days to approval', timestamp: '2 hours ago', positive: true },
-      { value: 62, label: 'days to approval', timestamp: '5 hours ago', positive: true },
-      { value: 78, label: 'RFE received', timestamp: '1 day ago', positive: false },
-      { value: 55, label: 'days to approval', timestamp: '1 day ago', positive: true },
-    ],
-    lastUpdated: new Date(),
-  },
-  'opt-clock': {
-    mainStat: { value: 32, label: 'Avg. Time to Find Job', unit: 'days' },
-    secondaryStat: { value: 28, label: 'Found jobs this week' },
-    trend: 'faster',
-    recentReports: [
-      { value: 15, label: 'days to employment', timestamp: '3 hours ago', positive: true },
-      { value: 45, label: 'days to employment', timestamp: '6 hours ago', positive: true },
-      { value: 28, label: 'days to employment', timestamp: '1 day ago', positive: true },
-      { value: 60, label: 'days (still searching)', timestamp: '1 day ago', positive: false },
-    ],
-    lastUpdated: new Date(),
-  },
-  'stem-apply': {
-    mainStat: { value: 94, label: 'Average Approval Time', unit: 'days' },
-    secondaryStat: { value: 12, label: 'Approvals in 24h' },
-    trend: 'stable',
-    recentReports: [
-      { value: 72, label: 'days to approval', timestamp: '4 hours ago', positive: true },
-      { value: 89, label: 'days to approval', timestamp: '8 hours ago', positive: true },
-      { value: 105, label: 'RFE received', timestamp: '1 day ago', positive: false },
-      { value: 68, label: 'days to approval', timestamp: '2 days ago', positive: true },
-    ],
-    lastUpdated: new Date(),
-  },
-  'stem-clock': {
-    mainStat: { value: 18, label: 'Avg. Document Upload', unit: 'days' },
-    secondaryStat: { value: 45, label: 'Uploads this week' },
-    trend: 'faster',
-    recentReports: [
-      { value: 7, label: 'days to upload I-983', timestamp: '1 hour ago', positive: true },
-      { value: 14, label: 'days to upload docs', timestamp: '5 hours ago', positive: true },
-      { value: 21, label: 'days to upload docs', timestamp: '1 day ago', positive: true },
-      { value: 10, label: 'days to upload I-983', timestamp: '1 day ago', positive: true },
-    ],
-    lastUpdated: new Date(),
-  },
-};
+
 
 export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps) {
   const [stats, setStats] = useState<LiveStats | null>(null);
@@ -129,18 +80,24 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
   const config = TOOL_CONFIGS[toolType];
 
   const fetchStats = async (showRefreshing = false) => {
-    if (showRefreshing) setIsRefreshing(true);
-    
-    // Simulated data - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    setStats({
-      ...MOCK_DATA[toolType],
-      lastUpdated: new Date(),
-    });
-    
-    setIsLoading(false);
-    setIsRefreshing(false);
+    try {
+      if (showRefreshing) setIsRefreshing(true);
+
+      const response = await fetch('/api/opt/community-stats');
+      if (response.ok) {
+        const data = await response.json();
+        const toolData = data[toolType];
+        if (toolData) {
+          toolData.lastUpdated = new Date(toolData.lastUpdated);
+          setStats(toolData);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -196,7 +153,7 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden">
       {/* Header */}
-      <div 
+      <div
         className={`flex items-center justify-between p-4 bg-gradient-to-r ${config.gradient} cursor-pointer lg:cursor-default`}
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -254,7 +211,7 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
               <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Latest Community Reports</h4>
               <div className="space-y-2">
                 {stats.recentReports.map((report, idx) => (
-                  <div 
+                  <div
                     key={idx}
                     className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm border border-gray-100 dark:border-gray-700"
                   >

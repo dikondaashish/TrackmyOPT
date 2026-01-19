@@ -25,6 +25,7 @@
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.2.3",
     "framer-motion": "^12.23.25",
     "jose": "^5.2.0",
     "jszip": "^3.10.1",
@@ -36,6 +37,7 @@
     "react-dom": "^18.3.0",
     "recharts": "^3.2.1",
     "sharp": "^0.34.5",
+    "snoowrap": "^1.23.0",
     "stripe": "^19.1.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^3.22.4"
