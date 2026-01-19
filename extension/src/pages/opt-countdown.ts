@@ -35,7 +35,12 @@ function calculateTimeRemaining(targetDate: Date): {
   total: number;
 } {
   const now = new Date();
-  const diff = targetDate.getTime() - now.getTime();
+
+  // Set target date to end of day (23:59:59) to match web app logic
+  const targetEnd = new Date(targetDate);
+  targetEnd.setHours(23, 59, 59, 999);
+
+  const diff = targetEnd.getTime() - now.getTime();
 
   if (diff <= 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 };
