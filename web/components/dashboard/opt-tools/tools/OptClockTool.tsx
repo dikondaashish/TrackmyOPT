@@ -142,26 +142,26 @@ export function OptClockTool() {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const endDate = today < optEnd ? today : optEnd;
     const totalDays = Math.max(0, daysBetween(optStart, endDate));
-    
+
     let employedDays = 0;
     for (const span of employmentSpans) {
       const spanStart = parseDate(span.start_date);
       if (!spanStart) continue;
-      
+
       const spanEnd = span.end_date ? parseDate(span.end_date) : today;
       if (!spanEnd) continue;
-      
+
       const effectiveStart = spanStart < optStart ? optStart : spanStart;
       const effectiveEnd = spanEnd > endDate ? endDate : spanEnd;
-      
+
       if (effectiveStart <= effectiveEnd) {
         employedDays += daysBetween(effectiveStart, effectiveEnd);
       }
     }
-    
+
     const used = Math.max(0, totalDays - employedDays);
     const max = 90;
     const remaining = Math.max(0, max - used);
@@ -180,7 +180,7 @@ export function OptClockTool() {
   };
 
   const updateSpan = (id: string, field: keyof EmploymentSpan, value: string | null) => {
-    setEmploymentSpans(spans => spans.map(span => 
+    setEmploymentSpans(spans => spans.map(span =>
       span.id === id ? { ...span, [field]: value } : span
     ));
   };
@@ -282,7 +282,7 @@ export function OptClockTool() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50/30 to-orange-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-0">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/dashboard/opt-tools')}
@@ -302,7 +302,7 @@ export function OptClockTool() {
               </div>
             </div>
           </div>
-          
+
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -320,7 +320,7 @@ export function OptClockTool() {
                   <div>
                     <h2 className="text-lg font-bold mb-2">90-Day Unemployment Limit</h2>
                     <p className="text-amber-100 leading-relaxed">
-                      During post-completion OPT, you cannot be unemployed for more than <span className="font-semibold text-white">90 days total</span>. 
+                      During post-completion OPT, you cannot be unemployed for more than <span className="font-semibold text-white">90 days total</span>.
                       Track all your employment periods carefully to stay in compliance with USCIS regulations.
                     </p>
                   </div>
@@ -330,7 +330,7 @@ export function OptClockTool() {
 
             {/* OPT Period - Date Input Form */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
-              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+              <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                     <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -341,23 +341,23 @@ export function OptClockTool() {
                   </div>
                 </div>
               </div>
-              
-              <div className="p-6">
+
+              <div className="p-4 sm:p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <DateInput
-                  label="OPT Start Date"
-                  value={optStartDate}
-                  onChange={handleOptStartDateChange}
-                  description="From your EAD card"
-                  required
-                />
-                <DateInput
-                  label="OPT End Date"
-                  value={optEndDate}
-                  onChange={setOptEndDate}
-                  description="Auto-calculated (1 year)"
-                  required
-                />
+                  <DateInput
+                    label="OPT Start Date"
+                    value={optStartDate}
+                    onChange={handleOptStartDateChange}
+                    description="From your EAD card"
+                    required
+                  />
+                  <DateInput
+                    label="OPT End Date"
+                    value={optEndDate}
+                    onChange={setOptEndDate}
+                    description="Auto-calculated (1 year)"
+                    required
+                  />
                 </div>
 
                 {/* Save Button */}
@@ -365,11 +365,10 @@ export function OptClockTool() {
                   <button
                     onClick={handleSave}
                     disabled={isSaving || !optStartDate}
-                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${
-                      saveSuccess 
-                        ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25' 
-                        : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-500/25'
-                    } disabled:from-gray-400 disabled:to-gray-500 text-white`}
+                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${saveSuccess
+                      ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25'
+                      : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-500/25'
+                      } disabled:from-gray-400 disabled:to-gray-500 text-white`}
                   >
                     <Save className="w-4 h-4" />
                     {isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}
@@ -403,9 +402,9 @@ export function OptClockTool() {
                         <p className="text-sm text-gray-500 dark:text-gray-400">Track your 90-day limit</p>
                       </div>
                     </div>
-                    
+
                     <ProgressBar used={results.used} max={results.max} label="Unemployment Days Used" />
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                       <ResultCard
                         icon="⏱️"
@@ -429,22 +428,22 @@ export function OptClockTool() {
 
             {/* Employment History - Collapsible */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
-              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                <div className="flex items-center justify-between">
+              <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
                   <button
                     onClick={() => setShowEmploymentHistory(!showEmploymentHistory)}
-                    className="flex items-center gap-3 flex-1"
+                    className="flex items-center gap-3 w-full sm:w-auto text-left"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
                       <Briefcase className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <div className="text-left">
+                    <div>
                       <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Employment History</h2>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         {employmentSpans.length > 0 ? `${employmentSpans.length} job${employmentSpans.length > 1 ? 's' : ''} added` : 'Click to add jobs'}
                       </p>
                     </div>
-                    <div className="ml-auto mr-4">
+                    <div className="ml-auto sm:ml-4">
                       {showEmploymentHistory ? (
                         <ChevronUp className="w-5 h-5 text-gray-400" />
                       ) : (
@@ -454,16 +453,16 @@ export function OptClockTool() {
                   </button>
                   <button
                     onClick={addEmploymentSpan}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl shadow-lg shadow-amber-500/25 transition-all"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl shadow-lg shadow-amber-500/25 transition-all w-full sm:w-auto"
                   >
                     <Plus className="w-4 h-4" />
                     Add Job
                   </button>
                 </div>
               </div>
-              
+
               {showEmploymentHistory && (
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {employmentSpans.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <p className="text-sm">Click "Add Job" to track your employment periods</p>
@@ -533,9 +532,9 @@ export function OptClockTool() {
                   startDate={parseDate(optStartDate) || undefined}
                 />
               )}
-              
+
               <LiveStatsWidget toolType="opt-clock" />
-              
+
               {/* Pro Tips */}
               <div className="relative overflow-hidden bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg p-5">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400/10 to-orange-400/10 rounded-full -translate-y-12 translate-x-12"></div>
@@ -572,11 +571,11 @@ export function OptClockTool() {
           </div>
         </div>
       </div>
-      
+
       {/* Pricing Modal */}
-      <PricingModal 
-        open={showPricingModal} 
-        onClose={() => setShowPricingModal(false)} 
+      <PricingModal
+        open={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
       />
     </div>
   );

@@ -13,10 +13,10 @@ interface UnemploymentClockProps {
   startDate?: Date; // When the OPT/STEM period starts
 }
 
-export function UnemploymentClock({ 
-  daysUsed, 
+export function UnemploymentClock({
+  daysUsed,
   maxDays,
-  title, 
+  title,
   subtitle,
   gradient = 'from-amber-500 via-orange-500 to-red-500',
   type = 'opt',
@@ -25,13 +25,13 @@ export function UnemploymentClock({
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [mounted, setMounted] = useState(false);
   const [isNotStarted, setIsNotStarted] = useState(false);
-  
+
   const remaining = Math.max(0, maxDays - daysUsed);
   const percentage = Math.min(100, (daysUsed / maxDays) * 100);
-  
+
   useEffect(() => {
     setMounted(true);
-    
+
     // Countdown until end of day in Eastern Time
     const updateCountdown = () => {
       // Get current time in Eastern Time
@@ -42,7 +42,7 @@ export function UnemploymentClock({
       const etHours = parseInt(etParts[0]);
       const etMinutes = parseInt(etParts[1]);
       const etSeconds = parseInt(etParts[2]);
-      
+
       // Check if start date hasn't arrived yet
       if (startDate) {
         const nowET = new Date(now.toLocaleString('en-US', etOptions));
@@ -50,19 +50,19 @@ export function UnemploymentClock({
         startET.setHours(0, 0, 0, 0);
         setIsNotStarted(nowET < startET);
       }
-      
+
       // Calculate time remaining until midnight ET
       const hoursLeft = 23 - etHours;
       const minutesLeft = 59 - etMinutes;
       const secondsLeft = 59 - etSeconds;
-      
+
       setCountdown({
         hours: hoursLeft,
         minutes: minutesLeft,
         seconds: secondsLeft
       });
     };
-    
+
     updateCountdown();
     const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
@@ -82,9 +82,9 @@ export function UnemploymentClock({
   const isUrgent = remaining <= 30;
   const isCritical = remaining <= 10;
   const StatusIcon = isCritical ? AlertTriangle : isUrgent ? TrendingDown : CheckCircle2;
-  
+
   // Use consistent amber/orange gradient for OPT, purple/violet for STEM
-  const baseGradient = type === 'opt' 
+  const baseGradient = type === 'opt'
     ? 'from-amber-500 via-orange-500 to-orange-600'
     : 'from-purple-500 via-violet-500 to-violet-600';
 
@@ -95,7 +95,7 @@ export function UnemploymentClock({
       if (type === 'opt') return { icon: Timer, message: "⏳ Your OPT period hasn't started yet. Use this time to apply for jobs and prepare! Check your OPT start date below.", color: "text-blue-200" };
       return { icon: Timer, message: "⏳ Your STEM OPT period hasn't started yet. Use this time to job search! Check your STEM start date below.", color: "text-purple-200" };
     }
-    
+
     if (type === 'opt') {
       if (remaining <= 0) return { icon: AlertTriangle, message: "⚠️ Unemployment limit exceeded! Contact your DSO immediately. Talk to an immigration attorney about your options.", color: "text-red-200" };
       if (remaining <= 10) return { icon: Zap, message: "⚡ CRITICAL! Apply to ANY job NOW - unpaid internships, volunteer work, anything OPT-eligible!", color: "text-red-200" };
@@ -118,24 +118,24 @@ export function UnemploymentClock({
   const timelineInfo = getTimelineMessage();
 
   return (
-    <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${baseGradient} p-8 shadow-2xl`}>
+    <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${baseGradient} p-5 sm:p-8 shadow-2xl`}>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-48 translate-x-48 animate-pulse"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-32 -translate-x-32"></div>
-        
+
         {/* Animated rings */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64">
           <div className="absolute inset-0 rounded-full border-4 border-white/10 animate-ping" style={{ animationDuration: '3s' }}></div>
           <div className="absolute inset-4 rounded-full border-2 border-white/5 animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
         </div>
-        
+
         {/* Floating particles */}
         <div className="absolute top-10 left-20 w-2 h-2 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }}></div>
         <div className="absolute top-20 right-32 w-1.5 h-1.5 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: '0.5s', animationDuration: '4s' }}></div>
         <div className="absolute bottom-16 left-40 w-1 h-1 bg-white/25 rounded-full animate-bounce" style={{ animationDelay: '1s', animationDuration: '3.5s' }}></div>
       </div>
-      
+
       <div className="relative z-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -148,13 +148,12 @@ export function UnemploymentClock({
               {subtitle && <p className="text-sm text-white/70">{subtitle}</p>}
             </div>
           </div>
-          
+
           {/* Status indicator */}
-          <div className={`px-4 py-2 rounded-full backdrop-blur-sm flex items-center gap-2 ${
-            isCritical ? 'bg-red-900/40 text-red-100' :
+          <div className={`px-4 py-2 rounded-full backdrop-blur-sm flex items-center gap-2 ${isCritical ? 'bg-red-900/40 text-red-100' :
             isUrgent ? 'bg-amber-900/40 text-amber-100' :
-            'bg-white/20 text-white'
-          }`}>
+              'bg-white/20 text-white'
+            }`}>
             <StatusIcon className="w-4 h-4" />
             <span className="text-sm font-medium">
               {isCritical ? 'Critical!' : isUrgent ? 'Caution' : 'On Track'}
@@ -163,17 +162,17 @@ export function UnemploymentClock({
         </div>
 
         {/* Main display - Days Remaining with live clock */}
-        <div className="grid grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
           {/* Days Remaining - Big number */}
-          <div className="text-center p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+          <div className="text-center p-5 sm:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
             <div className={`text-6xl sm:text-7xl font-bold text-white tabular-nums ${isCritical ? 'animate-pulse' : ''}`}>
               {remaining}
             </div>
             <div className="text-sm text-white/80 mt-2 uppercase tracking-wider">Days Left</div>
           </div>
-          
+
           {/* Countdown Timer - Time left today (ET) */}
-          <div className="text-center p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+          <div className="text-center p-5 sm:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
             <div className="flex items-center justify-center gap-1 text-white">
               <span className="text-4xl sm:text-5xl font-bold tabular-nums">{String(countdown.hours).padStart(2, '0')}</span>
               <span className="text-3xl font-bold animate-pulse">:</span>
@@ -204,10 +203,9 @@ export function UnemploymentClock({
             <span>{remaining} days remaining</span>
           </div>
           <div className="h-4 bg-white/20 rounded-full overflow-hidden">
-            <div 
-              className={`h-full rounded-full transition-all duration-1000 relative overflow-hidden ${
-                isCritical ? 'bg-red-300' : isUrgent ? 'bg-amber-300' : 'bg-white'
-              }`}
+            <div
+              className={`h-full rounded-full transition-all duration-1000 relative overflow-hidden ${isCritical ? 'bg-red-300' : isUrgent ? 'bg-amber-300' : 'bg-white'
+                }`}
               style={{ width: `${percentage}%` }}
             >
               {/* Animated shine effect */}
@@ -220,7 +218,7 @@ export function UnemploymentClock({
           </div>
         </div>
       </div>
-      
+
       <style jsx>{`
         @keyframes shimmer {
           100% { transform: translateX(200%); }
@@ -231,8 +229,8 @@ export function UnemploymentClock({
 }
 
 // Compact version for sidebar with action items
-export function UnemploymentClockCompact({ 
-  daysUsed, 
+export function UnemploymentClockCompact({
+  daysUsed,
   maxDays,
   title,
   type = 'opt',
@@ -241,7 +239,7 @@ export function UnemploymentClockCompact({
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [mounted, setMounted] = useState(false);
   const [isNotStarted, setIsNotStarted] = useState(false);
-  
+
   const remaining = Math.max(0, maxDays - daysUsed);
   const isCritical = remaining <= 10;
   const isUrgent = remaining <= 30;
@@ -258,7 +256,7 @@ export function UnemploymentClockCompact({
       const etHours = parseInt(etParts[0]);
       const etMinutes = parseInt(etParts[1]);
       const etSeconds = parseInt(etParts[2]);
-      
+
       // Check if start date hasn't arrived yet
       if (startDate) {
         const nowET = new Date(now.toLocaleString('en-US', etOptions));
@@ -266,7 +264,7 @@ export function UnemploymentClockCompact({
         startET.setHours(0, 0, 0, 0);
         setIsNotStarted(nowET < startET);
       }
-      
+
       setCountdown({
         hours: 23 - etHours,
         minutes: 59 - etMinutes,
@@ -283,7 +281,7 @@ export function UnemploymentClockCompact({
   }
 
   // Use consistent amber/orange gradient for OPT, purple/violet for STEM
-  const gradient = type === 'opt' 
+  const gradient = type === 'opt'
     ? 'from-amber-500 to-orange-500'
     : 'from-purple-500 to-violet-500';
 
@@ -304,7 +302,7 @@ export function UnemploymentClockCompact({
         "✅ Keep E-Verify job ready"
       ];
     }
-    
+
     // If limit exceeded
     if (isExceeded) {
       return [
@@ -313,7 +311,7 @@ export function UnemploymentClockCompact({
         "👨‍⚖️ Talk to an attorney"
       ];
     }
-    
+
     if (type === 'opt') {
       if (isCritical) return [
         "⚠️ URGENT - Find a job NOW!",
@@ -359,28 +357,27 @@ export function UnemploymentClockCompact({
   return (
     <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-5 shadow-lg`}>
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-      
+
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-3">
           <Timer className="w-4 h-4 text-white/80" />
           <span className="text-sm font-medium text-white/80">{title}</span>
         </div>
-        
+
         <div className="flex items-baseline gap-2 text-white mb-3">
           <span className="text-4xl font-bold tabular-nums">{remaining}</span>
           <span className="text-sm opacity-70">days left</span>
         </div>
-        
+
         {/* Status Badge */}
-        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mb-3 ${
-          isCritical ? 'bg-red-500/30 text-red-100' :
+        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mb-3 ${isCritical ? 'bg-red-500/30 text-red-100' :
           isUrgent ? 'bg-amber-900/30 text-amber-100' :
-          'bg-white/20 text-white'
-        }`}>
+            'bg-white/20 text-white'
+          }`}>
           {isCritical ? <AlertTriangle className="w-3 h-3" /> : isUrgent ? <TrendingDown className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
           {isCritical ? 'Critical!' : isUrgent ? 'Act Now!' : 'On Track'}
         </div>
-        
+
         {/* Countdown Timer (ET) */}
         <div className="flex items-center gap-1 text-white/70 text-sm mb-3">
           <span className="tabular-nums">{String(countdown.hours).padStart(2, '0')}</span>
