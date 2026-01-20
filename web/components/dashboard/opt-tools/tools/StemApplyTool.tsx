@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Info, Save, Shield, GraduationCap, Sparkles, ChevronRight, FileText, Target } from "lucide-react";
+import { ArrowLeft, Info, Save, Shield, GraduationCap, Sparkles, ChevronRight, FileText, Target, Calendar, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard } from "../ResultCard";
@@ -190,7 +190,7 @@ export function StemApplyTool() {
               </div>
             </div>
           </div>
-          
+
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -208,7 +208,7 @@ export function StemApplyTool() {
                   <div>
                     <h2 className="text-lg font-bold mb-2">STEM OPT Extension Rules</h2>
                     <p className="text-emerald-100 leading-relaxed">
-                      Apply up to <span className="font-semibold text-white">90 days before</span> your OPT expires. 
+                      Apply up to <span className="font-semibold text-white">90 days before</span> your OPT expires.
                       If filed timely, you get automatic <span className="font-semibold text-white">180-day cap-gap</span> work authorization while waiting for approval.
                     </p>
                   </div>
@@ -229,7 +229,7 @@ export function StemApplyTool() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="p-6">
                 <div className="max-w-md">
                   <DateInput
@@ -246,11 +246,10 @@ export function StemApplyTool() {
                   <button
                     onClick={handleSave}
                     disabled={isSaving || !optEndDate}
-                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${
-                      saveSuccess 
-                        ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25' 
-                        : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/25'
-                    } disabled:from-gray-400 disabled:to-gray-500 text-white`}
+                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${saveSuccess
+                      ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25'
+                      : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/25'
+                      } disabled:from-gray-400 disabled:to-gray-500 text-white`}
                   >
                     <Save className="w-4 h-4" />
                     {isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}
@@ -284,23 +283,35 @@ export function StemApplyTool() {
                         <p className="text-sm text-gray-500 dark:text-gray-400">Key dates for your extension</p>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <ResultCard
-                        icon="📅"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                            <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                          </div>
+                        }
                         label="Earliest Filing"
                         value={formatDateForDisplay(results.earliestFile)}
                         subtext="90 days before OPT ends"
                       />
                       <ResultCard
-                        icon="⏰"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                            <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                          </div>
+                        }
                         label="Filing Deadline"
                         value={formatDateForDisplay(results.deadline)}
                         subtext="Before OPT expires"
                         status={results.daysUntilDeadline <= 14 ? 'critical' : results.daysUntilDeadline <= 30 ? 'warning' : 'ok'}
                       />
                       <ResultCard
-                        icon="🛡️"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                            <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                        }
                         label="Cap-Gap Ends"
                         value={formatDateForDisplay(results.capGapEnd)}
                         subtext="If filed timely"
@@ -348,9 +359,9 @@ export function StemApplyTool() {
                   startDate={results.earliestFile}
                 />
               )}
-              
+
               <LiveStatsWidget toolType="stem-apply" />
-              
+
               {/* Pro Tips */}
               <div className="relative overflow-hidden bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg p-5">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-400/10 to-teal-400/10 rounded-full -translate-y-12 translate-x-12"></div>
@@ -387,11 +398,11 @@ export function StemApplyTool() {
           </div>
         </div>
       </div>
-      
+
       {/* Pricing Modal */}
-      <PricingModal 
-        open={showPricingModal} 
-        onClose={() => setShowPricingModal(false)} 
+      <PricingModal
+        open={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Clock, Timer, FileText, Info, Sparkles, ChevronRight, Target, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Clock, Timer, FileText, Info, Sparkles, ChevronRight, Target, ChevronDown, ChevronUp, CheckCircle2, History } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
@@ -407,14 +407,22 @@ export function OptClockTool() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                       <ResultCard
-                        icon="⏱️"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                            <History className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                          </div>
+                        }
                         label="Days Used"
                         value={`${results.used} days`}
                         subtext="Total unemployment accumulated"
                         status={getStatus(results.used, results.max)}
                       />
                       <ResultCard
-                        icon="✅"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                            <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          </div>
+                        }
                         label="Days Remaining"
                         value={`${results.remaining} days`}
                         subtext="Stay employed to maintain status"

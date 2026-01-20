@@ -1,7 +1,7 @@
 "use client";
 
 interface ResultCardProps {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   value: string;
   subtext?: string;
@@ -24,8 +24,8 @@ export function ResultCard({ icon, label, value, subtext, status, large }: Resul
       ${status ? statusStyles[status] : defaultStyle}
       ${large ? 'col-span-full' : ''}
     `}>
-      <div className="flex items-center gap-2 mb-2">
-        <span className={large ? 'text-3xl' : 'text-2xl'}>{icon}</span>
+      <div className="flex items-center gap-3 mb-2">
+        {icon}
         <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}</span>
       </div>
       <p className={`font-bold text-gray-900 dark:text-white ${large ? 'text-3xl' : 'text-lg'}`}>
@@ -82,7 +82,7 @@ interface ProgressBarProps {
 
 export function ProgressBar({ used, max, label }: ProgressBarProps) {
   const percentage = Math.min(100, (used / max) * 100);
-  
+
   const getColor = () => {
     if (percentage >= 89) return 'bg-red-500';
     if (percentage >= 67) return 'bg-amber-500';
@@ -98,7 +98,7 @@ export function ProgressBar({ used, max, label }: ProgressBarProps) {
         </div>
       )}
       <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-        <div 
+        <div
           className={`h-full ${getColor()} transition-all duration-500 ease-out rounded-full`}
           style={{ width: `${percentage}%` }}
         />

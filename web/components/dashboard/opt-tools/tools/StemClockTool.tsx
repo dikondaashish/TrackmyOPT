@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Sparkles, ChevronRight, ChevronDown, ChevronUp, FileText, Target } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Sparkles, ChevronRight, ChevronDown, ChevronUp, FileText, Target, CheckCircle2, History } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
@@ -106,26 +106,26 @@ export function StemClockTool() {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     // Calculate from STEM start date to today
     const totalDays = Math.max(0, daysBetween(stemStart, today));
-    
+
     let employedDays = 0;
     for (const span of employmentSpans) {
       const spanStart = parseDate(span.start_date);
       if (!spanStart) continue;
-      
+
       const spanEnd = span.end_date ? parseDate(span.end_date) : today;
       if (!spanEnd) continue;
-      
+
       const effectiveStart = spanStart < stemStart ? stemStart : spanStart;
       const effectiveEnd = spanEnd > today ? today : spanEnd;
-      
+
       if (effectiveStart <= effectiveEnd) {
         employedDays += daysBetween(effectiveStart, effectiveEnd);
       }
     }
-    
+
     const used = Math.max(0, totalDays - employedDays);
     const max = 60; // STEM OPT has 60-day unemployment limit (separate from initial OPT 90 days)
     const remaining = Math.max(0, max - used);
@@ -144,7 +144,7 @@ export function StemClockTool() {
   };
 
   const updateSpan = (id: string, field: keyof EmploymentSpan, value: string | null) => {
-    setEmploymentSpans(spans => spans.map(span => 
+    setEmploymentSpans(spans => spans.map(span =>
       span.id === id ? { ...span, [field]: value } : span
     ));
   };
@@ -226,7 +226,7 @@ export function StemClockTool() {
               </div>
             </div>
           </div>
-          
+
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -244,7 +244,7 @@ export function StemClockTool() {
                   <div>
                     <h2 className="text-lg font-bold mb-2">STEM OPT 60-Day Unemployment Limit</h2>
                     <p className="text-purple-100 leading-relaxed">
-                      During your STEM OPT extension, you have <span className="font-semibold text-white">60 days of unemployment</span> allowed. 
+                      During your STEM OPT extension, you have <span className="font-semibold text-white">60 days of unemployment</span> allowed.
                       This is separate from initial OPT (90 days) - each period has its own limit.
                     </p>
                   </div>
@@ -265,7 +265,7 @@ export function StemClockTool() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="p-6">
                 <div className="max-w-md">
                   <DateInput
@@ -282,11 +282,10 @@ export function StemClockTool() {
                   <button
                     onClick={handleSave}
                     disabled={isSaving || !stemStartDate}
-                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${
-                      saveSuccess 
-                        ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25' 
-                        : 'bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 shadow-purple-500/25'
-                    } disabled:from-gray-400 disabled:to-gray-500 text-white`}
+                    className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${saveSuccess
+                      ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25'
+                      : 'bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 shadow-purple-500/25'
+                      } disabled:from-gray-400 disabled:to-gray-500 text-white`}
                   >
                     <Save className="w-4 h-4" />
                     {isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}
@@ -320,18 +319,26 @@ export function StemClockTool() {
                         <p className="text-sm text-gray-500 dark:text-gray-400">60-day limit for STEM OPT period</p>
                       </div>
                     </div>
-                    
+
                     <ProgressBar used={results.used} max={results.max} label="STEM Unemployment Days" />
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                       <ResultCard
-                        icon="⏱️"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                            <History className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          </div>
+                        }
                         label="Days Used"
                         value={`${results.used} days`}
                         status={results.used >= 50 ? 'critical' : results.used >= 30 ? 'warning' : 'ok'}
                       />
                       <ResultCard
-                        icon="✅"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                            <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          </div>
+                        }
                         label="Days Remaining"
                         value={`${results.remaining} days`}
                         status={results.remaining <= 10 ? 'critical' : results.remaining <= 30 ? 'warning' : 'ok'}
@@ -376,7 +383,7 @@ export function StemClockTool() {
                   </div>
                 </div>
               </button>
-              
+
               {showEmploymentHistory && (
                 <div className="p-6">
                   {employmentSpans.length === 0 ? (
@@ -452,9 +459,9 @@ export function StemClockTool() {
                   startDate={parseDate(stemStartDate) || undefined}
                 />
               )}
-              
+
               <LiveStatsWidget toolType="stem-clock" />
-              
+
               {/* Pro Tips */}
               <div className="relative overflow-hidden bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg p-5">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-400/10 to-violet-400/10 rounded-full -translate-y-12 translate-x-12"></div>
@@ -491,11 +498,11 @@ export function StemClockTool() {
           </div>
         </div>
       </div>
-      
+
       {/* Pricing Modal */}
-      <PricingModal 
-        open={showPricingModal} 
-        onClose={() => setShowPricingModal(false)} 
+      <PricingModal
+        open={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
       />
     </div>
   );

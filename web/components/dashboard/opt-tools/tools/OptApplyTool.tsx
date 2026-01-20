@@ -325,26 +325,42 @@ export function OptApplyTool() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <ResultCard
-                        icon="📅"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                            <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                        }
                         label="Earliest Filing Date"
                         value={formatDateForDisplay(results.earliestFile)}
                         subtext="90 days before program end"
                       />
                       <ResultCard
-                        icon="⏰"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                            <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                          </div>
+                        }
                         label="Filing Deadline"
                         value={formatDateForDisplay(results.mustArriveBy)}
                         subtext="USCIS receipt deadline"
                         status={results.daysUntilDeadline <= 14 ? 'critical' : results.daysUntilDeadline <= 30 ? 'warning' : 'ok'}
                       />
                       <ResultCard
-                        icon="🎯"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                            <Target className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                          </div>
+                        }
                         label="OPT Can Start"
                         value={formatDateForDisplay(results.optStartEarliest)}
                         subtext="Your program end date"
                       />
                       <ResultCard
-                        icon="📆"
+                        icon={
+                          <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                            <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          </div>
+                        }
                         label="Latest OPT Start"
                         value={formatDateForDisplay(results.optStartLatest)}
                         subtext="60 days after program end"
