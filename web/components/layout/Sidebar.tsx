@@ -167,6 +167,7 @@ const SidebarNavSection = memo(({
     isCollapsed,
     onToggle,
     onToggleCollapse,
+    onLinkClick,
     onTooltipEnter,
     onTooltipLeave,
     onSubmenuEnter,
@@ -178,6 +179,7 @@ const SidebarNavSection = memo(({
     isCollapsed: boolean;
     onToggle: (label: string) => void;
     onToggleCollapse?: () => void;
+    onLinkClick?: () => void;
     onTooltipEnter: (e: React.MouseEvent, label: string) => void;
     onTooltipLeave: () => void;
     onSubmenuEnter: (e: React.MouseEvent, section: NavSection) => void;
@@ -201,7 +203,10 @@ const SidebarNavSection = memo(({
                         if (!isExpanded) onToggle(section.label);
                     } else {
                         // If already expanded and has an href, navigate
+                        // If it's a section header that navigates (rare), we might want to close mobile menu
+                        // But typically sections just toggle. If it has href, it navigates.
                         if (isExpanded && section.href) {
+                            if (onLinkClick) onLinkClick();
                             router.push(section.href);
                         } else {
                             onToggle(section.label);
@@ -255,7 +260,7 @@ const SidebarNavSection = memo(({
                             link={link}
                             isActive={isActiveCheck(link.href)}
                             isCollapsed={false} // Always expanded inside submenu
-                            onLinkClick={undefined} // No mobile close needed usually
+                            onLinkClick={onLinkClick}
                             onTooltipEnter={onTooltipEnter}
                             onTooltipLeave={onTooltipLeave}
                         />
@@ -434,6 +439,7 @@ export function Sidebar({
                                             isCollapsed={effectiveCollapsed}
                                             onToggle={toggleSection}
                                             onToggleCollapse={onToggleCollapse}
+                                            onLinkClick={linkClickHandler}
                                             onTooltipEnter={handleTooltipEnter}
                                             onTooltipLeave={handleTooltipLeave}
                                             onSubmenuEnter={handleSubmenuEnter}
