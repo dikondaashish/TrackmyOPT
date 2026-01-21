@@ -23,7 +23,8 @@ import {
   Mail,
   Crown,
   Info,
-  Edit
+  Edit,
+  Trash2
 } from "lucide-react";
 
 // Sandbox mode check (true while using USCIS Sandbox API)
@@ -238,6 +239,34 @@ export function CaseStatusSection() {
       setError('An error occurred while refreshing');
     } finally {
       setIsRefreshing(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    if (!confirm('Are you sure you want to stop tracking this case? This will remove the receipt number from your dashboard.')) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/case-status', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        setCaseStatus(null);
+        setReceiptNumber("");
+        setError(null);
+        setSuccess(false); // Reset success state
+      } else {
+        const result = await response.json();
+        setError(result.error || 'Failed to remove case');
+      }
+    } catch (err) {
+      setError('An error occurred while removing the case');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -537,6 +566,14 @@ export function CaseStatusSection() {
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               Refresh Now
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleRemove}
+              className="flex items-center justify-center gap-2 w-full sm:w-auto text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-200 dark:border-red-900"
+            >
+              <Trash2 className="w-4 h-4" />
+              Remove
             </Button>
           </div>
 

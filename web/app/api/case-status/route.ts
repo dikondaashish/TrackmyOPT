@@ -253,6 +253,54 @@ export async function POST(req: NextRequest) {
   }
 }
 
+/**
+ * DELETE /api/case-status
+ * Remove user's case receipt number
+ */
+export async function DELETE(req: NextRequest) {
+  try {
+    const userId = await getUserId(req);
+
+    if (!userId) {
+      return NextResponse.json(
+        { ok: false, error: 'Unauthorized' },
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
+    // Use service role key for database access
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    // Delete case status record for this user
+    const { error: dbError } = await supabaseAdmin
+      .from('case_status')
+      .delete()
+      .eq('user_id', userId);
+
+    if (dbError) {
+      console.error('Database error deleting case status:', dbError);
+      return NextResponse.json(
+        { ok: false, error: 'Failed to delete case status' },
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
+    return NextResponse.json(
+      { ok: true },
+      { status: 200, headers: corsHeaders }
+    );
+  } catch (error) {
+    console.error('Error in DELETE /api/case-status:', error);
+    return NextResponse.json(
+      { ok: false, error: 'Internal server error' },
+      { status: 500, headers: corsHeaders }
+    );
+  }
+}
+
 export async function OPTIONS(req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }

@@ -42,11 +42,55 @@ export async function POST(req: NextRequest) {
     }
 
 
-    // Use service role key for database updates
+    // Use service role key for database access
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+
+    // SMART POLLING: Check if case is in a final state before calling external API
+    // Only apply this optimization for automated checks (Cron), not manual user refreshes
+    const isManualRefresh = req.headers.get('X-Force-Refresh') === 'true';
+
+    if (!isManualRefresh) {
+      const { data: existingCase } = await supabase
+        .from('case_status')
+        .select('current_status, last_checked_at')
+        .eq('receipt_number', receipt_number)
+        .single();
+
+      if (existingCase?.current_status) {
+        const FINAL_STATUS_KEYWORDS = [
+          'Card Was Delivered',
+          'Case Was Denied',
+          'Withdrawal Acknowledged',
+          'Notice Explaining USCIS Actions Was Mailed',
+          'Termination Notice Sent',
+          'Refund Of An Unused Fee'
+        ];
+
+        const isFinalState = FINAL_STATUS_KEYWORDS.some(keyword =>
+          existingCase.current_status!.includes(keyword)
+        );
+
+        if (isFinalState) {
+          console.log(`⏭️ Smart Polling: Skipping check for ${receipt_number} (Final State: ${existingCase.current_status})`);
+          return NextResponse.json(
+            {
+              ok: true,
+              data: {
+                receipt_number,
+                status: existingCase.current_status,
+                changed: false,
+                skipped: true,
+                reason: 'Final State'
+              }
+            },
+            { status: 200, headers: corsHeaders }
+          );
+        }
+      }
+    }
 
     // Fetch USCIS status
     // Note: Use mockUSCISStatus for development, checkUSCISStatus for production
