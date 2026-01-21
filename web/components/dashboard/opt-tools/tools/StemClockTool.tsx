@@ -206,7 +206,7 @@ export function StemClockTool() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-violet-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-0">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/dashboard/opt-tools')}
@@ -254,7 +254,7 @@ export function StemClockTool() {
 
             {/* STEM Period - Date Input Form */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
-              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+              <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                     <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
@@ -266,7 +266,7 @@ export function StemClockTool() {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="max-w-md">
                   <DateInput
                     label="STEM Start Date"
@@ -353,11 +353,11 @@ export function StemClockTool() {
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
               <button
                 onClick={() => setShowEmploymentHistory(!showEmploymentHistory)}
-                className="w-full p-6 border-b border-gray-100 dark:border-gray-800"
+                className="w-full p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
                       <Briefcase className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div className="text-left">
@@ -367,14 +367,18 @@ export function StemClockTool() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <button
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+                    <div // Wrapper for button stopPropagation
                       onClick={(e) => { e.stopPropagation(); addEmploymentSpan(); }}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white rounded-xl shadow-lg shadow-purple-500/25 transition-all"
+                      className="flex-1 sm:flex-none"
                     >
-                      <Plus className="w-4 h-4" />
-                      Add Job
-                    </button>
+                      <span
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white rounded-xl shadow-lg shadow-purple-500/25 transition-all cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Job
+                      </span>
+                    </div>
                     {showEmploymentHistory ? (
                       <ChevronUp className="w-5 h-5 text-gray-400" />
                     ) : (
@@ -385,7 +389,7 @@ export function StemClockTool() {
               </button>
 
               {showEmploymentHistory && (
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {employmentSpans.length === 0 ? (
                     <div className="text-center py-12 text-gray-500">
                       <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
