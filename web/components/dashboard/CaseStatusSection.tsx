@@ -386,7 +386,7 @@ export function CaseStatusSection() {
       <div>
         <div className="flex items-center gap-3 mb-2">
           <ClipboardCheck className="w-8 h-8 text-blue-600" />
-          <h1 className="text-3xl font-bold">USCIS Case Status Tracker</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">USCIS Case Status Tracker</h1>
         </div>
         <p className="text-muted-foreground">
           Track your USCIS case status automatically. We'll check every 6 hours and notify you when it changes.
@@ -438,14 +438,14 @@ export function CaseStatusSection() {
             <label htmlFor="receipt-number-input" className="block text-sm font-medium mb-2">
               USCIS Receipt Number
             </label>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Input
                 id="receipt-number-input"
                 type="text"
                 placeholder="Try: EAC9999103403 (test number)"
                 value={receiptNumber}
                 onChange={(e) => setReceiptNumber(e.target.value.toUpperCase())}
-                className={`flex-1 font-mono transition-colors ${isRealReceiptWarning
+                className={`w-full sm:flex-1 font-mono transition-colors ${isRealReceiptWarning
                   ? 'border-orange-400 focus:border-orange-500 focus:ring-orange-200 dark:border-orange-600 dark:focus:ring-orange-900/30'
                   : ''
                   }`}
@@ -457,7 +457,7 @@ export function CaseStatusSection() {
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="min-w-[120px]"
+                className="w-full sm:w-auto min-w-[120px]"
                 aria-label="Save and track your receipt number"
               >
                 {isSaving ? (
@@ -511,11 +511,11 @@ export function CaseStatusSection() {
       {caseStatus && (
         <>
           {/* Action Buttons */}
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="outline"
               onClick={toggleNotifications}
-              className="flex items-center gap-2"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               {caseStatus.notifications_enabled ? (
                 <>
@@ -533,7 +533,7 @@ export function CaseStatusSection() {
               variant="outline"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="flex items-center gap-2"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               Refresh Now
@@ -542,9 +542,9 @@ export function CaseStatusSection() {
 
           {/* Last Check Indicator */}
           <Card className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200 dark:border-blue-800">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
               <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Last checked: {formatDate(caseStatus.last_checked_at)}
@@ -560,7 +560,7 @@ export function CaseStatusSection() {
                   )}
                 </div>
               </div>
-              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 hidden sm:block" />
             </div>
           </Card>
 
@@ -576,7 +576,7 @@ export function CaseStatusSection() {
 
           {/* Email Notification Settings - Premium Gated */}
           <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
-            <div className="flex items-start gap-4">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
               <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
                 {isPremium ? <Mail className="w-6 h-6 text-purple-600 dark:text-purple-400" /> : <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />}
               </div>
@@ -764,7 +764,7 @@ export function CaseStatusSection() {
                   {/* Application Filing Date */}
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Application Filing Date</span>
-                    <span className="text-sm font-semibold">
+                    <span className="text-sm font-semibold text-right">
                       {caseStatus.received_date ? formatDateShort(caseStatus.received_date) : 'Not available'}
                     </span>
                   </div>
@@ -772,7 +772,7 @@ export function CaseStatusSection() {
                   {/* Service Center */}
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Service Center</span>
-                    <span className="text-sm font-semibold">
+                    <span className="text-sm font-semibold text-right">
                       {getServiceCenter(caseStatus.receipt_number)}
                     </span>
                   </div>
