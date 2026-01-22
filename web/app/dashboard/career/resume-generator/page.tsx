@@ -17,16 +17,14 @@ import {
     Loader2,
     Check,
     BookOpen,
-    Wand2,
     ChevronRight,
-    Target,
-    Zap,
-    Shield,
-    X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ResumeGeneratorPage() {
+    const router = useRouter();
+
     // Resume state
     const [resumeText, setResumeText] = useState("");
     const [resumeSource, setResumeSource] = useState<"text" | "file" | "url">("text");
@@ -43,10 +41,8 @@ export default function ResumeGeneratorPage() {
     const jobFileInputRef = useRef<HTMLInputElement>(null);
 
     // UI state
-    const [isGenerating, setIsGenerating] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
-    const [isDraggingResume, setIsDraggingResume] = useState(false);
-    const [isDraggingJob, setIsDraggingJob] = useState(false);
 
     // File upload handlers
     const handleResumeFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,48 +77,26 @@ export default function ResumeGeneratorPage() {
         }
     }, []);
 
-    // URL fetch handlers
-    const handleResumeUrlFetch = async () => {
-        if (!resumeUrl) return;
-        setResumeSource("url");
-    };
-
-    const handleJobUrlFetch = async () => {
-        if (!jobUrl) return;
-        setJobSource("url");
-    };
-
-    // Generate handler
-    const handleGenerate = async () => {
+    // Navigate to template selection
+    const handleSelectTemplate = () => {
         if (!resumeText || !jobText) return;
 
-        setIsGenerating(true);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-        } catch (error) {
-            console.error("Generation failed:", error);
-        } finally {
-            setIsGenerating(false);
-        }
+        // Store data in sessionStorage for next step
+        sessionStorage.setItem("resumeGenerator_resumeText", resumeText);
+        sessionStorage.setItem("resumeGenerator_jobText", jobText);
+
+        router.push("/dashboard/career/resume-generator/templates");
     };
 
     // Drag and drop handlers
-    const handleDragOver = (e: React.DragEvent, setDragging: (v: boolean) => void) => {
+    const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        setDragging(true);
-    };
-
-    const handleDragLeave = (e: React.DragEvent, setDragging: (v: boolean) => void) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDragging(false);
     };
 
     const handleResumeDrop = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsDraggingResume(false);
         const file = e.dataTransfer.files?.[0];
         if (file) {
             setResumeFile(file);
@@ -133,7 +107,6 @@ export default function ResumeGeneratorPage() {
     const handleJobDrop = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsDraggingJob(false);
         const file = e.dataTransfer.files?.[0];
         if (file) {
             setJobFile(file);
@@ -141,342 +114,265 @@ export default function ResumeGeneratorPage() {
         }
     };
 
-    const clearResumeFile = () => {
-        setResumeFile(null);
-        setResumeSource("text");
-    };
-
-    const clearJobFile = () => {
-        setJobFile(null);
-        setJobSource("text");
-    };
-
-    // Progress calculation
-    const hasResume = resumeText.length > 50 || resumeFile;
-    const hasJobDescription = jobText.length > 50 || jobFile;
-    const canGenerate = hasResume && hasJobDescription;
+    const canProceed = resumeText.length > 50 && jobText.length > 50;
 
     return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-                {/* Back Link */}
-                <Link
-                    href="/dashboard/career"
-                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to Career Hub
-                </Link>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+            {/* Header */}
+            <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+                    <div className="flex items-center justify-between">
+                        {/* Back Button */}
+                        <Link
+                            href="/dashboard/career"
+                            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                            <span className="hidden sm:inline">Back</span>
+                        </Link>
 
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/25">
-                            <Wand2 className="w-8 h-8 text-white" />
+                        {/* Title + Progress */}
+                        <div className="text-center">
+                            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
+                                Resume Generator
+                            </h1>
+                            <div className="flex items-center justify-center gap-2 mt-1">
+                                <div className="flex items-center gap-1">
+                                    <div className="w-8 h-1 rounded-full bg-blue-600" />
+                                    <div className="w-8 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                                    <div className="w-8 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                                </div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">Step 1 of 3</span>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold">Resume Generator</h1>
-                            <p className="text-muted-foreground">
-                                AI-powered resume tailoring for your dream job
-                            </p>
-                        </div>
-                    </div>
 
-                    {/* History Button */}
-                    <Button
-                        variant="outline"
-                        onClick={() => setShowHistory(!showHistory)}
-                        className="flex items-center gap-2 self-start sm:self-auto"
-                    >
-                        <History className="w-4 h-4" />
-                        <span>History</span>
-                    </Button>
-                </div>
-
-                {/* Progress Steps */}
-                <div className="mb-8">
-                    <div className="flex items-center justify-center gap-4">
-                        <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${hasResume ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-muted text-muted-foreground'}`}>
-                            {hasResume ? <Check className="w-4 h-4" /> : <span className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center text-xs font-bold">1</span>}
-                            <span className="text-sm font-medium">Upload Resume</span>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${hasJobDescription ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-muted text-muted-foreground'}`}>
-                            {hasJobDescription ? <Check className="w-4 h-4" /> : <span className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center text-xs font-bold">2</span>}
-                            <span className="text-sm font-medium">Add Job Description</span>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${canGenerate ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' : 'bg-muted text-muted-foreground'}`}>
-                            <span className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center text-xs font-bold">3</span>
-                            <span className="text-sm font-medium">Generate</span>
-                        </div>
+                        {/* History Button */}
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowHistory(!showHistory)}
+                            className="flex items-center gap-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                        >
+                            <History className="w-4 h-4" />
+                            <div className="hidden sm:block text-left">
+                                <span className="text-sm font-medium">History</span>
+                            </div>
+                        </Button>
                     </div>
                 </div>
+            </div>
 
-                {/* Main Content Grid */}
+            {/* Main Content */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                     {/* Resume Panel */}
-                    <Card className="overflow-hidden border-2 transition-all hover:border-blue-200 dark:hover:border-blue-800">
-                        {/* Panel Header */}
-                        <div className="p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border-b">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50">
-                                        <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                    </div>
-                                    <div>
-                                        <h2 className="font-semibold text-gray-900 dark:text-gray-100">Your Resume</h2>
-                                        <p className="text-xs text-muted-foreground">Paste text or upload file</p>
-                                    </div>
+                    <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                                 </div>
-                                <Button variant="ghost" size="sm" className="text-blue-600 dark:text-blue-400">
-                                    <BookOpen className="w-4 h-4 mr-1" />
-                                    Saved
-                                </Button>
+                                <div>
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Resume</h2>
+                                    <p className="text-xs text-gray-500">Paste or upload your current resume</p>
+                                </div>
                             </div>
+                            <Button variant="outline" size="sm" className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+                                <BookOpen className="w-4 h-4 mr-1" />
+                                Saved
+                            </Button>
                         </div>
 
-                        <div className="p-4 sm:p-6 space-y-4">
-                            {/* Text Area */}
-                            <textarea
-                                value={resumeText}
-                                onChange={(e) => {
-                                    setResumeText(e.target.value);
-                                    setResumeSource("text");
-                                }}
-                                placeholder="Paste your resume content here...
+                        {/* Text Area */}
+                        <textarea
+                            value={resumeText}
+                            onChange={(e) => {
+                                setResumeText(e.target.value);
+                                setResumeSource("text");
+                            }}
+                            placeholder="Paste your resume text here..."
+                            className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all resize-none text-sm"
+                        />
 
-Include your work experience, skills, education, and any relevant achievements."
-                                className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all resize-none text-sm"
+                        {/* File Upload Area */}
+                        <div
+                            onDragOver={handleDragOver}
+                            onDrop={handleResumeDrop}
+                            onClick={() => resumeFileInputRef.current?.click()}
+                            className="mt-4 p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer group"
+                        >
+                            <input
+                                ref={resumeFileInputRef}
+                                type="file"
+                                accept=".pdf,.doc,.docx,.txt"
+                                onChange={handleResumeFileChange}
+                                className="hidden"
                             />
-
-                            {/* File Upload Area */}
-                            <div
-                                onDragOver={(e) => handleDragOver(e, setIsDraggingResume)}
-                                onDragLeave={(e) => handleDragLeave(e, setIsDraggingResume)}
-                                onDrop={handleResumeDrop}
-                                onClick={() => !resumeFile && resumeFileInputRef.current?.click()}
-                                className={`relative p-5 border-2 border-dashed rounded-xl transition-all cursor-pointer ${isDraggingResume
-                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                        : resumeFile
-                                            ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-900/10'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/30 dark:hover:bg-blue-900/10'
-                                    }`}
-                            >
-                                <input
-                                    ref={resumeFileInputRef}
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,.txt"
-                                    onChange={handleResumeFileChange}
-                                    className="hidden"
-                                />
-                                {resumeFile ? (
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                                                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{resumeFile.name}</p>
-                                                <p className="text-xs text-muted-foreground">{(resumeFile.size / 1024).toFixed(1)} KB</p>
-                                            </div>
-                                        </div>
-                                        <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); clearResumeFile(); }} className="text-gray-400 hover:text-red-500">
-                                            <X className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center text-center">
-                                        <Upload className={`w-8 h-8 mb-2 transition-colors ${isDraggingResume ? 'text-blue-500' : 'text-gray-400'}`} />
-                                        <p className="text-sm">
-                                            <span className="text-blue-600 dark:text-blue-400 font-medium">Upload a file</span>
-                                            <span className="text-muted-foreground"> or drag and drop</span>
-                                        </p>
-                                        <p className="text-xs text-muted-foreground mt-1">PDF, DOC, DOCX, TXT (max 10MB)</p>
+                            <div className="flex flex-col items-center text-center">
+                                <Upload className="w-7 h-7 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors mb-2" />
+                                <p className="text-sm">
+                                    <span className="text-blue-600 dark:text-blue-400 font-medium">Upload a file</span>
+                                    <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>
+                                </p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                    PDF, DOC, DOCX, TXT (max 10MB)
+                                </p>
+                                {resumeFile && (
+                                    <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                                        <Check className="w-4 h-4" />
+                                        {resumeFile.name}
                                     </div>
                                 )}
                             </div>
+                        </div>
 
-                            {/* URL Input */}
-                            <div className="flex gap-2">
-                                <Input
-                                    value={resumeUrl}
-                                    onChange={(e) => setResumeUrl(e.target.value)}
-                                    placeholder="Or paste Google Drive / cloud URL"
-                                    className="flex-1 text-sm"
-                                />
-                                <Button onClick={handleResumeUrlFetch} disabled={!resumeUrl} size="icon" className="bg-blue-600 hover:bg-blue-700 text-white">
-                                    <Link2 className="w-4 h-4" />
-                                </Button>
-                            </div>
+                        {/* URL Input */}
+                        <div className="mt-4 flex gap-2">
+                            <Input
+                                value={resumeUrl}
+                                onChange={(e) => setResumeUrl(e.target.value)}
+                                placeholder="Or enter Google Drive / cloud storage URL"
+                                className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
+                            />
+                            <Button
+                                disabled={!resumeUrl}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-3"
+                            >
+                                <Link2 className="w-4 h-4" />
+                            </Button>
+                        </div>
 
-                            {/* Save Checkbox */}
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <Checkbox
-                                    id="save-resume"
-                                    checked={saveResume}
-                                    onCheckedChange={(c) => setSaveResume(c)}
-                                />
-                                <span className="text-sm text-muted-foreground">Save resume for future use</span>
+                        {/* Save Checkbox */}
+                        <div className="mt-4 flex items-center gap-2">
+                            <Checkbox
+                                id="save-resume"
+                                checked={saveResume}
+                                onCheckedChange={(c) => setSaveResume(c)}
+                            />
+                            <label htmlFor="save-resume" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                                Save resume for future use
                             </label>
+                        </div>
+
+                        {/* Character count */}
+                        <div className="mt-3 text-xs text-gray-400">
+                            {resumeText.length} characters {resumeText.length < 50 && <span className="text-amber-500">(min 50 required)</span>}
                         </div>
                     </Card>
 
                     {/* Job Description Panel */}
-                    <Card className="overflow-hidden border-2 transition-all hover:border-amber-200 dark:hover:border-amber-800">
-                        {/* Panel Header */}
-                        <div className="p-4 sm:p-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 border-b">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/50">
-                                    <Briefcase className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                                </div>
-                                <div>
-                                    <h2 className="font-semibold text-gray-900 dark:text-gray-100">Job Description</h2>
-                                    <p className="text-xs text-muted-foreground">The role you're applying for</p>
-                                </div>
+                    <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                                <Briefcase className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Job Description</h2>
+                                <p className="text-xs text-gray-500">Paste the job posting you're applying for</p>
                             </div>
                         </div>
 
-                        <div className="p-4 sm:p-6 space-y-4">
-                            {/* Text Area */}
-                            <textarea
-                                value={jobText}
-                                onChange={(e) => {
-                                    setJobText(e.target.value);
-                                    setJobSource("text");
-                                }}
-                                placeholder="Paste the job description here...
+                        {/* Text Area */}
+                        <textarea
+                            value={jobText}
+                            onChange={(e) => {
+                                setJobText(e.target.value);
+                                setJobSource("text");
+                            }}
+                            placeholder="Copy and paste the full job description here..."
+                            className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 transition-all resize-none text-sm"
+                        />
 
-Include requirements, responsibilities, and qualifications for best results."
-                                className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 transition-all resize-none text-sm"
+                        {/* File Upload Area */}
+                        <div
+                            onDragOver={handleDragOver}
+                            onDrop={handleJobDrop}
+                            onClick={() => jobFileInputRef.current?.click()}
+                            className="mt-4 p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50/50 dark:hover:bg-amber-900/10 transition-all cursor-pointer group"
+                        >
+                            <input
+                                ref={jobFileInputRef}
+                                type="file"
+                                accept=".pdf,.doc,.docx,.txt"
+                                onChange={handleJobFileChange}
+                                className="hidden"
                             />
-
-                            {/* Tip Box */}
-                            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                                <p className="text-xs text-amber-700 dark:text-amber-300">
-                                    💡 <strong>Pro tip:</strong> Include the full job posting with requirements, skills, and qualifications for the most accurate resume tailoring.
+                            <div className="flex flex-col items-center text-center">
+                                <Upload className="w-7 h-7 text-gray-400 dark:text-gray-500 group-hover:text-amber-500 transition-colors mb-2" />
+                                <p className="text-sm">
+                                    <span className="text-amber-600 dark:text-amber-400 font-medium">Upload a file</span>
+                                    <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>
                                 </p>
-                            </div>
-
-                            {/* File Upload Area */}
-                            <div
-                                onDragOver={(e) => handleDragOver(e, setIsDraggingJob)}
-                                onDragLeave={(e) => handleDragLeave(e, setIsDraggingJob)}
-                                onDrop={handleJobDrop}
-                                onClick={() => !jobFile && jobFileInputRef.current?.click()}
-                                className={`relative p-5 border-2 border-dashed rounded-xl transition-all cursor-pointer ${isDraggingJob
-                                        ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
-                                        : jobFile
-                                            ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-900/10'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50/30 dark:hover:bg-amber-900/10'
-                                    }`}
-                            >
-                                <input
-                                    ref={jobFileInputRef}
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,.txt"
-                                    onChange={handleJobFileChange}
-                                    className="hidden"
-                                />
-                                {jobFile ? (
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                                                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{jobFile.name}</p>
-                                                <p className="text-xs text-muted-foreground">{(jobFile.size / 1024).toFixed(1)} KB</p>
-                                            </div>
-                                        </div>
-                                        <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); clearJobFile(); }} className="text-gray-400 hover:text-red-500">
-                                            <X className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center text-center">
-                                        <Upload className={`w-8 h-8 mb-2 transition-colors ${isDraggingJob ? 'text-amber-500' : 'text-gray-400'}`} />
-                                        <p className="text-sm">
-                                            <span className="text-amber-600 dark:text-amber-400 font-medium">Upload a file</span>
-                                            <span className="text-muted-foreground"> or drag and drop</span>
-                                        </p>
-                                        <p className="text-xs text-muted-foreground mt-1">PDF, DOC, DOCX, TXT (max 10MB)</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                    PDF, DOC, DOCX, TXT (max 10MB)
+                                </p>
+                                {jobFile && (
+                                    <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                                        <Check className="w-4 h-4" />
+                                        {jobFile.name}
                                     </div>
                                 )}
                             </div>
+                        </div>
 
-                            {/* URL Input */}
-                            <div className="flex gap-2">
-                                <Input
-                                    value={jobUrl}
-                                    onChange={(e) => setJobUrl(e.target.value)}
-                                    placeholder="Or paste job posting URL (LinkedIn, Indeed...)"
-                                    className="flex-1 text-sm"
-                                />
-                                <Button onClick={handleJobUrlFetch} disabled={!jobUrl} size="icon" className="bg-amber-500 hover:bg-amber-600 text-white">
-                                    <Link2 className="w-4 h-4" />
-                                </Button>
-                            </div>
+                        {/* URL Input */}
+                        <div className="mt-4 flex gap-2">
+                            <Input
+                                value={jobUrl}
+                                onChange={(e) => setJobUrl(e.target.value)}
+                                placeholder="Or enter job posting URL (LinkedIn, Indeed, etc.)"
+                                className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
+                            />
+                            <Button
+                                disabled={!jobUrl}
+                                className="bg-amber-500 hover:bg-amber-600 text-white px-3"
+                            >
+                                <Link2 className="w-4 h-4" />
+                            </Button>
+                        </div>
+
+                        {/* Tip */}
+                        <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                            <p className="text-xs text-amber-700 dark:text-amber-300">
+                                💡 <strong>Tip:</strong> Include the full job requirements, skills, and qualifications for better AI matching.
+                            </p>
+                        </div>
+
+                        {/* Character count */}
+                        <div className="mt-3 text-xs text-gray-400">
+                            {jobText.length} characters {jobText.length < 50 && <span className="text-amber-500">(min 50 required)</span>}
                         </div>
                     </Card>
                 </div>
 
-                {/* Features Highlight */}
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-3 p-4 bg-card border rounded-xl">
-                        <div className="p-2 rounded-lg bg-violet-100 dark:bg-violet-900/30">
-                            <Target className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium">Keyword Optimization</p>
-                            <p className="text-xs text-muted-foreground">Match ATS requirements</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-4 bg-card border rounded-xl">
-                        <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                            <Zap className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium">Instant Generation</p>
-                            <p className="text-xs text-muted-foreground">AI-powered in seconds</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-4 bg-card border rounded-xl">
-                        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                            <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium">Privacy First</p>
-                            <p className="text-xs text-muted-foreground">Your data stays secure</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Generate Button */}
-                <div className="mt-8 flex flex-col items-center">
+                {/* CTA Button */}
+                <div className="mt-8 flex justify-center">
                     <Button
-                        onClick={handleGenerate}
-                        disabled={isGenerating || !canGenerate}
-                        size="lg"
-                        className="px-10 py-6 text-lg font-semibold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 text-white shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={handleSelectTemplate}
+                        disabled={!canProceed || isLoading}
+                        className="px-8 py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                     >
-                        {isGenerating ? (
+                        {isLoading ? (
                             <>
                                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                Generating...
+                                Processing...
                             </>
                         ) : (
                             <>
                                 <Sparkles className="w-5 h-5 mr-2" />
-                                Generate Tailored Resume
+                                Select Template
+                                <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                             </>
                         )}
                     </Button>
-                    <p className="mt-3 text-sm text-muted-foreground text-center max-w-md">
-                        Our AI will analyze both documents and create a resume optimized for this specific role
-                    </p>
                 </div>
+
+                {/* Helper Text */}
+                {!canProceed && (
+                    <p className="mt-4 text-center text-sm text-amber-600 dark:text-amber-400">
+                        Please add both your resume and job description (min 50 characters each) to continue
+                    </p>
+                )}
             </div>
         </div>
     );
