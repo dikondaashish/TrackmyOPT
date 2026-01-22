@@ -68,16 +68,27 @@ export async function POST(req: NextRequest) {
             // Plain text file
             extractedText = new TextDecoder().decode(buffer);
         } else if (fileName.endsWith('.pdf') || fileType === 'application/pdf') {
-            // PDF file - use pdf-parse
+            // PDF file - use pdf-parse v1.1.1
             try {
-                const pdfParseModule = await import('pdf-parse') as any;
-                const pdfParse = pdfParseModule.default || pdfParseModule;
-                const pdfData = await pdfParse(Buffer.from(buffer));
-                extractedText = pdfData.text;
+                const pdfParse = require('pdf-parse');
+                const pdfBuffer = Buffer.from(buffer);
+                const pdfData = await pdfParse(pdfBuffer);
+                extractedText = pdfData.text || '';
+
+                console.info('[PDF] Parsed successfully:', {
+                    filename: file.name,
+                    textLength: extractedText.length,
+                    pages: pdfData.numpages
+                });
 
                 if (!extractedText || extractedText.trim().length < 50) {
                     // Return OCR option for scanned PDFs
-                    const fileBuffer = Buffer.from(buffer).toString('base64');
+                    const fileBufferBase64 = pdfBuffer.toString('base64');
+                    console.info('[PDF] Low text content, offering OCR:', {
+                        textLength: extractedText.trim().length,
+                        ocrAvailable: process.env.OCR_TEXTRACT_ENABLED === 'true'
+                    });
+
                     return NextResponse.json(
                         {
                             success: false,
@@ -85,13 +96,17 @@ export async function POST(req: NextRequest) {
                             can_ocr: process.env.OCR_TEXTRACT_ENABLED === 'true',
                             message: 'This PDF appears to be scanned/image-based. You can run OCR to extract text.',
                             filename: file.name,
-                            fileBuffer: fileBuffer // Base64 encoded for OCR
+                            fileBuffer: fileBufferBase64 // Base64 encoded for OCR
                         },
                         { status: 400, headers: corsHeaders }
                     );
                 }
-            } catch (pdfError) {
-                console.error('PDF parsing error:', pdfError);
+            } catch (pdfError: any) {
+                console.error('[PDF] Parsing error:', {
+                    error: pdfError?.message || pdfError,
+                    stack: pdfError?.stack,
+                    filename: file.name
+                });
                 return NextResponse.json(
                     { success: false, error: 'Failed to parse PDF. Please try a different file or paste text manually.' },
                     { status: 400, headers: corsHeaders }

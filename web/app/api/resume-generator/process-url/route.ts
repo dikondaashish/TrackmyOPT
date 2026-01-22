@@ -70,11 +70,10 @@ export async function POST(req: NextRequest) {
 
             // Handle different content types
             if (contentType.includes('application/pdf')) {
-                // Direct PDF link - use pdf-parse
+                // Direct PDF link - use pdf-parse v1.1.1
                 const buffer = await response.arrayBuffer();
                 try {
-                    const pdfParseModule = await import('pdf-parse') as any;
-                    const pdfParse = pdfParseModule.default || pdfParseModule;
+                    const pdfParse = require('pdf-parse');
                     const pdfData = await pdfParse(Buffer.from(buffer));
 
                     if (!pdfData.text || pdfData.text.trim().length < 50) {
@@ -93,7 +92,7 @@ export async function POST(req: NextRequest) {
                         },
                         { status: 200, headers: corsHeaders }
                     );
-                } catch (pdfError) {
+                } catch (pdfError: any) {
                     console.error('PDF URL parsing error:', pdfError);
                     return NextResponse.json(
                         { success: false, error: 'Failed to parse PDF from URL.' },
