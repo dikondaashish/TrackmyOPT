@@ -36,6 +36,14 @@ interface JobData {
     source: "text" | "file" | "url";
 }
 
+interface OcrStatus {
+    show: boolean;
+    running: boolean;
+    jobId?: string;
+    fileBuffer?: string;
+    filename?: string;
+}
+
 export default function ResumeGeneratorPage() {
     const router = useRouter();
 
@@ -58,6 +66,10 @@ export default function ResumeGeneratorPage() {
     const [isJobUrlProcessing, setIsJobUrlProcessing] = useState(false);
     const [errors, setErrors] = useState<{ resume?: string; job?: string }>({});
     const [showHistory, setShowHistory] = useState(false);
+
+    // OCR state
+    const [resumeOcr, setResumeOcr] = useState<OcrStatus>({ show: false, running: false });
+    const [jobOcr, setJobOcr] = useState<OcrStatus>({ show: false, running: false });
 
     // Load saved resume from localStorage on mount
     useEffect(() => {
@@ -97,15 +109,31 @@ export default function ResumeGeneratorPage() {
                         filename: result.filename,
                         source: "file",
                     });
+                    setResumeOcr({ show: false, running: false });
                 } else {
                     setJobData({
                         text: result.text,
                         title: result.filename,
                         source: "file",
                     });
+                    setJobOcr({ show: false, running: false });
                 }
+            } else if (result.error === "pdf_no_extractable_text" && result.can_ocr) {
+                // Show OCR prompt for scanned PDFs
+                const ocrData = {
+                    show: true,
+                    running: false,
+                    fileBuffer: result.fileBuffer,
+                    filename: result.filename,
+                };
+                if (type === "resume") {
+                    setResumeOcr(ocrData);
+                } else {
+                    setJobOcr(ocrData);
+                }
+                setErrors(prev => ({ ...prev, [type]: undefined }));
             } else {
-                setErrors(prev => ({ ...prev, [type]: result.error }));
+                setErrors(prev => ({ ...prev, [type]: result.message || result.error }));
             }
         } catch (error) {
             setErrors(prev => ({ ...prev, [type]: "Upload failed. Please try again." }));
@@ -168,6 +196,84 @@ export default function ResumeGeneratorPage() {
         setJobData({ text: "", source: "text" });
         setErrors(prev => ({ ...prev, job: undefined }));
         if (jobFileInputRef.current) jobFileInputRef.current.value = "";
+    };
+
+    // OCR handlers
+    const startOcr = async (type: "resume" | "job") => {
+        const ocrInfo = type === "resume" ? resumeOcr : jobOcr;
+        const setOcr = type === "resume" ? setResumeOcr : setJobOcr;
+
+        if (!ocrInfo.fileBuffer) return;
+
+        setOcr(prev => ({ ...prev, running: true }));
+        setErrors(prev => ({ ...prev, [type]: undefined }));
+
+        try {
+            // Start OCR job
+            const response = await fetch("/api/resume-generator/ocr/start", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    fileBuffer: ocrInfo.fileBuffer,
+                    filename: ocrInfo.filename,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.ok && result.textractJobId) {
+                setOcr(prev => ({ ...prev, jobId: result.textractJobId }));
+                // Start polling for results using textractJobId
+                pollOcrStatus(result.textractJobId, type);
+            } else {
+                setOcr(prev => ({ ...prev, running: false }));
+                setErrors(prev => ({ ...prev, [type]: result.error || "Failed to start OCR" }));
+            }
+        } catch (error) {
+            setOcr(prev => ({ ...prev, running: false }));
+            setErrors(prev => ({ ...prev, [type]: "OCR failed. Please paste text manually." }));
+        }
+    };
+
+    const pollOcrStatus = async (textractJobId: string, type: "resume" | "job") => {
+        const setOcr = type === "resume" ? setResumeOcr : setJobOcr;
+
+        try {
+            const response = await fetch(`/api/resume-generator/ocr/status?textractJobId=${textractJobId}`);
+            const result = await response.json();
+
+            if (result.status === "succeeded") {
+                // Update data with extracted text
+                if (type === "resume") {
+                    setResumeData({
+                        text: result.text || "",
+                        filename: result.filename,
+                        source: "file",
+                    });
+                } else {
+                    setJobData({
+                        text: result.text || "",
+                        title: result.filename,
+                        source: "file",
+                    });
+                }
+                setOcr({ show: false, running: false });
+            } else if (result.status === "failed") {
+                setOcr(prev => ({ ...prev, running: false }));
+                setErrors(prev => ({ ...prev, [type]: result.error || "OCR failed" }));
+            } else if (result.status === "running") {
+                // Continue polling
+                setTimeout(() => pollOcrStatus(textractJobId, type), 2000);
+            }
+        } catch (error) {
+            setOcr(prev => ({ ...prev, running: false }));
+            setErrors(prev => ({ ...prev, [type]: "OCR status check failed" }));
+        }
+    };
+
+    const cancelOcr = (type: "resume" | "job") => {
+        const setOcr = type === "resume" ? setResumeOcr : setJobOcr;
+        setOcr({ show: false, running: false });
     };
 
     // Navigate to template selection
@@ -305,6 +411,50 @@ export default function ResumeGeneratorPage() {
                             <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
                                 <Check className="w-4 h-4" />
                                 Loaded: {resumeData.filename}
+                            </div>
+                        )}
+
+                        {/* OCR Prompt */}
+                        {resumeOcr.show && (
+                            <div className="mt-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                                            This PDF appears to be scanned
+                                        </h4>
+                                        <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
+                                            We couldn't extract text directly. Run OCR (Optical Character Recognition) to convert the image to text.
+                                        </p>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                onClick={() => startOcr("resume")}
+                                                disabled={resumeOcr.running}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                            >
+                                                {resumeOcr.running ? (
+                                                    <>
+                                                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                                        Processing...
+                                                    </>
+                                                ) : (
+                                                    "Run OCR"
+                                                )}
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => cancelOcr("resume")}
+                                                disabled={resumeOcr.running}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -447,6 +597,50 @@ export default function ResumeGeneratorPage() {
                             <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
                                 <Check className="w-4 h-4" />
                                 Loaded: {jobData.title}
+                            </div>
+                        )}
+
+                        {/* OCR Prompt */}
+                        {jobOcr.show && (
+                            <div className="mt-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 bg-amber-100 dark:bg-amber-800 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <Briefcase className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-1">
+                                            This PDF appears to be scanned
+                                        </h4>
+                                        <p className="text-xs text-amber-700 dark:text-amber-300 mb-3">
+                                            We couldn't extract text directly. Run OCR to convert the image to text.
+                                        </p>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                onClick={() => startOcr("job")}
+                                                disabled={jobOcr.running}
+                                                className="bg-amber-500 hover:bg-amber-600 text-white"
+                                            >
+                                                {jobOcr.running ? (
+                                                    <>
+                                                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                                        Processing...
+                                                    </>
+                                                ) : (
+                                                    "Run OCR"
+                                                )}
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => cancelOcr("job")}
+                                                disabled={jobOcr.running}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 

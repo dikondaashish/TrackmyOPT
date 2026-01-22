@@ -76,10 +76,16 @@ export async function POST(req: NextRequest) {
                 extractedText = pdfData.text;
 
                 if (!extractedText || extractedText.trim().length < 50) {
+                    // Return OCR option for scanned PDFs
+                    const fileBuffer = Buffer.from(buffer).toString('base64');
                     return NextResponse.json(
                         {
                             success: false,
-                            error: 'Could not extract text from PDF. The file may be scanned/image-based. Please paste the text manually instead.'
+                            error: 'pdf_no_extractable_text',
+                            can_ocr: process.env.OCR_TEXTRACT_ENABLED === 'true',
+                            message: 'This PDF appears to be scanned/image-based. You can run OCR to extract text.',
+                            filename: file.name,
+                            fileBuffer: fileBuffer // Base64 encoded for OCR
                         },
                         { status: 400, headers: corsHeaders }
                     );
