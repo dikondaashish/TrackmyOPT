@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,72 +18,166 @@ import {
     Check,
     BookOpen,
     ChevronRight,
+    AlertCircle,
+    X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+interface ResumeData {
+    text: string;
+    filename?: string;
+    source: "text" | "file" | "url";
+}
+
+interface JobData {
+    text: string;
+    title?: string;
+    source: "text" | "file" | "url";
+}
 
 export default function ResumeGeneratorPage() {
     const router = useRouter();
 
     // Resume state
-    const [resumeText, setResumeText] = useState("");
-    const [resumeSource, setResumeSource] = useState<"text" | "file" | "url">("text");
+    const [resumeData, setResumeData] = useState<ResumeData>({ text: "", source: "text" });
     const [resumeUrl, setResumeUrl] = useState("");
-    const [resumeFile, setResumeFile] = useState<File | null>(null);
     const [saveResume, setSaveResume] = useState(false);
+    const [resumeName, setResumeName] = useState("");
     const resumeFileInputRef = useRef<HTMLInputElement>(null);
 
     // Job Description state
-    const [jobText, setJobText] = useState("");
-    const [jobSource, setJobSource] = useState<"text" | "file" | "url">("text");
+    const [jobData, setJobData] = useState<JobData>({ text: "", source: "text" });
     const [jobUrl, setJobUrl] = useState("");
-    const [jobFile, setJobFile] = useState<File | null>(null);
     const jobFileInputRef = useRef<HTMLInputElement>(null);
 
     // UI state
-    const [isLoading, setIsLoading] = useState(false);
+    const [isResumeUploading, setIsResumeUploading] = useState(false);
+    const [isJobUploading, setIsJobUploading] = useState(false);
+    const [isResumeUrlProcessing, setIsResumeUrlProcessing] = useState(false);
+    const [isJobUrlProcessing, setIsJobUrlProcessing] = useState(false);
+    const [errors, setErrors] = useState<{ resume?: string; job?: string }>({});
     const [showHistory, setShowHistory] = useState(false);
 
-    // File upload handlers
-    const handleResumeFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setResumeFile(file);
-            setResumeSource("file");
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const text = event.target?.result as string;
-                setResumeText(text);
-            };
-            if (file.type === "text/plain") {
-                reader.readAsText(file);
+    // Load saved resume from localStorage on mount
+    useEffect(() => {
+        const savedResumeData = localStorage.getItem("selectedResumeData");
+        if (savedResumeData) {
+            try {
+                const data = JSON.parse(savedResumeData);
+                setResumeData(data);
+                localStorage.removeItem("selectedResumeData");
+            } catch (e) {
+                console.error("Failed to load saved resume:", e);
             }
         }
     }, []);
 
-    const handleJobFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setJobFile(file);
-            setJobSource("file");
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const text = event.target?.result as string;
-                setJobText(text);
-            };
-            if (file.type === "text/plain") {
-                reader.readAsText(file);
+    // File upload handler
+    const handleFileUpload = async (file: File, type: "resume" | "job") => {
+        const setUploading = type === "resume" ? setIsResumeUploading : setIsJobUploading;
+        setUploading(true);
+        setErrors(prev => ({ ...prev, [type]: undefined }));
+
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/api/resume-generator/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                if (type === "resume") {
+                    setResumeData({
+                        text: result.text,
+                        filename: result.filename,
+                        source: "file",
+                    });
+                } else {
+                    setJobData({
+                        text: result.text,
+                        title: result.filename,
+                        source: "file",
+                    });
+                }
+            } else {
+                setErrors(prev => ({ ...prev, [type]: result.error }));
             }
+        } catch (error) {
+            setErrors(prev => ({ ...prev, [type]: "Upload failed. Please try again." }));
+        } finally {
+            setUploading(false);
         }
-    }, []);
+    };
+
+    // URL processing handler
+    const handleUrlProcess = async (url: string, type: "resume" | "job") => {
+        if (!url.trim()) return;
+
+        const setProcessing = type === "resume" ? setIsResumeUrlProcessing : setIsJobUrlProcessing;
+        setProcessing(true);
+        setErrors(prev => ({ ...prev, [type]: undefined }));
+
+        try {
+            const response = await fetch("/api/resume-generator/process-url", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url, type }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                if (type === "resume") {
+                    setResumeData({
+                        text: result.content,
+                        filename: result.title,
+                        source: "url",
+                    });
+                    setResumeUrl("");
+                } else {
+                    setJobData({
+                        text: result.content,
+                        title: result.title,
+                        source: "url",
+                    });
+                    setJobUrl("");
+                }
+            } else {
+                setErrors(prev => ({ ...prev, [type]: result.error }));
+            }
+        } catch (error) {
+            setErrors(prev => ({ ...prev, [type]: "URL processing failed. Please try again." }));
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    // Clear data handlers
+    const clearResume = () => {
+        setResumeData({ text: "", source: "text" });
+        setErrors(prev => ({ ...prev, resume: undefined }));
+        if (resumeFileInputRef.current) resumeFileInputRef.current.value = "";
+    };
+
+    const clearJob = () => {
+        setJobData({ text: "", source: "text" });
+        setErrors(prev => ({ ...prev, job: undefined }));
+        if (jobFileInputRef.current) jobFileInputRef.current.value = "";
+    };
 
     // Navigate to template selection
     const handleSelectTemplate = () => {
-        if (!resumeText || !jobText) return;
+        if (!resumeData.text || !jobData.text) return;
 
         // Store data in sessionStorage for next step
-        sessionStorage.setItem("resumeGenerator_resumeText", resumeText);
-        sessionStorage.setItem("resumeGenerator_jobText", jobText);
+        sessionStorage.setItem("resumeGenerator_resumeText", resumeData.text);
+        sessionStorage.setItem("resumeGenerator_jobText", jobData.text);
+        sessionStorage.setItem("resumeGenerator_resumeFilename", resumeData.filename || "");
 
         router.push("/dashboard/career/resume-generator/templates");
     };
@@ -94,27 +188,21 @@ export default function ResumeGeneratorPage() {
         e.stopPropagation();
     };
 
-    const handleResumeDrop = (e: React.DragEvent) => {
+    const handleResumeDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
         const file = e.dataTransfer.files?.[0];
-        if (file) {
-            setResumeFile(file);
-            setResumeSource("file");
-        }
-    };
+        if (file) handleFileUpload(file, "resume");
+    }, []);
 
-    const handleJobDrop = (e: React.DragEvent) => {
+    const handleJobDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
         const file = e.dataTransfer.files?.[0];
-        if (file) {
-            setJobFile(file);
-            setJobSource("file");
-        }
-    };
+        if (file) handleFileUpload(file, "job");
+    }, []);
 
-    const canProceed = resumeText.length > 50 && jobText.length > 50;
+    const canProceed = resumeData.text.length > 50 && jobData.text.length > 50;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -149,13 +237,11 @@ export default function ResumeGeneratorPage() {
                         {/* History Button */}
                         <Button
                             variant="outline"
-                            onClick={() => setShowHistory(!showHistory)}
+                            onClick={() => router.push("/dashboard/career/resume-generator/history")}
                             className="flex items-center gap-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
                         >
                             <History className="w-4 h-4" />
-                            <div className="hidden sm:block text-left">
-                                <span className="text-sm font-medium">History</span>
-                            </div>
+                            <span className="hidden sm:inline text-sm font-medium">History</span>
                         </Button>
                     </div>
                 </div>
@@ -177,22 +263,50 @@ export default function ResumeGeneratorPage() {
                                     <p className="text-xs text-gray-500">Paste or upload your current resume</p>
                                 </div>
                             </div>
-                            <Button variant="outline" size="sm" className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+                                onClick={() => router.push("/dashboard/career/resume-generator/saved-resumes")}
+                            >
                                 <BookOpen className="w-4 h-4 mr-1" />
                                 Saved
                             </Button>
                         </div>
 
                         {/* Text Area */}
-                        <textarea
-                            value={resumeText}
-                            onChange={(e) => {
-                                setResumeText(e.target.value);
-                                setResumeSource("text");
-                            }}
-                            placeholder="Paste your resume text here..."
-                            className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all resize-none text-sm"
-                        />
+                        <div className="relative">
+                            <textarea
+                                value={resumeData.text}
+                                onChange={(e) => setResumeData({ text: e.target.value, source: "text" })}
+                                placeholder="Paste your resume text here..."
+                                className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all resize-none text-sm"
+                            />
+                            {resumeData.text && (
+                                <button
+                                    onClick={clearResume}
+                                    className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Error Message */}
+                        {errors.resume && (
+                            <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-start gap-2">
+                                <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                                <p className="text-sm text-red-600 dark:text-red-400">{errors.resume}</p>
+                            </div>
+                        )}
+
+                        {/* Success indicator */}
+                        {resumeData.filename && (
+                            <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                                <Check className="w-4 h-4" />
+                                Loaded: {resumeData.filename}
+                            </div>
+                        )}
 
                         {/* File Upload Area */}
                         <div
@@ -205,24 +319,27 @@ export default function ResumeGeneratorPage() {
                                 ref={resumeFileInputRef}
                                 type="file"
                                 accept=".pdf,.doc,.docx,.txt"
-                                onChange={handleResumeFileChange}
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleFileUpload(file, "resume");
+                                }}
                                 className="hidden"
                             />
                             <div className="flex flex-col items-center text-center">
-                                <Upload className="w-7 h-7 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors mb-2" />
+                                {isResumeUploading ? (
+                                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
+                                ) : (
+                                    <Upload className="w-7 h-7 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors mb-2" />
+                                )}
                                 <p className="text-sm">
-                                    <span className="text-blue-600 dark:text-blue-400 font-medium">Upload a file</span>
-                                    <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>
+                                    <span className="text-blue-600 dark:text-blue-400 font-medium">
+                                        {isResumeUploading ? "Processing..." : "Upload a file"}
+                                    </span>
+                                    {!isResumeUploading && <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>}
                                 </p>
                                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                     PDF, DOC, DOCX, TXT (max 10MB)
                                 </p>
-                                {resumeFile && (
-                                    <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                                        <Check className="w-4 h-4" />
-                                        {resumeFile.name}
-                                    </div>
-                                )}
                             </div>
                         </div>
 
@@ -233,30 +350,57 @@ export default function ResumeGeneratorPage() {
                                 onChange={(e) => setResumeUrl(e.target.value)}
                                 placeholder="Or enter Google Drive / cloud storage URL"
                                 className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && resumeUrl.trim()) {
+                                        handleUrlProcess(resumeUrl, "resume");
+                                    }
+                                }}
                             />
                             <Button
-                                disabled={!resumeUrl}
+                                onClick={() => handleUrlProcess(resumeUrl, "resume")}
+                                disabled={!resumeUrl.trim() || isResumeUrlProcessing}
                                 className="bg-blue-600 hover:bg-blue-700 text-white px-3"
                             >
-                                <Link2 className="w-4 h-4" />
+                                {isResumeUrlProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Link2 className="w-4 h-4" />}
                             </Button>
+                            <div className="relative group">
+                                <Button variant="ghost" size="icon" className="text-gray-400">
+                                    <HelpCircle className="w-4 h-4" />
+                                </Button>
+                                <div className="absolute bottom-full right-0 mb-2 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                                    <div className="font-medium mb-1">Supported URLs:</div>
+                                    <div>✅ Google Drive, Dropbox</div>
+                                    <div>❌ LinkedIn (copy text manually)</div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Save Checkbox */}
-                        <div className="mt-4 flex items-center gap-2">
+                        <div className="mt-4 flex items-center gap-3">
                             <Checkbox
                                 id="save-resume"
                                 checked={saveResume}
-                                onCheckedChange={(c) => setSaveResume(c)}
+                                onCheckedChange={(c) => setSaveResume(c as boolean)}
                             />
                             <label htmlFor="save-resume" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                                 Save resume for future use
                             </label>
+                            {saveResume && (
+                                <Input
+                                    value={resumeName}
+                                    onChange={(e) => setResumeName(e.target.value)}
+                                    placeholder="Resume name"
+                                    className="flex-1 h-8 text-sm"
+                                />
+                            )}
                         </div>
 
                         {/* Character count */}
                         <div className="mt-3 text-xs text-gray-400">
-                            {resumeText.length} characters {resumeText.length < 50 && <span className="text-amber-500">(min 50 required)</span>}
+                            {resumeData.text.length} characters
+                            {resumeData.text.length < 50 && resumeData.text.length > 0 && (
+                                <span className="text-amber-500"> (min 50 required)</span>
+                            )}
                         </div>
                     </Card>
 
@@ -273,15 +417,38 @@ export default function ResumeGeneratorPage() {
                         </div>
 
                         {/* Text Area */}
-                        <textarea
-                            value={jobText}
-                            onChange={(e) => {
-                                setJobText(e.target.value);
-                                setJobSource("text");
-                            }}
-                            placeholder="Copy and paste the full job description here..."
-                            className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 transition-all resize-none text-sm"
-                        />
+                        <div className="relative">
+                            <textarea
+                                value={jobData.text}
+                                onChange={(e) => setJobData({ text: e.target.value, source: "text" })}
+                                placeholder="Copy and paste the full job description here..."
+                                className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 transition-all resize-none text-sm"
+                            />
+                            {jobData.text && (
+                                <button
+                                    onClick={clearJob}
+                                    className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Error Message */}
+                        {errors.job && (
+                            <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-start gap-2">
+                                <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                                <p className="text-sm text-red-600 dark:text-red-400">{errors.job}</p>
+                            </div>
+                        )}
+
+                        {/* Success indicator */}
+                        {jobData.title && (
+                            <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                                <Check className="w-4 h-4" />
+                                Loaded: {jobData.title}
+                            </div>
+                        )}
 
                         {/* File Upload Area */}
                         <div
@@ -294,24 +461,27 @@ export default function ResumeGeneratorPage() {
                                 ref={jobFileInputRef}
                                 type="file"
                                 accept=".pdf,.doc,.docx,.txt"
-                                onChange={handleJobFileChange}
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleFileUpload(file, "job");
+                                }}
                                 className="hidden"
                             />
                             <div className="flex flex-col items-center text-center">
-                                <Upload className="w-7 h-7 text-gray-400 dark:text-gray-500 group-hover:text-amber-500 transition-colors mb-2" />
+                                {isJobUploading ? (
+                                    <Loader2 className="w-8 h-8 text-amber-500 animate-spin mb-2" />
+                                ) : (
+                                    <Upload className="w-7 h-7 text-gray-400 dark:text-gray-500 group-hover:text-amber-500 transition-colors mb-2" />
+                                )}
                                 <p className="text-sm">
-                                    <span className="text-amber-600 dark:text-amber-400 font-medium">Upload a file</span>
-                                    <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>
+                                    <span className="text-amber-600 dark:text-amber-400 font-medium">
+                                        {isJobUploading ? "Processing..." : "Upload a file"}
+                                    </span>
+                                    {!isJobUploading && <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>}
                                 </p>
                                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                     PDF, DOC, DOCX, TXT (max 10MB)
                                 </p>
-                                {jobFile && (
-                                    <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                                        <Check className="w-4 h-4" />
-                                        {jobFile.name}
-                                    </div>
-                                )}
                             </div>
                         </div>
 
@@ -320,15 +490,32 @@ export default function ResumeGeneratorPage() {
                             <Input
                                 value={jobUrl}
                                 onChange={(e) => setJobUrl(e.target.value)}
-                                placeholder="Or enter job posting URL (LinkedIn, Indeed, etc.)"
+                                placeholder="Or enter job posting URL (Indeed, Glassdoor, etc.)"
                                 className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && jobUrl.trim()) {
+                                        handleUrlProcess(jobUrl, "job");
+                                    }
+                                }}
                             />
                             <Button
-                                disabled={!jobUrl}
+                                onClick={() => handleUrlProcess(jobUrl, "job")}
+                                disabled={!jobUrl.trim() || isJobUrlProcessing}
                                 className="bg-amber-500 hover:bg-amber-600 text-white px-3"
                             >
-                                <Link2 className="w-4 h-4" />
+                                {isJobUrlProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Link2 className="w-4 h-4" />}
                             </Button>
+                            <div className="relative group">
+                                <Button variant="ghost" size="icon" className="text-gray-400">
+                                    <HelpCircle className="w-4 h-4" />
+                                </Button>
+                                <div className="absolute bottom-full right-0 mb-2 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                                    <div className="font-medium mb-1">Supported URLs:</div>
+                                    <div>✅ Indeed, Glassdoor, ZipRecruiter</div>
+                                    <div>✅ Company career pages</div>
+                                    <div>❌ LinkedIn (copy text manually)</div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Tip */}
@@ -340,7 +527,10 @@ export default function ResumeGeneratorPage() {
 
                         {/* Character count */}
                         <div className="mt-3 text-xs text-gray-400">
-                            {jobText.length} characters {jobText.length < 50 && <span className="text-amber-500">(min 50 required)</span>}
+                            {jobData.text.length} characters
+                            {jobData.text.length < 50 && jobData.text.length > 0 && (
+                                <span className="text-amber-500"> (min 50 required)</span>
+                            )}
                         </div>
                     </Card>
                 </div>
@@ -349,21 +539,12 @@ export default function ResumeGeneratorPage() {
                 <div className="mt-8 flex justify-center">
                     <Button
                         onClick={handleSelectTemplate}
-                        disabled={!canProceed || isLoading}
+                        disabled={!canProceed}
                         className="px-8 py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                     >
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                Processing...
-                            </>
-                        ) : (
-                            <>
-                                <Sparkles className="w-5 h-5 mr-2" />
-                                Select Template
-                                <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                            </>
-                        )}
+                        <Sparkles className="w-5 h-5 mr-2" />
+                        Select Template
+                        <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                 </div>
 
@@ -373,6 +554,23 @@ export default function ResumeGeneratorPage() {
                         Please add both your resume and job description (min 50 characters each) to continue
                     </p>
                 )}
+
+                {/* Best Results Tips */}
+                <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-white text-sm font-bold">i</span>
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">For best results:</h3>
+                            <ul className="text-blue-700 dark:text-blue-300 text-xs space-y-0.5">
+                                <li>• Upload your resume in PDF or DOCX format</li>
+                                <li>• Include the complete job description</li>
+                                <li>• Ensure your resume includes contact info and skills</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
