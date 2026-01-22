@@ -59,8 +59,8 @@ export default function ATSScannerPage() {
         setIsProcessing(true);
         try {
             const formData = new FormData();
-            formData.append('resumeText', resumeData.text);
-            formData.append('jobDescription', jobData.text);
+            formData.append('resumeText', resumeData.text || '');
+            formData.append('jobDescription', jobData.text || '');
 
             const data = await scanResume(formData);
 
