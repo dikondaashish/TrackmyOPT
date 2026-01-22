@@ -1,5 +1,18 @@
 {
-  "installCommand": "pnpm install --no-frozen-lockfile",
+  "version": 2,
+  "builds": [
+    {
+      "src": "web/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/web/$1"
+    }
+  ],
+  "installCommand": "pnpm install",
   "crons": [
     {
       "path": "/api/cron/send-daily-reminders",
@@ -7,4 +20,3 @@
     }
   ]
 }
-
