@@ -62,3 +62,7 @@ ITContractorsUnion-Main/
 .venv/
 __pycache__/
 *.pyc
+
+# External Projects (DO NOT TRACK)
+all-in-one-career/
+AutoResumeDev/
