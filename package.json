@@ -6,7 +6,6 @@
   "scripts": {
     "dev:web": "pnpm --filter web dev",
     "build:web": "pnpm --filter web build",
-    "build": "cd web && next build",
     "dev:ext": "pnpm --filter extension dev",
     "build:ext": "pnpm --filter extension build",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
@@ -20,9 +19,6 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "next": "14.2.0"
-  },
   "devDependencies": {
     "prettier": "^3.1.0"
   },
