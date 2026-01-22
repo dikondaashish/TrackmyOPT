@@ -70,13 +70,13 @@ export async function POST(req: NextRequest) {
 
             // Handle different content types
             if (contentType.includes('application/pdf')) {
-                // Direct PDF link - use pdf-parse v1.1.1
+                // Direct PDF link - use pdfjs-dist for reliable parsing
                 const buffer = await response.arrayBuffer();
                 try {
-                    const pdfParse = require('pdf-parse');
-                    const pdfData = await pdfParse(Buffer.from(buffer));
+                    const { extractPdfText } = await import('@/lib/pdf-parser');
+                    const pdfResult = await extractPdfText(Buffer.from(buffer));
 
-                    if (!pdfData.text || pdfData.text.trim().length < 50) {
+                    if (pdfResult.isLikelyScanned || pdfResult.text.trim().length < 50) {
                         return NextResponse.json(
                             { success: false, error: 'Could not extract text from PDF URL. Please download and upload the file instead.' },
                             { status: 400, headers: corsHeaders }
@@ -86,14 +86,14 @@ export async function POST(req: NextRequest) {
                     return NextResponse.json(
                         {
                             success: true,
-                            content: pdfData.text.trim(),
+                            content: pdfResult.text.trim(),
                             title: 'PDF Document',
                             type: 'pdf'
                         },
                         { status: 200, headers: corsHeaders }
                     );
                 } catch (pdfError: any) {
-                    console.error('PDF URL parsing error:', pdfError);
+                    console.error('PDF URL parsing error:', pdfError?.message || pdfError);
                     return NextResponse.json(
                         { success: false, error: 'Failed to parse PDF from URL.' },
                         { status: 400, headers: corsHeaders }
