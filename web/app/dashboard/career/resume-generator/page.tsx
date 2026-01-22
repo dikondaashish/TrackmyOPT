@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, Link, Zap, Search, AlertCircle, FileText, Loader2, History, Clock, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { Button } from "@/components/ui/button"; // Assuming shadcn
-import { Card } from "@/components/ui/card"; // Assuming shadcn
-
+import { Upload, Link, Zap, Search, FileText, Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { scanResume } from './actions';
 
 interface ResumeData {
     text: string;
@@ -36,32 +34,17 @@ export default function ATSScannerPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [urlInputs, setUrlInputs] = useState({ resume: '', job: '' });
-    const [result, setResult] = useState<any>(null); // To show results inline for now
+    const [result, setResult] = useState<any>(null);
 
     // File Upload Handler
     const handleFileUpload = async (file: File, type: 'resume' | 'job') => {
         setIsUploading(true);
         try {
-            // We will just extract text on the client-side for simple files if possible, 
-            // OR send to a "parse" endpoint. 
-            // Since we built the main /scan endpoint to handle files, we can also build a /parse endpoint
-            // OR just simulate it here for the UI demo.
-            // Actually, the user wants LOC logic. 
-            // Let's use the scan endpoint for everything or a separate upload.
-            // For this implementation, let's pretend we have an upload endpoint or just read text.
-
-            // Simulating upload/parse by just setting filename 
-            // In a real app with the Plan I made: I'd stick to the text area input for now 
-            // unless I make a parse endpoint. 
-            // Converting file to text client-side is hard for PDF/DOCX without libs.
-            // I'll instruct the user that "File Upload" submits directly to Scan for now.
-
             if (type === 'resume') {
                 setResumeData({ text: `[File Uploaded: ${file.name}]`, filename: file.name, source: 'file' });
             } else {
                 setJobData({ text: `[File Uploaded: ${file.name}]`, title: file.name, source: 'file' });
             }
-
         } finally {
             setIsUploading(false);
         }
@@ -79,15 +62,8 @@ export default function ATSScannerPage() {
             formData.append('resumeText', resumeData.text);
             formData.append('jobDescription', jobData.text);
 
-            // Note: For real file, we'd need to keep the File object in state.
-            // For this ported UI, assuming text input primarily, but let's see.
+            const data = await scanResume(formData);
 
-            const response = await fetch('/api/ats/scan', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
             if (data.success) {
                 setResult(data);
                 showToast({ icon: '🎉', title: 'Scan Complete', message: `Score: ${data.score}/100` });
