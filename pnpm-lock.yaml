@@ -144,6 +144,9 @@ importers:
       '@types/node':
         specifier: ^20.11.0
         version: 20.19.21
+      '@types/pdf-parse':
+        specifier: ^1.1.5
+        version: 1.1.5
       '@types/react':
         specifier: ^18.3.0
         version: 18.3.26
@@ -1522,6 +1525,9 @@ packages:
 
   '@types/nodemailer@7.0.4':
     resolution: {integrity: sha512-ee8fxWqOchH+Hv6MDDNNy028kwvVnLplrStm4Zf/3uHWw5zzo8FoYYeffpJtGs2wWysEumMH0ZIdMGMY1eMAow==}
+
+  '@types/pdf-parse@1.1.5':
+    resolution: {integrity: sha512-kBfrSXsloMnUJOKi25s3+hRmkycHfLK6A09eRGqF/N8BkQoPUmaCr+q8Cli5FnfohEz/rsv82zAiPz/LXtOGhA==}
 
   '@types/phoenix@1.6.6':
     resolution: {integrity: sha512-PIzZZlEppgrpoT2QgbnDU+MMzuR6BbCjllj0bM70lWoejMeNJAxCchxnv7J3XFkI8MpygtRpzXrIlmWUBclP5A==}
@@ -5932,6 +5938,10 @@ snapshots:
       '@types/node': 24.8.1
     transitivePeerDependencies:
       - aws-crt
+
+  '@types/pdf-parse@1.1.5':
+    dependencies:
+      '@types/node': 24.8.1
 
   '@types/phoenix@1.6.6': {}
 
