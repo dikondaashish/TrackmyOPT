@@ -40,6 +40,15 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // Validate size (approx 4.5MB base64 limit)
+        // Base64 is ~33% larger than binary, so 6MB base64 is about 4.5MB binary
+        if (fileBuffer.length > 6 * 1024 * 1024) {
+            return NextResponse.json(
+                { ok: false, error: 'File too large for OCR processing. Maximum size is 4.5MB.' },
+                { status: 413, headers: corsHeaders }
+            );
+        }
+
         // Check if Textract is available
         if (!textractService.isAvailable()) {
             return NextResponse.json(

@@ -91,6 +91,13 @@ export default function ResumeGeneratorPage() {
         setUploading(true);
         setErrors(prev => ({ ...prev, [type]: undefined }));
 
+        // Client-side size check (4.5MB for Vercel)
+        if (file.size > 4.5 * 1024 * 1024) {
+            setErrors(prev => ({ ...prev, [type]: `File too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). Max size is 4.5MB.` }));
+            setUploading(false);
+            return;
+        }
+
         try {
             const formData = new FormData();
             formData.append("file", file);
@@ -133,9 +140,12 @@ export default function ResumeGeneratorPage() {
                 }
                 setErrors(prev => ({ ...prev, [type]: undefined }));
             } else {
-                setErrors(prev => ({ ...prev, [type]: result.message || result.error }));
+                const errorMsg = result.message || result.error || "Upload failed";
+                setErrors(prev => ({ ...prev, [type]: errorMsg }));
+                console.error(`[Upload Error] ${type}:`, result);
             }
         } catch (error) {
+            console.error(`[Upload Crash] ${type}:`, error);
             setErrors(prev => ({ ...prev, [type]: "Upload failed. Please try again." }));
         } finally {
             setUploading(false);
@@ -488,7 +498,7 @@ export default function ResumeGeneratorPage() {
                                     {!isResumeUploading && <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>}
                                 </p>
                                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                    PDF, DOC, DOCX, TXT (max 10MB)
+                                    PDF, DOC, DOCX, TXT (max 4.5MB)
                                 </p>
                             </div>
                         </div>
@@ -674,7 +684,7 @@ export default function ResumeGeneratorPage() {
                                     {!isJobUploading && <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>}
                                 </p>
                                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                    PDF, DOC, DOCX, TXT (max 10MB)
+                                    PDF, DOC, DOCX, TXT (max 4.5MB)
                                 </p>
                             </div>
                         </div>

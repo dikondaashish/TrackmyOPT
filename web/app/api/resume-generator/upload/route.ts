@@ -28,11 +28,15 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Validate file size (10MB max)
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        // Validate file size (4.5MB max for Vercel serverless functions)
+        const maxSize = 4.5 * 1024 * 1024;
         if (file.size > maxSize) {
             return NextResponse.json(
-                { success: false, error: 'File too large. Maximum size is 10MB.' },
+                {
+                    success: false,
+                    error: 'file_too_large',
+                    message: `File too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). Maximum size for serverless processing is 4.5MB. Please try a smaller file or paste text manually.`
+                },
                 { status: 413, headers: corsHeaders }
             );
         }
@@ -70,11 +74,18 @@ export async function POST(req: NextRequest) {
         } else if (fileName.endsWith('.pdf') || fileType === 'application/pdf') {
             // PDF file - use pdfjs-dist for reliable serverless parsing
             try {
+                console.info('[API] Processing PDF upload:', file.name);
                 const { extractPdfText } = await import('@/lib/pdf-parser');
                 const pdfResult = await extractPdfText(Buffer.from(buffer));
                 extractedText = pdfResult.text;
 
                 if (pdfResult.isLikelyScanned || extractedText.trim().length < 50) {
+                    console.warn('[API] PDF appears scanned or empty:', {
+                        length: extractedText.trim().length,
+                        pages: pdfResult.numPages,
+                        isLikelyScanned: pdfResult.isLikelyScanned
+                    });
+
                     // Return OCR option for scanned PDFs
                     const fileBuffer = Buffer.from(buffer).toString('base64');
                     return NextResponse.json(
@@ -84,15 +95,24 @@ export async function POST(req: NextRequest) {
                             can_ocr: process.env.OCR_TEXTRACT_ENABLED === 'true',
                             message: 'This PDF appears to be scanned/image-based. You can run OCR to extract text.',
                             filename: file.name,
-                            fileBuffer: fileBuffer // Base64 encoded for OCR
+                            fileBuffer: fileBuffer, // Base64 encoded for OCR
+                            details: {
+                                length: extractedText.length,
+                                pages: pdfResult.numPages
+                            }
                         },
                         { status: 400, headers: corsHeaders }
                     );
                 }
             } catch (pdfError: any) {
-                console.error('PDF parsing error:', pdfError?.message || pdfError);
+                console.error('[API] PDF parsing error:', pdfError);
                 return NextResponse.json(
-                    { success: false, error: 'Failed to parse PDF. Please try a different file or paste text manually.' },
+                    {
+                        success: false,
+                        error: 'pdf_parse_failed',
+                        message: `Failed to parse PDF: ${pdfError?.message || 'Unknown error'}`,
+                        details: pdfError?.stack || pdfError.toString()
+                    },
                     { status: 400, headers: corsHeaders }
                 );
             }

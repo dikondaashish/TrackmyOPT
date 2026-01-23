@@ -3,6 +3,7 @@
  * Works in Vercel/Node.js without DOM or canvas requirements
  */
 
+// Use the legacy build which is better for Node.js/serverless environments
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 
 export interface PdfParseResult {
