@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeDocument, normalizeText } from '@/lib/gemini-ai';
 
 // CORS headers
 const corsHeaders = {
@@ -12,12 +11,10 @@ export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
-export const maxDuration = 60; // Allow 60s for AI processing
-
 /**
  * POST /api/resume-generator/upload
- * Upload and parse resume files using Gemini AI
- * Supporting: PDF, DOCX, Images, TXT
+ * Upload and parse resume files (PDF, DOC, DOCX, TXT)
+ * Returns extracted text content
  */
 export async function POST(req: NextRequest) {
     try {
@@ -32,7 +29,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Validate file size (10MB max)
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        constAC_MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
         if (file.size > maxSize) {
             return NextResponse.json(
                 { success: false, error: 'File too large. Maximum size is 10MB.' },
@@ -43,64 +40,94 @@ export async function POST(req: NextRequest) {
         const fileName = file.name.toLowerCase();
 
         // Read file content
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-
-        // Use Gemini for everything except plain text
+        const buffer = await file.arrayBuffer();
         let extractedText = '';
 
-        if (fileName.endsWith('.txt') || file.type === 'text/plain') {
-            extractedText = new TextDecoder().decode(buffer);
-        } else {
-            // Use Gemini AI for PDF, DOCX, Images
-            try {
-                console.log(`🚀 Analyzing ${fileName} with Gemini AI...`);
-                // Force PDF mime type for analysis if it's a doc to ensure proper handling
-                // or just pass original type. Gemini handles most.
-                const analysis = await analyzeDocument(buffer, file.type, file.name);
+        try {
+            // Handle different file types
+            if (fileName.endsWith('.txt') || file.type === 'text/plain') {
+                // Plain text file
+                extractedText = new TextDecoder().decode(buffer);
+            } else if (fileName.endsWith('.pdf') || file.type === 'application/pdf') {
+                // PDF file - use pdf-parse
+                const pdfParseModule = await import('pdf-parse');
+                const pdfParse = pdfParseModule.default || pdfParseModule;
 
-                if (analysis.extractedText && analysis.extractedText.length > 50) {
-                    extractedText = normalizeText(analysis.extractedText);
-                } else {
-                    throw new Error('AI could not extract text from this document');
+                // pdf-parse expects a buffer, not array buffer
+                const nodeBuffer = Buffer.from(buffer);
+                const pdfData = await pdfParse(nodeBuffer);
+                extractedText = pdfData.text;
+
+                // Check if PDF is likely scanned (image-based)
+                if (!extractedText || extractedText.trim().length < 50) {
+                    const fileBufferBase64 = nodeBuffer.toString('base64');
+                    return NextResponse.json(
+                        {
+                            success: false,
+                            error: 'pdf_no_extractable_text',
+                            can_ocr: process.env.OCR_TEXTRACT_ENABLED === 'true',
+                            message: 'This PDF appears to be scanned. We can try OCR to read it.',
+                            filename: file.name,
+                            fileBuffer: fileBufferBase64 // Return for potential OCR retry
+                        },
+                        { status: 400, headers: corsHeaders }
+                    );
                 }
-            } catch (aiError: any) {
-                console.error('❌ Gemini Analysis failed:', aiError);
+            } else if (fileName.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                // DOCX file - use mammoth
+                const mammoth = await import('mammoth');
+                const nodeBuffer = Buffer.from(buffer);
+                const result = await mammoth.extractRawText({ buffer: nodeBuffer });
+                extractedText = result.value;
+            } else if (fileName.endsWith('.doc') || file.type === 'application/msword') {
                 return NextResponse.json(
-                    { success: false, error: 'Failed to analyze document with AI. Please try a different file.' },
-                    { status: 500, headers: corsHeaders }
+                    { success: false, error: 'Old .doc format is not supported. Please save as .docx or .pdf.' },
+                    { status: 400, headers: corsHeaders }
+                );
+            } else {
+                return NextResponse.json(
+                    { success: false, error: 'Unsupported file type. Please upload PDF, DOCX, or TXT.' },
+                    { status: 400, headers: corsHeaders }
                 );
             }
-        }
 
-        // Clean up extracted text
-        extractedText = extractedText
-            .replace(/\r\n/g, '\n')
-            .replace(/\r/g, '\n')
-            .replace(/\n{3,}/g, '\n\n')
-            .trim();
+            // Clean up extracted text
+            extractedText = extractedText
+                .replace(/\r\n/g, '\n')
+                .replace(/\r/g, '\n')
+                // Remove null bytes
+                .replace(/\0/g, '')
+                .trim();
 
-        if (!extractedText || extractedText.length < 50) {
+            if (!extractedText || extractedText.length < 50) {
+                return NextResponse.json(
+                    { success: false, error: 'Could not extract text. The file might be empty or an image.' },
+                    { status: 400, headers: corsHeaders }
+                );
+            }
+
             return NextResponse.json(
-                { success: false, error: 'No readable text found in file. Please paste your resume text manually.' },
-                { status: 400, headers: corsHeaders }
+                {
+                    success: true,
+                    text: extractedText,
+                    filename: file.name,
+                    length: extractedText.length
+                },
+                { status: 200, headers: corsHeaders }
+            );
+
+        } catch (parseError: any) {
+            console.error('File parsing error:', parseError);
+            return NextResponse.json(
+                { success: false, error: `Failed to parse file: ${parseError.message}` },
+                { status: 500, headers: corsHeaders }
             );
         }
 
-        return NextResponse.json(
-            {
-                success: true,
-                text: extractedText,
-                filename: file.name,
-                length: extractedText.length
-            },
-            { status: 200, headers: corsHeaders }
-        );
-
     } catch (error) {
-        console.error('File upload error:', error);
+        console.error('Upload error:', error);
         return NextResponse.json(
-            { success: false, error: 'Failed to process file. Please try again or paste text manually.' },
+            { success: false, error: 'Internal server error during upload.' },
             { status: 500, headers: corsHeaders }
         );
     }
