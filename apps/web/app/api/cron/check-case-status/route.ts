@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': process.env.API_SECRET_KEY || '',
       }
     });
 
