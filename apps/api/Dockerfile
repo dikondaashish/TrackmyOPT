@@ -1,7 +1,9 @@
 # Dockerfile for NestJS API (Production)
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
+
+# Copy workspace files
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
@@ -10,19 +12,13 @@ COPY apps/web/package.json apps/web/
 RUN npm install -g pnpm
 RUN pnpm install --frozen-lockfile
 
-# Copy source
+# Copy source code
 COPY . .
 
 # Build API
 RUN pnpm --filter api build
 
-# Production image
-FROM node:18-alpine AS runner
-WORKDIR /app
-
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/package.json ./
-
+# Switch to api directory and run
+WORKDIR /app/apps/api
 EXPOSE 3000
 CMD ["node", "dist/main"]
