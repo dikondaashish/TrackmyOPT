@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { extractPdfText } from '@/lib/pdf-parser';
 
 // CORS headers
 const corsHeaders = {
@@ -11,10 +12,12 @@ export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
+export const runtime = 'nodejs'; // Required for pdfjs-dist and fs
+
 /**
  * POST /api/resume-generator/upload
  * Upload and parse resume files (PDF, DOC, DOCX, TXT)
- * Returns extracted text content
+ * Logic ported from ATS Scanner for maximum reliability
  */
 export async function POST(req: NextRequest) {
     try {
@@ -28,8 +31,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Validate file size (10MB max)
-        constAC_MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        const maxSize = 10 * 1024 * 1024; // 10MB
         if (file.size > maxSize) {
             return NextResponse.json(
                 { success: false, error: 'File too large. Maximum size is 10MB.' },
@@ -38,70 +40,98 @@ export async function POST(req: NextRequest) {
         }
 
         const fileName = file.name.toLowerCase();
-
-        // Read file content
-        const buffer = await file.arrayBuffer();
+        const buffer = Buffer.from(await file.arrayBuffer());
         let extractedText = '';
 
         try {
-            // Handle different file types
-            if (fileName.endsWith('.txt') || file.type === 'text/plain') {
-                // Plain text file
-                extractedText = new TextDecoder().decode(buffer);
-            } else if (fileName.endsWith('.pdf') || file.type === 'application/pdf') {
-                // PDF file - use pdf-parse
-                const pdfParseModule = await import('pdf-parse');
-                const pdfParse = pdfParseModule.default || pdfParseModule;
+            // ==========================================
+            // 1. PDF Handling (Robust Multi-Stage)
+            // ==========================================
+            if (fileName.endsWith('.pdf') || file.type === 'application/pdf') {
 
-                // pdf-parse expects a buffer, not array buffer
-                const nodeBuffer = Buffer.from(buffer);
-                const pdfData = await pdfParse(nodeBuffer);
-                extractedText = pdfData.text;
+                // Stage 1: Try PDF.js (Best for complex layouts)
+                try {
+                    const pdfResult = await extractPdfText(buffer);
+                    extractedText = pdfResult.text;
 
-                // Check if PDF is likely scanned (image-based)
-                if (!extractedText || extractedText.trim().length < 50) {
-                    const fileBufferBase64 = nodeBuffer.toString('base64');
+                    // Check if scanned (image-only)
+                    if (pdfResult.isLikelyScanned || extractedText.length < 50) {
+                        console.log('⚠️ PDF appears to be scanned or empty');
+                        extractedText = ''; // Trigger fallback
+                    }
+                } catch (pdfJsError) {
+                    console.warn('⚠️ PDF.js failed, trying fallback:', pdfJsError);
+                }
+
+                // Stage 2: Fallback to pdf-parse (Simpler, sometimes works when PDF.js fails)
+                if (!extractedText || extractedText.length < 50) {
+                    try {
+                        const pdfParseModule = await import('pdf-parse');
+                        const pdfParse = pdfParseModule.default || pdfParseModule;
+                        const data = await pdfParse(buffer);
+                        const parseText = data.text ? data.text.trim() : '';
+
+                        // Check confidence
+                        if (parseText.length > 50) {
+                            extractedText = parseText;
+                            console.log('✅ Fallback pdf-parse succeeded');
+                        }
+                    } catch (parseErr) {
+                        console.warn('⚠️ pdf-parse fallback failed');
+                    }
+                }
+
+                // Stage 3: Fail gracefully with OCR Hint
+                // If we still don't have text, it's likely a scan
+                if (!extractedText || extractedText.length < 50) {
                     return NextResponse.json(
                         {
                             success: false,
                             error: 'pdf_no_extractable_text',
-                            can_ocr: process.env.OCR_TEXTRACT_ENABLED === 'true',
-                            message: 'This PDF appears to be scanned. We can try OCR to read it.',
+                            can_ocr: true, // Frontend shows OCR button
+                            message: 'This PDF appears to be an image. Please use OCR.',
                             filename: file.name,
-                            fileBuffer: fileBufferBase64 // Return for potential OCR retry
+                            fileBuffer: buffer.toString('base64')
                         },
                         { status: 400, headers: corsHeaders }
                     );
                 }
-            } else if (fileName.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-                // DOCX file - use mammoth
+
+            }
+            // ==========================================
+            // 2. DOCX Handling (Mammoth)
+            // ==========================================
+            else if (fileName.endsWith('.docx') || file.type.includes('wordprocessingml')) {
                 const mammoth = await import('mammoth');
-                const nodeBuffer = Buffer.from(buffer);
-                const result = await mammoth.extractRawText({ buffer: nodeBuffer });
+                const result = await mammoth.extractRawText({ buffer });
                 extractedText = result.value;
-            } else if (fileName.endsWith('.doc') || file.type === 'application/msword') {
+            }
+            // ==========================================
+            // 3. Text / Legacy DOC
+            // ==========================================
+            else if (fileName.endsWith('.txt') || file.type === 'text/plain') {
+                extractedText = new TextDecoder().decode(buffer);
+            } else if (fileName.endsWith('.doc')) {
                 return NextResponse.json(
-                    { success: false, error: 'Old .doc format is not supported. Please save as .docx or .pdf.' },
+                    { success: false, error: 'Old .doc format not supported. Save as .docx or PDF.' },
                     { status: 400, headers: corsHeaders }
                 );
             } else {
                 return NextResponse.json(
-                    { success: false, error: 'Unsupported file type. Please upload PDF, DOCX, or TXT.' },
+                    { success: false, error: 'Unsupported file type.' },
                     { status: 400, headers: corsHeaders }
                 );
             }
 
-            // Clean up extracted text
+            // Cleanup & Final Validation
             extractedText = extractedText
                 .replace(/\r\n/g, '\n')
-                .replace(/\r/g, '\n')
-                // Remove null bytes
                 .replace(/\0/g, '')
                 .trim();
 
             if (!extractedText || extractedText.length < 50) {
                 return NextResponse.json(
-                    { success: false, error: 'Could not extract text. The file might be empty or an image.' },
+                    { success: false, error: 'Could not extract text. File might be empty.' },
                     { status: 400, headers: corsHeaders }
                 );
             }
@@ -116,18 +146,18 @@ export async function POST(req: NextRequest) {
                 { status: 200, headers: corsHeaders }
             );
 
-        } catch (parseError: any) {
-            console.error('File parsing error:', parseError);
+        } catch (processError: any) {
+            console.error('Processing error:', processError);
             return NextResponse.json(
-                { success: false, error: `Failed to parse file: ${parseError.message}` },
+                { success: false, error: `Failed to process file: ${processError.message}` },
                 { status: 500, headers: corsHeaders }
             );
         }
 
     } catch (error) {
-        console.error('Upload error:', error);
+        console.error('Upload handler error:', error);
         return NextResponse.json(
-            { success: false, error: 'Internal server error during upload.' },
+            { success: false, error: 'Internal server error' },
             { status: 500, headers: corsHeaders }
         );
     }
