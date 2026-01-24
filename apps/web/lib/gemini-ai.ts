@@ -15,7 +15,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const MODEL_NAME = 'gemini-2.5-pro';
 
 // Document types we support
-export type DocumentType = 
+export type DocumentType =
   | 'passport'
   | 'visa'
   | 'i20'
@@ -84,7 +84,7 @@ export async function analyzeDocument(
 
   } catch (error) {
     console.error('❌ Gemini AI error:', error);
-    
+
     // Return fallback analysis
     return {
       documentType: 'other',
@@ -228,3 +228,136 @@ export function normalizeText(text: string): string {
     .trim();
 }
 
+
+// ==========================================
+// RESUME ENHANCEMENT CAPABILITIES
+// ==========================================
+
+export interface AtsGapAnalysis {
+  matchScore: number;
+  missingKeywords: string[];
+  gapAnalysis: string;
+  recommendations: string[];
+}
+
+export interface BulletRewrite {
+  original: string;
+  improved: string;
+  reasoning: string;
+}
+
+/**
+ * Rewrite resume bullet points to match a specific Job Description
+ */
+export async function rewriteBulletPoints(
+  resumeText: string,
+  jobDescription: string
+): Promise<BulletRewrite[]> {
+  try {
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const prompt = `
+    You are an expert Resume Writer and ATS Optimizer.
+    I will provide a RESUME and a JOB DESCRIPTION.
+    
+    Task: Identify the 3-5 weak bullet points in the resume that are relevant to the job but poorly phrased.
+    Rewrite them to match the Job Description's keywords and tone.
+    
+    RESUME:
+    ${resumeText.substring(0, 8000)}
+    
+    JOB DESCRIPTION:
+    ${jobDescription.substring(0, 5000)}
+    
+    Respond in strict JSON format:
+    [
+      {
+        "original": "Managed a team",
+        "improved": "Led a cross-functional team of 5 engineers to deliver critical APIs...",
+        "reasoning": "Added metrics and specific keywords from JD like 'cross-functional' and 'deliver'"
+      }
+    ]
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+
+    return jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+
+  } catch (error) {
+    console.error('❌ AI Rewrite Error:', error);
+    return [];
+  }
+}
+
+/**
+ * Analyze Resume vs Job Description Gap (ATS Simulator)
+ */
+export async function analyzeAtsGap(
+  resumeText: string,
+  jobDescription: string
+): Promise<AtsGapAnalysis> {
+  try {
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const prompt = `
+    Act as an ATS (Applicant Tracking System). Compare this Resume to the Job Description.
+    
+    RESUME:
+    ${resumeText.substring(0, 8000)}
+    
+    JOB DESCRIPTION:
+    ${jobDescription.substring(0, 5000)}
+    
+    Output JSON ONLY:
+    {
+      "matchScore": 85,
+      "missingKeywords": ["Python", "AWS", "Agile"],
+      "gapAnalysis": "Candidate lacks specific cloud experience mentioned...",
+      "recommendations": ["Add a 'Skills' section", "Mention 'AWS' in relevant projects"]
+    }
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+
+    if (!jsonMatch) throw new Error('Failed to parse AI response');
+
+    return JSON.parse(jsonMatch[0]);
+
+  } catch (error) {
+    console.error('❌ ATS Gap Analysis Error:', error);
+    return {
+      matchScore: 0,
+      missingKeywords: [],
+      gapAnalysis: 'AI Analysis Failed',
+      recommendations: []
+    };
+  }
+}
+
+/**
+ * Generate a Professional Executive Summary
+ */
+export async function generateExecutiveSummary(resumeText: string, jobTitle: string): Promise<string> {
+  try {
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const prompt = `
+    Write a compelling, professional executive summary (max 3 sentences) for this resume, tailored for a "${jobTitle}" role.
+    Focus on achievements, years of experience, and key skills.
+    
+    RESUME:
+    ${resumeText.substring(0, 5000)}
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text().trim();
+
+  } catch (error) {
+    console.error('❌ Summary Gen Error:', error);
+    return '';
+  }
+}
