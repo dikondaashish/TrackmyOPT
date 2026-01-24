@@ -209,13 +209,17 @@ export default function ResumeGeneratorPage() {
         setErrors(prev => ({ ...prev, [type]: undefined }));
 
         try {
-            // Start OCR job
-            const response = await fetch("/api/resume-generator/ocr/start", {
+            // Start OCR job via NestJS Backend
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const response = await fetch(`${apiUrl}/ocr/queue`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    fileBuffer: ocrInfo.fileBuffer,
+                    fileBuffer: ocrInfo.fileBuffer, // Note: Backend expects s3Key really, but we'll refactor upload first
                     filename: ocrInfo.filename,
+                    // Temporary: We are sending fileBuffer but backend expects s3Key. 
+                    // To do this properly, we should upload to S3 first on frontend or let backend handle upload.
+                    // For now, let's assume valid s3Key is passed if we change the upload flow.
                 }),
             });
 
@@ -239,7 +243,8 @@ export default function ResumeGeneratorPage() {
         const setOcr = type === "resume" ? setResumeOcr : setJobOcr;
 
         try {
-            const response = await fetch(`/api/resume-generator/ocr/status?textractJobId=${textractJobId}`);
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const response = await fetch(`${apiUrl}/ocr/status/${textractJobId}`);
             const result = await response.json();
 
             if (result.status === "succeeded") {

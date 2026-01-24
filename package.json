@@ -1,26 +1,11 @@
 {
   "name": "trackmyopt-monorepo",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "private": true,
-  "description": "TrackMyOPT - Web app and Chrome extension monorepo",
   "scripts": {
-    "dev:web": "pnpm --filter web dev",
-    "build:web": "pnpm --filter web build",
-    "dev:ext": "pnpm --filter extension dev",
-    "build:ext": "pnpm --filter extension build",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\""
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "lint": "pnpm -r lint"
   },
-  "keywords": [
-    "opt",
-    "tracker",
-    "chrome-extension",
-    "nextjs"
-  ],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "prettier": "^3.1.0"
-  },
-  "packageManager": "pnpm@10.18.2+sha512.9fb969fa749b3ade6035e0f109f0b8a60b5d08a1a87fdf72e337da90dcc93336e2280ca4e44f2358a649b83c17959e9993e777c2080879f3801e6f0d999ad3dd"
+  "packageManager": "pnpm@10.18.2"
 }

@@ -1,0 +1,33 @@
+services:
+  # Backend Service (NestJS)
+  - type: web
+    name: trackmyopt-api
+    env: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    region: oregon
+    plan: free
+    numInstances: 1
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: trackmyopt-queue
+          property: connectionString
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_S3_BUCKET
+        sync: false
+
+  # Redis Service (Managed)
+  - type: redis
+    name: trackmyopt-queue
+    region: oregon
+    plan: free # Free tier Redis on Render
+    ipAllowList: [] # Access internal only
