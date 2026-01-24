@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Extend Vercel timeout to 60s
 
 /**
  * Cron Job: Trigger USCIS Status Check Batch
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
   try {
-    // Verify cron secret (set in Vercel environment variables)
+    // Verify cron secret
     const authHeader = req.headers.get('authorization');
 
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -20,24 +21,33 @@ export async function GET(req: NextRequest) {
     }
 
     console.log('🚀 Triggering Backend USCIS Batch Check...');
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const apiKey = process.env.API_SECRET_KEY;
 
-    // Call Backend (NestJS) to queue jobs
-    // In production, this points to your Render URL via env var
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    if (!apiUrl || !apiKey) {
+      console.error('❌ Missing configuration: NEXT_PUBLIC_API_URL or API_SECRET_KEY');
+      throw new Error('Server misconfiguration: Missing API URL or Key');
+    }
 
+    // Call Backend (NestJS)
     const response = await fetch(`${apiUrl}/uscis/check-all`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.API_SECRET_KEY || '',
-      }
+        'x-api-key': apiKey,
+      },
+      // Increase fetch timeout to handle cold starts (if environment supports it)
+      signal: AbortSignal.timeout(59000),
     });
 
     if (!response.ok) {
-      throw new Error(`Backend returned ${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`❌ Backend Error (${response.status}):`, errorText);
+      throw new Error(`Backend returned ${response.status}: ${errorText}`);
     }
 
     const result = await response.json();
+    console.log('✅ Batch triggered successfully:', result);
 
     return NextResponse.json(
       {
@@ -50,8 +60,13 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('❌ Cron job error:', error);
     return NextResponse.json(
-      { ok: false, error: error.message || 'Internal server error' },
+      {
+        ok: false,
+        error: error.message || 'Internal server error',
+        details: 'Check Vercel logs for full stack trace'
+      },
       { status: 500 }
     );
   }
 }
+
