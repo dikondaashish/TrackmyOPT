@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { analyzeDocument, normalizeText } from '@/lib/gemini-ai';
 
 // CORS headers
 const corsHeaders = {
@@ -11,10 +12,12 @@ export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
+export const maxDuration = 60; // Allow 60s for AI processing
+
 /**
  * POST /api/resume-generator/upload
- * Upload and parse resume files (PDF, DOC, DOCX, TXT)
- * Returns extracted text content
+ * Upload and parse resume files using Gemini AI
+ * Supporting: PDF, DOCX, Images, TXT
  */
 export async function POST(req: NextRequest) {
     try {
@@ -37,85 +40,37 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Validate file type
-        const allowedTypes = [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'text/plain',
-        ];
-
-        const fileType = file.type;
         const fileName = file.name.toLowerCase();
 
-        // Check by extension if MIME type is not reliable
-        const allowedExtensions = ['.pdf', '.doc', '.docx', '.txt'];
-        const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
-
-        if (!allowedTypes.includes(fileType) && !hasValidExtension) {
-            return NextResponse.json(
-                { success: false, error: 'Unsupported file type. Please upload PDF, DOC, DOCX, or TXT files.' },
-                { status: 400, headers: corsHeaders }
-            );
-        }
-
         // Read file content
-        const buffer = await file.arrayBuffer();
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // Use Gemini for everything except plain text
         let extractedText = '';
 
-        // Handle different file types
-        if (fileName.endsWith('.txt') || fileType === 'text/plain') {
-            // Plain text file
+        if (fileName.endsWith('.txt') || file.type === 'text/plain') {
             extractedText = new TextDecoder().decode(buffer);
-        } else if (fileName.endsWith('.pdf') || fileType === 'application/pdf') {
-            // PDF file - use pdf-parse
+        } else {
+            // Use Gemini AI for PDF, DOCX, Images
             try {
-                const pdfParseModule = await import('pdf-parse') as any;
-                const pdfParse = pdfParseModule.default || pdfParseModule;
-                const pdfData = await pdfParse(Buffer.from(buffer));
-                extractedText = pdfData.text;
+                console.log(`🚀 Analyzing ${fileName} with Gemini AI...`);
+                // Force PDF mime type for analysis if it's a doc to ensure proper handling
+                // or just pass original type. Gemini handles most.
+                const analysis = await analyzeDocument(buffer, file.type, file.name);
 
-                if (!extractedText || extractedText.trim().length < 50) {
-                    // Return OCR option for scanned PDFs
-                    const fileBuffer = Buffer.from(buffer).toString('base64');
-                    return NextResponse.json(
-                        {
-                            success: false,
-                            error: 'pdf_no_extractable_text',
-                            can_ocr: process.env.OCR_TEXTRACT_ENABLED === 'true',
-                            message: 'This PDF appears to be scanned/image-based. You can run OCR to extract text.',
-                            filename: file.name,
-                            fileBuffer: fileBuffer // Base64 encoded for OCR
-                        },
-                        { status: 400, headers: corsHeaders }
-                    );
+                if (analysis.extractedText && analysis.extractedText.length > 50) {
+                    extractedText = normalizeText(analysis.extractedText);
+                } else {
+                    throw new Error('AI could not extract text from this document');
                 }
-            } catch (pdfError) {
-                console.error('PDF parsing error:', pdfError);
+            } catch (aiError: any) {
+                console.error('❌ Gemini Analysis failed:', aiError);
                 return NextResponse.json(
-                    { success: false, error: 'Failed to parse PDF. Please try a different file or paste text manually.' },
-                    { status: 400, headers: corsHeaders }
+                    { success: false, error: 'Failed to analyze document with AI. Please try a different file.' },
+                    { status: 500, headers: corsHeaders }
                 );
             }
-        } else if (fileName.endsWith('.docx') || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            // DOCX file - use mammoth
-            try {
-                const mammoth = await import('mammoth');
-                const result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) });
-                extractedText = result.value;
-            } catch (docxError) {
-                console.error('DOCX parsing error:', docxError);
-                return NextResponse.json(
-                    { success: false, error: 'Failed to parse DOCX. Please try a different file or paste text manually.' },
-                    { status: 400, headers: corsHeaders }
-                );
-            }
-        } else if (fileName.endsWith('.doc') || fileType === 'application/msword') {
-            // DOC file - limited support, suggest DOCX
-            return NextResponse.json(
-                { success: false, error: 'Old DOC format has limited support. Please convert to DOCX or PDF and try again.' },
-                { status: 400, headers: corsHeaders }
-            );
         }
 
         // Clean up extracted text
