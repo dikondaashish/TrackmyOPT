@@ -52,6 +52,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                                         const initialSrc = getLogoUrl(hostname);
 
                                         return (
+                                            // eslint-disable-next-line @next/next/no-img-element
                                             <img
                                                 src={initialSrc}
                                                 alt={sponsor.name}

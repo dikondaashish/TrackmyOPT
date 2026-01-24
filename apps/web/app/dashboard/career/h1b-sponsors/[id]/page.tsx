@@ -210,6 +210,7 @@ export default function CompanyProfilePage() {
                                     const initialSrc = getLogoUrl(hostname);
 
                                     return (
+                                        // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                             src={initialSrc}
                                             alt={sponsor.name}

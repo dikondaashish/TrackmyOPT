@@ -1,5 +1,8 @@
 "use client";
 
+import Image from "next/image";
+
+
 interface LoadingScreenProps {
     message?: string;
 }
@@ -28,10 +31,13 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
                 <div className="flex items-center gap-2 mb-6">
                     {/* Logo Icon */}
                     <div className="flex items-center justify-center bg-[#226BE7] rounded-xl p-2 shadow-sm border border-blue-500/30">
-                        <img
+                        <Image
                             src="/TrackMyOPT Logo/logo.gif"
                             alt="TrackMyOPT Logo"
+                            width={64}
+                            height={64}
                             className="w-16 h-16 object-contain"
+                            unoptimized
                         />
                     </div>
                     {/* Logo Text */}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Crown, Menu, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -32,10 +33,13 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                 )}
                 <Link href="/dashboard" className="flex items-center gap-2">
                     <div className="flex items-center justify-center bg-[#226BE7] rounded-lg p-1">
-                        <img
+                        <Image
                             src="/TrackMyOPT Logo/logo.gif"
                             alt="TrackMyOPT Logo"
+                            width={32}
+                            height={32}
                             className="w-8 h-8 object-contain"
+                            unoptimized
                         />
                     </div>
                     <span className="text-white font-bold text-xl hidden sm:block">
