@@ -1,8 +1,8 @@
 import { Controller, Post, Body, Get, Param, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { OcrService } from './ocr.service';
-import * as pdfParse from 'pdf-parse';
-import * as mammoth from 'mammoth';
+import pdfParse from 'pdf-parse';
+import mammoth from 'mammoth';
 
 @Controller('ocr')
 export class OcrController {
