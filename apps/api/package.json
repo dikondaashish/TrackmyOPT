@@ -30,6 +30,8 @@
     "@supabase/supabase-js": "^2.75.0",
     "@types/bull": "^4.10.4",
     "bull": "^4.16.5",
+    "mammoth": "^1.11.0",
+    "pdf-parse": "1.1.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
@@ -41,7 +43,9 @@
     "@nestjs/testing": "^11.0.1",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
+    "@types/multer": "^2.0.0",
     "@types/node": "^22.10.7",
+    "@types/pdf-parse": "^1.1.5",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",

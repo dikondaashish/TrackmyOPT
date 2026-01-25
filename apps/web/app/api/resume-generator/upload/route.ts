@@ -14,46 +14,8 @@ export async function OPTIONS() {
 export const runtime = 'nodejs';
 
 /**
- * Extract text from PDF using pdfjs-dist
- */
-async function extractPdfText(buffer: Buffer): Promise<string> {
-    // Dynamic import to avoid edge runtime issues
-    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
-
-    const uint8Array = new Uint8Array(buffer);
-    const loadingTask = pdfjsLib.getDocument({
-        data: uint8Array,
-        disableFontFace: true,
-        verbosity: 0,
-        useSystemFonts: true
-    });
-
-    const pdf = await loadingTask.promise;
-    let text = '';
-
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        try {
-            const page = await pdf.getPage(pageNum);
-            const content = await page.getTextContent();
-            const pageText = content.items
-                .filter((item: any) => item && typeof item === 'object' && 'str' in item)
-                .map((item: any) => item.str || '')
-                .filter((str: string) => str.trim().length > 0)
-                .join(' ');
-
-            if (pageText.trim()) {
-                text += pageText + '\n';
-            }
-        } catch (err) {
-            console.warn(`Page ${pageNum} extraction failed`);
-        }
-    }
-
-    return text.replace(/\u0000/g, '').replace(/\s+/g, ' ').trim();
-}
-
-/**
  * POST /api/resume-generator/upload
+ * Routes PDF parsing to backend API (Render) which has proper Node.js environment
  */
 export async function POST(req: NextRequest) {
     try {
@@ -80,9 +42,34 @@ export async function POST(req: NextRequest) {
         let extractedText = '';
 
         try {
-            // PDF Handling (using pdfjs-dist)
-            if (fileName.endsWith('.pdf') || file.type === 'application/pdf') {
-                extractedText = await extractPdfText(buffer);
+            // PDF & DOCX: Route to backend API (Render) for reliable parsing
+            if (fileName.endsWith('.pdf') || file.type === 'application/pdf' ||
+                fileName.endsWith('.docx') || file.type.includes('wordprocessingml')) {
+
+                const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+                if (!backendUrl) {
+                    throw new Error('Backend API URL not configured');
+                }
+
+                // Forward to backend
+                const backendFormData = new FormData();
+                backendFormData.append('file', new Blob([buffer], { type: file.type }), file.name);
+
+                const response = await fetch(`${backendUrl}/ocr/parse-resume`, {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': process.env.API_SECRET_KEY || '',
+                    },
+                    body: backendFormData,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `Backend returned ${response.status}`);
+                }
+
+                const result = await response.json();
+                extractedText = result.text || '';
 
                 if (!extractedText || extractedText.length < 50) {
                     return NextResponse.json(
@@ -90,7 +77,7 @@ export async function POST(req: NextRequest) {
                             success: false,
                             error: 'pdf_no_extractable_text',
                             can_ocr: true,
-                            message: 'This PDF appears to be scanned. Please use OCR.',
+                            message: 'This file appears to be scanned. Please use OCR.',
                             filename: file.name,
                             fileBuffer: buffer.toString('base64')
                         },
@@ -98,13 +85,7 @@ export async function POST(req: NextRequest) {
                     );
                 }
             }
-            // DOCX Handling
-            else if (fileName.endsWith('.docx') || file.type.includes('wordprocessingml')) {
-                const mammoth = require('mammoth');
-                const result = await mammoth.extractRawText({ buffer });
-                extractedText = result.value;
-            }
-            // TXT Handling
+            // TXT Handling (local - no issues)
             else if (fileName.endsWith('.txt') || file.type === 'text/plain') {
                 extractedText = new TextDecoder().decode(buffer);
             }
