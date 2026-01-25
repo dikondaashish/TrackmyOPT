@@ -32,6 +32,7 @@ interface ResumeData {
     text: string;
     filename?: string;
     source: "text" | "file" | "url";
+    s3Key?: string;
 }
 
 interface JobData {
@@ -94,7 +95,8 @@ export default function ResumeGeneratorPage() {
     }, []);
 
     // Save Resume Handler
-    const handleSaveResume = async (text: string, filename: string) => {
+    // Save Resume Handler
+    const handleSaveResume = async (text: string, filename: string, s3Key?: string) => {
         if (!text || text.length < 50) return;
 
         setIsSaving(true);
@@ -118,9 +120,10 @@ export default function ResumeGeneratorPage() {
                 },
                 body: JSON.stringify({
                     userId: user.id,
-                    filename: filename || `Resume - ${new Date().toLocaleDateString()}`,
+                    filename: filename,
                     content: text,
-                    structuredData: {}, // Placeholder
+                    structuredData: {}, // We'll add structured data later
+                    filePath: s3Key,
                 }),
             });
 
@@ -165,13 +168,16 @@ export default function ResumeGeneratorPage() {
                         text: result.text,
                         filename: result.filename,
                         source: "file",
+                        s3Key: result.s3Key,
                     });
                     setResumeName(result.filename);
                     setResumeOcr({ show: false, running: false });
 
                     // Auto-save if checked
                     if (saveResume) {
-                        handleSaveResume(result.text, result.filename);
+                        if (saveResume) {
+                            handleSaveResume(result.text, result.filename, result.s3Key);
+                        }
                     }
                 } else {
                     setJobData({
@@ -234,7 +240,9 @@ export default function ResumeGeneratorPage() {
 
                     // Auto-save if checked
                     if (saveResume) {
-                        handleSaveResume(result.content, result.title);
+                        if (saveResume) {
+                            handleSaveResume(result.content, result.title); // URLs typically don't fail, but we don't have s3Key yet unless we upload it
+                        }
                     }
                 } else {
                     setJobData({
@@ -429,7 +437,7 @@ export default function ResumeGeneratorPage() {
                                         variant="ghost"
                                         size="sm"
                                         className="text-gray-500 hover:text-blue-600"
-                                        onClick={() => handleSaveResume(resumeData.text, resumeData.filename || resumeName || "My Resume")}
+                                        onClick={() => handleSaveResume(resumeData.text, resumeData.filename || resumeName || "My Resume", resumeData.s3Key)}
                                         disabled={isSaving}
                                     >
                                         {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}

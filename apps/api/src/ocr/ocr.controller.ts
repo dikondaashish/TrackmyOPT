@@ -21,8 +21,12 @@ export class OcrController {
 
         const fileName = file.originalname.toLowerCase();
         let extractedText = '';
+        let s3Key = '';
 
         try {
+            // Upload to S3 for persistence (download feature)
+            s3Key = await this.ocrService.uploadToS3(file.buffer.toString('base64'), file.originalname);
+
             if (fileName.endsWith('.pdf') || file.mimetype === 'application/pdf') {
                 const data = await pdfParse(file.buffer);
                 extractedText = (data.text || '').trim();
@@ -33,7 +37,7 @@ export class OcrController {
                 throw new HttpException('Unsupported file type', HttpStatus.BAD_REQUEST);
             }
         } catch (error: any) {
-            console.error('PDF parse error:', error);
+            console.error('PDF parse/upload error:', error);
             throw new HttpException(`Failed to parse file: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -41,7 +45,8 @@ export class OcrController {
             success: true,
             text: extractedText,
             filename: file.originalname,
-            length: extractedText.length
+            length: extractedText.length,
+            s3Key: s3Key
         };
     }
 

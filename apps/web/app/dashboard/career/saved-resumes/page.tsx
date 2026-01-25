@@ -12,6 +12,7 @@ import {
     ChevronRight,
     AlertCircle,
     Plus,
+    FolderDown,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -38,6 +39,7 @@ interface SavedResume {
     description: string;
     content: string;
     created_at: string;
+    file_path?: string;
 }
 
 export default function SavedResumesPage() {
@@ -120,8 +122,44 @@ export default function SavedResumesPage() {
             text: resume.content,
             filename: resume.filename,
             source: "saved",
+            s3Key: resume.file_path
         }));
         router.push("/dashboard/career/resume-generator");
+    };
+
+    const handleDownload = async (resume: SavedResume) => {
+        if (!resume.file_path) {
+            toast({
+                title: "Download Unavailable",
+                description: "This resume does not have a saved file.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const response = await fetch(`${apiUrl}/resume/download-url`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
+                },
+                body: JSON.stringify({ s3Key: resume.file_path }),
+            });
+
+            if (!response.ok) throw new Error("Failed to get download link");
+
+            const { url } = await response.json();
+            window.open(url, "_blank");
+        } catch (error) {
+            console.error("Download error:", error);
+            toast({
+                title: "Download Failed",
+                description: "Could not download the file.",
+                variant: "destructive",
+            });
+        }
     };
 
     return (
@@ -238,6 +276,18 @@ export default function SavedResumesPage() {
                                         Use Resume
                                         <ChevronRight className="w-3.5 h-3.5" />
                                     </Button>
+
+                                    {resume.file_path && (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => handleDownload(resume)}
+                                            className="h-8 gap-1.5 border-gray-200 dark:border-gray-700"
+                                        >
+                                            <FolderDown className="w-3.5 h-3.5" />
+                                            Download
+                                        </Button>
+                                    )}
                                 </CardFooter>
                             </Card>
                         ))}

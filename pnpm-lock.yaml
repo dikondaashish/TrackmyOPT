@@ -16,6 +16,9 @@ importers:
       '@aws-sdk/client-textract':
         specifier: ^3.974.0
         version: 3.974.0
+      '@aws-sdk/s3-request-presigner':
+        specifier: ^3.937.0
+        version: 3.937.0
       '@nestjs/bull':
         specifier: ^11.0.4
         version: 11.0.4(@nestjs/common@11.1.12(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(bull@4.16.5)

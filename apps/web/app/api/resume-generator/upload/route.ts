@@ -121,7 +121,8 @@ export async function POST(req: NextRequest) {
                     success: true,
                     text: extractedText,
                     filename: file.name,
-                    length: extractedText.length
+                    length: extractedText.length,
+                    s3Key: result.s3Key || null
                 },
                 { status: 200, headers: corsHeaders }
             );

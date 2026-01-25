@@ -8,9 +8,20 @@ export class ResumeController {
     constructor(private readonly resumeService: ResumeService) { }
 
     @Post('save')
-    async saveResume(@Body() body: { userId: string; filename: string; content: string; structuredData: any }) {
+    async saveResume(@Body() body: { userId: string; filename: string; content: string; structuredData: any; filePath?: string }) {
         try {
             return await this.resumeService.saveResume(body.userId, body);
+        } catch (error: any) {
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Post('download-url')
+    async getDownloadUrl(@Body() body: { s3Key: string }) {
+        if (!body.s3Key) throw new HttpException('s3Key is required', HttpStatus.BAD_REQUEST);
+        try {
+            const url = await this.resumeService.getDownloadUrl(body.s3Key);
+            return { url };
         } catch (error: any) {
             throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
