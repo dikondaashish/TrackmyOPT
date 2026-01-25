@@ -91,80 +91,19 @@ export default function ResumeGeneratorPage() {
         setUploading(true);
         setErrors(prev => ({ ...prev, [type]: undefined }));
 
-        console.info("File upload initiated", {
-            uploadType: type,
-            fileName: file.name,
-            fileSize: file.size,
-            fileType: file.type
-        });
-
-        const formData = new FormData();
-        formData.append("file", file);
-
         try {
+            const formData = new FormData();
+            formData.append("file", file);
+
             const response = await fetch("/api/resume-generator/upload", {
                 method: "POST",
                 body: formData,
             });
 
-            const result = await response.json().catch(() => ({} as any));
+            const result = await response.json();
 
-            console.info("Upload response received", {
-                status: response.status,
-                success: result?.success,
-                textLength: result?.text?.length || 0,
-                fileType: file.type,
-                filename: result?.filename,
-                uploadType: type,
-                error: result?.error
-            });
-
-            if (!response.ok) {
-                let msg = "Upload failed";
-                if (result?.error === "pdf_no_extractable_text") {
-                    if (result?.can_ocr) {
-                        // Handle OCR capability - don't show error, show OCR prompt instead
-                        const ocrData = {
-                            show: true,
-                            running: false,
-                            fileBuffer: result.fileBuffer,
-                            filename: result.filename,
-                        };
-                        if (type === "resume") {
-                            setResumeOcr(ocrData);
-                        } else {
-                            setJobOcr(ocrData);
-                        }
-                        return;
-                    } else {
-                        msg = "This PDF has no selectable text. Upload a text-based PDF or use DOCX/TXT. If it's scanned, try OCR.";
-                    }
-                } else if (result?.error === "pdf_parse_unsupported") {
-                    msg = "We couldn't read this PDF. Try exporting it again or upload DOCX.";
-                } else if (result?.error === "unsupported_type") {
-                    msg = "Unsupported file type. Use PDF, DOC, DOCX, or TXT.";
-                } else if (response.status === 413) {
-                    msg = "File too large. Max 10MB.";
-                } else if (result?.error === "no_file_uploaded") {
-                    msg = "No file detected. Please choose a file and try again.";
-                } else if (result?.error === "no_extractable_text") {
-                    msg = "The uploaded file contains no readable text. Please try a different format or file.";
-                } else if (result?.error === "empty_file") {
-                    msg = "Empty file received. Please try again.";
-                } else if (result?.error === "server_pdf_parse_failed") {
-                    msg = "Server error processing file. Please try again or use a different format.";
-                } else if (result?.error) {
-                    msg = result.error;
-                }
-
-                setErrors(prev => ({ ...prev, [type]: msg }));
-                return;
-            }
-
-            // Success case
             if (result.success) {
                 if (type === "resume") {
-                    console.info("Setting resume data", { length: result.text.length });
                     setResumeData({
                         text: result.text,
                         filename: result.filename,
@@ -172,7 +111,6 @@ export default function ResumeGeneratorPage() {
                     });
                     setResumeOcr({ show: false, running: false });
                 } else {
-                    console.info("Setting job data", { length: result.text.length });
                     setJobData({
                         text: result.text,
                         title: result.filename,
@@ -180,10 +118,25 @@ export default function ResumeGeneratorPage() {
                     });
                     setJobOcr({ show: false, running: false });
                 }
+            } else if (result.error === "pdf_no_extractable_text" && result.can_ocr) {
+                // Show OCR prompt for scanned PDFs
+                const ocrData = {
+                    show: true,
+                    running: false,
+                    fileBuffer: result.fileBuffer,
+                    filename: result.filename,
+                };
+                if (type === "resume") {
+                    setResumeOcr(ocrData);
+                } else {
+                    setJobOcr(ocrData);
+                }
+                setErrors(prev => ({ ...prev, [type]: undefined }));
+            } else {
+                setErrors(prev => ({ ...prev, [type]: result.message || result.error }));
             }
-        } catch (error: any) {
-            console.error("Upload error:", error);
-            setErrors(prev => ({ ...prev, [type]: "Network error. Please check get connection and try again." }));
+        } catch (error) {
+            setErrors(prev => ({ ...prev, [type]: "Upload failed. Please try again." }));
         } finally {
             setUploading(false);
         }
@@ -540,7 +493,7 @@ export default function ResumeGeneratorPage() {
                                     {!isResumeUploading && <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>}
                                 </p>
                                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                    PDF, DOC, DOCX, TXT files only (max 10MB)
+                                    PDF, DOC, DOCX, TXT (max 10MB)
                                 </p>
                             </div>
                         </div>
@@ -726,7 +679,7 @@ export default function ResumeGeneratorPage() {
                                     {!isJobUploading && <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>}
                                 </p>
                                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                    PDF, DOC, DOCX, TXT files only (max 10MB)
+                                    PDF, DOC, DOCX, TXT (max 10MB)
                                 </p>
                             </div>
                         </div>
