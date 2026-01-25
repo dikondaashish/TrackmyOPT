@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/components/ui/use-toast";
 
 interface ResumeData {
@@ -51,7 +51,8 @@ interface OcrStatus {
 export default function ResumeGeneratorPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const supabase = createClientComponentClient();
+    // const supabase = createClientComponentClient(); -> Removed
+
 
     // Resume state
     const [resumeData, setResumeData] = useState<ResumeData>({ text: "", source: "text" });

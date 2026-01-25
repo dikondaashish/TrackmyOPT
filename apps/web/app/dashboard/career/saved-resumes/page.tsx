@@ -15,33 +15,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/components/ui/use-toast";
-import { format } from "date-fns";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
-interface SavedResume {
-    id: string;
-    filename: string;
-    description: string;
-    content: string;
-    created_at: string;
-}
+// ... (keep imports)
 
 export default function SavedResumesPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const supabase = createClientComponentClient();
+    // const supabase = createClientComponentClient(); -> Removed, using imported singleton
+
 
     const [resumes, setResumes] = useState<SavedResume[]>([]);
     const [isLoading, setIsLoading] = useState(true);
