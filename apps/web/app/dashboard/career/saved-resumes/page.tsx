@@ -2,14 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import {
-    ArrowLeft,
+// Card imports removed as we use custom div styling now
+ArrowLeft,
     FileText,
     Trash2,
     Loader2,
-    Calendar,
-    ChevronRight,
     AlertCircle,
     Plus,
     FolderDown,
@@ -227,69 +224,88 @@ export default function SavedResumesPage() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {resumes.map((resume) => (
-                            <Card key={resume.id} className="group hover:shadow-lg transition-all duration-300 border-gray-200 dark:border-gray-800">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-1">
-                                            <CardTitle className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                                <FileText className="w-4 h-4 text-blue-500" />
-                                                <span className="truncate max-w-[200px]">{resume.filename}</span>
-                                            </CardTitle>
-                                            <CardDescription className="flex items-center gap-1.5 text-xs">
-                                                <Calendar className="w-3 h-3" />
-                                                Created {format(new Date(resume.created_at), "MMM d, yyyy")}
-                                            </CardDescription>
+                            <div key={resume.id} className="group bg-white dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg dark:hover:shadow-blue-500/10 transition-all duration-200 overflow-hidden">
+                                {/* Modern Header */}
+                                <div className="p-4 bg-blue-50 dark:bg-blue-900/30">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="text-3xl">📄</div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 dark:text-white capitalize text-sm">
+                                                    Resume
+                                                </h3>
+                                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5" title={new Date(resume.created_at).toLocaleString()}>
+                                                    Created {format(new Date(resume.created_at), "MMM d, yyyy")}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Status Badge */}
+                                        <div className="flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+                                            <span>✓</span>
+                                            <span>Parsed</span>
                                         </div>
                                     </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-3">
-                                        {resume.content}
+                                </div>
+
+                                {/* Content */}
+                                <div className="p-4 space-y-3">
+                                    {/* Filename */}
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={resume.filename}>
+                                            {resume.filename}
+                                        </p>
+                                    </div>
+
+                                    {/* Summary/Preview */}
+                                    <p className="text-xs text-gray-600 dark:text-slate-300 line-clamp-2 leading-relaxed h-8">
+                                        {resume.content || "No content preview available."}
                                     </p>
-                                </CardContent>
-                                <CardFooter className="pt-2 flex justify-between border-t border-gray-100 dark:border-gray-800/50 mt-auto">
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 px-2 h-8">
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    This action cannot be undone. This will permanently delete this resume from your saved list.
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDelete(resume.id)} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
 
-                                    <Button
-                                        size="sm"
-                                        onClick={() => handleLoadResume(resume)}
-                                        className="text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 dark:text-blue-400 h-8 gap-1.5"
-                                    >
-                                        Use Resume
-                                        <ChevronRight className="w-3.5 h-3.5" />
-                                    </Button>
-
-                                    {resume.file_path && (
+                                    {/* Actions */}
+                                    <div className="flex gap-2 pt-2">
                                         <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => handleDownload(resume)}
-                                            className="h-8 gap-1.5 border-gray-200 dark:border-gray-700"
+                                            onClick={() => handleLoadResume(resume)}
+                                            className="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium hover:shadow-md h-9"
                                         >
-                                            <FolderDown className="w-3.5 h-3.5" />
-                                            Download
+                                            Use Resume
                                         </Button>
-                                    )}
-                                </CardFooter>
-                            </Card>
+
+                                        {resume.file_path && (
+                                            <button
+                                                onClick={() => handleDownload(resume)}
+                                                className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                                                title="Download resume"
+                                            >
+                                                <FolderDown className="w-4 h-4" />
+                                            </button>
+                                        )}
+
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <button
+                                                    className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-all"
+                                                    title="Delete resume"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete this resume from your saved list.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDelete(resume.id)} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                </div>
+                            </div>
                         ))}
                     </div>
                 )}
