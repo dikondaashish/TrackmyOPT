@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
         const fileName = file.name.toLowerCase();
         const buffer = Buffer.from(await file.arrayBuffer());
         let extractedText = '';
+        let s3Key: string | null = null;
 
         try {
             // PDF & DOCX: Route to backend API (Render) for reliable parsing
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
 
                 const result = await response.json();
                 extractedText = result.text || '';
+                s3Key = result.s3Key || null;
 
                 if (!extractedText || extractedText.length < 50) {
                     return NextResponse.json(
@@ -122,7 +124,7 @@ export async function POST(req: NextRequest) {
                     text: extractedText,
                     filename: file.name,
                     length: extractedText.length,
-                    s3Key: result.s3Key || null
+                    s3Key: s3Key
                 },
                 { status: 200, headers: corsHeaders }
             );
