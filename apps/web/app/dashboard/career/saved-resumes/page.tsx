@@ -30,6 +30,16 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import { format } from "date-fns";
+
+interface SavedResume {
+    id: string;
+    filename: string;
+    description: string;
+    content: string;
+    created_at: string;
+}
+
 export default function SavedResumesPage() {
     const router = useRouter();
     const { toast } = useToast();
