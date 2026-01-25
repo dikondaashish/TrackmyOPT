@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-// Card imports removed as we use custom div styling now
-ArrowLeft,
+import {
+    ArrowLeft,
     FileText,
     Trash2,
     Loader2,
