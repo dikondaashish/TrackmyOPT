@@ -198,7 +198,7 @@ export default function ResumeGeneratorPage() {
         if (jobFileInputRef.current) jobFileInputRef.current.value = "";
     };
 
-    // OCR handlers
+    // OCR handlers - Uses direct synchronous OCR (no queue/polling)
     const startOcr = async (type: "resume" | "job") => {
         const ocrInfo = type === "resume" ? resumeOcr : jobOcr;
         const setOcr = type === "resume" ? setResumeOcr : setJobOcr;
@@ -209,32 +209,41 @@ export default function ResumeGeneratorPage() {
         setErrors(prev => ({ ...prev, [type]: undefined }));
 
         try {
-            // Start OCR job via NestJS Backend
+            // Use direct OCR endpoint (synchronous, no queue)
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/ocr/queue`, {
+            const response = await fetch(`${apiUrl}/ocr/direct`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
                 },
                 body: JSON.stringify({
-                    fileBuffer: ocrInfo.fileBuffer, // Note: Backend expects s3Key really, but we'll refactor upload first
+                    fileBuffer: ocrInfo.fileBuffer,
                     filename: ocrInfo.filename,
-                    // Temporary: We are sending fileBuffer but backend expects s3Key. 
-                    // To do this properly, we should upload to S3 first on frontend or let backend handle upload.
-                    // For now, let's assume valid s3Key is passed if we change the upload flow.
                 }),
             });
 
             const result = await response.json();
 
-            if (result.ok && result.textractJobId) {
-                setOcr(prev => ({ ...prev, jobId: result.textractJobId }));
-                // Start polling for results using textractJobId
-                pollOcrStatus(result.textractJobId, type);
+            if (result.ok && result.text) {
+                // Update data with extracted text
+                if (type === "resume") {
+                    setResumeData({
+                        text: result.text,
+                        filename: result.filename,
+                        source: "file",
+                    });
+                } else {
+                    setJobData({
+                        text: result.text,
+                        title: result.filename,
+                        source: "file",
+                    });
+                }
+                setOcr({ show: false, running: false });
             } else {
                 setOcr(prev => ({ ...prev, running: false }));
-                setErrors(prev => ({ ...prev, [type]: result.error || "Failed to start OCR" }));
+                setErrors(prev => ({ ...prev, [type]: result.message || result.error || "OCR failed" }));
             }
         } catch (error) {
             setOcr(prev => ({ ...prev, running: false }));
