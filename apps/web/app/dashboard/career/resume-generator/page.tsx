@@ -21,9 +21,12 @@ import {
     ChevronRight,
     AlertCircle,
     X,
+    Save,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ResumeData {
     text: string;
@@ -47,12 +50,15 @@ interface OcrStatus {
 
 export default function ResumeGeneratorPage() {
     const router = useRouter();
+    const { toast } = useToast();
+    const supabase = createClientComponentClient();
 
     // Resume state
     const [resumeData, setResumeData] = useState<ResumeData>({ text: "", source: "text" });
     const [resumeUrl, setResumeUrl] = useState("");
     const [saveResume, setSaveResume] = useState(false);
     const [resumeName, setResumeName] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
     const resumeFileInputRef = useRef<HTMLInputElement>(null);
 
     // Job Description state
@@ -86,6 +92,55 @@ export default function ResumeGeneratorPage() {
         }
     }, []);
 
+    // Save Resume Handler
+    const handleSaveResume = async (text: string, filename: string) => {
+        if (!text || text.length < 50) return;
+
+        setIsSaving(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                toast({
+                    title: "Authentication Error",
+                    description: "You must be logged in to save resumes.",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const response = await fetch(`${apiUrl}/resume/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
+                },
+                body: JSON.stringify({
+                    userId: user.id,
+                    filename: filename || `Resume - ${new Date().toLocaleDateString()}`,
+                    content: text,
+                    structuredData: {}, // Placeholder
+                }),
+            });
+
+            if (!response.ok) throw new Error("Failed to save resume");
+
+            toast({
+                title: "Resume Saved",
+                description: "Your resume has been saved to your profile.",
+            });
+        } catch (error) {
+            console.error("Save error:", error);
+            toast({
+                title: "Save Failed",
+                description: "Could not save your resume. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     // File upload handler
     const handleFileUpload = async (file: File, type: "resume" | "job") => {
         const setUploading = type === "resume" ? setIsResumeUploading : setIsJobUploading;
@@ -110,7 +165,13 @@ export default function ResumeGeneratorPage() {
                         filename: result.filename,
                         source: "file",
                     });
+                    setResumeName(result.filename);
                     setResumeOcr({ show: false, running: false });
+
+                    // Auto-save if checked
+                    if (saveResume) {
+                        handleSaveResume(result.text, result.filename);
+                    }
                 } else {
                     setJobData({
                         text: result.text,
@@ -129,6 +190,7 @@ export default function ResumeGeneratorPage() {
                 };
                 if (type === "resume") {
                     setResumeOcr(ocrData);
+                    setResumeName(result.filename);
                 } else {
                     setJobOcr(ocrData);
                 }
@@ -168,6 +230,11 @@ export default function ResumeGeneratorPage() {
                         source: "url",
                     });
                     setResumeUrl("");
+
+                    // Auto-save if checked
+                    if (saveResume) {
+                        handleSaveResume(result.content, result.title);
+                    }
                 } else {
                     setJobData({
                         text: result.content,
@@ -234,6 +301,11 @@ export default function ResumeGeneratorPage() {
                         filename: result.filename,
                         source: "file",
                     });
+
+                    // Auto-save if checked
+                    if (saveResume) {
+                        handleSaveResume(result.text, result.filename);
+                    }
                 } else {
                     setJobData({
                         text: result.text,
@@ -249,45 +321,6 @@ export default function ResumeGeneratorPage() {
         } catch (error) {
             setOcr(prev => ({ ...prev, running: false }));
             setErrors(prev => ({ ...prev, [type]: "OCR failed. Please paste text manually." }));
-        }
-    };
-
-    const pollOcrStatus = async (textractJobId: string, type: "resume" | "job") => {
-        const setOcr = type === "resume" ? setResumeOcr : setJobOcr;
-
-        try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/ocr/status/${textractJobId}`, {
-                headers: { "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "" },
-            });
-            const result = await response.json();
-
-            if (result.status === "succeeded") {
-                // Update data with extracted text
-                if (type === "resume") {
-                    setResumeData({
-                        text: result.text || "",
-                        filename: result.filename,
-                        source: "file",
-                    });
-                } else {
-                    setJobData({
-                        text: result.text || "",
-                        title: result.filename,
-                        source: "file",
-                    });
-                }
-                setOcr({ show: false, running: false });
-            } else if (result.status === "failed") {
-                setOcr(prev => ({ ...prev, running: false }));
-                setErrors(prev => ({ ...prev, [type]: result.error || "OCR failed" }));
-            } else if (result.status === "running") {
-                // Continue polling
-                setTimeout(() => pollOcrStatus(textractJobId, type), 2000);
-            }
-        } catch (error) {
-            setOcr(prev => ({ ...prev, running: false }));
-            setErrors(prev => ({ ...prev, [type]: "OCR status check failed" }));
         }
     };
 
@@ -319,7 +352,7 @@ export default function ResumeGeneratorPage() {
         e.stopPropagation();
         const file = e.dataTransfer.files?.[0];
         if (file) handleFileUpload(file, "resume");
-    }, []);
+    }, [saveResume]); // Add dependency on saveResume
 
     const handleJobDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -389,15 +422,28 @@ export default function ResumeGeneratorPage() {
                                     <p className="text-xs text-gray-500">Paste or upload your current resume</p>
                                 </div>
                             </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
-                                onClick={() => router.push("/dashboard/career/resume-generator/saved-resumes")}
-                            >
-                                <BookOpen className="w-4 h-4 mr-1" />
-                                Saved
-                            </Button>
+                            <div className="flex gap-2">
+                                {resumeData.text && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-gray-500 hover:text-blue-600"
+                                        onClick={() => handleSaveResume(resumeData.text, resumeData.filename || resumeName || "My Resume")}
+                                        disabled={isSaving}
+                                    >
+                                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+                                    onClick={() => router.push("/dashboard/career/saved-resumes")}
+                                >
+                                    <BookOpen className="w-4 h-4 mr-1" />
+                                    Saved
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Text Area */}
@@ -603,7 +649,7 @@ export default function ResumeGeneratorPage() {
                                 <Input
                                     value={resumeName}
                                     onChange={(e) => setResumeName(e.target.value)}
-                                    placeholder="Resume name"
+                                    placeholder="Resume name (optional)"
                                     className="flex-1 h-8 text-sm"
                                 />
                             )}

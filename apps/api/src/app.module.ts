@@ -4,6 +4,7 @@ import { BullModule } from '@nestjs/bull';
 import { APP_GUARD } from '@nestjs/core';
 import { OcrModule } from './ocr/ocr.module';
 import { UscisModule } from './uscis/uscis.module';
+import { ResumeModule } from './resume/resume.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
@@ -31,6 +32,7 @@ import { ApiKeyGuard } from './common/guards/api-key.guard';
     }),
     OcrModule,
     UscisModule,
+    ResumeModule,
   ],
   controllers: [AppController],
   providers: [
