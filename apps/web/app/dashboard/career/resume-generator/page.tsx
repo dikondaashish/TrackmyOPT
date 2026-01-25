@@ -433,7 +433,7 @@ export default function ResumeGeneratorPage() {
                             </div>
                         )}
 
-                        {/* OCR Prompt */}
+                        {/* OCR Prompt with Animated Progress */}
                         {resumeOcr.show && (
                             <div className="mt-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
                                 <div className="flex items-start gap-3">
@@ -441,37 +441,83 @@ export default function ResumeGeneratorPage() {
                                         <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                                     </div>
                                     <div className="flex-1">
-                                        <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                                            This PDF appears to be scanned
-                                        </h4>
-                                        <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
-                                            We couldn't extract text directly. Run OCR (Optical Character Recognition) to convert the image to text.
-                                        </p>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                size="sm"
-                                                onClick={() => startOcr("resume")}
-                                                disabled={resumeOcr.running}
-                                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                            >
-                                                {resumeOcr.running ? (
-                                                    <>
-                                                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                                        Processing...
-                                                    </>
-                                                ) : (
-                                                    "Run OCR"
-                                                )}
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => cancelOcr("resume")}
-                                                disabled={resumeOcr.running}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </div>
+                                        {!resumeOcr.running ? (
+                                            <>
+                                                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                                                    This PDF appears to be scanned
+                                                </h4>
+                                                <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
+                                                    We couldn&apos;t extract text directly. Run OCR (Optical Character Recognition) to convert the image to text.
+                                                </p>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => startOcr("resume")}
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                                                    >
+                                                        Run OCR
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => cancelOcr("resume")}
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="space-y-4">
+                                                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                                    🔮 AI is reading your document...
+                                                </h4>
+
+                                                {/* Animated Progress Steps */}
+                                                <div className="space-y-3">
+                                                    {/* Step 1: Uploading */}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                                                            <Check className="w-3 h-3 text-white" />
+                                                        </div>
+                                                        <span className="text-xs text-green-700 dark:text-green-400">Uploaded to secure cloud</span>
+                                                    </div>
+
+                                                    {/* Step 2: AI Processing (animated) */}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center animate-pulse">
+                                                            <svg className="w-3 h-3 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">AWS Textract is analyzing each page...</span>
+                                                    </div>
+
+                                                    {/* Step 3: Waiting */}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                                            <span className="text-xs text-gray-500 dark:text-gray-400">3</span>
+                                                        </div>
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">Extracting text from images</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Progress bar */}
+                                                <div className="relative pt-1">
+                                                    <div className="overflow-hidden h-2 text-xs flex rounded-full bg-blue-200 dark:bg-blue-900">
+                                                        <div
+                                                            className="animate-pulse bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500"
+                                                            style={{ width: '60%' }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                                    This may take 1-2 minutes for scanned documents
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -619,7 +665,7 @@ export default function ResumeGeneratorPage() {
                             </div>
                         )}
 
-                        {/* OCR Prompt */}
+                        {/* OCR Prompt with Animated Progress */}
                         {jobOcr.show && (
                             <div className="mt-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
                                 <div className="flex items-start gap-3">
@@ -627,37 +673,83 @@ export default function ResumeGeneratorPage() {
                                         <Briefcase className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                                     </div>
                                     <div className="flex-1">
-                                        <h4 className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-1">
-                                            This PDF appears to be scanned
-                                        </h4>
-                                        <p className="text-xs text-amber-700 dark:text-amber-300 mb-3">
-                                            We couldn't extract text directly. Run OCR to convert the image to text.
-                                        </p>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                size="sm"
-                                                onClick={() => startOcr("job")}
-                                                disabled={jobOcr.running}
-                                                className="bg-amber-500 hover:bg-amber-600 text-white"
-                                            >
-                                                {jobOcr.running ? (
-                                                    <>
-                                                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                                        Processing...
-                                                    </>
-                                                ) : (
-                                                    "Run OCR"
-                                                )}
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => cancelOcr("job")}
-                                                disabled={jobOcr.running}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </div>
+                                        {!jobOcr.running ? (
+                                            <>
+                                                <h4 className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-1">
+                                                    This PDF appears to be scanned
+                                                </h4>
+                                                <p className="text-xs text-amber-700 dark:text-amber-300 mb-3">
+                                                    We couldn&apos;t extract text directly. Run OCR to convert the image to text.
+                                                </p>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => startOcr("job")}
+                                                        className="bg-amber-500 hover:bg-amber-600 text-white"
+                                                    >
+                                                        Run OCR
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => cancelOcr("job")}
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="space-y-4">
+                                                <h4 className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                                                    🔮 AI is reading your document...
+                                                </h4>
+
+                                                {/* Animated Progress Steps */}
+                                                <div className="space-y-3">
+                                                    {/* Step 1: Uploading */}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                                                            <Check className="w-3 h-3 text-white" />
+                                                        </div>
+                                                        <span className="text-xs text-green-700 dark:text-green-400">Uploaded to secure cloud</span>
+                                                    </div>
+
+                                                    {/* Step 2: AI Processing (animated) */}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center animate-pulse">
+                                                            <svg className="w-3 h-3 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <span className="text-xs text-amber-700 dark:text-amber-300 font-medium">AWS Textract is analyzing each page...</span>
+                                                    </div>
+
+                                                    {/* Step 3: Waiting */}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                                            <span className="text-xs text-gray-500 dark:text-gray-400">3</span>
+                                                        </div>
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">Extracting text from images</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Progress bar */}
+                                                <div className="relative pt-1">
+                                                    <div className="overflow-hidden h-2 text-xs flex rounded-full bg-amber-200 dark:bg-amber-900">
+                                                        <div
+                                                            className="animate-pulse bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
+                                                            style={{ width: '60%' }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                                    This may take 1-2 minutes for scanned documents
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
