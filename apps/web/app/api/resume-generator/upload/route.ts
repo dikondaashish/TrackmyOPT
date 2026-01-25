@@ -14,8 +14,46 @@ export async function OPTIONS() {
 export const runtime = 'nodejs';
 
 /**
+ * Extract text from PDF using pdfjs-dist
+ */
+async function extractPdfText(buffer: Buffer): Promise<string> {
+    // Dynamic import to avoid edge runtime issues
+    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+
+    const uint8Array = new Uint8Array(buffer);
+    const loadingTask = pdfjsLib.getDocument({
+        data: uint8Array,
+        disableFontFace: true,
+        verbosity: 0,
+        useSystemFonts: true
+    });
+
+    const pdf = await loadingTask.promise;
+    let text = '';
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        try {
+            const page = await pdf.getPage(pageNum);
+            const content = await page.getTextContent();
+            const pageText = content.items
+                .filter((item: any) => item && typeof item === 'object' && 'str' in item)
+                .map((item: any) => item.str || '')
+                .filter((str: string) => str.trim().length > 0)
+                .join(' ');
+
+            if (pageText.trim()) {
+                text += pageText + '\n';
+            }
+        } catch (err) {
+            console.warn(`Page ${pageNum} extraction failed`);
+        }
+    }
+
+    return text.replace(/\u0000/g, '').replace(/\s+/g, ' ').trim();
+}
+
+/**
  * POST /api/resume-generator/upload
- * Upload and parse resume files (PDF, DOC, DOCX, TXT)
  */
 export async function POST(req: NextRequest) {
     try {
@@ -29,7 +67,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
             return NextResponse.json(
                 { success: false, error: 'File too large. Maximum size is 10MB.' },
@@ -42,14 +80,10 @@ export async function POST(req: NextRequest) {
         let extractedText = '';
 
         try {
-            // PDF Handling
+            // PDF Handling (using pdfjs-dist)
             if (fileName.endsWith('.pdf') || file.type === 'application/pdf') {
-                // Use pdf-parse (proven to work)
-                const pdfParse = require('pdf-parse');
-                const data = await pdfParse(buffer);
-                extractedText = (data.text || '').trim();
+                extractedText = await extractPdfText(buffer);
 
-                // Check if scanned/empty
                 if (!extractedText || extractedText.length < 50) {
                     return NextResponse.json(
                         {
@@ -89,7 +123,6 @@ export async function POST(req: NextRequest) {
                 );
             }
 
-            // Cleanup
             extractedText = extractedText
                 .replace(/\r\n/g, '\n')
                 .replace(/\0/g, '')
@@ -120,7 +153,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Upload handler error:', error);
         return NextResponse.json(
             { success: false, error: 'Internal server error' },
