@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractPdfText } from '@/lib/pdf-parser';
 
 // CORS headers
 const corsHeaders = {
@@ -12,12 +11,11 @@ export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
-export const runtime = 'nodejs'; // Required for pdfjs-dist and fs
+export const runtime = 'nodejs';
 
 /**
  * POST /api/resume-generator/upload
  * Upload and parse resume files (PDF, DOC, DOCX, TXT)
- * Logic ported from ATS Scanner for maximum reliability
  */
 export async function POST(req: NextRequest) {
     try {
@@ -44,86 +42,54 @@ export async function POST(req: NextRequest) {
         let extractedText = '';
 
         try {
-            // ==========================================
-            // 1. PDF Handling (Robust Multi-Stage)
-            // ==========================================
+            // PDF Handling
             if (fileName.endsWith('.pdf') || file.type === 'application/pdf') {
+                // Use pdf-parse (proven to work)
+                const pdfParse = require('pdf-parse');
+                const data = await pdfParse(buffer);
+                extractedText = (data.text || '').trim();
 
-                // Stage 1: Try PDF.js (Best for complex layouts)
-                try {
-                    const pdfResult = await extractPdfText(buffer);
-                    extractedText = pdfResult.text;
-
-                    // Check if scanned (image-only)
-                    if (pdfResult.isLikelyScanned || extractedText.length < 50) {
-                        console.log('⚠️ PDF appears to be scanned or empty');
-                        extractedText = ''; // Trigger fallback
-                    }
-                } catch (pdfJsError) {
-                    console.warn('⚠️ PDF.js failed, trying fallback:', pdfJsError);
-                }
-
-                // Stage 2: Fallback to pdf-parse (Simpler, sometimes works when PDF.js fails)
-                if (!extractedText || extractedText.length < 50) {
-                    try {
-                        const pdfParseModule = await import('pdf-parse');
-                        const pdfParse = pdfParseModule.default || pdfParseModule;
-                        const data = await pdfParse(buffer);
-                        const parseText = data.text ? data.text.trim() : '';
-
-                        // Check confidence
-                        if (parseText.length > 50) {
-                            extractedText = parseText;
-                            console.log('✅ Fallback pdf-parse succeeded');
-                        }
-                    } catch (parseErr) {
-                        console.warn('⚠️ pdf-parse fallback failed');
-                    }
-                }
-
-                // Stage 3: Fail gracefully with OCR Hint
-                // If we still don't have text, it's likely a scan
+                // Check if scanned/empty
                 if (!extractedText || extractedText.length < 50) {
                     return NextResponse.json(
                         {
                             success: false,
                             error: 'pdf_no_extractable_text',
-                            can_ocr: true, // Frontend shows OCR button
-                            message: 'This PDF appears to be an image. Please use OCR.',
+                            can_ocr: true,
+                            message: 'This PDF appears to be scanned. Please use OCR.',
                             filename: file.name,
                             fileBuffer: buffer.toString('base64')
                         },
                         { status: 400, headers: corsHeaders }
                     );
                 }
-
             }
-            // ==========================================
-            // 2. DOCX Handling (Mammoth)
-            // ==========================================
+            // DOCX Handling
             else if (fileName.endsWith('.docx') || file.type.includes('wordprocessingml')) {
-                const mammoth = await import('mammoth');
+                const mammoth = require('mammoth');
                 const result = await mammoth.extractRawText({ buffer });
                 extractedText = result.value;
             }
-            // ==========================================
-            // 3. Text / Legacy DOC
-            // ==========================================
+            // TXT Handling
             else if (fileName.endsWith('.txt') || file.type === 'text/plain') {
                 extractedText = new TextDecoder().decode(buffer);
-            } else if (fileName.endsWith('.doc')) {
+            }
+            // Legacy DOC
+            else if (fileName.endsWith('.doc')) {
                 return NextResponse.json(
                     { success: false, error: 'Old .doc format not supported. Save as .docx or PDF.' },
                     { status: 400, headers: corsHeaders }
                 );
-            } else {
+            }
+            // Unsupported
+            else {
                 return NextResponse.json(
                     { success: false, error: 'Unsupported file type.' },
                     { status: 400, headers: corsHeaders }
                 );
             }
 
-            // Cleanup & Final Validation
+            // Cleanup
             extractedText = extractedText
                 .replace(/\r\n/g, '\n')
                 .replace(/\0/g, '')
