@@ -57,7 +57,7 @@ export default function ResumeGeneratorPage() {
     // Resume state
     const [resumeData, setResumeData] = useState<ResumeData>({ text: "", source: "text" });
     const [resumeUrl, setResumeUrl] = useState("");
-    const [saveResume, setSaveResume] = useState(false);
+    const [saveResume, setSaveResume] = useState(true); // Default to true based on user request
     const [resumeName, setResumeName] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const resumeFileInputRef = useRef<HTMLInputElement>(null);
