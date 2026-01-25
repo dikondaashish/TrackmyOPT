@@ -213,7 +213,10 @@ export default function ResumeGeneratorPage() {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
             const response = await fetch(`${apiUrl}/ocr/queue`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
+                },
                 body: JSON.stringify({
                     fileBuffer: ocrInfo.fileBuffer, // Note: Backend expects s3Key really, but we'll refactor upload first
                     filename: ocrInfo.filename,
@@ -244,7 +247,9 @@ export default function ResumeGeneratorPage() {
 
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/ocr/status/${textractJobId}`);
+            const response = await fetch(`${apiUrl}/ocr/status/${textractJobId}`, {
+                headers: { "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "" },
+            });
             const result = await response.json();
 
             if (result.status === "succeeded") {
