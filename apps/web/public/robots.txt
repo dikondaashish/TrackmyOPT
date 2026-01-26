@@ -1,0 +1,64 @@
+# TrackMyOPT Robots.txt
+# Optimized for all search engine crawlers and AI models
+
+User-agent: *
+Allow: /
+
+# Allow all crawlers to access the full site
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# AI Model Crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Common AI/LLM crawlers
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# Block admin and API routes from indexing
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /premium/checkout
+Disallow: /premium/success
+Disallow: /premium/cancelled
+
+# Sitemap location
+Sitemap: https://trackmyopt.com/sitemap.xml
+
+# Crawl-delay for polite crawling (optional, not all bots respect this)
+Crawl-delay: 1
