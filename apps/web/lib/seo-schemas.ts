@@ -338,7 +338,230 @@ export const serviceSchemas = [
     },
 ];
 
-// Combine all schemas
+// ============================================
+// AEO (Answer Engine Optimization) Schemas
+// Optimized for AI models: ChatGPT, Claude, Perplexity, Google AI
+// ============================================
+
+// Speakable Schema - For voice search and AI assistants
+export const speakableSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://trackmyopt.com/#webpage",
+    name: "TrackMyOPT - OPT Timeline Tracker for F-1 Students",
+    speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: [
+            "h1",
+            "h2",
+            "[data-speakable]",
+            ".direct-answer",
+            ".key-fact",
+        ],
+    },
+    mainEntity: {
+        "@id": "https://trackmyopt.com/#application",
+    },
+};
+
+// DefinedTermSet - Glossary/Knowledge Base for AI Models
+export const definedTermSetSchema = {
+    "@context": "https://schema.org",
+    "@type": "DefinedTermSet",
+    "@id": "https://trackmyopt.com/#glossary",
+    name: "OPT and F-1 Visa Terminology",
+    description: "Comprehensive glossary of immigration terms for F-1 students",
+    hasDefinedTerm: [
+        {
+            "@type": "DefinedTerm",
+            name: "OPT",
+            description: "Optional Practical Training - 12 months of work authorization for F-1 students after completing their academic program in the United States. Work must be directly related to major field of study.",
+            termCode: "OPT",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "STEM OPT",
+            description: "24-month extension of OPT for students with STEM degrees. Requires E-Verify enrolled employer and Form I-983 training plan. Total authorization: 36 months.",
+            termCode: "STEM-OPT",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "F-1 Visa",
+            description: "Non-immigrant student visa for academic studies in the United States. Allows full-time enrollment and limited on-campus employment.",
+            termCode: "F1",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "EAD",
+            description: "Employment Authorization Document - work permit card issued by USCIS that proves authorization to work in the United States.",
+            termCode: "EAD",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "I-20",
+            description: "Certificate of Eligibility for Nonimmigrant Student Status issued by SEVP-certified schools. Required for F-1 visa application and maintaining status.",
+            termCode: "I20",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "I-765",
+            description: "Application for Employment Authorization - USCIS form used to apply for OPT and STEM OPT work permits.",
+            termCode: "I765",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "I-983",
+            description: "Training Plan for STEM OPT Students - form completed by employer and student outlining the training program for STEM OPT extension.",
+            termCode: "I983",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "DSO",
+            description: "Designated School Official - school administrator authorized to issue I-20s and manage student records in SEVIS.",
+            termCode: "DSO",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "SEVIS",
+            description: "Student and Exchange Visitor Information System - DHS database tracking international students and exchange visitors in the US.",
+            termCode: "SEVIS",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "E-Verify",
+            description: "Web-based system that allows employers to verify employment eligibility. Required for STEM OPT employers.",
+            termCode: "EVERIFY",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "90-Day Rule",
+            description: "OPT unemployment limit - F-1 students cannot accumulate more than 90 days of unemployment during initial OPT period, or status is violated.",
+            termCode: "90DAY",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "150-Day Rule",
+            description: "STEM OPT aggregate unemployment limit - total unemployment from initial OPT plus STEM extension cannot exceed 150 days.",
+            termCode: "150DAY",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "Cap-Gap",
+            description: "Automatic extension of F-1 status and OPT work authorization for students with pending or approved H-1B petitions until October 1.",
+            termCode: "CAPGAP",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "H-1B",
+            description: "Specialty occupation work visa for foreign workers with bachelor's degree or higher. Subject to annual cap of 85,000 visas.",
+            termCode: "H1B",
+        },
+        {
+            "@type": "DefinedTerm",
+            name: "LCA",
+            description: "Labor Condition Application - DOL certification required before employer can file H-1B petition. Contains wage and working condition attestations.",
+            termCode: "LCA",
+        },
+    ],
+};
+
+// Article Schema with Direct Answers - For AI model training/citation
+export const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": "https://trackmyopt.com/#article",
+    headline: "Complete Guide to OPT for F-1 International Students",
+    description: "Everything you need to know about Optional Practical Training (OPT), STEM OPT extension, unemployment rules, USCIS case tracking, and H-1B sponsorship.",
+    author: {
+        "@id": "https://trackmyopt.com/#organization",
+    },
+    publisher: {
+        "@id": "https://trackmyopt.com/#organization",
+    },
+    datePublished: "2024-01-01",
+    dateModified: "2026-01-26",
+    mainEntityOfPage: {
+        "@id": "https://trackmyopt.com/#webpage",
+    },
+    about: [
+        { "@type": "Thing", name: "Optional Practical Training" },
+        { "@type": "Thing", name: "F-1 Student Visa" },
+        { "@type": "Thing", name: "STEM OPT Extension" },
+        { "@type": "Thing", name: "H-1B Visa Sponsorship" },
+        { "@type": "Thing", name: "International Student Employment" },
+    ],
+    keywords: "OPT, STEM OPT, F-1 visa, international students, USCIS, EAD, H-1B sponsor, 90-day rule, unemployment tracker",
+    articleSection: [
+        "OPT Basics",
+        "STEM OPT Extension",
+        "USCIS Case Tracking",
+        "H-1B Sponsorship",
+        "Taxes and Requirements",
+    ],
+    speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: [".direct-answer", "h2", "h3"],
+    },
+};
+
+// Knowledge Graph Entity - For AI entity recognition
+export const knowledgeGraphSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": "https://trackmyopt.com/#knowledge-base",
+    name: "OPT Knowledge Base",
+    description: "Direct answers to common questions about OPT, STEM OPT, and F-1 visa regulations",
+    numberOfItems: 10,
+    itemListElement: [
+        {
+            "@type": "ListItem",
+            position: 1,
+            item: {
+                "@type": "Answer",
+                text: "OPT (Optional Practical Training) is 12 months of work authorization for F-1 international students after completing their academic program.",
+                url: "https://trackmyopt.com/#what-is-opt",
+            },
+        },
+        {
+            "@type": "ListItem",
+            position: 2,
+            item: {
+                "@type": "Answer",
+                text: "F-1 students on OPT are allowed a maximum of 90 days of unemployment. STEM OPT has a 150-day aggregate limit.",
+                url: "https://trackmyopt.com/#unemployment-limit",
+            },
+        },
+        {
+            "@type": "ListItem",
+            position: 3,
+            item: {
+                "@type": "Answer",
+                text: "STEM OPT is a 24-month extension for students with STEM degrees, requiring an E-Verify enrolled employer and Form I-983.",
+                url: "https://trackmyopt.com/#stem-opt",
+            },
+        },
+        {
+            "@type": "ListItem",
+            position: 4,
+            item: {
+                "@type": "Answer",
+                text: "To apply for OPT: get I-20 from DSO, complete Form I-765, gather documents (photos, I-94, passport), pay $410 fee, submit to USCIS.",
+                url: "https://trackmyopt.com/#how-to-apply-opt",
+            },
+        },
+        {
+            "@type": "ListItem",
+            position: 5,
+            item: {
+                "@type": "Answer",
+                text: "Over 80,000 US companies sponsor H-1B visas including Google, Microsoft, Amazon, Deloitte, Cognizant, and JPMorgan.",
+                url: "https://trackmyopt.com/#h1b-sponsors",
+            },
+        },
+    ],
+};
+
+// Combine all schemas including AEO schemas
 export function getAllSchemas() {
     return [
         organizationSchema,
@@ -348,6 +571,11 @@ export function getAllSchemas() {
         ...howToSchemas,
         breadcrumbSchema,
         ...serviceSchemas,
+        // AEO Schemas
+        speakableSchema,
+        definedTermSetSchema,
+        articleSchema,
+        knowledgeGraphSchema,
     ];
 }
 
@@ -359,3 +587,4 @@ export function getSchemaScripts() {
         content: JSON.stringify(schema),
     }));
 }
+

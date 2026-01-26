@@ -6,6 +6,7 @@ import { LandingFeatures } from "@/components/landing/LandingFeatures";
 import { LandingAllFeatures } from "@/components/landing/LandingAllFeatures";
 import { LandingHowItWorks } from "@/components/landing/LandingHowItWorks";
 import { LandingSEOContent } from "@/components/landing/LandingSEOContent";
+import { LandingAEOContent } from "@/components/landing/LandingAEOContent";
 import { LandingTestimonials } from "@/components/landing/LandingTestimonials";
 import { LandingPricing } from "@/components/landing/LandingPricing";
 import { LandingFAQEnhanced } from "@/components/landing/LandingFAQEnhanced";
@@ -18,6 +19,11 @@ import {
     howToSchemas,
     breadcrumbSchema,
     serviceSchemas,
+    // AEO Schemas
+    speakableSchema,
+    definedTermSetSchema,
+    articleSchema,
+    knowledgeGraphSchema,
 } from "@/lib/seo-schemas";
 
 // Comprehensive SEO Metadata - Optimized for all search engines and AI models
@@ -184,8 +190,9 @@ export const metadata: Metadata = {
 };
 
 export default function LandingPage() {
-    // Combine all schemas for comprehensive structured data
+    // Combine all schemas for comprehensive structured data (SEO + AEO)
     const allSchemas = [
+        // SEO Schemas
         organizationSchema,
         websiteSchema,
         softwareApplicationSchema,
@@ -193,6 +200,11 @@ export default function LandingPage() {
         ...howToSchemas,
         breadcrumbSchema,
         ...serviceSchemas,
+        // AEO Schemas (Answer Engine Optimization)
+        speakableSchema,
+        definedTermSetSchema,
+        articleSchema,
+        knowledgeGraphSchema,
     ];
 
     return (
@@ -229,6 +241,9 @@ export default function LandingPage() {
 
                     {/* SEO Content - Educational content for AI models */}
                     <LandingSEOContent />
+
+                    {/* AEO Content - Direct answers for AI citation */}
+                    <LandingAEOContent />
 
                     {/* Social Proof - Testimonials & stats */}
                     <LandingTestimonials />
