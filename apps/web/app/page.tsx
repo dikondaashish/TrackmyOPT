@@ -163,7 +163,7 @@ export const metadata: Metadata = {
         google: "YOUR_GOOGLE_VERIFICATION_CODE",
         yandex: "YOUR_YANDEX_VERIFICATION_CODE",
         other: {
-            "msvalidate.01": "YOUR_BING_VERIFICATION_CODE",
+            "msvalidate.01": "9D9304FA9063E256885809DC449E5526",
         },
     },
 
