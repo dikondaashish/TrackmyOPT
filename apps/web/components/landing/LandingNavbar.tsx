@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, ArrowRight } from "lucide-react";
 
 export function LandingNavbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    // Handle scroll effect
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
@@ -16,162 +20,124 @@ export function LandingNavbar() {
     }, []);
 
     const navLinks = [
-        { href: "#features", label: "Features" },
-        { href: "#pricing", label: "Pricing" },
-        { href: "#faq", label: "FAQ" },
+        { name: "Features", href: "#features" },
+        { name: "Pricing", href: "#pricing" },
+        { name: "Testimonials", href: "#testimonials" },
+        { name: "FAQ", href: "#faq" },
     ];
 
     return (
-        <>
-            <header
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                        ? "bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-sm border-b border-gray-200/50 dark:border-zinc-800/50"
-                        : "bg-transparent"
-                    }`}
-            >
-                <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16 lg:h-20">
-                        {/* Logo */}
-                        <Link href="/" className="flex items-center gap-2 group">
-                            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-shadow">
-                                <svg
-                                    className="w-5 h-5 text-white"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                </svg>
-                            </div>
-                            <span className="text-xl font-bold text-gray-900 dark:text-white">
-                                TrackMyOPT
-                            </span>
-                        </Link>
-
-                        {/* Desktop Navigation */}
-                        <div className="hidden md:flex items-center gap-8">
-                            {navLinks.map((link) => (
-                                <a
-                                    key={link.href}
-                                    href={link.href}
-                                    className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-                                >
-                                    {link.label}
-                                </a>
-                            ))}
+        <motion.nav
+            initial={{ y: -100 }}
+            animate={{ y: 0 }}
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+                    ? "bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-zinc-800/50 py-3"
+                    : "bg-transparent py-5"
+                }`}
+        >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between">
+                    {/* Logo */}
+                    <Link href="/" className="flex items-center gap-3 group">
+                        <div className="relative w-8 h-8 sm:w-10 sm:h-10 transition-transform duration-300 group-hover:scale-110">
+                            <Image
+                                src="/TrackMyOPT Logo/Favicon.png"
+                                alt="TrackMyOPT Logo"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
                         </div>
+                        <span className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                            TrackMyOPT
+                        </span>
+                    </Link>
 
-                        {/* Desktop CTA */}
-                        <div className="hidden md:flex items-center gap-4">
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center gap-8">
+                        {navLinks.map((link) => (
                             <Link
-                                href="/login"
-                                className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                key={link.name}
+                                href={link.href}
+                                className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors relative group"
                             >
-                                Sign In
+                                {link.name}
+                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 dark:bg-blue-400 transition-all duration-300 group-hover:w-full" />
                             </Link>
-                            <Link
-                                href="/login"
-                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-full hover:bg-gray-800 dark:hover:bg-gray-100 transition-all hover:scale-[1.02] shadow-lg shadow-gray-900/10"
-                            >
-                                Get Started
-                                <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 5l7 7-7 7"
-                                    />
-                                </svg>
-                            </Link>
-                        </div>
-
-                        {/* Mobile Menu Button */}
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
-                            aria-label="Toggle menu"
-                        >
-                            {isMobileMenuOpen ? (
-                                <svg
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            ) : (
-                                <svg
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                </svg>
-                            )}
-                        </button>
+                        ))}
                     </div>
-                </nav>
-            </header>
+
+                    {/* Desktop CTAs */}
+                    <div className="hidden md:flex items-center gap-4">
+                        <Link
+                            href="/login"
+                            className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors"
+                        >
+                            Log in
+                        </Link>
+                        <Link
+                            href="/login"
+                            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white transition-all bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5"
+                        >
+                            Get Started
+                        </Link>
+                    </div>
+
+                    {/* Mobile Menu Button */}
+                    <button
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                    >
+                        {isMobileMenuOpen ? (
+                            <X className="w-6 h-6" />
+                        ) : (
+                            <Menu className="w-6 h-6" />
+                        )}
+                    </button>
+                </div>
+            </div>
 
             {/* Mobile Menu */}
-            {isMobileMenuOpen && (
-                <div className="fixed inset-0 z-40 md:hidden">
-                    <div
-                        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                    />
-                    <div className="absolute top-16 left-0 right-0 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 shadow-xl">
-                        <div className="px-4 py-6 space-y-4">
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="md:hidden bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 overflow-hidden"
+                    >
+                        <div className="px-4 pt-4 pb-6 space-y-4">
                             {navLinks.map((link) => (
-                                <a
-                                    key={link.href}
+                                <Link
+                                    key={link.name}
                                     href={link.href}
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block text-base font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-2"
+                                    className="block p-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                                 >
-                                    {link.label}
-                                </a>
+                                    {link.name}
+                                </Link>
                             ))}
-                            <div className="pt-4 border-t border-gray-200 dark:border-zinc-800 space-y-3">
+                            <div className="pt-4 border-t border-gray-100 dark:border-zinc-800 flex flex-col gap-3">
                                 <Link
                                     href="/login"
-                                    className="block text-center text-base font-medium text-gray-600 dark:text-gray-300 py-2"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-zinc-800 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
                                 >
-                                    Sign In
+                                    Log in
                                 </Link>
                                 <Link
                                     href="/login"
-                                    className="block text-center px-5 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-base font-semibold rounded-full"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-md transition-all"
                                 >
                                     Get Started Free
+                                    <ArrowRight className="w-4 h-4 ml-2" />
                                 </Link>
                             </div>
                         </div>
-                    </div>
-                </div>
-            )}
-        </>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.nav>
     );
 }
