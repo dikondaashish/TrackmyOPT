@@ -92,7 +92,7 @@ const faqCategories = [
             {
                 question: "Is TrackMyOPT free?",
                 answer:
-                    "Yes! TrackMyOPT offers a comprehensive free plan that includes: OPT timeline dashboard with countdown timers, unemployment clock tracking, 1 USCIS case status tracker, H-1B sponsor database access, job application tracker, and email alerts. The Premium plan ($19.99 one-time lifetime payment, not a subscription) adds: unlimited case tracking, secure Document Vault with AI extraction, expiry reminders, data export, and priority support.",
+                    "Yes! TrackMyOPT offers a comprehensive free plan that includes: OPT timeline dashboard with countdown timers, unemployment clock tracking, 1 USCIS case status tracker, H-1B sponsor database access, job application tracker, and email alerts. The Premium plan adds: unlimited case tracking, secure Document Vault with AI extraction, expiry reminders, data export, and priority support.",
             },
             {
                 question: "Is my data secure on TrackMyOPT?",
@@ -142,8 +142,8 @@ export function LandingFAQEnhanced() {
                                 setOpenQuestion(cat.questions[0]?.question || null);
                             }}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${openCategory === index
-                                    ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
-                                    : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700"
+                                ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
+                                : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700"
                                 }`}
                         >
                             {cat.category}

@@ -114,17 +114,24 @@ export function PricingModule({
                                         </div>
                                     )}
                                     <div className="flex items-baseline justify-center gap-1">
-                                        <span className="text-4xl font-extrabold tracking-tight">
-                                            ${isAnnual ? plan.priceYearly : plan.priceMonthly}
-                                        </span>
-                                        <span className="text-muted-foreground font-medium">
-                                            /{isAnnual ? "year" : "month"}
-                                        </span>
+                                        {(isAnnual ? plan.priceYearly : plan.priceMonthly) === 0 ? (
+                                            <span className="text-4xl font-extrabold tracking-tight">Free</span>
+                                        ) : (
+                                            <>
+                                                <span className="text-4xl font-extrabold tracking-tight">
+                                                    ${isAnnual ? plan.priceYearly : plan.priceMonthly}
+                                                </span>
+                                                <span className="text-muted-foreground font-medium">
+                                                    /{isAnnual ? "year" : "month"}
+                                                </span>
+                                            </>
+                                        )}
                                     </div>
+                                    {/* Render users/subtext field */}
                                     {plan.users && (
-                                        <div className="mt-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                                        <p className="text-sm text-muted-foreground mt-2 font-medium">
                                             {plan.users}
-                                        </div>
+                                        </p>
                                     )}
                                 </div>
 
