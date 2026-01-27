@@ -79,21 +79,17 @@ function TestimonialCard({
     };
 
     return (
-        <a
-            href={tweetUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+        <div
             onClick={handleClick}
             onMouseEnter={onHover}
             onMouseLeave={onLeave}
             className={cn(
-                "relative flex h-auto min-h-[140px] sm:min-h-[180px] w-[260px] sm:w-[380px] -skew-y-[8deg] select-none flex-col rounded-2xl border border-border bg-card/90 backdrop-blur-sm px-3 sm:px-4 py-3 sm:py-4 transition-all duration-500 hover:border-border/80 hover:bg-card cursor-pointer",
+                "relative flex h-auto min-h-[140px] sm:min-h-[180px] w-[260px] sm:w-[380px] -skew-y-[8deg] select-none flex-col rounded-2xl border border-border bg-card/90 backdrop-blur-sm px-3 sm:px-4 py-3 sm:py-4 transition-all duration-500 hover:border-border/80 hover:bg-card cursor-default",
                 "dark:after:absolute dark:after:-right-1 dark:after:top-[-5%] dark:after:h-[110%] dark:after:w-[20rem] dark:after:bg-gradient-to-l dark:after:from-background dark:after:to-transparent dark:after:content-[''] dark:after:pointer-events-none",
                 isActive && "ring-2 ring-primary/50",
                 className
             )}
         >
-            {/* Header */}
             {/* Header */}
             <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
                 <div className="size-9 sm:size-12 rounded-full bg-gradient-to-br from-green-400 via-yellow-400 to-green-500 flex items-center justify-center overflow-hidden shrink-0">
@@ -116,7 +112,9 @@ function TestimonialCard({
                         </p>
                     )}
                 </div>
-                <TwitterIcon className="size-4 sm:size-5 text-foreground shrink-0" />
+                <div className="opacity-50">
+                    <TwitterIcon className="size-4 sm:size-5 text-foreground shrink-0" />
+                </div>
             </div>
 
             {/* Content */}
@@ -142,7 +140,7 @@ function TestimonialCard({
                     </div>
                 </div>
             </div>
-        </a >
+        </div >
     );
 }
 
@@ -182,69 +180,69 @@ export default function Testimonials({ cards }: TestimonialsProps) {
         {
             className:
                 "[grid-area:stack] hover:-translate-y-10 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya",
-            username: "Priya S.",
-            handle: "@priya_dev",
-            content: "I nearly missed my OPT filing window because I miscalculated the 90-day rule. TrackMyOPT alerted me just in time. It's strictly essential for any F-1 student.",
-            date: "Jan 3, 2026",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aarav",
+            username: "Aarav Patel",
+            handle: "@aarav_codes",
+            content: "Honestly the 90-day unemployment counter is terrifying to look at but it forced me to stop procrastinating. Finally landed a role this week. 😅",
+            date: "Jan 26, 2026",
             verified: true,
-            likes: 842,
-            retweets: 48,
+            likes: 124,
+            retweets: 12,
             tweetUrl: "#",
-            context: "MS CS, Northeastern University — STEM OPT",
+            context: "MS CS, Northeastern — Job Secured",
         },
         {
             className:
                 "[grid-area:stack] translate-x-8 sm:translate-x-16 translate-y-6 sm:translate-y-10 hover:-translate-y-1 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Wei",
-            username: "Wei Chen",
-            handle: "@wei_data",
-            content: "The unemployment clock is a lifesaver. I didn't realize volunteer work counted until I read the guide here. This platform saved my status.",
-            date: "Jan 12, 2026",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=YiLing",
+            username: "Yi-Ling Chen",
+            handle: "@yiling_design",
+            content: "I wasted so much time applying to companies that don't even sponsor. The database here is actually legit. Found 3 places that accept OPT, got an interview with one.",
+            date: "Jan 24, 2026",
             verified: true,
-            likes: 628,
-            retweets: 35,
+            likes: 89,
+            retweets: 5,
             tweetUrl: "#",
-            context: "Data Science, Columbia University — Initial OPT",
+            context: "UX Design, Parsons — Initial OPT",
         },
         {
             className: "[grid-area:stack] translate-x-16 sm:translate-x-32 translate-y-12 sm:translate-y-20 hover:translate-y-6 sm:hover:translate-y-10 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed",
-            username: "Ahmed K.",
-            handle: "@ahmed_pm",
-            content: "Finding H-1B sponsors was a nightmare until I used their database. I filtered for companies in Texas and found my current employer in 2 days. 🚀",
-            date: "Jan 15, 2026",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rajesh",
+            username: "Rajesh K.",
+            handle: "@rajesh_builds",
+            content: "My DSO didn't even tell me I needed a new I-20 for travel. The checklist on here flagged it. Saved me from getting stuck at the border. Worth it just for that.",
+            date: "Jan 22, 2026",
             verified: true,
-            likes: 1256,
-            retweets: 123,
+            likes: 452,
+            retweets: 92,
             tweetUrl: "#",
-            context: "MBA, UT Austin — H-1B Approved",
+            context: "MBA, Wharton — Traveling",
         },
         {
-            className: "[grid-area:stack] translate-x-24 sm:translate-x-48 translate-y-18 sm:translate-y-30 hover:translate-y-12 sm:hover:translate-y-20 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-            username: "Sarah L.",
-            handle: "@sarah_tech",
-            content: "The document vault is a game changer. I used to keep my I-20s in random folders, now I get alerts before they expire. Peace of mind is priceless.",
+            className: "[grid-area:stack] translate-x-24 sm:translate-x-52 translate-y-18 sm:translate-y-32 hover:translate-y-12 sm:hover:translate-y-22 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sahra",
+            username: "Sahra Eltec",
+            handle: "@sahra_eltec",
+            content: "Okay the 'Resume Doctor' is actually kinda savage? It roasted my bullet points but... I got a call back from Amazon after fixing them. So I guess it works lol.",
             date: "Jan 18, 2026",
             verified: true,
-            likes: 412,
-            retweets: 18,
+            likes: 1240,
+            retweets: 318,
             tweetUrl: "#",
-            context: "Bioengineering, Stanford University — Post-Completion",
+            context: "Bioengineering, Stanford — Post-Completion",
         },
         {
-            className: "[grid-area:stack] translate-x-32 sm:translate-x-64 translate-y-24 sm:translate-y-40 hover:translate-y-18 sm:hover:translate-y-30",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
-            username: "Michael R.",
-            handle: "@m_rodriguez",
-            content: "Finally an app that understands the F-1 struggle. The dashboard is beautiful and the timeline tracker is spot on. Highly recommend!",
-            date: "Jan 20, 2026",
+            className: "[grid-area:stack] translate-x-32 sm:translate-x-72 translate-y-24 sm:translate-y-44 hover:translate-y-18 sm:hover:translate-y-32",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Diego",
+            username: "Diego M.",
+            handle: "@diego_f1",
+            content: "USCIS case status wasn't updating for weeks. This app pinged me at 6am that I was approved before the official email even came through. Best feeling ever.",
+            date: "Jan 15, 2026",
             verified: true,
-            likes: 943,
-            retweets: 82,
+            likes: 2105,
+            retweets: 512,
             tweetUrl: "#",
-            context: "Computer Engineering, Georgia Tech — Job Seeker",
+            context: "Civil Eng, Texas A&M — H-1B Approved",
         },
     ];
 

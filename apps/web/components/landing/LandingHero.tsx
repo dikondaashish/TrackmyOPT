@@ -270,38 +270,37 @@ export function LandingHero() {
                         className="text-center lg:text-left"
                     >
                         {/* Who This Is For - Trust Signals */}
-                        <motion.div variants={fadeInUp} className="flex flex-wrap justify-center lg:justify-start gap-2 mb-8">
-                            {[
-                                "Final-Semester Students",
-                                "OPT Job Seekers",
-                                "STEM OPT Candidates"
-                            ].map((audience, i) => (
-                                <span key={i} className="px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
-                                    {audience}
+                        <motion.div variants={fadeInUp} className="flex justify-center lg:justify-start mb-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                                 </span>
-                            ))}
+                                <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                                    #1 Platform for International Students
+                                </span>
+                            </div>
                         </motion.div>
 
                         <motion.h1 variants={fadeInUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight">
-                            Protect Your{" "}
+                            Your Entire <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                                F-1 Status
-                            </span>
-                            <br />
-                            & Land a Job
+                                OPT Journey
+                            </span>{" "}
+                            in One System
                         </motion.h1>
 
                         <motion.p variants={fadeInUp} className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                            Stop guessing with spreadsheets. Monitor your **90-day unemployment limit**, track OPT deadlines, and find H-1B sponsors in one compliant dashboard.
+                            Stop using spreadsheets. TrackMyOPT connects your timeline, job search, and compliance documents in a single, professional dashboard.
                         </motion.p>
 
                         <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <Link href="/login" className="inline-flex items-center justify-center px-8 py-4 text-white bg-primary rounded-xl font-semibold hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5">
-                                Protect My OPT Status
-                                <Shield className="w-5 h-5 ml-2" />
+                                Start Free Tracking
+                                <ArrowRight className="w-5 h-5 ml-2" />
                             </Link>
                             <Link href="#features" className="inline-flex items-center justify-center px-8 py-4 text-foreground bg-white dark:bg-zinc-800 border border-border rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all">
-                                See How It Works
+                                View Demo
                             </Link>
                         </motion.div>
 

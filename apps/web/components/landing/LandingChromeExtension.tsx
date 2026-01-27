@@ -24,22 +24,22 @@ export function LandingChromeExtension() {
                         </div>
 
                         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                            Apply 10x Faster with <br />
+                            Your F-1 Copilot, <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
-                                One-Click Tracking
+                                Built Into Your Browser
                             </span>
                         </h2>
 
                         <p className="text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
-                            Stop manually copying data. Our Chrome Extension detects job details from LinkedIn, Glassdoor, and Indeed instantly.
+                            More than just a job tracker. Visualize your unemployment clock, get step-by-step USCIS guides, and safeguard your status without leaving the tab.
                         </p>
 
                         <div className="space-y-4 max-w-sm mx-auto lg:mx-0">
                             {[
-                                "Instant 'Save' button on job boards",
-                                "Flags H-1B Friendly companies automatically",
-                                "Auto-calculates deadline based on start date",
-                                "Syncs directly to your dashboard"
+                                "Live Unemployment Clock in Toolbar",
+                                "USCIS Application Checklists",
+                                "One-Click Job Saving",
+                                "H-1B Sponsor Flags"
                             ].map((feature, i) => (
                                 <div key={i} className="flex items-center gap-3">
                                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">

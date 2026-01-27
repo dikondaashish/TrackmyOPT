@@ -65,25 +65,25 @@ export function LandingFeatures() {
                         </div>
                     </div>
 
-                    {/* Card 2 - Timeline */}
+                    {/* Card 2 - Timeline (Updated for Polling) */}
                     <div className="md:col-span-1 row-span-1 group relative overflow-hidden rounded-3xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 p-8 shadow-sm hover:shadow-lg transition-all">
                         <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 mb-4">
                             <LayoutDashboard className="w-6 h-6" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Timeline Tracker</h3>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">24/7 Case Patrol</h3>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
-                            Visualize your journey from graduation to STEM extension. Never miss a filing window.
+                            We check your USCIS status daily so you don't have to. Get instant alerts on approvals or RFEs.
                         </p>
                     </div>
 
-                    {/* Card 3 - Unemployment Clock */}
+                    {/* Card 3 - AI Resume Doctor (High Value Gem) */}
                     <div className="md:col-span-1 row-span-1 group relative overflow-hidden rounded-3xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 p-8 shadow-sm hover:shadow-lg transition-all">
-                        <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-600 mb-4">
-                            <Clock className="w-6 h-6" />
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 mb-4">
+                            <FileText className="w-6 h-6" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">90-Day Rule Clock</h3>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Resume Doctor</h3>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
-                            Track unemployment days with precision. Get alerts when you cross danger thresholds.
+                            Uses Gemini 1.5 Pro to rewrite your bullet points and match keywords for every specific job.
                         </p>
                     </div>
 

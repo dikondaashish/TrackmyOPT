@@ -44,8 +44,8 @@ async function getUserId(req: NextRequest): Promise<string | null> {
         get(name: string) {
           return cookieStore.get(name)?.value;
         },
-        set() {},
-        remove() {},
+        set() { },
+        remove() { },
       },
     }
   );
@@ -54,124 +54,98 @@ async function getUserId(req: NextRequest): Promise<string | null> {
   return user?.id || null;
 }
 
+const PRICES = {
+  pro: {
+    month: process.env.STRIPE_PRICE_PRO_MONTHLY,
+    year: process.env.STRIPE_PRICE_PRO_YEARLY,
+  },
+  dedicated: {
+    month: process.env.STRIPE_PRICE_DEDICATED_MONTHLY,
+    year: process.env.STRIPE_PRICE_DEDICATED_YEARLY,
+  }
+};
+
 export async function POST(req: NextRequest) {
   try {
-    // Get user ID from JWT or session
     const userId = await getUserId(req);
-
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Please sign in.' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user profile
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('email, first_name, last_name, premium_status, stripe_customer_id')
-      .eq('user_id', userId)
-      .single();
+    const body = await req.json();
+    const { planId = 'pro', interval = 'year' } = body;
 
-    if (profileError) {
-      console.error('Profile fetch error:', profileError);
+    // Validate Plan
+    if (!['pro', 'dedicated'].includes(planId) || !['month', 'year'].includes(interval)) {
+      return NextResponse.json({ error: 'Invalid plan or interval' }, { status: 400 });
+    }
+
+    // Get Stripe Price ID
+    // @ts-ignore
+    const priceId = PRICES[planId]?.[interval];
+
+    if (!priceId) {
+      console.error(`Missing Price ID for ${planId} - ${interval}`);
       return NextResponse.json(
-        { error: 'Failed to fetch user profile' },
+        { error: 'Configuration Error: Price ID not found. Please contact support.' },
         { status: 500 }
       );
     }
 
-    // Check if already premium
-    if (profile?.premium_status) {
-      return NextResponse.json(
-        { error: 'Already premium', isPremium: true },
-        { status: 400 }
-      );
-    }
+    // Get user profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email, first_name, last_name, stripe_customer_id')
+      .eq('user_id', userId)
+      .single();
 
-    // Create or retrieve Stripe customer
+    // Create/Get Customer (Same logic as before)
     let customerId = profile?.stripe_customer_id;
-
-    // If customer ID exists, verify it's valid in this Stripe account
-    if (customerId) {
-      try {
-        await stripe.customers.retrieve(customerId);
-      } catch (error: any) {
-        // Customer doesn't exist (maybe switched Stripe accounts), create new one
-        customerId = null;
-      }
-    }
-
-    // Create new customer if needed
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: profile?.email,
         name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim(),
-        metadata: {
-          supabase_user_id: userId,
-        },
+        metadata: { supabase_user_id: userId },
       });
       customerId = customer.id;
-
-      // Save customer ID to profile
-      await supabase
-        .from('profiles')
-        .update({ stripe_customer_id: customerId })
-        .eq('user_id', userId);
-
+      await supabase.from('profiles').update({ stripe_customer_id: customerId }).eq('user_id', userId);
     }
 
-    // Get the origin from the request or use production URL
-    const origin = req.headers.get('origin') || 
-                   req.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
-                   process.env.NEXT_PUBLIC_APP_URL || 
-                   'https://www.trackmyopt.com';
-    
-    // Create checkout session
+    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://www.trackmyopt.com';
+
+    // Create Subscription Session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      mode: 'payment',
+      mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            unit_amount: 299, // $2.99 in cents
-            product_data: {
-              name: 'TrackMyOPT Premium - Lifetime Access',
-              description: 'Daily email reminders for your OPT deadlines (lifetime access)',
-              images: [
-                `${origin}/premium-icon.png`
-              ],
-            },
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
-      success_url: `${origin}/premium/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/premium/cancelled`,
+      subscription_data: {
+        trial_period_days: 7, // 7-Day Free Trial as promised
+        metadata: {
+          planId,
+          interval
+        }
+      },
+      success_url: `${origin}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/pricing?canceled=true`,
       metadata: {
         supabase_user_id: userId,
+        planId,
+        interval
       },
-      allow_promotion_codes: true, // Allow promo codes
-      billing_address_collection: 'auto',
+      allow_promotion_codes: true,
     });
 
+    return NextResponse.json({ sessionId: session.id, url: session.url });
 
-    return NextResponse.json({
-      sessionId: session.id,
-      url: session.url,
-    });
   } catch (error: any) {
     console.error('Stripe checkout error:', error);
-    
-    return NextResponse.json(
-      { 
-        error: error.message || 'Failed to create checkout session',
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 

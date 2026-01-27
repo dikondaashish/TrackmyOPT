@@ -36,7 +36,7 @@ export function LandingPricing() {
                 { label: "Everything in Free", included: true },
                 { label: "Priority Case Alerts", included: true },
                 { label: "Verified H-1B Sponsor Data", included: true },
-                { label: "Resume Builder (ATS Optimized)", included: true },
+                { label: "AI Resume Parser & Scorer", included: true },
                 { label: "Detailed Job Analytics", included: true },
             ],
             recommended: true,
@@ -74,7 +74,7 @@ export function LandingPricing() {
                 annualBillingLabel="Annual Billing"
                 buttonLabel="Start 7-Day Free Trial"
                 plans={plans}
-                defaultAnnual={true}
+                defaultAnnual={false}
                 className="!bg-transparent !py-0" // Override internal styles
             />
         </section>

@@ -11,6 +11,8 @@ import { LandingComparison } from "../components/landing/LandingComparison";
 import { LandingValueGrid } from "../components/landing/LandingValueGrid";
 import { LandingChromeExtension } from "../components/landing/LandingChromeExtension";
 import { LandingTrustedUniversities } from "../components/landing/LandingTrustedUniversities";
+import { LandingToolkit } from "../components/landing/LandingToolkit";
+import { LandingEngine } from "../components/landing/LandingEngine";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -46,7 +48,9 @@ export default function LandingPage() {
                 <LandingValueGrid />
 
                 <LandingFeatures />
+                <LandingEngine />
                 <LandingSuccessStories />
+                <LandingToolkit />
                 <LandingPricing />
                 <LandingTestimonials />
                 <LandingFAQ />
