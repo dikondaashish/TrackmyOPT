@@ -2,6 +2,7 @@ import { LandingHero } from "../components/landing/LandingHero";
 import { LandingNavbar } from "../components/landing/LandingNavbar";
 import { LandingFeatures } from "../components/landing/LandingFeatures";
 import { LandingAllFeatures } from "../components/landing/LandingAllFeatures";
+import { LandingSuccessStories } from "../components/landing/LandingSuccessStories";
 import { LandingTestimonials } from "../components/landing/LandingTestimonials";
 import { LandingPricing } from "../components/landing/LandingPricing";
 import { LandingFAQ } from "../components/landing/LandingFAQ";
@@ -23,6 +24,7 @@ export default function LandingPage() {
             <LandingComparison />
             <LandingFeatures />
             <LandingAllFeatures />
+            <LandingSuccessStories />
             <LandingTestimonials />
             <LandingAEOContent />
             <LandingPricing />
