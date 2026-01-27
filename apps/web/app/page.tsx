@@ -10,6 +10,7 @@ import { LandingFooter } from "../components/landing/LandingFooter";
 import { LandingAEOContent } from "../components/landing/LandingAEOContent";
 import { LandingComparison } from "../components/landing/LandingComparison";
 import { LandingFeatureCloud } from "../components/landing/LandingFeatureCloud";
+import { LandingRoadmap } from "../components/landing/LandingRoadmap";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function LandingPage() {
             <LandingHero />
             <LandingComparison />
             <LandingFeatureCloud />
+            <LandingRoadmap />
             <LandingFeatures />
             <LandingAllFeatures />
             <LandingSuccessStories />
