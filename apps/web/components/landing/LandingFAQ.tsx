@@ -29,11 +29,6 @@ const faqs = [
         answer:
             "Our unemployment clock calculates based on official USCIS rules: 90 days for initial OPT and 150 days for STEM OPT. You log your employment periods, and we automatically calculate remaining days.",
     },
-    {
-        question: "What's included in the $19.99 lifetime premium?",
-        answer:
-            "Premium includes: unlimited USCIS case tracking, secure Document Vault with AI extraction, expiry reminders, data export, priority support, and all future updates. One payment, lifetime access.",
-    },
 ];
 
 export function LandingFAQ() {

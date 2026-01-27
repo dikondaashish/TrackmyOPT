@@ -13,7 +13,7 @@ export function LandingTrustedUniversities() {
         <div className="w-full py-8 border-y border-gray-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm overflow-hidden mt-12 lg:mt-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 text-center">
                 <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-                    Trusted by students from top universities
+                    Trusted by students from 100+ universities worldwide
                 </p>
             </div>
 

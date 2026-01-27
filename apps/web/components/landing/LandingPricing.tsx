@@ -11,6 +11,7 @@ export function LandingPricing() {
             priceMonthly: 0,
             priceYearly: 0,
             users: "Forever Free Account",
+            buttonLabel: "Create Free Account",
             features: [
                 { label: "Critical Deadline Alerts", included: true },
                 { label: "Unemployment Day Counter", included: true },
@@ -30,6 +31,7 @@ export function LandingPricing() {
             priceYearly: 49.99,
             priceYearlyOriginal: 79.99,
             users: "7-Day Free Trial",
+            buttonLabel: "Start 7-Day Free Trial",
             features: [
                 { label: "Everything in Free", included: true },
                 { label: "Priority Case Alerts", included: true },
@@ -50,6 +52,7 @@ export function LandingPricing() {
             priceYearly: 149.99,
             priceYearlyOriginal: 199.99,
             users: "1-Hr Lawyer Session Included",
+            buttonLabel: "Start 7-Day Free Trial",
             features: [
                 { label: "Everything in Pro", included: true },
                 { label: "24/7 Dedicated Support", included: true },

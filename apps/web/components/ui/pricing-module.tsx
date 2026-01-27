@@ -31,6 +31,7 @@ export interface PricingPlan {
     features: PlanFeature[];
     recommended?: boolean;
     badge?: string; // e.g. "Most Popular"
+    buttonLabel?: string; // Custom CTA per plan
 }
 
 export interface PricingModuleProps {
@@ -126,7 +127,7 @@ export function PricingModule({
                                     variant={plan.recommended ? "default" : "outline"}
                                     className="w-full mb-8 font-semibold"
                                 >
-                                    {buttonLabel}
+                                    {plan.buttonLabel || buttonLabel}
                                 </Button>
 
                                 <div className="text-left text-sm flex-1">

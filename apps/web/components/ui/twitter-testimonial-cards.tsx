@@ -8,6 +8,7 @@ interface TestimonialCardProps {
     avatar?: string;
     username?: string;
     handle?: string;
+    context?: string; // e.g. "MS CS, Northeastern"
     content?: string;
     date?: string;
     verified?: boolean;
@@ -60,6 +61,7 @@ function TestimonialCard({
     onLeave,
     isActive,
     onTap,
+    context,
 }: TestimonialCardProps) {
     const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
         // Check if it's a touch device
@@ -92,6 +94,7 @@ function TestimonialCard({
             )}
         >
             {/* Header */}
+            {/* Header */}
             <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
                 <div className="size-9 sm:size-12 rounded-full bg-gradient-to-br from-green-400 via-yellow-400 to-green-500 flex items-center justify-center overflow-hidden shrink-0">
                     {avatar ? (
@@ -106,6 +109,12 @@ function TestimonialCard({
                         {verified && <VerifiedBadge />}
                     </div>
                     <span className="text-muted-foreground text-[10px] sm:text-sm">{handle}</span>
+                    {/* Context Line */}
+                    {context && (
+                        <p className="text-[10px] text-primary/80 font-medium mt-0.5">
+                            {context}
+                        </p>
+                    )}
                 </div>
                 <TwitterIcon className="size-4 sm:size-5 text-foreground shrink-0" />
             </div>
@@ -133,7 +142,7 @@ function TestimonialCard({
                     </div>
                 </div>
             </div>
-        </a>
+        </a >
     );
 }
 
@@ -182,6 +191,8 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 842,
             retweets: 48,
             tweetUrl: "#",
+            // @ts-ignore
+            context: "MS CS, Northeastern — STEM OPT",
         },
         {
             className:
@@ -195,6 +206,8 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 628,
             retweets: 35,
             tweetUrl: "#",
+            // @ts-ignore
+            context: "Data Science, Columbia — Initial OPT",
         },
         {
             className: "[grid-area:stack] translate-x-16 sm:translate-x-32 translate-y-12 sm:translate-y-20 hover:translate-y-6 sm:hover:translate-y-10 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
@@ -207,6 +220,8 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 1256,
             retweets: 123,
             tweetUrl: "#",
+            // @ts-ignore
+            context: "MBA, UT Austin — H-1B Approved",
         },
         {
             className: "[grid-area:stack] translate-x-24 sm:translate-x-48 translate-y-18 sm:translate-y-30 hover:translate-y-12 sm:hover:translate-y-20 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
@@ -219,6 +234,8 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 412,
             retweets: 18,
             tweetUrl: "#",
+            // @ts-ignore
+            context: "Bioengineering, Stanford — Post-Completion",
         },
         {
             className: "[grid-area:stack] translate-x-32 sm:translate-x-64 translate-y-24 sm:translate-y-40 hover:translate-y-18 sm:hover:translate-y-30",
@@ -231,6 +248,8 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 943,
             retweets: 82,
             tweetUrl: "#",
+            // @ts-ignore
+            context: "Computer Engineering, Georgia Tech — Job Seeker",
         },
     ];
 
