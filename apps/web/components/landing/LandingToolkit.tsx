@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { HeartPulse, FileText, ArrowRight, Gift } from "lucide-react";
+import { HeartPulse, FileText, ArrowRight, Gift, Shield } from "lucide-react";
 import Link from "next/link";
 
 export function LandingToolkit() {
@@ -64,7 +64,7 @@ export function LandingToolkit() {
                     </div>
 
                     {/* Partner Perks Card */}
-                    <div className="group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-amber-500/30 hover:shadow-lg md:col-span-2 lg:col-span-1">
+                    <div className="group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-amber-500/30 hover:shadow-lg">
                         <div className="flex items-start justify-between mb-8">
                             <div className="w-14 h-14 bg-amber-100 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600 dark:text-amber-400">
                                 <Gift className="w-8 h-8" />
@@ -81,6 +81,27 @@ export function LandingToolkit() {
                         </p>
                         <div className="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform">
                             View Deals <ArrowRight className="w-4 h-4 ml-2" />
+                        </div>
+                    </div>
+
+                    {/* Document Vault Card (New 4th Card) */}
+                    <div className="group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-purple-500/30 hover:shadow-lg">
+                        <div className="flex items-start justify-between mb-8">
+                            <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400">
+                                <Shield className="w-8 h-8" />
+                            </div>
+                            <span className="px-3 py-1 bg-white dark:bg-zinc-800 text-xs font-semibold rounded-full border border-gray-200 dark:border-zinc-700">
+                                Compliance Tool
+                            </span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                            Smart Document Vault
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                            Never lose a critical document. Securely store I-20s, EADs, and offer letters with AI extraction to auto-fill your profile.
+                        </p>
+                        <div className="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform">
+                            Secure Docs <ArrowRight className="w-4 h-4 ml-2" />
                         </div>
                     </div>
                 </div>

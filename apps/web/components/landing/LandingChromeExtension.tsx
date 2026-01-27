@@ -56,9 +56,20 @@ export function LandingChromeExtension() {
                                 Add to Chrome - It's Free
                             </Button>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <div className="flex -space-x-1">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="w-6 h-6 rounded-full bg-gray-200 border-2 border-background" />
+                                <div className="flex -space-x-2">
+                                    {[
+                                        "/students/student1.jpg",
+                                        "/students/student2.jpg",
+                                        "/students/student3.jpg",
+                                        "/students/student4.jpg"
+                                    ].map((src, i) => (
+                                        <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-background overflow-hidden">
+                                            <img
+                                                src={src}
+                                                alt="Student"
+                                                className="h-full w-full object-cover"
+                                            />
+                                        </div>
                                     ))}
                                 </div>
                                 <span>2,000+ students using it</span>

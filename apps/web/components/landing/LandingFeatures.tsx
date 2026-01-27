@@ -67,29 +67,37 @@ export function LandingFeatures() {
 
                     {/* Card 2 - Timeline (Updated for Polling) */}
                     <div className="md:col-span-1 row-span-1 group relative overflow-hidden rounded-3xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 p-8 shadow-sm hover:shadow-lg transition-all">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 mb-4">
-                            <LayoutDashboard className="w-6 h-6" />
+                        <div className="relative z-10">
+                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 mb-4">
+                                <LayoutDashboard className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">24/7 Case Patrol</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                We check your USCIS status daily so you don't have to. Get instant alerts on approvals or RFEs.
+                            </p>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">24/7 Case Patrol</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                            We check your USCIS status daily so you don't have to. Get instant alerts on approvals or RFEs.
-                        </p>
+                        {/* Decorative Gradient - Blue/Cyan */}
+                        <div className="absolute top-1/2 -right-20 w-[200px] h-[200px] bg-gradient-to-br from-blue-500/10 to-cyan-500/10 blur-3xl rounded-full group-hover:bg-blue-500/20 transition-all duration-500" />
                     </div>
 
                     {/* Card 3 - AI Resume Doctor (High Value Gem) */}
                     <div className="md:col-span-1 row-span-1 group relative overflow-hidden rounded-3xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 p-8 shadow-sm hover:shadow-lg transition-all">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 mb-4">
-                            <FileText className="w-6 h-6" />
+                        <div className="relative z-10">
+                            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 mb-4">
+                                <FileText className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Resume Doctor</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                Uses Gemini 1.5 Pro to rewrite your bullet points and match keywords for every specific job.
+                            </p>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Resume Doctor</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                            Uses Gemini 1.5 Pro to rewrite your bullet points and match keywords for every specific job.
-                        </p>
+                        {/* Decorative Gradient - Purple/Pink */}
+                        <div className="absolute top-1/2 -right-20 w-[200px] h-[200px] bg-gradient-to-br from-purple-500/10 to-pink-500/10 blur-3xl rounded-full group-hover:bg-purple-500/20 transition-all duration-500" />
                     </div>
 
                     {/* Large Featured Card 4 - H-1B & Tools */}
                     <div className="md:col-span-3 row-span-1 group relative overflow-hidden rounded-3xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 p-8 shadow-sm hover:shadow-xl transition-all flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div className="flex-1">
+                        <div className="flex-1 relative z-10">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600">
                                     <FileSearch className="w-6 h-6" />
@@ -112,11 +120,13 @@ export function LandingFeatures() {
                                 </span>
                             </div>
                         </div>
-                        <div className="shrink-0">
+                        <div className="shrink-0 relative z-10">
                             <Link href="/login" className="px-6 py-3 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">
                                 Search Database
                             </Link>
                         </div>
+                        {/* Decorative Gradient - Green/Teal */}
+                        <div className="absolute -bottom-24 -right-24 w-[400px] h-[400px] bg-gradient-to-t from-green-500/10 via-teal-500/5 to-transparent blur-3xl rounded-full group-hover:bg-green-500/20 transition-all duration-700" />
                     </div>
                 </div>
             </div>

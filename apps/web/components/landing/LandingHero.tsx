@@ -276,7 +276,7 @@ export function LandingHero() {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                                 </span>
-                                <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
                                     #1 Platform for International Students
                                 </span>
                             </div>
