@@ -65,6 +65,7 @@ const config: Config = {
         "fade-in-delay-3": "fadeIn 0.6s ease-in-out 0.3s both",
         "border-spin": "borderSpin 3s linear infinite",
         "spin-slow": "spin 8s linear infinite",
+        "scroll": "scroll 40s linear infinite",
       },
       keyframes: {
         aurora: {
@@ -101,6 +102,11 @@ const config: Config = {
           },
           "50%": {
             backgroundPosition: "100% 50%",
+          },
+        },
+        scroll: {
+          to: {
+            transform: "translate(calc(-50% - 0.5rem))",
           },
         },
       },

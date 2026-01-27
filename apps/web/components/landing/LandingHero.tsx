@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { LandingTrustedUniversities } from "./LandingTrustedUniversities";
 import {
     Clock,
     Calendar,
@@ -266,7 +267,7 @@ export function LandingHero() {
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
                             </span>
                             <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                                Trusted by 15,000+ F-1 Students
+                                #1 Platform for International Students
                             </span>
                         </motion.div>
 
@@ -304,8 +305,8 @@ export function LandingHero() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as TabType)}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === tab.id
-                                            ? "bg-white dark:bg-zinc-800 text-primary shadow-md ring-1 ring-border"
-                                            : "text-muted-foreground hover:bg-white/50 dark:hover:bg-zinc-800/50"
+                                        ? "bg-white dark:bg-zinc-800 text-primary shadow-md ring-1 ring-border"
+                                        : "text-muted-foreground hover:bg-white/50 dark:hover:bg-zinc-800/50"
                                         }`}
                                 >
                                     <tab.icon className="w-4 h-4" />
@@ -419,6 +420,9 @@ export function LandingHero() {
                     </motion.div>
                 </div>
             </div>
+
+            {/* Trusted Universities Strip */}
+            <LandingTrustedUniversities />
         </section>
     );
 }

@@ -30,28 +30,12 @@ const testimonials = [
     },
 ];
 
-const universities = [
-    "Carnegie Mellon", "Georgia Tech", "USC", "NYU", "Columbia", "MIT", "Stanford", "UC Berkeley"
-];
+
 
 export function LandingTestimonials() {
     return (
         <section className="py-24 bg-white dark:bg-zinc-950 overflow-hidden" id="testimonials">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Visual Trust Strip - Top */}
-                <div className="mb-20 text-center">
-                    <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-8">
-                        Trusted by students from top universities
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-40 grayscale">
-                        {universities.map((uni) => (
-                            <span key={uni} className="text-xl md:text-2xl font-bold font-serif text-foreground hover:text-primary transition-colors cursor-default hover:grayscale-0">
-                                {uni}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-
                 <div className="text-center mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
                         Don't Just Take Our Word For It
