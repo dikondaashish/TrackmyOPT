@@ -146,19 +146,18 @@ export default function Testimonials({ cards }: TestimonialsProps) {
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
     const getCardClassName = (index: number, baseClassName: string) => {
-        // When hovering/active on back card (0), push middle (1) and front (2) down
-        // When hovering/active on middle card (1), push front (2) down
         const focusedIndex = hoveredIndex ?? activeIndex;
 
-        if (focusedIndex === 0 && index === 1) {
-            return baseClassName + " !translate-y-20 sm:!translate-y-32 !translate-x-14 sm:!translate-x-24";
+        if (focusedIndex !== null && index > focusedIndex) {
+            // Calculate offset multiplier based on how far this card is from the focused one
+            const offsetStep = index - focusedIndex;
+            // Base push distance + incremental step
+            const xTranslate = 60 + (offsetStep * 40);
+            const yTranslate = 60 + (offsetStep * 40);
+
+            return baseClassName + ` !translate-y-[${yTranslate}px] !translate-x-[${xTranslate}px] sm:!translate-y-[${yTranslate + 40}px] sm:!translate-x-[${xTranslate + 40}px] transition-transform duration-500`;
         }
-        if (focusedIndex === 0 && index === 2) {
-            return baseClassName + " !translate-y-28 sm:!translate-y-44 !translate-x-24 sm:!translate-x-40";
-        }
-        if (focusedIndex === 1 && index === 2) {
-            return baseClassName + " !translate-y-24 sm:!translate-y-40 !translate-x-24 sm:!translate-x-40";
-        }
+
         return baseClassName;
     };
 
@@ -198,7 +197,7 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             tweetUrl: "#",
         },
         {
-            className: "[grid-area:stack] translate-x-16 sm:translate-x-32 translate-y-12 sm:translate-y-20 hover:translate-y-6 sm:hover:translate-y-10",
+            className: "[grid-area:stack] translate-x-16 sm:translate-x-32 translate-y-12 sm:translate-y-20 hover:translate-y-6 sm:hover:translate-y-10 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
             avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed",
             username: "Ahmed K.",
             handle: "@ahmed_pm",
@@ -207,6 +206,30 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             verified: true,
             likes: 1256,
             retweets: 123,
+            tweetUrl: "#",
+        },
+        {
+            className: "[grid-area:stack] translate-x-24 sm:translate-x-48 translate-y-18 sm:translate-y-30 hover:translate-y-12 sm:hover:translate-y-20 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+            username: "Sarah L.",
+            handle: "@sarah_tech",
+            content: "The document vault is a game changer. I used to keep my I-20s in random folders, now I get alerts before they expire. Peace of mind is priceless.",
+            date: "Jan 18, 2026",
+            verified: true,
+            likes: 412,
+            retweets: 18,
+            tweetUrl: "#",
+        },
+        {
+            className: "[grid-area:stack] translate-x-32 sm:translate-x-64 translate-y-24 sm:translate-y-40 hover:translate-y-18 sm:hover:translate-y-30",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
+            username: "Michael R.",
+            handle: "@m_rodriguez",
+            content: "Finally an app that understands the F-1 struggle. The dashboard is beautiful and the timeline tracker is spot on. Highly recommend!",
+            date: "Jan 20, 2026",
+            verified: true,
+            likes: 943,
+            retweets: 82,
             tweetUrl: "#",
         },
     ];

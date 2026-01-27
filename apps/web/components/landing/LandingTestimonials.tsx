@@ -17,7 +17,7 @@ export function LandingTestimonials() {
 
                 {/* New Interactive Stacked Cards */}
                 <div className="flex justify-center w-full px-4 overflow-visible">
-                    <div className="scale-75 sm:scale-90 md:scale-100 origin-top">
+                    <div className="scale-[0.6] sm:scale-75 md:scale-90 origin-top">
                         <Testimonials />
                     </div>
                 </div>
