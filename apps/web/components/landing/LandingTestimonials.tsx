@@ -1,56 +1,62 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, Quote } from "lucide-react";
-import Image from "next/image";
+import { Star, Quote, Building } from "lucide-react";
 
 const testimonials = [
     {
         content: "I nearly missed my OPT filing window because I miscalculated the 90-day rule. TrackMyOPT alerted me just in time. It's strictly essential for any F-1 student.",
         author: "Priya S.",
-        role: "Software Engineer at Google",
-        university: "Carnegie Mellon University",
+        role: "Software Engineer",
+        company: "Google",
         initial: "P",
         color: "bg-blue-500",
     },
     {
         content: "The unemployment clock is a lifesaver. I didn't realize volunteer work counted until I read the guide here. This platform saved my status.",
         author: "Wei C.",
-        role: "Data Scientist at Amazon",
-        university: "Georgia Tech",
+        role: "Data Scientist",
+        company: "Amazon",
         initial: "W",
         color: "bg-purple-500",
     },
     {
         content: "Finding H-1B sponsors was a nightmare until I used their database. I filtered for companies in Texas and found my current employer in 2 days.",
         author: "Ahmed K.",
-        role: "Product Manager at Oracle",
-        university: "UT Austin",
+        role: "Product Manager",
+        company: "Oracle",
         initial: "A",
         color: "bg-green-500",
     },
 ];
 
+const universities = [
+    "Carnegie Mellon", "Georgia Tech", "USC", "NYU", "Columbia", "MIT", "Stanford", "UC Berkeley"
+];
+
 export function LandingTestimonials() {
     return (
-        <section className="py-24 bg-white dark:bg-zinc-950 overflow-hidden">
+        <section className="py-24 bg-white dark:bg-zinc-950 overflow-hidden" id="testimonials">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Visual Trust Strip - Top */}
+                <div className="mb-20 text-center">
+                    <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-8">
+                        Trusted by students from top universities
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-40 grayscale">
+                        {universities.map((uni) => (
+                            <span key={uni} className="text-xl md:text-2xl font-bold font-serif text-foreground hover:text-primary transition-colors cursor-default hover:grayscale-0">
+                                {uni}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
                 <div className="text-center mb-16">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        className="inline-block p-3 rounded-2xl bg-blue-50 dark:bg-blue-900/10 mb-6"
-                    >
-                        <Star className="w-8 h-8 text-yellow-400 fill-yellow-400" />
-                    </motion.div>
-                    <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                        Trusted by Students from{" "}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                            Top Universities
-                        </span>
+                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
+                        Don't Just Take Our Word For It
                     </h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         Join 15,000+ international students who use TrackMyOPT to secure their future in the United States.
                     </p>
                 </div>
@@ -62,48 +68,35 @@ export function LandingTestimonials() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ delay: index * 0.2 }}
-                            className="bg-gray-50 dark:bg-zinc-900/50 p-8 rounded-3xl border border-gray-100 dark:border-zinc-800 hover:shadow-xl dark:hover:shadow-blue-900/10 hover:-translate-y-2 transition-all duration-300"
+                            transition={{ delay: index * 0.1 }}
+                            className="bg-gray-50 dark:bg-zinc-900/50 p-8 rounded-3xl border border-gray-100 dark:border-zinc-800 hover:shadow-xl dark:hover:shadow-blue-900/10 hover:-translate-y-1 transition-all duration-300"
                         >
-                            <Quote className="w-10 h-10 text-blue-200 dark:text-blue-900/30 mb-6" />
+                            <div className="flex gap-1 mb-4">
+                                {[1, 2, 3, 4, 5].map(star => (
+                                    <Star key={star} className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                                ))}
+                            </div>
 
-                            <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-8 italic">
+                            <p className="text-foreground text-lg leading-relaxed mb-6">
                                 "{testimonial.content}"
                             </p>
 
-                            <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 rounded-full ${testimonial.color} flex items-center justify-center text-white font-bold text-xl shadow-lg`}>
+                            <div className="flex items-center gap-4 mt-auto">
+                                <div className={`w-10 h-10 rounded-full ${testimonial.color} flex items-center justify-center text-white font-bold text-sm shadow-md`}>
                                     {testimonial.initial}
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-gray-900 dark:text-white">
+                                    <h4 className="font-bold text-foreground text-sm">
                                         {testimonial.author}
                                     </h4>
-                                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                                        {testimonial.role}
-                                    </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                        {testimonial.university}
-                                    </p>
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                        <Building className="w-3 h-3" />
+                                        <span>{testimonial.role} at {testimonial.company}</span>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>
                     ))}
-                </div>
-
-                {/* University Logos Strip - Visual Trust */}
-                <div className="mt-20 pt-10 border-t border-gray-100 dark:border-zinc-800">
-                    <p className="text-center text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-8">
-                        Students from these universities rely on us
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                        {/* Placeholder text for logos since we don't have SVG assets for them yet, but styled to look like logo placeholders */}
-                        {["Carnegie Mellon", "Georgia Tech", "USC", "NYU", "Columbia", "MIT"].map((uni) => (
-                            <span key={uni} className="text-xl md:text-2xl font-bold font-serif text-gray-400 dark:text-gray-600 hover:text-gray-800 dark:hover:text-gray-200 transition-colors cursor-default">
-                                {uni}
-                            </span>
-                        ))}
-                    </div>
                 </div>
             </div>
         </section>

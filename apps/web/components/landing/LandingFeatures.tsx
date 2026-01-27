@@ -8,138 +8,116 @@ import {
     BellRing,
     FileSearch,
     GraduationCap,
-    ArrowRight
+    ArrowRight,
+    LayoutDashboard,
+    FileText
 } from "lucide-react";
-
-const features = [
-    {
-        name: "OPT Timeline Dashboard",
-        description: "Your entire immigration journey in one view. Track dates from graduation to STEM extension with precision.",
-        icon: GraduationCap,
-        color: "blue",
-    },
-    {
-        name: "Unemployment Clock",
-        description: "Never violate the 90-day rule. Track your unemployment days with traffic-light alerts.",
-        icon: Clock,
-        color: "green",
-    },
-    {
-        name: "CRM for Job Search",
-        description: "A Kanban-style tracker to manage your job applications, interviews, and offers in one pipeline.",
-        icon: Briefcase,
-        color: "purple",
-    },
-    {
-        name: "H-1B Sponsor Database",
-        description: "Search 80,000+ verified companies that sponsor H-1B visas. Find employers who actually hire F-1 students.",
-        icon: FileSearch,
-        color: "pink",
-    },
-    {
-        name: "USCIS Case Status",
-        description: "Real-time tracking for your EAD card. We check USCIS daily and email you instantly when status changes.",
-        icon: BellRing,
-        color: "amber",
-    },
-    {
-        name: "Document Vault",
-        description: "Bank-grade encryption for your I-20s, EADs, and passports. AI automatically extracts expiry dates.",
-        icon: ShieldCheck,
-        color: "cyan",
-    },
-];
-
-const container = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-        },
-    },
-};
-
-const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-};
+import Link from "next/link";
 
 export function LandingFeatures() {
     return (
-        <section id="features" className="py-24 bg-gray-50 dark:bg-zinc-900/50">
+        <section id="features" className="py-24 bg-gray-50/50 dark:bg-zinc-900/50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4"
-                    >
-                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                            Everything You Need
-                        </span>
-                    </motion.div>
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
-                        className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6"
-                    >
-                        The Operating System for{" "}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                            F-1 Students
-                        </span>
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
-                        className="text-lg text-gray-600 dark:text-gray-300"
-                    >
-                        Stop using spreadsheets and calendar reminders. TrackMyOPT gives you professional tools designed specifically for the immigrant journey in the US.
-                    </motion.p>
+                    <span className="text-blue-600 dark:text-blue-400 font-semibold tracking-wider uppercase text-sm">
+                        Power Features
+                    </span>
+                    <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                        Everything You Need to Stay Legal & Get Hired
+                    </h2>
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
+                        Professional tools built specifically for the unique challenges of F-1 students.
+                    </p>
                 </div>
 
-                <motion.div
-                    variants={container}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, margin: "-100px" }}
-                    className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-                >
-                    {features.map((feature, index) => (
-                        <motion.div
-                            key={feature.name}
-                            variants={item}
-                            className="group relative bg-white dark:bg-zinc-800 rounded-2xl p-8 shadow-sm border border-gray-200/50 dark:border-zinc-700/50 hover:shadow-xl hover:border-blue-500/20 dark:hover:border-blue-500/20 transition-all duration-300"
-                        >
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300
-                                ${feature.color === 'blue' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white' : ''}
-                                ${feature.color === 'green' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 group-hover:bg-green-600 group-hover:text-white' : ''}
-                                ${feature.color === 'purple' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white' : ''}
-                                ${feature.color === 'pink' ? 'bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400 group-hover:bg-pink-600 group-hover:text-white' : ''}
-                                ${feature.color === 'amber' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 group-hover:bg-amber-600 group-hover:text-white' : ''}
-                                ${feature.color === 'cyan' ? 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400 group-hover:bg-cyan-600 group-hover:text-white' : ''}
-                            `}>
-                                <feature.icon className="w-6 h-6" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
+                    {/* Large Featured Card 1 - Job CRM */}
+                    <div className="md:col-span-2 row-span-1 md:row-span-2 group relative overflow-hidden rounded-3xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 shadow-sm hover:shadow-xl transition-all duration-300">
+                        <div className="relative z-10 h-full flex flex-col justify-between">
+                            <div>
+                                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 mb-6">
+                                    <Briefcase className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                                    Job Search CRM
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-400 max-w-md text-lg">
+                                    A Kanban-style tracker to manage your applications, interviews, and offers in one pipeline. Tag H-1B sponsors and track referrals.
+                                </p>
                             </div>
+                            <div className="flex items-center text-purple-600 font-semibold group-hover:translate-x-2 transition-transform cursor-pointer">
+                                Try CRM Demo <ArrowRight className="w-4 h-4 ml-2" />
+                            </div>
+                        </div>
+                        {/* Decorative Background Element */}
+                        <div className="absolute top-1/2 -right-20 w-[300px] h-[300px] bg-gradient-to-br from-purple-500/10 to-pink-500/10 blur-3xl rounded-full group-hover:bg-purple-500/20 transition-all duration-500" />
+                        {/* CSS Mockup Preview */}
+                        <div className="absolute right-0 bottom-8 translate-x-12 w-[300px] p-4 bg-gray-50 dark:bg-zinc-800 rounded-l-xl border-l border-t border-b border-gray-200 dark:border-zinc-700 shadow-lg opacity-80 group-hover:translate-x-8 group-hover:opacity-100 transition-all">
+                            <div className="flex gap-2 mb-2">
+                                <div className="w-2 h-8 bg-purple-500 rounded-full" />
+                                <div className="flex-1">
+                                    <div className="h-2 w-20 bg-gray-200 dark:bg-zinc-700 rounded mb-1" />
+                                    <div className="h-2 w-12 bg-gray-100 dark:bg-zinc-800 rounded" />
+                                </div>
+                            </div>
+                            <div className="h-20 bg-white dark:bg-zinc-900 rounded border border-dashed border-gray-200 dark:border-zinc-700" />
+                        </div>
+                    </div>
 
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                {feature.name}
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                                {feature.description}
+                    {/* Card 2 - Timeline */}
+                    <div className="md:col-span-1 row-span-1 group relative overflow-hidden rounded-3xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 shadow-sm hover:shadow-lg transition-all">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 mb-4">
+                            <LayoutDashboard className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Timeline Tracker</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Visualize your journey from graduation to STEM extension. Never miss a filing window.
+                        </p>
+                    </div>
+
+                    {/* Card 3 - Unemployment Clock */}
+                    <div className="md:col-span-1 row-span-1 group relative overflow-hidden rounded-3xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 shadow-sm hover:shadow-lg transition-all">
+                        <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-600 mb-4">
+                            <Clock className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">90-Day Rule Clock</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Track unemployment days with precision. Get alerts when you cross danger thresholds.
+                        </p>
+                    </div>
+
+                    {/* Large Featured Card 4 - H-1B & Tools */}
+                    <div className="md:col-span-3 row-span-1 group relative overflow-hidden rounded-3xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 shadow-sm hover:shadow-xl transition-all flex flex-col md:flex-row items-center justify-between gap-8">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600">
+                                    <FileSearch className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                    H-1B Sponsor Database
+                                </h3>
+                            </div>
+                            <p className="text-gray-600 dark:text-gray-400 text-lg mb-6 max-w-2xl">
+                                Stop applying to companies that don't sponsor. Search 80,000+ verified H-1B employers and filter by approval rating.
                             </p>
-
-                            <div className="flex items-center text-sm font-semibold text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
-                                Learn more <ArrowRight className="w-4 h-4 ml-1" />
+                            <div className="flex flex-wrap gap-3">
+                                {["Microsoft", "Amazon", "Google", "Tesla", "Meta"].map(company => (
+                                    <span key={company} className="px-3 py-1 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 rounded-full text-xs font-medium border border-gray-200 dark:border-zinc-700">
+                                        {company}
+                                    </span>
+                                ))}
+                                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-full text-xs font-medium">
+                                    + 80,000 more
+                                </span>
                             </div>
-                        </motion.div>
-                    ))}
-                </motion.div>
+                        </div>
+                        <div className="shrink-0">
+                            <Link href="/login" className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
+                                Search Database
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     );
