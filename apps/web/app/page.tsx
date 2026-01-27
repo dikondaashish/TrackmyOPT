@@ -11,6 +11,7 @@ import { LandingAEOContent } from "../components/landing/LandingAEOContent";
 import { LandingComparison } from "../components/landing/LandingComparison";
 import { LandingFeatureCloud } from "../components/landing/LandingFeatureCloud";
 import { LandingRoadmap } from "../components/landing/LandingRoadmap";
+import { LandingChromeExtension } from "../components/landing/LandingChromeExtension";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function LandingPage() {
             <LandingComparison />
             <LandingFeatureCloud />
             <LandingRoadmap />
+            <LandingChromeExtension />
             <LandingFeatures />
             <LandingAllFeatures />
             <LandingPricing />
