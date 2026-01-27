@@ -4,26 +4,26 @@ import { motion } from "framer-motion";
 
 export function LandingTrustedUniversities() {
     const universities = [
-        { name: "Carnegie Mellon", domain: "cmu.edu" },
-        { name: "Georgia Tech", domain: "gatech.edu" },
-        { name: "USC", domain: "usc.edu" },
-        { name: "NYU", domain: "nyu.edu" },
-        { name: "Columbia", domain: "columbia.edu" },
-        { name: "MIT", domain: "mit.edu" },
-        { name: "Stanford", domain: "stanford.edu" },
-        { name: "UC Berkeley", domain: "berkeley.edu" },
-        { name: "Harvard", domain: "harvard.edu" },
-        { name: "Cornell", domain: "cornell.edu" },
-        { name: "UIUC", domain: "illinois.edu" },
-        { name: "Purdue", domain: "purdue.edu" },
-        { name: "UT Austin", domain: "utexas.edu" },
-        { name: "Northeastern", domain: "northeastern.edu" },
-        { name: "Boston University", domain: "bu.edu" },
-        { name: "Texas A&M", domain: "tamu.edu" },
-        { name: "Arizona State", domain: "asu.edu" },
-        { name: "University of Washington", domain: "washington.edu" },
-        { name: "UCLA", domain: "ucla.edu" },
-        { name: "University of Michigan", domain: "umich.edu" },
+        { name: "Carnegie Mellon", file: "cmu.svg" },
+        { name: "Georgia Tech", file: "gatech.svg" },
+        { name: "USC", file: "usc.svg" },
+        { name: "NYU", file: "nyu.svg" },
+        { name: "Columbia", file: "columbia.svg" },
+        { name: "MIT", file: "mit.svg" },
+        { name: "Stanford", file: "stanford.svg" },
+        { name: "UC Berkeley", file: "berkeley.svg" },
+        { name: "Harvard", file: "harvard.svg" },
+        { name: "Cornell", file: "cornell.svg" },
+        { name: "UIUC", file: "uiuc.svg" },
+        { name: "Purdue", file: "purdue.svg" },
+        { name: "UT Austin", file: "utexas.svg" },
+        { name: "Northeastern", file: "northeastern.svg" },
+        { name: "Boston University", file: "bu.svg" },
+        { name: "Texas A&M", file: "tamu.svg" },
+        { name: "Arizona State", file: "asu.svg" },
+        { name: "University of Washington", file: "uw.svg" },
+        { name: "UCLA", file: "ucla.svg" },
+        { name: "University of Michigan", file: "umich.svg" },
     ];
 
     return (
@@ -53,7 +53,7 @@ export function LandingTrustedUniversities() {
                             className="relative w-32 h-16 flex items-center justify-center grayscale opacity-50 transition-all duration-300 hover:grayscale-0 hover:opacity-100 hover:scale-110 cursor-pointer"
                         >
                             <img
-                                src={`https://logo.clearbit.com/${uni.domain}?size=128&format=png`}
+                                src={`/unis/${uni.file}`}
                                 alt={uni.name}
                                 className="max-w-full max-h-full object-contain"
                                 onError={(e) => {
