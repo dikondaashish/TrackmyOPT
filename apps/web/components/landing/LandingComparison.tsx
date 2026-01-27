@@ -17,7 +17,7 @@ const comparisonData = [
     {
         feature: "Unemployment Days",
         oldWay: "Guessing or manual counting",
-        newWay: "Real-time clock with 90/150 day alerts",
+        newWay: "Real-time clock with 90/60 day alerts",
     },
     {
         feature: "Document Safety",

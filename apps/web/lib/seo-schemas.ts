@@ -89,7 +89,7 @@ export const softwareApplicationSchema = {
         "Unemployment Clock (90-day OPT / 150-day STEM OPT)",
         "USCIS Case Status Tracker with email notifications",
         "Secure Document Vault with AES-256 encryption",
-        "H-1B Sponsor Database with 80,000+ companies",
+        "H-1B Sponsor Database with 25,000+ companies",
         "Job Application Tracker with Kanban board",
         "Resume Manager with AI parsing",
         "Tax Filing Guide for international students",
@@ -148,7 +148,7 @@ export const faqSchema = {
             name: "Which companies sponsor H-1B visas?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "TrackMyOPT provides a searchable database of 80,000+ companies that sponsor H-1B visas. Top sponsors include technology companies (Google, Microsoft, Amazon, Meta), consulting firms (Deloitte, Accenture, Cognizant), and financial institutions. You can filter by industry, location, approval rate, and number of petitions filed. The database is updated regularly with LCA data.",
+                text: "TrackMyOPT provides a searchable database of 25,000+ companies that sponsor H-1B visas. Top sponsors include technology companies (Google, Microsoft, Amazon, Meta), consulting firms (Deloitte, Accenture, Cognizant), and financial institutions. You can filter by industry, location, approval rate, and number of petitions filed. The database is updated regularly with LCA data.",
             },
         },
         {
@@ -554,7 +554,7 @@ export const knowledgeGraphSchema = {
             position: 5,
             item: {
                 "@type": "Answer",
-                text: "Over 80,000 US companies sponsor H-1B visas including Google, Microsoft, Amazon, Deloitte, Cognizant, and JPMorgan.",
+                text: "Over 25,000 US companies sponsor H-1B visas including Google, Microsoft, Amazon, Deloitte, Cognizant, and JPMorgan.",
                 url: "https://trackmyopt.com/#h1b-sponsors",
             },
         },

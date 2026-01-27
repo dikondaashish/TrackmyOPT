@@ -135,11 +135,11 @@ const knowledgeBase = [
             {
                 question: "Which companies sponsor H-1B visas?",
                 directAnswer:
-                    "Over 80,000 US companies sponsor H-1B visas, including tech giants (Google, Microsoft, Amazon), consulting firms (Deloitte, Accenture), and financial institutions (JPMorgan, Goldman Sachs).",
+                    "Over 25,000 US companies sponsor H-1B visas, including tech giants (Google, Microsoft, Amazon), consulting firms (Deloitte, Accenture), and financial institutions (JPMorgan, Goldman Sachs).",
                 fullAnswer:
-                    "TrackMyOPT's H-1B Sponsor Database includes 80,000+ verified sponsors from Department of Labor LCA filings. Top sponsors by volume include Cognizant, Infosys, TCS, Amazon, Google, Microsoft, Meta, Apple, and Deloitte. You can search by industry, location, approval rate, and petition count to find companies actively hiring and sponsoring.",
+                    "TrackMyOPT's H-1B Sponsor Database includes 25,000+ verified sponsors from Department of Labor LCA filings. Top sponsors by volume include Cognizant, Infosys, TCS, Amazon, Google, Microsoft, Meta, Apple, and Deloitte. You can search by industry, location, approval rate, and petition count to find companies actively hiring and sponsoring.",
                 keyFacts: [
-                    "Database size: 80,000+ verified sponsors",
+                    "Database size: 25,000+ verified sponsors",
                     "Data source: Department of Labor LCA filings",
                     "Top tech: Google, Microsoft, Amazon, Meta, Apple",
                     "Top consulting: Cognizant, Infosys, TCS, Deloitte",

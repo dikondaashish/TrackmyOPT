@@ -62,7 +62,7 @@ const faqCategories = [
             {
                 question: "Which companies sponsor H-1B visas?",
                 answer:
-                    "TrackMyOPT provides a searchable database of 80,000+ companies that sponsor H-1B visas. Top sponsors include technology companies (Google, Microsoft, Amazon, Apple, Meta), consulting firms (Deloitte, Accenture, Infosys, Cognizant, TCS), financial institutions (JPMorgan, Goldman Sachs, Bank of America), and healthcare organizations. You can filter by industry, location, approval rate, and number of petitions. Data is sourced from Department of Labor LCA filings.",
+                    "TrackMyOPT provides a searchable database of 25,000+ companies that sponsor H-1B visas. Top sponsors include technology companies (Google, Microsoft, Amazon, Apple, Meta), consulting firms (Deloitte, Accenture, Infosys, Cognizant, TCS), financial institutions (JPMorgan, Goldman Sachs, Bank of America), and healthcare organizations. You can filter by industry, location, approval rate, and number of petitions. Data is sourced from Department of Labor LCA filings.",
             },
             {
                 question: "How do I find H-1B sponsors in my field?",

@@ -30,7 +30,7 @@ const allFeatures = [
             },
             {
                 name: "Unemployment Clock",
-                description: "Track the 90-day (OPT) and 150-day (STEM) limits with precision alerts.",
+                description: "Track the 90-day (OPT) and 60-day (STEM) limits with precision alerts.",
                 icon: Clock,
             },
             {
@@ -56,7 +56,7 @@ const allFeatures = [
             },
             {
                 name: "H-1B Database",
-                description: "Search 80,000+ verified sponsors. Filter by approval rate and petitions filed.",
+                description: "Search 25,000+ verified sponsors. Filter by approval rate and petitions filed.",
                 icon: Building2,
             },
             {

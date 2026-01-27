@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  FileText, 
-  ExternalLink, 
-  BookOpen, 
-  HelpCircle, 
-  Download, 
+import {
+  FileText,
+  ExternalLink,
+  BookOpen,
+  HelpCircle,
+  Download,
   ChevronRight,
   Search,
   Building2,
@@ -111,7 +111,7 @@ const RESOURCES: Resource[] = [
   {
     id: "unemployment-faq",
     title: "Unemployment Rules FAQ",
-    description: "Understanding the 90/150 day unemployment limit",
+    description: "Understanding the 90/60 day unemployment limit",
     category: "faq",
     url: "/dashboard/help#unemployment",
     isExternal: false,
@@ -209,11 +209,10 @@ export function ResourceCenter() {
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                selectedCategory === category.id
+              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${selectedCategory === category.id
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted hover:bg-muted/80 text-muted-foreground"
-              }`}
+                }`}
             >
               {category.label}
             </button>

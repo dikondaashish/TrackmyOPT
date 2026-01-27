@@ -83,7 +83,7 @@ const jsonLd = {
       name: "How do I find companies that sponsor H-1B?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "TrackMyOPT provides a database of 80,000+ H-1B sponsors. Search by company name, industry, or location. See approval rates, petition counts, and hiring trends to find employers who actively sponsor H-1B visas.",
+        text: "TrackMyOPT provides a database of 25,000+ H-1B sponsors. Search by company name, industry, or location. See approval rates, petition counts, and hiring trends to find employers who actively sponsor H-1B visas.",
       },
     },
     {

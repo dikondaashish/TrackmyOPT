@@ -88,7 +88,7 @@ export function LandingFeatures() {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Resume Doctor</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Uses Gemini 1.5 Pro to rewrite your bullet points and match keywords for every specific job.
+                                Uses latest top AI model to rewrite entire resume to match job description and match keywords for every specific job.
                             </p>
                         </div>
                         {/* Decorative Gradient - Purple/Pink */}
@@ -107,7 +107,7 @@ export function LandingFeatures() {
                                 </h3>
                             </div>
                             <p className="text-gray-600 dark:text-gray-400 text-lg mb-6 max-w-2xl">
-                                Stop applying to companies that don't sponsor. Search 80,000+ verified H-1B employers and filter by approval rating.
+                                Stop applying to companies that don't sponsor. Search 25,000+ verified H-1B employers and filter by approval rating.
                             </p>
                             <div className="flex flex-wrap gap-3">
                                 {["Microsoft", "Amazon", "Google", "Tesla", "Meta"].map(company => (
@@ -116,7 +116,7 @@ export function LandingFeatures() {
                                     </span>
                                 ))}
                                 <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-full text-xs font-medium">
-                                    + 80,000 more
+                                    + 25,000 more
                                 </span>
                             </div>
                         </div>

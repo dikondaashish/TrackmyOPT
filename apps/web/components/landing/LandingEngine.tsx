@@ -160,7 +160,7 @@ export function LandingEngine() {
                                     <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm border border-white/10">
                                         <BrainCircuit className="w-6 h-6 text-purple-200" />
                                     </div>
-                                    <h3 className="text-xl font-bold mb-2">Gemini 1.5 Pro</h3>
+                                    <h3 className="text-xl font-bold mb-2">Top Pro AI Model</h3>
                                     <p className="text-purple-200 text-sm">
                                         Powering our "Resume Doctor" and document extraction with 1M context window.
                                     </p>
