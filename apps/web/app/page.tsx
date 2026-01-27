@@ -28,6 +28,7 @@ export default function LandingPage() {
             <LandingRoadmap />
             <LandingFeatures />
             <LandingAllFeatures />
+            <LandingPricing />
             <LandingSuccessStories />
             <LandingTestimonials />
             <LandingAEOContent />
