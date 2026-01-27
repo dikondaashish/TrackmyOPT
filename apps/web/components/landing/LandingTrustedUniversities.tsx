@@ -4,26 +4,26 @@ import { motion } from "framer-motion";
 
 export function LandingTrustedUniversities() {
     const universities = [
-        { name: "Carnegie Mellon", file: "cmu.svg" },
-        { name: "Georgia Tech", file: "gatech.svg" },
-        { name: "USC", file: "usc.svg" },
-        { name: "NYU", file: "nyu.svg" },
-        { name: "Columbia", file: "columbia.svg" },
-        { name: "MIT", file: "mit.svg" },
-        { name: "Stanford", file: "stanford.svg" },
-        { name: "UC Berkeley", file: "berkeley.svg" },
-        { name: "Harvard", file: "harvard.svg" },
-        { name: "Cornell", file: "cornell.svg" },
-        { name: "UIUC", file: "uiuc.svg" },
-        { name: "Purdue", file: "purdue.svg" },
-        { name: "UT Austin", file: "utexas.svg" },
-        { name: "Northeastern", file: "northeastern.svg" },
-        { name: "Boston University", file: "bu.svg" },
-        { name: "Texas A&M", file: "tamu.svg" },
-        { name: "Arizona State", file: "asu.svg" },
-        { name: "University of Washington", file: "uw.svg" },
-        { name: "UCLA", file: "ucla.svg" },
-        { name: "University of Michigan", file: "umich.svg" },
+        { name: "Carnegie Mellon", logo: "/unis/cmu.png" },
+        { name: "Georgia Tech", logo: "/unis/gatech.png" },
+        { name: "USC", logo: "/unis/usc.png" },
+        { name: "NYU", logo: "/unis/nyu.png" },
+        { name: "Columbia", logo: "/unis/columbia.png" },
+        { name: "MIT", logo: "/unis/mit.png" },
+        { name: "Stanford", logo: "/unis/stanford.png" },
+        { name: "UC Berkeley", logo: "/unis/berkeley.png" },
+        { name: "Harvard", logo: "/unis/harvard.png" },
+        { name: "Cornell", logo: "/unis/cornell.png" },
+        { name: "UIUC", logo: "/unis/illinois.png" },
+        { name: "Purdue", logo: "/unis/purdue.png" },
+        { name: "UT Austin", logo: "/unis/utexas.png" },
+        { name: "Northeastern", logo: "/unis/northeastern.png" },
+        { name: "Boston University", logo: "/unis/bu.png" },
+        { name: "Texas A&M", logo: "/unis/tamu.png" },
+        { name: "Arizona State", logo: "/unis/asu.png" },
+        { name: "University of Washington", logo: "/unis/washington.png" },
+        { name: "UCLA", logo: "/unis/ucla.png" },
+        { name: "University of Michigan", logo: "/unis/umich.png" },
     ];
 
     return (
@@ -53,7 +53,7 @@ export function LandingTrustedUniversities() {
                             className="relative w-32 h-16 flex items-center justify-center grayscale opacity-50 transition-all duration-300 hover:grayscale-0 hover:opacity-100 hover:scale-110 cursor-pointer"
                         >
                             <img
-                                src={`/unis/${uni.file}`}
+                                src={uni.logo}
                                 alt={uni.name}
                                 className="max-w-full max-h-full object-contain"
                                 onError={(e) => {
