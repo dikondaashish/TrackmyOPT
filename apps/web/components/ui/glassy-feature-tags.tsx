@@ -14,6 +14,7 @@ interface Badge {
     color: string
 }
 
+// Compressed Y offsets by ~40% for tighter vertical density
 const badges: Badge[] = [
     {
         id: "h1b",
@@ -22,7 +23,7 @@ const badges: Badge[] = [
         rotation: -4,
         zIndex: 1,
         offsetX: -20,
-        offsetY: -60,
+        offsetY: -35, // Was -60
         color: "from-purple-500/80 to-indigo-500/80 text-white shadow-purple-500/25",
     },
     {
@@ -32,7 +33,7 @@ const badges: Badge[] = [
         rotation: 3,
         zIndex: 2,
         offsetX: 60,
-        offsetY: -35,
+        offsetY: -20, // Was -35
         color: "from-green-500/80 to-emerald-500/80 text-white shadow-green-500/25",
     },
     {
@@ -42,7 +43,7 @@ const badges: Badge[] = [
         rotation: -2,
         zIndex: 3,
         offsetX: -40,
-        offsetY: 10,
+        offsetY: 5, // Was 10
         color: "from-blue-500/80 to-cyan-500/80 text-white shadow-blue-500/25",
     },
     {
@@ -52,7 +53,7 @@ const badges: Badge[] = [
         rotation: 1,
         zIndex: 4,
         offsetX: 10,
-        offsetY: 35,
+        offsetY: 20, // Was 35
         color: "from-orange-500/80 to-amber-500/80 text-white shadow-orange-500/25",
     },
     {
@@ -62,7 +63,7 @@ const badges: Badge[] = [
         rotation: 5,
         zIndex: 5,
         offsetX: -25,
-        offsetY: 80,
+        offsetY: 45, // Was 80
         color: "from-pink-500/80 to-rose-500/80 text-white shadow-pink-500/25",
     },
     {
@@ -72,7 +73,7 @@ const badges: Badge[] = [
         rotation: -3,
         zIndex: 6,
         offsetX: 50,
-        offsetY: 90,
+        offsetY: 55, // Was 90
         color: "from-cyan-500/80 to-blue-500/80 text-white shadow-cyan-500/25",
     },
 ]
@@ -87,7 +88,8 @@ export function GlassyFeatureTags() {
     const [hoveredId, setHoveredId] = useState<string | null>(null)
 
     return (
-        <div className="relative flex h-[350px] w-full items-center justify-center overflow-visible">
+        // Reduced height from 350px to 220px (~40% reduction)
+        <div className="relative flex h-[220px] w-full items-center justify-center overflow-visible">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-primary/5 to-transparent rounded-full blur-3xl opacity-30 animate-pulse-slow" />
 
             {badges.map((badge) => {

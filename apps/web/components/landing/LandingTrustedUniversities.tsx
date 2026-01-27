@@ -17,46 +17,22 @@ export function LandingTrustedUniversities() {
                 </p>
             </div>
 
-            <div className="relative flex w-full overflow-hidden mask-linear-gradient">
-                {/* Left Fade */}
-                <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white dark:from-zinc-950 to-transparent z-10" />
-
-                {/* Scrolling Container */}
-                <div className="flex animate-scroll whitespace-nowrap gap-16 py-2">
-                    {/* First Loop */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Static Logo Grid - No Duplicates, "Quiet Confidence" */}
+                <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-6 md:gap-x-12 md:gap-y-8 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
                     {universities.map((uni, index) => (
                         <span
-                            key={`uni-1-${index}`}
-                            className="text-xl md:text-2xl font-bold font-serif text-gray-400 dark:text-gray-600 hover:text-primary transition-colors cursor-default"
-                        >
-                            {uni}
-                        </span>
-                    ))}
-
-                    {/* Second Loop (Duplicate for seamless scroll) */}
-                    {universities.map((uni, index) => (
-                        <span
-                            key={`uni-2-${index}`}
-                            className="text-xl md:text-2xl font-bold font-serif text-gray-400 dark:text-gray-600 hover:text-primary transition-colors cursor-default"
-                        >
-                            {uni}
-                        </span>
-                    ))}
-
-                    {/* Third Loop (Extra buffer for wide screens) */}
-                    {universities.map((uni, index) => (
-                        <span
-                            key={`uni-3-${index}`}
-                            className="text-xl md:text-2xl font-bold font-serif text-gray-400 dark:text-gray-600 hover:text-primary transition-colors cursor-default"
+                            key={index}
+                            className="text-lg md:text-xl font-bold font-serif text-gray-400 dark:text-gray-600 hover:text-primary transition-colors cursor-default"
                         >
                             {uni}
                         </span>
                     ))}
                 </div>
-
-                {/* Right Fade */}
-                <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white dark:from-zinc-950 to-transparent z-10" />
             </div>
+
+            {/* Subtle Gradient Fade at bottom only */}
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-zinc-800 to-transparent mt-8 opacity-50" />
         </div>
     );
 }

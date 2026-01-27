@@ -191,8 +191,7 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 842,
             retweets: 48,
             tweetUrl: "#",
-            // @ts-ignore
-            context: "MS CS, Northeastern — STEM OPT",
+            context: "MS CS, Northeastern University — STEM OPT",
         },
         {
             className:
@@ -206,8 +205,7 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 628,
             retweets: 35,
             tweetUrl: "#",
-            // @ts-ignore
-            context: "Data Science, Columbia — Initial OPT",
+            context: "Data Science, Columbia University — Initial OPT",
         },
         {
             className: "[grid-area:stack] translate-x-16 sm:translate-x-32 translate-y-12 sm:translate-y-20 hover:translate-y-6 sm:hover:translate-y-10 before:absolute before:w-[100%] before:outline-1 before:rounded-2xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/60 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration-500 hover:grayscale-0 before:left-0 before:top-0",
@@ -220,7 +218,6 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 1256,
             retweets: 123,
             tweetUrl: "#",
-            // @ts-ignore
             context: "MBA, UT Austin — H-1B Approved",
         },
         {
@@ -234,8 +231,7 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 412,
             retweets: 18,
             tweetUrl: "#",
-            // @ts-ignore
-            context: "Bioengineering, Stanford — Post-Completion",
+            context: "Bioengineering, Stanford University — Post-Completion",
         },
         {
             className: "[grid-area:stack] translate-x-32 sm:translate-x-64 translate-y-24 sm:translate-y-40 hover:translate-y-18 sm:hover:translate-y-30",
@@ -248,7 +244,6 @@ export default function Testimonials({ cards }: TestimonialsProps) {
             likes: 943,
             retweets: 82,
             tweetUrl: "#",
-            // @ts-ignore
             context: "Computer Engineering, Georgia Tech — Job Seeker",
         },
     ];

@@ -121,6 +121,11 @@ export function PricingModule({
                                             /{isAnnual ? "year" : "month"}
                                         </span>
                                     </div>
+                                    {plan.users && (
+                                        <p className="text-sm font-bold text-muted-foreground mt-2">
+                                            {plan.users}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <Button
@@ -161,6 +166,6 @@ export function PricingModule({
                     ))}
                 </div>
             </div>
-        </section>
+        </section >
     );
 }

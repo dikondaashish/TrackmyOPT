@@ -113,7 +113,7 @@ export function LandingFeatures() {
                             </div>
                         </div>
                         <div className="shrink-0">
-                            <Link href="/login" className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
+                            <Link href="/login" className="px-6 py-3 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">
                                 Search Database
                             </Link>
                         </div>

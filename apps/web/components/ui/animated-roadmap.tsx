@@ -27,7 +27,7 @@ const defaultMilestones: Milestone[] = [
         description: "Apply for OPT 90 days before",
         status: "complete",
         icon: GraduationCap,
-        position: { top: "10%", left: "5%" },
+        position: { top: "10%", left: "5%" }, // Original positions mostly work relative to SVG
     },
     {
         id: 2,
@@ -35,6 +35,7 @@ const defaultMilestones: Milestone[] = [
         description: "Start working within 90 days",
         status: "complete",
         icon: FileCheck,
+        // Adjusted slightly for compressed curve
         position: { top: "45%", left: "25%" },
     },
     {
@@ -94,18 +95,18 @@ const MilestoneMarker = ({ milestone }: { milestone: Milestone }) => {
         >
             {/* Marker Circle */}
             <div className={cn(
-                "relative flex h-12 w-12 items-center justify-center rounded-full border-4 shadow-lg z-10",
+                "relative flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full border-4 shadow-lg z-10",
                 statusColors[milestone.status]
             )}>
                 <Icon className="w-5 h-5" />
             </div>
 
             {/* Label */}
-            <div className="absolute top-14 w-40 text-center">
-                <div className="font-bold text-sm bg-background/80 backdrop-blur-sm px-2 rounded-md border border-border/50 inline-block shadow-sm">
+            <div className="absolute top-12 md:top-14 w-40 text-center">
+                <div className="font-bold text-xs md:text-sm bg-background/80 backdrop-blur-sm px-2 rounded-md border border-border/50 inline-block shadow-sm">
                     {milestone.name}
                 </div>
-                <div className="text-xs text-muted-foreground mt-1 bg-background/50 backdrop-blur-sm rounded px-1">
+                <div className="hidden md:block text-xs text-muted-foreground mt-1 bg-background/50 backdrop-blur-sm rounded px-1">
                     {milestone.description}
                 </div>
             </div>
@@ -128,30 +129,23 @@ const AnimatedRoadmap = React.forwardRef<HTMLDivElement, AnimatedRoadmapProps>(
         return (
             <div
                 ref={targetRef}
-                className={cn("relative w-full max-w-5xl mx-auto py-32 md:py-40 px-4", className)}
+                className={cn("relative w-full max-w-lg mx-auto py-8 px-4", className)}
                 {...props}
             >
-                {/* SVG path for animation */}
-                {/* We use a predefined path that snakes through the points approximately. 
-            Adjusting the 'd' value to match the positions defined in defaultMilestones. 
-            Positions:
-            1: 5%, 10%
-            2: 25%, 45%
-            3: 50%, 75%
-            4: 80% (approx for right:20%), 45%
-            5: 95% (approx for right:5%), 10%
-        */}
-                <div className="relative h-[250px] md:h-[400px] w-full">
+                {/* Reduced height from 400px to 240px (~40% reduction) */}
+                <div className="relative h-[200px] md:h-[240px] w-full">
                     <svg
                         width="100%"
                         height="100%"
-                        viewBox="0 0 1000 400"
+                        viewBox="0 0 1000 240"
                         preserveAspectRatio="none"
                         className="absolute top-0 left-0 overflow-visible"
                     >
-                        {/* Background Path (Gray) */}
+                        {/* Background Path (Gray) - Scaled Y coordinates by ~0.6 */}
+                        {/* Original Ys: 40 -> 180 -> 300 -> 180 -> 40 */}
+                        {/* New Ys:    25 -> 110 -> 180 -> 110 -> 25 */}
                         <path
-                            d="M 50 40 C 150 40, 150 180, 250 180 S 400 300, 500 300 S 700 180, 800 180 S 900 40, 950 40"
+                            d="M 50 25 C 150 25, 150 110, 250 110 S 400 180, 500 180 S 700 110, 800 110 S 900 25, 950 25"
                             fill="none"
                             stroke="hsl(var(--muted-foreground) / 0.2)"
                             strokeWidth="4"
@@ -161,7 +155,7 @@ const AnimatedRoadmap = React.forwardRef<HTMLDivElement, AnimatedRoadmapProps>(
 
                         {/* Foreground Path (Animated Color) */}
                         <motion.path
-                            d="M 50 40 C 150 40, 150 180, 250 180 S 400 300, 500 300 S 700 180, 800 180 S 900 40, 950 40"
+                            d="M 50 25 C 150 25, 150 110, 250 110 S 400 180, 500 180 S 700 110, 800 110 S 900 25, 950 25"
                             fill="none"
                             stroke="hsl(var(--primary))"
                             strokeWidth="4"
