@@ -8,8 +8,7 @@ import { LandingFAQ } from "../components/landing/LandingFAQ";
 import { LandingFooter } from "../components/landing/LandingFooter";
 import { LandingAEOContent } from "../components/landing/LandingAEOContent";
 import { LandingComparison } from "../components/landing/LandingComparison";
-import { LandingFeatureCloud } from "../components/landing/LandingFeatureCloud";
-import { LandingRoadmap } from "../components/landing/LandingRoadmap";
+import { LandingValueGrid } from "../components/landing/LandingValueGrid";
 import { LandingChromeExtension } from "../components/landing/LandingChromeExtension";
 import { LandingTrustedUniversities } from "../components/landing/LandingTrustedUniversities";
 import { Metadata } from "next";
@@ -27,8 +26,9 @@ export default function LandingPage() {
             <LandingTrustedUniversities />
 
             <LandingComparison />
-            <LandingFeatureCloud />
-            <LandingRoadmap />
+            <LandingComparison />
+            <LandingValueGrid />
+            <LandingChromeExtension />
             <LandingChromeExtension />
             <LandingFeatures />
             <LandingSuccessStories />

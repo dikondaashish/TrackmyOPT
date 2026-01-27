@@ -11,6 +11,7 @@ interface Badge {
     zIndex: number
     offsetX: number
     offsetY: number
+    color: string
 }
 
 const badges: Badge[] = [
@@ -22,6 +23,7 @@ const badges: Badge[] = [
         zIndex: 1,
         offsetX: -20,
         offsetY: -60,
+        color: "from-purple-500/80 to-indigo-500/80 text-white shadow-purple-500/25",
     },
     {
         id: "opt",
@@ -31,6 +33,7 @@ const badges: Badge[] = [
         zIndex: 2,
         offsetX: 60,
         offsetY: -35,
+        color: "from-green-500/80 to-emerald-500/80 text-white shadow-green-500/25",
     },
     {
         id: "stem",
@@ -40,6 +43,7 @@ const badges: Badge[] = [
         zIndex: 3,
         offsetX: -40,
         offsetY: 10,
+        color: "from-blue-500/80 to-cyan-500/80 text-white shadow-blue-500/25",
     },
     {
         id: "offer",
@@ -49,6 +53,7 @@ const badges: Badge[] = [
         zIndex: 4,
         offsetX: 10,
         offsetY: 35,
+        color: "from-orange-500/80 to-amber-500/80 text-white shadow-orange-500/25",
     },
     {
         id: "ead",
@@ -58,6 +63,7 @@ const badges: Badge[] = [
         zIndex: 5,
         offsetX: -25,
         offsetY: 80,
+        color: "from-pink-500/80 to-rose-500/80 text-white shadow-pink-500/25",
     },
     {
         id: "i983",
@@ -67,6 +73,7 @@ const badges: Badge[] = [
         zIndex: 6,
         offsetX: 50,
         offsetY: 90,
+        color: "from-cyan-500/80 to-blue-500/80 text-white shadow-cyan-500/25",
     },
 ]
 
@@ -91,10 +98,10 @@ export function GlassyFeatureTags() {
                     <div
                         key={badge.id}
                         className={cn(
-                            "absolute cursor-default select-none rounded-full border border-white/20 shadow-lg backdrop-blur-md transition-all duration-500 ease-out",
-                            "bg-white/10 dark:bg-black/20 text-foreground", // Glassmorphism base
+                            "absolute cursor-default select-none rounded-full border border-white/20 shadow-lg backdrop-blur-md transition-all duration-500 ease-out bg-gradient-to-br",
+                            badge.color, // Apply vibrant color
                             sizeClasses[badge.size],
-                            "hover:border-primary/50 hover:bg-white/20 hover:shadow-primary/20 hover:shadow-2xl", // Hover state
+                            "hover:scale-110 hover:shadow-xl hover:z-50", // Hover state
                         )}
                         style={{
                             transform: `
@@ -108,12 +115,12 @@ export function GlassyFeatureTags() {
                         onMouseEnter={() => setHoveredId(badge.id)}
                         onMouseLeave={() => setHoveredId(null)}
                     >
-                        <span className="relative z-10 font-medium tracking-tight">
+                        <span className="relative z-10 font-medium tracking-tight drop-shadow-md">
                             {badge.label}
                         </span>
 
-                        {/* Inner gloss effect */}
-                        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/20 to-transparent opacity-50 rounded-full" />
+                        {/* Inner gloss effect - lighter now */}
+                        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/30 to-transparent rounded-full" />
                     </div>
                 )
             })}
