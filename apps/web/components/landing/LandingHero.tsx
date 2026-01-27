@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import {
     Clock,
     Calendar,
@@ -17,12 +17,12 @@ import {
 } from "lucide-react";
 
 // Animation variants
-const fadeInUp = {
+const fadeInUp: Variants = {
     initial: { opacity: 0, y: 30 },
     animate: { opacity: 1, y: 0 },
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
     initial: {},
     animate: {
         transition: {
@@ -32,7 +32,7 @@ const staggerContainer = {
     },
 };
 
-const floatAnimation = {
+const floatAnimation: Variants = {
     initial: { y: 0 },
     animate: {
         y: [-8, 8, -8],
