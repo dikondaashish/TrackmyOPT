@@ -6,7 +6,7 @@ import { LandingTestimonials } from "../components/landing/LandingTestimonials";
 import { LandingPricing } from "../components/landing/LandingPricing";
 import { LandingFAQ } from "../components/landing/LandingFAQ";
 import { LandingFooter } from "../components/landing/LandingFooter";
-import { LandingAEOContent } from "../components/landing/LandingAEOContent";
+// import { LandingAEOContent } from "../components/landing/LandingAEOContent";
 import { LandingComparison } from "../components/landing/LandingComparison";
 import { LandingValueGrid } from "../components/landing/LandingValueGrid";
 import { LandingChromeExtension } from "../components/landing/LandingChromeExtension";
@@ -39,20 +39,18 @@ export default function LandingPage() {
                 <LandingHero />
                 <LandingTrustedUniversities />
 
-                <LandingComparison />
-                {/* Removed duplicate LandingComparison */}
-
-                <LandingValueGrid />
-
+                {/* Key Differentiator moved up */}
                 <LandingChromeExtension />
-                {/* Removed duplicate LandingChromeExtension */}
+
+                <LandingComparison />
+                <LandingValueGrid />
 
                 <LandingFeatures />
                 <LandingSuccessStories />
                 <LandingPricing />
                 <LandingTestimonials />
                 <LandingFAQ />
-                <LandingAEOContent />
+                {/* <LandingAEOContent /> Removed for cleaner UX flow */}
                 <LandingFooter />
             </div>
         </main>

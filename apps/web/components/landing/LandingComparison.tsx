@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, X, FileSpreadsheet, CalendarOff, AlertTriangle, Bell, ShieldCheck, Zap } from "lucide-react";
+import { Check, X, FileSpreadsheet, CalendarOff, AlertTriangle, Bell, ShieldCheck, Zap, Shield } from "lucide-react";
 
 const comparisonData = [
     {
@@ -119,13 +119,13 @@ export function LandingComparison() {
                                 ))}
                             </ul>
 
-                            <div className="mt-10 p-4 bg-green-100/50 dark:bg-green-900/20 rounded-xl border border-green-200/50 dark:border-green-900/30">
-                                <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-bold mb-1">
-                                    <ShieldCheck className="w-4 h-4" />
-                                    <span>Risk Level: Zero</span>
+                            <div className="mt-10 p-4 bg-blue-100/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-900/30">
+                                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold mb-1">
+                                    <Shield className="w-4 h-4" />
+                                    <span>Risk Minimized</span>
                                 </div>
-                                <p className="text-xs text-green-800 dark:text-green-300">
-                                    Automated alerts ensure you never miss a filing window.
+                                <p className="text-xs text-blue-800 dark:text-blue-300">
+                                    Designed around official USCIS compliance rules.
                                 </p>
                             </div>
                         </div>

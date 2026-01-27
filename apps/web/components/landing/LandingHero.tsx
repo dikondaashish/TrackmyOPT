@@ -47,6 +47,10 @@ const tabContentVariants: Variants = {
 // Mockup Components
 const TimelineMockup = () => (
     <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 p-6 overflow-hidden h-full flex flex-col">
+        {/* Transparency Label */}
+        <div className="absolute top-2 right-2 px-2 py-0.5 bg-gray-100 dark:bg-zinc-700 rounded text-[10px] text-muted-foreground z-20 opacity-70">
+            Sample Data
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -112,6 +116,10 @@ const TimelineMockup = () => (
 
 const CrmMockup = () => (
     <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 p-6 overflow-hidden h-full flex flex-col">
+        {/* Transparency Label */}
+        <div className="absolute top-2 right-2 px-2 py-0.5 bg-gray-100 dark:bg-zinc-700 rounded text-[10px] text-muted-foreground z-20 opacity-70">
+            Sample Data
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -261,36 +269,39 @@ export function LandingHero() {
                         variants={staggerContainer}
                         className="text-center lg:text-left"
                     >
-                        <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-full mb-8 border border-blue-100 dark:border-blue-800">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-                            </span>
-                            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                                #1 Platform for International Students
-                            </span>
+                        {/* Who This Is For - Trust Signals */}
+                        <motion.div variants={fadeInUp} className="flex flex-wrap justify-center lg:justify-start gap-2 mb-8">
+                            {[
+                                "Final-Semester Students",
+                                "OPT Job Seekers",
+                                "STEM OPT Candidates"
+                            ].map((audience, i) => (
+                                <span key={i} className="px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                                    {audience}
+                                </span>
+                            ))}
                         </motion.div>
 
-                        <motion.h1 variants={fadeInUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-8 text-balance">
-                            Your Entire{" "}
+                        <motion.h1 variants={fadeInUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight">
+                            Protect Your{" "}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                                OPT Journey
+                                F-1 Status
                             </span>
                             <br />
-                            in One System
+                            & Land a Job
                         </motion.h1>
 
-                        <motion.p variants={fadeInUp} className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                            Stop using spreadsheets. TrackMyOPT connects your timeline, job search, and compliance documents in a single, professional dashboard.
+                        <motion.p variants={fadeInUp} className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                            Stop guessing with spreadsheets. Monitor your **90-day unemployment limit**, track OPT deadlines, and find H-1B sponsors in one compliant dashboard.
                         </motion.p>
 
                         <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <Link href="/login" className="inline-flex items-center justify-center px-8 py-4 text-white bg-primary rounded-xl font-semibold hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5">
-                                Start Free Tracking
-                                <ArrowRight className="w-5 h-5 ml-2" />
+                                Protect My OPT Status
+                                <Shield className="w-5 h-5 ml-2" />
                             </Link>
                             <Link href="#features" className="inline-flex items-center justify-center px-8 py-4 text-foreground bg-white dark:bg-zinc-800 border border-border rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all">
-                                View Demo
+                                See How It Works
                             </Link>
                         </motion.div>
 
