@@ -1,7 +1,6 @@
 import { LandingHero } from "../components/landing/LandingHero";
 import { LandingNavbar } from "../components/landing/LandingNavbar";
 import { LandingFeatures } from "../components/landing/LandingFeatures";
-import { LandingAllFeatures } from "../components/landing/LandingAllFeatures";
 import { LandingSuccessStories } from "../components/landing/LandingSuccessStories";
 import { LandingTestimonials } from "../components/landing/LandingTestimonials";
 import { LandingPricing } from "../components/landing/LandingPricing";
@@ -24,18 +23,19 @@ export default function LandingPage() {
         <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900/30 dark:selection:text-blue-100">
             <LandingNavbar />
             <LandingHero />
+
+            {/* Social Proof / Trust Strip could go here (e.g. "Trusted by students at...") */}
+
             <LandingComparison />
             <LandingFeatureCloud />
             <LandingRoadmap />
             <LandingChromeExtension />
             <LandingFeatures />
-            <LandingAllFeatures />
-            <LandingPricing />
             <LandingSuccessStories />
-            <LandingTestimonials />
-            <LandingAEOContent />
             <LandingPricing />
+            <LandingTestimonials />
             <LandingFAQ />
+            <LandingAEOContent />
             <LandingFooter />
         </main>
     );
