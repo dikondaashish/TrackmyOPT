@@ -244,7 +244,7 @@ export function LandingHero() {
     const [activeTab, setActiveTab] = useState<TabType>("timeline");
 
     return (
-        <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden pt-20 lg:pt-32 pb-20">
+        <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden pt-20 lg:pt-32 pb-24">
             {/* Premium Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/50 dark:from-zinc-950 dark:via-zinc-900 dark:to-slate-900" />
 
@@ -295,7 +295,7 @@ export function LandingHero() {
                         </motion.div>
 
                         {/* Interactive Tab Triggers for Mobile/Desktop */}
-                        <motion.div variants={fadeInUp} className="mt-12 flex flex-wrap gap-2 justify-center lg:justify-start">
+                        <motion.div variants={fadeInUp} className="mt-12 flex gap-2 justify-center lg:justify-start overflow-x-auto pb-2 scrollbar-hide">
                             {[
                                 { id: "timeline", label: "Timeline", icon: LayoutDashboard },
                                 { id: "crm", label: "Job CRM", icon: Briefcase },
@@ -420,9 +420,6 @@ export function LandingHero() {
                     </motion.div>
                 </div>
             </div>
-
-            {/* Trusted Universities Strip */}
-            <LandingTrustedUniversities />
         </section>
     );
 }

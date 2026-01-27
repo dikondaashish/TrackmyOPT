@@ -11,6 +11,7 @@ import { LandingComparison } from "../components/landing/LandingComparison";
 import { LandingFeatureCloud } from "../components/landing/LandingFeatureCloud";
 import { LandingRoadmap } from "../components/landing/LandingRoadmap";
 import { LandingChromeExtension } from "../components/landing/LandingChromeExtension";
+import { LandingTrustedUniversities } from "../components/landing/LandingTrustedUniversities";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,8 +24,7 @@ export default function LandingPage() {
         <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900/30 dark:selection:text-blue-100">
             <LandingNavbar />
             <LandingHero />
-
-            {/* Social Proof / Trust Strip could go here (e.g. "Trusted by students at...") */}
+            <LandingTrustedUniversities />
 
             <LandingComparison />
             <LandingFeatureCloud />

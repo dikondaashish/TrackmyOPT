@@ -63,7 +63,7 @@ export function LandingPricing() {
     ];
 
     return (
-        <div id="pricing">
+        <section id="pricing" className="py-24 bg-gradient-to-b from-background to-muted/30">
             <PricingModule
                 title="Simple, Transparent Pricing"
                 subtitle="Start for free, upgrade when you're ready. Cancel anytime."
@@ -72,6 +72,6 @@ export function LandingPricing() {
                 plans={plans}
                 defaultAnnual={true}
             />
-        </div>
+        </section>
     );
 }
