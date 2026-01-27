@@ -121,6 +121,11 @@ export function PricingModule({
                                             /{isAnnual ? "year" : "month"}
                                         </span>
                                     </div>
+                                    {plan.users && (
+                                        <div className="mt-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                                            {plan.users}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <Button

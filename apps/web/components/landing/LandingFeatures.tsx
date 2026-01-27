@@ -46,8 +46,8 @@ export function LandingFeatures() {
                                     A Kanban-style tracker to manage your applications, interviews, and offers in one pipeline. Tag H-1B sponsors and track referrals.
                                 </p>
                             </div>
-                            <div className="flex items-center text-purple-600 font-semibold group-hover:translate-x-2 transition-transform cursor-pointer">
-                                Try CRM Demo <ArrowRight className="w-4 h-4 ml-2" />
+                            <div className="flex items-center text-muted-foreground text-sm font-medium group-hover:text-purple-600 transition-colors cursor-pointer">
+                                View Workflow <ArrowRight className="w-4 h-4 ml-2" />
                             </div>
                         </div>
                         {/* Decorative Background Element */}
@@ -113,8 +113,8 @@ export function LandingFeatures() {
                             </div>
                         </div>
                         <div className="shrink-0">
-                            <Link href="/login" className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
-                                Search Database
+                            <Link href="/login" className="px-6 py-3 border border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
+                                Explore Database
                             </Link>
                         </div>
                     </div>

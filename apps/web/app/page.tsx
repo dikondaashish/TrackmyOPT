@@ -34,6 +34,7 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,0.8)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
             </div>
 
+
             <div className="relative z-10">
                 <LandingNavbar />
                 <LandingHero />
@@ -41,9 +42,6 @@ export default function LandingPage() {
 
                 {/* Key Differentiator moved up */}
                 <LandingChromeExtension />
-
-                <LandingComparison />
-                <LandingValueGrid />
 
                 <LandingFeatures />
                 <LandingSuccessStories />

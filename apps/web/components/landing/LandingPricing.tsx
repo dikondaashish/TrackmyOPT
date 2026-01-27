@@ -70,7 +70,7 @@ export function LandingPricing() {
             <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <PricingModule
                 title="Simple, Transparent Pricing"
-                subtitle="Start for free, upgrade when you're ready. Cancel anytime."
+                subtitle="Start for free. Upgrade when you need more power."
                 annualBillingLabel="Annual Billing"
                 buttonLabel="Start 7-Day Free Trial"
                 plans={plans}
