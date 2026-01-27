@@ -9,6 +9,7 @@ import { LandingFAQ } from "../components/landing/LandingFAQ";
 import { LandingFooter } from "../components/landing/LandingFooter";
 import { LandingAEOContent } from "../components/landing/LandingAEOContent";
 import { LandingComparison } from "../components/landing/LandingComparison";
+import { LandingFeatureCloud } from "../components/landing/LandingFeatureCloud";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function LandingPage() {
             <LandingNavbar />
             <LandingHero />
             <LandingComparison />
+            <LandingFeatureCloud />
             <LandingFeatures />
             <LandingAllFeatures />
             <LandingSuccessStories />
