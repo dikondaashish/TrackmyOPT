@@ -40,7 +40,8 @@ export function LandingFAQ() {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     return (
-        <section id="faq" className="py-24 bg-white dark:bg-zinc-900">
+        <section id="faq" className="py-24 relative">
+            <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center mb-16">

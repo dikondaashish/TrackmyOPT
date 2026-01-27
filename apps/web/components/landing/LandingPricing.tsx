@@ -63,7 +63,8 @@ export function LandingPricing() {
     ];
 
     return (
-        <section id="pricing" className="py-24 bg-gradient-to-b from-background to-muted/30">
+        <section id="pricing" className="py-24 relative">
+            <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <PricingModule
                 title="Simple, Transparent Pricing"
                 subtitle="Start for free, upgrade when you're ready. Cancel anytime."
@@ -71,6 +72,7 @@ export function LandingPricing() {
                 buttonLabel="Start 7-Day Free Trial"
                 plans={plans}
                 defaultAnnual={true}
+                className="!bg-transparent !py-0" // Override internal styles
             />
         </section>
     );

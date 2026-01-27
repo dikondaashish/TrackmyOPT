@@ -10,7 +10,7 @@ export function LandingValueGrid() {
         <section className="py-24 container px-4 mx-auto">
             <div className="grid lg:grid-cols-2 gap-8">
                 {/* Card 1: Peace of Mind (Feature Tags) */}
-                <div className="relative group bg-slate-50 dark:bg-zinc-900/50 rounded-3xl p-8 lg:p-12 overflow-hidden border border-border/50 hover:border-border transition-colors h-full flex flex-col">
+                <div className="relative group bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md rounded-3xl p-8 lg:p-12 overflow-hidden border border-white/20 dark:border-white/10 hover:border-blue-500/30 transition-colors h-full flex flex-col">
                     {/* Content */}
                     <div className="relative z-10 flex flex-col items-center text-center mb-12">
                         <h2 className="text-3xl font-bold tracking-tight text-foreground mb-4">
@@ -34,7 +34,7 @@ export function LandingValueGrid() {
                 </div>
 
                 {/* Card 2: Road to H-1B (Roadmap) */}
-                <div className="relative group bg-slate-50 dark:bg-zinc-900/50 rounded-3xl p-8 lg:p-12 overflow-hidden border border-border/50 hover:border-border transition-colors h-full flex flex-col">
+                <div className="relative group bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md rounded-3xl p-8 lg:p-12 overflow-hidden border border-white/20 dark:border-white/10 hover:border-purple-500/30 transition-colors h-full flex flex-col">
                     {/* Content */}
                     <div className="relative z-10 flex flex-col items-center text-center mb-12">
                         <h2 className="text-3xl font-bold tracking-tight text-foreground mb-4">

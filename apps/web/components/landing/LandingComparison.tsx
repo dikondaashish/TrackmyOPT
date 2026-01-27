@@ -28,7 +28,9 @@ const comparisonData = [
 
 export function LandingComparison() {
     return (
-        <section className="py-24 bg-white dark:bg-zinc-950 overflow-hidden">
+        <section className="py-24 relative">
+            {/* Glass Background for Section */}
+            <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
@@ -48,7 +50,7 @@ export function LandingComparison() {
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative bg-red-50/50 dark:bg-red-900/10 rounded-3xl p-8 border border-red-100 dark:border-red-900/30"
+                        className="relative bg-red-50/40 dark:bg-red-950/20 backdrop-blur-md rounded-3xl p-8 border border-red-500/20 dark:border-red-500/10"
                     >
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <FileSpreadsheet className="w-32 h-32 text-red-500" />
@@ -56,7 +58,7 @@ export function LandingComparison() {
 
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-xl">
+                                <div className="p-3 bg-red-100/50 dark:bg-red-900/30 rounded-xl">
                                     <X className="w-6 h-6 text-red-600 dark:text-red-400" />
                                 </div>
                                 <h3 className="text-xl font-bold text-red-900 dark:text-red-200">The Old Way</h3>
@@ -90,7 +92,7 @@ export function LandingComparison() {
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative bg-blue-50/50 dark:bg-blue-900/10 rounded-3xl p-8 border border-blue-100 dark:border-blue-900/30 shadow-xl shadow-blue-500/5"
+                        className="relative bg-blue-50/40 dark:bg-blue-950/20 backdrop-blur-md rounded-3xl p-8 border border-blue-500/20 dark:border-blue-500/10 shadow-xl shadow-blue-500/5"
                     >
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <Zap className="w-32 h-32 text-blue-500" />
@@ -98,7 +100,7 @@ export function LandingComparison() {
 
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                                <div className="p-3 bg-blue-100/50 dark:bg-blue-900/30 rounded-xl">
                                     <Check className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <h3 className="text-xl font-bold text-blue-900 dark:text-blue-200">The TrackMyOPT Way</h3>

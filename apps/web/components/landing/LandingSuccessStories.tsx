@@ -2,8 +2,8 @@ import AnimatedCardStack from "@/components/ui/animate-card-animation";
 
 export function LandingSuccessStories() {
     return (
-        <section className="py-24 bg-background relative overflow-hidden">
-            <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100/20 via-background to-background dark:from-blue-900/10 dark:via-background dark:to-background pointer-events-none" />
+        <section className="py-24 relative overflow-hidden">
+            <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
 
             <div className="container px-4 mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
