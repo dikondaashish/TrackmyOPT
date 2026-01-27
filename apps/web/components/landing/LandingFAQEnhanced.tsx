@@ -92,7 +92,7 @@ const faqCategories = [
             {
                 question: "Is TrackMyOPT free?",
                 answer:
-                    "Yes! TrackMyOPT offers a comprehensive free plan that includes: OPT timeline dashboard with countdown timers, unemployment clock tracking, 1 USCIS case status tracker, H-1B sponsor database access, job application tracker, and email alerts. The Premium plan adds: unlimited case tracking, secure Document Vault with AI extraction, expiry reminders, data export, and priority support.",
+                    "Yes! TrackMyOPT offers a comprehensive free plan that includes: OPT timeline dashboard with countdown timers, unemployment clock tracking, 1 USCIS case status tracker, H-1B sponsor database access, job application tracker, and email alerts. The Premium plan ($19.99 one-time lifetime payment, not a subscription) adds: unlimited case tracking, secure Document Vault with AI extraction, expiry reminders, data export, and priority support.",
             },
             {
                 question: "Is my data secure on TrackMyOPT?",

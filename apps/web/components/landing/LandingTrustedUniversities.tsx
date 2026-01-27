@@ -43,7 +43,15 @@ export function LandingTrustedUniversities() {
                         </span>
                     ))}
 
-
+                    {/* Third Loop (Extra buffer for wide screens) */}
+                    {universities.map((uni, index) => (
+                        <span
+                            key={`uni-3-${index}`}
+                            className="text-xl md:text-2xl font-bold font-serif text-gray-400 dark:text-gray-600 hover:text-primary transition-colors cursor-default"
+                        >
+                            {uni}
+                        </span>
+                    ))}
                 </div>
 
                 {/* Right Fade */}

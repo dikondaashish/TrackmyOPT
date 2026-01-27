@@ -42,8 +42,8 @@ export default function LandingPage() {
                 {/* Key Differentiator moved up */}
                 <LandingChromeExtension />
 
-                {/* <LandingComparison /> */}
-                {/* <LandingValueGrid /> */}
+                <LandingComparison />
+                <LandingValueGrid />
 
                 <LandingFeatures />
                 <LandingSuccessStories />

@@ -300,6 +300,9 @@ export function LandingHero() {
                                 Protect My OPT Status
                                 <Shield className="w-5 h-5 ml-2" />
                             </Link>
+                            <Link href="#features" className="inline-flex items-center justify-center px-8 py-4 text-foreground bg-white dark:bg-zinc-800 border border-border rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all">
+                                See How It Works
+                            </Link>
                         </motion.div>
 
                         {/* Interactive Tab Triggers for Mobile/Desktop */}
