@@ -14,10 +14,10 @@ import { ResourceCenter } from "./ResourceCenter";
 import { CaseStatusSummary } from "./CaseStatusSummary";
 import { QuickActions } from "./QuickActions";
 import { PersonalizedTips } from "./PersonalizedTips";
-import { 
-  useDashboardWidgets, 
-  DashboardWidgetsSettings, 
-  DashboardCustomizeButton 
+import {
+  useDashboardWidgets,
+  DashboardWidgetsSettings,
+  DashboardCustomizeButton
 } from "./DashboardWidgets";
 
 interface OptStatus {
@@ -70,15 +70,15 @@ export function DashboardContent({ user }: DashboardContentProps) {
         const response = await fetch("/api/me", { credentials: "include" });
         if (response.ok) {
           const data = await response.json();
-          
+
           if (data.optStatus) {
             setOptStatus(data.optStatus);
           }
-          
+
           if (data.employmentSpans) {
             setEmploymentSpans(data.employmentSpans);
           }
-          
+
           if (data.profile) {
             setProfile(data.profile);
             // Set max unemployment days based on STEM status
@@ -189,10 +189,16 @@ export function DashboardContent({ user }: DashboardContentProps) {
 
       {/* Footer */}
       <footer className="mt-12 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-        <div className="flex items-center justify-center gap-4 mb-2">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-2">
           <a href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</a>
           <span>·</span>
-          <a href="/terms" className="hover:text-foreground transition-colors">Terms &amp; Conditions</a>
+          <a href="/terms" className="hover:text-foreground transition-colors">Terms of Service</a>
+          <span>·</span>
+          <a href="/refund-policy" className="hover:text-foreground transition-colors">Refund Policy</a>
+          <span>·</span>
+          <a href="/disclaimer" className="hover:text-foreground transition-colors">Disclaimer</a>
+          <span>·</span>
+          <a href="/cookie-policy" className="hover:text-foreground transition-colors">Cookie Policy</a>
           <span>·</span>
           <a href="/dashboard/help" className="hover:text-foreground transition-colors">Help</a>
         </div>
