@@ -158,37 +158,39 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2">
-                        {/* Primary CTA - Careers */}
-                        {sponsor.website ? (
-                            <a
-                                href={sponsor.website}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
-                            >
-                                View Careers
-                                <ArrowRight className="w-4 h-4" />
-                            </a>
-                        ) : (
-                            <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-sm font-medium cursor-not-allowed">
-                                No Career Page
-                            </div>
-                        )}
+                        {/* Overview Button */}
+                        <Link
+                            href={`/dashboard/career/h1b-sponsors/${sponsor.id}`}
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold transition-all"
+                        >
+                            Overview
+                        </Link>
+
+                        {/* Primary CTA - Careers (Google Search fallback) */}
+                        <a
+                            href={`https://www.google.com/search?q=${encodeURIComponent(sponsor.name + " careers")}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+                        >
+                            View Careers
+                            <ArrowRight className="w-4 h-4" />
+                        </a>
 
                         {/* Secondary Actions */}
                         <a
-                            href={`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(sponsor.name)}`}
+                            href={`https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(sponsor.name)}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white transition-colors shadow-md"
-                            title="Find Jobs on LinkedIn"
+                            className="p-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white transition-colors shadow-md shrink-0"
+                            title="Find on LinkedIn"
                         >
                             <Linkedin className="w-4 h-4" />
                         </a>
 
                         <button
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToTracker(sponsor); }}
-                            className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
+                            className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors shrink-0"
                             title="Add to Job Tracker"
                         >
                             <Briefcase className="w-4 h-4" />
