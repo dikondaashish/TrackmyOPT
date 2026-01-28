@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Lock, Shield, CreditCard, Database } from "lucide-react";
 
 export function LandingFooter() {
     const currentYear = new Date().getFullYear();
@@ -139,23 +140,29 @@ export function LandingFooter() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="mt-12 pt-8 border-t border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="mt-12 pt-8 border-t border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-6">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         © {currentYear} TrackMyOPT. Made with ❤️ for international students.
                     </p>
-                    <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                            <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                            256-bit encryption
-                        </span>
-                        <span className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                            <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                            GDPR Compliant
-                        </span>
+
+                    {/* Trust Badges */}
+                    <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6">
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 opacity-80 hover:opacity-100 transition-opacity">
+                            <Lock className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                            <span>SSL Secured</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 opacity-80 hover:opacity-100 transition-opacity">
+                            <CreditCard className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                            <span>PCI DSS Compliant</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 opacity-80 hover:opacity-100 transition-opacity">
+                            <Database className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                            <span>SOC2 Standard</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 opacity-80 hover:opacity-100 transition-opacity">
+                            <Shield className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
+                            <span>Cloudflare Protected</span>
+                        </div>
                     </div>
                 </div>
             </div>
