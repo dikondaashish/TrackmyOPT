@@ -94,6 +94,7 @@ export type Database = {
                     total_approvals: number | null
                     updated_at: string | null
                     website: string
+                    careers_url: string | null
                 }
                 Insert: {
                     approvals_2021?: number
@@ -113,6 +114,7 @@ export type Database = {
                     total_approvals?: number | null
                     updated_at?: string | null
                     website: string
+                    careers_url?: string | null
                 }
                 Update: {
                     approvals_2021?: number
@@ -132,6 +134,7 @@ export type Database = {
                     total_approvals?: number | null
                     updated_at?: string | null
                     website?: string
+                    careers_url?: string | null
                 }
                 Relationships: []
             }

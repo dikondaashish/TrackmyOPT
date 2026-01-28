@@ -271,7 +271,7 @@ export default function CompanyProfilePage() {
                         </button>
 
                         <a
-                            href={`https://www.google.com/search?q=${encodeURIComponent(sponsor.name + " careers")}`}
+                            href={sponsor.careers_url || `https://www.google.com/search?q=${encodeURIComponent(sponsor.name + " careers")}`}
                             target="_blank"
                             rel="noreferrer"
                             className="flex items-center gap-2 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"

@@ -16,6 +16,7 @@ export interface H1BSponsor {
     sponsorship_strength: "High" | "Medium" | "Low";
     common_roles: string[];
     logo?: string;
+    careers_url?: string | null;
 }
 
 // Deprecated: Data is now fetched from Supabase.

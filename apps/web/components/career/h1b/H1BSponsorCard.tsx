@@ -181,9 +181,9 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                         Overview
                     </button>
 
-                    {/* Primary CTA - Careers (Google Search fallback) */}
+                    {/* Primary CTA - Careers (Direct or Google Search) */}
                     <a
-                        href={`https://www.google.com/search?q=${encodeURIComponent(sponsor.name + " careers")}`}
+                        href={sponsor.careers_url || `https://www.google.com/search?q=${encodeURIComponent(sponsor.name + " careers")}`}
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
