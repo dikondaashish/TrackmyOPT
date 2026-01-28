@@ -99,6 +99,7 @@ export function LandingFooter() {
                             Legal
                         </h4>
                         <ul className="space-y-3">
+
                             {footerLinks.legal.map((link, index) => (
                                 <li key={index}>
                                     <Link
@@ -109,6 +110,30 @@ export function LandingFooter() {
                                     </Link>
                                 </li>
                             ))}
+                            <li>
+                                <Link
+                                    href="/refund-policy"
+                                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                >
+                                    Refund Policy
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/disclaimer"
+                                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                >
+                                    Disclaimer
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/cookie-policy"
+                                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                >
+                                    Cookie Policy
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>
