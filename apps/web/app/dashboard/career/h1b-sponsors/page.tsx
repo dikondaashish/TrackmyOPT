@@ -152,39 +152,27 @@ export default function H1BSponsorsPage() {
         return filterSponsors(result, filters);
     }, [sponsors, filters, activeTab, savedSponsors]);
 
-    // Infinite Scroll State
-    const [visibleCount, setVisibleCount] = useState(9);
-    const loadMoreRef = useRef<HTMLDivElement>(null);
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 15;
 
-    // Reset visible count when filters change
+    // Reset page when filters change
     useEffect(() => {
-        setVisibleCount(9);
+        setCurrentPage(1);
     }, [filters, activeTab, sponsors]);
 
-    // Intersection Observer for Infinite Scroll
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting) {
-                    setVisibleCount((prev) => prev + 9);
-                }
-            },
-            { threshold: 0.1, rootMargin: '100px' }
-        );
+    // Calculate Pagination
+    const totalPages = Math.ceil(filteredSponsors.length / ITEMS_PER_PAGE);
+    const visibleSponsors = filteredSponsors.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
-        const currentTarget = loadMoreRef.current;
-        if (currentTarget) {
-            observer.observe(currentTarget);
-        }
-
-        return () => {
-            if (currentTarget) {
-                observer.unobserve(currentTarget);
-            }
-        };
-    }, [filteredSponsors]);
-
-    const visibleSponsors = filteredSponsors.slice(0, visibleCount);
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        // Smooth scroll to top of content
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -244,10 +232,65 @@ export default function H1BSponsorsPage() {
                         ))}
                     </div>
 
-                    {/* Infinite Scroll Sentinel */}
-                    {visibleCount < filteredSponsors.length && (
-                        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
-                            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
+                            <p className="text-sm text-gray-500">
+                                Showing <span className="font-medium">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+                                <span className="font-medium">
+                                    {Math.min(currentPage * ITEMS_PER_PAGE, filteredSponsors.length)}
+                                </span>{" "}
+                                of <span className="font-medium">{filteredSponsors.length}</span> results
+                            </p>
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Previous
+                                </button>
+
+                                <div className="flex items-center gap-1">
+                                    {[...Array(Math.min(5, totalPages))].map((_, idx) => {
+                                        // Simple windowing logic (always show first 5 or logic around current)
+                                        // For simplicity, let's just show current page contextualized if logical, otherwise just simple Previous/Next is often enough for mobile.
+                                        // But users asked for page numbers. Let's do a simple range centered on current.
+                                        let pageNum = currentPage;
+                                        if (totalPages <= 5) {
+                                            pageNum = idx + 1;
+                                        } else if (currentPage <= 3) {
+                                            pageNum = idx + 1;
+                                        } else if (currentPage >= totalPages - 2) {
+                                            pageNum = totalPages - 4 + idx;
+                                        } else {
+                                            pageNum = currentPage - 2 + idx;
+                                        }
+
+                                        return (
+                                            <button
+                                                key={pageNum}
+                                                onClick={() => handlePageChange(pageNum)}
+                                                className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
+                                                        ? "bg-blue-600 text-white"
+                                                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                    }`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                <button
+                                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     )}
                 </>
