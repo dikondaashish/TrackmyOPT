@@ -301,16 +301,15 @@ export default function CompanyProfilePage() {
             {/* Approval History */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">H-1B Approval History</h2>
-                <div className="grid grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                        { year: "2021", count: sponsor.approvals_2021 },
-                        { year: "2022", count: sponsor.approvals_2022 },
-                        { year: "2023", count: sponsor.approvals_2023 },
-                        { year: "2024", count: sponsor.approvals_2024 },
-                        { year: "2025", count: sponsor.approvals_2025 },
+                        { label: "Q1 FY2025", count: 0 },
+                        { label: "Q2 FY2025", count: 0 },
+                        { label: "Q3 FY2025", count: 0 },
+                        { label: "Q4 FY2025", count: sponsor.approvals_2025 },
                     ].map((item) => (
-                        <div key={item.year} className="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">FY{item.year}</p>
+                        <div key={item.label} className="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{item.label}</p>
                             <p className="text-xl font-bold text-gray-900 dark:text-white">{item.count.toLocaleString()}</p>
                         </div>
                     ))}
