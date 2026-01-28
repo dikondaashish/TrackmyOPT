@@ -270,21 +270,20 @@ export default function CompanyProfilePage() {
                             <Bookmark className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`} />
                         </button>
 
-                        {sponsor.website && (
-                            <a
-                                href={sponsor.website}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center gap-2 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
-                            >
-                                <Globe className="w-4 h-4" />
-                                Visit Careers
-                                <ExternalLink className="w-4 h-4" />
-                            </a>
-                        )}
+                        {/* Visit Careers Button - Always Visible via Google Search */}
+                        <a
+                            href={`https://www.google.com/search?q=${encodeURIComponent(sponsor.name + " careers")}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                        >
+                            <Globe className="w-4 h-4" />
+                            Visit Careers
+                            <ExternalLink className="w-4 h-4" />
+                        </a>
 
                         <a
-                            href={`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(sponsor.name)}`}
+                            href={`https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(sponsor.name)}`}
                             target="_blank"
                             rel="noreferrer"
                             className="p-3 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white transition-colors"
