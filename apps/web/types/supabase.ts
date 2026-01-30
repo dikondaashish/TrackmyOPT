@@ -95,6 +95,12 @@ export type Database = {
                     updated_at: string | null
                     website: string
                     careers_url: string | null
+                    address_line1: string | null
+                    city: string | null
+                    state: string | null
+                    is_virtual_office: boolean | null
+                    top_law_firm: string | null
+                    entry_level_percent: number | null
                 }
                 Insert: {
                     approvals_2021?: number
@@ -115,6 +121,12 @@ export type Database = {
                     updated_at?: string | null
                     website: string
                     careers_url?: string | null
+                    address_line1?: string | null
+                    city?: string | null
+                    state?: string | null
+                    is_virtual_office?: boolean | null
+                    top_law_firm?: string | null
+                    entry_level_percent?: number | null
                 }
                 Update: {
                     approvals_2021?: number
@@ -135,6 +147,12 @@ export type Database = {
                     updated_at?: string | null
                     website?: string
                     careers_url?: string | null
+                    address_line1?: string | null
+                    city?: string | null
+                    state?: string | null
+                    is_virtual_office?: boolean | null
+                    top_law_firm?: string | null
+                    entry_level_percent?: number | null
                 }
                 Relationships: []
             }

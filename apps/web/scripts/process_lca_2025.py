@@ -18,7 +18,9 @@ SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL", "https://deknauqkqqzwuvopqo
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 if not SUPABASE_KEY:
-    raise ValueError("SUPABASE_SERVICE_ROLE_KEY not found in environment variables.")FILINGS_TABLE = "h1b_filings"
+    raise ValueError("SUPABASE_SERVICE_ROLE_KEY not found in environment variables.")
+
+FILINGS_TABLE = "h1b_filings"
 SPONSORS_TABLE = "h1b_sponsors"
 BATCH_SIZE = 1000  # API Batch size
 

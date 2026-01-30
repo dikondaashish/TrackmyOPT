@@ -23,7 +23,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserProfileMenu } from "./UserProfileMenu";
-import { useState, useCallback, memo } from "react";
+import { useExtensionDetector } from "@/hooks/useExtensionDetector";
+import { useState, useCallback, memo, useMemo } from "react";
 
 interface SidebarProps {
     isCollapsed?: boolean;
@@ -287,6 +288,22 @@ export function Sidebar({
 }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter(); // Although not used here, good to have for consistency
+
+    // Detect if Chrome extension is installed to conditionally hide the sidebar link
+    const { isExtensionInstalled } = useExtensionDetector();
+
+    // Filter sidebar config based on extension installation
+    const filteredSidebarConfig = useMemo(() => {
+        if (isExtensionInstalled) {
+            return SIDEBAR_CONFIG.filter(item => {
+                if (item.type === 'link' && item.item.label === 'Chrome Extension') {
+                    return false; // Hide if extension is installed
+                }
+                return true;
+            });
+        }
+        return SIDEBAR_CONFIG;
+    }, [isExtensionInstalled]);
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
     // Safety clear for tooltips
@@ -414,7 +431,7 @@ export function Sidebar({
                     {/* Scrollable Navigation Area */}
                     <div className="flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                         <nav className="p-3 space-y-1">
-                            {SIDEBAR_CONFIG.map((item, index) => {
+                            {filteredSidebarConfig.map((item, index) => {
                                 if (item.type === 'divider') {
                                     return <div key={`divider-${index}`} className="my-3 border-t border-gray-200 dark:border-gray-700" />;
                                 }

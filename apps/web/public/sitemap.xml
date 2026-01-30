@@ -69,13 +69,7 @@
     <priority>0.7</priority>
   </url>
   
-  <!-- Premium Checkout -->
-  <url>
-    <loc>https://trackmyopt.com/premium/checkout</loc>
-    <lastmod>2026-01-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
+
   
   <!-- ========================================= -->
   <!-- LEGAL PAGES -->

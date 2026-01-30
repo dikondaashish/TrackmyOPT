@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Linkedin, Briefcase, Sparkles } from "lucide-react";
+import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Linkedin, Briefcase, Sparkles, Check, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
@@ -146,23 +146,43 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                     </div>
                 </div>
 
+                {/* Intelligence Signals (Virtual Office / Wages) */}
+                {(sponsor.is_virtual_office || (sponsor.entry_level_percent || 0) > 0.7) && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {sponsor.is_virtual_office && (
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800 text-xs font-medium" title="High volume of companies at this address">
+                                <AlertTriangle className="w-3 h-3" />
+                                <span>Specific Office Cluster</span>
+                            </div>
+                        )}
+                        {(sponsor.entry_level_percent || 0) > 0.7 && (
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-xs font-medium">
+                                <Briefcase className="w-3 h-3" />
+                                <span>Entry Level Friendly</span>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Status Badge */}
-                <div className="mb-4">
-                    {isActivelyHiring ? (
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/30">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
-                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Actively Sponsoring H-1B</span>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/30">
-                            <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">No recent FY25 activity</span>
-                        </div>
-                    )}
-                </div>
+                {!((sponsor.is_virtual_office || (sponsor.entry_level_percent || 0) > 0.7)) && (
+                    <div className="mb-4">
+                        {isActivelyHiring ? (
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/30">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Actively Sponsoring H-1B</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/30">
+                                <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">No recent FY25 activity</span>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2">
@@ -170,9 +190,6 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                     <button
                         onClick={(e) => {
                             e.preventDefault();
-                            // No stopPropagation needed because we actually WANT it to trigger the card click (which goes to overview)
-                            // But cleaner to just be a visual button that bubbles up.
-                            // OR we explicitly navigate and stop prop. Let's explicit navigate to be safe.
                             e.stopPropagation();
                             handleCardClick();
                         }}
@@ -187,10 +204,21 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition-all ${sponsor.careers_url
+                            ? "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-emerald-500/25 hover:shadow-emerald-500/40"
+                            : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-blue-500/25 hover:shadow-blue-500/40"
+                            }`}
                     >
-                        Careers
-                        <ArrowRight className="w-4 h-4" />
+                        {sponsor.careers_url ? (
+                            <>
+                                <span className="flex items-center gap-1">
+                                    Careers <span className="bg-white/20 p-0.5 rounded-full"><Check className="w-3 h-3" /></span>
+                                </span>
+                            </>
+                        ) : (
+                            "Careers"
+                        )}
+                        {!sponsor.careers_url && <ArrowRight className="w-4 h-4" />}
                     </a>
 
                     {/* Secondary Actions */}

@@ -51,6 +51,8 @@ Allow: /
 
 # Block admin and API routes from indexing
 Disallow: /api/
+Allow: /dashboard/opt-tools/
+Allow: /dashboard/help
 Disallow: /dashboard/
 Disallow: /auth/
 Disallow: /premium/checkout

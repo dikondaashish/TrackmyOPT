@@ -42,9 +42,13 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <div>
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">LCA Filings Explorer</h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 mb-2">
                         Showing {filteredFilings.length} filings
                     </p>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 text-xs text-amber-800 dark:text-amber-200">
+                        <span className="text-base">💡</span>
+                        <p><strong>Pro Tip:</strong> The <strong>Hiring Manager's</strong> name is often listed in <strong>Section J</strong> or "Employer Point of Contact".</p>
+                    </div>
                 </div>
 
                 <div className="relative w-full sm:w-64">
@@ -109,10 +113,10 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full border ${filing.status === "Certified"
-                                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
-                                                : filing.status === "Denied"
-                                                    ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
-                                                    : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
+                                            ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
+                                            : filing.status === "Denied"
+                                                ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+                                                : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
                                             }`}>
                                             {filing.status === "Certified" && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />}
                                             {filing.status}

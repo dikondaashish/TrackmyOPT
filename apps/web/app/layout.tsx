@@ -5,6 +5,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://trackmyopt.com'),
   title: 'TrackMyOPT',
   description: 'Track your OPT timeline with precision',
   icons: {

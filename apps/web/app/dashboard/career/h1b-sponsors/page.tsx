@@ -60,14 +60,14 @@ export default function H1BSponsorsPage() {
                 // Fetch sponsors with increased range (Supabase default is 1000)
                 const { data, error } = await supabase
                     .from('h1b_sponsors')
-                    .select('*')
+                    .select('id, name, industry, size, location, website, approvals_2021, approvals_2022, approvals_2023, approvals_2024, approvals_2025, total_approvals, sponsorship_strength, careers_url, is_virtual_office, top_law_firm, entry_level_percent')
                     .order('total_approvals', { ascending: false })
                     .range(0, 9999); // Load up to 10,000 sponsors
 
                 if (error) {
                     console.error("Error fetching sponsors:", error);
                 } else if (data) {
-                    const mappedSponsors: H1BSponsor[] = data.map((row: H1BSponsorRow) => ({
+                    const mappedSponsors: H1BSponsor[] = data.map((row: any) => ({
                         id: row.id,
                         name: row.name,
                         industry: row.industry,
@@ -81,11 +81,7 @@ export default function H1BSponsorsPage() {
                         approvals_2024: row.approvals_2024 ?? 0,
                         approvals_2025: row.approvals_2025 ?? 0,
                         sponsorship_strength: row.sponsorship_strength as H1BSponsor['sponsorship_strength'],
-                        common_roles: Array.isArray(row.common_roles)
-                            ? (row.common_roles as string[])
-                            : typeof row.common_roles === 'string'
-                                ? JSON.parse(row.common_roles)
-                                : [],
+                        common_roles: [], // Excluded from payload for performance
                     }));
                     setSponsors(mappedSponsors);
 
@@ -273,8 +269,8 @@ export default function H1BSponsorsPage() {
                                                 key={pageNum}
                                                 onClick={() => handlePageChange(pageNum)}
                                                 className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
-                                                        ? "bg-blue-600 text-white"
-                                                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                    ? "bg-blue-600 text-white"
+                                                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                                                     }`}
                                             >
                                                 {pageNum}

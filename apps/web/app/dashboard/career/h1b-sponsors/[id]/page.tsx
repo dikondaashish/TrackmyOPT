@@ -5,7 +5,8 @@ import { useParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import {
-    ArrowLeft, Building2, MapPin, Globe, Bookmark, ExternalLink, Linkedin, Sparkles
+    ArrowLeft, Building2, MapPin, Globe, Bookmark, ExternalLink, Linkedin, Sparkles, Check,
+    Scale, AlertTriangle, DollarSign
 } from "lucide-react";
 import { Database } from "@/types/supabase";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
@@ -186,6 +187,12 @@ export default function CompanyProfilePage() {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
 
+    // Intelligence Data Read Directly From Database
+    // These fields were backfilled and are now persistent
+    const topLawFirm = sponsor.top_law_firm;
+    const isEntryLevelHeavy = (sponsor.entry_level_percent || 0) > 0.7;
+    const isVirtualOffice = sponsor.is_virtual_office;
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Back Link */}
@@ -246,6 +253,32 @@ export default function CompanyProfilePage() {
                                 <span>•</span>
                                 <span className="capitalize">{sponsor.size}</span>
                             </div>
+
+                            {/* Virtual Office Warning */}
+                            {isVirtualOffice && (
+                                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                    <Building2 className="w-4 h-4 shrink-0" />
+                                    <span className="text-xs font-semibold">
+                                        Potential Virtual Office / Cluster Address
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Intelligence Badges */}
+                            <div className="flex flex-wrap gap-2 mt-3">
+                                {topLawFirm && (
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800/50">
+                                        <Scale className="w-3.5 h-3.5" />
+                                        <span className="text-xs font-medium">Rep: {topLawFirm}</span>
+                                    </div>
+                                )}
+                                {isEntryLevelHeavy && (
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-100 dark:border-blue-800/50">
+                                        <DollarSign className="w-3.5 h-3.5" />
+                                        <span className="text-xs font-medium">Entry-Level Focus</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -274,11 +307,14 @@ export default function CompanyProfilePage() {
                             href={sponsor.careers_url || `https://www.google.com/search?q=${encodeURIComponent(sponsor.name + " careers")}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                            className={`flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors ${sponsor.careers_url
+                                ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/25"
+                                : "bg-blue-600 hover:bg-blue-700 text-white"
+                                }`}
                         >
-                            <Globe className="w-4 h-4" />
+                            {sponsor.careers_url ? <Check className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
                             Careers
-                            <ExternalLink className="w-4 h-4" />
+                            {!sponsor.careers_url && <ExternalLink className="w-4 h-4" />}
                         </a>
 
                         <a

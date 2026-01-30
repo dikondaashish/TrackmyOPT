@@ -17,6 +17,9 @@ export interface H1BSponsor {
     common_roles: string[];
     logo?: string;
     careers_url?: string | null;
+    is_virtual_office?: boolean | null;
+    top_law_firm?: string | null;
+    entry_level_percent?: number | null;
 }
 
 // Deprecated: Data is now fetched from Supabase.

@@ -49,6 +49,7 @@ export function LandingFooter() {
         resources: [
             { label: "Help Center", href: "/dashboard/help" },
             { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors" },
+            { label: "Report Fraud", href: "/resources/report-fraud" },
             { label: "Tax Guide", href: "/dashboard/tax-filing" },
             { label: "Contact", href: "mailto:support@trackmyopt.com" },
         ],
