@@ -129,9 +129,9 @@ export async function middleware(request: NextRequest) {
 
   // Auth route + authenticated = optionally redirect to dashboard
   // Uncomment below if you want to redirect already-logged-in users away from login page
-  // if (isAuthRoute && isAuthenticated) {
-  //   return NextResponse.redirect(new URL('/dashboard', request.url));
-  // }
+  if (isAuthRoute && isAuthenticated) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
 
   // SECURITY: Add security headers to all responses
   // These headers protect against common web vulnerabilities
