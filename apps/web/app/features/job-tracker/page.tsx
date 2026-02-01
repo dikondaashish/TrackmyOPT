@@ -15,8 +15,7 @@ import {
     Building2
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
-import { LandingNavbar } from "@/components/landing/LandingNavbar";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+
 
 // Kanban Board Demo
 function KanbanDemo() {
@@ -252,187 +251,183 @@ function AnalyticsPreview() {
 
 export default function JobTrackerPage() {
     return (
-        <>
-            <LandingNavbar />
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
-                {/* Hero */}
-                <FeatureHero
-                    badge="New"
-                    headline="Track Applications. Beat the 90-Day Clock."
-                    subheadline="The only job tracker that syncs with your OPT unemployment counter. Never lose track of your applications or visa timeline."
-                    ctaText="Start Tracking"
-                    ctaHref="/dashboard/jobs"
-                    secondaryCta={{
-                        text: "See How It Works",
-                        href: "#sync"
-                    }}
-                    gradient="from-amber-500 to-orange-600"
-                    visual={<KanbanDemo />}
-                />
+        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            {/* Hero */}
+            <FeatureHero
+                badge="New"
+                headline="Track Applications. Beat the 90-Day Clock."
+                subheadline="The only job tracker that syncs with your OPT unemployment counter. Never lose track of your applications or visa timeline."
+                ctaText="Start Tracking"
+                ctaHref="/dashboard/jobs"
+                secondaryCta={{
+                    text: "See How It Works",
+                    href: "#sync"
+                }}
+                gradient="from-amber-500 to-orange-600"
+                visual={<KanbanDemo />}
+            />
 
-                {/* Kanban Feature */}
-                <section className="py-24 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium mb-4">
-                                    <Briefcase className="w-4 h-4" />
-                                    Visual Tracking
-                                </div>
-                                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                    See All Your Applications at a Glance
-                                </h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                    Drag-and-drop Kanban board to track every application
-                                    from submission to offer. Never forget to follow up.
-                                </p>
-                                <ul className="space-y-4">
-                                    {[
-                                        "Customizable pipeline stages",
-                                        "Drag-and-drop organization",
-                                        "Notes and attachments",
-                                        "Interview date tracking"
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, x: 30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <KanbanDemo />
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* OPT Sync Feature */}
-                <section id="sync" className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <motion.div
-                                initial={{ opacity: 0, x: -30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                className="order-2 lg:order-1"
-                            >
-                                <SyncVisualization />
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                className="order-1 lg:order-2"
-                            >
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                                    <Clock className="w-4 h-4" />
-                                    OPT Integration
-                                </div>
-                                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                    Jobs + OPT Clock = Peace of Mind
-                                </h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                    Your job applications automatically update your unemployment
-                                    counter. Stay compliant while you job search.
-                                </p>
-                                <ul className="space-y-4">
-                                    {[
-                                        "Auto-update unemployment days",
-                                        "Employment gap detection",
-                                        "Filing window reminders",
-                                        "Compliance status at a glance"
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Analytics Feature */}
-                <section className="py-24 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
-                                    <BarChart3 className="w-4 h-4" />
-                                    Analytics
-                                </div>
-                                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                    Understand Your Job Search
-                                </h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                    Track response rates, interview conversions, and application
-                                    trends. Optimize your strategy with data.
-                                </p>
-                                <Link
-                                    href="/dashboard/jobs"
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
-                                >
-                                    Start Tracking
-                                    <ArrowRight className="w-4 h-4" />
-                                </Link>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, x: 30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <AnalyticsPreview />
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* CTA Section */}
-                <section className="py-20 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-orange-600" />
-                    <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            {/* Kanban Feature */}
+            <section className="py-24 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <Briefcase className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                                Ready to Organize Your Job Search?
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium mb-4">
+                                <Briefcase className="w-4 h-4" />
+                                Visual Tracking
+                            </div>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                                See All Your Applications at a Glance
                             </h2>
-                            <p className="text-lg text-amber-100 mb-8 max-w-2xl mx-auto">
-                                Stop losing track of applications. Start your organized
-                                job search today.
+                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                Drag-and-drop Kanban board to track every application
+                                from submission to offer. Never forget to follow up.
                             </p>
-                            <Link
-                                href="/login"
-                                className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-amber-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
-                            >
-                                Start Tracking Free
-                                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </Link>
+                            <ul className="space-y-4">
+                                {[
+                                    "Customizable pipeline stages",
+                                    "Drag-and-drop organization",
+                                    "Notes and attachments",
+                                    "Interview date tracking"
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                        <CheckCircle2 className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <KanbanDemo />
                         </motion.div>
                     </div>
-                </section>
-            </main>
-            <LandingFooter />
-        </>
+                </div>
+            </section>
+
+            {/* OPT Sync Feature */}
+            <section id="sync" className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="order-2 lg:order-1"
+                        >
+                            <SyncVisualization />
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="order-1 lg:order-2"
+                        >
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+                                <Clock className="w-4 h-4" />
+                                OPT Integration
+                            </div>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                                Jobs + OPT Clock = Peace of Mind
+                            </h2>
+                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                Your job applications automatically update your unemployment
+                                counter. Stay compliant while you job search.
+                            </p>
+                            <ul className="space-y-4">
+                                {[
+                                    "Auto-update unemployment days",
+                                    "Employment gap detection",
+                                    "Filing window reminders",
+                                    "Compliance status at a glance"
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                        <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Analytics Feature */}
+            <section className="py-24 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
+                                <BarChart3 className="w-4 h-4" />
+                                Analytics
+                            </div>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                                Understand Your Job Search
+                            </h2>
+                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                Track response rates, interview conversions, and application
+                                trends. Optimize your strategy with data.
+                            </p>
+                            <Link
+                                href="/dashboard/jobs"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                            >
+                                Start Tracking
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <AnalyticsPreview />
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="py-20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-orange-600" />
+                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        <Briefcase className="w-16 h-16 text-white/80 mx-auto mb-6" />
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                            Ready to Organize Your Job Search?
+                        </h2>
+                        <p className="text-lg text-amber-100 mb-8 max-w-2xl mx-auto">
+                            Stop losing track of applications. Start your organized
+                            job search today.
+                        </p>
+                        <Link
+                            href="/login"
+                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-amber-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
+                        >
+                            Start Tracking Free
+                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </motion.div>
+                </div>
+            </section>
+        </main>
     );
 }

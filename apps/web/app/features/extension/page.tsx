@@ -18,8 +18,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { FeatureHero } from "@/components/features/FeatureHero";
-import { LandingNavbar } from "@/components/landing/LandingNavbar";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+
 
 // Browser Mockup Component
 function BrowserMockup() {
@@ -142,8 +141,8 @@ function PlatformGrid() {
                         </span>
                     )}
                     <div className={`w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center ${platform.status === 'live'
-                            ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                            : 'bg-gray-200 dark:bg-zinc-700'
+                        ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                        : 'bg-gray-200 dark:bg-zinc-700'
                         }`}>
                         <platform.icon className={`w-6 h-6 ${platform.status === 'live' ? 'text-white' : 'text-gray-400'}`} />
                     </div>
@@ -195,179 +194,175 @@ function PrivacyChecklist() {
 
 export default function ExtensionPage() {
     return (
-        <>
-            <LandingNavbar />
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
-                {/* Hero */}
-                <FeatureHero
-                    badge="Free"
-                    headline="Sponsor Intel. Right on LinkedIn."
-                    subheadline="See H-1B history, E-Verify status, and fraud alerts directly on job listings—without leaving your job search."
-                    ctaText="Add to Chrome - Free"
-                    ctaHref="https://chrome.google.com/webstore"
-                    secondaryCta={{
-                        text: "See Demo",
-                        href: "#demo"
-                    }}
-                    gradient="from-blue-500 to-cyan-500"
-                    visual={<BrowserMockup />}
-                />
+        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            {/* Hero */}
+            <FeatureHero
+                badge="Free"
+                headline="Sponsor Intel. Right on LinkedIn."
+                subheadline="See H-1B history, E-Verify status, and fraud alerts directly on job listings—without leaving your job search."
+                ctaText="Add to Chrome - Free"
+                ctaHref="https://chrome.google.com/webstore"
+                secondaryCta={{
+                    text: "See Demo",
+                    href: "#demo"
+                }}
+                gradient="from-blue-500 to-cyan-500"
+                visual={<BrowserMockup />}
+            />
 
-                {/* Features */}
-                <section id="demo" className="py-24 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                                    <Zap className="w-4 h-4" />
-                                    Instant Intel
-                                </div>
-                                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                    Make Smarter Applications
-                                </h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                    See sponsor data right where you need it—on job listings.
-                                    No more switching tabs or manual research.
-                                </p>
-                                <ul className="space-y-4">
-                                    {[
-                                        "E-Verify enrollment status",
-                                        "Historical H-1B sponsorship count",
-                                        "Approval rate trends",
-                                        "Virtual office warnings"
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <div className="mt-8">
-                                    <Link
-                                        href="https://chrome.google.com/webstore"
-                                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
-                                    >
-                                        <Download className="w-4 h-4" />
-                                        Install Extension
-                                    </Link>
-                                </div>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, x: 30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <BrowserMockup />
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Platforms */}
-                <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
-                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Features */}
+            <section id="demo" className="py-24 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-center mb-16"
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
-                                <Globe className="w-4 h-4" />
-                                Works Everywhere
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+                                <Zap className="w-4 h-4" />
+                                Instant Intel
                             </div>
                             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Supported Platforms
+                                Make Smarter Applications
                             </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                                Get sponsor intel on the job boards you already use.
+                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                See sponsor data right where you need it—on job listings.
+                                No more switching tabs or manual research.
                             </p>
+                            <ul className="space-y-4">
+                                {[
+                                    "E-Verify enrollment status",
+                                    "Historical H-1B sponsorship count",
+                                    "Approval rate trends",
+                                    "Virtual office warnings"
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                        <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="mt-8">
+                                <Link
+                                    href="https://chrome.google.com/webstore"
+                                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Install Extension
+                                </Link>
+                            </div>
                         </motion.div>
 
-                        <PlatformGrid />
-                    </div>
-                </section>
-
-                {/* Privacy */}
-                <section className="py-24 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <motion.div
-                                initial={{ opacity: 0, x: -30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <PrivacyChecklist />
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-4">
-                                    <Shield className="w-4 h-4" />
-                                    Privacy First
-                                </div>
-                                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                    Your Data Stays Private
-                                </h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                    We don't track your browsing, store your data, or sell your information.
-                                    The extension works entirely in your browser.
-                                </p>
-                                <ul className="space-y-4">
-                                    {[
-                                        "No analytics or tracking",
-                                        "Data fetched on-demand only",
-                                        "Minimal permissions required",
-                                        "Regular security audits"
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* CTA Section */}
-                <section className="py-20 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600" />
-                    <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <BrowserMockup />
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Platforms */}
+            <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center mb-16"
+                    >
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
+                            <Globe className="w-4 h-4" />
+                            Works Everywhere
+                        </div>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                            Supported Platforms
+                        </h2>
+                        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                            Get sponsor intel on the job boards you already use.
+                        </p>
+                    </motion.div>
+
+                    <PlatformGrid />
+                </div>
+            </section>
+
+            {/* Privacy */}
+            <section className="py-24 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <PrivacyChecklist />
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <Chrome className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                                Start Making Smarter Applications
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-4">
+                                <Shield className="w-4 h-4" />
+                                Privacy First
+                            </div>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                                Your Data Stays Private
                             </h2>
-                            <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-                                Join thousands of job seekers who use TrackMyOPT extension
-                                to find sponsors faster.
+                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                We don't track your browsing, store your data, or sell your information.
+                                The extension works entirely in your browser.
                             </p>
-                            <Link
-                                href="https://chrome.google.com/webstore"
-                                className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-blue-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
-                            >
-                                Add to Chrome - It's Free
-                                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </Link>
+                            <ul className="space-y-4">
+                                {[
+                                    "No analytics or tracking",
+                                    "Data fetched on-demand only",
+                                    "Minimal permissions required",
+                                    "Regular security audits"
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
                         </motion.div>
                     </div>
-                </section>
-            </main>
-            <LandingFooter />
-        </>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="py-20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600" />
+                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        <Chrome className="w-16 h-16 text-white/80 mx-auto mb-6" />
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                            Start Making Smarter Applications
+                        </h2>
+                        <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
+                            Join thousands of job seekers who use TrackMyOPT extension
+                            to find sponsors faster.
+                        </p>
+                        <Link
+                            href="https://chrome.google.com/webstore"
+                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-blue-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
+                        >
+                            Add to Chrome - It's Free
+                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </motion.div>
+                </div>
+            </section>
+        </main>
     );
 }

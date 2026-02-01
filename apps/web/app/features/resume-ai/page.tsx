@@ -16,8 +16,7 @@ import {
     MessageSquare
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
-import { LandingNavbar } from "@/components/landing/LandingNavbar";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+
 
 // Resume Mockup Component
 function ResumeMockup() {
@@ -170,124 +169,120 @@ function FeatureCards() {
 
 export default function ResumeAIPage() {
     return (
-        <>
-            <LandingNavbar />
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
-                {/* Hero */}
-                <FeatureHero
-                    badge="AI Powered"
-                    headline="Beat the ATS. Impress the Recruiter."
-                    subheadline="Our AI analyzes your resume against job descriptions and optimizes it for both automated screening systems and human recruiters."
-                    ctaText="Analyze My Resume"
-                    ctaHref="/dashboard/resume"
-                    secondaryCta={{
-                        text: "See How It Works",
-                        href: "#how-it-works"
-                    }}
-                    gradient="from-purple-500 to-pink-600"
-                    visual={<ResumeMockup />}
-                />
+        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            {/* Hero */}
+            <FeatureHero
+                badge="AI Powered"
+                headline="Beat the ATS. Impress the Recruiter."
+                subheadline="Our AI analyzes your resume against job descriptions and optimizes it for both automated screening systems and human recruiters."
+                ctaText="Analyze My Resume"
+                ctaHref="/dashboard/resume"
+                secondaryCta={{
+                    text: "See How It Works",
+                    href: "#how-it-works"
+                }}
+                gradient="from-purple-500 to-pink-600"
+                visual={<ResumeMockup />}
+            />
 
-                {/* How It Works */}
-                <section id="how-it-works" className="py-24 relative overflow-hidden">
-                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* How It Works */}
+            <section id="how-it-works" className="py-24 relative overflow-hidden">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center mb-16"
+                    >
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
+                            <Sparkles className="w-4 h-4" />
+                            3 Simple Steps
+                        </div>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                            How It Works
+                        </h2>
+                        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                            Get actionable feedback on your resume in under 30 seconds.
+                        </p>
+                    </motion.div>
+
+                    <HowItWorks />
+                </div>
+            </section>
+
+            {/* Features */}
+            <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-center mb-16"
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
-                                <Sparkles className="w-4 h-4" />
-                                3 Simple Steps
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+                                <Brain className="w-4 h-4" />
+                                Powered by Top AI
                             </div>
                             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                How It Works
+                                More Than Just Keywords
                             </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                                Get actionable feedback on your resume in under 30 seconds.
+                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                Our AI doesn't just count keywords—it understands context,
+                                analyzes structure, and provides human-quality feedback.
                             </p>
+                            <ul className="space-y-4">
+                                {[
+                                    "Optimized for H-1B friendly roles",
+                                    "Industry-specific recommendations",
+                                    "Action verb enhancement",
+                                    "Formatting & structure analysis"
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                        <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
                         </motion.div>
 
-                        <HowItWorks />
-                    </div>
-                </section>
-
-                {/* Features */}
-                <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                                    <Brain className="w-4 h-4" />
-                                    Powered by Top AI
-                                </div>
-                                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                    More Than Just Keywords
-                                </h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                    Our AI doesn't just count keywords—it understands context,
-                                    analyzes structure, and provides human-quality feedback.
-                                </p>
-                                <ul className="space-y-4">
-                                    {[
-                                        "Optimized for H-1B friendly roles",
-                                        "Industry-specific recommendations",
-                                        "Action verb enhancement",
-                                        "Formatting & structure analysis"
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, x: 30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <FeatureCards />
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* CTA Section */}
-                <section className="py-20 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600" />
-                    <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                         >
-                            <FileText className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                                Ready to Land More Interviews?
-                            </h2>
-                            <p className="text-lg text-purple-100 mb-8 max-w-2xl mx-auto">
-                                Join thousands of job seekers who improved their resume
-                                and landed their dream jobs.
-                            </p>
-                            <Link
-                                href="/login"
-                                className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-purple-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
-                            >
-                                Analyze My Resume Free
-                                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </Link>
+                            <FeatureCards />
                         </motion.div>
                     </div>
-                </section>
-            </main>
-            <LandingFooter />
-        </>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="py-20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600" />
+                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        <FileText className="w-16 h-16 text-white/80 mx-auto mb-6" />
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                            Ready to Land More Interviews?
+                        </h2>
+                        <p className="text-lg text-purple-100 mb-8 max-w-2xl mx-auto">
+                            Join thousands of job seekers who improved their resume
+                            and landed their dream jobs.
+                        </p>
+                        <Link
+                            href="/login"
+                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-purple-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
+                        >
+                            Analyze My Resume Free
+                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </motion.div>
+                </div>
+            </section>
+        </main>
     );
 }

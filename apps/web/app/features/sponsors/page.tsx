@@ -17,8 +17,7 @@ import {
     ExternalLink
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
-import { LandingNavbar } from "@/components/landing/LandingNavbar";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+
 
 // Mock Sponsor Card Component
 function SponsorCardDemo() {
@@ -226,203 +225,199 @@ function DataStats() {
 
 export default function SponsorsPage() {
     return (
-        <>
-            <LandingNavbar />
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
-                {/* Hero */}
-                <FeatureHero
-                    badge="Most Popular"
-                    headline="25,000+ H-1B Sponsors. Zero Guesswork."
-                    subheadline="Research employers with real LCA data, fraud alerts, and hiring trends before you apply. Make informed decisions about your career."
-                    ctaText="Search Sponsors Free"
-                    ctaHref="/dashboard/sponsors"
-                    secondaryCta={{
-                        text: "See Sample Data",
-                        href: "#demo"
-                    }}
-                    gradient="from-emerald-500 to-teal-600"
-                    visual={<SponsorCardDemo />}
-                />
+        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            {/* Hero */}
+            <FeatureHero
+                badge="Most Popular"
+                headline="25,000+ H-1B Sponsors. Zero Guesswork."
+                subheadline="Research employers with real LCA data, fraud alerts, and hiring trends before you apply. Make informed decisions about your career."
+                ctaText="Search Sponsors Free"
+                ctaHref="/dashboard/sponsors"
+                secondaryCta={{
+                    text: "See Sample Data",
+                    href: "#demo"
+                }}
+                gradient="from-emerald-500 to-teal-600"
+                visual={<SponsorCardDemo />}
+            />
 
-                {/* Data Stats */}
-                <section className="py-16 border-b border-gray-100 dark:border-zinc-800">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <DataStats />
-                    </div>
-                </section>
+            {/* Data Stats */}
+            <section className="py-16 border-b border-gray-100 dark:border-zinc-800">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <DataStats />
+                </div>
+            </section>
 
-                {/* Feature 1: Search Demo */}
-                <section id="demo" className="py-24 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-4">
-                                    <Search className="w-4 h-4" />
-                                    Instant Search
-                                </div>
-                                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                    Find Any Sponsor in Seconds
-                                </h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                    Search by company name, location, or industry. Get instant results with
-                                    sponsorship history, approval rates, and salary data.
-                                </p>
-                                <ul className="space-y-4">
-                                    {[
-                                        "Autocomplete with real company data",
-                                        "Filter by location, industry, and size",
-                                        "Sort by approvals, salary, or trend",
-                                        "Save favorites for quick access"
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, x: 30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                            >
-                                <SearchDemo />
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Feature 2: Intelligence Signals */}
-                <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Feature 1: Search Demo */}
+            <section id="demo" className="py-24 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-center mb-16"
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                                <Shield className="w-4 h-4" />
-                                Intelligence Signals
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-4">
+                                <Search className="w-4 h-4" />
+                                Instant Search
                             </div>
                             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                More Than Just Numbers
+                                Find Any Sponsor in Seconds
                             </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                                Our AI analyzes patterns to surface red flags and opportunities
-                                you won't find anywhere else.
+                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                Search by company name, location, or industry. Get instant results with
+                                sponsorship history, approval rates, and salary data.
                             </p>
+                            <ul className="space-y-4">
+                                {[
+                                    "Autocomplete with real company data",
+                                    "Filter by location, industry, and size",
+                                    "Sort by approvals, salary, or trend",
+                                    "Save favorites for quick access"
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
                         </motion.div>
 
-                        <SignalGrid />
-                    </div>
-                </section>
-
-                {/* Feature 3: Fraud Protection */}
-                <section className="py-24 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <motion.div
-                                initial={{ opacity: 0, x: -30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                className="order-2 lg:order-1"
-                            >
-                                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
-                                    <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-500 to-orange-600">
-                                        <motion.div
-                                            animate={{ scale: [1, 1.1, 1] }}
-                                            transition={{ duration: 2, repeat: Infinity }}
-                                        >
-                                            <Shield className="w-12 h-12 text-white" />
-                                        </motion.div>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {[
-                                            "Virtual office address detection",
-                                            "Unusual filing pattern alerts",
-                                            "DOL investigation history",
-                                            "Community fraud reports"
-                                        ].map((item, i) => (
-                                            <motion.div
-                                                key={item}
-                                                initial={{ opacity: 0, x: -20 }}
-                                                whileInView={{ opacity: 1, x: 0 }}
-                                                viewport={{ once: true }}
-                                                transition={{ delay: i * 0.1 }}
-                                                className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl"
-                                            >
-                                                <CheckCircle2 className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                                                <span className="text-gray-700 dark:text-gray-300">{item}</span>
-                                            </motion.div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                className="order-1 lg:order-2"
-                            >
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium mb-4">
-                                    <AlertTriangle className="w-4 h-4" />
-                                    Fraud Protection
-                                </div>
-                                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                    Avoid Visa Fraud Before It's Too Late
-                                </h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                    Our system flags potential red flags like virtual offices, unusual
-                                    filing patterns, and companies with DOL investigations.
-                                </p>
-                                <Link
-                                    href="/resources/report-fraud"
-                                    className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold hover:gap-3 transition-all"
-                                >
-                                    Learn about visa fraud
-                                    <ExternalLink className="w-4 h-4" />
-                                </Link>
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* CTA Section */}
-                <section className="py-20 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600" />
-                    <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                         >
-                            <Building2 className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                                Research Before You Apply
+                            <SearchDemo />
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Feature 2: Intelligence Signals */}
+            <section className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center mb-16"
+                    >
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+                            <Shield className="w-4 h-4" />
+                            Intelligence Signals
+                        </div>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                            More Than Just Numbers
+                        </h2>
+                        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                            Our AI analyzes patterns to surface red flags and opportunities
+                            you won't find anywhere else.
+                        </p>
+                    </motion.div>
+
+                    <SignalGrid />
+                </div>
+            </section>
+
+            {/* Feature 3: Fraud Protection */}
+            <section className="py-24 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="order-2 lg:order-1"
+                        >
+                            <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
+                                <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-500 to-orange-600">
+                                    <motion.div
+                                        animate={{ scale: [1, 1.1, 1] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                    >
+                                        <Shield className="w-12 h-12 text-white" />
+                                    </motion.div>
+                                </div>
+                                <div className="space-y-4">
+                                    {[
+                                        "Virtual office address detection",
+                                        "Unusual filing pattern alerts",
+                                        "DOL investigation history",
+                                        "Community fraud reports"
+                                    ].map((item, i) => (
+                                        <motion.div
+                                            key={item}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            whileInView={{ opacity: 1, x: 0 }}
+                                            viewport={{ once: true }}
+                                            transition={{ delay: i * 0.1 }}
+                                            className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl"
+                                        >
+                                            <CheckCircle2 className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                                            <span className="text-gray-700 dark:text-gray-300">{item}</span>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="order-1 lg:order-2"
+                        >
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium mb-4">
+                                <AlertTriangle className="w-4 h-4" />
+                                Fraud Protection
+                            </div>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                                Avoid Visa Fraud Before It's Too Late
                             </h2>
-                            <p className="text-lg text-emerald-100 mb-8 max-w-2xl mx-auto">
-                                Stop wasting time on companies that don't sponsor.
-                                Find your next H-1B sponsor today.
+                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                Our system flags potential red flags like virtual offices, unusual
+                                filing patterns, and companies with DOL investigations.
                             </p>
                             <Link
-                                href="/dashboard/sponsors"
-                                className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-emerald-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
+                                href="/resources/report-fraud"
+                                className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold hover:gap-3 transition-all"
                             >
-                                Search Sponsors Free
-                                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                Learn about visa fraud
+                                <ExternalLink className="w-4 h-4" />
                             </Link>
                         </motion.div>
                     </div>
-                </section>
-            </main>
-            <LandingFooter />
-        </>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="py-20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600" />
+                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        <Building2 className="w-16 h-16 text-white/80 mx-auto mb-6" />
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                            Research Before You Apply
+                        </h2>
+                        <p className="text-lg text-emerald-100 mb-8 max-w-2xl mx-auto">
+                            Stop wasting time on companies that don't sponsor.
+                            Find your next H-1B sponsor today.
+                        </p>
+                        <Link
+                            href="/dashboard/sponsors"
+                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-emerald-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
+                        >
+                            Search Sponsors Free
+                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </motion.div>
+                </div>
+            </section>
+        </main>
     );
 }
