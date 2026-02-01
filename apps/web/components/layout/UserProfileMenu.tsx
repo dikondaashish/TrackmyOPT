@@ -16,9 +16,10 @@ interface UserProfileMenuProps {
 
     isLoading?: boolean;
     side?: "bottom" | "top"; // 'bottom' = button is at bottom (expand up), 'top' = button is at top (expand down)
+    align?: "start" | "end"; // 'start' = left aligned, 'end' = right aligned
 }
 
-export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, isLoading, side = "bottom" }: UserProfileMenuProps) {
+export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, isLoading, side = "bottom", align = "start" }: UserProfileMenuProps) {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
@@ -125,10 +126,14 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                         exit={{ opacity: 0, y: 15, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
                         className={cn(
-                            "absolute left-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 w-52",
+                            "absolute bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 w-52",
+                            align === "end" ? "right-0" : "left-0",
                             side === "bottom"
-                                ? "bottom-full mb-3 origin-bottom-left"
-                                : "top-full mt-3 origin-top-left"
+                                ? "bottom-full mb-3"
+                                : "top-full mt-3",
+                            side === "bottom"
+                                ? (align === "end" ? "origin-bottom-right" : "origin-bottom-left")
+                                : (align === "end" ? "origin-top-right" : "origin-top-left")
                         )}
                     >
                         {/* User Info Header */}

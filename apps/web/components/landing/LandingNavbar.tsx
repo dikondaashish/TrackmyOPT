@@ -109,6 +109,7 @@ export function LandingNavbar() {
                                     isPremium={false}
                                     isLoading={false}
                                     side="top"
+                                    align="end"
                                 />
                             </>
                         ) : (
