@@ -82,6 +82,10 @@ export default function H1BSponsorsPage() {
                         approvals_2025: row.approvals_2025 ?? 0,
                         sponsorship_strength: row.sponsorship_strength as H1BSponsor['sponsorship_strength'],
                         common_roles: [], // Excluded from payload for performance
+                        careers_url: row.careers_url || null,
+                        is_virtual_office: row.is_virtual_office ?? false,
+                        top_law_firm: row.top_law_firm || null,
+                        entry_level_percent: row.entry_level_percent ?? null,
                     }));
                     setSponsors(mappedSponsors);
 
