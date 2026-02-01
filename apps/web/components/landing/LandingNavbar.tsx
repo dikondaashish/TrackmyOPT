@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut } from "lucide-react";
+import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, FileText, Chrome, Briefcase } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
@@ -13,6 +13,7 @@ import { UserProfileMenu } from "@/components/layout/UserProfileMenu";
 export function LandingNavbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
     const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
 
@@ -40,8 +41,15 @@ export function LandingNavbar() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    const featureLinks = [
+        { name: "OPT Compliance Hub", href: "/features/compliance", icon: Shield, description: "Track deadlines & stay legal" },
+        { name: "H-1B Sponsor Intelligence", href: "/features/sponsors", icon: Building2, description: "Research 25,000+ sponsors" },
+        { name: "AI Resume Doctor", href: "/features/resume-ai", icon: FileText, description: "Beat the ATS & recruiters" },
+        { name: "Chrome Extension", href: "/features/extension", icon: Chrome, description: "Sponsor intel on LinkedIn" },
+        { name: "Job Application Tracker", href: "/features/job-tracker", icon: Briefcase, description: "Track apps & unemployment" },
+    ];
+
     const navLinks = [
-        { name: "Features", href: "#features" },
         { name: "Pricing", href: "#pricing" },
         { name: "Testimonials", href: "#testimonials" },
         { name: "FAQ", href: "#faq" },
@@ -76,6 +84,63 @@ export function LandingNavbar() {
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-8">
+                        {/* Features Dropdown */}
+                        <div
+                            className="relative"
+                            onMouseEnter={() => setIsFeaturesOpen(true)}
+                            onMouseLeave={() => setIsFeaturesOpen(false)}
+                        >
+                            <button
+                                className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                            >
+                                Features
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFeaturesOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            <AnimatePresence>
+                                {isFeaturesOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
+                                    >
+                                        <div className="p-2">
+                                            {featureLinks.map((feature) => (
+                                                <Link
+                                                    key={feature.name}
+                                                    href={feature.href}
+                                                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group"
+                                                >
+                                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
+                                                        <feature.icon className="w-5 h-5 text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                            {feature.name}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                            {feature.description}
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                        <div className="border-t border-gray-100 dark:border-zinc-800 p-2">
+                                            <Link
+                                                href="/features"
+                                                className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors text-sm font-medium text-blue-600 dark:text-blue-400"
+                                            >
+                                                View All Features
+                                                <ArrowRight className="w-4 h-4" />
+                                            </Link>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
                         {navLinks.map((link) => (
                             <Link
                                 key={link.name}
