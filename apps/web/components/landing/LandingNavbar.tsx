@@ -103,7 +103,7 @@ export function LandingNavbar() {
                                 <UserProfileMenu
                                     userEmail={user.email}
                                     userName={user.user_metadata?.full_name || user.user_metadata?.name}
-                                    isCollapsed={false}
+                                    isCollapsed={true}
                                     // We don't fetch subscription status on landing page to keep it light
                                     // passing default values
                                     isPremium={false}
