@@ -13,10 +13,12 @@ interface UserProfileMenuProps {
     userName?: string;
     isCollapsed?: boolean;
     isPremium?: boolean;
+
     isLoading?: boolean;
+    side?: "bottom" | "top"; // 'bottom' = button is at bottom (expand up), 'top' = button is at top (expand down)
 }
 
-export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, isLoading }: UserProfileMenuProps) {
+export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, isLoading, side = "bottom" }: UserProfileMenuProps) {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
@@ -123,8 +125,10 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                         exit={{ opacity: 0, y: 15, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
                         className={cn(
-                            "absolute bottom-full mb-3 left-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 w-52",
-                            "origin-bottom-left"
+                            "absolute left-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 w-52",
+                            side === "bottom"
+                                ? "bottom-full mb-3 origin-bottom-left"
+                                : "top-full mt-3 origin-top-left"
                         )}
                     >
                         {/* User Info Header */}
