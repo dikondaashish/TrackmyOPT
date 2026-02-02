@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, FileText, Chrome, Briefcase } from "lucide-react";
+import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
@@ -41,19 +41,18 @@ export function LandingNavbar() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    // 2x2 grid features for dropdown
     const featureLinks = [
         { name: "OPT Compliance Hub", href: "/features/compliance", icon: Shield, description: "Track deadlines & stay legal" },
         { name: "H-1B Sponsor Intelligence", href: "/features/sponsors", icon: Building2, description: "Research 25,000+ sponsors" },
-        { name: "AI Resume Doctor", href: "/features/resume-ai", icon: FileText, description: "Beat the ATS & recruiters" },
         { name: "Chrome Extension", href: "/features/extension", icon: Chrome, description: "Sponsor intel on LinkedIn" },
         { name: "Job Application Tracker", href: "/features/job-tracker", icon: Briefcase, description: "Track apps & unemployment" },
     ];
 
     const navLinks = [
-        { name: "About", href: "/about" },
+        { name: "About Us", href: "/about" },
         { name: "Success Stories", href: "/success-stories" },
-        { name: "Pricing", href: "#pricing" },
-        { name: "Contact", href: "/contact" },
+        { name: "Contact Us", href: "/contact" },
     ];
 
     return (
@@ -84,7 +83,23 @@ export function LandingNavbar() {
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center gap-8">
+                    <div className="hidden md:flex items-center gap-6">
+                        {/* Home */}
+                        <Link
+                            href="/"
+                            className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                            Home
+                        </Link>
+
+                        {/* AI Resume Doctor - Direct Link */}
+                        <Link
+                            href="/features/resume-ai"
+                            className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                            AI Resume Doctor
+                        </Link>
+
                         {/* Features Dropdown */}
                         <div
                             className="relative"
@@ -92,7 +107,7 @@ export function LandingNavbar() {
                             onMouseLeave={() => setIsFeaturesOpen(false)}
                         >
                             <button
-                                className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                                className="flex items-center gap-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                             >
                                 Features
                                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFeaturesOpen ? 'rotate-180' : ''}`} />
@@ -105,9 +120,10 @@ export function LandingNavbar() {
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                         transition={{ duration: 0.15 }}
-                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
+                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[420px] bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
                                     >
-                                        <div className="p-2">
+                                        {/* 2x2 Grid */}
+                                        <div className="p-3 grid grid-cols-2 gap-2">
                                             {featureLinks.map((feature) => (
                                                 <Link
                                                     key={feature.name}
@@ -146,10 +162,9 @@ export function LandingNavbar() {
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors relative group"
+                                className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                             >
                                 {link.name}
-                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 dark:bg-blue-400 transition-all duration-300 group-hover:w-full" />
                             </Link>
                         ))}
                     </div>
@@ -220,12 +235,49 @@ export function LandingNavbar() {
                         className="md:hidden bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 overflow-hidden"
                     >
                         <div className="px-4 pt-4 pb-6 space-y-4">
+                            {/* Home */}
+                            <Link
+                                href="/"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                            >
+                                Home
+                            </Link>
+
+                            {/* AI Resume Doctor */}
+                            <Link
+                                href="/features/resume-ai"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                            >
+                                AI Resume Doctor
+                            </Link>
+
+                            {/* Features Section */}
+                            <div className="pt-2 pb-2">
+                                <p className="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Features</p>
+                                <div className="space-y-1">
+                                    {featureLinks.map((feature) => (
+                                        <Link
+                                            key={feature.name}
+                                            href={feature.href}
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className="flex items-center gap-3 p-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                        >
+                                            <feature.icon className="w-4 h-4 text-primary" />
+                                            {feature.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Other Nav Links */}
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.name}
                                     href={link.href}
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block p-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                    className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                                 >
                                     {link.name}
                                 </Link>
