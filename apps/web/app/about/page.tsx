@@ -6,7 +6,6 @@ import { StatsCounter } from "../../components/marketing/StatsCounter";
 import { CTABanner } from "../../components/marketing/CTABanner";
 import { MissionSection } from "./MissionSection";
 import { FounderStory } from "./FounderStory";
-import { TeamSection } from "./TeamSection";
 import { ValuesSection } from "./ValuesSection";
 import { AboutFAQ } from "./AboutFAQ";
 
@@ -54,9 +53,6 @@ export default function AboutPage() {
 
                 {/* Founder Story Timeline */}
                 <FounderStory />
-
-                {/* Team Grid */}
-                <TeamSection />
 
                 {/* Values */}
                 <ValuesSection />

@@ -27,7 +27,7 @@ export function PageHeroBanner({
     children,
 }: PageHeroBannerProps) {
     return (
-        <section className="relative pt-32 pb-20 overflow-hidden">
+        <section className="relative pt-24 sm:pt-28 mt-16 pb-20 overflow-hidden">
             {/* Gradient Background */}
             <div className={`absolute inset-0 bg-gradient-to-br ${gradients[gradient]} opacity-5 dark:opacity-10`} />
 
