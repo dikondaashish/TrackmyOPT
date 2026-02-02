@@ -180,8 +180,8 @@ export default function ResumeAIPage() {
             {/* Hero */}
             <FeatureHero
                 badge="AI Powered"
-                headline="Beat the ATS. Impress the Recruiter."
-                subheadline="Our AI analyzes your resume against job descriptions and optimizes it for both automated screening systems and human recruiters."
+                headline="We cook your resume in 2 minutes — faster than Maggi. 🍜"
+                subheadline="Beat the ATS. Impress the Recruiter."
                 ctaText="Analyze My Resume"
                 ctaHref="/dashboard/resume"
                 secondaryCta={{
