@@ -211,7 +211,7 @@ function QuoteWall() {
 // Stats Section
 function StatsSection() {
     const stats = [
-        { value: "10K+", label: "Students Helped" },
+        { value: "2,500+", label: "Students Helped" },
         { value: "500+", label: "Jobs Landed" },
         { value: "85%", label: "Found H-1B" },
         { value: "4.9/5", label: "Rating" },

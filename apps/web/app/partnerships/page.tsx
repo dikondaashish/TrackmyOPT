@@ -50,7 +50,7 @@ function PartnershipVisual() {
                     className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-4 text-white text-center"
                 >
                     <p className="text-sm opacity-80 mb-1">Students Helped</p>
-                    <p className="text-3xl font-bold">10,000+</p>
+                    <p className="text-3xl font-bold">2,500+</p>
                 </motion.div>
             </div>
         </div>
@@ -164,8 +164,8 @@ function ProgramTypes() {
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
                             className={`relative p-8 rounded-2xl border ${program.highlight
-                                    ? "bg-gradient-to-br from-purple-600 to-indigo-600 border-transparent text-white"
-                                    : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"
+                                ? "bg-gradient-to-br from-purple-600 to-indigo-600 border-transparent text-white"
+                                : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"
                                 }`}
                         >
                             {program.highlight && (
@@ -200,8 +200,8 @@ function ProgramTypes() {
                             <Link
                                 href="#contact"
                                 className={`block w-full text-center py-3 rounded-xl font-semibold transition-all ${program.highlight
-                                        ? "bg-white text-purple-600 hover:bg-purple-50"
-                                        : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:shadow-lg"
+                                    ? "bg-white text-purple-600 hover:bg-purple-50"
+                                    : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:shadow-lg"
                                     }`}
                             >
                                 {program.cta}
@@ -273,7 +273,7 @@ function StatsSection() {
     const stats = [
         { value: "50+", label: "Partner Universities" },
         { value: "100+", label: "Campus Ambassadors" },
-        { value: "10K+", label: "Students Helped" },
+        { value: "2,500+", label: "Students Helped" },
         { value: "98%", label: "DSO Satisfaction" },
     ];
 
