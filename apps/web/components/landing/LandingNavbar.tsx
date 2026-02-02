@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, FileText } from "lucide-react";
+import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, FileText, Users, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
@@ -50,11 +50,13 @@ export function LandingNavbar() {
         { name: "Job Application Tracker", href: "/features/job-tracker", icon: Briefcase, description: "Track apps & unemployment" },
     ];
 
-    // About dropdown links
-    const aboutLinks = [
-        { name: "About Us", href: "/about" },
-        { name: "Success Stories", href: "/success-stories" },
+    const navLinks = [
         { name: "Contact Us", href: "/contact" },
+    ];
+
+    const aboutLinks = [
+        { name: "About Us", href: "/about", icon: Users, description: "Our story & mission" },
+        { name: "Success Stories", href: "/success-stories", icon: Star, description: "Student testimonials" },
     ];
 
     return (
@@ -180,16 +182,26 @@ export function LandingNavbar() {
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                         transition={{ duration: 0.15 }}
-                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
+                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
                                     >
                                         <div className="p-2">
                                             {aboutLinks.map((link) => (
                                                 <Link
                                                     key={link.name}
                                                     href={link.href}
-                                                    className="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-colors"
+                                                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group"
                                                 >
-                                                    {link.name}
+                                                    <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary flex-shrink-0">
+                                                        <link.icon className="w-4 h-4" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                            {link.name}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                            {link.description}
+                                                        </p>
+                                                    </div>
                                                 </Link>
                                             ))}
                                         </div>
@@ -197,6 +209,16 @@ export function LandingNavbar() {
                                 )}
                             </AnimatePresence>
                         </div>
+
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                href={link.href}
+                                className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            >
+                                {link.name}
+                            </Link>
+                        ))}
 
                         {/* For Orgs */}
                         <Link
@@ -309,7 +331,7 @@ export function LandingNavbar() {
                                 </div>
                             </div>
 
-                            {/* About Us Section */}
+                            {/* About Section */}
                             <div className="pt-2 pb-2">
                                 <p className="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">About</p>
                                 <div className="space-y-1">
@@ -318,13 +340,23 @@ export function LandingNavbar() {
                                             key={link.name}
                                             href={link.href}
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="block p-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                            className="flex items-center gap-3 p-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                                         >
+                                            <link.icon className="w-4 h-4 text-primary" />
                                             {link.name}
                                         </Link>
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Contact Us */}
+                            <Link
+                                href="/contact"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                            >
+                                Contact Us
+                            </Link>
 
                             {/* For Orgs */}
                             <Link
