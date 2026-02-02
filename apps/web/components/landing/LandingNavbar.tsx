@@ -14,6 +14,7 @@ export function LandingNavbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
+    const [isAboutOpen, setIsAboutOpen] = useState(false);
     const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
 
@@ -49,7 +50,8 @@ export function LandingNavbar() {
         { name: "Job Application Tracker", href: "/features/job-tracker", icon: Briefcase, description: "Track apps & unemployment" },
     ];
 
-    const navLinks = [
+    // About dropdown links
+    const aboutLinks = [
         { name: "About Us", href: "/about" },
         { name: "Success Stories", href: "/success-stories" },
         { name: "Contact Us", href: "/contact" },
@@ -158,15 +160,51 @@ export function LandingNavbar() {
                             </AnimatePresence>
                         </div>
 
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                href={link.href}
-                                className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        {/* About Us Dropdown */}
+                        <div
+                            className="relative"
+                            onMouseEnter={() => setIsAboutOpen(true)}
+                            onMouseLeave={() => setIsAboutOpen(false)}
+                        >
+                            <button
+                                className="flex items-center gap-1 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                             >
-                                {link.name}
-                            </Link>
-                        ))}
+                                About Us
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isAboutOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            <AnimatePresence>
+                                {isAboutOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
+                                    >
+                                        <div className="p-2">
+                                            {aboutLinks.map((link) => (
+                                                <Link
+                                                    key={link.name}
+                                                    href={link.href}
+                                                    className="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-colors"
+                                                >
+                                                    {link.name}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* For Orgs */}
+                        <Link
+                            href="/partnerships"
+                            className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                            For Orgs
+                        </Link>
                     </div>
 
                     {/* Desktop CTAs */}
@@ -271,17 +309,31 @@ export function LandingNavbar() {
                                 </div>
                             </div>
 
-                            {/* Other Nav Links */}
-                            {navLinks.map((link) => (
-                                <Link
-                                    key={link.name}
-                                    href={link.href}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-                                >
-                                    {link.name}
-                                </Link>
-                            ))}
+                            {/* About Us Section */}
+                            <div className="pt-2 pb-2">
+                                <p className="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">About</p>
+                                <div className="space-y-1">
+                                    {aboutLinks.map((link) => (
+                                        <Link
+                                            key={link.name}
+                                            href={link.href}
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className="block p-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                        >
+                                            {link.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* For Orgs */}
+                            <Link
+                                href="/partnerships"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                            >
+                                For Orgs
+                            </Link>
                             <div className="pt-4 border-t border-gray-100 dark:border-zinc-800 flex flex-col gap-3">
                                 {user ? (
                                     <>
