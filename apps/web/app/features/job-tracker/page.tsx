@@ -12,9 +12,16 @@ import {
     BarChart3,
     Plus,
     MoreHorizontal,
-    Building2
+    Building2,
+    TrendingUp,
+    AlertTriangle,
+    XCircle
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
+import { FeatureFAQ } from "@/components/features/FeatureFAQ";
+import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
+import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
+import { FeatureCTA } from "@/components/features/FeatureCTA";
 
 
 // Kanban Board Demo
@@ -401,33 +408,79 @@ export default function JobTrackerPage() {
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-20 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-orange-600" />
-                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <Briefcase className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                            Ready to Organize Your Job Search?
-                        </h2>
-                        <p className="text-lg text-amber-100 mb-8 max-w-2xl mx-auto">
-                            Stop losing track of applications. Start your organized
-                            job search today.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-amber-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
-                        >
-                            Start Tracking Free
-                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </motion.div>
-                </div>
-            </section>
+            {/* Why This Matters Section */}
+            <FeatureWhyMatters
+                headline="Disorganized Job Search = Compliance Risk"
+                description="For OPT students, missing application deadlines or losing track of employment gaps directly impacts your visa status. Our tracker syncs with your OPT clock to keep you safe."
+                accentColor="amber"
+                stats={[
+                    { value: "90 Days", label: "Max unemployment on Initial OPT", icon: <Clock className="w-5 h-5" /> },
+                    { value: "150 Days", label: "Max unemployment on STEM OPT", icon: <Clock className="w-5 h-5" /> },
+                    { value: "50+", label: "Average applications per job seeker", icon: <Briefcase className="w-5 h-5" /> },
+                    { value: "Real-time", label: "Sync with OPT countdown", icon: <TrendingUp className="w-5 h-5" /> },
+                ]}
+            />
+
+            {/* Testimonial */}
+            <FeatureTestimonial
+                quote="Having my job applications and OPT clock in the same place saved me. I could see exactly how my unemployment days would be affected if I didn't land a job soon."
+                author={{
+                    name: "Jessica Wu",
+                    role: "UX Designer, STEM OPT",
+                    university: "RISD",
+                }}
+                accentColor="amber"
+            />
+
+            {/* FAQ Section */}
+            <FeatureFAQ
+                title="Job Tracker FAQ"
+                subtitle="Common questions about tracking your applications"
+                accentColor="amber"
+                items={[
+                    {
+                        question: "How does the tracker sync with my OPT clock?",
+                        answer: "When you mark applications as 'Offer Accepted' with a start date, or 'Rejected', the tracker automatically updates your unemployment day count. You always know your compliance status."
+                    },
+                    {
+                        question: "Can I import applications from LinkedIn?",
+                        answer: "Not yet, but with our Chrome extension you can save jobs directly from LinkedIn to your tracker with one click. Full import is on our roadmap."
+                    },
+                    {
+                        question: "What application stages can I track?",
+                        answer: "Applied, Phone Screen, Technical Interview, Onsite, Offer, Rejected, and Withdrawn. You can customize the stages to match your workflow."
+                    },
+                    {
+                        question: "Do I get reminders for follow-ups?",
+                        answer: "Yes! Set custom reminders for each application. We'll notify you via email and in-app when it's time to follow up with a recruiter."
+                    },
+                    {
+                        question: "Is there a limit to how many applications I can track?",
+                        answer: "Free users can track up to 50 active applications. Premium users get unlimited tracking plus analytics and company insights."
+                    },
+                    {
+                        question: "Can I export my application data?",
+                        answer: "Yes, you can export all your application data to CSV at any time. Your data belongs to you."
+                    },
+                ]}
+            />
+
+            {/* Final CTA */}
+            <FeatureCTA
+                headline="Never Lose Track of an Application"
+                subheadline="Keep your job search organized and your OPT status protected. Track applications, get reminders, and stay compliant."
+                primaryCTA={{
+                    text: "Start Tracking Free",
+                    href: "/login",
+                }}
+                secondaryCTA={{
+                    text: "See Features",
+                    href: "/#features",
+                }}
+                gradient="amber"
+                icon={<Briefcase className="w-12 h-12 text-white" />}
+                badge="Syncs with OPT Clock"
+            />
         </main>
     );
 }

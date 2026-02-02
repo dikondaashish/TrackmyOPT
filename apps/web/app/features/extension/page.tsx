@@ -14,10 +14,17 @@ import {
     Lock,
     Download,
     Monitor,
-    Smartphone
+    Smartphone,
+    Clock,
+    XCircle,
+    TrendingUp
 } from "lucide-react";
 import Image from "next/image";
 import { FeatureHero } from "@/components/features/FeatureHero";
+import { FeatureFAQ } from "@/components/features/FeatureFAQ";
+import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
+import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
+import { FeatureCTA } from "@/components/features/FeatureCTA";
 
 
 // Browser Mockup Component
@@ -336,33 +343,79 @@ export default function ExtensionPage() {
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-20 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600" />
-                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <Chrome className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                            Start Making Smarter Applications
-                        </h2>
-                        <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-                            Join thousands of job seekers who use TrackMyOPT extension
-                            to find sponsors faster.
-                        </p>
-                        <Link
-                            href="https://chrome.google.com/webstore"
-                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-blue-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
-                        >
-                            Add to Chrome - It's Free
-                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </motion.div>
-                </div>
-            </section>
+            {/* Why This Matters Section */}
+            <FeatureWhyMatters
+                headline="Job Searching Without Data is Guessing"
+                description="Most job seekers waste hours applying to companies that don't sponsor visas. Our extension puts H-1B data directly on job listings so you know before you apply."
+                accentColor="cyan"
+                stats={[
+                    { value: "3+ hrs", label: "Saved per week on research", icon: <Clock className="w-5 h-5" /> },
+                    { value: "Free", label: "Forever—no hidden costs", icon: <Shield className="w-5 h-5" /> },
+                    { value: "5 sec", label: "To see sponsor history", icon: <Zap className="w-5 h-5" /> },
+                    { value: "100%", label: "Privacy focused", icon: <Lock className="w-5 h-5" /> },
+                ]}
+            />
+
+            {/* Testimonial */}
+            <FeatureTestimonial
+                quote="I used to spend 30 minutes researching each company before applying. Now I just look at the badge on LinkedIn and know instantly if they sponsor. Game changer."
+                author={{
+                    name: "Amit Patel",
+                    role: "Frontend Developer, OPT",
+                    university: "NYU",
+                }}
+                accentColor="cyan"
+            />
+
+            {/* FAQ Section */}
+            <FeatureFAQ
+                title="Chrome Extension FAQ"
+                subtitle="Common questions about the TrackMyOPT extension"
+                accentColor="cyan"
+                items={[
+                    {
+                        question: "Which job sites does the extension work on?",
+                        answer: "Currently LinkedIn and Indeed, with Glassdoor coming soon. We show sponsor badges and H-1B filing history directly on job listings."
+                    },
+                    {
+                        question: "What data does the extension access?",
+                        answer: "The extension only reads job listing page content to identify company names. It never accesses your personal data, messages, or login credentials."
+                    },
+                    {
+                        question: "Is the extension really free?",
+                        answer: "Yes, forever! The extension is completely free with no premium version. We believe job seekers shouldn't pay for this essential information."
+                    },
+                    {
+                        question: "Where does the H-1B data come from?",
+                        answer: "We use official Department of Labor LCA filings, USCIS data, and E-Verify records. Data is updated quarterly to ensure accuracy."
+                    },
+                    {
+                        question: "Does it slow down my browser?",
+                        answer: "No, the extension is lightweight and only activates on job sites. It uses minimal resources and won't affect your browsing speed."
+                    },
+                    {
+                        question: "Can I trust this extension with my data?",
+                        answer: "Absolutely. We collect zero personal data, have no analytics, and never track your browsing. The extension is open for security audits."
+                    },
+                ]}
+            />
+
+            {/* Final CTA */}
+            <FeatureCTA
+                headline="Make Smarter Career Moves"
+                subheadline="See which companies sponsor H-1B visas right on LinkedIn and Indeed. No more wasted applications."
+                primaryCTA={{
+                    text: "Add to Chrome—Free Forever",
+                    href: "https://chrome.google.com/webstore",
+                }}
+                secondaryCTA={{
+                    text: "See Demo",
+                    href: "/features/extension#demo",
+                }}
+                gradient="cyan"
+                icon={<Chrome className="w-12 h-12 text-white" />}
+                badge="Free Forever"
+            />
         </main>
     );
 }

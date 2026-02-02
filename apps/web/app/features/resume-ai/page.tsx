@@ -13,9 +13,16 @@ import {
     Brain,
     Upload,
     ClipboardList,
-    MessageSquare
+    MessageSquare,
+    XCircle,
+    TrendingUp,
+    AlertTriangle
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
+import { FeatureFAQ } from "@/components/features/FeatureFAQ";
+import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
+import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
+import { FeatureCTA } from "@/components/features/FeatureCTA";
 
 
 // Resume Mockup Component
@@ -256,33 +263,79 @@ export default function ResumeAIPage() {
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-20 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600" />
-                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <FileText className="w-16 h-16 text-white/80 mx-auto mb-6" />
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                            Ready to Land More Interviews?
-                        </h2>
-                        <p className="text-lg text-purple-100 mb-8 max-w-2xl mx-auto">
-                            Join thousands of job seekers who improved their resume
-                            and landed their dream jobs.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-purple-600 bg-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
-                        >
-                            Analyze My Resume Free
-                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </motion.div>
-                </div>
-            </section>
+            {/* Why This Matters Section */}
+            <FeatureWhyMatters
+                headline="75% of Resumes Never Get Seen by Humans"
+                description="Applicant Tracking Systems (ATS) filter out most resumes before a recruiter ever sees them. Our AI analyzes your resume against the same algorithms used by top companies."
+                accentColor="purple"
+                stats={[
+                    { value: "75%", label: "Resumes rejected by ATS", icon: <XCircle className="w-5 h-5" /> },
+                    { value: "6 sec", label: "Average recruiter scan time", icon: <AlertTriangle className="w-5 h-5" /> },
+                    { value: "40%", label: "Increase in callbacks with optimization", icon: <TrendingUp className="w-5 h-5" /> },
+                    { value: "AI-Powered", label: "Using latest LLMs", icon: <Brain className="w-5 h-5" /> },
+                ]}
+            />
+
+            {/* Testimonial */}
+            <FeatureTestimonial
+                quote="After using the AI Resume Doctor, I went from zero callbacks to 5 interview requests in one week. The keyword suggestions were exactly what ATS systems wanted to see."
+                author={{
+                    name: "Sarah Chen",
+                    role: "Product Manager",
+                    university: "Stanford",
+                }}
+                accentColor="purple"
+            />
+
+            {/* FAQ Section */}
+            <FeatureFAQ
+                title="Resume AI FAQ"
+                subtitle="Common questions about optimizing your resume"
+                accentColor="purple"
+                items={[
+                    {
+                        question: "How does AI resume optimization work?",
+                        answer: "Our AI analyzes your resume against proven patterns from successful job seekers. It checks for ATS compatibility, keyword optimization, formatting issues, and content gaps compared to your target job descriptions."
+                    },
+                    {
+                        question: "What AI model do you use?",
+                        answer: "We use the latest enterprise-grade AI models for analysis. Premium subscribers get access to our most advanced models for deeper analysis and job-specific tailoring."
+                    },
+                    {
+                        question: "Can I upload my resume in any format?",
+                        answer: "Yes! We accept PDF, DOCX, and plain text formats. PDF is recommended as it preserves formatting while remaining ATS-friendly."
+                    },
+                    {
+                        question: "How is this different from other resume tools?",
+                        answer: "We specifically optimize for the job market international students face—including H-1B-friendly company language, visa sponsorship keywords, and OPT/CPT terminology that recruiters search for."
+                    },
+                    {
+                        question: "Is my resume data kept private?",
+                        answer: "Absolutely. Your resume is encrypted, never shared with third parties, and automatically deleted after 30 days of inactivity. We never use your data to train our models."
+                    },
+                    {
+                        question: "How many times can I analyze my resume?",
+                        answer: "Free users get 3 analyses per month. Premium subscribers get unlimited analyses plus job-specific tailoring for each application."
+                    },
+                ]}
+            />
+
+            {/* Final CTA */}
+            <FeatureCTA
+                headline="Ready to Beat the ATS?"
+                subheadline="Upload your resume and get AI-powered feedback in 60 seconds. See exactly what's holding your resume back."
+                primaryCTA={{
+                    text: "Analyze My Resume Free",
+                    href: "/login",
+                }}
+                secondaryCTA={{
+                    text: "See Sample Analysis",
+                    href: "/features/resume-ai#sample",
+                }}
+                gradient="purple"
+                icon={<FileText className="w-12 h-12 text-white" />}
+                badge="AI-Powered"
+            />
         </main>
     );
 }
