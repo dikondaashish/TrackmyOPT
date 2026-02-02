@@ -3,116 +3,88 @@
 import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
 
-const quotes = [
+const testimonials = [
     {
-        text: "I was so stressed about my 90-day clock. TrackMyOPT made it visual and simple to understand.",
-        author: "Jessica W.",
-        details: "Yale, Economics",
-        color: "from-blue-500 to-indigo-600",
+        name: "Sarah K.",
+        role: "UX Designer",
+        company: "Apple",
+        quote: "The document vault feature is a lifesaver. All my OPT documents in one secure place.",
     },
     {
-        text: "Finally found a company that sponsors H-1B through the sponsor database. Game changer!",
-        author: "Vikram R.",
-        details: "CMU, SWE",
-        color: "from-emerald-500 to-teal-600",
+        name: "Michael C.",
+        role: "Backend Engineer",
+        company: "Stripe",
+        quote: "Best investment I made during my OPT. The timeline tracking alone is worth it.",
     },
     {
-        text: "The Chrome extension shows me sponsorship info right on LinkedIn. So convenient.",
-        author: "Ming L.",
-        details: "Berkeley, Data Science",
-        color: "from-purple-500 to-pink-600",
+        name: "Ananya P.",
+        role: "ML Engineer",
+        company: "OpenAI",
+        quote: "Found my job through the H-1B sponsor database. Game changer for international students.",
     },
     {
-        text: "My resume went from 0 callbacks to 5 interviews in two weeks after using the AI tool.",
-        author: "Ana G.",
-        details: "MIT, MechE",
-        color: "from-amber-500 to-orange-600",
+        name: "David L.",
+        role: "Product Designer",
+        company: "Figma",
+        quote: "The Chrome extension syncs everything automatically. So convenient.",
     },
     {
-        text: "Best investment I made during my job search. Worth every penny for the premium.",
-        author: "David K.",
-        details: "Stanford, MBA",
-        color: "from-rose-500 to-red-600",
+        name: "Elena R.",
+        role: "Data Analyst",
+        company: "Netflix",
+        quote: "My DSO was impressed when I showed them my tracking dashboard. Very professional.",
     },
     {
-        text: "Helped me avoid losing my OPT status when I forgot about my unemployment days.",
-        author: "Fatima A.",
-        details: "Columbia, Finance",
-        color: "from-cyan-500 to-blue-600",
-    },
-    {
-        text: "The job tracker integration with OPT countdown is genius. Wish I had this earlier.",
-        author: "Chen W.",
-        details: "NYU, Marketing",
-        color: "from-indigo-500 to-violet-600",
-    },
-    {
-        text: "Finally a tool that understands what F-1 students actually go through.",
-        author: "Raj P.",
-        details: "Georgia Tech, CS",
-        color: "from-teal-500 to-emerald-600",
+        name: "James W.",
+        role: "iOS Developer",
+        company: "Airbnb",
+        quote: "The AI resume feedback helped me get callbacks from companies I never expected.",
     },
 ];
 
 export function QuoteWall() {
     return (
-        <section className="py-24 relative bg-gray-50 dark:bg-zinc-900/50 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
+        <section className="py-16 bg-gray-50 dark:bg-zinc-900/50">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-16"
+                    className="text-center mb-12"
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-sm font-medium mb-6">
-                        <Quote className="w-4 h-4" />
-                        In Their Words
-                    </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
                         What Students Are Saying
                     </h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                        Real quotes from real students who transformed their job search.
+                    <p className="text-muted-foreground max-w-2xl mx-auto">
+                        Join thousands of satisfied users
                     </p>
                 </motion.div>
 
-                {/* Masonry Grid */}
-                <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
-                    {quotes.map((quote, index) => (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {testimonials.map((testimonial, index) => (
                         <motion.div
                             key={index}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.05 }}
-                            whileHover={{ y: -5 }}
-                            className="break-inside-avoid"
+                            className="p-6 bg-white dark:bg-zinc-900 rounded-xl border border-border"
                         >
-                            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-lg hover:shadow-xl transition-all duration-300">
-                                {/* Quote Icon */}
-                                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${quote.color} flex items-center justify-center mb-4`}>
-                                    <Quote className="w-5 h-5 text-white" />
+                            <Quote className="w-8 h-8 text-primary/20 mb-4" />
+                            <p className="text-gray-900 dark:text-white mb-4">
+                                &ldquo;{testimonial.quote}&rdquo;
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary font-semibold">
+                                    {testimonial.name.charAt(0)}
                                 </div>
-
-                                {/* Quote Text */}
-                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                                    &ldquo;{quote.text}&rdquo;
-                                </p>
-
-                                {/* Author */}
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${quote.color} flex items-center justify-center text-white text-xs font-bold`}>
-                                        {quote.author.split(" ").map(n => n[0]).join("")}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                            {quote.author}
-                                        </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            {quote.details}
-                                        </p>
-                                    </div>
+                                <div>
+                                    <p className="font-medium text-gray-900 dark:text-white text-sm">
+                                        {testimonial.name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {testimonial.role} at {testimonial.company}
+                                    </p>
                                 </div>
                             </div>
                         </motion.div>

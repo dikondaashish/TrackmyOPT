@@ -1,29 +1,25 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, HelpCircle } from "lucide-react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 
-const faqItems = [
+const faqs = [
     {
-        question: "Are these real student success stories?",
-        answer: "Yes! Every success story featured on our platform comes from real TrackMyOPT users. We verify each story and only publish with the student's explicit permission. Names may be shortened for privacy, but the companies, universities, and outcomes are 100% authentic.",
+        question: "Are these success stories real?",
+        answer: "Yes, all success stories are from real TrackMyOPT users who have given us permission to share their experiences. Names may be abbreviated for privacy.",
     },
     {
-        question: "Can I submit my own success story?",
-        answer: "Absolutely! We love hearing from our users. If you've landed a job, secured H-1B sponsorship, or successfully navigated your OPT using TrackMyOPT, we'd be honored to feature your story. Use the submission form below or email us at stories@trackmyopt.com.",
+        question: "How can I submit my own success story?",
+        answer: "We'd love to hear from you! Use the form below to share your story. Selected stories may be featured on our website (with your permission).",
     },
     {
-        question: "What industries do TrackMyOPT users work in?",
-        answer: "Our users have landed jobs across 50+ industries including Technology, Finance, Healthcare, Consulting, Manufacturing, Education, and more. While tech roles are common, we have success stories from every major industry that hires international talent.",
+        question: "What results can I expect?",
+        answer: "Results vary based on individual circumstances. Our tools help you stay organized and focused, which typically leads to better outcomes, but we can't guarantee specific results.",
     },
     {
-        question: "How long does it typically take to find a job using TrackMyOPT?",
-        answer: "Based on our data, users who actively use TrackMyOPT's tools find jobs 40% faster than the average international student job seeker. Most active users land roles within 2-4 months, compared to the national average of 6-8 months for international students.",
-    },
-    {
-        question: "Do I need premium to have success like these students?",
-        answer: "Many of our success stories come from users on our free tier! The core OPT tracking, unemployment monitoring, and basic sponsor search are free forever. Premium features like AI Resume Doctor and unlimited sponsor searches can accelerate your search, but success is absolutely possible with our free tools.",
+        question: "Do you only feature big tech success stories?",
+        answer: "No! We celebrate all success stories — from startups to Fortune 500 companies. Every job offer is a win worth celebrating.",
     },
 ];
 
@@ -31,70 +27,56 @@ export function SuccessFAQ() {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     return (
-        <section className="py-24 relative">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
+        <section className="py-16 bg-white dark:bg-zinc-950">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-16"
+                    className="text-center mb-12"
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-sm font-medium mb-6">
-                        <HelpCircle className="w-4 h-4" />
-                        Questions Answered
-                    </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Frequently Asked Questions
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+                        Questions About Success Stories
                     </h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">
-                        Everything you want to know about our success stories.
-                    </p>
                 </motion.div>
 
-                {/* FAQ Items */}
-                <div className="space-y-4">
-                    {faqItems.map((item, index) => (
+                <div className="space-y-3">
+                    {faqs.map((faq, index) => (
                         <motion.div
                             key={index}
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 10 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-border overflow-hidden"
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                                className="w-full text-left p-6 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all duration-200 group"
+                                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-white dark:hover:bg-zinc-800/50 transition-colors"
                             >
-                                <div className="flex items-center justify-between gap-4">
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                                        {item.question}
-                                    </h3>
-                                    <motion.div
-                                        animate={{ rotate: openIndex === index ? 180 : 0 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="flex-shrink-0 text-emerald-600 dark:text-emerald-400"
-                                    >
-                                        <ChevronDown className="w-5 h-5" />
-                                    </motion.div>
-                                </div>
-
-                                <AnimatePresence>
-                                    {openIndex === index && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: "auto", opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="overflow-hidden"
-                                        >
-                                            <p className="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
-                                                {item.answer}
-                                            </p>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                    {faq.question}
+                                </span>
+                                <ChevronDown
+                                    className={`w-5 h-5 text-muted-foreground transition-transform ${openIndex === index ? "rotate-180" : ""
+                                        }`}
+                                />
                             </button>
+                            <AnimatePresence>
+                                {openIndex === index && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="px-6 pb-4 text-muted-foreground">
+                                            {faq.answer}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </motion.div>
                     ))}
                 </div>

@@ -1,222 +1,140 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight, Building2, GraduationCap, Calendar, TrendingUp } from "lucide-react";
-import Link from "next/link";
+import { TrendingUp, Clock, Briefcase } from "lucide-react";
 
-interface CaseStudy {
-    name: string;
-    photo?: string;
-    university: string;
-    degree: string;
-    company: string;
-    role: string;
-    beforeStats: {
-        applications: number;
-        interviews: number;
-        timeline: string;
-    };
-    afterStats: {
-        applications: number;
-        interviews: number;
-        timeline: string;
-    };
-    quote: string;
-    tags: string[];
-    color: string;
-}
-
-const caseStudies: CaseStudy[] = [
+const caseStudies = [
     {
-        name: "Priya Sharma",
-        university: "Georgia Tech",
-        degree: "MS Computer Science",
-        company: "Google",
-        role: "Software Engineer",
-        beforeStats: { applications: 150, interviews: 2, timeline: "8 months" },
-        afterStats: { applications: 45, interviews: 12, timeline: "3 months" },
-        quote: "TrackMyOPT's sponsor database helped me focus on companies that actually hire international students.",
-        tags: ["STEM OPT", "H-1B Sponsor", "Big Tech"],
-        color: "from-blue-500 to-indigo-600",
+        name: "Priya M.",
+        role: "Software Engineer at Google",
+        university: "Stanford University",
+        image: "/avatars/student-1.jpg",
+        before: {
+            unemploymentDays: 45,
+            applications: 120,
+            interviews: 3,
+        },
+        after: {
+            unemploymentDays: 28,
+            applications: 45,
+            interviews: 12,
+        },
+        quote: "TrackMyOPT helped me focus on the right companies. The H-1B sponsor filter saved me so much time.",
     },
     {
-        name: "Rahul Krishnan",
-        university: "USC",
-        degree: "MS Data Science",
-        company: "Meta",
-        role: "Data Scientist",
-        beforeStats: { applications: 200, interviews: 3, timeline: "10 months" },
-        afterStats: { applications: 60, interviews: 15, timeline: "4 months" },
-        quote: "The AI Resume Doctor transformed my resume and I started getting callbacks within a week.",
-        tags: ["STEM OPT", "AI Tools", "FAANG"],
-        color: "from-emerald-500 to-teal-600",
+        name: "Raj K.",
+        role: "Data Scientist at Meta",
+        university: "MIT",
+        image: "/avatars/student-2.jpg",
+        before: {
+            unemploymentDays: 60,
+            applications: 200,
+            interviews: 5,
+        },
+        after: {
+            unemploymentDays: 35,
+            applications: 60,
+            interviews: 15,
+        },
+        quote: "I was panicking about my 90-day limit. The timeline tracker kept me sane and on track.",
     },
     {
-        name: "Sarah Chen",
-        university: "Stanford",
-        degree: "MBA",
-        company: "Amazon",
-        role: "Product Manager",
-        beforeStats: { applications: 100, interviews: 5, timeline: "6 months" },
-        afterStats: { applications: 30, interviews: 10, timeline: "2 months" },
-        quote: "Tracking my unemployment days prevented a compliance issue that could have ended my OPT.",
-        tags: ["Post-OPT", "H-1B Sponsor", "Leadership"],
-        color: "from-purple-500 to-pink-600",
-    },
-    {
-        name: "Amit Patel",
-        university: "NYU",
-        degree: "MS Finance",
-        company: "Goldman Sachs",
-        role: "Analyst",
-        beforeStats: { applications: 120, interviews: 4, timeline: "7 months" },
-        afterStats: { applications: 35, interviews: 8, timeline: "2.5 months" },
-        quote: "The Chrome extension saved me hours of research on which companies sponsor visas.",
-        tags: ["Finance", "H-1B Sponsor", "NYC"],
-        color: "from-amber-500 to-orange-600",
+        name: "Wei L.",
+        role: "Product Manager at Amazon",
+        university: "UC Berkeley",
+        image: "/avatars/student-3.jpg",
+        before: {
+            unemploymentDays: 55,
+            applications: 150,
+            interviews: 4,
+        },
+        after: {
+            unemploymentDays: 22,
+            applications: 35,
+            interviews: 10,
+        },
+        quote: "The AI resume tool completely transformed my applications. My callback rate tripled.",
     },
 ];
 
-function CaseStudyCard({ study, index }: { study: CaseStudy; index: number }) {
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
-            className="group"
-        >
-            <div className="relative rounded-3xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
-                {/* Header with gradient */}
-                <div className={`bg-gradient-to-r ${study.color} p-6 pb-12`}>
-                    <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl font-bold">
-                                {study.name.split(" ").map(n => n[0]).join("")}
-                            </div>
-                            <div className="text-white">
-                                <h3 className="text-xl font-bold">{study.name}</h3>
-                                <p className="text-white/80">{study.role} at {study.company}</p>
-                            </div>
-                        </div>
-                        <motion.div
-                            whileHover={{ scale: 1.1 }}
-                            className="p-2 rounded-full bg-white/20 backdrop-blur-sm"
-                        >
-                            <ArrowUpRight className="w-5 h-5 text-white" />
-                        </motion.div>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 -mt-6">
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2 mb-6">
-                        {study.tags.map((tag) => (
-                            <span
-                                key={tag}
-                                className={`px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r ${study.color} text-white`}
-                            >
-                                {tag}
-                            </span>
-                        ))}
-                    </div>
-
-                    {/* University & Degree */}
-                    <div className="flex items-center gap-4 mb-6 text-sm text-gray-600 dark:text-gray-400">
-                        <div className="flex items-center gap-2">
-                            <GraduationCap className="w-4 h-4" />
-                            <span>{study.university}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Building2 className="w-4 h-4" />
-                            <span>{study.degree}</span>
-                        </div>
-                    </div>
-
-                    {/* Before/After Stats */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900">
-                            <p className="text-xs text-red-600 dark:text-red-400 font-medium mb-2">Before TrackMyOPT</p>
-                            <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                                <p>{study.beforeStats.applications} applications</p>
-                                <p>{study.beforeStats.interviews} interviews</p>
-                                <p className="flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" />
-                                    {study.beforeStats.timeline}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900">
-                            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mb-2">After TrackMyOPT</p>
-                            <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                                <p>{study.afterStats.applications} applications</p>
-                                <p className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                                    <TrendingUp className="w-3 h-3" />
-                                    {study.afterStats.interviews} interviews
-                                </p>
-                                <p className="flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" />
-                                    {study.afterStats.timeline}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Quote */}
-                    <blockquote className="text-gray-700 dark:text-gray-300 italic border-l-4 border-gray-200 dark:border-gray-700 pl-4">
-                        &ldquo;{study.quote}&rdquo;
-                    </blockquote>
-                </div>
-            </div>
-        </motion.div>
-    );
-}
-
 export function CaseStudyCards() {
     return (
-        <section className="py-24 relative">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
+        <section className="py-16 bg-white dark:bg-zinc-950">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-16"
+                    className="text-center mb-12"
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-sm font-medium mb-6">
-                        Featured Stories
-                    </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        From Struggling to Thriving
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+                        Real Student Results
                     </h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                        See the real impact TrackMyOPT has had on students&apos; job search journeys.
+                    <p className="text-muted-foreground max-w-2xl mx-auto">
+                        See how TrackMyOPT helped these students land their dream jobs
                     </p>
                 </motion.div>
 
-                {/* Cards Grid */}
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {caseStudies.map((study, index) => (
-                        <CaseStudyCard key={study.name} study={study} index={index} />
+                        <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.1 }}
+                            className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-border overflow-hidden"
+                        >
+                            {/* Header */}
+                            <div className="p-6 border-b border-border">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary font-bold text-lg">
+                                        {study.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                                            {study.name}
+                                        </h3>
+                                        <p className="text-sm text-muted-foreground">{study.role}</p>
+                                    </div>
+                                </div>
+                                <p className="text-sm text-muted-foreground italic">
+                                    &ldquo;{study.quote}&rdquo;
+                                </p>
+                            </div>
+
+                            {/* Stats Comparison */}
+                            <div className="p-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <TrendingUp className="w-4 h-4 text-green-600" />
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">Results</span>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                            <Clock className="w-4 h-4" />
+                                            <span>Unemployment Days</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm text-muted-foreground line-through">{study.before.unemploymentDays}</span>
+                                            <span className="text-sm font-semibold text-green-600">{study.after.unemploymentDays}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                            <Briefcase className="w-4 h-4" />
+                                            <span>Interviews</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm text-muted-foreground line-through">{study.before.interviews}</span>
+                                            <span className="text-sm font-semibold text-green-600">{study.after.interviews}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
                     ))}
                 </div>
-
-                {/* View All Link */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    className="text-center mt-12"
-                >
-                    <Link
-                        href="#"
-                        className="inline-flex items-center gap-2 px-6 py-3 text-emerald-600 dark:text-emerald-400 font-semibold hover:gap-3 transition-all"
-                    >
-                        View All Success Stories
-                        <ArrowUpRight className="w-5 h-5" />
-                    </Link>
-                </motion.div>
             </div>
         </section>
     );

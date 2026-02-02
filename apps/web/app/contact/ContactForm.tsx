@@ -1,219 +1,173 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Send, Paperclip, CheckCircle } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { Send, CheckCircle } from "lucide-react";
 
-const categories = [
-    { value: "general", label: "General Inquiry" },
-    { value: "technical", label: "Technical Support" },
-    { value: "billing", label: "Billing & Subscription" },
-    { value: "feature", label: "Feature Request" },
-    { value: "bug", label: "Report a Bug" },
-    { value: "partnership", label: "Partnership" },
-];
+type Category = "general" | "technical" | "billing" | "partnership";
 
 export function ContactForm() {
-    const [step, setStep] = useState(1);
+    const [category, setCategory] = useState<Category>("general");
     const [formData, setFormData] = useState({
-        category: "",
         name: "",
         email: "",
         subject: "",
         message: "",
     });
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const handleNext = () => {
-        if (step < 3) setStep(step + 1);
+    const categories: { id: Category; label: string }[] = [
+        { id: "general", label: "General Inquiry" },
+        { id: "technical", label: "Technical Support" },
+        { id: "billing", label: "Billing" },
+        { id: "partnership", label: "Partnership" },
+    ];
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Simulate form submission
+        setIsSubmitted(true);
     };
 
-    const handleBack = () => {
-        if (step > 1) setStep(step - 1);
-    };
+    if (isSubmitted) {
+        return (
+            <section className="py-16 bg-gray-50 dark:bg-zinc-900/50">
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="p-8 bg-white dark:bg-zinc-900 rounded-2xl border border-border"
+                    >
+                        <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 mx-auto mb-4">
+                            <CheckCircle className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                            Message Sent!
+                        </h3>
+                        <p className="text-muted-foreground">
+                            We'll get back to you within 24 hours.
+                        </p>
+                    </motion.div>
+                </div>
+            </section>
+        );
+    }
 
     return (
-        <section className="py-24 relative bg-gray-50 dark:bg-zinc-900/50">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-16 bg-gray-50 dark:bg-zinc-900/50">
+            <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden"
+                    className="text-center mb-8"
                 >
-                    {/* Header */}
-                    <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-8">
-                        <h2 className="text-2xl font-bold text-white mb-2">
-                            Send Us a Message
-                        </h2>
-                        <p className="text-cyan-100">
-                            Fill out the form below and we&apos;ll get back to you as soon as possible.
-                        </p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        Send Us a Message
+                    </h2>
+                    <p className="text-muted-foreground">
+                        Fill out the form below and we'll get back to you
+                    </p>
+                </motion.div>
 
-                        {/* Progress Steps */}
-                        <div className="flex items-center gap-4 mt-6">
-                            {[1, 2, 3].map((s) => (
-                                <div key={s} className="flex items-center gap-2">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step >= s
-                                            ? "bg-white text-cyan-600"
-                                            : "bg-white/20 text-white"
-                                        }`}>
-                                        {step > s ? <CheckCircle className="w-5 h-5" /> : s}
-                                    </div>
-                                    {s < 3 && (
-                                        <div className={`w-12 h-1 rounded-full transition-all ${step > s ? "bg-white" : "bg-white/20"
-                                            }`} />
-                                    )}
-                                </div>
+                <motion.form
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    onSubmit={handleSubmit}
+                    className="p-6 lg:p-8 bg-white dark:bg-zinc-900 rounded-2xl border border-border"
+                >
+                    {/* Category Selection */}
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">
+                            What can we help you with?
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                            {categories.map((cat) => (
+                                <button
+                                    key={cat.id}
+                                    type="button"
+                                    onClick={() => setCategory(cat.id)}
+                                    className={`px-4 py-3 rounded-lg border text-sm font-medium transition-all ${category === cat.id
+                                            ? "bg-primary text-white border-primary"
+                                            : "bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white border-border hover:border-primary/50"
+                                        }`}
+                                >
+                                    {cat.label}
+                                </button>
                             ))}
                         </div>
                     </div>
 
-                    {/* Form Content */}
-                    <div className="p-8">
-                        {/* Step 1: Category Selection */}
-                        {step === 1 && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="space-y-6"
-                            >
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                    What can we help you with?
-                                </h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {categories.map((cat) => (
-                                        <button
-                                            key={cat.value}
-                                            onClick={() => {
-                                                setFormData({ ...formData, category: cat.value });
-                                                handleNext();
-                                            }}
-                                            className={`p-4 rounded-xl border-2 text-left transition-all duration-200 hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 ${formData.category === cat.value
-                                                    ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20"
-                                                    : "border-gray-200 dark:border-zinc-700"
-                                                }`}
-                                        >
-                                            <span className="font-medium text-gray-900 dark:text-white">
-                                                {cat.label}
-                                            </span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Step 2: Contact Info */}
-                        {step === 2 && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="space-y-6"
-                            >
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                    Your Contact Information
-                                </h3>
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Your Name *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            placeholder="John Doe"
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Email Address *
-                                        </label>
-                                        <input
-                                            type="email"
-                                            value={formData.email}
-                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                            placeholder="you@university.edu"
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Subject *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.subject}
-                                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                                        placeholder="Brief description of your inquiry"
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                                    />
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Step 3: Message */}
-                        {step === 3 && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="space-y-6"
-                            >
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                    Tell us more
-                                </h3>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Your Message *
-                                    </label>
-                                    <textarea
-                                        rows={6}
-                                        value={formData.message}
-                                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                                        placeholder="Please describe your issue or question in detail..."
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-zinc-800 border border-dashed border-gray-300 dark:border-zinc-600">
-                                    <Paperclip className="w-5 h-5 text-gray-400" />
-                                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                                        Drag and drop files here, or click to upload (max 10MB)
-                                    </span>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Navigation Buttons */}
-                        <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-zinc-700">
-                            <button
-                                onClick={handleBack}
-                                className={`px-6 py-3 rounded-xl font-medium transition-all ${step === 1
-                                        ? "invisible"
-                                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800"
-                                    }`}
-                            >
-                                Back
-                            </button>
-
-                            {step < 3 ? (
-                                <button
-                                    onClick={handleNext}
-                                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-300"
-                                >
-                                    Continue
-                                </button>
-                            ) : (
-                                <button
-                                    className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-300"
-                                >
-                                    <Send className="w-5 h-5" />
-                                    Submit Request
-                                </button>
-                            )}
+                    {/* Name & Email */}
+                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                Name
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-border rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                placeholder="Your name"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-border rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                placeholder="your@email.com"
+                                required
+                            />
                         </div>
                     </div>
-                </motion.div>
+
+                    {/* Subject */}
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                            Subject
+                        </label>
+                        <input
+                            type="text"
+                            value={formData.subject}
+                            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-border rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            placeholder="Brief subject"
+                            required
+                        />
+                    </div>
+
+                    {/* Message */}
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                            Message
+                        </label>
+                        <textarea
+                            value={formData.message}
+                            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                            rows={5}
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-border rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                            placeholder="Tell us more about your inquiry..."
+                            required
+                        />
+                    </div>
+
+                    {/* Submit */}
+                    <button
+                        type="submit"
+                        className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors"
+                    >
+                        <Send className="w-5 h-5" />
+                        Send Message
+                    </button>
+                </motion.form>
             </div>
         </section>
     );

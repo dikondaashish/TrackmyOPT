@@ -10,68 +10,59 @@ import { SuccessFAQ } from "./SuccessFAQ";
 import { SubmitStorySection } from "./SubmitStorySection";
 
 export const metadata: Metadata = {
-    title: "Success Stories - TrackMyOPT | Real Students, Real Results",
-    description: "Read real success stories from international students who used TrackMyOPT to land jobs at top companies and maintain their OPT status.",
+    title: "Success Stories - TrackMyOPT | Real Student Outcomes",
+    description: "See how TrackMyOPT helped thousands of international students land jobs at top companies, manage their OPT timeline, and secure H-1B sponsorship.",
 };
 
 export default function SuccessStoriesPage() {
     const successStats = [
+        { value: 10000, suffix: "+", label: "Students Helped" },
         { value: 500, suffix: "+", label: "Jobs Landed" },
-        { value: 92, suffix: "%", label: "Interview Success" },
-        { value: 100, suffix: "+", label: "Universities" },
-        { value: 50, suffix: "+", label: "Industries" },
+        { value: 85, suffix: "%", label: "Found H-1B Sponsors" },
+        { value: 4.9, suffix: "/5", label: "User Rating" },
     ];
 
     return (
         <main className="min-h-screen bg-white dark:bg-zinc-950 text-foreground overflow-x-hidden">
-            {/* Background */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute inset-0 bg-slate-50 dark:bg-zinc-950" />
-                <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[80%] h-[500px] bg-emerald-100/40 dark:bg-emerald-900/10 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
-            </div>
+            <LandingNavbar />
 
-            <div className="relative z-10">
-                <LandingNavbar />
+            {/* Hero */}
+            <PageHeroBanner
+                badge="Success Stories"
+                headline="Real Results from Real Students"
+                subheadline="See how TrackMyOPT has helped thousands of international students navigate OPT, find H-1B sponsors, and land their dream jobs."
+            />
 
-                {/* Hero */}
-                <PageHeroBanner
-                    badge="Real Students, Real Results"
-                    headline="Success Stories from Students Like You"
-                    subheadline="Discover how international students used TrackMyOPT to stay compliant, find H-1B sponsors, and land their dream jobs at top companies."
-                    gradient="emerald"
-                />
+            {/* Success Stats */}
+            <StatsCounter
+                title="Proven Track Record"
+                subtitle="Numbers that speak for themselves"
+                stats={successStats}
+            />
 
-                {/* Success Stats */}
-                <StatsCounter
-                    title="Our Community's Achievements"
-                    subtitle="These aren't just numbers — they're careers launched and dreams realized"
-                    stats={successStats}
-                />
+            {/* Case Studies */}
+            <CaseStudyCards />
 
-                {/* Case Study Cards */}
-                <CaseStudyCards />
+            {/* Testimonial Wall */}
+            <QuoteWall />
 
-                {/* Quote Wall */}
-                <QuoteWall />
+            {/* Submit Story Section */}
+            <SubmitStorySection />
 
-                {/* FAQ */}
-                <SuccessFAQ />
+            {/* FAQ */}
+            <SuccessFAQ />
 
-                {/* Submit Story CTA */}
-                <SubmitStorySection />
+            {/* CTA */}
+            <CTABanner
+                badge="Your Turn"
+                headline="Ready to Write Your Success Story?"
+                subheadline="Join thousands of students who are taking control of their OPT journey."
+                primaryCTA={{ text: "Start Free Today", href: "/login" }}
+                secondaryCTA={{ text: "See All Features", href: "/features" }}
+                variant="gradient"
+            />
 
-                {/* Final CTA */}
-                <CTABanner
-                    badge="Your Turn"
-                    headline="Start Your Success Story"
-                    subheadline="Join thousands of students who've taken control of their OPT journey and landed amazing opportunities."
-                    primaryCTA={{ text: "Start Free Today", href: "/login" }}
-                    secondaryCTA={{ text: "Explore Features", href: "/features" }}
-                    variant="gradient"
-                />
-
-                <LandingFooter />
-            </div>
+            <LandingFooter />
         </main>
     );
 }

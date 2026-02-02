@@ -1,100 +1,82 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Target, Heart, Users, Sparkles } from "lucide-react";
+import { Target, Users, Shield, Zap } from "lucide-react";
+
+const values = [
+    {
+        icon: Target,
+        title: "Simple & Focused",
+        description: "One tool that does OPT tracking really well. No bloat, no distractions.",
+    },
+    {
+        icon: Users,
+        title: "Built by Students",
+        description: "Created by people who've been through the OPT process themselves.",
+    },
+    {
+        icon: Shield,
+        title: "Privacy First",
+        description: "Your data is encrypted and never shared. Period.",
+    },
+    {
+        icon: Zap,
+        title: "Always Improving",
+        description: "We ship updates weekly based on real user feedback.",
+    },
+];
 
 export function MissionSection() {
     return (
-        <section className="py-24 relative">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid lg:grid-cols-2 gap-16 items-center">
-                    {/* Left Side - Mission Statement */}
+        <section className="py-16 bg-white dark:bg-zinc-950">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid lg:grid-cols-2 gap-12 items-start">
+                    {/* Left - Mission Statement */}
                     <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
                     >
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium mb-6">
-                            <Target className="w-4 h-4" />
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
                             Our Mission
                         </div>
-
-                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                            Empowering{" "}
-                            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                                Every F-1 Student
-                            </span>{" "}
-                            to Succeed
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                            Making OPT Compliance Simple
                         </h2>
-
-                        <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
-                            International students face unique challenges that domestic students never have to think about.
-                            From tracking unemployment days to finding companies willing to sponsor visas, the journey is complex.
+                        <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+                            We started TrackMyOPT because we experienced the stress of managing OPT deadlines ourselves.
+                            Between tracking unemployment days, storing documents, and finding H-1B sponsors,
+                            we knew there had to be a better way.
                         </p>
-
-                        <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                            <strong className="text-gray-900 dark:text-white">Our mission is simple:</strong> Remove the stress
-                            and complexity from OPT management so you can focus on what matters — building your career and
-                            achieving your American dream.
+                        <p className="text-lg text-muted-foreground leading-relaxed">
+                            Today, we help thousands of international students stay compliant and focused on
+                            building their careers — not worrying about paperwork.
                         </p>
                     </motion.div>
 
-                    {/* Right Side - Visual Cards */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="grid grid-cols-2 gap-4"
-                    >
-                        {[
-                            {
-                                icon: Heart,
-                                title: "Student-First",
-                                description: "Every feature is designed with students in mind",
-                                color: "from-rose-500 to-pink-600",
-                            },
-                            {
-                                icon: Users,
-                                title: "Community",
-                                description: "Join 10,000+ students on the same journey",
-                                color: "from-blue-500 to-indigo-600",
-                            },
-                            {
-                                icon: Target,
-                                title: "Accuracy",
-                                description: "Up-to-date USCIS compliance information",
-                                color: "from-emerald-500 to-teal-600",
-                            },
-                            {
-                                icon: Sparkles,
-                                title: "Innovation",
-                                description: "AI-powered tools for your success",
-                                color: "from-amber-500 to-orange-600",
-                            },
-                        ].map((item, index) => (
+                    {/* Right - Values Grid */}
+                    <div className="grid grid-cols-2 gap-4">
+                        {values.map((value, index) => (
                             <motion.div
                                 key={index}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ delay: 0.3 + index * 0.1 }}
-                                whileHover={{ y: -5, scale: 1.02 }}
-                                className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 shadow-lg hover:shadow-xl transition-all duration-300"
+                                transition={{ delay: index * 0.1 }}
+                                className="p-5 rounded-xl bg-gray-50 dark:bg-zinc-900 border border-border"
                             >
-                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4`}>
-                                    <item.icon className="w-6 h-6 text-white" />
+                                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary mb-4">
+                                    <value.icon className="w-5 h-5" />
                                 </div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                    {item.title}
+                                    {value.title}
                                 </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {item.description}
+                                <p className="text-sm text-muted-foreground">
+                                    {value.description}
                                 </p>
                             </motion.div>
                         ))}
-                    </motion.div>
+                    </div>
                 </div>
             </div>
         </section>

@@ -1,105 +1,91 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
-interface StatProps {
+interface Stat {
     value: number;
-    suffix?: string;
-    prefix?: string;
+    suffix: string;
     label: string;
-    duration?: number;
-}
-
-function AnimatedStat({ value, suffix = "", prefix = "", label, duration = 2 }: StatProps) {
-    const [count, setCount] = useState(0);
-    const ref = useRef<HTMLDivElement>(null);
-    const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-    useEffect(() => {
-        if (!isInView) return;
-
-        const startTime = Date.now();
-        const endTime = startTime + duration * 1000;
-
-        const animate = () => {
-            const now = Date.now();
-            const progress = Math.min((now - startTime) / (duration * 1000), 1);
-            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-            setCount(Math.floor(easeOutQuart * value));
-
-            if (now < endTime) {
-                requestAnimationFrame(animate);
-            } else {
-                setCount(value);
-            }
-        };
-
-        requestAnimationFrame(animate);
-    }, [isInView, value, duration]);
-
-    return (
-        <div ref={ref} className="text-center">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-            >
-                {prefix}{count.toLocaleString()}{suffix}
-            </motion.div>
-            <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium">
-                {label}
-            </p>
-        </div>
-    );
 }
 
 interface StatsCounterProps {
-    stats: {
-        value: number;
-        suffix?: string;
-        prefix?: string;
-        label: string;
-    }[];
-    title?: string;
+    title: string;
     subtitle?: string;
+    stats: Stat[];
 }
 
-export function StatsCounter({ stats, title, subtitle }: StatsCounterProps) {
-    return (
-        <section className="py-20 relative">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {(title || subtitle) && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="text-center mb-16"
-                    >
-                        {title && (
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                                {title}
-                            </h2>
-                        )}
-                        {subtitle && (
-                            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                                {subtitle}
-                            </p>
-                        )}
-                    </motion.div>
-                )}
+function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
+    const [displayValue, setDisplayValue] = useState(0);
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true });
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+    useEffect(() => {
+        if (isInView) {
+            const duration = 1500;
+            const steps = 30;
+            const increment = value / steps;
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= value) {
+                    setDisplayValue(value);
+                    clearInterval(timer);
+                } else {
+                    setDisplayValue(Math.floor(current));
+                }
+            }, duration / steps);
+
+            return () => clearInterval(timer);
+        }
+    }, [isInView, value]);
+
+    return (
+        <span ref={ref}>
+            {displayValue.toLocaleString()}{suffix}
+        </span>
+    );
+}
+
+export function StatsCounter({ title, subtitle, stats }: StatsCounterProps) {
+    return (
+        <section className="py-16 bg-white dark:bg-zinc-950">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-center mb-12"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+                        {title}
+                    </h2>
+                    {subtitle && (
+                        <p className="text-muted-foreground max-w-2xl mx-auto">
+                            {subtitle}
+                        </p>
+                    )}
+                </motion.div>
+
+                {/* Stats Grid - Clean card style */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                     {stats.map((stat, index) => (
                         <motion.div
                             key={index}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
+                            className="p-6 rounded-xl bg-gray-50 dark:bg-zinc-900 border border-border text-center"
                         >
-                            <AnimatedStat {...stat} />
+                            <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">
+                                <AnimatedNumber value={stat.value} suffix={stat.suffix} />
+                            </div>
+                            <p className="text-sm text-muted-foreground font-medium">
+                                {stat.label}
+                            </p>
                         </motion.div>
                     ))}
                 </div>

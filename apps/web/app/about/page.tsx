@@ -24,54 +24,45 @@ export default function AboutPage() {
 
     return (
         <main className="min-h-screen bg-white dark:bg-zinc-950 text-foreground overflow-x-hidden">
-            {/* Background */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute inset-0 bg-slate-50 dark:bg-zinc-950" />
-                <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[80%] h-[500px] bg-indigo-100/40 dark:bg-indigo-900/10 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
-            </div>
+            <LandingNavbar />
 
-            <div className="relative z-10">
-                <LandingNavbar />
+            {/* Hero */}
+            <PageHeroBanner
+                badge="Our Story"
+                headline="Built by International Students, for International Students"
+                subheadline="We've walked the same path you're on — navigating OPT deadlines, hunting for H-1B sponsors, and building careers in the US. TrackMyOPT is the tool we wish existed when we were in your shoes."
+            />
 
-                {/* Hero */}
-                <PageHeroBanner
-                    badge="Our Story"
-                    headline="Built by International Students, for International Students"
-                    subheadline="We've walked the same path you're on — navigating OPT deadlines, hunting for H-1B sponsors, and building careers in the US. TrackMyOPT is the tool we wish existed when we were in your shoes."
-                    gradient="blue"
-                />
+            {/* Mission Statement */}
+            <MissionSection />
 
-                {/* Mission Statement */}
-                <MissionSection />
+            {/* Impact Stats */}
+            <StatsCounter
+                title="Our Impact in Numbers"
+                subtitle="Real results for real students, across top universities nationwide"
+                stats={impactStats}
+            />
 
-                {/* Impact Stats */}
-                <StatsCounter
-                    title="Our Impact in Numbers"
-                    subtitle="Real results for real students, across top universities nationwide"
-                    stats={impactStats}
-                />
+            {/* Founder Story Timeline */}
+            <FounderStory />
 
-                {/* Founder Story Timeline */}
-                <FounderStory />
+            {/* Values */}
+            <ValuesSection />
 
-                {/* Values */}
-                <ValuesSection />
+            {/* FAQ */}
+            <AboutFAQ />
 
-                {/* FAQ */}
-                <AboutFAQ />
+            {/* CTA */}
+            <CTABanner
+                badge="Join 10,000+ Students"
+                headline="Start Your Journey Today"
+                subheadline="Join thousands of international students who are taking control of their OPT timeline and career path."
+                primaryCTA={{ text: "Start Free Today", href: "/login" }}
+                secondaryCTA={{ text: "See All Features", href: "/features" }}
+                variant="gradient"
+            />
 
-                {/* CTA */}
-                <CTABanner
-                    badge="Join 10,000+ Students"
-                    headline="Start Your Journey Today"
-                    subheadline="Join thousands of international students who are taking control of their OPT timeline and career path."
-                    primaryCTA={{ text: "Try Free for 7 Days", href: "/login" }}
-                    secondaryCTA={{ text: "See All Features", href: "/features" }}
-                    variant="gradient"
-                />
-
-                <LandingFooter />
-            </div>
+            <LandingFooter />
         </main>
     );
 }
