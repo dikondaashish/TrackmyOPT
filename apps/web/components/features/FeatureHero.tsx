@@ -30,7 +30,7 @@ export function FeatureHero({
     gradient = "from-blue-600 to-indigo-600",
 }: FeatureHeroProps) {
     return (
-        <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+        <section className="relative min-h-[85vh] flex items-center overflow-hidden pt-20">
             {/* Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950" />
 
