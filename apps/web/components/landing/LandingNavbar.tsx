@@ -50,9 +50,10 @@ export function LandingNavbar() {
     ];
 
     const navLinks = [
+        { name: "About", href: "/about" },
+        { name: "Success Stories", href: "/success-stories" },
         { name: "Pricing", href: "#pricing" },
-        { name: "Testimonials", href: "#testimonials" },
-        { name: "FAQ", href: "#faq" },
+        { name: "Contact", href: "/contact" },
     ];
 
     return (

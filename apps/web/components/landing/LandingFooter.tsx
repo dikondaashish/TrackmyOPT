@@ -41,17 +41,17 @@ export function LandingFooter() {
 
     const footerLinks = {
         product: [
-            { label: "Features", href: "#features" },
+            { label: "Features", href: "/features" },
             { label: "Pricing", href: "#pricing" },
-            { label: "FAQ", href: "#faq" },
-            { label: "Dashboard", href: "/login" },
+            { label: "About Us", href: "/about" },
+            { label: "Success Stories", href: "/success-stories" },
         ],
         resources: [
             { label: "Help Center", href: "/dashboard/help" },
             { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors" },
-            { label: "Report Fraud", href: "/resources/report-fraud" },
+            { label: "Contact", href: "/contact" },
             { label: "Tax Guide", href: "/dashboard/tax-filing" },
-            { label: "Contact", href: "mailto:support@trackmyopt.com" },
+            { label: "Report Fraud", href: "/resources/report-fraud" },
         ],
         legal: [
             { label: "Privacy Policy", href: "/privacy" },
