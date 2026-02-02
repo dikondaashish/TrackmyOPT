@@ -64,7 +64,7 @@ export function LandingSEOContent() {
                                         "We've been through OPT ourselves. We understand the stress, the confusion, and the high stakes. That's why we built the tool we wished existed.",
                                 },
                                 {
-                                    title: "Trusted by 15,000+ Students",
+                                    title: "Trusted by 2,500+ Students",
                                     description:
                                         "Students from over 100 countries use TrackMyOPT to manage their immigration timelines. Join a community that understands your journey.",
                                 },

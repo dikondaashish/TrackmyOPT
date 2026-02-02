@@ -86,7 +86,7 @@ export function LandingFooter() {
                             </span>
                         </Link>
                         <p className="text-sm text-gray-600 dark:text-gray-400 max-w-xs">
-                            The #1 OPT timeline tracker trusted by 15,000+ international students worldwide.
+                            The #1 OPT timeline tracker trusted by 2,500+ international students worldwide.
                         </p>
                     </div>
 

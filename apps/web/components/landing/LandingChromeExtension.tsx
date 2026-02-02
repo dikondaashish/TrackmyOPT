@@ -72,7 +72,7 @@ export function LandingChromeExtension() {
                                         </div>
                                     ))}
                                 </div>
-                                <span>2,000+ students using it</span>
+                                <span>2,500+ students using it</span>
                             </div>
                         </div>
                     </div>
