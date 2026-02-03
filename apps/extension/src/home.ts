@@ -23,15 +23,16 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   root.innerHTML = `
     <style>
       .plan-badge {
-        font-size: 10px;
+        font-size: 8px;
         font-weight: 800;
-        padding: 2px 6px;
-        border-radius: 4px;
-        margin-left: 8px;
+        padding: 1.5px 4px;
+        border-radius: 3px;
+        margin-left: 6px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         vertical-align: middle;
         display: inline-block;
+        line-height: 1;
       }
       .badge-pro {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
