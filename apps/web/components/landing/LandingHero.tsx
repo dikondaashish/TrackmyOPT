@@ -22,6 +22,13 @@ import {
     FileCheck,
     Search,
     Filter,
+    ChevronLeft,
+    Download,
+    Eye,
+    Lock,
+    Loader2,
+    Code,
+    Check,
 } from "lucide-react";
 
 // Animation variants
@@ -61,7 +68,7 @@ const TimelineMockup = () => (
         </div>
         {/* Header */}
         <motion.div
-            className="flex items-center justify-between mb-6"
+            className="flex items-center justify-between mb-4"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -81,26 +88,83 @@ const TimelineMockup = () => (
             </div>
         </motion.div>
 
+        {/* USCIS Case Tracker Badge */}
+        <motion.div
+            className="mb-4 bg-white dark:bg-zinc-800 rounded-xl p-3 border border-border/50 shadow-sm"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ scale: 1.02 }}
+        >
+            <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">USCIS Case Status</span>
+                <span className="flex items-center gap-1.5 text-[10px] text-green-600 font-medium bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full border border-green-100 dark:border-green-900/30">
+                    <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                    </span>
+                    Active
+                </span>
+            </div>
+            <div className="relative px-2">
+                {/* Connecting Line */}
+                <div className="absolute top-2.5 left-4 right-4 h-0.5 bg-gray-100 dark:bg-zinc-700 -z-10" />
+
+                {/* Steps */}
+                <div className="flex justify-between items-start">
+                    {[
+                        { label: "Received", status: "completed" },
+                        { label: "Biometric", status: "completed" },
+                        { label: "Approved", status: "active" },
+                        { label: "Card", status: "pending" }
+                    ].map((step, i) => (
+                        <div key={i} className="flex flex-col items-center gap-1.5">
+                            <motion.div
+                                className={`w-5 h-5 rounded-full flex items-center justify-center border-2 z-10
+                                    ${step.status === 'completed' || step.status === 'active'
+                                        ? 'bg-green-500 border-green-500 text-white'
+                                        : 'bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-300'}`}
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.2 + i * 0.1 }}
+                            >
+                                {step.status === 'completed' && <CheckCircle className="w-3 h-3" />}
+                                {step.status === 'active' && (
+                                    <motion.div
+                                        className="w-2 h-2 bg-white rounded-full"
+                                        animate={{ scale: [1, 1.2, 1] }}
+                                        transition={{ repeat: Infinity, duration: 2 }}
+                                    />
+                                )}
+                            </motion.div>
+                            <span className={`text-[9px] font-medium ${step.status === 'active' ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
+                                {step.label}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </motion.div>
 
         {/* Stats with animated counters */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-4 mb-4">
             <motion.div
-                className="bg-blue-50/50 dark:bg-blue-900/10 rounded-xl p-4 border border-blue-100/50 dark:border-blue-800/30"
+                className="bg-blue-50/50 dark:bg-blue-900/10 rounded-xl p-3 border border-blue-100/50 dark:border-blue-800/30"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
                 whileHover={{ scale: 1.02, boxShadow: "0 4px 20px rgba(59, 130, 246, 0.15)" }}
             >
-                <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Days Remaining</p>
+                <p className="text-[10px] font-medium text-blue-600 dark:text-blue-400 mb-0.5">Days Remaining</p>
                 <motion.p
-                    className="text-2xl font-bold text-foreground"
+                    className="text-xl font-bold text-foreground"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
                 >
                     247
                 </motion.p>
-                <div className="w-full bg-blue-100 dark:bg-blue-900/30 h-1.5 mt-2 rounded-full overflow-hidden">
+                <div className="w-full bg-blue-100 dark:bg-blue-900/30 h-1 mt-1.5 rounded-full overflow-hidden">
                     <motion.div
                         className="bg-blue-600 h-full rounded-full"
                         initial={{ width: 0 }}
@@ -110,25 +174,25 @@ const TimelineMockup = () => (
                 </div>
             </motion.div>
             <motion.div
-                className="bg-green-50/50 dark:bg-green-900/10 rounded-xl p-4 border border-green-100/50 dark:border-green-800/30"
+                className="bg-green-50/50 dark:bg-green-900/10 rounded-xl p-3 border border-green-100/50 dark:border-green-800/30"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
                 whileHover={{ scale: 1.02, boxShadow: "0 4px 20px rgba(34, 197, 94, 0.15)" }}
             >
-                <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-1">Unemployment</p>
+                <p className="text-[10px] font-medium text-green-600 dark:text-green-400 mb-0.5">Unemployment</p>
                 <div className="flex items-end gap-1">
                     <motion.p
-                        className="text-2xl font-bold text-foreground"
+                        className="text-xl font-bold text-foreground"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.5 }}
                     >
                         12
                     </motion.p>
-                    <p className="text-sm text-muted-foreground mb-1">/ 90 days</p>
+                    <p className="text-[10px] text-muted-foreground mb-0.5">/ 90 days</p>
                 </div>
-                <div className="w-full bg-green-100 dark:bg-green-900/30 h-1.5 mt-2 rounded-full overflow-hidden">
+                <div className="w-full bg-green-100 dark:bg-green-900/30 h-1 mt-1.5 rounded-full overflow-hidden">
                     <motion.div
                         className="bg-green-600 h-full rounded-full"
                         initial={{ width: 0 }}
@@ -140,7 +204,7 @@ const TimelineMockup = () => (
         </div>
 
         {/* Vertical Timeline with staggered animations */}
-        <div className="space-y-4 relative pl-4 border-l-2 border-dashed border-gray-200 dark:border-zinc-700">
+        <div className="space-y-4 relative pl-4 border-l-2 border-dashed border-gray-200 dark:border-zinc-700 flex-1 overflow-visible">
             <motion.div
                 className="relative"
                 initial={{ opacity: 0, x: -10 }}
@@ -152,8 +216,8 @@ const TimelineMockup = () => (
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 2, delay: 1 }}
                 />
-                <p className="text-xs text-muted-foreground mb-0.5">May 15, 2025</p>
-                <p className="text-sm font-medium text-foreground">Program End Date</p>
+                <p className="text-[10px] text-muted-foreground mb-0.5">May 15, 2025</p>
+                <p className="text-xs font-medium text-foreground">Program End Date</p>
             </motion.div>
             <motion.div
                 className="relative"
@@ -168,10 +232,10 @@ const TimelineMockup = () => (
                     }}
                     transition={{ repeat: Infinity, duration: 2 }}
                 />
-                <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-0.5">Aug 12, 2025</p>
-                <p className="text-sm font-medium text-foreground">OPT Start Date</p>
+                <p className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mb-0.5">Aug 12, 2025</p>
+                <p className="text-xs font-medium text-foreground">OPT Start Date</p>
                 <motion.div
-                    className="mt-2 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 p-2 rounded-lg"
+                    className="mt-1 text-[10px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 p-1.5 rounded-lg border border-blue-100 dark:border-blue-900/30"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     transition={{ delay: 1.3 }}
@@ -186,8 +250,8 @@ const TimelineMockup = () => (
                 transition={{ delay: 1.2 }}
             >
                 <div className="absolute -left-[21px] top-1 w-3 h-3 bg-gray-300 dark:bg-zinc-600 rounded-full border-2 border-white dark:border-zinc-800" />
-                <p className="text-xs text-muted-foreground mb-0.5">Nov 10, 2025</p>
-                <p className="text-sm font-medium text-foreground">Next Reporting Deadline</p>
+                <p className="text-[10px] text-muted-foreground mb-0.5">Nov 10, 2025</p>
+                <p className="text-xs font-medium text-foreground">Next Reporting Deadline</p>
             </motion.div>
         </div>
     </div>
@@ -507,14 +571,16 @@ const CrmMockupWithConfetti = ({ onDragSuccess }: { onDragSuccess: () => void })
             </motion.div>
 
             {/* Kanban Board */}
-            <div className="grid grid-cols-3 gap-3 flex-1">
+            <div
+                className="grid grid-cols-3 gap-3 flex-1"
+                onMouseLeave={() => setHoverColumn(null)}
+            >
                 {columnConfigs.map((column) => (
                     <motion.div
                         key={column.id}
                         className={`bg-gradient-to-b ${column.color} rounded-xl p-2 flex flex-col min-h-[140px] transition-all duration-200 ${hoverColumn === column.id && draggingCard ? "ring-2 ring-purple-500 ring-offset-2 dark:ring-offset-zinc-800" : ""
                             }`}
                         onMouseEnter={() => draggingCard && setHoverColumn(column.id)}
-                        onMouseLeave={() => setHoverColumn(null)}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 * columnConfigs.indexOf(column) }}
@@ -581,223 +647,414 @@ const CrmMockupWithConfetti = ({ onDragSuccess }: { onDragSuccess: () => void })
     );
 };
 
-// AI Resume Mockup
-const ResumeMockup = () => (
-    <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 p-6 overflow-hidden h-full flex flex-col">
-        {/* Window Controls */}
-        <div className="flex gap-1.5 mb-3">
-            <motion.div className="w-3 h-3 rounded-full bg-red-400/80" whileHover={{ scale: 1.3 }} />
-            <motion.div className="w-3 h-3 rounded-full bg-yellow-400/80" whileHover={{ scale: 1.3 }} />
-            <motion.div className="w-3 h-3 rounded-full bg-green-400/80" whileHover={{ scale: 1.3 }} />
-        </div>
 
-        {/* Header */}
-        <motion.div
-            className="flex items-center justify-between mb-4"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-        >
-            <div className="flex items-center gap-2">
-                <motion.div
-                    className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center"
-                    whileHover={{ scale: 1.1 }}
-                    animate={{ rotate: [0, 5, -5, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                >
-                    <Sparkles className="w-4 h-4 text-white" />
-                </motion.div>
-                <div>
-                    <p className="text-sm font-semibold text-foreground">AI Resume Builder</p>
-                    <p className="text-[10px] text-muted-foreground">Powered by GPT-4</p>
-                </div>
+
+
+const DocumentsMockup = () => {
+    const [selectedDoc, setSelectedDoc] = useState<any>(null);
+
+    const documents = [
+        { name: "OPT I-20", type: "PDF", size: "2.4 MB", date: "Expires in 8mo", color: "blue", status: "Verified" },
+        { name: "EAD Card", type: "IMG", size: "1.1 MB", date: "Expires in 8mo", color: "purple", status: "Verified" },
+        { name: "Passport", type: "PDF", size: "4.2 MB", date: "Expires in 6mo", color: "orange", status: "Expires Soon" },
+        { name: "Offer Letter", type: "PDF", size: "1.8 MB", date: "Uploaded 2d ago", color: "gray", status: "Encrypted" },
+    ];
+
+    return (
+        <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 p-6 overflow-hidden h-full flex flex-col">
+            {/* Window Controls - Left aligned */}
+            <div className="flex gap-1.5 mb-3">
+                <div className="w-3 h-3 rounded-full bg-red-400" />
+                <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                <div className="w-3 h-3 rounded-full bg-green-400" />
             </div>
-            <span className="px-2 py-1 text-[10px] font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">
-                Beta
-            </span>
-        </motion.div>
 
-        {/* Resume Preview */}
-        <div className="flex-1 bg-gray-50 dark:bg-zinc-900/50 rounded-xl p-4 space-y-3">
-            {/* ATS Score */}
-            <motion.div
-                className="bg-white dark:bg-zinc-800 rounded-lg p-3 border border-border/50"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-            >
-                <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-semibold text-foreground">ATS Compatibility</span>
-                    <span className="text-xs font-bold text-green-600 dark:text-green-400">92%</span>
-                </div>
-                <div className="h-2 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+            <AnimatePresence mode="wait">
+                {!selectedDoc ? (
                     <motion.div
-                        className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: "92%" }}
-                        transition={{ duration: 1, delay: 0.5 }}
-                    />
-                </div>
-            </motion.div>
-
-            {/* AI Suggestions */}
-            <motion.div
-                className="space-y-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-            >
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase">AI Suggestions</p>
-                {[
-                    { icon: "✓", text: "Strong action verbs detected", color: "text-green-600" },
-                    { icon: "✓", text: "Quantified achievements added", color: "text-green-600" },
-                    { icon: "!", text: "Add more keywords for SDE roles", color: "text-amber-600" },
-                ].map((item, i) => (
-                    <motion.div
-                        key={i}
-                        className="flex items-center gap-2 bg-white dark:bg-zinc-800 rounded-lg px-3 py-2 border border-border/50"
-                        initial={{ opacity: 0, x: -10 }}
+                        key="list"
+                        initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.5 + i * 0.1 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="h-full flex flex-col"
                     >
-                        <span className={`text-xs ${item.color}`}>{item.icon}</span>
-                        <span className="text-[10px] text-foreground">{item.text}</span>
+                        {/* Header */}
+                        <motion.div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <motion.div
+                                    className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25"
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                    transition={{ type: "spring", stiffness: 400 }}
+                                >
+                                    <Shield className="w-5 h-5 text-white" />
+                                </motion.div>
+                                <div>
+                                    <h3 className="font-semibold text-foreground text-sm">Document Vault</h3>
+                                    <p className="text-xs text-muted-foreground">Encrypted Storage</p>
+                                </div>
+                            </div>
+                            <div className="relative flex items-center gap-2 px-2 py-1 bg-green-100 dark:bg-green-900/30 rounded-full text-[10px] text-green-700 dark:text-green-300 font-medium border border-green-200 dark:border-green-900/50 overflow-hidden">
+                                {/* Shimmer effect */}
+                                <motion.div
+                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                    animate={{ x: ["-100%", "200%"] }}
+                                    transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 1 }}
+                                />
+                                <Shield className="w-3 h-3 relative z-10" />
+                                <span className="relative z-10">AES-256</span>
+                            </div>
+                        </motion.div>
+
+                        {/* Grid with interactive cards */}
+                        <div className="grid grid-cols-2 gap-3">
+                            {documents.map((doc, i) => (
+                                <motion.div
+                                    key={i}
+                                    className="group p-3 rounded-xl bg-gray-50 dark:bg-zinc-900/40 border border-border/50 hover:border-primary/30 cursor-pointer relative overflow-hidden"
+                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    transition={{ delay: 0.1 + (i * 0.05), type: "spring", stiffness: 200 }}
+                                    whileHover={{
+                                        y: -4,
+                                        scale: 1.02,
+                                        boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+                                        transition: { duration: 0.2 }
+                                    }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => setSelectedDoc(doc)}
+                                >
+                                    {/* Hover selection effect */}
+                                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                                    <div className="flex items-start justify-between mb-3 relative z-10">
+                                        <motion.div
+                                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold
+                                                ${doc.color === 'blue' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : ''}
+                                                ${doc.color === 'purple' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' : ''}
+                                                ${doc.color === 'orange' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : ''}
+                                                ${doc.color === 'gray' ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' : ''}
+                                            `}
+                                        >
+                                            {doc.type}
+                                        </motion.div>
+                                        <motion.div
+                                            className="opacity-0 group-hover:opacity-100"
+                                            initial={{ x: -10 }}
+                                            whileHover={{ x: 0 }}
+                                        >
+                                            <div className="w-6 h-6 rounded-full bg-white dark:bg-zinc-700 flex items-center justify-center shadow-sm">
+                                                <Eye className="w-3 h-3 text-primary" />
+                                            </div>
+                                        </motion.div>
+                                    </div>
+                                    <p className="text-xs font-semibold text-foreground mb-0.5 relative z-10">{doc.name}</p>
+                                    <p className="text-[10px] text-muted-foreground relative z-10">{doc.date}</p>
+                                </motion.div>
+                            ))}
+                        </div>
                     </motion.div>
-                ))}
-            </motion.div>
+                ) : (
+                    <motion.div
+                        key="preview"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.3 }}
+                        className="h-full flex flex-col"
+                    >
+                        {/* Preview Header */}
+                        <div className="flex items-center gap-2 mb-4">
+                            <button
+                                onClick={() => setSelectedDoc(null)}
+                                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+                            >
+                                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+                            </button>
+                            <div>
+                                <h3 className="text-sm font-semibold text-foreground">{selectedDoc.name}</h3>
+                                <p className="text-[10px] text-muted-foreground">Secure Viewer</p>
+                            </div>
+                            <div className="ml-auto flex gap-1">
+                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-medium border ${selectedDoc.status === "Expires Soon"
+                                    ? "bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/20 dark:border-orange-900/30"
+                                    : "bg-green-50 text-green-600 border-green-100 dark:bg-green-900/20 dark:border-green-900/30"
+                                    }`}>
+                                    {selectedDoc.status}
+                                </span>
+                            </div>
+                        </div>
 
-            {/* Keywords */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-            >
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-2">Matched Keywords</p>
-                <div className="flex flex-wrap gap-1">
-                    {["React", "TypeScript", "Node.js", "AWS", "Python"].map((keyword, i) => (
-                        <motion.span
-                            key={keyword}
-                            className="px-2 py-0.5 text-[9px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.8 + i * 0.05 }}
-                        >
-                            {keyword}
-                        </motion.span>
-                    ))}
+                        {/* Document Preview Area */}
+                        <div className="flex-1 bg-gray-50 dark:bg-zinc-900/50 rounded-xl border border-border/50 p-4 relative overflow-hidden group">
+                            {/* Vault Locking Animation Overlay */}
+                            <motion.div
+                                className="absolute inset-0 bg-green-500/5 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center text-center"
+                                initial={{ opacity: 1 }}
+                                animate={{ opacity: 0 }}
+                                transition={{ delay: 1, duration: 0.5 }}
+                            >
+                                <motion.div
+                                    initial={{ scale: 1.5, opacity: 1 }}
+                                    animate={{ scale: 1, opacity: 0 }}
+                                    transition={{ delay: 0.5, duration: 0.5 }}
+                                >
+                                    <Lock className="w-8 h-8 text-green-600" />
+                                </motion.div>
+                            </motion.div>
+
+                            {/* Dummy Document Content */}
+                            <div className="bg-white dark:bg-zinc-800 w-full h-full rounded shadow-sm p-4 space-y-3 opacity-80">
+                                <div className="h-4 w-1/3 bg-gray-200 dark:bg-zinc-700 rounded" />
+                                <div className="space-y-2 pt-2">
+                                    <div className="h-2 w-full bg-gray-100 dark:bg-zinc-700/50 rounded" />
+                                    <div className="h-2 w-full bg-gray-100 dark:bg-zinc-700/50 rounded" />
+                                    <div className="h-2 w-3/4 bg-gray-100 dark:bg-zinc-700/50 rounded" />
+                                </div>
+                                <div className="flex justify-center py-4">
+                                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-700/50" />
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="h-2 w-full bg-gray-100 dark:bg-zinc-700/50 rounded" />
+                                    <div className="h-2 w-5/6 bg-gray-100 dark:bg-zinc-700/50 rounded" />
+                                </div>
+                            </div>
+
+                            {/* Encryption Watermark */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
+                                <Shield className="w-32 h-32" />
+                            </div>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="mt-4 flex gap-2">
+                            <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors shadow-sm">
+                                <Download className="w-3 h-3" />
+                                Download
+                            </button>
+                            <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-gray-100 dark:bg-zinc-800 text-foreground text-xs font-medium hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">
+                                <Eye className="w-3 h-3" />
+                                View Full
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+// AI Resume Editor Mockup - Mimics the dashboard editor
+const ResumeEditorMockup = () => {
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [activeSection, setActiveSection] = useState("experience");
+
+    // Sample "Before" and "After" text
+    const beforeText = "Software Engineer\nUsed React and Node.js to build web apps.\nFixed bugs and improved performance.";
+    const afterText = "Software Engineer\n• Architected scalable web applications using React and Node.js, serving 10k+ daily users.\n• Optimized frontend performance by 40% through code splitting and memoization.\n• Resolved critical production bugs, improving system stability by 99.9%.";
+
+    const [displayText, setDisplayText] = useState(beforeText);
+
+    const handleEnhance = () => {
+        setIsGenerating(true);
+        setTimeout(() => {
+            setDisplayText(afterText);
+            setIsGenerating(false);
+        }, 1500);
+    };
+
+    return (
+        <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 overflow-hidden h-full flex flex-col">
+            {/* Window Controls */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-gray-50/50 dark:bg-zinc-900/50">
+                <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-400" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                    <div className="w-3 h-3 rounded-full bg-green-400" />
                 </div>
-            </motion.div>
-        </div>
-    </div>
-);
-
-
-const DocumentsMockup = () => (
-    <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 p-6 overflow-hidden h-full flex flex-col">
-        {/* Window Controls - Left aligned */}
-        <div className="flex gap-1.5 mb-3">
-            <div className="w-3 h-3 rounded-full bg-red-400" />
-            <div className="w-3 h-3 rounded-full bg-yellow-400" />
-            <div className="w-3 h-3 rounded-full bg-green-400" />
-        </div>
-        {/* Header */}
-        <motion.div
-            className="flex items-center justify-between mb-6"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-        >
-            <div className="flex items-center gap-3">
-                <motion.div
-                    className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                >
-                    <Shield className="w-5 h-5 text-white" />
-                </motion.div>
-                <div>
-                    <h3 className="font-semibold text-foreground text-sm">Document Vault</h3>
-                    <p className="text-xs text-muted-foreground">Encrypted Storage</p>
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-muted-foreground mr-2">Step 3 of 3</span>
+                    <div className="flex gap-1">
+                        <div className="w-4 h-1 rounded-full bg-blue-500" />
+                        <div className="w-4 h-1 rounded-full bg-blue-500" />
+                        <div className="w-4 h-1 rounded-full bg-blue-500" />
+                    </div>
                 </div>
             </div>
-            <motion.div
-                className="relative flex items-center gap-2 px-2 py-1 bg-green-100 dark:bg-green-900/30 rounded-full text-[10px] text-green-700 dark:text-green-300 font-medium border border-green-200 dark:border-green-900/50 overflow-hidden"
-                whileHover={{ scale: 1.05 }}
-            >
-                {/* Shimmer effect */}
-                <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                    animate={{ x: ["-100%", "200%"] }}
-                    transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 1 }}
-                />
-                <Shield className="w-3 h-3 relative z-10" />
-                <span className="relative z-10">AES-256 Encrypted</span>
-            </motion.div>
-        </motion.div>
 
-        {/* Grid with staggered animations */}
-        <div className="grid grid-cols-2 gap-3">
-            {[
-                { name: "OPT I-20", type: "PDF", size: "2.4 MB", date: "Expires in 8mo", color: "blue" },
-                { name: "EAD Card", type: "IMG", size: "1.1 MB", date: "Expires in 8mo", color: "purple" },
-                { name: "Passport", type: "PDF", size: "4.2 MB", date: "Expires in 6mo", color: "orange" },
-                { name: "Offer Letter", type: "PDF", size: "1.8 MB", date: "Uploaded 2d ago", color: "gray" },
-            ].map((doc, i) => (
-                <motion.div
-                    key={i}
-                    className="group p-3 rounded-xl bg-gray-50 dark:bg-zinc-900/40 border border-border/50 hover:border-primary/30 cursor-pointer"
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ delay: 0.2 + (i * 0.1), type: "spring", stiffness: 200 }}
-                    whileHover={{
-                        y: -4,
-                        scale: 1.02,
-                        boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
-                        transition: { duration: 0.2 }
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                >
-                    <div className="flex items-start justify-between mb-3">
-                        <motion.div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold
-                                ${doc.color === 'blue' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : ''}
-                                ${doc.color === 'purple' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' : ''}
-                                ${doc.color === 'orange' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : ''}
-                                ${doc.color === 'gray' ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' : ''}
-                            `}
-                            whileHover={{ rotate: [0, -10, 10, 0] }}
-                            transition={{ duration: 0.4 }}
-                        >
-                            {doc.type}
-                        </motion.div>
-                        <motion.div
-                            className="opacity-0 group-hover:opacity-100"
-                            initial={{ x: -5 }}
-                            whileHover={{ x: 0 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <motion.div
-                                className="w-6 h-6 rounded-full bg-white dark:bg-zinc-700 flex items-center justify-center shadow-sm"
-                                whileHover={{ scale: 1.1, backgroundColor: "rgba(59, 130, 246, 0.1)" }}
-                            >
-                                <ArrowRight className="w-3 h-3 text-primary" />
-                            </motion.div>
-                        </motion.div>
-                    </div>
-                    <p className="text-xs font-semibold text-foreground mb-0.5">{doc.name}</p>
-                    <motion.p
-                        className="text-[10px] text-muted-foreground"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 + (i * 0.1) }}
+            {/* Toolbar */}
+            <div className="px-4 py-2 border-b border-border/50 flex items-center justify-between bg-white dark:bg-zinc-800">
+                <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-semibold text-foreground">Resume Editor</h3>
+                    <div className="h-4 w-[1px] bg-border mx-1" />
+                    <button
+                        onClick={handleEnhance}
+                        disabled={isGenerating || displayText === afterText}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-medium transition-all
+                            ${isGenerating || displayText === afterText
+                                ? "bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 opacity-80"
+                                : "bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/25 ring-1 ring-purple-500"}`}
                     >
-                        {doc.date}
-                    </motion.p>
-                </motion.div>
-            ))}
+                        {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                        {isGenerating ? "Enhancing..." : displayText === afterText ? "AI Enhanced" : "Enhance with AI"}
+                    </button>
+                </div>
+                <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-700/50 p-0.5 rounded-lg">
+                    <div className="p-1 rounded bg-white dark:bg-zinc-600 shadow-sm">
+                        <Code className="w-3 h-3 text-foreground" />
+                    </div>
+                    <div className="p-1 rounded text-muted-foreground">
+                        <Eye className="w-3 h-3" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Marketing Banner */}
+            <div className="bg-amber-50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-900/20 px-4 py-1.5 flex items-center justify-center">
+                <p className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                    <span className="text-sm">🍜</span>
+                    We cook your resume in 2 minutes — faster than Maggi.
+                </p>
+            </div>
+
+            {/* Split View Content */}
+            <div className="flex-1 flex overflow-hidden">
+                {/* Editor Side (Left) */}
+                <div className="w-1/2 border-r border-border/50 bg-gray-50/30 dark:bg-zinc-900/10 flex flex-col">
+                    <div className="p-4 space-y-4">
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Role</label>
+                            <div className="w-full p-2 bg-white dark:bg-zinc-800 border border-border/50 rounded-lg text-xs font-medium">
+                                Software Engineer
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider flex justify-between">
+                                Description
+                                {displayText === afterText && (
+                                    <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
+                                        <Check className="w-3 h-3" /> Improved
+                                    </span>
+                                )}
+                            </label>
+                            <div className="relative">
+                                <motion.div
+                                    className="w-full h-32 p-3 bg-white dark:bg-zinc-800 border border-border/50 rounded-lg text-xs leading-relaxed resize-none font-mono"
+                                    initial={false}
+                                    animate={{
+                                        backgroundColor: isGenerating ? "rgba(168, 85, 247, 0.05)" : "rgba(255, 255, 255, 0)",
+                                        color: displayText === afterText ? "var(--foreground)" : "var(--muted-foreground)"
+                                    }}
+                                >
+                                    {displayText}
+                                    {isGenerating && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-zinc-800/50 backdrop-blur-[1px]">
+                                            <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+                                        </div>
+                                    )}
+                                </motion.div>
+
+                                <AnimatePresence>
+                                    {displayText === afterText && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="absolute -right-2 -top-2"
+                                        >
+                                            <div className="bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">
+                                                +40% Impact
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Preview Side (Right) */}
+                <div className="w-1/2 bg-white dark:bg-zinc-800 relative flex flex-col p-4 shadow-[inset_4px_0_24px_-12px_rgba(0,0,0,0.1)]">
+                    <div className="absolute top-0 right-0 p-2 opacity-50">
+                        <span className="text-[60px] font-serif text-gray-100 dark:text-zinc-700/20 select-none">Aa</span>
+                    </div>
+
+                    {/* Simulated Document */}
+                    <motion.div
+                        className="flex-1 space-y-3 opacity-80"
+                        animate={{ opacity: isGenerating ? 0.5 : 0.9 }}
+                    >
+                        {/* Doc Header */}
+                        <div className="border-b-2 border-black dark:border-white/20 pb-2 mb-2">
+                            <div className="h-4 w-1/2 bg-gray-800 dark:bg-white/80 rounded mb-1" />
+                            <div className="flex gap-2">
+                                <div className="h-2 w-16 bg-gray-400 dark:bg-white/40 rounded" />
+                                <div className="h-2 w-16 bg-gray-400 dark:bg-white/40 rounded" />
+                            </div>
+                        </div>
+
+                        {/* Experience Section */}
+                        <div className="space-y-2">
+                            <div className="h-3 w-1/3 bg-gray-600 dark:bg-white/60 rounded uppercase" />
+                            <div className="space-y-2 pl-2 border-l-2 border-gray-200 dark:border-zinc-700">
+                                <div className="flex justify-between">
+                                    <div className="h-3 w-32 bg-gray-800 dark:bg-white/70 rounded" />
+                                    <div className="h-2 w-16 bg-gray-400 dark:bg-white/30 rounded" />
+                                </div>
+
+                                {/* Dynamic Content */}
+                                <motion.div
+                                    className="space-y-1.5 pt-1"
+                                    layout
+                                >
+                                    {isGenerating ? (
+                                        <>
+                                            <div className="h-2 w-full bg-purple-100 dark:bg-purple-900/30 rounded animate-pulse" />
+                                            <div className="h-2 w-5/6 bg-purple-100 dark:bg-purple-900/30 rounded animate-pulse" />
+                                            <div className="h-2 w-4/6 bg-purple-100 dark:bg-purple-900/30 rounded animate-pulse" />
+                                        </>
+                                    ) : (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ duration: 0.5 }}
+                                            className="space-y-1.5"
+                                        >
+                                            {displayText.split('\n').slice(1).map((line, i) => (
+                                                <div key={i} className="flex gap-1.5 items-start">
+                                                    <div className="w-1 h-1 rounded-full bg-gray-400 dark:bg-white/40 mt-1.5 shrink-0" />
+                                                    <div className={`text-[8px] leading-3 ${displayText === afterText ? "text-gray-700 dark:text-gray-300 font-medium" : "text-gray-500 dark:text-gray-400"}`}>
+                                                        {line.replace(/^• /, '')}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </motion.div>
+                                    )}
+                                </motion.div>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* ATS Badge Pop-in */}
+                    <AnimatePresence>
+                        {displayText === afterText && (
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.2, type: "spring" }}
+                                className="absolute bottom-4 right-4 bg-green-500 text-white px-3 py-1.5 rounded-full shadow-lg shadow-green-500/30 flex items-center gap-1.5"
+                            >
+                                <div className="p-0.5 bg-white/20 rounded-full">
+                                    <Check className="w-2.5 h-2.5" />
+                                </div>
+                                <div className="text-xs font-bold">92% ATS Score</div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 
 type TabType = "timeline" | "crm" | "docs" | "resume";
@@ -816,6 +1073,7 @@ const toastMessages: Record<TabType, { icon: string; message: string }> = {
     crm: { icon: "📤", message: "Application saved to tracker" },
     docs: { icon: "🔔", message: "Passport expires in 6 months" },
     resume: { icon: "✨", message: "AI suggestions ready!" },
+
 };
 
 // Tooltip content
@@ -916,17 +1174,39 @@ export function LandingHero() {
 
     return (
         <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden pt-20 lg:pt-32 pb-24">
-            {/* Premium Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/50 dark:from-zinc-950 dark:via-zinc-900 dark:to-slate-900" />
+            {/* Animated Aurora Background (YC/Linear Style) */}
+            <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-zinc-950 overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#27272a_1px,transparent_1px)] opacity-50"></div>
 
-            {/* Mesh Gradients with Parallax */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <ParallaxImage offset={100} className="w-full h-full absolute top-0 left-0">
-                    <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-gradient-to-b from-blue-100/20 to-purple-100/20 dark:from-blue-900/10 dark:to-purple-900/10 blur-3xl rounded-full opacity-50" />
-                </ParallaxImage>
-                <ParallaxImage offset={-50} className="w-full h-full absolute top-0 left-0">
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-tr from-indigo-100/30 to-blue-50/30 dark:from-indigo-900/10 dark:to-blue-900/10 blur-3xl rounded-full opacity-50" />
-                </ParallaxImage>
+                <motion.div
+                    animate={{
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 10, 0],
+                        opacity: [0.4, 0.6, 0.4]
+                    }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-blue-200/40 dark:bg-blue-900/20 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen"
+                />
+
+                <motion.div
+                    animate={{
+                        scale: [1, 1.2, 1],
+                        rotate: [0, -15, 0],
+                        opacity: [0.4, 0.6, 0.4]
+                    }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                    className="absolute -top-[10%] left-[20%] w-[500px] h-[500px] bg-purple-200/40 dark:bg-purple-900/20 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen"
+                />
+
+                <motion.div
+                    animate={{
+                        scale: [1, 1.3, 1],
+                        x: [0, 50, 0],
+                        opacity: [0.3, 0.5, 0.3]
+                    }}
+                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                    className="absolute top-[10%] right-[-10%] w-[700px] h-[700px] bg-indigo-200/40 dark:bg-indigo-900/20 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen"
+                />
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -975,55 +1255,7 @@ export function LandingHero() {
                             </Link>
                         </motion.div>
 
-                        {/* Interactive Tab Triggers with Badges */}
-                        <motion.div variants={fadeInUp} className="mt-12">
-                            <div className="flex gap-2 justify-center lg:justify-start overflow-x-auto pb-2 scrollbar-hide">
-                                {tabsConfig.map((tab) => (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => {
-                                            setActiveTab(tab.id);
-                                            setProgress(0);
-                                        }}
-                                        className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === tab.id
-                                            ? "bg-white dark:bg-zinc-800 text-primary shadow-md ring-1 ring-border"
-                                            : "text-muted-foreground hover:bg-white/50 dark:hover:bg-zinc-800/50"
-                                            }`}
-                                    >
-                                        <tab.icon className="w-4 h-4" />
-                                        {tab.label}
-                                        {/* Badge */}
-                                        <span className={`ml-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full ${tab.badgeColor === "green" ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" :
-                                            tab.badgeColor === "purple" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300" :
-                                                tab.badgeColor === "blue" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" :
-                                                    "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
-                                            }`}>
-                                            {tab.badge}
-                                        </span>
-                                        {/* Active indicator pulse for "Live" badge */}
-                                        {tab.badge === "Live" && (
-                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                            </span>
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                            {/* Progress Bar */}
-                            <div className="mt-3 h-1 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden max-w-md mx-auto lg:mx-0">
-                                <motion.div
-                                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
-                                    initial={{ width: "0%" }}
-                                    animate={{ width: `${progress}%` }}
-                                    transition={{ duration: 0.1, ease: "linear" }}
-                                />
-                            </div>
-                            {/* Keyboard hint */}
-                            <p className="mt-2 text-xs text-muted-foreground opacity-60 hidden lg:block">
-                                Use ← → arrow keys to navigate
-                            </p>
-                        </motion.div>
+
                     </motion.div>
 
                     {/* Right Content - Interactive Mockup with Tab Switching */}
@@ -1137,6 +1369,7 @@ export function LandingHero() {
                                             transition={{ duration: 0.5 }}
                                         />
                                     )}
+
                                 </AnimatePresence>
 
                                 {/* Tab Content */}
@@ -1191,9 +1424,10 @@ export function LandingHero() {
                                                 transition={{ duration: 0.3 }}
                                                 className="h-full"
                                             >
-                                                <ResumeMockup />
+                                                <ResumeEditorMockup />
                                             </motion.div>
                                         )}
+
                                     </AnimatePresence>
                                 </div>
 
@@ -1288,7 +1522,56 @@ export function LandingHero() {
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
+
+
                             </motion.div>
+                        </motion.div>
+
+                        {/* Interactive Tab Triggers moved to Right Column */}
+                        <motion.div variants={fadeInUp} className="mt-8 flex flex-col items-center z-20 relative">
+                            <div className="inline-flex flex-nowrap gap-1.5 p-1.5 rounded-xl bg-gray-100/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-border/50 justify-center overflow-hidden shadow-lg">
+                                {tabsConfig.map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => {
+                                            setActiveTab(tab.id);
+                                            setProgress(0);
+                                        }}
+                                        className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeTab === tab.id
+                                            ? "bg-white dark:bg-zinc-700 text-primary shadow-md"
+                                            : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-zinc-700/50"
+                                            }`}
+                                    >
+                                        <tab.icon className="w-4 h-4 flex-shrink-0" />
+                                        <span className="hidden sm:inline">{tab.label}</span>
+                                        {/* Badge */}
+                                        <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded-full ${tab.badgeColor === "green" ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" :
+                                            tab.badgeColor === "purple" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300" :
+                                                tab.badgeColor === "blue" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" :
+                                                    tab.badgeColor === "pink" ? "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300" :
+                                                        "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
+                                            }`}>
+                                            {tab.badge}
+                                        </span>
+                                        {/* Active indicator pulse for "Live" badge */}
+                                        {tab.badge === "Live" && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                            </span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                            {/* Progress Bar */}
+                            <div className="mt-3 h-1 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden w-full max-w-sm">
+                                <motion.div
+                                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                                    initial={{ width: "0%" }}
+                                    animate={{ width: `${progress}%` }}
+                                    transition={{ duration: 0.1, ease: "linear" }}
+                                />
+                            </div>
                         </motion.div>
                     </div>
                 </div>
