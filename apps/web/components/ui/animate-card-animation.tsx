@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight } from "lucide-react"
+import Image from "next/image"
 
 interface Card {
     id: number
@@ -55,11 +56,13 @@ function CardContent({ contentType }: { contentType: 1 | 2 | 3 }) {
 
     return (
         <div className="flex h-full w-full flex-col gap-4">
-            <div className="-outline-offset-1 flex h-[200px] w-full items-center justify-center overflow-hidden rounded-xl outline outline-black/10 dark:outline-white/10 bg-muted">
-                <img
+            <div className="-outline-offset-1 flex h-[200px] w-full items-center justify-center overflow-hidden rounded-xl outline outline-black/10 dark:outline-white/10 bg-muted relative">
+                <Image
                     src={data.image}
                     alt={data.title}
-                    className="h-full w-full select-none object-cover transition-transform duration-500 hover:scale-105"
+                    fill
+                    className="select-none object-cover transition-transform duration-500 hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
             </div>
             <div className="flex w-full items-center justify-between gap-2 px-3 pb-6">
@@ -120,7 +123,7 @@ export default function AnimatedCardStack() {
     const [isAnimating, setIsAnimating] = useState(false)
     const [nextId, setNextId] = useState(4)
 
-    const handleAnimate = () => {
+    const handleAnimate = useCallback(() => {
         if (isAnimating) return
         setIsAnimating(true)
 
@@ -137,7 +140,7 @@ export default function AnimatedCardStack() {
             setNextId((prev) => prev + 1)
             setIsAnimating(false)
         }, 600) // Match duration typical of the spring or slightly less to allow rapid clicking if tuned
-    }
+    }, [isAnimating, cards, nextId])
 
     // Auto-animate every few seconds for engagement
     useEffect(() => {
@@ -145,7 +148,7 @@ export default function AnimatedCardStack() {
             handleAnimate()
         }, 4000)
         return () => clearInterval(interval)
-    }, [cards, isAnimating, nextId])
+    }, [handleAnimate])
 
     return (
         <div className="flex w-full flex-col items-center justify-center pt-8 pb-4">

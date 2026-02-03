@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { format, parseISO } from "date-fns";
-import { updateApplicationDetails, updateApplicationStatus, deleteApplication, addInterview, addFollowup, markFollowupDone } from "@/app/dashboard/career/job-tracker/actions";
+import { updateApplicationDetails, updateApplicationStatus, deleteApplication, archiveApplication, addInterview, addFollowup, markFollowupDone } from "@/app/dashboard/career/job-tracker/actions";
 import { useRouter } from "next/navigation";
 import { OfferDetailsSection } from "./OfferDetailsSection";
 
@@ -91,11 +91,15 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
     };
 
     const handleArchive = async () => {
-        // TODO: Implement archive action in actions.ts
-        if (onArchive) {
-            onArchive(application.id);
+        try {
+            await archiveApplication(application.id);
+            if (onArchive) {
+                onArchive(application.id);
+            }
+            onClose();
+        } catch (e) {
+            console.error(e);
         }
-        onClose();
     };
 
     const handleOfferFieldChange = async (field: string, value: any) => {

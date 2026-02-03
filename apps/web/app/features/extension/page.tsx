@@ -27,99 +27,14 @@ import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
 
 
-// Browser Mockup Component
-function BrowserMockup() {
-    return (
-        <div className="relative">
-            {/* Glowing background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-3xl blur-2xl opacity-20" />
+import { ExtensionOverlayVisual } from "@/components/features/ExtensionOverlayVisual";
+import { ExtensionDemo } from "@/components/features/ExtensionDemo";
+import { VerificationBadgePopup } from "@/components/features/VerificationBadgePopup";
+import { H2, Lead, P } from "@/components/ui/typography";
 
-            <div className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
-                {/* Browser Chrome */}
-                <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700">
-                    <div className="flex gap-1.5">
-                        <div className="w-3 h-3 rounded-full bg-red-500" />
-                        <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                        <div className="w-3 h-3 rounded-full bg-green-500" />
-                    </div>
-                    <div className="flex-1 mx-4">
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-zinc-900 rounded-md text-sm text-gray-500">
-                            <Lock className="w-3 h-3" />
-                            linkedin.com/jobs/software-engineer
-                        </div>
-                    </div>
-                </div>
-
-                {/* Page Content */}
-                <div className="p-6">
-                    {/* Job Card */}
-                    <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 mb-4">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-                                G
-                            </div>
-                            <div className="flex-1">
-                                <h4 className="font-semibold text-gray-900 dark:text-white">Software Engineer</h4>
-                                <p className="text-sm text-gray-500">Google • Mountain View, CA</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Extension Popup */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="bg-white dark:bg-zinc-900 rounded-xl border-2 border-blue-500 shadow-xl p-4"
-                    >
-                        <div className="flex items-center gap-2 mb-3">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                                <Shield className="w-4 h-4 text-white" />
-                            </div>
-                            <span className="font-semibold text-gray-900 dark:text-white text-sm">TrackMyOPT</span>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 mb-3">
-                            <motion.span
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.7 }}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium"
-                            >
-                                <CheckCircle2 className="w-3 h-3" />
-                                E-Verified
-                            </motion.span>
-                            <motion.span
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.8 }}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium"
-                            >
-                                928 H-1Bs
-                            </motion.span>
-                            <motion.span
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.9 }}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium"
-                            >
-                                98% Approval
-                            </motion.span>
-                        </div>
-
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 1 }}
-                            className="text-xs text-gray-500"
-                        >
-                            Last updated: Today
-                        </motion.div>
-                    </motion.div>
-                </div>
-            </div>
-        </div>
-    );
+// Browser Overlay (Replacing previous mockup)
+function BrowserVisual() {
+    return <ExtensionOverlayVisual />;
 }
 
 // Platform Grid
@@ -140,15 +55,15 @@ function PlatformGrid() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
-                    className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 text-center hover:shadow-lg transition-shadow"
+                    className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 text-center hover:shadow-lg transition-shadow group"
                 >
                     {platform.status === 'coming' && (
                         <span className="absolute top-2 right-2 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs rounded-full font-medium">
                             Soon
                         </span>
                     )}
-                    <div className={`w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center ${platform.status === 'live'
-                        ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                    <div className={`w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${platform.status === 'live'
+                        ? 'bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/20'
                         : 'bg-gray-200 dark:bg-zinc-700'
                         }`}>
                         <platform.icon className={`w-6 h-6 ${platform.status === 'live' ? 'text-white' : 'text-gray-400'}`} />
@@ -172,7 +87,7 @@ function PrivacyChecklist() {
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
             <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                     <Lock className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -213,8 +128,7 @@ export default function ExtensionPage() {
                     text: "See Demo",
                     href: "#demo"
                 }}
-                gradient="from-blue-500 to-cyan-500"
-                visual={<BrowserMockup />}
+                visual={<ExtensionDemo />}
             />
 
             {/* Features */}
@@ -230,14 +144,12 @@ export default function ExtensionPage() {
                                 <Zap className="w-4 h-4" />
                                 Instant Intel
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Make Smarter Applications
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            <H2>Make Smarter Applications</H2>
+                            <P>
                                 See sponsor data right where you need it—on job listings.
                                 No more switching tabs or manual research.
-                            </p>
-                            <ul className="space-y-4">
+                            </P>
+                            <ul className="space-y-4 mb-8">
                                 {[
                                     "E-Verify enrollment status",
                                     "Historical H-1B sponsorship count",
@@ -250,23 +162,26 @@ export default function ExtensionPage() {
                                     </li>
                                 ))}
                             </ul>
-                            <div className="mt-8">
-                                <Link
-                                    href="https://chrome.google.com/webstore"
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
-                                >
-                                    <Download className="w-4 h-4" />
-                                    Install Extension
-                                </Link>
+
+                            {/* Interactive Mini-Demo (Badge Hover) */}
+                            <div className="p-6 bg-white dark:bg-zinc-900/50 rounded-2xl border border-gray-100 dark:border-zinc-800">
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Try hovering over the badge:</p>
+                                <div className="flex justify-center py-4">
+                                    <VerificationBadgePopup />
+                                </div>
                             </div>
+
                         </motion.div>
 
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
+                            className="relative"
                         >
-                            <BrowserMockup />
+                            {/* Decorative elements behind visual */}
+                            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-20 blur-2xl rounded-full" />
+                            <ExtensionOverlayVisual />
                         </motion.div>
                     </div>
                 </div>
@@ -285,12 +200,10 @@ export default function ExtensionPage() {
                             <Globe className="w-4 h-4" />
                             Works Everywhere
                         </div>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                            Supported Platforms
-                        </h2>
-                        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <H2>Supported Platforms</H2>
+                        <Lead>
                             Get sponsor intel on the job boards you already use.
-                        </p>
+                        </Lead>
                     </motion.div>
 
                     <PlatformGrid />
@@ -318,13 +231,11 @@ export default function ExtensionPage() {
                                 <Shield className="w-4 h-4" />
                                 Privacy First
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Your Data Stays Private
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            <H2>Your Data Stays Private</H2>
+                            <P>
                                 We don't track your browsing, store your data, or sell your information.
                                 The extension works entirely in your browser.
-                            </p>
+                            </P>
                             <ul className="space-y-4">
                                 {[
                                     "No analytics or tracking",

@@ -8,6 +8,8 @@ import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";
 import { FeatureCTA } from "../../components/features/FeatureCTA";
+import { UniversityDashboardPreview } from "@/components/features/UniversityDashboardPreview";
+import { CountUp } from "@/components/ui/CountUp";
 
 // Partnership Visual
 function PartnershipVisual() {
@@ -271,10 +273,10 @@ function PartnerTestimonials() {
 // Stats
 function StatsSection() {
     const stats = [
-        { value: "50+", label: "Partner Universities" },
-        { value: "100+", label: "Campus Ambassadors" },
-        { value: "2,500+", label: "Students Helped" },
-        { value: "98%", label: "DSO Satisfaction" },
+        { value: 50, suffix: "+", label: "Partner Universities" },
+        { value: 100, suffix: "+", label: "Campus Ambassadors" },
+        { value: 2500, suffix: "+", label: "Students Helped" },
+        { value: 98, suffix: "%", label: "DSO Satisfaction" },
     ];
 
     return (
@@ -294,7 +296,9 @@ function StatsSection() {
                                 transition={{ delay: index * 0.1 }}
                                 className="text-center"
                             >
-                                <p className="text-4xl md:text-5xl font-bold text-white mb-2">{stat.value}</p>
+                                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                                    <CountUp value={stat.value} suffix={stat.suffix} />
+                                </div>
                                 <p className="text-purple-100 text-sm">{stat.label}</p>
                             </motion.div>
                         ))}
@@ -496,7 +500,7 @@ export default function PartnershipsPage() {
                     href: "#benefits"
                 }}
                 gradient="from-purple-600 to-indigo-600"
-                visual={<PartnershipVisual />}
+                visual={<UniversityDashboardPreview />}
             />
 
             {/* Stats */}

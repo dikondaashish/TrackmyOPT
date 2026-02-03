@@ -13,6 +13,11 @@ import { LandingChromeExtension } from "../components/landing/LandingChromeExten
 import { LandingTrustedUniversities } from "../components/landing/LandingTrustedUniversities";
 import { LandingToolkit } from "../components/landing/LandingToolkit";
 import { LandingEngine } from "../components/landing/LandingEngine";
+import dynamic from "next/dynamic";
+
+const LandingGlobalReach = dynamic(() => import("../components/landing/LandingGlobalReach").then(mod => mod.LandingGlobalReach), {
+    ssr: false
+});
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -48,6 +53,7 @@ export default function LandingPage() {
                 <LandingValueGrid />
 
                 <LandingFeatures />
+                <LandingGlobalReach />
                 <LandingEngine />
                 <LandingSuccessStories />
                 <LandingToolkit />

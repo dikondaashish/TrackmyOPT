@@ -23,88 +23,9 @@ import { FeatureFAQ } from "@/components/features/FeatureFAQ";
 import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
 import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
-
-
-// Resume Mockup Component
-function ResumeMockup() {
-    return (
-        <div className="relative">
-            {/* Glowing background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl blur-2xl opacity-20" />
-
-            <motion.div
-                className="relative bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-6 shadow-2xl"
-                initial={{ rotateY: -5 }}
-                whileHover={{ rotateY: 0, scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-            >
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                            <FileText className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                            <p className="font-semibold text-gray-900 dark:text-white">resume_v3.pdf</p>
-                            <p className="text-xs text-gray-500">Analyzing...</p>
-                        </div>
-                    </div>
-                    <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.5, type: "spring" }}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 text-white text-sm font-bold"
-                    >
-                        <Sparkles className="w-4 h-4" />
-                        Score: 94/100
-                    </motion.div>
-                </div>
-
-                {/* Analysis Items */}
-                <div className="space-y-3">
-                    {[
-                        { label: "ATS Compatibility", score: 98, color: "emerald" },
-                        { label: "Keyword Match", score: 92, color: "blue" },
-                        { label: "Sponsorship Keywords", score: 88, color: "purple" },
-                        { label: "Action Verbs", score: 95, color: "amber" },
-                    ].map((item, i) => (
-                        <motion.div
-                            key={item.label}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.6 + i * 0.1 }}
-                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-800 rounded-xl"
-                        >
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
-                            <div className="flex items-center gap-3">
-                                <div className="w-24 h-2 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${item.score}%` }}
-                                        transition={{ delay: 0.8 + i * 0.1, duration: 0.5 }}
-                                        className={`h-full bg-gradient-to-r from-${item.color}-500 to-${item.color}-600 rounded-full`}
-                                    />
-                                </div>
-                                <span className="text-sm font-bold text-gray-900 dark:text-white w-8">{item.score}%</span>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-
-                {/* AI Suggestions */}
-                <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Brain className="w-4 h-4 text-purple-600" />
-                        <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">AI Suggestion</span>
-                    </div>
-                    <p className="text-sm text-purple-600 dark:text-purple-400">
-                        Add "visa sponsorship available" to your objective to attract H-1B friendly employers.
-                    </p>
-                </div>
-            </motion.div>
-        </div>
-    );
-}
+import { ResumeScanner } from "@/components/features/ResumeScanner";
+import { ResumeComparisonSlider } from "@/components/features/ResumeComparisonSlider";
+import { H2, Lead, P } from "@/components/ui/typography";
 
 // How It Works Steps
 function HowItWorks() {
@@ -131,7 +52,7 @@ function HowItWorks() {
                     )}
 
                     {/* Step number */}
-                    <div className="relative z-10 w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
+                    <div className="relative z-10 w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg transform transition-transform hover:scale-110 duration-300">
                         <step.icon className="w-9 h-9 text-white" />
                     </div>
 
@@ -161,9 +82,9 @@ function FeatureCards() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
-                    className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 hover:shadow-lg transition-shadow"
+                    className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 hover:shadow-xl hover:translate-y-[-2px] transition-all duration-300 group"
                 >
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <feature.icon className="w-6 h-6 text-white" />
                     </div>
                     <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h4>
@@ -181,7 +102,7 @@ export default function ResumeAIPage() {
             <FeatureHero
                 badge="AI Powered"
                 headline="We cook your resume in 2 minutes — faster than Maggi. 🍜"
-                subheadline="Beat the ATS. Impress the Recruiter."
+                subheadline="Beat the ATS. Impress the Recruiter. Get 3x more callbacks."
                 ctaText="Analyze My Resume"
                 ctaHref="/dashboard/resume"
                 secondaryCta={{
@@ -189,7 +110,7 @@ export default function ResumeAIPage() {
                     href: "#how-it-works"
                 }}
                 gradient="from-purple-500 to-pink-600"
-                visual={<ResumeMockup />}
+                visual={<ResumeScanner />}
             />
 
             {/* How It Works */}
@@ -205,15 +126,24 @@ export default function ResumeAIPage() {
                             <Sparkles className="w-4 h-4" />
                             3 Simple Steps
                         </div>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                            How It Works
-                        </h2>
-                        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <H2 className="mb-6">How It Works</H2>
+                        <Lead className="max-w-2xl mx-auto">
                             Get actionable feedback on your resume in under 30 seconds.
-                        </p>
+                        </Lead>
                     </motion.div>
 
                     <HowItWorks />
+                </div>
+            </section>
+
+            {/* Interactive Before/After Demo */}
+            <section className="py-24 bg-white/50 dark:bg-black/20">
+                <div className="container mx-auto px-4">
+                    <div className="text-center mb-12">
+                        <H2>See the Difference</H2>
+                        <Lead>Drag the slider to see how AI transforms a generic resume.</Lead>
+                    </div>
+                    <ResumeComparisonSlider />
                 </div>
             </section>
 
@@ -230,13 +160,13 @@ export default function ResumeAIPage() {
                                 <Brain className="w-4 h-4" />
                                 Powered by Top AI
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                More Than Just Keywords
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                Our AI doesn't just count keywords—it understands context,
-                                analyzes structure, and provides human-quality feedback.
-                            </p>
+                            <H2 className="mb-6">More Than Just Keywords</H2>
+                            <div className="text-lg text-gray-600 dark:text-gray-300 mb-8 space-y-4">
+                                <p>
+                                    Our AI doesn't just count keywords—it understands context,
+                                    analyzes structure, and provides human-quality feedback.
+                                </p>
+                            </div>
                             <ul className="space-y-4">
                                 {[
                                     "Optimized for H-1B friendly roles",
@@ -271,8 +201,8 @@ export default function ResumeAIPage() {
                 stats={[
                     { value: "75%", label: "Resumes rejected by ATS", icon: <XCircle className="w-5 h-5" /> },
                     { value: "6 sec", label: "Average recruiter scan time", icon: <AlertTriangle className="w-5 h-5" /> },
-                    { value: "40%", label: "Increase in callbacks with optimization", icon: <TrendingUp className="w-5 h-5" /> },
-                    { value: "AI-Powered", label: "Using latest LLMs", icon: <Brain className="w-5 h-5" /> },
+                    { value: "40%", label: "Increase in callbacks", icon: <TrendingUp className="w-5 h-5" /> },
+                    { value: "50k+", label: "Resumes Scanned", icon: <Brain className="w-5 h-5" /> },
                 ]}
             />
 
@@ -299,7 +229,7 @@ export default function ResumeAIPage() {
                     },
                     {
                         question: "What AI model do you use?",
-                        answer: "We use the latest enterprise-grade AI models for analysis. Premium subscribers get access to our most advanced models for deeper analysis and job-specific tailoring."
+                        answer: "We use the latest enterprise-grade AI models (Gemini Ultra / GPT-4) for analysis. Premium subscribers get access to our most advanced models for deeper analysis and job-specific tailoring."
                     },
                     {
                         question: "Can I upload my resume in any format?",
@@ -339,3 +269,4 @@ export default function ResumeAIPage() {
         </main>
     );
 }
+

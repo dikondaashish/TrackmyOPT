@@ -7,6 +7,7 @@ import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";
 import { FeatureCTA } from "../../components/features/FeatureCTA";
+import { SmartContactForm } from "@/components/features/SmartContactForm";
 
 // Contact Visual
 function ContactVisual() {
@@ -100,8 +101,8 @@ function SupportChannels() {
                             className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 hover:border-blue-500/50 transition-colors text-center"
                         >
                             <div className={`w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center ${channel.color === 'blue' ? 'bg-gradient-to-br from-blue-500 to-indigo-600' :
-                                    channel.color === 'green' ? 'bg-gradient-to-br from-green-500 to-teal-600' :
-                                        'bg-gradient-to-br from-purple-500 to-pink-600'
+                                channel.color === 'green' ? 'bg-gradient-to-br from-green-500 to-teal-600' :
+                                    'bg-gradient-to-br from-purple-500 to-pink-600'
                                 }`}>
                                 <channel.icon className="w-7 h-7 text-white" />
                             </div>
@@ -345,7 +346,7 @@ export default function ContactPage() {
             <HelpCategories />
 
             {/* Contact Form */}
-            <ContactForm />
+            <SmartContactForm />
 
             {/* FAQ */}
             <ContactFAQ />

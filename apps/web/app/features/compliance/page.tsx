@@ -21,150 +21,9 @@ import { FeatureFAQ } from "@/components/features/FeatureFAQ";
 import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
 import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
-
-
-// Animated Countdown Card Component
-function CountdownCard() {
-    return (
-        <div className="relative">
-            {/* Glowing background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl blur-2xl opacity-30" />
-
-            <div className="relative bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-2xl">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">OPT Status: Active</span>
-                    </div>
-                    <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full font-medium">
-                        STEM Extension
-                    </span>
-                </div>
-
-                {/* Countdown Ring */}
-                <div className="relative w-48 h-48 mx-auto mb-6">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                        {/* Background ring */}
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r="45"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="8"
-                            className="text-gray-200 dark:text-zinc-800"
-                        />
-                        {/* Progress ring */}
-                        <motion.circle
-                            cx="50"
-                            cy="50"
-                            r="45"
-                            fill="none"
-                            stroke="url(#gradient)"
-                            strokeWidth="8"
-                            strokeLinecap="round"
-                            initial={{ strokeDasharray: "0 283" }}
-                            animate={{ strokeDasharray: "198 283" }}
-                            transition={{ duration: 1.5, ease: "easeOut" }}
-                        />
-                        <defs>
-                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#3b82f6" />
-                                <stop offset="100%" stopColor="#6366f1" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <motion.span
-                            className="text-4xl font-bold text-gray-900 dark:text-white"
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.5 }}
-                        >
-                            847
-                        </motion.span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">days remaining</span>
-                    </div>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4">
-                        <p className="text-xs text-green-600 dark:text-green-400 font-medium mb-1">Unemployment Days</p>
-                        <p className="text-2xl font-bold text-green-700 dark:text-green-300">12 / 150</p>
-                    </div>
-                    <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4">
-                        <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mb-1">Next Deadline</p>
-                        <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">45 days</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// Timeline Component
-function AlertTimeline() {
-    const alerts = [
-        { days: 60, title: "60-Day Alert", description: "Start employer verification", status: "completed" },
-        { days: 30, title: "30-Day Alert", description: "Prepare SEVP update", status: "upcoming" },
-        { days: 7, title: "7-Day Alert", description: "Final compliance check", status: "future" },
-    ];
-
-    return (
-        <div className="relative">
-            {/* Vertical line */}
-            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500" />
-
-            <div className="space-y-8">
-                {alerts.map((alert, index) => (
-                    <motion.div
-                        key={alert.days}
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.2 }}
-                        className="relative flex gap-6"
-                    >
-                        {/* Dot */}
-                        <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${alert.status === 'completed'
-                            ? 'bg-green-500'
-                            : alert.status === 'upcoming'
-                                ? 'bg-blue-500 animate-pulse'
-                                : 'bg-gray-300 dark:bg-gray-700'
-                            }`}>
-                            {alert.status === 'completed' ? (
-                                <CheckCircle2 className="w-6 h-6 text-white" />
-                            ) : (
-                                <Bell className="w-5 h-5 text-white" />
-                            )}
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-5 shadow-sm">
-                            <div className="flex items-center justify-between mb-2">
-                                <h4 className="font-semibold text-gray-900 dark:text-white">{alert.title}</h4>
-                                <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full">
-                                    {alert.days} days before
-                                </span>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{alert.description}</p>
-                            <div className="mt-3 flex gap-2">
-                                <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-                                    <Mail className="w-3 h-3" /> Email
-                                </span>
-                                <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-                                    <Smartphone className="w-3 h-3" /> SMS
-                                </span>
-                            </div>
-                        </div>
-                    </motion.div>
-                ))}
-            </div>
-        </div>
-    );
-}
+import { ComplianceShield } from "@/components/features/ComplianceShield";
+import { ComplianceTimeline } from "@/components/features/ComplianceTimeline";
+import { H2, Lead, P } from "@/components/ui/typography";
 
 // Calculator Preview Component
 function CalculatorPreview() {
@@ -219,52 +78,22 @@ export default function CompliancePage() {
                     href: "/dashboard/opt-tools/opt-clock"
                 }}
                 gradient="from-blue-600 to-indigo-600"
-                visual={<CountdownCard />}
+                visual={<ComplianceShield />}
             />
 
-            {/* Feature 1: Real-Time Dashboard */}
-            <section className="py-24 relative overflow-hidden">
+            {/* Feature 1: The Journey Timeline */}
+            <section className="py-24 relative overflow-hidden bg-white/50 dark:bg-zinc-900/30">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                        >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                                <Clock className="w-4 h-4" />
-                                Real-Time Tracking
-                            </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Your OPT Status at a Glance
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                See exactly how many days you have left on your OPT, track unemployment days,
-                                and know your filing deadlines—all updated in real-time.
-                            </p>
-                            <ul className="space-y-4">
-                                {[
-                                    "Visual countdown for OPT and STEM OPT",
-                                    "Unemployment day tracker with limits",
-                                    "Employment verification status",
-                                    "SEVP Portal update reminders"
-                                ].map((item, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                        >
-                            <CountdownCard />
-                        </motion.div>
+                    <div className="text-center mb-12">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+                            <Clock className="w-4 h-4" />
+                            Your F-1 Timeline
+                        </div>
+                        <H2>Visualizing Your Compliance Journey</H2>
+                        <Lead>From graduation to H-1B, see exactly what milestones are coming up.</Lead>
                     </div>
+
+                    <ComplianceTimeline />
                 </div>
             </section>
 
@@ -276,9 +105,38 @@ export default function CompliancePage() {
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
-                            className="order-2 lg:order-1"
+                            className="order-2 lg:order-1 relative"
                         >
-                            <AlertTimeline />
+                            {/* Abstract Alert Visual instead of Timeline */}
+                            <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-3 bg-red-500/10 rounded-bl-2xl">
+                                    <Bell className="w-6 h-6 text-red-500 animate-pulse" />
+                                </div>
+                                <div className="space-y-6">
+                                    {/* Mock Email Alert */}
+                                    <div className="border border-gray-100 dark:border-zinc-800 rounded-xl p-4 bg-gray-50 dark:bg-zinc-800/50">
+                                        <div className="flex gap-3 mb-2">
+                                            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">T</div>
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-900 dark:text-white">TrackMyOPT Alert</p>
+                                                <p className="text-xs text-gray-500">To: You &lt;student@edu&gt;</p>
+                                            </div>
+                                        </div>
+                                        <div className="h-2 w-full bg-gray-200 dark:bg-zinc-700 rounded mb-2" />
+                                        <div className="h-2 w-3/4 bg-gray-200 dark:bg-zinc-700 rounded mb-4" />
+                                        <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-3 py-2 rounded text-sm font-medium border border-red-100 dark:border-red-900/30">
+                                            ⚠️ Action Required: 10 Days Remain
+                                        </div>
+                                    </div>
+                                    {/* Mock SMS Alert */}
+                                    <div className="border border-gray-100 dark:border-zinc-800 rounded-xl p-4 bg-gray-50 dark:bg-zinc-800/50 max-w-[280px] ml-auto">
+                                        <div className="bg-blue-500 text-white p-3 rounded-2xl rounded-br-none text-sm">
+                                            Reminder: Your 90-day unemployment limit is approaching. Please update your employer info.
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 text-right mt-1">Today 9:41 AM</p>
+                                    </div>
+                                </div>
+                            </div>
                         </motion.div>
 
                         <motion.div
@@ -291,13 +149,11 @@ export default function CompliancePage() {
                                 <Bell className="w-4 h-4" />
                                 Smart Alerts
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Get Reminded Before It's Too Late
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            <H2 className="mb-6">Get Reminded Before It's Too Late</H2>
+                            <P className="mb-8">
                                 Receive email and SMS alerts at critical milestones—60 days, 30 days,
                                 and 7 days before important deadlines. Never be caught off guard.
-                            </p>
+                            </P>
                             <ul className="space-y-4">
                                 {[
                                     "Multi-channel notifications (Email + SMS)",
@@ -329,13 +185,11 @@ export default function CompliancePage() {
                                 <Calendar className="w-4 h-4" />
                                 Filing Calculator
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Know Exactly When to File
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            <H2 className="mb-6">Know Exactly When to File</H2>
+                            <P className="mb-8">
                                 Our calculator tells you the perfect window to apply for extensions,
                                 submit SEVP updates, and prepare for status changes.
-                            </p>
+                            </P>
                             <Link
                                 href="/dashboard/opt-tools/opt-clock"
                                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"

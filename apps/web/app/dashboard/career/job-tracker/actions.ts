@@ -116,6 +116,29 @@ export async function deleteApplication(id: string) {
     revalidatePath(APP_PATH);
 }
 
+export async function archiveApplication(id: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    const { error } = await supabase
+        .from("job_applications")
+        .update({
+            is_archived: true,
+            archived_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", id)
+        .eq("user_id", user.id);
+
+    if (error) {
+        console.error("Error archiving application:", error);
+        throw new Error("Failed to archive application");
+    }
+
+    revalidatePath(APP_PATH);
+}
+
 // Interviews
 
 export async function addInterview(applicationId: string, interview: {

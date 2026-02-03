@@ -64,9 +64,11 @@ export function LandingChromeExtension() {
                                         "/students/student4.jpg"
                                     ].map((src, i) => (
                                         <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-background overflow-hidden">
-                                            <img
+                                            <Image
                                                 src={src}
                                                 alt="Student"
+                                                width={32}
+                                                height={32}
                                                 className="h-full w-full object-cover"
                                             />
                                         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -356,19 +356,19 @@ export default function ResumeGeneratorPage() {
         e.stopPropagation();
     };
 
-    const handleResumeDrop = useCallback((e: React.DragEvent) => {
+    const handleResumeDrop = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
         const file = e.dataTransfer.files?.[0];
         if (file) handleFileUpload(file, "resume");
-    }, [saveResume]); // Add dependency on saveResume
+    };
 
-    const handleJobDrop = useCallback((e: React.DragEvent) => {
+    const handleJobDrop = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
         const file = e.dataTransfer.files?.[0];
         if (file) handleFileUpload(file, "job");
-    }, []);
+    };
 
     const canProceed = resumeData.text.length > 50 && jobData.text.length > 50;
 

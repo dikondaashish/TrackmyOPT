@@ -20,6 +20,8 @@ export interface JobApplication {
     notes?: string | null;
     created_at: string;
     updated_at: string;
+    is_archived?: boolean | null;
+    archived_at?: string | null;
 }
 
 export interface JobInterview {

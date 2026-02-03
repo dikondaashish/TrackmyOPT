@@ -24,186 +24,17 @@ import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
 
 
-// Kanban Board Demo
-function KanbanDemo() {
-    const columns = [
-        {
-            title: "Applied",
-            count: 12,
-            color: "blue",
-            cards: [
-                { company: "Google", role: "SWE", days: 3 },
-                { company: "Meta", role: "ML Engineer", days: 5 },
-            ]
-        },
-        {
-            title: "Interviewing",
-            count: 4,
-            color: "amber",
-            cards: [
-                { company: "Amazon", role: "SDE II", days: 7 },
-            ]
-        },
-        {
-            title: "Offer",
-            count: 1,
-            color: "emerald",
-            cards: [
-                { company: "Microsoft", role: "SWE", days: 14 },
-            ]
-        },
-    ];
+import { TrackerKanbanDemo } from "@/components/features/TrackerKanbanDemo";
+import { SyncConnectionVisual } from "@/components/features/SyncConnectionVisual";
+import { AutoFillAction } from "@/components/features/AutoFillAction";
+import { H2, Lead, P } from "@/components/ui/typography";
 
-    return (
-        <div className="relative">
-            {/* Glowing background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl blur-2xl opacity-20" />
 
-            <div className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4 shadow-2xl overflow-hidden">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">My Applications</h4>
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="p-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg"
-                    >
-                        <Plus className="w-4 h-4" />
-                    </motion.button>
-                </div>
 
-                {/* Kanban Columns */}
-                <div className="flex gap-3 overflow-x-auto pb-2">
-                    {columns.map((column, colIndex) => (
-                        <motion.div
-                            key={column.title}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: colIndex * 0.15 }}
-                            className="flex-shrink-0 w-44"
-                        >
-                            {/* Column Header */}
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full bg-${column.color}-500`} />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{column.title}</span>
-                                </div>
-                                <span className="text-xs text-gray-400">{column.count}</span>
-                            </div>
 
-                            {/* Cards */}
-                            <div className="space-y-2">
-                                {column.cards.map((card, cardIndex) => (
-                                    <motion.div
-                                        key={card.company}
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.3 + colIndex * 0.1 + cardIndex * 0.1 }}
-                                        whileHover={{ y: -2 }}
-                                        className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-3 cursor-pointer hover:shadow-md transition-all"
-                                    >
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <div className={`w-8 h-8 rounded-lg bg-${column.color}-100 dark:bg-${column.color}-900/30 flex items-center justify-center`}>
-                                                <Building2 className={`w-4 h-4 text-${column.color}-600`} />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-semibold text-gray-900 dark:text-white">{card.company}</p>
-                                                <p className="text-[10px] text-gray-500">{card.role}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-[10px] text-gray-400">{card.days}d ago</span>
-                                            <MoreHorizontal className="w-3 h-3 text-gray-400" />
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-}
 
 // Sync Visualization
-function SyncVisualization() {
-    return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 text-center">
-                Synced with Your OPT Clock
-            </h4>
 
-            <div className="flex items-center justify-center gap-8">
-                {/* Job Tracker */}
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center"
-                >
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mb-3 mx-auto shadow-lg">
-                        <Briefcase className="w-10 h-10 text-white" />
-                    </div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">Job Tracker</p>
-                </motion.div>
-
-                {/* Sync Arrow */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.2 }}
-                    className="flex flex-col items-center gap-1"
-                >
-                    <div className="flex items-center gap-2">
-                        <motion.div
-                            animate={{ x: [0, 5, 0] }}
-                            transition={{ duration: 1, repeat: Infinity }}
-                            className="w-8 h-0.5 bg-gradient-to-r from-amber-500 to-blue-500"
-                        />
-                        <ArrowRight className="w-4 h-4 text-gray-400" />
-                    </div>
-                    <p className="text-xs text-gray-400">Auto-sync</p>
-                    <div className="flex items-center gap-2">
-                        <ArrowRight className="w-4 h-4 text-gray-400 rotate-180" />
-                        <motion.div
-                            animate={{ x: [0, -5, 0] }}
-                            transition={{ duration: 1, repeat: Infinity }}
-                            className="w-8 h-0.5 bg-gradient-to-r from-blue-500 to-amber-500"
-                        />
-                    </div>
-                </motion.div>
-
-                {/* OPT Clock */}
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center"
-                >
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 mx-auto shadow-lg">
-                        <Clock className="w-10 h-10 text-white" />
-                    </div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">OPT Clock</p>
-                </motion.div>
-            </div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
-                className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl text-center"
-            >
-                <p className="text-sm text-amber-700 dark:text-amber-300">
-                    <span className="font-semibold">Smart:</span> When you log a job application,
-                    your unemployment counter automatically adjusts.
-                </p>
-            </motion.div>
-        </div>
-    );
-}
 
 // Analytics Preview
 function AnalyticsPreview() {
@@ -271,7 +102,7 @@ export default function JobTrackerPage() {
                     href: "#sync"
                 }}
                 gradient="from-amber-500 to-orange-600"
-                visual={<KanbanDemo />}
+                visual={<TrackerKanbanDemo />}
             />
 
             {/* Kanban Feature */}
@@ -287,13 +118,11 @@ export default function JobTrackerPage() {
                                 <Briefcase className="w-4 h-4" />
                                 Visual Tracking
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                See All Your Applications at a Glance
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            <H2>See All Your Applications at a Glance</H2>
+                            <P>
                                 Drag-and-drop Kanban board to track every application
                                 from submission to offer. Never forget to follow up.
-                            </p>
+                            </P>
                             <ul className="space-y-4">
                                 {[
                                     "Customizable pipeline stages",
@@ -314,7 +143,7 @@ export default function JobTrackerPage() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                         >
-                            <KanbanDemo />
+                            <TrackerKanbanDemo />
                         </motion.div>
                     </div>
                 </div>
@@ -323,6 +152,11 @@ export default function JobTrackerPage() {
             {/* OPT Sync Feature */}
             <section id="sync" className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <H2>Syncs More Than Just Dates</H2>
+                        <Lead>Our intelligent system parses your job emails to update your tracker automatically.</Lead>
+                    </div>
+
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
@@ -330,7 +164,7 @@ export default function JobTrackerPage() {
                             viewport={{ once: true }}
                             className="order-2 lg:order-1"
                         >
-                            <SyncVisualization />
+                            <SyncConnectionVisual />
                         </motion.div>
 
                         <motion.div
@@ -343,26 +177,22 @@ export default function JobTrackerPage() {
                                 <Clock className="w-4 h-4" />
                                 OPT Integration
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Jobs + OPT Clock = Peace of Mind
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            <H2>Jobs + OPT Clock = Peace of Mind</H2>
+                            <P>
                                 Your job applications automatically update your unemployment
                                 counter. Stay compliant while you job search.
-                            </p>
-                            <ul className="space-y-4">
-                                {[
-                                    "Auto-update unemployment days",
-                                    "Employment gap detection",
-                                    "Filing window reminders",
-                                    "Compliance status at a glance"
-                                ].map((item, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                        <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
+                            </P>
+                            <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-gray-100 dark:border-zinc-800 shadow-sm mt-6">
+                                <div className="flex gap-4">
+                                    <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg h-fit text-blue-600">
+                                        <TrendingUp className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900 dark:text-white">Smart Unemployment Updates</h4>
+                                        <p className="text-sm text-gray-500 mt-1">If you get rejected, the clock resumes. If you start working, it pauses. We handle the math.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </motion.div>
                     </div>
                 </div>
@@ -381,13 +211,11 @@ export default function JobTrackerPage() {
                                 <BarChart3 className="w-4 h-4" />
                                 Analytics
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Understand Your Job Search
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            <H2>Understand Your Job Search</H2>
+                            <P>
                                 Track response rates, interview conversions, and application
                                 trends. Optimize your strategy with data.
-                            </p>
+                            </P>
                             <Link
                                 href="/dashboard/jobs"
                                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"

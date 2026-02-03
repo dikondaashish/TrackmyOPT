@@ -13,6 +13,7 @@ import {
     FileText
 } from "lucide-react";
 import Link from "next/link";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
 
 export function LandingFeatures() {
     return (
@@ -77,7 +78,11 @@ export function LandingFeatures() {
                             </p>
                         </div>
                         {/* Decorative Gradient - Blue/Cyan */}
-                        <div className="absolute top-1/2 -right-20 w-[200px] h-[200px] bg-gradient-to-br from-blue-500/10 to-cyan-500/10 blur-3xl rounded-full group-hover:bg-blue-500/20 transition-all duration-500" />
+                        <div className="absolute top-0 right-0 h-full w-full pointer-events-none overflow-hidden rounded-3xl">
+                            <ParallaxImage offset={30} className="w-full h-full">
+                                <div className="absolute top-1/2 -right-20 w-[200px] h-[200px] bg-gradient-to-br from-blue-500/10 to-cyan-500/10 blur-3xl rounded-full group-hover:bg-blue-500/20 transition-all duration-500" />
+                            </ParallaxImage>
+                        </div>
                     </div>
 
                     {/* Card 3 - AI Resume Doctor (High Value Gem) */}

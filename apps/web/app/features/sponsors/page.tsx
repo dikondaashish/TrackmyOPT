@@ -26,7 +26,11 @@ import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
 
 
-// Mock Sponsor Card Component
+import { SponsorSearchPreview } from "@/components/features/SponsorSearchPreview";
+import { HiddenDataLayers } from "@/components/features/HiddenDataLayers";
+import { H2, Lead, P } from "@/components/ui/typography";
+
+// Mock Sponsor Card Component (Keeping this as Hero Visual)
 function SponsorCardDemo() {
     return (
         <div className="relative">
@@ -104,62 +108,6 @@ function SponsorCardDemo() {
                     </div>
                 </div>
             </motion.div>
-        </div>
-    );
-}
-
-// Live Search Demo
-function SearchDemo() {
-    const suggestions = [
-        { name: "Google LLC", count: "928 H-1Bs" },
-        { name: "Goldman Sachs", count: "412 H-1Bs" },
-        { name: "Gartner Inc", count: "156 H-1Bs" },
-    ];
-
-    return (
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-6 shadow-xl">
-            {/* Search Input */}
-            <div className="relative mb-4">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <motion.div
-                    className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-zinc-800 rounded-xl border border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white font-medium"
-                >
-                    <motion.span
-                        initial={{ width: 0 }}
-                        animate={{ width: "auto" }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        className="inline-block overflow-hidden whitespace-nowrap"
-                    >
-                        Goo
-                    </motion.span>
-                    <motion.span
-                        className="inline-block w-0.5 h-5 bg-blue-500 ml-0.5"
-                        animate={{ opacity: [1, 0] }}
-                        transition={{ duration: 0.5, repeat: Infinity }}
-                    />
-                </motion.div>
-            </div>
-
-            {/* Suggestions */}
-            <div className="space-y-2">
-                {suggestions.map((item, i) => (
-                    <motion.div
-                        key={item.name}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1 + i * 0.15 }}
-                        className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                                <Building2 className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="font-medium text-gray-900 dark:text-white">{item.name}</span>
-                        </div>
-                        <span className="text-sm text-gray-500">{item.count}</span>
-                    </motion.div>
-                ))}
-            </div>
         </div>
     );
 }
@@ -244,8 +192,7 @@ export default function SponsorsPage() {
                     text: "See Sample Data",
                     href: "#demo"
                 }}
-                gradient="from-emerald-500 to-teal-600"
-                visual={<SponsorCardDemo />}
+                visual={<SponsorSearchPreview />}
             />
 
             {/* Data Stats */}
@@ -268,13 +215,11 @@ export default function SponsorsPage() {
                                 <Search className="w-4 h-4" />
                                 Instant Search
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Find Any Sponsor in Seconds
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            <H2>Find Any Sponsor in Seconds</H2>
+                            <P>
                                 Search by company name, location, or industry. Get instant results with
                                 sponsorship history, approval rates, and salary data.
-                            </p>
+                            </P>
                             <ul className="space-y-4">
                                 {[
                                     "Autocomplete with real company data",
@@ -295,7 +240,7 @@ export default function SponsorsPage() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                         >
-                            <SearchDemo />
+                            <SponsorSearchPreview />
                         </motion.div>
                     </div>
                 </div>
@@ -314,13 +259,11 @@ export default function SponsorsPage() {
                             <Shield className="w-4 h-4" />
                             Intelligence Signals
                         </div>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                            More Than Just Numbers
-                        </h2>
-                        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <H2>More Than Just Numbers</H2>
+                        <Lead>
                             Our AI analyzes patterns to surface red flags and opportunities
                             you won't find anywhere else.
-                        </p>
+                        </Lead>
                     </motion.div>
 
                     <SignalGrid />
@@ -337,36 +280,7 @@ export default function SponsorsPage() {
                             viewport={{ once: true }}
                             className="order-2 lg:order-1"
                         >
-                            <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
-                                <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-500 to-orange-600">
-                                    <motion.div
-                                        animate={{ scale: [1, 1.1, 1] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                    >
-                                        <Shield className="w-12 h-12 text-white" />
-                                    </motion.div>
-                                </div>
-                                <div className="space-y-4">
-                                    {[
-                                        "Virtual office address detection",
-                                        "Unusual filing pattern alerts",
-                                        "DOL investigation history",
-                                        "Community fraud reports"
-                                    ].map((item, i) => (
-                                        <motion.div
-                                            key={item}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            whileInView={{ opacity: 1, x: 0 }}
-                                            viewport={{ once: true }}
-                                            transition={{ delay: i * 0.1 }}
-                                            className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl"
-                                        >
-                                            <CheckCircle2 className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                                            <span className="text-gray-700 dark:text-gray-300">{item}</span>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            </div>
+                            <HiddenDataLayers />
                         </motion.div>
 
                         <motion.div
@@ -379,13 +293,11 @@ export default function SponsorsPage() {
                                 <AlertTriangle className="w-4 h-4" />
                                 Fraud Protection
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                                Avoid Visa Fraud Before It's Too Late
-                            </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                            <H2>Avoid Visa Fraud Before It's Too Late</H2>
+                            <P>
                                 Our system flags potential red flags like virtual offices, unusual
                                 filing patterns, and companies with DOL investigations.
-                            </p>
+                            </P>
                             <Link
                                 href="/resources/report-fraud"
                                 className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold hover:gap-3 transition-all"

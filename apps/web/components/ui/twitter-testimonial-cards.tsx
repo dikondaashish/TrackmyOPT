@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface TestimonialCardProps {
     className?: string;
@@ -92,9 +93,9 @@ function TestimonialCard({
         >
             {/* Header */}
             <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
-                <div className="size-9 sm:size-12 rounded-full bg-gradient-to-br from-green-400 via-yellow-400 to-green-500 flex items-center justify-center overflow-hidden shrink-0">
+                <div className="size-9 sm:size-12 rounded-full bg-gradient-to-br from-green-400 via-yellow-400 to-green-500 flex items-center justify-center overflow-hidden shrink-0 relative">
                     {avatar ? (
-                        <img src={avatar} alt={username} className="w-full h-full object-cover" />
+                        <Image src={avatar} alt={username} fill className="object-cover" sizes="(max-width: 640px) 36px, 48px" />
                     ) : (
                         <span className="text-lg sm:text-2xl">🐸</span>
                     )}
