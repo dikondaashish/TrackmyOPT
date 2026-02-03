@@ -438,7 +438,7 @@ CREATE TABLE IF NOT EXISTS public.payment_transactions (
   stripe_checkout_session_id TEXT,
   
   -- Payment Details
-  amount INTEGER NOT NULL,                    -- Amount in cents (299 = $2.99)
+  amount INTEGER NOT NULL,                    -- Amount in cents (499 = $4.99)
   currency TEXT DEFAULT 'usd',
   status TEXT NOT NULL,                       -- pending, succeeded, failed, refunded, canceled
   payment_method_type TEXT,                   -- card, apple_pay, google_pay, etc.

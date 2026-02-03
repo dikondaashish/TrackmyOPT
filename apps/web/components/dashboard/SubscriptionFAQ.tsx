@@ -3,8 +3,8 @@ import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 
 const faqs = [
     {
-        question: "Is this a one-time payment?",
-        answer: "Yes! Our lifetime plan is a single payment that gives you permanent access to all premium features. No monthly fees."
+        question: "Is this a subscription?",
+        answer: "Yes, we offer flexible monthly and annual plans. You can cancel anytime. Our annual plans come with a 20% discount."
     },
     {
         question: "Is my payment secure?",
@@ -12,11 +12,11 @@ const faqs = [
     },
     {
         question: "Can I get a refund?",
-        answer: "If you're not satisfied, contact us within 7 days for a refund. We want you to be happy with your purchase."
+        answer: "We offer a 7-day free trial so you can test all features risk-free. You won't be charged if you cancel before the trial ends."
     },
     {
-        question: "What happens to my data if I don't upgrade?",
-        answer: "Your data is safe! You will stay on the free plan with limited access to advanced features, but you won't lose your existing data."
+        question: "What happens to my data if I cancel?",
+        answer: "Your data is safe! You will return to the free plan. You'll keep your account and basic data, but premium features like the H-1B database will be locked."
     }
 ];
 

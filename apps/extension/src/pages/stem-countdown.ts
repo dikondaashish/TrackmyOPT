@@ -5,8 +5,8 @@ import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } fro
  * Get formatted date for card display
  */
 function getCardDateFormat(date: Date): { day: string; month: string; year: string } {
-  const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 
-                  'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+  const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
+    'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
   return {
     day: String(date.getDate()),
     month: months[date.getMonth()],
@@ -26,16 +26,16 @@ function calculateTimeRemaining(targetDate: Date): {
 } {
   const now = new Date();
   const diff = targetDate.getTime() - now.getTime();
-  
+
   if (diff <= 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 };
   }
-  
+
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-  
+
   return { days, hours, minutes, seconds, total: diff };
 }
 
@@ -47,7 +47,7 @@ function calculateTimeRemaining(targetDate: Date): {
 async function checkPremiumStatus(): Promise<boolean> {
   try {
     const { idToken } = await chrome.storage.sync.get('idToken');
-    
+
     // Try with idToken first (extension auth)
     if (idToken) {
       const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
@@ -57,13 +57,13 @@ async function checkPremiumStatus(): Promise<boolean> {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         return result.isPremium || false;
       }
     }
-    
+
     // Fallback: Try with cookies (web session auth)
     // This works if user signed in via dashboard
     const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
@@ -73,9 +73,9 @@ async function checkPremiumStatus(): Promise<boolean> {
         'Content-Type': 'application/json',
       },
     });
-    
+
     if (!response.ok) return false;
-    
+
     const result = await response.json();
     return result.isPremium || false;
   } catch (error) {
@@ -112,7 +112,7 @@ async function loadToolEmail(tool: string): Promise<string | null> {
     }
 
     if (!response.ok) return null;
-    
+
     const result = await response.json();
     return result.email || null;
   } catch (error) {
@@ -160,7 +160,7 @@ async function saveToolEmail(tool: string, email: string): Promise<boolean> {
  * Render STEM OPT Countdown Page
  */
 export async function renderStemCountdown(
-  root: HTMLElement, 
+  root: HTMLElement,
   onBack: () => void,
   results: {
     earliestStart: Date;
@@ -169,33 +169,35 @@ export async function renderStemCountdown(
   }
 ): Promise<void> {
   root.innerHTML = '';
-  
+
   // Save page state for persistence
   setCurrentPage('stem-countdown');
-  savePageData('stem-countdown', { results: {
-    earliestStart: results.earliestStart.toISOString(),
-    latestEnd: results.latestEnd.toISOString(),
-    currentOptEndDate: results.currentOptEndDate.toISOString()
-  }});
-  
+  savePageData('stem-countdown', {
+    results: {
+      earliestStart: results.earliestStart.toISOString(),
+      latestEnd: results.latestEnd.toISOString(),
+      currentOptEndDate: results.currentOptEndDate.toISOString()
+    }
+  });
+
   renderPageHeader(root, 'STEM OPT Filing Window', 'Your personalized countdown');
-  
+
   const content = document.createElement('div');
   content.style.cssText = 'margin-top: 12px;';
-  
+
   const startCard = getCardDateFormat(results.earliestStart);
   const now = new Date();
   const presentCard = getCardDateFormat(now);
   const endCard = getCardDateFormat(results.latestEnd);
-  
+
   let countdownInterval: number | null = null;
-  
+
   const isPremium = await checkPremiumStatus();
-  
+
   // Load email from API (syncs with website)
   const subscribedEmail = await loadToolEmail('stem_apply');
   const hasSubscribed = !!subscribedEmail;
-  
+
   content.innerHTML = `
     <!-- Date Cards -->
     <div style="display: flex; gap: 8px; margin-bottom: 10px;">
@@ -334,7 +336,7 @@ export async function renderStemCountdown(
           <div style="text-align: center; padding: 16px;">
             <div style="font-size: 24px; margin-bottom: 8px;">🔒</div>
             <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Unlock Daily Email Reminders</div>
-            <div style="font-size: 11px; opacity: 0.9; margin-bottom: 12px;">Get daily email notifications for just $2.99 (lifetime access)</div>
+            <div style="font-size: 11px; opacity: 0.9; margin-bottom: 12px;">Get daily email notifications with Pro ($4.99/mo)</div>
             <button 
               id="upgrade-premium-btn"
               style="
@@ -350,7 +352,7 @@ export async function renderStemCountdown(
                 box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
               "
             >
-              Upgrade to Premium - $2.99
+              Upgrade to Pro ($4.99/mo)
             </button>
           </div>
         `}
@@ -376,16 +378,16 @@ export async function renderStemCountdown(
       Modify Approval Date
     </button>
   `;
-  
+
   root.appendChild(content);
-  
+
   // Store previous values for flip animation
   let previousValues = { days: 0, hours: 0, minutes: 0, seconds: 0 };
-  
+
   // Update countdown every second with flip animation and dynamic colors
   function updateCountdown() {
     const remaining = calculateTimeRemaining(results.latestEnd);
-    
+
     const daysLeftText = content.querySelector('#days-left-text');
     const daysEl = content.querySelector('#countdown-days') as HTMLElement;
     const hoursEl = content.querySelector('#countdown-hours') as HTMLElement;
@@ -393,7 +395,7 @@ export async function renderStemCountdown(
     const secondsEl = content.querySelector('#countdown-seconds') as HTMLElement;
     const messageEl = content.querySelector('#time-message');
     const containerEl = content.querySelector('#countdown-container') as HTMLElement;
-    
+
     // Determine color based on days remaining (Apple colors)
     let gradient = '';
     if (remaining.days > 60) {
@@ -407,9 +409,9 @@ export async function renderStemCountdown(
     } else {
       gradient = 'linear-gradient(135deg, #FF3B30, #FF453A)'; // Red
     }
-    
+
     if (containerEl) containerEl.style.background = gradient;
-    
+
     // Flip animation function
     function flipElement(element: HTMLElement, newValue: string) {
       if (!element) return;
@@ -421,34 +423,34 @@ export async function renderStemCountdown(
         element.style.opacity = '1';
       }, 150);
     }
-    
+
     const currentDays = String(remaining.days).padStart(2, '0');
     const currentHours = String(remaining.hours).padStart(2, '0');
     const currentMinutes = String(remaining.minutes).padStart(2, '0');
     const currentSeconds = String(remaining.seconds).padStart(2, '0');
-    
+
     if (daysLeftText) daysLeftText.textContent = `${remaining.days} days left`;
-    
+
     if (daysEl && currentDays !== String(previousValues.days).padStart(2, '0')) {
       flipElement(daysEl, currentDays);
     } else if (daysEl) {
       daysEl.textContent = currentDays;
     }
-    
+
     if (hoursEl && currentHours !== String(previousValues.hours).padStart(2, '0')) {
       flipElement(hoursEl, currentHours);
     } else if (hoursEl) {
       hoursEl.textContent = currentHours;
     }
-    
+
     if (minutesEl && currentMinutes !== String(previousValues.minutes).padStart(2, '0')) {
       flipElement(minutesEl, currentMinutes);
     } else if (minutesEl) {
       minutesEl.textContent = currentMinutes;
     }
-    
+
     if (secondsEl) flipElement(secondsEl, currentSeconds);
-    
+
     if (messageEl) {
       if (remaining.days > 60) {
         messageEl.textContent = 'You have plenty of time remaining';
@@ -462,13 +464,13 @@ export async function renderStemCountdown(
         messageEl.textContent = '🚨 URGENT: Apply immediately!';
       }
     }
-    
+
     previousValues = { days: remaining.days, hours: remaining.hours, minutes: remaining.minutes, seconds: remaining.seconds };
   }
-  
+
   updateCountdown();
   countdownInterval = window.setInterval(updateCountdown, 1000);
-  
+
   // Event listeners
   const modifyBtn = content.querySelector('#modify-dates-btn');
   if (modifyBtn) {
@@ -477,14 +479,14 @@ export async function renderStemCountdown(
       onBack();
     });
   }
-  
+
   if (isPremium) {
     const saveEmailBtn = content.querySelector('#save-email-btn') as HTMLButtonElement;
     if (saveEmailBtn) {
       saveEmailBtn.addEventListener('click', async () => {
         const emailInput = content.querySelector('#reminder-email-input') as HTMLInputElement;
         const email = emailInput?.value.trim();
-        
+
         if (!email) {
           chrome.notifications.create({
             type: 'basic',
@@ -494,7 +496,7 @@ export async function renderStemCountdown(
           });
           return;
         }
-        
+
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -506,14 +508,14 @@ export async function renderStemCountdown(
           });
           return;
         }
-        
+
         // Save email to API (syncs with website and database)
         const success = await saveToolEmail('stem_apply', email);
-        
+
         if (success) {
           // Also save to local storage for quick access
           await chrome.storage.sync.set({ subscribedEmail: email });
-          
+
           // Show success notification
           chrome.notifications.create({
             type: 'basic',
@@ -521,11 +523,11 @@ export async function renderStemCountdown(
             title: '✅ Email Saved!',
             message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
           });
-          
+
           // Change button to checkmark
           saveEmailBtn.innerHTML = '✅';
           saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
-          
+
           // Reload the page after 1 second to show "Stop Reminders" button
           setTimeout(() => {
             renderStemCountdown(root, onBack, results);
@@ -540,7 +542,7 @@ export async function renderStemCountdown(
         }
       });
     }
-    
+
     const stopBtn = content.querySelector('#stop-reminders-btn');
     if (stopBtn) {
       stopBtn.addEventListener('click', async () => {
@@ -549,7 +551,7 @@ export async function renderStemCountdown(
           await saveToolEmail('stem_apply', '');
           // Also remove from local storage
           await chrome.storage.sync.remove('subscribedEmail');
-          
+
           // Show notification
           chrome.notifications.create({
             type: 'basic',
@@ -557,7 +559,7 @@ export async function renderStemCountdown(
             title: 'Reminders Stopped',
             message: 'Daily email reminders have been stopped'
           });
-          
+
           // Reload the page immediately to hide the button
           renderStemCountdown(root, onBack, results);
         }
@@ -573,7 +575,7 @@ export async function renderStemCountdown(
       });
     }
   }
-  
+
   setupPageHandlers(onBack);
 }
 

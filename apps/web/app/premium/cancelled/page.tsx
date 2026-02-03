@@ -48,7 +48,7 @@ export default function PremiumCancelled() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-500 mt-0.5">✓</span>
-              <span><strong>Lifetime access</strong> for just $2.99</span>
+              <span><strong>Pro access</strong> for just $4.99/mo</span>
             </li>
           </ul>
         </div>

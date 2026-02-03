@@ -65,10 +65,10 @@ export async function GET(req: NextRequest) {
     }
 
     if (!userId) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         isPremium: false,
         error: 'Not authenticated'
-      }, { 
+      }, {
         status: 200,
         headers: corsHeaders
       });
@@ -88,10 +88,10 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error('Error checking premium status:', error);
-      return NextResponse.json({ 
+      return NextResponse.json({
         isPremium: false,
         error: error.message
-      }, { 
+      }, {
         status: 200,
         headers: corsHeaders
       });
@@ -99,21 +99,43 @@ export async function GET(req: NextRequest) {
 
     // If no profile found or premium_status is false
     if (!data || !data.premium_status) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         isPremium: false,
         purchasedAt: null
-      }, { 
+      }, {
         status: 200,
         headers: corsHeaders
       });
     }
 
-    // User has premium (lifetime access)
-    return NextResponse.json({ 
+    // User has premium (active subscription)
+    let planName = 'pro'; // Default to pro
+
+    // Fetch latest successful payment to determine plan
+    const { data: lastPayment } = await supabase
+      .from('payment_transactions')
+      .select('amount')
+      .eq('user_id', userId)
+      .eq('status', 'succeeded')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (lastPayment && lastPayment.amount) {
+      // Dedicated is $14.99 (1499) or $149.99 (14999)
+      // Pro is $4.99 (499) or $49.99 (4999)
+      // Any amount >= 1000 is likely Dedicated (or old high tier)
+      if (lastPayment.amount >= 1000) {
+        planName = 'dedicated';
+      }
+    }
+
+    return NextResponse.json({
       isPremium: true,
+      planName,
       purchasedAt: data.premium_purchased_at,
       customerId: data.stripe_customer_id
-    }, { 
+    }, {
       status: 200,
       headers: corsHeaders
     });
@@ -121,7 +143,7 @@ export async function GET(req: NextRequest) {
     console.error('GET /api/premium/status error:', error);
     return NextResponse.json(
       { isPremium: false },
-      { 
+      {
         status: 200,
         headers: corsHeaders
       }

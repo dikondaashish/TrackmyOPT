@@ -24,9 +24,11 @@ interface PricingModalProps {
   onClose: () => void;
   userEmail?: string;
   isPremium?: boolean;
+  initialPlan?: string;
+  initialInterval?: string;
 }
 
-export function PricingModal({ open, onClose, userEmail, isPremium = false }: PricingModalProps) {
+export function PricingModal({ open, onClose, userEmail, isPremium = false, initialPlan, initialInterval }: PricingModalProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const freePlanFeatures = [
@@ -44,8 +46,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
     { text: "Automatic expiry reminders for documents" },
     { text: "Passcode-protected document vault" },
     { text: "Priority support" },
-    { text: "Lifetime access" },
-    { text: "No subscription" },
+    { text: "Cancel anytime" },
+    { text: "Secure payments" },
   ];
 
   const handleUpgrade = async () => {
@@ -59,6 +61,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
         body: JSON.stringify({
           successUrl: `${window.location.origin}/premium/success`,
           cancelUrl: `${window.location.origin}/dashboard`,
+          planId: initialPlan || 'pro',
+          interval: initialInterval || 'year',
         }),
       });
 
@@ -73,6 +77,14 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
       setIsLoading(false);
     }
   };
+
+  // Auto-start if params are present and not already premium
+  if (open && initialPlan && !isPremium && !isLoading) {
+    // Small timeout to allow render
+    setTimeout(() => {
+      if (!isLoading) handleUpgrade();
+    }, 100);
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -142,8 +154,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
                   </span>
                 </div>
               </CardTitle>
-              <span className="text-3xl font-bold">$2.99</span>
-              <p className="text-muted-foreground text-xs">One-time payment, lifetime access</p>
+              <span className="text-3xl font-bold">$4.99</span>
+              <p className="text-muted-foreground text-xs">per month</p>
             </CardHeader>
             <CardContent className="flex-1 pb-3">
               <Separator className="mb-4" />
@@ -165,7 +177,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
                     Active
                   </Button>
                   <p className="text-xs text-center text-muted-foreground mt-1.5">
-                    You have lifetime access
+                    Active Pro Plan
                   </p>
                 </div>
               ) : (
@@ -190,7 +202,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false }: Pr
 
         <div className="mt-4 text-center text-[10px] text-muted-foreground">
           <p>💳 Secure payment powered by Stripe</p>
-          <p className="mt-0.5">✨ Lifetime access • 🔒 No subscription • 💯 One-time payment</p>
+          <p className="mt-0.5">✨ 7-Day Free Trial • 🔒 Secure Payment • 💯 Cancel Anytime</p>
         </div>
       </DialogContent>
     </Dialog>

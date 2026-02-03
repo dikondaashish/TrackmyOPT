@@ -8,11 +8,12 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { PricingModal } from '@/components/pricing/PricingModal';
 
 export default function PremiumCheckout() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPremium, setIsPremium] = useState(false);
   const [checking, setChecking] = useState(true);
   const [userEmail, setUserEmail] = useState('');
@@ -72,7 +73,7 @@ export default function PremiumCheckout() {
             You're Already Premium!
           </h1>
           <p className="text-gray-600 dark:text-muted-foreground mb-6">
-            You already have lifetime access to premium features.
+            You have an active Pro subscription.
           </p>
           <button
             onClick={() => router.push('/dashboard')}
@@ -92,6 +93,8 @@ export default function PremiumCheckout() {
         onClose={handleClose}
         userEmail={userEmail}
         isPremium={isPremium}
+        initialPlan={searchParams?.get('planId') || undefined}
+        initialInterval={searchParams?.get('interval') || undefined}
       />
     </div>
   );

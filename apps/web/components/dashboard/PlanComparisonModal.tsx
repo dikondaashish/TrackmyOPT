@@ -69,9 +69,9 @@ export function PlanComparisonModal() {
                             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-2 rounded-lg font-semibold shadow-lg"
                             onClick={() => window.location.href = '/premium/checkout'}
                         >
-                            Upgrade for $2.99
+                            Start 7-Day Free Trial
                         </Button>
-                        <p className="mt-2 text-xs text-gray-500">One-time payment. Lifetime access.</p>
+                        <p className="mt-2 text-xs text-gray-500">Then $4.99/mo. Cancel anytime.</p>
                     </div>
                 </DialogContent>
             </Dialog>

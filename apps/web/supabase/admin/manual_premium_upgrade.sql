@@ -74,7 +74,7 @@ SELECT
   user_id,
   'pi_manual_upgrade',
   'cus_manual_upgrade',
-  299,  -- $2.99 in cents
+  499,  -- $4.99 in cents
   'usd',
   'succeeded',
   'manual',

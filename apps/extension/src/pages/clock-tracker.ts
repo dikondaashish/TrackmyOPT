@@ -6,8 +6,8 @@ import { renderPageHeader, setupPageHandlers } from '../navigation.js';
  */
 function getCardDateFormat(date: Date): { day: string; month: string; year: string } {
   const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
-                  'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
-  
+    'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+
   return {
     day: String(date.getDate()),
     month: months[date.getMonth()],
@@ -28,7 +28,7 @@ function calculateTimeRemaining(endDate: Date): {
 } {
   const now = new Date();
   const total = endDate.getTime() - now.getTime();
-  
+
   if (total <= 0) {
     return {
       total: 0,
@@ -39,12 +39,12 @@ function calculateTimeRemaining(endDate: Date): {
       message: "⚠️ Your OPT period has ended"
     };
   }
-  
+
   const days = Math.floor(total / (1000 * 60 * 60 * 24));
   const hours = Math.floor((total % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((total % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((total % (1000 * 60)) / 1000);
-  
+
   let message = '';
   if (days <= 7) {
     message = '🚨 Urgent! Very little time left';
@@ -55,7 +55,7 @@ function calculateTimeRemaining(endDate: Date): {
   } else {
     message = '✅ You have plenty of time remaining';
   }
-  
+
   return { total, days, hours, minutes, seconds, message };
 }
 
@@ -65,7 +65,7 @@ function calculateTimeRemaining(endDate: Date): {
 async function checkPremiumStatus(): Promise<boolean> {
   try {
     const { idToken } = await chrome.storage.sync.get('idToken');
-    
+
     // Try with idToken first (extension auth)
     if (idToken) {
       const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
@@ -75,13 +75,13 @@ async function checkPremiumStatus(): Promise<boolean> {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         return result.isPremium || false;
       }
     }
-    
+
     // Fallback: Try with cookies (web session auth)
     // This works if user signed in via dashboard
     const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
@@ -91,9 +91,9 @@ async function checkPremiumStatus(): Promise<boolean> {
         'Content-Type': 'application/json',
       },
     });
-    
+
     if (!response.ok) return false;
-    
+
     const result = await response.json();
     return result.isPremium || false;
   } catch (error) {
@@ -130,7 +130,7 @@ async function loadToolEmail(tool: string): Promise<string | null> {
     }
 
     if (!response.ok) return null;
-    
+
     const result = await response.json();
     return result.email || null;
   } catch (error) {
@@ -183,29 +183,29 @@ export function renderClockTracker(
   startDate: Date
 ): void {
   root.innerHTML = '';
-  
+
   // Save page state for persistence
   import('../navigation.js').then(({ setCurrentPage, savePageData }) => {
     setCurrentPage('clock-tracker');
     savePageData('clock-tracker', { startDate: startDate.toISOString() });
   });
-  
+
   renderPageHeader(root, 'OPT Clock Tracker', 'Track your OPT timeline with precision');
-  
+
   const content = document.createElement('div');
   content.style.cssText = 'margin-top: 12px;';
-  
+
   // Calculate end date (90 days of unemployment allowed for Regular OPT)
   const endDate = new Date(startDate);
   endDate.setDate(endDate.getDate() + 90);
-  
+
   const today = new Date();
-  
+
   // Format dates for cards
   const startFormatted = getCardDateFormat(startDate);
   const todayFormatted = getCardDateFormat(today);
   const endFormatted = getCardDateFormat(endDate);
-  
+
   // Date cards container
   const dateCardsContainer = document.createElement('div');
   dateCardsContainer.style.cssText = `
@@ -214,7 +214,7 @@ export function renderClockTracker(
     gap: 8px;
     margin-bottom: 12px;
   `;
-  
+
   // START DATE card (Blue)
   const startCard = document.createElement('div');
   startCard.style.cssText = `
@@ -237,7 +237,7 @@ export function renderClockTracker(
     <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.25); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">START DATE</div>
   `;
   dateCardsContainer.appendChild(startCard);
-  
+
   // PRESENT card (Green)
   const presentCard = document.createElement('div');
   presentCard.style.cssText = `
@@ -260,7 +260,7 @@ export function renderClockTracker(
     <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.25); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">PRESENT</div>
   `;
   dateCardsContainer.appendChild(presentCard);
-  
+
   // END DATE card (Red)
   const endCard = document.createElement('div');
   endCard.style.cssText = `
@@ -283,9 +283,9 @@ export function renderClockTracker(
     <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.25); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">END DATE</div>
   `;
   dateCardsContainer.appendChild(endCard);
-  
+
   content.appendChild(dateCardsContainer);
-  
+
   // Countdown card
   const countdownCard = document.createElement('div');
   countdownCard.style.cssText = `
@@ -296,9 +296,9 @@ export function renderClockTracker(
     margin-bottom: 12px;
     box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
   `;
-  
+
   const timeRemaining = calculateTimeRemaining(endDate);
-  
+
   countdownCard.innerHTML = `
     <div id="days-left-text" style="font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 14px; line-height: 1;">${timeRemaining.days} days left</div>
     
@@ -323,9 +323,9 @@ export function renderClockTracker(
     
     <div id="countdown-message" style="text-align: center; font-size: 13px; font-weight: 600; opacity: 0.95;">${timeRemaining.message}</div>
   `;
-  
+
   content.appendChild(countdownCard);
-  
+
   // Email reminders card (Premium feature)
   const remindersCard = document.createElement('div');
   remindersCard.id = 'reminders-card';
@@ -337,7 +337,7 @@ export function renderClockTracker(
     margin-bottom: 12px;
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
   `;
-  
+
   remindersCard.innerHTML = `
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
       <div style="font-size: 22px;">📧</div>
@@ -348,7 +348,7 @@ export function renderClockTracker(
     </div>
     <div id="premium-content" style="text-align: center; padding: 20px 10px;">
       <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.95;">🔒 Unlock Daily Email Reminders</div>
-      <div style="font-size: 12px; margin-bottom: 14px; opacity: 0.9;">Get daily email notifications for just $2.99 (lifetime access)</div>
+      <div style="font-size: 12px; margin-bottom: 14px; opacity: 0.9;">Get daily email notifications with Pro ($4.99/mo)</div>
       <button id="upgrade-btn" style="
         width: 100%;
         padding: 12px;
@@ -362,12 +362,12 @@ export function renderClockTracker(
         cursor: pointer;
         transition: all 0.2s;
         font-family: inherit;
-      ">Upgrade to Premium - $2.99</button>
+      ">Upgrade to Pro ($4.99/mo)</button>
     </div>
   `;
-  
+
   content.appendChild(remindersCard);
-  
+
   // Modify button
   const modifyBtn = document.createElement('button');
   modifyBtn.innerHTML = 'Modify Start Date';
@@ -386,16 +386,16 @@ export function renderClockTracker(
     font-family: inherit;
   `;
   content.appendChild(modifyBtn);
-  
+
   root.appendChild(content);
-  
+
   // Store previous values for flip animation
   let previousValues = { days: 0, hours: 0, minutes: 0, seconds: 0 };
-  
+
   // Update countdown every second with flip animation and dynamic colors
   let countdownInterval: ReturnType<typeof setInterval> | null = setInterval(() => {
     const remaining = calculateTimeRemaining(endDate);
-    
+
     const daysEl = document.getElementById('countdown-days') as HTMLElement;
     const hoursEl = document.getElementById('countdown-hours') as HTMLElement;
     const minutesEl = document.getElementById('countdown-minutes') as HTMLElement;
@@ -403,7 +403,7 @@ export function renderClockTracker(
     const messageEl = document.getElementById('countdown-message');
     const daysLeftEl = document.getElementById('days-left-text');
     const containerEl = document.getElementById('countdown-container') as HTMLElement;
-    
+
     // Determine color based on days remaining (Apple colors)
     let gradient = '';
     if (remaining.days > 60) {
@@ -417,9 +417,9 @@ export function renderClockTracker(
     } else {
       gradient = 'linear-gradient(135deg, #FF3B30, #FF453A)'; // Red
     }
-    
+
     if (containerEl) containerEl.style.background = gradient;
-    
+
     // Flip animation function
     function flipElement(element: HTMLElement, newValue: string) {
       if (!element) return;
@@ -431,48 +431,48 @@ export function renderClockTracker(
         element.style.opacity = '1';
       }, 150);
     }
-    
+
     const currentDays = String(remaining.days).padStart(2, '0');
     const currentHours = String(remaining.hours).padStart(2, '0');
     const currentMinutes = String(remaining.minutes).padStart(2, '0');
     const currentSeconds = String(remaining.seconds).padStart(2, '0');
-    
+
     if (daysEl && currentDays !== String(previousValues.days).padStart(2, '0')) {
       flipElement(daysEl, currentDays);
     } else if (daysEl) {
       daysEl.textContent = currentDays;
     }
-    
+
     if (hoursEl && currentHours !== String(previousValues.hours).padStart(2, '0')) {
       flipElement(hoursEl, currentHours);
     } else if (hoursEl) {
       hoursEl.textContent = currentHours;
     }
-    
+
     if (minutesEl && currentMinutes !== String(previousValues.minutes).padStart(2, '0')) {
       flipElement(minutesEl, currentMinutes);
     } else if (minutesEl) {
       minutesEl.textContent = currentMinutes;
     }
-    
+
     if (secondsEl) flipElement(secondsEl, currentSeconds);
-    
+
     if (messageEl) messageEl.textContent = remaining.message;
     if (daysLeftEl) daysLeftEl.textContent = `${remaining.days} days left`;
-    
+
     previousValues = { days: remaining.days, hours: remaining.hours, minutes: remaining.minutes, seconds: remaining.seconds };
-    
+
     if (remaining.total <= 0 && countdownInterval) {
       clearInterval(countdownInterval);
       countdownInterval = null;
     }
   }, 1000);
-  
+
   // Check premium status and update UI
   checkPremiumStatus().then(async (isPremium) => {
     const premiumContent = document.getElementById('premium-content');
     if (!premiumContent) return;
-    
+
     if (isPremium) {
       // Load email from API (syncs with website and database)
       const savedEmail = await loadToolEmail('opt_clock');
@@ -481,7 +481,7 @@ export function renderClockTracker(
         await chrome.storage.sync.set({ subscribedEmail: savedEmail });
       }
       const hasSubscribed = !!savedEmail;
-      
+
       premiumContent.innerHTML = `
         <div style="position: relative;">
           <input 
@@ -547,14 +547,14 @@ export function renderClockTracker(
           </button>
         ` : ''}
       `;
-      
+
       const saveEmailBtn = document.getElementById('save-email-btn') as HTMLButtonElement;
       const stopRemindersBtn = document.getElementById('stop-reminders-btn');
-      
+
       saveEmailBtn?.addEventListener('click', async () => {
         const emailInput = document.getElementById('reminder-email-input') as HTMLInputElement;
         const email = emailInput?.value.trim();
-        
+
         if (!email) {
           chrome.notifications.create({
             type: 'basic',
@@ -564,7 +564,7 @@ export function renderClockTracker(
           });
           return;
         }
-        
+
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -576,14 +576,14 @@ export function renderClockTracker(
           });
           return;
         }
-        
+
         // Save email to API (syncs with website and database)
         const success = await saveToolEmail('opt_clock', email);
-        
+
         if (success) {
           // Also save to local storage for quick access
           await chrome.storage.sync.set({ subscribedEmail: email });
-          
+
           // Show success notification
           chrome.notifications.create({
             type: 'basic',
@@ -591,12 +591,12 @@ export function renderClockTracker(
             title: '✅ Email Saved!',
             message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
           });
-          
+
           // Change button to checkmark
           if (saveEmailBtn) {
             saveEmailBtn.innerHTML = '✅';
             saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
-            
+
             // Reload the page after 1 second to show "Stop Reminders" button
             setTimeout(() => {
               renderClockTracker(root, onBack, startDate);
@@ -611,15 +611,15 @@ export function renderClockTracker(
           });
         }
       });
-      
+
       stopRemindersBtn?.addEventListener('click', async () => {
         if (confirm('Are you sure you want to stop daily reminders?')) {
           // Remove email from API (syncs with website and database)
           await saveToolEmail('opt_clock', '');
-          
+
           // Remove email from storage
           await chrome.storage.sync.remove('subscribedEmail');
-          
+
           // Show notification
           chrome.notifications.create({
             type: 'basic',
@@ -627,12 +627,12 @@ export function renderClockTracker(
             title: 'Reminders Stopped',
             message: 'Daily email reminders have been stopped'
           });
-          
+
           // Reload the page immediately to hide the button
           renderClockTracker(root, onBack, startDate);
         }
       });
-      
+
       // Hover effects
       saveEmailBtn?.addEventListener('mouseenter', () => {
         if (saveEmailBtn) saveEmailBtn.style.background = 'rgba(255,255,255,0.4)';
@@ -640,7 +640,7 @@ export function renderClockTracker(
       saveEmailBtn?.addEventListener('mouseleave', () => {
         if (saveEmailBtn) saveEmailBtn.style.background = 'rgba(255,255,255,0.3)';
       });
-      
+
       stopRemindersBtn?.addEventListener('mouseenter', () => {
         if (stopRemindersBtn) stopRemindersBtn.style.background = 'rgba(255,255,255,0.25)';
       });
@@ -649,22 +649,22 @@ export function renderClockTracker(
       });
     }
   });
-  
+
   // Event handlers
   const upgradeBtn = document.getElementById('upgrade-btn');
-  
+
   upgradeBtn?.addEventListener('click', () => {
     chrome.tabs.create({ url: `${WEBSITE_URL}/dashboard?upgrade=true` });
   });
-  
+
   upgradeBtn?.addEventListener('mouseenter', () => {
     if (upgradeBtn) upgradeBtn.style.background = 'rgba(255,255,255,0.35)';
   });
-  
+
   upgradeBtn?.addEventListener('mouseleave', () => {
     if (upgradeBtn) upgradeBtn.style.background = 'rgba(255,255,255,0.25)';
   });
-  
+
   modifyBtn.addEventListener('click', () => {
     if (countdownInterval) {
       clearInterval(countdownInterval);
@@ -672,17 +672,17 @@ export function renderClockTracker(
     }
     onBack();
   });
-  
+
   modifyBtn.addEventListener('mouseenter', () => {
     modifyBtn.style.transform = 'translateY(-2px)';
     modifyBtn.style.boxShadow = '0 8px 24px rgba(16, 185, 129, 0.4)';
   });
-  
+
   modifyBtn.addEventListener('mouseleave', () => {
     modifyBtn.style.transform = 'translateY(0)';
     modifyBtn.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.3)';
   });
-  
+
   setupPageHandlers(onBack);
 }
 

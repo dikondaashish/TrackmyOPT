@@ -349,7 +349,7 @@ export async function renderOptCountdown(
           <div style="text-align: center; padding: 16px;">
             <div style="font-size: 24px; margin-bottom: 8px;">🔒</div>
             <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Unlock Daily Email Reminders</div>
-            <div style="font-size: 11px; opacity: 0.9; margin-bottom: 12px;">Get daily email notifications for just $2.99 (lifetime access)</div>
+            <div style="font-size: 11px; opacity: 0.9; margin-bottom: 12px;">Get daily email notifications with Pro ($4.99/mo)</div>
             <button 
               id="upgrade-premium-btn"
               style="
@@ -365,7 +365,7 @@ export async function renderOptCountdown(
                 box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
               "
             >
-              Upgrade to Premium - $2.99
+              Upgrade to Pro ($4.99/mo)
             </button>
           </div>
         `}

@@ -67,11 +67,11 @@ export const softwareApplicationSchema = {
         },
         {
             "@type": "Offer",
-            name: "Premium Plan",
-            price: "19.99",
+            name: "Pro Plan",
+            price: "4.99",
             priceCurrency: "USD",
             description:
-                "Unlimited case tracking, Document Vault, expiry reminders, priority support",
+                "Everything in Free + Priority Alerts, H-1B Data, AI Resume Parser",
         },
     ],
     aggregateRating: {
@@ -156,7 +156,7 @@ export const faqSchema = {
             name: "Is TrackMyOPT free?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "Yes! TrackMyOPT offers a free plan that includes OPT timeline tracking, unemployment clock, 1 USCIS case tracker, and basic email alerts - all free forever. The Premium plan ($19.99 lifetime, not subscription) adds unlimited case tracking, secure Document Vault with AI extraction, expiry reminders, and priority support.",
+                text: "Yes! TrackMyOPT offers a free plan that includes OPT timeline tracking, unemployment clock, 1 USCIS case tracker, and basic email alerts - all free forever. The Pro plan starts at just $4.99/month and adds priority case alerts, H-1B verified sponsor data, AI resume scoring, and detailed job analytics.",
             },
         },
         {

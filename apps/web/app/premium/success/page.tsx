@@ -47,7 +47,7 @@ function PremiumSuccessContent() {
         </h1>
 
         <p className="text-gray-600 dark:text-muted-foreground mb-6">
-          Your payment was successful. You now have lifetime access to all premium features!
+          Your payment was successful. You now have full Pro access!
         </p>
 
         {/* Features Unlocked */}
