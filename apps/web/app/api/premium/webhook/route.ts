@@ -142,8 +142,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     expiresAt.setDate(expiresAt.getDate() + 32); // Default 1 month safety
 
     if (session.subscription) {
-      const subscription = await stripe.subscriptions.retrieve(session.subscription as string) as Stripe.Subscription;
-      expiresAt = new Date(subscription.current_period_end * 1000);
+      const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+      expiresAt = new Date((subscription as any).current_period_end * 1000);
     }
 
     // Update user to premium
@@ -286,7 +286,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       .update({
         premium_status: true,
         plan_tier: subscription.metadata?.planId || 'pro',
-        subscription_expires_at: new Date(subscription.current_period_end * 1000).toISOString(),
+        subscription_expires_at: new Date((subscription as any).current_period_end * 1000).toISOString(),
       })
       .eq('stripe_customer_id', customerId);
   }
