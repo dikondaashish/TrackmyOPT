@@ -1,8 +1,54 @@
+import { API_ENDPOINTS } from './config';
+
 /**
  * Renders the signed-in home screen with tool tiles
  */
 export async function renderHome(root: HTMLElement, onNavigate: (page: string) => void): Promise<void> {
+  // Fetch premium status to show badge
+  let planBadge = '';
+  try {
+    const res = await fetch(API_ENDPOINTS.STATUS, { credentials: 'include' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.isPremium && data.planName) {
+        const plan = data.planName.toUpperCase();
+        const badgeClass = plan === 'DEDICATED' ? 'badge-dedicated' : 'badge-pro';
+        planBadge = `<span class="plan-badge ${badgeClass}">${plan}</span>`;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to fetch premium status for extension', err);
+  }
+
   root.innerHTML = `
+    <style>
+      .plan-badge {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        vertical-align: middle;
+        display: inline-block;
+      }
+      .badge-pro {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+      }
+      .badge-dedicated {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(217, 119, 6, 0.3);
+      }
+      .header-title-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2px;
+      }
+    </style>
     <div class="header" role="region" aria-label="TrackMyOPT header">
       <div class="logo-icon">
         <img src="icons/logo.gif" alt="TrackMyOPT Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
@@ -15,7 +61,10 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
           <span>→</span>
         </button>
       </div>
-      <h1 class="title">TrackMyOPT</h1>
+      <div class="header-title-container">
+        <h1 class="title" style="margin-bottom: 0;">TrackMyOPT</h1>
+        ${planBadge}
+      </div>
       <p class="subtitle">Your complete toolkit for managing OPT requirements</p>
     </div>
 
