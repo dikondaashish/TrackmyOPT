@@ -48,7 +48,6 @@
     "react-dom": "^18.3.0",
     "recharts": "^3.2.1",
     "sharp": "^0.34.5",
-    "snoowrap": "^1.23.0",
     "stripe": "^19.1.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^3.22.4"

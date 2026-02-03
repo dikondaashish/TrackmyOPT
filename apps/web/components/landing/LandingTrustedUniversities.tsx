@@ -21,12 +21,12 @@ export function LandingTrustedUniversities() {
     ];
 
     const companies = [
-        { name: "Google", logo: "" },
-        { name: "Amazon", logo: "" },
-        { name: "Microsoft", logo: "" },
-        { name: "Meta", logo: "" },
-        { name: "Tesla", logo: "" },
-        { name: "Netflix", logo: "" }
+        { name: "Google", logo: "/companies/google.svg" },
+        { name: "Amazon", logo: "/companies/amazon.svg" },
+        { name: "Microsoft", logo: "/companies/microsoft.svg" },
+        { name: "Meta", logo: "/companies/meta.svg" },
+        { name: "Tesla", logo: "/companies/tesla.svg" },
+        { name: "Netflix", logo: "/companies/netflix.svg" }
     ];
 
     const allLogos = [...universities, ...companies];

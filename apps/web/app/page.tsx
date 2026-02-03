@@ -6,7 +6,7 @@ import { LandingTestimonials } from "../components/landing/LandingTestimonials";
 import { LandingPricing } from "../components/landing/LandingPricing";
 import { LandingFAQ } from "../components/landing/LandingFAQ";
 import { LandingFooter } from "../components/landing/LandingFooter";
-// import { LandingAEOContent } from "../components/landing/LandingAEOContent";
+import { LandingAEOContent } from "../components/landing/LandingAEOContent";
 import { LandingComparison } from "../components/landing/LandingComparison";
 import { LandingValueGrid } from "../components/landing/LandingValueGrid";
 import { LandingChromeExtension } from "../components/landing/LandingChromeExtension";
@@ -60,9 +60,39 @@ export default function LandingPage() {
                 <LandingPricing />
                 <LandingTestimonials />
                 <LandingFAQ />
-                {/* <LandingAEOContent /> Removed for cleaner UX flow */}
+                <LandingAEOContent />
                 <LandingFooter />
             </div>
+
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "SoftwareApplication",
+                        "name": "TrackMyOPT",
+                        "applicationCategory": "ProductivityApplication",
+                        "operatingSystem": "Web",
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "0",
+                            "priceCurrency": "USD"
+                        },
+                        "aggregateRating": {
+                            "@type": "AggregateRating",
+                            "ratingValue": "4.9",
+                            "ratingCount": "1250"
+                        },
+                        "featureList": "OPT Timeline Tracker, H1B Sponsor Database, AI Resume Builder, USCIS Case Tracker",
+                        "screenshot": "https://trackmyopt.com/og-image.png",
+                        "author": {
+                            "@type": "Organization",
+                            "name": "Zyene Inc",
+                            "url": "https://zyene.com"
+                        }
+                    })
+                }}
+            />
         </main>
     );
 }

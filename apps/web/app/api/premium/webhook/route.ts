@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
+import { sendPremiumWelcomeEmail } from '@/lib/email-service';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-09-30.clover',
@@ -178,8 +179,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     }
 
 
-    // TODO: Send welcome email to premium user
-    // await sendPremiumWelcomeEmail(userId);
+
+    // Send welcome email to premium user
+    if (session.customer_details?.email) {
+      await sendPremiumWelcomeEmail(
+        userId,
+        session.customer_details.email,
+        session.customer_details.name || 'Student'
+      );
+    }
+
 
   } catch (error) {
     console.error(`❌ Error in handleCheckoutCompleted:`, error);

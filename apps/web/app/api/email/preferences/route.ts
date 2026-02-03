@@ -13,6 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/jwt';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
+import { sendEmailChangeNotification } from '@/lib/email-service';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,8 +48,8 @@ async function getUserId(req: NextRequest): Promise<string | null> {
         get(name: string) {
           return cookieStore.get(name)?.value;
         },
-        set() {},
-        remove() {},
+        set() { },
+        remove() { },
       },
     }
   );
@@ -71,7 +72,7 @@ function isValidEmail(email: string): boolean {
 export async function GET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -96,13 +97,13 @@ export async function GET(req: NextRequest) {
 
     // No preferences found
     if (!data) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         preferences: null,
         hasPreferences: false
       });
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       preferences: {
         email_address: data.email_address,
         email_verified: data.email_verified,
@@ -127,7 +128,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -170,7 +171,7 @@ export async function POST(req: NextRequest) {
       updateData.email_address = email_address;
       // Reset verification when email changes
       updateData.email_verified = false;
-      // TODO: Send verification email
+      await sendEmailChangeNotification(userId, email_address);
     }
 
     if (email_enabled !== undefined) {
@@ -195,7 +196,7 @@ export async function POST(req: NextRequest) {
     }
 
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       preferences: {
         email_address: data.email_address,
@@ -220,7 +221,7 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const userId = await getUserId(req);
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -243,7 +244,7 @@ export async function DELETE(req: NextRequest) {
     }
 
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       message: 'Email preferences deleted. You will no longer receive reminders.'
     });
