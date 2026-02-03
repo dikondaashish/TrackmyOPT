@@ -142,7 +142,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     expiresAt.setDate(expiresAt.getDate() + 32); // Default 1 month safety
 
     if (session.subscription) {
-      const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+      const subscription = await stripe.subscriptions.retrieve(session.subscription as string) as Stripe.Subscription;
       expiresAt = new Date(subscription.current_period_end * 1000);
     }
 
