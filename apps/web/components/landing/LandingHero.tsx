@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { LandingTrustedUniversities } from "./LandingTrustedUniversities";
 import { MagneticButton } from "@/components/ui/MagneticButton";
@@ -428,6 +428,269 @@ const CrmMockup = () => {
     );
 };
 
+// Wrapper for CrmMockup that triggers confetti on successful drag
+const CrmMockupWithConfetti = ({ onDragSuccess }: { onDragSuccess: () => void }) => {
+    const [columns, setColumns] = useState<Record<string, JobCard[]>>({
+        wishlist: [
+            { id: "1", company: "Google", role: "Software Engineer", tag: "H-1B Sponsor", tagColor: "green" },
+        ],
+        applied: [
+            { id: "2", company: "Microsoft", role: "Product Manager", time: "2d ago" },
+            { id: "3", company: "Meta", role: "Data Scientist", tag: "H-1B Sponsor", tagColor: "green" },
+        ],
+        interview: [
+            { id: "4", company: "Amazon", role: "SDE II", tag: "Final Round", tagColor: "purple" },
+        ],
+    });
+
+    const constraintsRef = useRef(null);
+    const [draggingCard, setDraggingCard] = useState<string | null>(null);
+    const [hoverColumn, setHoverColumn] = useState<string | null>(null);
+
+    const columnConfigs = [
+        { id: "wishlist", title: "Wishlist", color: "from-blue-500/20 to-blue-600/20" },
+        { id: "applied", title: "Applied", color: "from-purple-500/20 to-purple-600/20" },
+        { id: "interview", title: "Interview", color: "from-green-500/20 to-green-600/20" },
+    ];
+
+    const handleDragEnd = (cardId: string, fromColumn: string) => {
+        if (hoverColumn && hoverColumn !== fromColumn) {
+            const card = columns[fromColumn].find(c => c.id === cardId);
+            if (card) {
+                setColumns(prev => ({
+                    ...prev,
+                    [fromColumn]: prev[fromColumn].filter(c => c.id !== cardId),
+                    [hoverColumn]: [...prev[hoverColumn], card],
+                }));
+                onDragSuccess(); // Trigger confetti!
+            }
+        }
+        setDraggingCard(null);
+        setHoverColumn(null);
+    };
+
+    return (
+        <div ref={constraintsRef} className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 p-4 overflow-hidden h-full flex flex-col">
+            {/* Window Controls - Left aligned */}
+            <div className="flex gap-1.5 mb-3">
+                <motion.div className="w-3 h-3 rounded-full bg-red-400/80" whileHover={{ scale: 1.3 }} />
+                <motion.div className="w-3 h-3 rounded-full bg-yellow-400/80" whileHover={{ scale: 1.3 }} />
+                <motion.div className="w-3 h-3 rounded-full bg-green-400/80" whileHover={{ scale: 1.3 }} />
+            </div>
+
+            {/* Header with Try Drag & Drop hint */}
+            <motion.div
+                className="flex items-center justify-between mb-4"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+            >
+                <div className="flex items-center gap-2">
+                    <motion.div
+                        className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                    >
+                        <Briefcase className="w-4 h-4 text-white" />
+                    </motion.div>
+                    <div>
+                        <p className="text-sm font-semibold text-foreground">Job Tracker</p>
+                        <p className="text-[10px] text-muted-foreground">12 Applications</p>
+                    </div>
+                </div>
+                <motion.div
+                    className="flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                >
+                    <span className="text-[10px] font-medium text-purple-700 dark:text-purple-300">✨ Try Drag & Drop!</span>
+                </motion.div>
+            </motion.div>
+
+            {/* Kanban Board */}
+            <div className="grid grid-cols-3 gap-3 flex-1">
+                {columnConfigs.map((column) => (
+                    <motion.div
+                        key={column.id}
+                        className={`bg-gradient-to-b ${column.color} rounded-xl p-2 flex flex-col min-h-[140px] transition-all duration-200 ${hoverColumn === column.id && draggingCard ? "ring-2 ring-purple-500 ring-offset-2 dark:ring-offset-zinc-800" : ""
+                            }`}
+                        onMouseEnter={() => draggingCard && setHoverColumn(column.id)}
+                        onMouseLeave={() => setHoverColumn(null)}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 * columnConfigs.indexOf(column) }}
+                    >
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-semibold text-foreground">{column.title}</span>
+                            <motion.span
+                                className="text-[10px] bg-white/50 dark:bg-zinc-700/50 px-1.5 rounded"
+                                key={columns[column.id].length}
+                                initial={{ scale: 1.2 }}
+                                animate={{ scale: 1 }}
+                            >
+                                {columns[column.id].length}
+                            </motion.span>
+                        </div>
+                        <AnimatePresence>
+                            {columns[column.id].map((card) => (
+                                <motion.div
+                                    key={card.id}
+                                    className={`bg-white dark:bg-zinc-700 p-2 rounded-lg mb-2 cursor-grab active:cursor-grabbing shadow-sm ${draggingCard === card.id ? "ring-2 ring-purple-500 shadow-lg shadow-purple-500/20" : ""
+                                        }`}
+                                    layout
+                                    drag
+                                    dragConstraints={constraintsRef}
+                                    dragElastic={0.1}
+                                    whileDrag={{ scale: 1.05, zIndex: 50 }}
+                                    onDragStart={() => setDraggingCard(card.id)}
+                                    onDragEnd={() => handleDragEnd(card.id, column.id)}
+                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                >
+                                    <div className="flex justify-between items-start mb-1">
+                                        <p className="text-xs font-semibold text-foreground">{card.company}</p>
+                                        {card.time && (
+                                            <span className="text-[10px] text-muted-foreground">{card.time}</span>
+                                        )}
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground">{card.role}</p>
+                                    {card.tag && (
+                                        <div className="mt-2 flex gap-1">
+                                            <span className={`text-[8px] px-1.5 py-0.5 rounded ${card.tagColor === "green"
+                                                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                                                : "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
+                                                }`}>
+                                                {card.tag}
+                                            </span>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                        {columns[column.id].length === 0 && (
+                            <motion.div
+                                className="flex-1 border-2 border-dashed border-gray-200 dark:border-zinc-700 rounded-lg flex items-center justify-center"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 0.5 }}
+                            >
+                                <p className="text-[10px] text-muted-foreground">Drop here</p>
+                            </motion.div>
+                        )}
+                    </motion.div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+// AI Resume Mockup
+const ResumeMockup = () => (
+    <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 p-6 overflow-hidden h-full flex flex-col">
+        {/* Window Controls */}
+        <div className="flex gap-1.5 mb-3">
+            <motion.div className="w-3 h-3 rounded-full bg-red-400/80" whileHover={{ scale: 1.3 }} />
+            <motion.div className="w-3 h-3 rounded-full bg-yellow-400/80" whileHover={{ scale: 1.3 }} />
+            <motion.div className="w-3 h-3 rounded-full bg-green-400/80" whileHover={{ scale: 1.3 }} />
+        </div>
+
+        {/* Header */}
+        <motion.div
+            className="flex items-center justify-between mb-4"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+        >
+            <div className="flex items-center gap-2">
+                <motion.div
+                    className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center"
+                    whileHover={{ scale: 1.1 }}
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                >
+                    <Sparkles className="w-4 h-4 text-white" />
+                </motion.div>
+                <div>
+                    <p className="text-sm font-semibold text-foreground">AI Resume Builder</p>
+                    <p className="text-[10px] text-muted-foreground">Powered by GPT-4</p>
+                </div>
+            </div>
+            <span className="px-2 py-1 text-[10px] font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">
+                Beta
+            </span>
+        </motion.div>
+
+        {/* Resume Preview */}
+        <div className="flex-1 bg-gray-50 dark:bg-zinc-900/50 rounded-xl p-4 space-y-3">
+            {/* ATS Score */}
+            <motion.div
+                className="bg-white dark:bg-zinc-800 rounded-lg p-3 border border-border/50"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+            >
+                <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-foreground">ATS Compatibility</span>
+                    <span className="text-xs font-bold text-green-600 dark:text-green-400">92%</span>
+                </div>
+                <div className="h-2 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                    <motion.div
+                        className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: "92%" }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                    />
+                </div>
+            </motion.div>
+
+            {/* AI Suggestions */}
+            <motion.div
+                className="space-y-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+            >
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase">AI Suggestions</p>
+                {[
+                    { icon: "✓", text: "Strong action verbs detected", color: "text-green-600" },
+                    { icon: "✓", text: "Quantified achievements added", color: "text-green-600" },
+                    { icon: "!", text: "Add more keywords for SDE roles", color: "text-amber-600" },
+                ].map((item, i) => (
+                    <motion.div
+                        key={i}
+                        className="flex items-center gap-2 bg-white dark:bg-zinc-800 rounded-lg px-3 py-2 border border-border/50"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5 + i * 0.1 }}
+                    >
+                        <span className={`text-xs ${item.color}`}>{item.icon}</span>
+                        <span className="text-[10px] text-foreground">{item.text}</span>
+                    </motion.div>
+                ))}
+            </motion.div>
+
+            {/* Keywords */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+            >
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-2">Matched Keywords</p>
+                <div className="flex flex-wrap gap-1">
+                    {["React", "TypeScript", "Node.js", "AWS", "Python"].map((keyword, i) => (
+                        <motion.span
+                            key={keyword}
+                            className="px-2 py-0.5 text-[9px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.8 + i * 0.05 }}
+                        >
+                            {keyword}
+                        </motion.span>
+                    ))}
+                </div>
+            </motion.div>
+        </div>
+    </div>
+);
+
 
 const DocumentsMockup = () => (
     <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 p-6 overflow-hidden h-full flex flex-col">
@@ -537,10 +800,119 @@ const DocumentsMockup = () => (
 );
 
 
-type TabType = "timeline" | "crm" | "docs";
+type TabType = "timeline" | "crm" | "docs" | "resume";
+
+// Tab configuration with badges
+const tabsConfig = [
+    { id: "timeline" as TabType, label: "Timeline", icon: LayoutDashboard, badge: "Live", badgeColor: "green" },
+    { id: "crm" as TabType, label: "Job CRM", icon: Briefcase, badge: "4", badgeColor: "purple" },
+    { id: "docs" as TabType, label: "Documents", icon: FileCheck, badge: "New", badgeColor: "blue" },
+    { id: "resume" as TabType, label: "AI Resume", icon: Sparkles, badge: "Beta", badgeColor: "orange" },
+];
+
+// Toast messages per tab
+const toastMessages: Record<TabType, { icon: string; message: string }> = {
+    timeline: { icon: "🎉", message: "OPT start date optimized!" },
+    crm: { icon: "📤", message: "Application saved to tracker" },
+    docs: { icon: "🔔", message: "Passport expires in 6 months" },
+    resume: { icon: "✨", message: "AI suggestions ready!" },
+};
+
+// Tooltip content
+const tooltipContent: Record<string, string> = {
+    "days-remaining": "Days remaining until your OPT expires",
+    "unemployment": "Days of unemployment used out of 90 allowed",
+    "program-end": "Your graduation date from the university",
+    "opt-start": "When your OPT authorization begins",
+};
 
 export function LandingHero() {
     const [activeTab, setActiveTab] = useState<TabType>("timeline");
+    const [isHovered, setIsHovered] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [showToast, setShowToast] = useState(false);
+    const [toastContent, setToastContent] = useState(toastMessages.timeline);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const [tiltStyle, setTiltStyle] = useState({ rotateX: 0, rotateY: 0 });
+    const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+    const mockupRef = useRef<HTMLDivElement>(null);
+
+    const AUTO_ROTATE_INTERVAL = 6000; // 6 seconds
+
+    // Auto-rotate tabs
+    useEffect(() => {
+        if (isHovered) {
+            setProgress(0);
+            return;
+        }
+
+        const progressInterval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 100) {
+                    // Switch to next tab
+                    const currentIndex = tabsConfig.findIndex(t => t.id === activeTab);
+                    const nextIndex = (currentIndex + 1) % tabsConfig.length;
+                    setActiveTab(tabsConfig[nextIndex].id);
+                    return 0;
+                }
+                return prev + (100 / (AUTO_ROTATE_INTERVAL / 100));
+            });
+        }, 100);
+
+        return () => clearInterval(progressInterval);
+    }, [activeTab, isHovered]);
+
+    // Show toast on tab change
+    useEffect(() => {
+        setToastContent(toastMessages[activeTab]);
+        setShowToast(true);
+        const timer = setTimeout(() => setShowToast(false), 3000);
+        return () => clearTimeout(timer);
+    }, [activeTab]);
+
+    // Keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                const currentIndex = tabsConfig.findIndex(t => t.id === activeTab);
+                let nextIndex: number;
+                if (e.key === "ArrowRight") {
+                    nextIndex = (currentIndex + 1) % tabsConfig.length;
+                } else {
+                    nextIndex = (currentIndex - 1 + tabsConfig.length) % tabsConfig.length;
+                }
+                setActiveTab(tabsConfig[nextIndex].id);
+                setProgress(0);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [activeTab]);
+
+    // 3D tilt effect
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!mockupRef.current) return;
+        const rect = mockupRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 20;
+        const rotateY = (centerX - x) / 20;
+        setTiltStyle({ rotateX, rotateY });
+    };
+
+    const handleMouseLeave = () => {
+        setTiltStyle({ rotateX: 0, rotateY: 0 });
+        setIsHovered(false);
+    };
+
+    // Confetti trigger (called from CrmMockup on successful drag)
+    const triggerConfetti = () => {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 2000);
+    };
+
 
     return (
         <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden pt-20 lg:pt-32 pb-24">
@@ -603,179 +975,321 @@ export function LandingHero() {
                             </Link>
                         </motion.div>
 
-                        {/* Interactive Tab Triggers for Mobile/Desktop */}
-                        <motion.div variants={fadeInUp} className="mt-12 flex gap-2 justify-center lg:justify-start overflow-x-auto pb-2 scrollbar-hide">
-                            {[
-                                { id: "timeline", label: "Timeline", icon: LayoutDashboard },
-                                { id: "crm", label: "Job CRM", icon: Briefcase },
-                                { id: "docs", label: "Documents", icon: FileCheck },
-                            ].map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id as TabType)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === tab.id
-                                        ? "bg-white dark:bg-zinc-800 text-primary shadow-md ring-1 ring-border"
-                                        : "text-muted-foreground hover:bg-white/50 dark:hover:bg-zinc-800/50"
-                                        }`}
-                                >
-                                    <tab.icon className="w-4 h-4" />
-                                    {tab.label}
-                                </button>
-                            ))}
+                        {/* Interactive Tab Triggers with Badges */}
+                        <motion.div variants={fadeInUp} className="mt-12">
+                            <div className="flex gap-2 justify-center lg:justify-start overflow-x-auto pb-2 scrollbar-hide">
+                                {tabsConfig.map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => {
+                                            setActiveTab(tab.id);
+                                            setProgress(0);
+                                        }}
+                                        className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === tab.id
+                                            ? "bg-white dark:bg-zinc-800 text-primary shadow-md ring-1 ring-border"
+                                            : "text-muted-foreground hover:bg-white/50 dark:hover:bg-zinc-800/50"
+                                            }`}
+                                    >
+                                        <tab.icon className="w-4 h-4" />
+                                        {tab.label}
+                                        {/* Badge */}
+                                        <span className={`ml-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full ${tab.badgeColor === "green" ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" :
+                                            tab.badgeColor === "purple" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300" :
+                                                tab.badgeColor === "blue" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" :
+                                                    "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
+                                            }`}>
+                                            {tab.badge}
+                                        </span>
+                                        {/* Active indicator pulse for "Live" badge */}
+                                        {tab.badge === "Live" && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                            </span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                            {/* Progress Bar */}
+                            <div className="mt-3 h-1 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden max-w-md mx-auto lg:mx-0">
+                                <motion.div
+                                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                                    initial={{ width: "0%" }}
+                                    animate={{ width: `${progress}%` }}
+                                    transition={{ duration: 0.1, ease: "linear" }}
+                                />
+                            </div>
+                            {/* Keyboard hint */}
+                            <p className="mt-2 text-xs text-muted-foreground opacity-60 hidden lg:block">
+                                Use ← → arrow keys to navigate
+                            </p>
                         </motion.div>
                     </motion.div>
 
                     {/* Right Content - Interactive Mockup with Tab Switching */}
                     <div className="relative hidden lg:block w-full">
-                        <div className="relative w-full aspect-[4/3] max-w-[600px] mx-auto">
-                            {/* Dynamic Glow Based on Active Tab */}
-                            <AnimatePresence mode="wait">
-                                {activeTab === "timeline" && (
-                                    <motion.div
-                                        key="glow-timeline"
-                                        className="absolute inset-0 bg-gradient-to-tr from-blue-500/40 via-cyan-500/30 to-blue-400/20 blur-[80px] rounded-full"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.6 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.5 }}
-                                    />
-                                )}
-                                {activeTab === "crm" && (
-                                    <motion.div
-                                        key="glow-crm"
-                                        className="absolute inset-0 bg-gradient-to-tr from-purple-500/40 via-pink-500/30 to-purple-400/20 blur-[80px] rounded-full"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.6 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.5 }}
-                                    />
-                                )}
-                                {activeTab === "docs" && (
-                                    <motion.div
-                                        key="glow-docs"
-                                        className="absolute inset-0 bg-gradient-to-tr from-green-500/40 via-emerald-500/30 to-teal-400/20 blur-[80px] rounded-full"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.6 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.5 }}
-                                    />
-                                )}
-                            </AnimatePresence>
+                        {/* Toast Notification */}
+                        <AnimatePresence>
+                            {showToast && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -20, x: "-50%" }}
+                                    animate={{ opacity: 1, y: 0, x: "-50%" }}
+                                    exit={{ opacity: 0, y: -20, x: "-50%" }}
+                                    className="absolute -top-4 left-1/2 z-50 bg-white dark:bg-zinc-800 px-4 py-2 rounded-full shadow-lg border border-border flex items-center gap-2"
+                                >
+                                    <span className="text-lg">{toastContent.icon}</span>
+                                    <span className="text-sm font-medium text-foreground">{toastContent.message}</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
-                            {/* Tab Content */}
-                            <div className="relative z-10 h-full">
+                        {/* Confetti Effect */}
+                        <AnimatePresence>
+                            {showConfetti && (
+                                <motion.div
+                                    initial={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute inset-0 z-50 pointer-events-none overflow-hidden"
+                                >
+                                    {[...Array(20)].map((_, i) => (
+                                        <motion.div
+                                            key={i}
+                                            className="absolute w-2 h-2 rounded-full"
+                                            style={{
+                                                background: ["#8B5CF6", "#EC4899", "#3B82F6", "#10B981", "#F59E0B"][i % 5],
+                                                left: `${50 + (Math.random() - 0.5) * 40}%`,
+                                                top: "50%",
+                                            }}
+                                            initial={{ y: 0, x: 0, scale: 1, opacity: 1 }}
+                                            animate={{
+                                                y: [0, -150 - Math.random() * 100, 200],
+                                                x: [(Math.random() - 0.5) * 200],
+                                                scale: [1, 1.2, 0.5],
+                                                opacity: [1, 1, 0],
+                                                rotate: [0, 360 * (Math.random() > 0.5 ? 1 : -1)],
+                                            }}
+                                            transition={{ duration: 1.5, ease: "easeOut" }}
+                                        />
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* 3D Tilt Container */}
+                        <motion.div
+                            ref={mockupRef}
+                            className="relative w-full aspect-[4/3] max-w-[600px] mx-auto"
+                            onMouseMove={handleMouseMove}
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={handleMouseLeave}
+                            style={{
+                                perspective: 1000,
+                            }}
+                        >
+                            <motion.div
+                                className="relative w-full h-full"
+                                animate={{
+                                    rotateX: tiltStyle.rotateX,
+                                    rotateY: tiltStyle.rotateY,
+                                }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                style={{ transformStyle: "preserve-3d" }}
+                            >
+                                {/* Dynamic Glow Based on Active Tab */}
                                 <AnimatePresence mode="wait">
                                     {activeTab === "timeline" && (
                                         <motion.div
-                                            key="timeline"
-                                            variants={tabContentVariants}
-                                            initial="initial"
-                                            animate="animate"
-                                            exit="exit"
-                                            transition={{ duration: 0.3 }}
-                                            className="h-full"
-                                        >
-                                            <TimelineMockup />
-                                        </motion.div>
+                                            key="glow-timeline"
+                                            className="absolute inset-0 bg-gradient-to-tr from-blue-500/40 via-cyan-500/30 to-blue-400/20 blur-[80px] rounded-full"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 0.6 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.5 }}
+                                        />
                                     )}
                                     {activeTab === "crm" && (
                                         <motion.div
-                                            key="crm"
-                                            variants={tabContentVariants}
-                                            initial="initial"
-                                            animate="animate"
-                                            exit="exit"
-                                            transition={{ duration: 0.3 }}
-                                            className="h-full"
-                                        >
-                                            <CrmMockup />
-                                        </motion.div>
+                                            key="glow-crm"
+                                            className="absolute inset-0 bg-gradient-to-tr from-purple-500/40 via-pink-500/30 to-purple-400/20 blur-[80px] rounded-full"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 0.6 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.5 }}
+                                        />
                                     )}
                                     {activeTab === "docs" && (
                                         <motion.div
-                                            key="docs"
-                                            variants={tabContentVariants}
-                                            initial="initial"
-                                            animate="animate"
-                                            exit="exit"
-                                            transition={{ duration: 0.3 }}
-                                            className="h-full"
+                                            key="glow-docs"
+                                            className="absolute inset-0 bg-gradient-to-tr from-green-500/40 via-emerald-500/30 to-teal-400/20 blur-[80px] rounded-full"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 0.6 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.5 }}
+                                        />
+                                    )}
+                                    {activeTab === "resume" && (
+                                        <motion.div
+                                            key="glow-resume"
+                                            className="absolute inset-0 bg-gradient-to-tr from-orange-500/40 via-amber-500/30 to-yellow-400/20 blur-[80px] rounded-full"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 0.6 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.5 }}
+                                        />
+                                    )}
+                                </AnimatePresence>
+
+                                {/* Tab Content */}
+                                <div className="relative z-10 h-full">
+                                    <AnimatePresence mode="wait">
+                                        {activeTab === "timeline" && (
+                                            <motion.div
+                                                key="timeline"
+                                                variants={tabContentVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                                transition={{ duration: 0.3 }}
+                                                className="h-full"
+                                            >
+                                                <TimelineMockup />
+                                            </motion.div>
+                                        )}
+                                        {activeTab === "crm" && (
+                                            <motion.div
+                                                key="crm"
+                                                variants={tabContentVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                                transition={{ duration: 0.3 }}
+                                                className="h-full"
+                                            >
+                                                <CrmMockupWithConfetti onDragSuccess={triggerConfetti} />
+                                            </motion.div>
+                                        )}
+                                        {activeTab === "docs" && (
+                                            <motion.div
+                                                key="docs"
+                                                variants={tabContentVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                                transition={{ duration: 0.3 }}
+                                                className="h-full"
+                                            >
+                                                <DocumentsMockup />
+                                            </motion.div>
+                                        )}
+                                        {activeTab === "resume" && (
+                                            <motion.div
+                                                key="resume"
+                                                variants={tabContentVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                                transition={{ duration: 0.3 }}
+                                                className="h-full"
+                                            >
+                                                <ResumeMockup />
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+
+                                {/* Floating Status Badge (appears on Timeline tab) */}
+                                <AnimatePresence>
+                                    {activeTab === "timeline" && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="absolute -right-4 bottom-4 bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-zinc-700 z-20"
                                         >
-                                            <DocumentsMockup />
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center border-2 border-green-200 dark:border-green-800">
+                                                    <CheckCircle className="w-5 h-5 text-green-500" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-semibold text-foreground">Status: Active</p>
+                                                    <p className="text-xs text-muted-foreground">e-Verified Employer</p>
+                                                </div>
+                                            </div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-                            </div>
 
-                            {/* Floating Status Badge (appears on Timeline tab) */}
-                            <AnimatePresence>
-                                {activeTab === "timeline" && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                                        transition={{ delay: 0.5 }}
-                                        className="absolute -right-4 bottom-4 bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-zinc-700 z-20"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center border-2 border-green-200 dark:border-green-800">
-                                                <CheckCircle className="w-5 h-5 text-green-500" />
+                                {/* Floating H-1B Match Badge (appears on CRM tab) */}
+                                <AnimatePresence>
+                                    {activeTab === "crm" && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="absolute -right-4 bottom-4 bg-white dark:bg-zinc-800 p-3 rounded-xl shadow-xl border border-purple-200 dark:border-purple-800 z-20"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
+                                                    <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-semibold text-foreground">H-1B Match</p>
+                                                    <p className="text-[10px] text-purple-600 dark:text-purple-400">85% Sponsorship Prob.</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-semibold text-foreground">Status: Active</p>
-                                                <p className="text-xs text-muted-foreground">e-Verified Employer</p>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
-                            {/* Floating H-1B Match Badge (appears on CRM tab) */}
-                            <AnimatePresence>
-                                {activeTab === "crm" && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                                        transition={{ delay: 0.5 }}
-                                        className="absolute -right-4 bottom-4 bg-white dark:bg-zinc-800 p-3 rounded-xl shadow-xl border border-purple-200 dark:border-purple-800 z-20"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
-                                                <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                {/* Floating Expiry Alert Badge (appears on Documents tab) */}
+                                <AnimatePresence>
+                                    {activeTab === "docs" && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="absolute -right-4 bottom-4 bg-white dark:bg-zinc-800 p-3 rounded-xl shadow-xl border border-orange-200 dark:border-orange-800 z-20"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/40 rounded-lg flex items-center justify-center">
+                                                    <Bell className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-semibold text-foreground">Expiry Alert</p>
+                                                    <p className="text-[10px] text-orange-600 dark:text-orange-400">Passport expires in 6mo</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-xs font-semibold text-foreground">H-1B Match</p>
-                                                <p className="text-[10px] text-purple-600 dark:text-purple-400">85% Sponsorship Prob.</p>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
-                            {/* Floating Expiry Alert Badge (appears on Documents tab) */}
-                            <AnimatePresence>
-                                {activeTab === "docs" && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                                        transition={{ delay: 0.5 }}
-                                        className="absolute -right-4 bottom-4 bg-white dark:bg-zinc-800 p-3 rounded-xl shadow-xl border border-orange-200 dark:border-orange-800 z-20"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/40 rounded-lg flex items-center justify-center">
-                                                <Bell className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                {/* Floating AI Score Badge (appears on Resume tab) */}
+                                <AnimatePresence>
+                                    {activeTab === "resume" && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="absolute -right-4 bottom-4 bg-white dark:bg-zinc-800 p-3 rounded-xl shadow-xl border border-amber-200 dark:border-amber-800 z-20"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center">
+                                                    <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-semibold text-foreground">ATS Score</p>
+                                                    <p className="text-[10px] text-amber-600 dark:text-amber-400">92% Match</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-xs font-semibold text-foreground">Expiry Alert</p>
-                                                <p className="text-[10px] text-orange-600 dark:text-orange-400">Passport expires in 6mo</p>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        </motion.div>
                     </div>
                 </div>
             </div>
