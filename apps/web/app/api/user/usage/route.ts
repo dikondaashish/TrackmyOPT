@@ -25,19 +25,28 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Get Job Count
+        // Get Profile and Job Count
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('premium_status, plan_tier')
+            .eq('user_id', user.id)
+            .single();
+
         const { count: jobCount, error: jobError } = await supabase
             .from('job_tracker')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', user.id);
 
-        if (jobError) {
-            console.error('Error fetching job count:', jobError);
-        }
+        if (profileError) console.error('Error fetching profile for usage:', profileError);
+        if (jobError) console.error('Error fetching job count:', jobError);
+
+        // Calculate limits
+        const isPaid = profile?.premium_status || false;
+        const jobLimit = isPaid ? 1000 : 5; // 1000 acts as 'Unlimited' for UI practical purposes
 
         return NextResponse.json({
             jobsCount: jobCount || 0,
-            jobLimit: 5 // Hardcoded limit for visualization for now
+            jobLimit: jobLimit
         });
 
     } catch (error) {
