@@ -7,11 +7,11 @@
  * Uses the PricingModal component for consistent UI
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PricingModal } from '@/components/pricing/PricingModal';
 
-export default function PremiumCheckout() {
+function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPremium, setIsPremium] = useState(false);
@@ -97,6 +97,18 @@ export default function PremiumCheckout() {
         initialInterval={searchParams?.get('interval') || undefined}
       />
     </div>
+  );
+}
+
+export default function PremiumCheckout() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
   );
 }
 
