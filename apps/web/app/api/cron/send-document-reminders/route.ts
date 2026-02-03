@@ -442,7 +442,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
                       <a href="https://www.trackmyopt.com/dashboard/documents" style="color: #06b6d4; text-decoration: none; font-weight: 500;">View All Documents</a>
                     </p>
                     <p style="color: #9ca3af; font-size: 11px; margin: 16px 0 0 0;">
-                      © ${new Date().getFullYear()} TrackMyOPT. All rights reserved.
+                      © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
                     </p>
                   </td>
                 </tr>

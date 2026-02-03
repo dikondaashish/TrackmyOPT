@@ -246,7 +246,7 @@ function generateEmailHTML({
                       This is a premium feature
                     </p>
                     <p style="margin: 0; color: #9ca3af; font-size: 12px; text-align: center;">
-                      © ${new Date().getFullYear()} TrackMyOPT. All rights reserved.
+                      © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
                     </p>
                     <p style="margin: 10px 0 0 0; color: #9ca3af; font-size: 11px; text-align: center;">
                       <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://trackmyopt.com'}/dashboard/case-status" style="color: #667eea; text-decoration: none;">Manage Notifications</a>

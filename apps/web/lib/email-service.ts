@@ -229,7 +229,7 @@ function generateEmailHTML(data: EmailReminderData): string {
             <strong>OPT Clock Tracker Team</strong>
           </p>
           <p style="margin: 0; color: #D1D5DB; font-size: 10px;">
-            © ${new Date().getFullYear()} TrackMyOPT | support@trackmyopt.com
+            © ${new Date().getFullYear()} Zyene, Inc. | support@trackmyopt.com
           </p>
         </div>
 

@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
           <p>These changes take effect on [DATE].</p>
           <p><a href="https://www.trackmyopt.com/privacy" style="color: #007AFF;">Read the full Privacy Policy</a></p>
           <p>If you have questions, contact us at support@trackmyopt.com</p>
-          <p>Best regards,<br/>The TrackMyOPT Team</p>
+          <p>Best regards,<br/>The TrackMyOPT Team<br/>Zyene, Inc.</p>
         </body>
         </html>
       `,
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
           </ul>
           <p><a href="https://www.trackmyopt.com/dashboard/settings" style="background: #DC2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Delete My Account Before Transfer</a></p>
           <p>If you have questions, contact us at support@trackmyopt.com</p>
-          <p>Best regards,<br/>The TrackMyOPT Team</p>
+          <p>Best regards,<br/>The TrackMyOPT Team<br/>Zyene, Inc.</p>
         </body>
         </html>
       `,
@@ -241,7 +241,7 @@ export async function GET(request: NextRequest) {
             <li>Monitor your accounts for suspicious activity</li>
           </ul>
           <p>We sincerely apologize for this incident. Contact us at support@trackmyopt.com with any questions.</p>
-          <p>Best regards,<br/>The TrackMyOPT Team</p>
+          <p>Best regards,<br/>The TrackMyOPT Team<br/>Zyene, Inc.</p>
         </body>
         </html>
       `,
