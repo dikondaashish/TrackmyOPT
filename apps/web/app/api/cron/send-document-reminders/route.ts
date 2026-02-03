@@ -31,6 +31,7 @@ interface DocumentData {
   filename: string;
   expiry_date: string;
   document_type: string;
+  category: string;
 }
 
 interface ReminderWithDocument {
@@ -82,7 +83,8 @@ export async function GET(request: NextRequest) {
         document:documents (
           filename,
           expiry_date,
-          document_type
+          document_type,
+          category
         )
       `)
       .eq('status', 'pending')
@@ -160,7 +162,7 @@ export async function GET(request: NextRequest) {
           await transporter.sendMail({
             from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
             to: userEmail,
-            subject: `⏰ Document Expiring Soon: ${reminder.document.filename}`,
+            subject: `⏰ Document Expiring Soon: ${getPrettifiedName(reminder.document)}`,
             html: generateReminderEmail(reminder),
           });
         } catch (emailError) {
@@ -219,6 +221,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
+function getPrettifiedName(doc: DocumentData): string {
+  const name = (doc.category && doc.category !== 'other') ? doc.category : doc.document_type;
+  return name
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function generateReminderEmail(reminder: ReminderWithDocument): string {
   const doc = reminder.document;
   const expiryDate = new Date(doc.expiry_date).toLocaleDateString('en-US', {
@@ -238,9 +247,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
   );
 
   // Format document type nicely
-  const documentType = doc.document_type
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  const documentType = getPrettifiedName(doc);
 
   // Determine urgency based on days remaining
   let urgencyColor: string;
