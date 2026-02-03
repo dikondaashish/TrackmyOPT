@@ -109,7 +109,7 @@ export interface EmailReminderData {
 export async function sendDailyReminder(data: EmailReminderData) {
   try {
     const info = await sendMailWithRetry({
-      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: data.userEmail,
       subject: getDynamicSubject(data.tools),
       html: generateEmailHTML(data),
@@ -229,7 +229,7 @@ function generateEmailHTML(data: EmailReminderData): string {
             <strong>OPT Clock Tracker Team</strong>
           </p>
           <p style="margin: 0; color: #D1D5DB; font-size: 10px;">
-            © ${new Date().getFullYear()} Zyene, Inc. | support@trackmyopt.com
+            © ${new Date().getFullYear()} TrackMyOPT | support@trackmyopt.com
           </p>
         </div>
 

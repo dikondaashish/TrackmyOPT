@@ -43,12 +43,12 @@ interface ReminderWithDocument {
 }
 
 export async function GET(request: NextRequest) {
-  
+
   try {
     // Security: Verify cron secret
     const authHeader = request.headers.get('authorization');
     const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-    
+
     if (authHeader !== expectedAuth) {
       console.error('❌ Unauthorized cron request');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayStart = today.toISOString();
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const todayEnd = tomorrow.toISOString();
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
       try {
         // Get user email
         const { data: userData, error: userError } = await supabase.auth.admin.getUserById(reminder.user_id);
-        
+
         if (userError || !userData?.user?.email) {
           console.error(`❌ Could not get user email for ${reminder.user_id}`);
           failedCount++;
@@ -145,36 +145,36 @@ export async function GET(request: NextRequest) {
           .single();
 
         if (emailPrefs && !emailPrefs.document_reminders_enabled) {
-          
+
           // Mark as cancelled
           await supabase
             .from('document_reminders')
             .update({ status: 'cancelled' })
             .eq('id', reminder.id);
-          
+
           continue;
         }
 
         // Send email via SMTP
         try {
           await transporter.sendMail({
-            from: `Zyene Inc <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+            from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
             to: userEmail,
             subject: `⏰ Document Expiring Soon: ${reminder.document.filename}`,
             html: generateReminderEmail(reminder),
           });
         } catch (emailError) {
           console.error(`❌ Email send error for ${userEmail}:`, emailError);
-          
+
           // Mark as failed
           await supabase
             .from('document_reminders')
-            .update({ 
+            .update({
               status: 'failed',
               sent_at: new Date().toISOString()
             })
             .eq('id', reminder.id);
-          
+
           failedCount++;
           continue;
         }
@@ -182,7 +182,7 @@ export async function GET(request: NextRequest) {
         // Mark as sent
         await supabase
           .from('document_reminders')
-          .update({ 
+          .update({
             status: 'sent',
             sent_at: new Date().toISOString(),
             email_sent: true
@@ -208,9 +208,9 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ Cron job error:', error);
-    
+
     return NextResponse.json(
-      { 
+      {
         error: 'Cron job failed',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
@@ -227,7 +227,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
     day: 'numeric'
   });
 
-  const today = new Date().toLocaleString('en-US', { 
+  const today = new Date().toLocaleString('en-US', {
     timeZone: 'America/New_York',
     year: 'numeric', month: 'long', day: 'numeric',
     hour: 'numeric', minute: '2-digit', hour12: true
@@ -248,7 +248,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
   let urgencyLabel: string;
   let headerEmoji: string;
   let actionMessage: string;
-  
+
   if (daysUntilExpiry <= 0) {
     urgencyColor = '#dc2626';
     urgencyBg = '#FEF2F2';
@@ -442,7 +442,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
                       <a href="https://www.trackmyopt.com/dashboard/documents" style="color: #06b6d4; text-decoration: none; font-weight: 500;">View All Documents</a>
                     </p>
                     <p style="color: #9ca3af; font-size: 11px; margin: 16px 0 0 0;">
-                      © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
+                      © ${new Date().getFullYear()} TrackMyOPT. All rights reserved.
                     </p>
                   </td>
                 </tr>
@@ -461,7 +461,7 @@ function generateReminderEmail(reminder: ReminderWithDocument): string {
  */
 function getDocumentRenewalTips(documentType: string): string {
   const type = documentType.toLowerCase();
-  
+
   if (type.includes('passport')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
@@ -475,7 +475,7 @@ function getDocumentRenewalTips(documentType: string): string {
       </div>
     `;
   }
-  
+
   if (type.includes('visa') || type.includes('i-94')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
@@ -489,7 +489,7 @@ function getDocumentRenewalTips(documentType: string): string {
       </div>
     `;
   }
-  
+
   if (type.includes('ead') || type.includes('employment') || type.includes('work')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
@@ -503,7 +503,7 @@ function getDocumentRenewalTips(documentType: string): string {
       </div>
     `;
   }
-  
+
   if (type.includes('driver') || type.includes('license') || type.includes('driving')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
@@ -517,7 +517,7 @@ function getDocumentRenewalTips(documentType: string): string {
       </div>
     `;
   }
-  
+
   if (type.includes('i-20')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
@@ -531,7 +531,7 @@ function getDocumentRenewalTips(documentType: string): string {
       </div>
     `;
   }
-  
+
   if (type.includes('insurance') || type.includes('health')) {
     return `
       <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
@@ -545,7 +545,7 @@ function getDocumentRenewalTips(documentType: string): string {
       </div>
     `;
   }
-  
+
   // Default tips for other document types
   return `
     <div style="background-color: #FEF3C7; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">

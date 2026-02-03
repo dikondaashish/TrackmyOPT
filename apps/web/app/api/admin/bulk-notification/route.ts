@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     // Verify admin authorization
     const authHeader = request.headers.get('Authorization');
     const adminSecret = process.env.ADMIN_SECRET;
-    
+
     if (!adminSecret || authHeader !== `Bearer ${adminSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < users.length; i += batchSize) {
       const batch = users.slice(i, i + batchSize);
-      
+
       await Promise.all(batch.map(async (user) => {
         try {
           const personalizedHtml = htmlContent
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
             .replace('{{email}}', user.email || '');
 
           await transporter.sendMail({
-            from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER}>`,
+            from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER}>`,
             to: user.email,
             subject: subject,
             html: personalizedHtml,
@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
   // Verify admin authorization
   const authHeader = request.headers.get('Authorization');
   const adminSecret = process.env.ADMIN_SECRET;
-  
+
   if (!adminSecret || authHeader !== `Bearer ${adminSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
           <p>These changes take effect on [DATE].</p>
           <p><a href="https://www.trackmyopt.com/privacy" style="color: #007AFF;">Read the full Privacy Policy</a></p>
           <p>If you have questions, contact us at support@trackmyopt.com</p>
-          <p>Best regards,<br/>The TrackMyOPT Team<br/>Zyene, Inc.</p>
+          <p>Best regards,<br/>The TrackMyOPT Team</p>
         </body>
         </html>
       `,
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
           </ul>
           <p><a href="https://www.trackmyopt.com/dashboard/settings" style="background: #DC2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Delete My Account Before Transfer</a></p>
           <p>If you have questions, contact us at support@trackmyopt.com</p>
-          <p>Best regards,<br/>The TrackMyOPT Team<br/>Zyene, Inc.</p>
+          <p>Best regards,<br/>The TrackMyOPT Team</p>
         </body>
         </html>
       `,
@@ -241,7 +241,7 @@ export async function GET(request: NextRequest) {
             <li>Monitor your accounts for suspicious activity</li>
           </ul>
           <p>We sincerely apologize for this incident. Contact us at support@trackmyopt.com with any questions.</p>
-          <p>Best regards,<br/>The TrackMyOPT Team<br/>Zyene, Inc.</p>
+          <p>Best regards,<br/>The TrackMyOPT Team</p>
         </body>
         </html>
       `,
