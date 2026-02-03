@@ -136,8 +136,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-
   try {
+    // Get subscription details from Stripe to get period end
+    let expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 32); // Default 1 month safety
+
+    if (session.subscription) {
+      const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+      expiresAt = new Date(subscription.current_period_end * 1000);
+    }
+
     // Update user to premium
     const { error: profileError } = await supabase
       .from('profiles')
@@ -146,6 +154,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         premium_purchased_at: new Date().toISOString(),
         stripe_customer_id: session.customer as string,
         stripe_payment_intent_id: session.payment_intent as string,
+        plan_tier: session.metadata?.planId || 'pro',
+        subscription_expires_at: expiresAt.toISOString(),
       })
       .eq('user_id', userId);
 
@@ -167,6 +177,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         currency: session.currency || 'usd',
         status: 'succeeded',
         payment_method_type: session.payment_method_types?.[0] || 'card',
+        plan_id: session.metadata?.planId || 'pro',
         metadata: {
           session_id: session.id,
           customer_email: session.customer_details?.email,
@@ -274,10 +285,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     await supabaseAdmin.from('profiles')
       .update({
         premium_status: true,
-        // Update expiration date if available
-        // Using direct string manipulation since 'premium_purchased_at' exists but 'expires_at' might not be in schema yet
-        // If expires_at is not in schema, this might fail unless we check schema.
-        // Based on previous file reads, 'premium_purchased_at' is there. I won't gamble on 'expires_at'.
+        plan_tier: subscription.metadata?.planId || 'pro',
+        subscription_expires_at: new Date(subscription.current_period_end * 1000).toISOString(),
       })
       .eq('stripe_customer_id', customerId);
   }

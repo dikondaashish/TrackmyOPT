@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('premium_status, premium_purchased_at, stripe_customer_id')
+      .select('premium_status, plan_tier, subscription_expires_at, premium_purchased_at, stripe_customer_id')
       .eq('user_id', userId)
       .single();
 
@@ -109,30 +109,10 @@ export async function GET(req: NextRequest) {
     }
 
     // User has premium (active subscription)
-    let planName = 'pro'; // Default to pro
-
-    // Fetch latest successful payment to determine plan
-    const { data: lastPayment } = await supabase
-      .from('payment_transactions')
-      .select('amount')
-      .eq('user_id', userId)
-      .eq('status', 'succeeded')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (lastPayment && lastPayment.amount) {
-      // Dedicated is $14.99 (1499) or $149.99 (14999)
-      // Pro is $4.99 (499) or $49.99 (4999)
-      // Any amount >= 1000 is likely Dedicated (or old high tier)
-      if (lastPayment.amount >= 1000) {
-        planName = 'dedicated';
-      }
-    }
-
     return NextResponse.json({
       isPremium: true,
-      planName,
+      planName: data.plan_tier || 'pro',
+      expiresAt: data.subscription_expires_at,
       purchasedAt: data.premium_purchased_at,
       customerId: data.stripe_customer_id
     }, {
