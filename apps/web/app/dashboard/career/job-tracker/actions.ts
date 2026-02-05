@@ -29,6 +29,25 @@ export async function getApplications() {
     return data as (JobApplication & { job_interviews: JobInterview[], job_followups: JobFollowup[] })[];
 }
 
+export async function getUserPlanTier() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    const { data, error } = await supabase
+        .from("profiles")
+        .select("plan_tier")
+        .eq("id", user.id)
+        .single();
+
+    if (error) {
+        console.error("Error fetching plan tier:", error);
+        return null;
+    }
+
+    return data.plan_tier as string | null;
+}
+
 export async function createApplication(formData: {
     company_name: string;
     role_title: string;

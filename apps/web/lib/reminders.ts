@@ -9,7 +9,7 @@ import { createClient } from '@supabase/supabase-js';
 
 /**
  * Generate reminders for a document with expiry date
- * Creates 4 reminders: 6 months, 3 months, 1 month, 7 days before expiry
+ * Creates 10 reminders: 60, 45, 30, 20, 15, 10, 5, 3, 2, 1 days before expiry
  * 
  * @param userId - User ID
  * @param documentId - Document ID
@@ -95,7 +95,7 @@ export function formatReminderMessage(
   daysBefore: number
 ): string {
   const label = getReminderLabel(daysBefore);
-  
+
   return `Your document "${documentName}" will expire in ${label}. Please renew it soon.`;
 }
 

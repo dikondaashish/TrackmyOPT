@@ -31,6 +31,7 @@ import { JobTrackerTableView } from "./JobTrackerTableView";
 import { JobTrackerCalendarView } from "./JobTrackerCalendarView";
 import { TodaysTasksWidget } from "./TodaysTasksWidget";
 import { InsightsPanel } from "./InsightsPanel";
+import { JobTrackerUsageBar } from "./JobTrackerUsageBar";
 import { updateApplicationStatus } from "@/app/dashboard/career/job-tracker/actions";
 import {
     searchApplications,
@@ -42,6 +43,7 @@ import {
 
 interface JobTrackerBoardProps {
     initialApplications: any[]; // Includes joined interviews/followups
+    planTier: string | null;
 }
 
 const dropAnimation: DropAnimation = {
@@ -56,7 +58,7 @@ const dropAnimation: DropAnimation = {
 
 const STORAGE_KEY = "trackmyopt_job_tracker_view";
 
-export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
+export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoardProps) {
     const router = useRouter();
     const [applications, setApplications] = useState<JobApplication[]>(initialApplications);
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -262,7 +264,10 @@ export function JobTrackerBoard({ initialApplications }: JobTrackerBoardProps) {
         <div className="space-y-6">
             {/* Header Row: Stats + View Switcher + Add Button */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <JobTrackerStatsRow applications={applications} />
+                <div className="flex flex-col gap-2">
+                    <JobTrackerStatsRow applications={applications} />
+                    <JobTrackerUsageBar applications={applications} planTier={planTier} />
+                </div>
                 <div className="flex items-center gap-3">
                     <ViewSwitcher currentView={currentView} onViewChange={handleViewChange} />
                     <AddApplicationModal onAdd={handleAdd} />

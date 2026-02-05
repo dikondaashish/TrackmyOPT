@@ -1,4 +1,4 @@
-import { getApplications } from "./actions";
+import { getApplications, getUserPlanTier } from "./actions";
 import { JobTrackerBoard } from "@/components/career/job-tracker/JobTrackerBoard";
 import { ArrowLeft, ClipboardList } from "lucide-react";
 import Link from "next/link";
@@ -6,6 +6,7 @@ import Link from "next/link";
 export default async function JobTrackerPage() {
     // Fetch initial data on server
     const applications = await getApplications();
+    const planTier = await getUserPlanTier();
 
     return (
         <div className="min-h-screen bg-background">
@@ -33,7 +34,10 @@ export default async function JobTrackerPage() {
                 </div>
 
                 {/* Main Content */}
-                <JobTrackerBoard initialApplications={applications} />
+                <JobTrackerBoard
+                    initialApplications={applications}
+                    planTier={planTier}
+                />
             </div>
         </div>
     );

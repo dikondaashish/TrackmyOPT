@@ -314,6 +314,7 @@ async function revokePremiumAccess(stripeCustomerId: string) {
       .from('profiles')
       .update({
         premium_status: false,
+        plan_tier: null,
         updated_at: new Date().toISOString()
       })
       .eq('stripe_customer_id', stripeCustomerId);
