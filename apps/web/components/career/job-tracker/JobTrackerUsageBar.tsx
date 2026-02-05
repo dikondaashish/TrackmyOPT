@@ -1,7 +1,7 @@
 "use client";
 
 import { JobApplication } from "@/lib/career/job-tracker/types";
-import { Progress } from "@/components/ui/progress";
+
 import { Zap } from "lucide-react";
 
 interface JobTrackerUsageBarProps {
