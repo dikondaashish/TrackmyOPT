@@ -1066,7 +1066,7 @@ export function HelpSection() {
               <div className="border border-border rounded-lg divide-y divide-border">
                 <FAQItem
                   question="When can I apply for OPT?"
-                  answer="You can apply for Post-Completion OPT up to 90 days before your program end date and up to 60 days after. It's recommended to apply as early as possible within this window, as processing times can vary from 1-5 months."
+                  answer="You can apply for Post-Completion OPT up to 90 days before your program end date and up to 60 days after. It's recommended to apply as early as possible within this window, as processing times can vary from 90-120 days (3-4 months)."
                 />
                 <FAQItem
                   question="How long is OPT valid?"

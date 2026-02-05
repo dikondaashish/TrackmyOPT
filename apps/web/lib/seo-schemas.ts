@@ -164,7 +164,7 @@ export const faqSchema = {
             name: "What documents do I need for OPT application?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "For OPT application (Form I-765) you need: passport-style photos, copy of Form I-94, copies of all previously issued I-20s, copy of passport ID page, copy of current visa stamp, copy of any previous EADs (if applicable), and the $410 filing fee. Your DSO must recommend OPT in SEVIS before you apply.",
+                text: "For OPT application (Form I-765) you need: passport-style photos, copy of Form I-94, copies of all previously issued I-20s, copy of passport ID page, copy of current visa stamp, copy of any previous EADs (if applicable), and the $470 filing fee for online filing ($520 for paper filing). Your DSO must recommend OPT in SEVIS before you apply.",
             },
         },
         {
@@ -253,7 +253,7 @@ export const howToSchemas = [
             {
                 "@type": "HowToStep",
                 name: "Pay Filing Fee",
-                text: "Pay the $410 filing fee (check current fee on USCIS website).",
+                text: "Pay the $470 filing fee (online) or $520 (paper). Check current fee on USCIS website.",
                 position: 4,
             },
             {
@@ -545,7 +545,7 @@ export const knowledgeGraphSchema = {
             position: 4,
             item: {
                 "@type": "Answer",
-                text: "To apply for OPT: get I-20 from DSO, complete Form I-765, gather documents (photos, I-94, passport), pay $410 fee, submit to USCIS.",
+                text: "To apply for OPT: get I-20 from DSO, complete Form I-765, gather documents (photos, I-94, passport), pay $470 (online) or $520 (paper) fee, submit to USCIS.",
                 url: "https://trackmyopt.com/#how-to-apply-opt",
             },
         },

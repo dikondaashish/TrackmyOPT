@@ -29,8 +29,8 @@ const knowledgeBase = [
                     "Duration: 12 months (initial), up to 36 months with STEM extension",
                     "Eligibility: F-1 students who completed their degree program",
                     "Application: Form I-765 submitted to USCIS",
-                    "Processing time: 3-5 months average",
-                    "Cost: $410 filing fee (2026)",
+                    "Processing time: 90-120 days (3-4 months) average",
+                    "Cost: $470 (online) / $520 (paper) filing fee (2026)",
                 ],
             },
             {
@@ -305,8 +305,8 @@ export function LandingAEOContent() {
                                 </tr>
                                 <tr>
                                     <td className="p-4 text-gray-900 dark:text-white font-medium">Filing Fee</td>
-                                    <td className="p-4 text-gray-600 dark:text-gray-300">$410</td>
-                                    <td className="p-4 text-gray-600 dark:text-gray-300">$410</td>
+                                    <td className="p-4 text-gray-600 dark:text-gray-300">$470</td>
+                                    <td className="p-4 text-gray-600 dark:text-gray-300">$470</td>
                                 </tr>
                                 <tr>
                                     <td className="p-4 text-gray-900 dark:text-white font-medium">E-Verify Required</td>

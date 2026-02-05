@@ -357,7 +357,7 @@ function generateOptApplySection(tool: ToolReminderDetail): string {
           <li>☐ <strong>Passport Copy</strong> - Bio page and visa stamp</li>
           <li>☐ <strong>I-94</strong> - Most recent arrival/departure record</li>
           <li>☐ <strong>Previous EAD Cards</strong> - If any (copies)</li>
-          <li>☐ <strong>Filing Fee</strong> - $410 (check current fee on USCIS website)</li>
+          <li>☐ <strong>Filing Fee</strong> - $470 (online) or $520 (paper filing)</li>
         </ul>
       </div>
 
@@ -414,7 +414,7 @@ function generateOptApplySection(tool: ToolReminderDetail): string {
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><strong>Receipt Notice:</strong> 2-4 weeks after USCIS receives your application</li>
           <li><strong>Biometrics (if required):</strong> 3-6 weeks after receipt</li>
-          <li><strong>Decision:</strong> 3-5 months total (can vary)</li>
+          <li><strong>Decision:</strong> 90-120 days (3-4 months) on average</li>
           <li><strong>EAD Card:</strong> Mailed within 1-2 weeks of approval</li>
         </ul>
       </div>
@@ -563,7 +563,7 @@ function getOptApplyActionItems(daysLeft: number, totalDays: number): string[] {
       'Get your I-20 endorsed for OPT by your DSO',
       'Complete Form I-765 carefully (double-check all entries!)',
       'Get <strong>2 passport-style photos</strong> (2x2 inches, white background)',
-      'Prepare payment ($410 filing fee - check current fee on USCIS website)',
+      'Prepare payment ($470 online / $520 paper fee)',
     ];
   } else if (percentRemaining > 25) {
     return [

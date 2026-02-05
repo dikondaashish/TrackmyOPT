@@ -148,9 +148,9 @@ export function TickingClock({
 
           {/* Status indicator */}
           <div className={`px-4 py-2 rounded-full backdrop-blur-sm flex items-center gap-2 self-start sm:self-auto ${isPassed ? 'bg-green-500/30 text-green-100' :
-              isCritical ? 'bg-red-500/30 text-red-100' :
-                isUrgent ? 'bg-amber-500/30 text-amber-100' :
-                  'bg-white/20 text-white'
+            isCritical ? 'bg-red-500/30 text-red-100' :
+              isUrgent ? 'bg-amber-500/30 text-amber-100' :
+                'bg-white/20 text-white'
             }`}>
             <StatusIcon className="w-4 h-4" />
             <span className="text-sm font-medium">
@@ -324,7 +324,7 @@ export function TickingClockCompact({
       if (timeLeft.days <= 30) return [
         "🚀 Apply NOW - beat the queue!",
         "📄 Get I-20 endorsed by DSO",
-        "💳 Prepare $410 filing fee"
+        "💳 Prepare $470+ filing fee"
       ];
       if (timeLeft.days <= 60) return [
         "⭐ Apply early - avoid 3-6 month delays!",
@@ -423,9 +423,9 @@ export function TickingClockCompact({
 
         {/* Status Badge */}
         <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mb-3 ${isPassed ? 'bg-green-500/30 text-green-100' :
-            isCritical ? 'bg-red-500/30 text-red-100' :
-              isUrgent ? 'bg-amber-500/30 text-amber-100' :
-                'bg-white/20 text-white'
+          isCritical ? 'bg-red-500/30 text-red-100' :
+            isUrgent ? 'bg-amber-500/30 text-amber-100' :
+              'bg-white/20 text-white'
           }`}>
           {isPassed ? <CheckCircle2 className="w-3 h-3" /> : isCritical ? <AlertTriangle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
           {isPassed ? 'Done' : isCritical ? 'Critical!' : isUrgent ? 'Act Now!' : 'On Track'}

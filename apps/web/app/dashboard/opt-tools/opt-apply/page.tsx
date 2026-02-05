@@ -60,7 +60,7 @@ const jsonLd = {
   estimatedCost: {
     "@type": "MonetaryAmount",
     currency: "USD",
-    value: "410",
+    value: "470",
   },
   step: [
     {
@@ -84,7 +84,7 @@ const jsonLd = {
     {
       "@type": "HowToStep",
       name: "Pay Filing Fee",
-      text: "Pay the $410 USCIS filing fee (verify current fee on uscis.gov).",
+      text: "Pay the $470 (online) or $520 (paper) USCIS filing fee.",
       position: 4,
     },
     {

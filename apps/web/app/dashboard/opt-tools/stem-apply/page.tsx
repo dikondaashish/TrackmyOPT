@@ -61,7 +61,7 @@ const jsonLd = {
   estimatedCost: {
     "@type": "MonetaryAmount",
     currency: "USD",
-    value: "410",
+    value: "470",
   },
   step: [
     {
