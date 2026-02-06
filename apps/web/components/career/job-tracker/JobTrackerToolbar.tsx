@@ -99,7 +99,7 @@ export function JobTrackerToolbar({
     const selectClass = "h-9 px-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none cursor-pointer";
 
     return (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 mb-6">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-2 mb-2 shadow-sm">
             <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 {/* Search Input */}
                 <div className="relative flex-1 max-w-md">
@@ -172,8 +172,8 @@ export function JobTrackerToolbar({
                     <button
                         onClick={handleShowArchivedChange}
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${showArchived
-                                ? "bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-900"
-                                : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                            ? "bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-900"
+                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
                             }`}
                     >
                         <Archive className="w-4 h-4" />

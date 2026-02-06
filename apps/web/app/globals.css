@@ -111,6 +111,16 @@
   .glass-card {
     @apply bg-white/90 dark:bg-card/90 backdrop-blur-md border border-border/50;
   }
+
+  /* Dot Pattern Background */
+  .bg-dot-pattern {
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .dark .bg-dot-pattern {
+    background-image: radial-gradient(#334155 1px, transparent 1px);
+  }
 }
 
 /* Apple-inspired Custom Scrollbar */
@@ -208,6 +218,7 @@
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(calc(-100% - var(--gap)));
   }
@@ -217,6 +228,7 @@
   from {
     transform: translateY(0);
   }
+
   to {
     transform: translateY(calc(-100% - var(--gap)));
   }

@@ -50,15 +50,17 @@ export function JobTrackerStatsRow({ applications }: JobTrackerStatsRowProps) {
     ];
 
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
             {stats.map((stat) => (
-                <div key={stat.label} className="p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 flex items-center gap-4 shadow-sm">
-                    <div className={`p-3 rounded-lg ${stat.bg}`}>
-                        <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                <div key={stat.label} className="p-3 rounded-xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 flex items-center gap-3 shadow-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors w-full min-w-0">
+                    <div className={`p-2 rounded-lg shrink-0 ${stat.bg}`}>
+                        <stat.icon className={`w-4 h-4 ${stat.color}`} />
                     </div>
-                    <div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{stat.label}</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-[11px] leading-snug text-gray-500 dark:text-gray-400 font-medium mb-0.5 whitespace-pre-wrap break-words">
+                            {stat.label.replace(' ', '\n')}
+                        </p>
+                        <p className="text-xl font-bold text-gray-900 dark:text-white leading-none truncate">{stat.value}</p>
                     </div>
                 </div>
             ))}

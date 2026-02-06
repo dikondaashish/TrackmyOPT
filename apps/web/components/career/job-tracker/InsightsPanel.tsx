@@ -147,37 +147,45 @@ export function InsightsPanel({ applications }: InsightsPanelProps) {
                             return (
                                 <div
                                     key={index}
-                                    className="p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50"
+                                    className="p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 flex flex-col justify-between h-full"
                                 >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", card.color)}>
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", card.color)}>
                                             <Icon className="w-4 h-4" />
                                         </div>
                                     </div>
-                                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                        {card.value}
-                                    </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {card.label}
-                                    </p>
-                                    {card.subtext && (
-                                        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
-                                            {card.subtext}
+                                    <div>
+                                        <p className="text-2xl font-bold text-gray-900 dark:text-white leading-none mb-1">
+                                            {card.value}
                                         </p>
-                                    )}
+                                        <p className="text-[11px] leading-tight text-gray-500 dark:text-gray-400 font-medium whitespace-pre-line">
+                                            {card.label.replace(/ → /g, '\n→ ')}
+                                        </p>
+                                        {card.subtext && (
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 leading-tight">
+                                                {card.subtext}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })}
                     </div>
 
                     {/* Additional Stats */}
-                    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-400">
-                            Avg. days in pipeline: <span className="font-medium text-gray-700 dark:text-gray-300">{metrics.avgDaysInPipeline ?? "—"}</span>
-                        </span>
-                        <span className="text-gray-500 dark:text-gray-400">
-                            Rejected: <span className="font-medium text-gray-700 dark:text-gray-300">{metrics.rejected}</span>
-                        </span>
+                    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center gap-6 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-2">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>
+                                Avg. days in pipeline: <span className="font-medium text-gray-900 dark:text-white">{metrics.avgDaysInPipeline ?? "—"}</span>
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                            <span>
+                                Rejected: <span className="font-medium text-gray-900 dark:text-white">{metrics.rejected}</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
             )}

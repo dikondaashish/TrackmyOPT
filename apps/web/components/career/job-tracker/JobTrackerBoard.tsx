@@ -2,6 +2,11 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ClipboardList, ArrowLeft, Plus } from "lucide-react";
+import { PricingModal } from "@/components/pricing/PricingModal";
+import { AddColumnModal } from "./AddColumnModal";
+import { DeleteStageModal } from "./DeleteStageModal";
 import {
     DndContext,
     DragOverlay,
@@ -17,7 +22,7 @@ import {
     DropAnimation,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { JobApplication, JobStage } from "@/lib/career/job-tracker/types";
+import { CustomStage, JobApplication, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES, KANBAN_COLUMNS } from "@/lib/career/job-tracker/constants";
 import { JobStageColumn } from "./JobStageColumn";
 import { JobApplicationCard } from "./JobApplicationCard";
@@ -25,14 +30,13 @@ import { JobTrackerStatsRow } from "./JobTrackerStatsRow";
 import { AddApplicationModal } from "./AddApplicationModal";
 import { ApplicationDrawer } from "./ApplicationDrawer";
 import { JobTrackerToolbar } from "./JobTrackerToolbar";
-import { FollowupsDueWidget } from "./FollowupsDueWidget";
+import { FollowupsNotification } from "./FollowupsNotification";
 import { ViewSwitcher, JobTrackerView } from "./ViewSwitcher";
 import { JobTrackerTableView } from "./JobTrackerTableView";
 import { JobTrackerCalendarView } from "./JobTrackerCalendarView";
-import { TodaysTasksWidget } from "./TodaysTasksWidget";
 import { InsightsPanel } from "./InsightsPanel";
 import { JobTrackerUsageBar } from "./JobTrackerUsageBar";
-import { updateApplicationStatus } from "@/app/dashboard/career/job-tracker/actions";
+import { updateApplicationStatus, clearApplicationFollowup, clearAllFollowups, deleteJobStage } from "@/app/dashboard/career/job-tracker/actions";
 import {
     searchApplications,
     filterApplications,
@@ -44,6 +48,7 @@ import {
 interface JobTrackerBoardProps {
     initialApplications: any[]; // Includes joined interviews/followups
     planTier: string | null;
+    customStages: any[]; // CustomStage[]
 }
 
 const dropAnimation: DropAnimation = {
@@ -56,19 +61,19 @@ const dropAnimation: DropAnimation = {
     }),
 };
 
-const STORAGE_KEY = "trackmyopt_job_tracker_view";
-
-export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoardProps) {
+export function JobTrackerBoard({ initialApplications, planTier, customStages }: JobTrackerBoardProps) {
     const router = useRouter();
     const [applications, setApplications] = useState<JobApplication[]>(initialApplications);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
+    const [showPricingModal, setShowPricingModal] = useState(false);
+    const [showAddColumnModal, setShowAddColumnModal] = useState(false);
 
     // View State with localStorage persistence
     const [currentView, setCurrentView] = useState<JobTrackerView>("board");
 
     useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem("trackmyopt_job_tracker_view");
         if (saved && ["board", "table", "calendar"].includes(saved)) {
             setCurrentView(saved as JobTrackerView);
         }
@@ -76,7 +81,7 @@ export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoa
 
     const handleViewChange = (view: JobTrackerView) => {
         setCurrentView(view);
-        localStorage.setItem(STORAGE_KEY, view);
+        localStorage.setItem("trackmyopt_job_tracker_view", view);
     };
 
     // Filter & Sort State
@@ -158,7 +163,7 @@ export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoa
         router.refresh();
     };
 
-    const handleStageChange = async (appId: string, newStage: JobStage) => {
+    const handleStageChange = async (appId: string, newStage: string) => {
         const app = applications.find(a => a.id === appId);
         if (!app || app.status === newStage) return;
 
@@ -177,12 +182,41 @@ export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoa
         }
     };
 
-    const handleMarkFollowupDone = (appId: string) => {
-        // Clear the follow-up (in real implementation, update via server action)
+    const [stageToDelete, setStageToDelete] = useState<CustomStage | null>(null);
+
+    const handleDeleteStage = (customStage: any) => {
+        setStageToDelete(customStage);
+    };
+
+    const handleConfirmDelete = () => {
+        router.refresh();
+        setStageToDelete(null);
+    };
+
+    const handleMarkFollowupDone = async (appId: string) => {
+        // Optimistic update
         setApplications(prev => prev.map(a =>
             a.id === appId ? { ...a, next_follow_up_at: null } as any : a
         ));
-        router.refresh();
+
+        try {
+            await clearApplicationFollowup(appId);
+        } catch (err) {
+            router.refresh(); // Revert on error by re-fetching
+        }
+    };
+
+    const handleClearAllFollowups = async () => {
+        // Optimistic update
+        setApplications(prev => prev.map(a =>
+            a.next_follow_up_at ? { ...a, next_follow_up_at: null } as any : a
+        ));
+
+        try {
+            await clearAllFollowups();
+        } catch (err) {
+            router.refresh();
+        }
     };
 
     // Sensors
@@ -199,15 +233,40 @@ export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoa
 
     // Derived columns from filtered applications
     const columns = useMemo(() => {
-        const cols = new Map<JobStage, JobApplication[]>();
-        JOB_STAGES.forEach(stage => cols.set(stage, []));
+        // Merge Default + Custom Columns
+        const allColumns = [
+            ...KANBAN_COLUMNS,
+            ...customStages.map((s: CustomStage) => ({
+                id: s.title, // Use title as ID for now to match JobStage type (string)
+                title: s.title,
+                color: s.color
+            }))
+        ];
+
+        const cols = new Map<string, JobApplication[]>();
+        allColumns.forEach(col => cols.set(col.id, []));
 
         filteredApplications.forEach(app => {
-            cols.get(app.status)?.push(app);
+            // If app status doesn't match any column (legacy), put it in 'Wishlist' or handle gracefully
+            if (cols.has(app.status)) {
+                cols.get(app.status)?.push(app);
+            } else {
+                // Fallback: Add to first column if status invalid? Or maybe the status IS valid but just no column?
+                // For now, assume status matches one of the column IDs (titles)
+                // If custom stage was deleted, this might break. 
+                // Let's safe guard:
+                if (!cols.has(app.status)) {
+                    // Maybe put in 'Applied' as fallback?
+                    cols.get(KANBAN_COLUMNS[1].id)?.push(app);
+                }
+            }
         });
 
-        return cols;
-    }, [filteredApplications]);
+        return { cols, allColumns };
+    }, [filteredApplications, customStages]);
+
+    // Update drag logic to use allColumns
+    const { cols: applicationColumns, allColumns } = columns;
 
     // Drag Handlers
     const handleDragStart = (event: DragStartEvent) => {
@@ -229,11 +288,14 @@ export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoa
 
         if (!activeApp) return;
 
-        let newStatus: JobStage | null = null;
+        let newStatus: string | null = null; // Changed from JobStage to string
+
+        // Check if over.id matches any of our columns (default or custom)
+        const isColumn = allColumns.some(col => col.id === over.id);
 
         // Case 1: Dropped on a Column
-        if (JOB_STAGES.includes(over.id as JobStage)) {
-            newStatus = over.id as JobStage;
+        if (isColumn) {
+            newStatus = over.id as string;
         }
         // Case 2: Dropped on another Card
         else {
@@ -248,6 +310,9 @@ export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoa
         }
     };
 
+    // ... rest of component
+
+
     const activeApplication = activeId ? applications.find(a => a.id === activeId) : null;
 
     // Get joined data for drawer
@@ -261,26 +326,57 @@ export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoa
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header Row: Stats + View Switcher + Add Button */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div className="flex flex-col gap-2">
+        <div className="space-y-4 max-w-full">
+            {/* Top Bar: Back Link + Notification Bell */}
+            <div className="flex items-center justify-between mb-2">
+                <Link
+                    href="/dashboard/career"
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to Career Hub
+                </Link>
+                <FollowupsNotification
+                    applications={applications}
+                    onMarkDone={handleMarkFollowupDone}
+                    onClearAll={handleClearAllFollowups}
+                />
+            </div>
+
+            {/* Title + Stats Row */}
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-2">
+                {/* Title Section */}
+                <div className="flex items-center gap-4 min-w-max">
+                    <div className="p-3 rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
+                        <ClipboardList className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Job Application Tracker</h1>
+                        <p className="text-muted-foreground">
+                            Track applications, interviews, and offers in one place
+                        </p>
+                    </div>
+                </div>
+
+                {/* Stats Row (Right Side) */}
+                <div className="flex-1 w-full xl:max-w-3xl">
                     <JobTrackerStatsRow applications={applications} />
+                </div>
+            </div>
+
+            {/* Controls Row: Usage Bar + Actions */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+                <div className="w-full md:w-auto">
                     <JobTrackerUsageBar applications={applications} planTier={planTier} />
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 self-end md:self-auto">
                     <ViewSwitcher currentView={currentView} onViewChange={handleViewChange} />
                     <AddApplicationModal onAdd={handleAdd} />
                 </div>
             </div>
 
-            {/* Today's Tasks + Insights Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <TodaysTasksWidget
-                    applications={applications as any}
-                    onCardClick={setSelectedApp}
-                    onMarkFollowupDone={handleMarkFollowupDone}
-                />
+            {/* Insights Row */}
+            <div className="mb-2">
                 <InsightsPanel applications={applications} />
             </div>
 
@@ -299,43 +395,58 @@ export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoa
 
             {/* View Content */}
             {currentView === "board" && (
-                <>
-                    {/* Follow-ups Widget */}
-                    <FollowupsDueWidget
-                        applications={applications as any}
-                        onCardClick={setSelectedApp}
-                    />
-
-                    {/* Kanban Board */}
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCorners}
-                        onDragStart={handleDragStart}
-                        onDragOver={handleDragOver}
-                        onDragEnd={handleDragEnd}
-                    >
-                        <div className="overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory md:snap-none">
-                            <div className="flex gap-4 min-w-[200px]">
-                                {KANBAN_COLUMNS.map(col => (
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCorners}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDragEnd={handleDragEnd}
+                >
+                    <div className="overflow-x-auto pb-6 scroll-smooth snap-x snap-mandatory md:snap-none">
+                        <div className="flex gap-4 min-w-[200px] px-1">
+                            {allColumns.map(col => {
+                                const customStage = customStages.find((s: any) => s.title === col.id);
+                                return (
                                     <JobStageColumn
                                         key={col.id}
                                         column={col}
-                                        applications={columns.get(col.id) || []}
+                                        applications={applicationColumns.get(col.id) || []}
                                         onCardClick={setSelectedApp}
+                                        onDelete={customStage ? () => handleDeleteStage(customStage) : undefined}
                                     />
-                                ))}
+                                );
+                            })}
+
+                            {/* Add Column Button (Premium Gate) */}
+                            <div className="flex flex-col h-full min-w-[320px] w-[320px] snap-start">
+                                <button
+                                    onClick={() => {
+                                        // Robust Premium Check
+                                        const isPremium = planTier && planTier.toLowerCase() !== 'free';
+
+                                        if (!isPremium) {
+                                            setShowPricingModal(true);
+                                        } else {
+                                            setShowAddColumnModal(true);
+                                        }
+                                    }}
+                                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-dashed border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors font-medium h-[60px]"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Add Column
+                                </button>
                             </div>
                         </div>
+                    </div>
 
-                        <DragOverlay dropAnimation={dropAnimation}>
-                            {activeApplication ? (
-                                <div className="transform rotate-3 cursor-grabbing w-[300px]">
-                                    <JobApplicationCard application={activeApplication as any} onClick={() => { }} />
-                                </div>
-                            ) : null}
-                        </DragOverlay>
-                    </DndContext>
-                </>
+                    <DragOverlay dropAnimation={dropAnimation}>
+                        {activeApplication ? (
+                            <div className="transform rotate-3 cursor-grabbing w-[300px]">
+                                <JobApplicationCard application={activeApplication as any} onClick={() => { }} />
+                            </div>
+                        ) : null}
+                    </DragOverlay>
+                </DndContext>
             )}
 
             {currentView === "table" && (
@@ -366,6 +477,25 @@ export function JobTrackerBoard({ initialApplications, planTier }: JobTrackerBoa
                     onArchive={handleArchive}
                 />
             )}
+
+
+            {/* Premium Modals */}
+            <PricingModal
+                open={showPricingModal}
+                onClose={() => setShowPricingModal(false)}
+                isPremium={!!planTier && planTier.toLowerCase() !== 'free'}
+            />
+            <AddColumnModal
+                isOpen={showAddColumnModal}
+                onClose={() => setShowAddColumnModal(false)}
+            />
+
+            <DeleteStageModal
+                isOpen={!!stageToDelete}
+                onClose={() => setStageToDelete(null)}
+                stageToDelete={stageToDelete}
+                onConfirm={handleConfirmDelete}
+            />
         </div>
     );
 }

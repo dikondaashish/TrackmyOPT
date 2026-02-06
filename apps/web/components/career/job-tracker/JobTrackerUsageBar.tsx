@@ -10,7 +10,7 @@ interface JobTrackerUsageBarProps {
 }
 
 export function JobTrackerUsageBar({ applications, planTier }: JobTrackerUsageBarProps) {
-    const isPremium = planTier === 'pro' || planTier === 'dedicated';
+    const isPremium = planTier && planTier.toLowerCase() !== 'free';
     const limit = 5;
     const currentCount = applications.filter(a => !a.is_archived).length;
     const progress = (currentCount / limit) * 100;

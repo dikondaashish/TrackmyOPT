@@ -1,11 +1,4 @@
-export type JobStage =
-    | "Wishlist"
-    | "Applied"
-    | "Recruiter Screen"
-    | "Interviewing"
-    | "Final Round"
-    | "Offer"
-    | "Rejected";
+export type JobStage = string;
 
 export interface JobApplication {
     id: string;
@@ -46,4 +39,11 @@ export interface KanbanColumn {
     id: JobStage;
     title: string;
     color: string; // Tailwind class component for badge
+}
+
+export interface CustomStage {
+    id: string;
+    title: string;
+    color: string;
+    position: number;
 }

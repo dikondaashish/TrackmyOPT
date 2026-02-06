@@ -37,7 +37,7 @@ export async function getUserPlanTier() {
     const { data, error } = await supabase
         .from("profiles")
         .select("plan_tier")
-        .eq("id", user.id)
+        .eq("user_id", user.id)
         .single();
 
     if (error) {
@@ -240,6 +240,159 @@ export async function markFollowupDone(followupId: string) {
     // We should ideally clear `next_follow_up_at` on parent if no pending followups remain, 
     // but that's complex logic for a server action. 
     // For MVP, we just update the child status.
+
+    revalidatePath(APP_PATH);
+}
+
+export async function clearApplicationFollowup(applicationId: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    const { error } = await supabase
+        .from("job_applications")
+        .update({ next_follow_up_at: null, updated_at: new Date().toISOString() })
+        .eq("id", applicationId)
+        .eq("user_id", user.id);
+
+    if (error) {
+        console.error("Error clearing followup:", error);
+        throw new Error("Failed to clear followup");
+    }
+
+    revalidatePath(APP_PATH);
+}
+
+export async function clearAllFollowups() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    // Clear all past/due follow-ups
+    const now = new Date().toISOString();
+
+    // Note: This updates ALL applications with a past date. 
+    // In a more complex app, we might want to only clear 'unread' status, 
+    // but for this tracker, 'Clear All' implies 'I executed or dismissed them'.
+    const { error } = await supabase
+        .from("job_applications")
+        .update({ next_follow_up_at: null, updated_at: new Date().toISOString() })
+        .lte("next_follow_up_at", now)
+        .eq("user_id", user.id);
+
+    if (error) {
+        console.error("Error clearing all followups:", error);
+        throw new Error("Failed to clear all followups");
+    }
+
+    revalidatePath(APP_PATH);
+}
+
+// Custom Stages
+
+export async function getCustomStages() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data, error } = await supabase
+        .from("job_stages")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("position", { ascending: true });
+
+    if (error) {
+        console.error("Error fetching custom stages:", error);
+        return [];
+    }
+
+    return data as any[];
+}
+
+export async function createJobStage(stage: { title: string; color: string }) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    // Get max position to append
+    const { data: maxPosData } = await supabase
+        .from("job_stages")
+        .select("position")
+        .eq("user_id", user.id)
+        .order("position", { ascending: false })
+        .limit(1)
+        .single();
+
+    const nextPos = (maxPosData?.position ?? 0) + 1;
+
+    const { data, error } = await supabase.from("job_stages").insert({
+        user_id: user.id,
+        title: stage.title,
+        color: stage.color,
+        position: nextPos
+    }).select().single();
+
+    if (error) {
+        console.error("Error creating stage:", error);
+        throw new Error("Failed to create stage");
+    }
+
+    revalidatePath(APP_PATH);
+    return data;
+}
+
+export async function deleteJobStage(stageId: string) { // stageId is the title for now effectively, but let's check.
+    // Wait, in JobTrackerBoard we used 'title' as ID.
+    // In database, we probably have a UUID.
+    // When we fetch custom stages, we get the whole row including ID.
+    // But in JobTrackerBoard we mapped: id: s.title.
+    // PROPOSAL: Changing JobTrackerBoard to use s.id as ID for custom stages is risky if existing cards rely on status string matching.
+    // The `job_applications` table has `status` column which stores the string title (e.g. "Applied").
+    // If we delete the stage, what happens to cards in it?
+    // We should probably move them to default "Applied" or "Wishlist".
+    // AND `deleteJobStage` should take the TITLE or ID?
+    // If we pass ID, we can delete the row.
+    // But we also need to handle the applications.
+
+    // Let's look at `createJobStage`. It inserts title.
+    // `JobTrackerBoard`: `id: s.title`.
+    // So the "ID" passed to dnd-kit is the title.
+    // If I pass `onDelete` to `JobStageColumn`, I'll probably pass the column.
+
+    // Ideally, we delete by ID (UUID).
+    // So `JobTrackerBoard` should know the UUID.
+    // I should update `JobTrackerBoard` to store the original `CustomStage` object or at least the UUID in the column definition.
+
+    // Let's refine the plan for actions.ts:
+    // It should accept `stageId` (UUID) AND `stageTitle` (to move apps away from it or just handle cascade?)
+    // If I just delete the row, apps with that status string will be "orphaned" in the UI (fallback logic handles them).
+    // Better to update them to "Applied" (default) before deleting.
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    // Optional: Move applications in this stage to 'Applied'
+    // First, get the title to find apps?
+    // Actually, let's just delete the stage. The `JobTrackerBoard` fallback logic I saw earlier:
+    // `if (!cols.has(app.status)) { cols.get(KANBAN_COLUMNS[1].id)?.push(app); }`
+    // This fallback logic handles orphaned apps by showing them in "Applied".
+    // So safe to just delete the stage row.
+
+    // However, I need to know WHICH row to delete.
+    // I need the UUID.
+    // I will assume `deleteJobStage` takes the UUID.
+
+    const { error } = await supabase
+        .from("job_stages")
+        .delete()
+        .eq("id", stageId) // This expects UUID
+        .eq("user_id", user.id);
+
+    if (error) {
+        console.error("Error deleting stage:", error);
+        throw new Error("Failed to delete stage");
+    }
 
     revalidatePath(APP_PATH);
 }
