@@ -1,24 +1,46 @@
-
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
     return {
+        host: "https://trackmyopt.com",
+        sitemap: "https://trackmyopt.com/sitemap.xml",
         rules: [
-            // Default rule for all crawlers
+            // Specific AI bots first (explicit allowance for AEO)
             {
-                userAgent: '*',
-                allow: '/',
-                disallow: ['/dashboard/', '/api/', '/auth/'],
+                userAgent: "GPTBot",
+                allow: ["/"],
             },
-            // Explicitly allow AI crawlers for AEO (Answer Engine Optimization)
-            { userAgent: 'GPTBot', allow: '/' },
-            { userAgent: 'ChatGPT-User', allow: '/' },
-            { userAgent: 'ClaudeBot', allow: '/' },
-            { userAgent: 'Claude-Web', allow: '/' },
-            { userAgent: 'PerplexityBot', allow: '/' },
-            { userAgent: 'Googlebot', allow: '/' },
-            { userAgent: 'Bingbot', allow: '/' },
+            {
+                userAgent: "ChatGPT-User",
+                allow: ["/"],
+            },
+            {
+                userAgent: "ClaudeBot",
+                allow: ["/"],
+            },
+            {
+                userAgent: "Claude-Web",
+                allow: ["/"],
+            },
+            {
+                userAgent: "PerplexityBot",
+                allow: ["/"],
+            },
+            {
+                userAgent: "Googlebot",
+                allow: ["/"],
+            },
+            {
+                userAgent: "Bingbot",
+                allow: ["/"],
+            },
+
+            // General rule for all crawlers (last)
+            {
+                userAgent: "*",
+                allow: ["/"],
+                disallow: ["/dashboard/", "/api/", "/auth/"],
+            },
         ],
-        sitemap: 'https://trackmyopt.com/sitemap.xml',
     };
 }
