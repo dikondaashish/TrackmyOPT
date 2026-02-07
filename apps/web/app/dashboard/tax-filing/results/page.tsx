@@ -69,7 +69,7 @@ function TaxResultsContent() {
   const [couponCopied, setCouponCopied] = useState(false);
   const [expandedGuide, setExpandedGuide] = useState<number | null>(null);
 
-  const COUPON_CODE = "TRACKMYOPTFREE";
+  const COUPON_CODE = "F25UO750";
 
   // Get params from URL
   const years = searchParams.get("years") || "";
