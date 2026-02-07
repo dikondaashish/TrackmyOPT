@@ -121,8 +121,8 @@ const OFFERS = [
     {
         id: 5,
         title: "Sprintax Tax Filing",
-        description: "Use code F25UO750 for exclusive savings on Sprintax - the #1 tax software for international students.",
-        discount: "Excl. Discount",
+        description: "Exclusive coupon for Pro members! The #1 tax software for international students on F-1/OPT.",
+        discount: "Pro Exclusive",
         category: "Tax Services",
         badge: "Tax Season",
         badgeColor: "from-emerald-500 to-teal-500",

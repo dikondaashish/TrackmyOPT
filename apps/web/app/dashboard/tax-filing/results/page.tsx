@@ -26,7 +26,7 @@ const TAX_PARTNERS = [
     bgColor: "from-emerald-50 to-teal-50 dark:from-emerald-900/40 dark:to-teal-900/40",
     borderColor: "border-emerald-200 dark:border-emerald-700/50",
     tagline: "Most Popular for F-1 Students",
-    description: "Use code F25UO750 for exclusive savings! Specialized in non-resident tax returns with step-by-step guidance.",
+    description: "Specialized in non-resident tax returns. Guides you through Form 8843 and 1040-NR step by step.",
     features: ["Form 8843 & 1040-NR", "State tax returns", "24/7 live chat support", "FICA refund assistance"],
     badge: "Recommended",
     link: "https://www.sprintax.com/"
@@ -253,6 +253,18 @@ function TaxResultsContent() {
 
               <h3 className="font-bold text-slate-900 dark:text-white text-lg">{partner.name}</h3>
               <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">{partner.tagline}</p>
+              {partner.name === "Sprintax" && isPremium && (
+                <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                  <Gift className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">Code: {COUPON_CODE}</span>
+                </div>
+              )}
+              {partner.name === "Sprintax" && !isPremium && (
+                <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+                  <Lock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  <span className="text-xs font-medium text-amber-700 dark:text-amber-300">Upgrade to Pro for exclusive code</span>
+                </div>
+              )}
               <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">{partner.description}</p>
 
               <div className="mt-4 space-y-1.5">
