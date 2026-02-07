@@ -26,7 +26,7 @@ const TAX_PARTNERS = [
     bgColor: "from-emerald-50 to-teal-50 dark:from-emerald-900/40 dark:to-teal-900/40",
     borderColor: "border-emerald-200 dark:border-emerald-700/50",
     tagline: "Most Popular for F-1 Students",
-    description: "Specialized in non-resident tax returns. Guides you through Form 8843 and 1040-NR step by step.",
+    description: "Use code F25UO750 for exclusive savings! Specialized in non-resident tax returns with step-by-step guidance.",
     features: ["Form 8843 & 1040-NR", "State tax returns", "24/7 live chat support", "FICA refund assistance"],
     badge: "Recommended",
     link: "https://www.sprintax.com/"
