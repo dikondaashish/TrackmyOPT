@@ -6,6 +6,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     const routes = [
         '',
+        '/faq',
+        '/how-it-works',
         '/about',
         '/contact',
         '/login',
@@ -16,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/features/extension',
         '/features/compliance',
         '/features/community',
+        '/dashboard/help',
         '/privacy',
         '/terms',
         '/cookie-policy',

@@ -14,6 +14,12 @@ import { LandingTrustedUniversities } from "../components/landing/LandingTrusted
 import { LandingToolkit } from "../components/landing/LandingToolkit";
 import { LandingEngine } from "../components/landing/LandingEngine";
 import dynamic from "next/dynamic";
+import {
+    softwareApplicationSchema,
+    faqSchema,
+    websiteSchema,
+    organizationSchema,
+} from "@/lib/seo-schemas";
 
 const LandingGlobalReach = dynamic(() => import("../components/landing/LandingGlobalReach").then(mod => mod.LandingGlobalReach), {
     ssr: false
@@ -24,6 +30,14 @@ export const metadata: Metadata = {
     title: "TrackMyOPT - The #1 OPT Timeline & Job Tracker for F-1 Students",
     description: "Track your OPT deadlines, manage job applications with our CRM, find H-1B sponsors, and secure your documents. The operating system for international students.",
 };
+
+// Combine relevant schemas for the landing page
+const landingPageSchemas = [
+    organizationSchema,
+    websiteSchema,
+    softwareApplicationSchema,
+    faqSchema,
+];
 
 export default function LandingPage() {
     return (
@@ -64,35 +78,15 @@ export default function LandingPage() {
                 <LandingFooter />
             </div>
 
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "SoftwareApplication",
-                        "name": "TrackMyOPT",
-                        "applicationCategory": "ProductivityApplication",
-                        "operatingSystem": "Web",
-                        "offers": {
-                            "@type": "Offer",
-                            "price": "0",
-                            "priceCurrency": "USD"
-                        },
-                        "aggregateRating": {
-                            "@type": "AggregateRating",
-                            "ratingValue": "4.9",
-                            "ratingCount": "1250"
-                        },
-                        "featureList": "OPT Timeline Tracker, H1B Sponsor Database, AI Resume Builder, USCIS Case Tracker",
-                        "screenshot": "https://trackmyopt.com/og-image.png",
-                        "author": {
-                            "@type": "Organization",
-                            "name": "Zyene Inc",
-                            "url": "https://zyene.com"
-                        }
-                    })
-                }}
-            />
+            {/* Comprehensive JSON-LD Schemas for SEO and AEO */}
+            {landingPageSchemas.map((schema, index) => (
+                <script
+                    key={`schema-${index}`}
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+                />
+            ))}
         </main>
     );
 }
+
