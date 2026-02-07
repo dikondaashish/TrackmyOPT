@@ -4,7 +4,7 @@ import { Public } from './common/decorators/public.decorator';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @Public() // Health check - no auth required
   @Get()
@@ -12,4 +12,3 @@ export class AppController {
     return this.appService.getHello();
   }
 }
-

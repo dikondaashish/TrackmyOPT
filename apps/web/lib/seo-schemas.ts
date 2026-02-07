@@ -86,7 +86,7 @@ export const softwareApplicationSchema = {
         "TrackMyOPT helps F-1 international students track their OPT timeline, monitor the 90-day unemployment limit, check USCIS case status, store immigration documents securely, and find H-1B sponsor companies. Trusted by 15,000+ students from 100+ countries.",
     featureList: [
         "OPT Timeline Dashboard with real-time countdown",
-        "Unemployment Clock (90-day OPT / 150-day STEM OPT)",
+        "Unemployment Clock (90-day OPT limit + additional 60-day STEM OPT allowance)",
         "USCIS Case Status Tracker with email notifications",
         "Secure Document Vault with AES-256 encryption",
         "H-1B Sponsor Database with 25,000+ companies",
@@ -124,7 +124,7 @@ export const faqSchema = {
             name: "How many days of unemployment are allowed on OPT?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "For initial Post-Completion OPT, you are allowed a maximum of 90 days of unemployment. For STEM OPT extension, the aggregate limit is 150 days total (including any days used during initial OPT). Exceeding these limits can result in falling out of F-1 status. TrackMyOPT helps you track these days automatically.",
+                text: "For initial Post-Completion OPT, you are allowed a maximum of 90 days of unemployment. For STEM OPT extension, you receive an additional 60 days of unemployment allowance on top of the initial 90 days. These are separate allowances—STEM OPT does NOT combine them into 150 days. Exceeding your respective limit can result in falling out of F-1 status. TrackMyOPT helps you track these days automatically.",
             },
         },
         {
@@ -314,7 +314,7 @@ export const serviceSchemas = [
         "@type": "Service",
         name: "Unemployment Days Calculator",
         description:
-            "Track 90-day OPT and 150-day STEM OPT unemployment limits with visual progress and email alerts",
+            "Track 90-day OPT unemployment limit and additional 60-day STEM OPT allowance with visual progress and email alerts",
         provider: { "@id": "https://trackmyopt.com/#organization" },
         serviceType: "Employment Compliance Tracking",
     },
@@ -440,9 +440,9 @@ export const definedTermSetSchema = {
         },
         {
             "@type": "DefinedTerm",
-            name: "150-Day Rule",
-            description: "STEM OPT aggregate unemployment limit - total unemployment from initial OPT plus STEM extension cannot exceed 150 days.",
-            termCode: "150DAY",
+            name: "STEM OPT 60-Day Additional Allowance",
+            description: "STEM OPT unemployment allowance - an additional 60 days on top of the 90-day OPT limit. These are separate allowances, not combined into 150 days.",
+            termCode: "STEM60DAY",
         },
         {
             "@type": "DefinedTerm",
@@ -527,7 +527,7 @@ export const knowledgeGraphSchema = {
             position: 2,
             item: {
                 "@type": "Answer",
-                text: "F-1 students on OPT are allowed a maximum of 90 days of unemployment. STEM OPT has a 150-day aggregate limit.",
+                text: "F-1 students on OPT are allowed a maximum of 90 days of unemployment. STEM OPT holders receive an additional 60 days (separate allowance, not combined).",
                 url: "https://trackmyopt.com/#unemployment-limit",
             },
         },

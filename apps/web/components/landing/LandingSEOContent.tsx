@@ -20,7 +20,7 @@ export function LandingSEOContent() {
                             <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
                                 During OPT, you must maintain employment in a position directly related to your
                                 field of study. The <strong>90-day unemployment rule</strong> for initial OPT
-                                (and 150 days aggregate for STEM OPT) means you cannot be unemployed for more
+                                (and an additional 60 days for STEM OPT holders) means you cannot be unemployed for more
                                 than these limits, or you risk falling out of status.
                             </p>
                             <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -45,8 +45,8 @@ export function LandingSEOContent() {
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Unemployment limit</p>
                             </div>
                             <div className="bg-white dark:bg-zinc-700/50 rounded-xl p-4 border border-gray-200 dark:border-zinc-600">
-                                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">150 days</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">STEM unemployment limit</p>
+                                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">+60 days</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Additional STEM allowance</p>
                             </div>
                         </div>
                     </div>

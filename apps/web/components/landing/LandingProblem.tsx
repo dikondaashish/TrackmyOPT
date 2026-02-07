@@ -20,7 +20,7 @@ export function LandingProblem() {
             ),
             title: "Complex Unemployment Rules",
             description:
-                "The 90-day rule for OPT and 150-day aggregate limit for STEM OPT confuse most students. Exceed these limits and your status is at risk.",
+                "The 90-day rule for OPT and the additional 60-day allowance for STEM OPT confuse most students. Exceed these limits and your status is at risk.",
         },
         {
             icon: (

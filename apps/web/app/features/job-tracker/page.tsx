@@ -243,7 +243,7 @@ export default function JobTrackerPage() {
                 accentColor="amber"
                 stats={[
                     { value: "90 Days", label: "Max unemployment on Initial OPT", icon: <Clock className="w-5 h-5" /> },
-                    { value: "150 Days", label: "Max unemployment on STEM OPT", icon: <Clock className="w-5 h-5" /> },
+                    { value: "+60 Days", label: "Additional allowance for STEM OPT", icon: <Clock className="w-5 h-5" /> },
                     { value: "50+", label: "Average applications per job seeker", icon: <Briefcase className="w-5 h-5" /> },
                     { value: "Real-time", label: "Sync with OPT countdown", icon: <TrendingUp className="w-5 h-5" /> },
                 ]}

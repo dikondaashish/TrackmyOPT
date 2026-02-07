@@ -4,8 +4,8 @@ import { ResumeService } from './resume.service';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-    imports: [ConfigModule],
-    controllers: [ResumeController],
-    providers: [ResumeService],
+  imports: [ConfigModule],
+  controllers: [ResumeController],
+  providers: [ResumeService],
 })
-export class ResumeModule { }
+export class ResumeModule {}

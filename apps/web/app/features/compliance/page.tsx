@@ -217,7 +217,7 @@ export default function CompliancePage() {
                 accentColor="red"
                 stats={[
                     { value: "90 Days", label: "Max unemployment for Initial OPT", icon: <Clock className="w-5 h-5" /> },
-                    { value: "150 Days", label: "Max unemployment for STEM OPT", icon: <Clock className="w-5 h-5" /> },
+                    { value: "+60 Days", label: "Additional STEM OPT allowance", icon: <Clock className="w-5 h-5" /> },
                     { value: "10 Days", label: "To report employer changes", icon: <AlertTriangle className="w-5 h-5" /> },
                     { value: "$0", label: "Cost of our free tracking", icon: <Shield className="w-5 h-5" /> },
                 ]}
@@ -242,7 +242,7 @@ export default function CompliancePage() {
                 items={[
                     {
                         question: "What happens if I exceed my unemployment limit?",
-                        answer: "Exceeding your unemployment limit (90 days for Initial OPT, 150 days for STEM OPT) can result in status violation and potential deportation. TrackMyOPT tracks your unemployment days in real-time and sends alerts before you approach limits."
+                        answer: "Exceeding your unemployment limit (90 days for Initial OPT, or the additional 60 days for STEM OPT) can result in status violation and potential deportation. TrackMyOPT tracks your unemployment days in real-time and sends alerts before you approach limits."
                     },
                     {
                         question: "How does TrackMyOPT calculate my unemployment days?",

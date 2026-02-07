@@ -43,4 +43,4 @@ import { ApiKeyGuard } from './common/guards/api-key.guard';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

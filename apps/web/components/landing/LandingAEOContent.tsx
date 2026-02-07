@@ -38,10 +38,10 @@ const knowledgeBase = [
                 directAnswer:
                     "F-1 students on post-completion OPT are allowed a maximum of 90 days of unemployment.",
                 fullAnswer:
-                    "The 90-day limit is cumulative during your entire OPT period. Days start counting from your EAD start date or program end date (whichever is later). For STEM OPT, the aggregate limit is 150 days total. Exceeding these limits violates your F-1 status and may require you to leave the United States.",
+                    "The 90-day limit is cumulative during your entire OPT period. Days start counting from your EAD start date or program end date (whichever is later). For STEM OPT, you receive an additional 60 days of unemployment allowance (separate, not combined with the initial 90 days). Exceeding your respective limit violates your F-1 status and may require you to leave the United States.",
                 keyFacts: [
                     "Initial OPT: 90 days maximum unemployment",
-                    "STEM OPT: 150 days aggregate (total from both periods)",
+                    "STEM OPT: Additional 60 days (separate from initial OPT)",
                     "Counting starts: EAD start date or program end date",
                     "Employment requirement: Minimum 20 hours per week",
                     "Consequence of exceeding: F-1 status violation",
@@ -97,11 +97,11 @@ const knowledgeBase = [
             {
                 question: "What is the 150-day unemployment rule for STEM OPT?",
                 directAnswer:
-                    "STEM OPT allows 150 days of aggregate unemployment, which includes all days from both initial OPT and the STEM extension combined.",
+                    "STEM OPT provides an additional 60 days of unemployment allowance, on top of your initial 90 days from OPT. These are separate allowances—they do NOT combine into 150 days.",
                 fullAnswer:
-                    "The 150-day limit is not additional to the 90-day initial OPT limit—it replaces it. If you used 45 unemployed days during initial OPT, you have 105 days remaining for your entire STEM period. This aggregate limit spans your entire 36-month OPT + STEM OPT authorization period.",
+                    "STEM OPT provides an additional 60 days. This is separate from your initial OPT 90-day allowance. For example, if you used all 90 days during initial OPT, you start fresh with 60 new days for STEM OPT.",
                 keyFacts: [
-                    "Aggregate limit: 150 days total across both periods",
+                    "Additional allowance: 60 days for STEM OPT (separate from OPT)",
                     "Not additional: Replaces, not adds to, 90-day limit",
                     "Calculation: Initial OPT days + STEM OPT days = 150 max",
                     "Example: 45 days used = 105 days remaining",
@@ -296,7 +296,7 @@ export function LandingAEOContent() {
                                 <tr>
                                     <td className="p-4 text-gray-900 dark:text-white font-medium">Unemployment Limit</td>
                                     <td className="p-4 text-gray-600 dark:text-gray-300">90 days</td>
-                                    <td className="p-4 text-gray-600 dark:text-gray-300">150 days aggregate</td>
+                                    <td className="p-4 text-gray-600 dark:text-gray-300">+60 days additional</td>
                                 </tr>
                                 <tr>
                                     <td className="p-4 text-gray-900 dark:text-white font-medium">Application Form</td>

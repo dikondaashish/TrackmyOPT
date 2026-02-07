@@ -14,4 +14,4 @@ import { UscisProcessor } from './uscis.processor';
   controllers: [UscisController],
   exports: [UscisService],
 })
-export class UscisModule { }
+export class UscisModule {}

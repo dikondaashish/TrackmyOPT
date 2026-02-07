@@ -14,4 +14,4 @@ import { OcrProcessor } from './ocr.processor';
   controllers: [OcrController],
   exports: [OcrService],
 })
-export class OcrModule { }
+export class OcrModule {}
