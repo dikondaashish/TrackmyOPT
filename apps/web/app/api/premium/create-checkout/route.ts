@@ -113,6 +113,11 @@ export async function POST(req: NextRequest) {
 
     const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://www.trackmyopt.com';
 
+    // Get promo code based on plan
+    const promoCodeId = planId === 'dedicated'
+      ? process.env.STRIPE_PROMO_CODE_DEDICATED
+      : process.env.STRIPE_PROMO_CODE_PRO;
+
     // Create Subscription Session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -124,6 +129,10 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
+      // Auto-apply promo code if available
+      ...(promoCodeId && {
+        discounts: [{ promotion_code: promoCodeId }],
+      }),
       subscription_data: {
         trial_period_days: 7, // 7-Day Free Trial as promised
         metadata: {
@@ -138,6 +147,7 @@ export async function POST(req: NextRequest) {
         planId,
         interval
       },
+      // Allow manual promo codes too (user can change if needed)
       allow_promotion_codes: true,
     });
 
