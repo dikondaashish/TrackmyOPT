@@ -19,7 +19,9 @@ import {
     X,
     ChevronDown,
     Clock,
-    BookOpen
+    BookOpen,
+    Heart,
+    Receipt
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserProfileMenu } from "./UserProfileMenu";
@@ -90,6 +92,8 @@ const SIDEBAR_CONFIG: SidebarItem[] = [
             ]
         }
     },
+    { type: 'link', item: { label: "Tax Filing", href: "/dashboard/tax-filing", icon: Receipt } },
+    { type: 'link', item: { label: "Health Insurance", href: "/dashboard/opt-health-insurance-finder", icon: Heart } },
     { type: 'divider' },
     { type: 'link', item: { label: "Chrome Extension", href: "/auth/extension", icon: Chrome } },
     { type: 'link', item: { label: "Settings", href: "/dashboard/settings", icon: Settings } },
