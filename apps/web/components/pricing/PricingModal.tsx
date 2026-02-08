@@ -32,18 +32,18 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   const [isLoading, setIsLoading] = useState(false);
 
   const freePlanFeatures = [
-    { text: "OPT/STEM Filing Calculators" },
-    { text: "Unemployment Clock Tracker" },
-    { text: "USCIS Case Tracker (Basic)" },
-    { text: "H1B Sponsor Data (100 Companies)" },
-    { text: "Job App Tracker (5 Jobs)" },
+    { text: "OPT/STEM Calculators (Daily 9AM Emails)" },
+    { text: "Unemployment Clock (90/60 Day Tracking)" },
+    { text: "USCIS Case Tracker (Basic Status Check)" },
+    { text: "H1B Sponsor Intelligence (100 Companies)" },
+    { text: "Job Application Tracker (Track 5 Jobs)" },
   ];
 
   const proPlanFeatures = [
-    { text: "Automated USCIS Tracker (6hr Check)" },
-    { text: "H1B Sponsor Data (Unlimited)" },
-    { text: "Job App Tracker (Unlimited)" },
-    { text: "Resume Gen & ATS Scan (Unlimited)" },
+    { text: "Automated USCIS Tracker (Every 6hrs + Alerts)" },
+    { text: "H1B Sponsor Intelligence (Unlimited)" },
+    { text: "Job App Tracker (Unlimited Jobs)" },
+    { text: "Resume Generator & ATS Scanner (Unlimited)" },
     { text: "Secure Vault + Expiry Alerts" },
     { text: "Fast Community Data" },
     { text: "Free Sprintax Tax Coupon ($20)" },
