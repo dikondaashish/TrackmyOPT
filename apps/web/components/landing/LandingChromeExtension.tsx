@@ -58,15 +58,15 @@ export function LandingChromeExtension() {
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                 <div className="flex -space-x-2">
                                     {[
-                                        "/students/student1.jpg",
-                                        "/students/student2.jpg",
-                                        "/students/student3.jpg",
-                                        "/students/student4.jpg"
-                                    ].map((src, i) => (
+                                        { src: "/students/student1.png", alt: "International student from East Asia" },
+                                        { src: "/students/student2.png", alt: "F-1 student from South Asia" },
+                                        { src: "/students/student3.png", alt: "OPT graduate from Latin America" },
+                                        { src: "/students/student4.png", alt: "STEM OPT student from Africa" }
+                                    ].map((student, i) => (
                                         <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-background overflow-hidden">
                                             <Image
-                                                src={src}
-                                                alt="Student"
+                                                src={student.src}
+                                                alt={student.alt}
                                                 width={32}
                                                 height={32}
                                                 className="h-full w-full object-cover"
