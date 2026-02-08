@@ -52,7 +52,7 @@ export function LandingPricing() {
             priceYearly: 149.99,
             priceYearlyOriginal: 199.99,
             users: "1-Hr Lawyer Session Included",
-            buttonLabel: "Upgrade to Dedicated",
+            buttonLabel: "Get Started",
             features: [
                 { label: "Everything in Pro", included: true },
                 { label: "24/7 Dedicated Support", included: true },
