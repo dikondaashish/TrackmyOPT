@@ -14,13 +14,13 @@ export function LandingPricing() {
             buttonLabel: "Create Free Account",
             features: [
                 { label: "Core Immigration Tools", included: true, isHeader: true },
-                { label: "OPT Filing Window Calculator", included: true },
-                { label: "OPT 90-Day Unemployment Tracker", included: true },
-                { label: "STEM Extension Calculator", included: true },
-                { label: "STEM 60-Day Unemployment Tracker", included: true },
+                { label: "OPT Filing Window Calculator", included: true, tooltip: "Calculate your I-765 filing window" },
+                { label: "OPT 90-Day Unemployment Tracker", included: true, tooltip: "Track your 90-day unemployment limit" },
+                { label: "STEM Extension Calculator", included: true, tooltip: "Calculate your STEM extension filing window" },
+                { label: "STEM 60-Day Unemployment Tracker", included: true, tooltip: "Track your 60-day unemployment limit" },
 
                 { label: "Tracking & Insights", included: true, isHeader: true },
-                { label: "OPT Approval Community Stats", included: true },
+                { label: "OPT Approval Community Stats", included: true, tooltip: "Community-driven approval trends" },
                 { label: "USCIS Case Status (Manual Check)", included: true },
                 { label: "H-1B Sponsor Data (100 Companies)", included: true },
 
@@ -55,20 +55,20 @@ export function LandingPricing() {
                 { label: "Everything in Free, plus:", included: true },
 
                 { label: "Smart Automation", included: true, isHeader: true },
-                { label: "Daily 9AM Email Reminders", included: true },
+                { label: "Daily 9AM Email Reminders", included: true, tooltip: "All OPT & STEM tools with daily email updates" },
                 { label: "Smart Suggestions & Auto-Tracking", included: true },
 
                 { label: "USCIS Case Tracker", included: true, isHeader: true },
-                { label: "Auto-Checks Every 6 Hours", included: true },
-                { label: "Instant Status Change Alerts", included: true },
+                { label: "Auto-Checks Every 6 Hours", included: true, tooltip: "Automatic case status monitoring" },
+                { label: "Instant Status Change Alerts", included: true, tooltip: "Email alerts for any status changes" },
 
                 { label: "Enhanced Insights", included: true, isHeader: true },
-                { label: "Real-Time Approval Data", included: true },
+                { label: "Real-Time Approval Data", included: true, tooltip: "Faster, more accurate approval stats" },
                 { label: "H-1B Sponsor Data (Unlimited)", included: true },
 
                 { label: "Secure Storage", included: true, isHeader: true },
-                { label: "Document Vault", included: true },
-                { label: "Expiry Reminders (60 → 1 day alerts)", included: true },
+                { label: "Document Vault", included: true, tooltip: "Secure document storage" },
+                { label: "Expiry Reminders", included: true, tooltip: "Alerts at 60, 45, 30, 20, 15, 10, 5, 3, 2, 1 days before expiry" },
 
                 { label: "Unlimited Career Tools", included: true, isHeader: true },
                 { label: "Job App Tracker (Unlimited)", included: true },
@@ -78,7 +78,7 @@ export function LandingPricing() {
                 { label: "Premium Benefits", included: true, isHeader: true },
                 { label: "Priority Chrome Notifications", included: true },
                 { label: "Sprintax Tax Coupon ($20 Value)", included: true },
-                { label: "Exclusive Partner Offers", included: true },
+                { label: "Exclusive Partner Offers", included: true, tooltip: "Save $100s with partner discounts" },
             ],
             recommended: true,
             badge: "Most Popular",
@@ -99,13 +99,13 @@ export function LandingPricing() {
                 { label: "Resume Generator (1000/mo)", included: true },
 
                 { label: "Legal & Strategy Access", included: true, isHeader: true },
-                { label: "1-on-1 Lawyer Session (1 hr/mo)", included: true },
+                { label: "1-on-1 Lawyer Session (1 hr/mo)", included: true, tooltip: "1 hour per month included" },
                 { label: "Complete Application Audit", included: true },
-                { label: "Personalized Strategy Plan", included: true },
+                { label: "Personalized Strategy Plan", included: true, tooltip: "Custom immigration strategy" },
 
                 { label: "Priority Support", included: true, isHeader: true },
                 { label: "24/7 Dedicated Support", included: true },
-                { label: "Priority Responses", included: true },
+                { label: "Priority Responses", included: true, tooltip: "Priority across all channels" },
             ],
             recommended: false,
             badge: "Best Value",

@@ -10,13 +10,20 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Check, X, ChevronDown } from "lucide-react";
+import { Check, X, ChevronDown, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface PlanFeature {
     label: string;
     included: boolean;
     isHeader?: boolean;
+    tooltip?: string;
 }
 
 export interface PricingPlan {
@@ -152,13 +159,25 @@ export function PricingModule({
                                                         )}
                                                         <span
                                                             className={cn(
-                                                                "leading-tight",
+                                                                "leading-tight flex items-center gap-1.5",
                                                                 f.included
                                                                     ? "text-foreground"
                                                                     : "text-muted-foreground/60 line-through"
                                                             )}
                                                         >
                                                             {f.label}
+                                                            {f.tooltip && (
+                                                                <TooltipProvider delayDuration={0}>
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger asChild>
+                                                                            <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-primary cursor-help shrink-0" />
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent side="top" className="max-w-[200px] text-xs">
+                                                                            <p>{f.tooltip}</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                </TooltipProvider>
+                                                            )}
                                                         </span>
                                                     </li>
                                                 )
@@ -207,13 +226,25 @@ function FeatureCollapse({
                         )}
                         <span
                             className={cn(
-                                "leading-tight",
+                                "leading-tight flex items-center gap-1.5",
                                 f.included
                                     ? "text-foreground"
                                     : "text-muted-foreground/60 line-through"
                             )}
                         >
                             {f.label}
+                            {f.tooltip && (
+                                <TooltipProvider delayDuration={0}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-primary cursor-help shrink-0" />
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" className="max-w-[200px] text-xs">
+                                            <p>{f.tooltip}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            )}
                         </span>
                     </li>
                 )
