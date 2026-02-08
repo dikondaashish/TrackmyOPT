@@ -137,9 +137,8 @@ export function PricingModule({
 
                                 <div className="text-left text-sm flex-1">
                                     <div className="space-y-4">
-                                        {/* Feature Groups logic could go here, but fitting to single list for now */}
                                         <ul className="space-y-3">
-                                            {plan.features.map((f, i) => (
+                                            {plan.features.slice(0, 5).map((f, i) => (
                                                 <li key={i} className="flex items-start gap-3">
                                                     {f.included ? (
                                                         <Check className="w-5 h-5 text-primary shrink-0" />
@@ -158,6 +157,11 @@ export function PricingModule({
                                                     </span>
                                                 </li>
                                             ))}
+
+                                            {/* Collapsible Features */}
+                                            {plan.features.length > 5 && (
+                                                <FeatureCollapse features={plan.features.slice(5)} />
+                                            )}
                                         </ul>
                                     </div>
                                 </div>
@@ -169,3 +173,41 @@ export function PricingModule({
         </section >
     );
 }
+
+function FeatureCollapse({ features }: { features: PlanFeature[] }) {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    return (
+        <>
+            {isOpen && features.map((f, i) => (
+                <li key={`more-${i}`} className="flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                    {f.included ? (
+                        <Check className="w-5 h-5 text-primary shrink-0" />
+                    ) : (
+                        <X className="w-5 h-5 text-muted-foreground shrink-0" />
+                    )}
+                    <span
+                        className={cn(
+                            "leading-tight",
+                            f.included
+                                ? "text-foreground"
+                                : "text-muted-foreground/60 line-through"
+                        )}
+                    >
+                        {f.label}
+                    </span>
+                </li>
+            ))}
+            <li className="pt-2">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+                >
+                    {isOpen ? "Show less" : "See all features"}
+                    <Check className={cn("w-3 h-3 transition-transform", isOpen ? "rotate-180 opacity-0" : "opacity-0")} /> {/* Hacky spacer or icon */}
+                </button>
+            </li>
+        </>
+    );
+}
+

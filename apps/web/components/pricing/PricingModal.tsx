@@ -32,22 +32,21 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   const [isLoading, setIsLoading] = useState(false);
 
   const freePlanFeatures = [
-    { text: "Real-time OPT countdown" },
-    { text: "All date tracking (OPT, STEM)" },
-    { text: "Chrome notifications" },
-    { text: "Dashboard access" },
-    { text: "Secure data storage" },
+    { text: "Critical Deadline Alerts" },
+    { text: "Unemployment Day Counter" },
+    { text: "Basic Document Storage" },
+    { text: "Interactive App Checklists" },
+    { text: "Tax & Insurance Guides" },
   ];
 
   const proPlanFeatures = [
-    { text: "Daily email reminders (9:00 AM ET)" },
-    { text: "Document Vault - Secure document storage" },
-    { text: "AI-powered document analysis (Gemini AI)" },
-    { text: "Automatic expiry reminders for documents" },
-    { text: "Passcode-protected document vault" },
-    { text: "Priority support" },
-    { text: "Cancel anytime" },
-    { text: "Secure payments" },
+    { text: "Priority Case Alerts" },
+    { text: "Verified H-1B Sponsor Data" },
+    { text: "AI Resume Parser & Scorer" },
+    { text: "Detailed Job Analytics" },
+    { text: "Automated USCIS Tracker" },
+    { text: "Advanced Document Vault" },
+    { text: "Passcode Protection" },
   ];
 
   const handleUpgrade = async (selectedPlan?: string) => {
