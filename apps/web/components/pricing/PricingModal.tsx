@@ -32,21 +32,21 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   const [isLoading, setIsLoading] = useState(false);
 
   const freePlanFeatures = [
-    { text: "Critical Deadline Alerts" },
-    { text: "Unemployment Day Counter" },
-    { text: "Basic Document Storage" },
-    { text: "Interactive App Checklists" },
-    { text: "Tax & Insurance Guides" },
+    { text: "OPT/STEM Filing Calculators" },
+    { text: "Unemployment Clock Tracker" },
+    { text: "USCIS Case Tracker (Basic)" },
+    { text: "H1B Sponsor Data (100 Companies)" },
+    { text: "Job App Tracker (5 Jobs)" },
   ];
 
   const proPlanFeatures = [
-    { text: "Priority Case Alerts" },
-    { text: "Verified H-1B Sponsor Data" },
-    { text: "AI Resume Parser & Scorer" },
-    { text: "Detailed Job Analytics" },
-    { text: "Automated USCIS Tracker" },
-    { text: "Advanced Document Vault" },
-    { text: "Passcode Protection" },
+    { text: "Automated USCIS Tracker (6hr Check)" },
+    { text: "H1B Sponsor Data (Unlimited)" },
+    { text: "Job App Tracker (Unlimited)" },
+    { text: "Resume Gen & ATS Scan (Unlimited)" },
+    { text: "Secure Vault + Expiry Alerts" },
+    { text: "Fast Community Data" },
+    { text: "Free Sprintax Tax Coupon ($20)" },
   ];
 
   const handleUpgrade = async (selectedPlan?: string) => {
@@ -223,15 +223,19 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
               <ul className="space-y-2">
                 <li className="flex items-start gap-2">
                   <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-xs leading-relaxed">24/7 Dedicated Support</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-xs leading-relaxed">1-on-1 Lawyer Session</span>
+                  <span className="text-xs leading-relaxed">1-on-1 Lawyer Session (1 hr/mo)</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
                   <span className="text-xs leading-relaxed">Complete Application Audit</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-xs leading-relaxed">24/7 Dedicated Support</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-xs leading-relaxed">Personalized Strategy Plan</span>
                 </li>
               </ul>
             </CardContent>

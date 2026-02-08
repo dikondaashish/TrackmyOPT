@@ -54,6 +54,7 @@ export function PricingModule({
     className,
 }: PricingModuleProps) {
     const [isAnnual, setIsAnnual] = React.useState(defaultAnnual);
+    const [showAllFeatures, setShowAllFeatures] = React.useState(false);
 
     return (
         <section
@@ -160,7 +161,11 @@ export function PricingModule({
 
                                             {/* Collapsible Features */}
                                             {plan.features.length > 5 && (
-                                                <FeatureCollapse features={plan.features.slice(5)} />
+                                                <FeatureCollapse
+                                                    features={plan.features.slice(5)}
+                                                    isOpen={showAllFeatures}
+                                                    onToggle={() => setShowAllFeatures(!showAllFeatures)}
+                                                />
                                             )}
                                         </ul>
                                     </div>
@@ -174,9 +179,15 @@ export function PricingModule({
     );
 }
 
-function FeatureCollapse({ features }: { features: PlanFeature[] }) {
-    const [isOpen, setIsOpen] = React.useState(false);
-
+function FeatureCollapse({
+    features,
+    isOpen,
+    onToggle
+}: {
+    features: PlanFeature[],
+    isOpen: boolean,
+    onToggle: () => void
+}) {
     return (
         <>
             {isOpen && features.map((f, i) => (
@@ -200,11 +211,11 @@ function FeatureCollapse({ features }: { features: PlanFeature[] }) {
             ))}
             <li className="pt-2">
                 <button
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={onToggle}
                     className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
                 >
                     {isOpen ? "Show less" : "See all features"}
-                    <Check className={cn("w-3 h-3 transition-transform", isOpen ? "rotate-180 opacity-0" : "opacity-0")} /> {/* Hacky spacer or icon */}
+                    <Check className={cn("w-3 h-3 transition-transform", isOpen ? "rotate-180 opacity-0" : "opacity-0")} />
                 </button>
             </li>
         </>
