@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
         // 3. Fetch Invoices from Stripe
         const invoices = await stripe.invoices.list({
             customer: profile.stripe_customer_id,
-            limit: 3,
+            limit: 12,
             status: 'paid',
         });
 

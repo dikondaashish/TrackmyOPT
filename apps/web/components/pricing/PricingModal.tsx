@@ -50,7 +50,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
     { text: "Secure payments" },
   ];
 
-  const handleUpgrade = async () => {
+  const handleUpgrade = async (selectedPlan?: string) => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/premium/create-checkout', {
@@ -61,7 +61,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         body: JSON.stringify({
           successUrl: `${window.location.origin}/premium/success`,
           cancelUrl: `${window.location.origin}/dashboard`,
-          planId: initialPlan || 'pro',
+          planId: (typeof selectedPlan === 'string' ? selectedPlan : initialPlan) || 'pro',
           interval: initialInterval || 'year',
         }),
       });
@@ -105,7 +105,9 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
               <CardTitle>
                 <p className="text-lg">Free</p>
               </CardTitle>
-              <span className="text-3xl font-bold">$0</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-bold">$0</span>
+              </div>
               <p className="text-muted-foreground text-xs">Forever free</p>
             </CardHeader>
             <CardContent className="flex-1 pb-3">
@@ -154,7 +156,10 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                   </span>
                 </div>
               </CardTitle>
-              <span className="text-3xl font-bold">$4.99</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">$4.99</span>
+                <span className="text-sm text-gray-400 line-through">$7.99</span>
+              </div>
               <p className="text-muted-foreground text-xs">per month</p>
             </CardHeader>
             <CardContent className="flex-1 pb-3">
@@ -182,7 +187,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 </div>
               ) : (
                 <Button
-                  onClick={handleUpgrade}
+                  onClick={() => handleUpgrade('pro')}
                   disabled={isLoading}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-xs py-2"
                 >
@@ -190,12 +195,63 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                     "Processing..."
                   ) : (
                     <>
-                      Upgrade Now
+                      Start 7-Day Free Trial
                       <ArrowRight className="ml-2 size-3.5" />
                     </>
                   )}
                 </Button>
               )}
+            </CardFooter>
+          </Card>
+
+          {/* Dedicated Plan */}
+          <Card className="flex-1 relative overflow-hidden flex flex-col border border-border">
+            <CardHeader className="pb-3">
+              <CardTitle>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg">Dedicated</p>
+                </div>
+              </CardTitle>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">$14.99</span>
+                <span className="text-sm text-gray-400 line-through">$19.99</span>
+              </div>
+              <p className="text-muted-foreground text-xs">per month</p>
+            </CardHeader>
+            <CardContent className="flex-1 pb-3">
+              <Separator className="mb-4" />
+              <p className="text-xs font-semibold mb-2">Everything in Pro, plus:</p>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2">
+                  <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-xs leading-relaxed">24/7 Dedicated Support</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-xs leading-relaxed">1-on-1 Lawyer Session</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CircleCheck className="size-3.5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-xs leading-relaxed">Complete Application Audit</span>
+                </li>
+              </ul>
+            </CardContent>
+            <CardFooter className="pt-3">
+              <Button
+                onClick={() => handleUpgrade('dedicated')}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full text-xs py-2 hover:bg-primary/5"
+              >
+                {isLoading ? (
+                  "Processing..."
+                ) : (
+                  <>
+                    Upgrade to Dedicated
+                    <ArrowRight className="ml-2 size-3.5" />
+                  </>
+                )}
+              </Button>
             </CardFooter>
           </Card>
         </div>

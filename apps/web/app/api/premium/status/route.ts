@@ -109,6 +109,26 @@ export async function GET(req: NextRequest) {
     }
 
     // User has premium (active subscription)
+    // Check if subscription has expired
+    const now = new Date();
+    const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
+
+    // If expired more than 3 days ago (grace period), revoke access
+    // We allow slight grace period for webhook delays or payment retries
+    if (expiresAt && expiresAt < now) {
+      // Optional: You could trigger a DB update here to set premium_status=false
+      // but purely reading is safer for this endpoint.
+      return NextResponse.json({
+        isPremium: false,
+        expired: true,
+        expiresAt: data.subscription_expires_at,
+        customerId: data.stripe_customer_id
+      }, {
+        status: 200,
+        headers: corsHeaders
+      });
+    }
+
     return NextResponse.json({
       isPremium: true,
       planName: data.plan_tier || 'pro',

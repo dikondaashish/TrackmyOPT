@@ -86,7 +86,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false }:
                 "Complete Application Audit",
                 "Personalized Strategy Plan"
             ],
-            cta: "Start 7-Day Free Trial",
+            cta: "Upgrade to Dedicated",
             popular: false,
             highlight: true
         }
@@ -192,7 +192,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false }:
                                     </div>
                                 )}
                                 <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-2">
-                                    {plan.price[billingCycle] === 0 ? "Forever Free — No Trial" : "7-Day Free Trial"}
+                                    {plan.price[billingCycle] === 0 ? "Forever Free — No Trial" : plan.id === 'pro' ? "7-Day Free Trial" : "1-Hr Lawyer Session Included"}
                                 </div>
                             </div>
 

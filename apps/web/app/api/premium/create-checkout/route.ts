@@ -113,10 +113,14 @@ export async function POST(req: NextRequest) {
 
     const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://www.trackmyopt.com';
 
-    // Get promo code based on plan
-    const promoCodeId = planId === 'dedicated'
-      ? process.env.STRIPE_PROMO_CODE_DEDICATED
-      : process.env.STRIPE_PROMO_CODE_PRO;
+
+    // Determine Promo Code (Auto-Apply)
+    let promotionCode: string | undefined;
+    if (planId === 'pro') {
+      promotionCode = process.env.STRIPE_PROMO_CODE_PRO;
+    } else if (planId === 'dedicated') {
+      promotionCode = process.env.STRIPE_PROMO_CODE_DEDICATED;
+    }
 
     // Create Subscription Session
     const session = await stripe.checkout.sessions.create({
@@ -129,12 +133,8 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      // Auto-apply promo code if available
-      ...(promoCodeId && {
-        discounts: [{ promotion_code: promoCodeId }],
-      }),
       subscription_data: {
-        trial_period_days: 7, // 7-Day Free Trial as promised
+        trial_period_days: planId === 'pro' ? 7 : undefined, // 7-Day Trial for Pro only
         metadata: {
           planId,
           interval
@@ -147,8 +147,9 @@ export async function POST(req: NextRequest) {
         planId,
         interval
       },
-      // Allow manual promo codes too (user can change if needed)
-      allow_promotion_codes: true,
+      // Apply discount if exists, otherwise allow user to enter code
+      discounts: promotionCode ? [{ promotion_code: promotionCode }] : undefined,
+      allow_promotion_codes: promotionCode ? undefined : true,
     });
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
