@@ -30,7 +30,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false }:
 
     const handleDowngrade = (planName: string) => {
         if (currentPlan === 'dedicated') {
-            alert(`You are on the Dedicated plan. Your access continues until ${expiresAt ? new Date(expiresAt).toLocaleDateString() : 'the end of your billing cycle'}. Please contact support to changes.`);
+            alert(`You are on the Dedicated plan. Your access continues until ${expiresAt ? new Date(expiresAt).toLocaleDateString() : 'the end of your billing cycle'}. Please contact support to make changes.`);
         } else if (onManage) {
             onManage();
         }
@@ -132,7 +132,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false }:
                         isDisabled = true;
                     } else if (currentPlan === 'free') {
                         // User is free, can upgrade to anything
-                        buttonText = plan.id === 'pro' || plan.id === 'dedicated' ? "Upgrade" : "Current Plan";
+                        buttonText = plan.id === 'pro' || plan.id === 'dedicated' ? plan.cta : "Current Plan";
                         onClick = () => {
                             if (plan.price[billingCycle] > 0) {
                                 const intervalParam = billingCycle === 'monthly' ? 'month' : 'year';
@@ -145,7 +145,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false }:
                             buttonText = "Downgrade";
                             onClick = () => onManage && onManage();
                         } else if (plan.id === 'dedicated') {
-                            buttonText = "Upgrade";
+                            buttonText = plan.cta;
                             onClick = () => {
                                 const intervalParam = billingCycle === 'monthly' ? 'month' : 'year';
                                 const planIdParam = plan.id;
