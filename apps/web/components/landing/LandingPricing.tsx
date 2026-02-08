@@ -10,7 +10,7 @@ export function LandingPricing() {
             icon: <Layers className="w-10 h-10 text-muted-foreground" />,
             priceMonthly: 0,
             priceYearly: 0,
-            users: "Forever Free — No Trial",
+            users: "Forever Free",
             buttonLabel: "Create Free Account",
             features: [
                 { label: "Core Immigration Tools (Manual Access)", included: true, isHeader: true },
