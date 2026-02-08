@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         title: "How TrackMyOPT Works | Step-by-Step Guide",
         description:
             "Get started with TrackMyOPT in 5 minutes. Track your OPT timeline and stay compliant.",
-        url: "https://trackmyopt.com/how-it-works",
+        url: "https://www.trackmyopt.com/how-it-works",
         siteName: "TrackMyOPT",
         type: "website",
     },
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         description: "Step-by-step guide to tracking your OPT status.",
     },
     alternates: {
-        canonical: "https://trackmyopt.com/how-it-works",
+        canonical: "https://www.trackmyopt.com/how-it-works",
     },
 };
 

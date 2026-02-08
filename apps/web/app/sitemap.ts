@@ -2,7 +2,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://trackmyopt.com';
+    const baseUrl = 'https://www.trackmyopt.com';
 
     const routes = [
         '',

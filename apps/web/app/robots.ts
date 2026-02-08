@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
     return {
-        host: "https://trackmyopt.com",
-        sitemap: "https://trackmyopt.com/sitemap.xml",
+        host: "https://www.trackmyopt.com",
+        sitemap: "https://www.trackmyopt.com/sitemap.xml",
         rules: [
             // ============================================
             // AI MODEL BOTS (AEO - Answer Engine Optimization)

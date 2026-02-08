@@ -5,7 +5,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://trackmyopt.com'),
+  metadataBase: new URL('https://www.trackmyopt.com'),
   title: {
     default: 'TrackMyOPT - The #1 OPT Timeline & Job Tracker for F-1 Students',
     template: '%s | TrackMyOPT',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'TrackMyOPT - Master Your F-1 Journey',
     description: 'Track your OPT timeline, find H-1B sponsors, and build ATS-friendly resumes with AI. The ultimate tool for international students in the US.',
-    url: 'https://trackmyopt.com',
+    url: 'https://www.trackmyopt.com',
     siteName: 'TrackMyOPT',
     images: [
       {
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://trackmyopt.com',
+    canonical: 'https://www.trackmyopt.com',
   },
 };
 
@@ -89,8 +89,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "TrackMyOPT",
-              "url": "https://trackmyopt.com",
-              "logo": "https://trackmyopt.com/TrackMyOPT Logo/Favicon.png",
+              "url": "https://www.trackmyopt.com",
+              "logo": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png",
               "contactPoint": {
                 "@type": "ContactPoint",
                 "email": "support@trackmyopt.com",

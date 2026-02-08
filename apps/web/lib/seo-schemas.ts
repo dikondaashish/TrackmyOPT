@@ -4,12 +4,12 @@
 export const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "@id": "https://trackmyopt.com/#organization",
+    "@id": "https://www.trackmyopt.com/#organization",
     name: "TrackMyOPT",
-    url: "https://trackmyopt.com",
+    url: "https://www.trackmyopt.com",
     logo: {
         "@type": "ImageObject",
-        url: "https://trackmyopt.com/logo.png",
+        url: "https://www.trackmyopt.com/logo.png",
         width: 512,
         height: 512,
     },
@@ -30,19 +30,19 @@ export const organizationSchema = {
 export const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "@id": "https://trackmyopt.com/#website",
+    "@id": "https://www.trackmyopt.com/#website",
     name: "TrackMyOPT",
-    url: "https://trackmyopt.com",
+    url: "https://www.trackmyopt.com",
     description:
         "Track your OPT timeline, unemployment days, USCIS case status, and find H-1B sponsors. The complete toolkit for international students in the United States.",
     publisher: {
-        "@id": "https://trackmyopt.com/#organization",
+        "@id": "https://www.trackmyopt.com/#organization",
     },
     potentialAction: {
         "@type": "SearchAction",
         target: {
             "@type": "EntryPoint",
-            urlTemplate: "https://trackmyopt.com/search?q={search_term_string}",
+            urlTemplate: "https://www.trackmyopt.com/search?q={search_term_string}",
         },
         "query-input": "required name=search_term_string",
     },
@@ -51,7 +51,7 @@ export const websiteSchema = {
 export const softwareApplicationSchema = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "@id": "https://trackmyopt.com/#application",
+    "@id": "https://www.trackmyopt.com/#application",
     name: "TrackMyOPT",
     applicationCategory: "BusinessApplication",
     applicationSubCategory: "Immigration Management Software",
@@ -98,10 +98,10 @@ export const softwareApplicationSchema = {
         "Email alerts before deadlines",
         "Dark mode support",
     ],
-    screenshot: "https://trackmyopt.com/dashboard-screenshot.png",
+    screenshot: "https://www.trackmyopt.com/dashboard-screenshot.png",
     softwareVersion: "2.0",
     author: {
-        "@id": "https://trackmyopt.com/#organization",
+        "@id": "https://www.trackmyopt.com/#organization",
     },
 };
 
@@ -109,7 +109,7 @@ export const softwareApplicationSchema = {
 export const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "@id": "https://trackmyopt.com/#faq",
+    "@id": "https://www.trackmyopt.com/#faq",
     mainEntity: [
         {
             "@type": "Question",
@@ -281,19 +281,19 @@ export const breadcrumbSchema = {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://trackmyopt.com",
+            item: "https://www.trackmyopt.com",
         },
         {
             "@type": "ListItem",
             position: 2,
             name: "Features",
-            item: "https://trackmyopt.com/#features",
+            item: "https://www.trackmyopt.com/#features",
         },
         {
             "@type": "ListItem",
             position: 3,
             name: "Pricing",
-            item: "https://trackmyopt.com/#pricing",
+            item: "https://www.trackmyopt.com/#pricing",
         },
     ],
 };
@@ -306,7 +306,7 @@ export const serviceSchemas = [
         name: "OPT Timeline Tracker",
         description:
             "Real-time countdown to OPT deadlines including EAD expiration, filing windows, and STEM extension dates",
-        provider: { "@id": "https://trackmyopt.com/#organization" },
+        provider: { "@id": "https://www.trackmyopt.com/#organization" },
         serviceType: "Immigration Timeline Management",
     },
     {
@@ -315,7 +315,7 @@ export const serviceSchemas = [
         name: "Unemployment Days Calculator",
         description:
             "Track 90-day OPT unemployment limit and additional 60-day STEM OPT allowance with visual progress and email alerts",
-        provider: { "@id": "https://trackmyopt.com/#organization" },
+        provider: { "@id": "https://www.trackmyopt.com/#organization" },
         serviceType: "Employment Compliance Tracking",
     },
     {
@@ -324,7 +324,7 @@ export const serviceSchemas = [
         name: "USCIS Case Status Tracker",
         description:
             "Real-time USCIS case status monitoring with email notifications for I-765, I-140, and other immigration forms",
-        provider: { "@id": "https://trackmyopt.com/#organization" },
+        provider: { "@id": "https://www.trackmyopt.com/#organization" },
         serviceType: "Immigration Case Tracking",
     },
     {
@@ -333,7 +333,7 @@ export const serviceSchemas = [
         name: "H-1B Sponsor Database",
         description:
             "Searchable database of 80,000+ companies that sponsor H-1B visas with approval rates and petition counts",
-        provider: { "@id": "https://trackmyopt.com/#organization" },
+        provider: { "@id": "https://www.trackmyopt.com/#organization" },
         serviceType: "Employment Sponsorship Research",
     },
 ];
@@ -347,7 +347,7 @@ export const serviceSchemas = [
 export const speakableSchema = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "@id": "https://trackmyopt.com/#webpage",
+    "@id": "https://www.trackmyopt.com/#webpage",
     name: "TrackMyOPT - OPT Timeline Tracker for F-1 Students",
     speakable: {
         "@type": "SpeakableSpecification",
@@ -360,7 +360,7 @@ export const speakableSchema = {
         ],
     },
     mainEntity: {
-        "@id": "https://trackmyopt.com/#application",
+        "@id": "https://www.trackmyopt.com/#application",
     },
 };
 
@@ -368,7 +368,7 @@ export const speakableSchema = {
 export const definedTermSetSchema = {
     "@context": "https://schema.org",
     "@type": "DefinedTermSet",
-    "@id": "https://trackmyopt.com/#glossary",
+    "@id": "https://www.trackmyopt.com/#glossary",
     name: "OPT and F-1 Visa Terminology",
     description: "Comprehensive glossary of immigration terms for F-1 students",
     hasDefinedTerm: [
@@ -469,19 +469,19 @@ export const definedTermSetSchema = {
 export const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "@id": "https://trackmyopt.com/#article",
+    "@id": "https://www.trackmyopt.com/#article",
     headline: "Complete Guide to OPT for F-1 International Students",
     description: "Everything you need to know about Optional Practical Training (OPT), STEM OPT extension, unemployment rules, USCIS case tracking, and H-1B sponsorship.",
     author: {
-        "@id": "https://trackmyopt.com/#organization",
+        "@id": "https://www.trackmyopt.com/#organization",
     },
     publisher: {
-        "@id": "https://trackmyopt.com/#organization",
+        "@id": "https://www.trackmyopt.com/#organization",
     },
     datePublished: "2024-01-01",
     dateModified: "2026-01-26",
     mainEntityOfPage: {
-        "@id": "https://trackmyopt.com/#webpage",
+        "@id": "https://www.trackmyopt.com/#webpage",
     },
     about: [
         { "@type": "Thing", name: "Optional Practical Training" },
@@ -508,7 +508,7 @@ export const articleSchema = {
 export const knowledgeGraphSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "@id": "https://trackmyopt.com/#knowledge-base",
+    "@id": "https://www.trackmyopt.com/#knowledge-base",
     name: "OPT Knowledge Base",
     description: "Direct answers to common questions about OPT, STEM OPT, and F-1 visa regulations",
     numberOfItems: 10,
@@ -519,7 +519,7 @@ export const knowledgeGraphSchema = {
             item: {
                 "@type": "Answer",
                 text: "OPT (Optional Practical Training) is 12 months of work authorization for F-1 international students after completing their academic program.",
-                url: "https://trackmyopt.com/#what-is-opt",
+                url: "https://www.trackmyopt.com/#what-is-opt",
             },
         },
         {
@@ -528,7 +528,7 @@ export const knowledgeGraphSchema = {
             item: {
                 "@type": "Answer",
                 text: "F-1 students on OPT are allowed a maximum of 90 days of unemployment. STEM OPT holders receive an additional 60 days (separate allowance, not combined).",
-                url: "https://trackmyopt.com/#unemployment-limit",
+                url: "https://www.trackmyopt.com/#unemployment-limit",
             },
         },
         {
@@ -537,7 +537,7 @@ export const knowledgeGraphSchema = {
             item: {
                 "@type": "Answer",
                 text: "STEM OPT is a 24-month extension for students with STEM degrees, requiring an E-Verify enrolled employer and Form I-983.",
-                url: "https://trackmyopt.com/#stem-opt",
+                url: "https://www.trackmyopt.com/#stem-opt",
             },
         },
         {
@@ -546,7 +546,7 @@ export const knowledgeGraphSchema = {
             item: {
                 "@type": "Answer",
                 text: "To apply for OPT: get I-20 from DSO, complete Form I-765, gather documents (photos, I-94, passport), pay $470 (online) or $520 (paper) fee, submit to USCIS.",
-                url: "https://trackmyopt.com/#how-to-apply-opt",
+                url: "https://www.trackmyopt.com/#how-to-apply-opt",
             },
         },
         {
@@ -555,7 +555,7 @@ export const knowledgeGraphSchema = {
             item: {
                 "@type": "Answer",
                 text: "Over 25,000 US companies sponsor H-1B visas including Google, Microsoft, Amazon, Deloitte, Cognizant, and JPMorgan.",
-                url: "https://trackmyopt.com/#h1b-sponsors",
+                url: "https://www.trackmyopt.com/#h1b-sponsors",
             },
         },
     ],

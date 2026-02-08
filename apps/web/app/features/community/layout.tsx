@@ -5,12 +5,12 @@ export const metadata: Metadata = {
     description: "Join 5,000+ international students and alumni. Get referrals, interview tips, and visa advice from people who've navigated OPT successfully.",
     keywords: ["F-1 student community", "international student network", "OPT support group", "H-1B referrals", "alumni mentorship"],
     alternates: {
-        canonical: "https://trackmyopt.com/features/community",
+        canonical: "https://www.trackmyopt.com/features/community",
     },
     openGraph: {
         title: "TrackMyOPT Community - 5,000+ Students & Alumni",
         description: "You don't have to navigate OPT alone. Connect with mentors, get referrals, and find your support network.",
-        url: "https://trackmyopt.com/features/community",
+        url: "https://www.trackmyopt.com/features/community",
     },
 };
 
