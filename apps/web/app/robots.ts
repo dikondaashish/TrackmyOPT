@@ -104,8 +104,20 @@ export default function robots(): MetadataRoute.Robots {
             // ============================================
             {
                 userAgent: "*",
-                allow: ["/"],
-                disallow: ["/dashboard/", "/api/", "/auth/"],
+                allow: [
+                    "/",
+                    // Public dashboard pages that should be indexed
+                    "/dashboard/help",
+                    "/dashboard/opt-tools/opt-apply",
+                    "/dashboard/opt-tools/opt-clock",
+                    "/dashboard/opt-tools/stem-apply",
+                    "/dashboard/opt-tools/stem-clock",
+                ],
+                disallow: [
+                    "/dashboard/",  // Block authenticated dashboard routes
+                    "/api/",         // Block API routes
+                    "/auth/",        // Block auth routes
+                ],
             },
         ],
     };

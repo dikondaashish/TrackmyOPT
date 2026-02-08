@@ -12,13 +12,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/contact',
         '/login',
         '/success-stories',
+        // Feature pages
         '/features/resume-ai',
         '/features/job-tracker',
         '/features/sponsors',
         '/features/extension',
         '/features/compliance',
         '/features/community',
+        // Public dashboard pages (SEO-friendly tools)
         '/dashboard/help',
+        '/dashboard/opt-tools/opt-apply',
+        '/dashboard/opt-tools/opt-clock',
+        '/dashboard/opt-tools/stem-apply',
+        '/dashboard/opt-tools/stem-clock',
+        // Legal pages
         '/privacy',
         '/terms',
         '/cookie-policy',
