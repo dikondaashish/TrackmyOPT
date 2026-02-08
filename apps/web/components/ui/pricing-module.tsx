@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 export interface PlanFeature {
     label: string;
     included: boolean;
+    isHeader?: boolean;
 }
 
 export interface PricingPlan {
@@ -139,30 +140,34 @@ export function PricingModule({
                                 <div className="text-left text-sm flex-1">
                                     <div className="space-y-4">
                                         <ul className="space-y-3">
-                                            {plan.features.slice(0, 5).map((f, i) => (
-                                                <li key={i} className="flex items-start gap-3">
-                                                    {f.included ? (
-                                                        <Check className="w-5 h-5 text-primary shrink-0" />
-                                                    ) : (
-                                                        <X className="w-5 h-5 text-muted-foreground shrink-0" />
-                                                    )}
-                                                    <span
-                                                        className={cn(
-                                                            "leading-tight",
-                                                            f.included
-                                                                ? "text-foreground"
-                                                                : "text-muted-foreground/60 line-through"
+                                            {plan.features.slice(0, 7).map((f, i) => (
+                                                f.isHeader ? (
+                                                    <li key={i} className="font-bold text-foreground/90 mt-4 mb-1 text-sm">{f.label}</li>
+                                                ) : (
+                                                    <li key={i} className="flex items-start gap-3">
+                                                        {f.included ? (
+                                                            <Check className="w-5 h-5 text-primary shrink-0" />
+                                                        ) : (
+                                                            <X className="w-5 h-5 text-muted-foreground shrink-0" />
                                                         )}
-                                                    >
-                                                        {f.label}
-                                                    </span>
-                                                </li>
+                                                        <span
+                                                            className={cn(
+                                                                "leading-tight",
+                                                                f.included
+                                                                    ? "text-foreground"
+                                                                    : "text-muted-foreground/60 line-through"
+                                                            )}
+                                                        >
+                                                            {f.label}
+                                                        </span>
+                                                    </li>
+                                                )
                                             ))}
 
                                             {/* Collapsible Features */}
-                                            {plan.features.length > 5 && (
+                                            {plan.features.length > 7 && (
                                                 <FeatureCollapse
-                                                    features={plan.features.slice(5)}
+                                                    features={plan.features.slice(7)}
                                                     isOpen={showAllFeatures}
                                                     onToggle={() => setShowAllFeatures(!showAllFeatures)}
                                                 />
@@ -191,23 +196,27 @@ function FeatureCollapse({
     return (
         <>
             {isOpen && features.map((f, i) => (
-                <li key={`more-${i}`} className="flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
-                    {f.included ? (
-                        <Check className="w-5 h-5 text-primary shrink-0" />
-                    ) : (
-                        <X className="w-5 h-5 text-muted-foreground shrink-0" />
-                    )}
-                    <span
-                        className={cn(
-                            "leading-tight",
-                            f.included
-                                ? "text-foreground"
-                                : "text-muted-foreground/60 line-through"
+                f.isHeader ? (
+                    <li key={`more-${i}`} className="font-bold text-foreground/90 mt-4 mb-1 text-sm animate-in fade-in slide-in-from-top-1 duration-200">{f.label}</li>
+                ) : (
+                    <li key={`more-${i}`} className="flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                        {f.included ? (
+                            <Check className="w-5 h-5 text-primary shrink-0" />
+                        ) : (
+                            <X className="w-5 h-5 text-muted-foreground shrink-0" />
                         )}
-                    >
-                        {f.label}
-                    </span>
-                </li>
+                        <span
+                            className={cn(
+                                "leading-tight",
+                                f.included
+                                    ? "text-foreground"
+                                    : "text-muted-foreground/60 line-through"
+                            )}
+                        >
+                            {f.label}
+                        </span>
+                    </li>
+                )
             ))}
             <li className="pt-2">
                 <button
