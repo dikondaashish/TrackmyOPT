@@ -142,7 +142,7 @@ export function PricingModule({
                                         <ul className="space-y-3">
                                             {plan.features.slice(0, 7).map((f, i) => (
                                                 f.isHeader ? (
-                                                    <li key={i} className="font-bold text-foreground/90 mt-4 mb-1 text-sm">{f.label}</li>
+                                                    <li key={i} className="font-semibold text-foreground/90 mt-5 mb-2 text-xs uppercase tracking-wide border-l-2 border-primary/40 pl-2">{f.label}</li>
                                                 ) : (
                                                     <li key={i} className="flex items-start gap-3">
                                                         {f.included ? (
@@ -197,7 +197,7 @@ function FeatureCollapse({
         <>
             {isOpen && features.map((f, i) => (
                 f.isHeader ? (
-                    <li key={`more-${i}`} className="font-bold text-foreground/90 mt-4 mb-1 text-sm animate-in fade-in slide-in-from-top-1 duration-200">{f.label}</li>
+                    <li key={`more-${i}`} className="font-semibold text-foreground/90 mt-5 mb-2 text-xs uppercase tracking-wide border-l-2 border-primary/40 pl-2 animate-in fade-in slide-in-from-top-1 duration-200">{f.label}</li>
                 ) : (
                     <li key={`more-${i}`} className="flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
                         {f.included ? (

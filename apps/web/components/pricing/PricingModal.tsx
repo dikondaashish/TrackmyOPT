@@ -32,20 +32,21 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   const [isLoading, setIsLoading] = useState(false);
 
   const freePlanFeatures = [
-    { text: "OPT/STEM Trackers (Manual Access)" },
-    { text: "USCIS Case Status (Manual Check)" },
+    { text: "OPT & STEM Calculators" },
+    { text: "USCIS Case Status (Manual)" },
     { text: "H-1B Sponsor Data (100 Companies)" },
-    { text: "Job App Tracker (5 Jobs)" },
-    { text: "Resume Generator (5/mo)" },
+    { text: "Job Tracker & Resume Tools (5/mo)" },
+    { text: "Chrome Extension" },
   ];
 
   const proPlanFeatures = [
-    { text: "Daily 9AM Email Reminders & Auto-Tracking" },
-    { text: "USCIS Auto-Checks Every 6 Hours + Alerts" },
-    { text: "Unlimited H-1B Sponsor Intelligence" },
-    { text: "Unlimited Job & Resume Tools" },
-    { text: "Secure Vault + Expiry Reminders" },
-    { text: "Sprintax Tax Coupon ($20 Value)" },
+    { text: "Everything in Free, plus:" },
+    { text: "Daily 9AM Email Reminders" },
+    { text: "USCIS Auto-Checks (Every 6 Hours)" },
+    { text: "Instant Status Change Alerts" },
+    { text: "Unlimited Career Tools" },
+    { text: "Document Vault + Expiry Reminders" },
+    { text: "Sprintax Tax Coupon ($20)" },
   ];
 
   const handleUpgrade = async (selectedPlan?: string) => {
