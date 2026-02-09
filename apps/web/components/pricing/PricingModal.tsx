@@ -137,7 +137,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-[1100px] w-[95vw] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl">
+      <DialogContent onClose={onClose} className="max-w-[1100px] w-[95vw] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl">
         {/* Header Section */}
         <div className="relative px-8 pt-8 pb-6 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
           {/* Background Pattern */}
