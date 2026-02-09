@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-export default function CheckoutPage() {
+function CheckoutContent() {
     const [open, setOpen] = useState(true);
     const [isPremium, setIsPremium] = useState(false);
     const [userEmail, setUserEmail] = useState<string | undefined>();
@@ -42,15 +42,27 @@ export default function CheckoutPage() {
     };
 
     return (
+        <PricingModal
+            open={open}
+            onClose={handleClose}
+            userEmail={userEmail}
+            isPremium={isPremium}
+            initialPlan={planId}
+            initialInterval={interval}
+        />
+    );
+}
+
+export default function CheckoutPage() {
+    return (
         <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center p-4">
-            <PricingModal
-                open={open}
-                onClose={handleClose}
-                userEmail={userEmail}
-                isPremium={isPremium}
-                initialPlan={planId}
-                initialInterval={interval}
-            />
+            <Suspense fallback={
+                <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600" />
+                </div>
+            }>
+                <CheckoutContent />
+            </Suspense>
         </div>
     );
 }
