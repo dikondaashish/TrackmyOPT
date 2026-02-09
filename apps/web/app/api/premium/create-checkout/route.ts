@@ -130,8 +130,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Could not find user profile' }, { status: 404 });
     }
 
-    // Create/Get Customer
+    // Create/Get Customer - with validation that customer exists in current Stripe account
     let customerId = profile?.stripe_customer_id;
+
+    // Validate existing customer ID works with current Stripe account
+    if (customerId) {
+      try {
+        await stripe.customers.retrieve(customerId);
+        console.log(`Verified existing Stripe customer: ${customerId}`);
+      } catch (retrieveError: any) {
+        // Customer doesn't exist in this Stripe account (likely from old account)
+        console.log(`Customer ${customerId} not found in Stripe, creating new one...`);
+        customerId = null;
+      }
+    }
+
+    // Create new customer if none exists or old one was invalid
     if (!customerId) {
       console.log('Creating new Stripe customer for user:', userId);
       const customer = await stripe.customers.create({
@@ -141,6 +155,7 @@ export async function POST(req: NextRequest) {
       });
       customerId = customer.id;
       await supabase.from('profiles').update({ stripe_customer_id: customerId }).eq('user_id', userId);
+      console.log(`Created new Stripe customer: ${customerId}`);
     }
 
     console.log(`Using Stripe customer: ${customerId}`);
