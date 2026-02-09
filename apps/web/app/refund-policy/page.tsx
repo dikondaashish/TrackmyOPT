@@ -54,7 +54,7 @@ export default function RefundPolicyPage() {
 
                             <h2>2. 7-Day Free Trial</h2>
                             <p>
-                                Pro subscription plan comes with a <strong>7-Day Free Trial</strong>. Dedicated plan is billed immediately with a 14-day money-back guarantee for the first month.
+                                Pro subscription plan comes with a <strong>7-Day Free Trial</strong>. Dedicated plan is billed immediately with a 3-day money-back guarantee for the first month.
                             </p>
                             <ul>
                                 <li>You get full access to all features during this period.</li>
