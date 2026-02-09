@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
         }
       },
       success_url: `${origin}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/pricing?canceled=true`,
+      cancel_url: `${origin}/premium/checkout?canceled=true`,
       metadata: {
         supabase_user_id: userId,
         planId,
