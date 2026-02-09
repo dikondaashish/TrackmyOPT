@@ -12,14 +12,26 @@ import { verifyToken } from '@/lib/jwt';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-09-30.clover',
-});
+// Initialize Stripe
+const getStripe = () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not configured');
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-09-30.clover',
+  });
+};
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Initialize Supabase
+const getSupabase = () => {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('Supabase environment variables are not configured');
+  }
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+};
 
 async function getUserId(req: NextRequest): Promise<string | null> {
   // Try JWT (extension)
@@ -35,26 +47,31 @@ async function getUserId(req: NextRequest): Promise<string | null> {
   }
 
   // Try session (web)
-  const cookieStore = cookies();
-  const sessionClient = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+  try {
+    const cookieStore = await cookies();
+    const sessionClient = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+          set() { },
+          remove() { },
         },
-        set() { },
-        remove() { },
-      },
-    }
-  );
+      }
+    );
 
-  const { data: { user } } = await sessionClient.auth.getUser();
-  return user?.id || null;
+    const { data: { user } } = await sessionClient.auth.getUser();
+    return user?.id || null;
+  } catch (error) {
+    console.error('Session auth error:', error);
+    return null;
+  }
 }
 
-const PRICES = {
+const getPrices = () => ({
   pro: {
     month: process.env.STRIPE_PRICE_PRO_MONTHLY,
     year: process.env.STRIPE_PRICE_PRO_YEARLY,
@@ -63,17 +80,25 @@ const PRICES = {
     month: process.env.STRIPE_PRICE_DEDICATED_MONTHLY,
     year: process.env.STRIPE_PRICE_DEDICATED_YEARLY,
   }
-};
+});
 
 export async function POST(req: NextRequest) {
   try {
+    // Validate environment variables
+    const stripe = getStripe();
+    const supabase = getSupabase();
+    const PRICES = getPrices();
+
     const userId = await getUserId(req);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.error('No user ID found - user not authenticated');
+      return NextResponse.json({ error: 'Please log in to upgrade' }, { status: 401 });
     }
 
     const body = await req.json();
     const { planId = 'pro', interval = 'year' } = body;
+
+    console.log(`Checkout request: planId=${planId}, interval=${interval}, userId=${userId}`);
 
     // Validate Plan
     if (!['pro', 'dedicated'].includes(planId) || !['month', 'year'].includes(interval)) {
@@ -81,38 +106,46 @@ export async function POST(req: NextRequest) {
     }
 
     // Get Stripe Price ID
-    // @ts-ignore
-    const priceId = PRICES[planId]?.[interval];
+    const priceId = PRICES[planId as keyof typeof PRICES]?.[interval as 'month' | 'year'];
 
     if (!priceId) {
-      console.error(`Missing Price ID for ${planId} - ${interval}`);
+      console.error(`Missing Price ID for ${planId} - ${interval}. Available prices:`, PRICES);
       return NextResponse.json(
         { error: 'Configuration Error: Price ID not found. Please contact support.' },
         { status: 500 }
       );
     }
 
+    console.log(`Using price ID: ${priceId}`);
+
     // Get user profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('email, first_name, last_name, stripe_customer_id')
       .eq('user_id', userId)
       .single();
 
-    // Create/Get Customer (Same logic as before)
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      return NextResponse.json({ error: 'Could not find user profile' }, { status: 404 });
+    }
+
+    // Create/Get Customer
     let customerId = profile?.stripe_customer_id;
     if (!customerId) {
+      console.log('Creating new Stripe customer for user:', userId);
       const customer = await stripe.customers.create({
         email: profile?.email,
-        name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim(),
+        name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || undefined,
         metadata: { supabase_user_id: userId },
       });
       customerId = customer.id;
       await supabase.from('profiles').update({ stripe_customer_id: customerId }).eq('user_id', userId);
     }
 
-    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://www.trackmyopt.com';
+    console.log(`Using Stripe customer: ${customerId}`);
 
+    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com';
 
     // Determine Promo Code (Auto-Apply)
     let promotionCode: string | undefined;
@@ -123,7 +156,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create Subscription Session
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -134,7 +167,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       subscription_data: {
-        trial_period_days: planId === 'pro' ? 7 : undefined, // 7-Day Trial for Pro only
+        trial_period_days: planId === 'pro' ? 7 : undefined,
         metadata: {
           planId,
           interval
@@ -147,16 +180,35 @@ export async function POST(req: NextRequest) {
         planId,
         interval
       },
-      // Apply discount if exists, otherwise allow user to enter code
-      discounts: promotionCode ? [{ promotion_code: promotionCode }] : undefined,
-      allow_promotion_codes: promotionCode ? undefined : true,
-    });
+      allow_promotion_codes: true,
+    };
 
+    // Only apply promo if it exists
+    if (promotionCode) {
+      sessionConfig.discounts = [{ promotion_code: promotionCode }];
+      sessionConfig.allow_promotion_codes = undefined;
+    }
+
+    console.log('Creating Stripe checkout session...');
+    const session = await stripe.checkout.sessions.create(sessionConfig);
+
+    console.log(`Checkout session created: ${session.id}`);
     return NextResponse.json({ sessionId: session.id, url: session.url });
 
   } catch (error: any) {
     console.error('Stripe checkout error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+
+    // Provide more specific error messages
+    if (error.message?.includes('API key')) {
+      return NextResponse.json({ error: 'Stripe API configuration error' }, { status: 500 });
+    }
+    if (error.message?.includes('No such price')) {
+      return NextResponse.json({ error: 'Invalid price configuration' }, { status: 500 });
+    }
+    if (error.message?.includes('promotion_code')) {
+      return NextResponse.json({ error: 'Invalid promotion code' }, { status: 500 });
+    }
+
+    return NextResponse.json({ error: error.message || 'Checkout failed' }, { status: 500 });
   }
 }
-
