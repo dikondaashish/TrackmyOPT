@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ interface PricingModalProps {
 
 export function PricingModal({ open, onClose, userEmail, isPremium = false, initialPlan, initialInterval }: PricingModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isYearly, setIsYearly] = useState(initialInterval === 'year');
 
   const freePlanFeatures = [
     { text: "OPT & STEM Calculators" },
@@ -66,7 +68,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
           successUrl: `${window.location.origin}/premium/success`,
           cancelUrl: `${window.location.origin}/dashboard`,
           planId: (typeof selectedPlan === 'string' ? selectedPlan : initialPlan) || 'pro',
-          interval: initialInterval || 'year',
+          interval: isYearly ? 'year' : 'month',
         }),
       });
 
@@ -102,7 +104,20 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col lg:flex-row gap-4 mt-4">
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center gap-3 py-4">
+          <span className={`text-sm font-medium ${!isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>Monthly</span>
+          <Switch
+            checked={isYearly}
+            onCheckedChange={setIsYearly}
+            className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-600 data-[state=checked]:to-purple-600"
+          />
+          <span className={`text-sm font-medium ${isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
+            Annual <span className="text-xs text-green-600 font-semibold">(Save 40%)</span>
+          </span>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-4">
           {/* Free Plan */}
           <Card className={`flex-1 ${isPremium ? '' : 'border-2 border-primary'} flex flex-col`}>
             <CardHeader className="pb-3">
@@ -161,10 +176,10 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 </div>
               </CardTitle>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">$4.99</span>
-                <span className="text-sm text-gray-400 line-through">$7.99</span>
+                <span className="text-3xl font-bold">{isYearly ? '$49.99' : '$4.99'}</span>
+                <span className="text-sm text-gray-400 line-through">{isYearly ? '$79.99' : '$7.99'}</span>
               </div>
-              <p className="text-muted-foreground text-xs">per month</p>
+              <p className="text-muted-foreground text-xs">{isYearly ? 'per year' : 'per month'}</p>
             </CardHeader>
             <CardContent className="flex-1 pb-3">
               <Separator className="mb-4" />
@@ -217,10 +232,10 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 </div>
               </CardTitle>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">$14.99</span>
-                <span className="text-sm text-gray-400 line-through">$19.99</span>
+                <span className="text-3xl font-bold">{isYearly ? '$149.99' : '$14.99'}</span>
+                <span className="text-sm text-gray-400 line-through">{isYearly ? '$199.99' : '$19.99'}</span>
               </div>
-              <p className="text-muted-foreground text-xs">per month</p>
+              <p className="text-muted-foreground text-xs">{isYearly ? 'per year' : 'per month'}</p>
             </CardHeader>
             <CardContent className="flex-1 pb-3">
               <Separator className="mb-4" />
