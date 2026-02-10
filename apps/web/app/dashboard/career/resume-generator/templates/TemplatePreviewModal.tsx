@@ -116,6 +116,14 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                                 <li>Mentored 3 junior data scientists and established best practices for model versioning and A/B testing.</li>
                                             </ul>
                                         </div>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Data Scientist II</h3><span className="text-gray-600 font-medium">Aug 2018 - May 2020</span></div>
+                                            <div className="italic text-gray-700 mb-1">Uber, San Francisco, CA</div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500">
+                                                <li>Developed dynamic pricing models using XGBoost, resulting in a $50M annual revenue increase in key markets.</li>
+                                                <li>Created a rider churn prediction model that identified at-risk users with 85% accuracy, enabling targeted retention campaigns.</li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -133,19 +141,6 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         <div className="p-10 text-gray-900 h-full flex flex-col">
                             {/* Modern Content Page 2 */}
                             <div className="space-y-5 flex-1">
-                                <div>
-                                    {/* <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Technical Experience (Cont.)</h2> */}
-                                    <div className="space-y-4">
-                                        <div className="text-sm">
-                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Data Scientist II</h3><span className="text-gray-600 font-medium">Aug 2018 - May 2020</span></div>
-                                            <div className="italic text-gray-700 mb-1">Uber, San Francisco, CA</div>
-                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500">
-                                                <li>Developed dynamic pricing models using XGBoost, resulting in a $50M annual revenue increase in key markets.</li>
-                                                <li>Created a rider churn prediction model that identified at-risk users with 85% accuracy, enabling targeted retention campaigns.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div>
                                     <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Education</h2>
                                     <div className="text-sm space-y-3">
@@ -426,27 +421,6 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                                 <li><span className="font-bold">Accessibility:</span> Spearheaded the accessibility initiative for the booking flow, achieving WCAG 2.1 AA compliance and improving the experience for millions of users.</li>
                                             </ul>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Gap */}
-                    <div className="h-8 w-full shrink-0" />
-
-                    {/* Page 2 */}
-                    <div
-                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
-                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Georgia", "Times New Roman", serif' }}
-                    >
-                        <div className="p-10 text-gray-900 h-full flex flex-col">
-                            {/* Creative Content Page 2 */}
-                            <div className="space-y-6">
-                                {/* Experience (Part 2) */}
-                                <div>
-                                    {/* <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience (Cont.)</h2> */}
-                                    <div className="space-y-5">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Spotify</span>
@@ -477,6 +451,23 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Georgia", "Times New Roman", serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            {/* Creative Content Page 2 */}
+                            <div className="space-y-6">
+                                {/* Experience (Part 2 - Empty now, removed) */}
+
 
                                 {/* Projects */}
                                 <div>
@@ -588,26 +579,6 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                                 <li><span className="font-bold">Publication: </span>Co-authored a paper accepted at OSDI '23 based on internship findings.</li>
                                             </ul>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Gap */}
-                    <div className="h-8 w-full shrink-0" />
-
-                    {/* Page 2 */}
-                    <div
-                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
-                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Times New Roman", Times, serif' }}
-                    >
-                        <div className="p-10 text-gray-900 h-full flex flex-col">
-                            <div className="space-y-6">
-                                {/* Experience (Part 2) */}
-                                <div>
-                                    {/* <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience (Cont.)</h2> */}
-                                    <div className="space-y-5">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Stanford University</span>
@@ -624,6 +595,22 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Times New Roman", Times, serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            <div className="space-y-6">
+                                {/* Experience (Part 2 - Moved to Page 1) */}
+
 
                                 {/* Publications */}
                                 <div>
@@ -753,6 +740,20 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                                 <li>Reduced infrastructure costs by 30% ($50M+ annual savings) through strategic multi-cloud adoption and container orchestration optimization.</li>
                                             </ul>
                                         </div>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900 text-base">
+                                                <span>Google</span>
+                                                <span>Mountain View, CA</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Director of Engineering, Google Cloud</span>
+                                                <span>Aug 2012 -- May 2016</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
+                                                <li>Founded and led the Kubernetes Engine (GKE) team from inception to general availability.</li>
+                                                <li>Grew the team from 5 to 80+ engineers and product managers.</li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -769,26 +770,8 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                     >
                         <div className="p-12 text-gray-900 h-full flex flex-col">
                             <div className="space-y-6">
-                                {/* Projects */}
-                                <div>
-                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Projects</h2>
-                                    <div className="space-y-4 text-sm">
-                                        <div>
-                                            <div className="flex justify-between font-bold text-gray-900 text-base mb-1">
-                                                <span>Google</span>
-                                                <span>Mountain View, CA</span>
-                                            </div>
-                                            <div className="flex justify-between italic text-gray-700 mb-2">
-                                                <span>Director of Engineering, Google Cloud</span>
-                                                <span>Aug 2012 -- May 2016</span>
-                                            </div>
-                                            <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
-                                                <li>Founded and led the Kubernetes Engine (GKE) team from inception to general availability.</li>
-                                                <li>Grew the team from 5 to 80+ engineers and product managers.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                                {/* Projects (Moved to Page 1 Experience) */}
+
 
                                 {/* Board Memberships */}
                                 <div>
@@ -910,26 +893,6 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                                 <li>Led the migration of legacy monolithic applications to microservices architecture, improving scalability and fault tolerance.</li>
                                             </ul>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Gap */}
-                    <div className="h-8 w-full shrink-0" />
-
-                    {/* Page 2 */}
-                    <div
-                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
-                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Charter", "Bitstream Charter", "Georgia", serif' }}
-                    >
-                        <div className="p-10 text-gray-900 h-full flex flex-col">
-                            <div className="space-y-5">
-                                {/* Experience (Part 2) */}
-                                <div>
-                                    {/* Continuing Experience Section Header visually distinct if needed, or just continue content */}
-                                    <div className="space-y-4 text-sm">
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Integration Engineer — SampleCloud Technologies (Remote)</span>
@@ -953,6 +916,26 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                                 <li>Implemented centralized logging and monitoring using ELK Stack and Prometheus.</li>
                                             </ul>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Charter", "Bitstream Charter", "Georgia", serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            <div className="space-y-5">
+                                {/* Experience (Part 2) */}
+                                <div>
+                                    {/* Continuing Experience Section Header visually distinct if needed, or just continue content */}
+                                    <div className="space-y-4 text-sm">
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Systems Administrator — IBM</span>
