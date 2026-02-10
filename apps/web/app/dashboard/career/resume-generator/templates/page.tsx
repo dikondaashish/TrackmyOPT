@@ -20,7 +20,7 @@ const templates: Template[] = [
     {
         id: "modern",
         name: "Modern",
-        description: "Clean, minimal design with bold headers",
+        description: "A sleek, contemporary design featuring clean lines and bold typography to make a strong first impression.",
         category: "Professional",
         isPremium: false,
         preview: "from-blue-500 to-cyan-500",
@@ -33,7 +33,7 @@ const templates: Template[] = [
     {
         id: "professional",
         name: "Professional",
-        description: "Traditional corporate style, ATS-friendly",
+        description: "A polished, corporate-ready layout optimized for Applicant Tracking Systems (ATS) and conservative industries.",
         category: "Business",
         isPremium: false,
         preview: "from-gray-600 to-gray-800",
@@ -46,7 +46,7 @@ const templates: Template[] = [
     {
         id: "creative",
         name: "Creative",
-        description: "Bold colors with unique layout",
+        description: "Stand out with a vibrant, unique layout designed for creative professionals and portfolios.",
         category: "Design",
         isPremium: true,
         preview: "from-purple-500 to-pink-500",
@@ -59,7 +59,7 @@ const templates: Template[] = [
     {
         id: "academic",
         name: "Academic",
-        description: "Research and CV focused format",
+        description: "A structured, content-rich CV format ideal for researchers, educators, and detailed academic histories.",
         category: "Education",
         isPremium: false,
         preview: "from-emerald-500 to-teal-500",
@@ -72,7 +72,7 @@ const templates: Template[] = [
     {
         id: "executive",
         name: "Executive",
-        description: "Premium design for senior roles",
+        description: "A sophisticated, high-end design tailored for leadership roles, executives, and senior management.",
         category: "Leadership",
         isPremium: true,
         preview: "from-amber-500 to-orange-500",
@@ -85,7 +85,7 @@ const templates: Template[] = [
     {
         id: "tech",
         name: "Tech Focus",
-        description: "Optimized for software and engineering",
+        description: "Highlight your technical stack and project portfolio with a layout built specifically for engineering roles.",
         category: "Technology",
         isPremium: false,
         preview: "from-indigo-500 to-violet-500",

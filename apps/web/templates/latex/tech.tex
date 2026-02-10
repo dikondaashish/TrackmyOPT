@@ -1,0 +1,228 @@
+\documentclass[10pt, letterpaper]{article}
+
+% --- Preamble & Packages ---
+\usepackage{ragged2e}
+\usepackage{multicol}
+\usepackage[
+    ignoreheadfoot,
+    top=1.3cm,
+    bottom=1.6cm,
+    left=1.4cm,
+    right=1.4cm,
+    footskip=0.8cm,
+]{geometry}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{primaryColor}{RGB}{0, 0, 0}
+\usepackage{enumitem}
+\usepackage{fontawesome}
+\usepackage{amsmath}
+\usepackage[
+    pdftitle={John Doe - AI Agent Engineer Resume},
+    pdfauthor={John Doe},
+    colorlinks=true,
+    urlcolor=primaryColor
+]{hyperref}
+\usepackage[pscoord]{eso-pic}
+\usepackage{calc}
+\usepackage{bookmark}
+\usepackage{lastpage}
+\usepackage{changepage}
+\usepackage{paracol}
+\usepackage{ifthen}
+\usepackage{needspace}
+\usepackage{iftex}
+\ifPDFTeX
+    \input{glyphtounicode}
+    \pdfgentounicode=1
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+    \usepackage{lmodern}
+\fi
+\usepackage{charter}
+
+% --- Custom Environments ---
+\raggedright
+\AtBeginEnvironment{adjustwidth}{\partopsep0pt}
+\pagestyle{empty}
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+\setlength{\topskip}{0pt}
+\setlength{\columnsep}{0.1cm}
+\pagenumbering{gobble}
+
+\titleformat{\section}{\needspace{4\baselineskip}\bfseries\large}{}{0pt}{}[\vspace{1pt}\titlerule]
+\titlespacing{\section}{0pt}{0.2cm}{0.1cm}
+\renewcommand\labelitemi{$\vcenter{\hbox{\small$\bullet$}}$}
+
+\newenvironment{highlights}{
+    \begin{itemize}[topsep=0pt, partopsep=0pt, itemsep=1pt, parsep=1pt, leftmargin=10pt]
+}{
+    \end{itemize}
+}
+
+\newenvironment{onecolentry}{
+    \begin{adjustwidth}{0.00001cm}{0.00001cm}
+}{
+    \end{adjustwidth}
+}
+
+\newenvironment{twocolentry}[2][]{
+    \onecolentry
+    \def\secondColumn{#2}
+    \setcolumnwidth{\fill, 4.5 cm}
+    \begin{paracol}{2}
+}{
+    \switchcolumn \raggedleft \secondColumn
+    \end{paracol}
+    \endonecolentry
+}
+
+\newenvironment{header}{
+    \setlength{\topsep}{0pt}\par\kern\topsep\centering\linespread{1.25}
+}{
+    \par\kern\topsep
+}
+
+% --- Resume Content ---
+\begin{document}
+
+\begin{header}
+    \fontsize{25 pt}{25 pt}\selectfont John Doe
+
+    \vspace{5 pt}
+
+    \normalsize
+    \mbox\faEnvelope\space{\href{mailto:johndoe@example.com}{johndoe@example.com}}%
+    \kern 5pt$|$\kern 5pt
+    \mbox\faMapMarker\space Boston, Massachusetts%
+    \kern 5pt$|$\kern 5pt
+    \mbox\faPhoneSquare\space{\href{tel:+1-555-123-4567}{555-123-4567}}%
+    \kern 5pt$|$\kern 5pt
+    \mbox\faLinkedinSquare\space{\href{https://linkedin.com/in/john-doe}{linkedin.com/in/john-doe}}%
+\end{header}
+
+% --- Professional Summary ---
+\section{Professional Summary}
+\begin{onecolentry}
+Results-driven \textbf{AI Solutions Engineer} with hands-on experience building production-grade AI systems, cloud integrations, and automation workflows. Adept at translating business requirements into scalable technical solutions across SaaS, fintech, and enterprise platforms. Strong background in Python, API development, and cross-team collaboration within fast-paced startup environments.
+\end{onecolentry}
+
+% --- Education ---
+\section{Education}
+\begin{twocolentry}{Aug 2022 – May 2024}
+    \textbf{Example University} — Master’s in Computer Science
+\end{twocolentry}
+\begin{onecolentry}
+Focus: Artificial Intelligence, Distributed Systems, Cloud Computing
+\end{onecolentry}
+
+\begin{twocolentry}{Aug 2018 – Jul 2022}
+    \textbf{Sample Institute of Technology} — Bachelor of Computer Applications
+\end{twocolentry}
+\begin{onecolentry}
+Focus: Software Engineering, Databases, Web Technologies, Operating Systems
+\end{onecolentry}
+
+% --- Technical Skills ---
+\section{Technical Skills}
+\begin{onecolentry}
+\textbf{Languages:} Python, JavaScript, Java, SQL, Go \\
+\textbf{AI/ML:} LangChain, OpenAI API, TensorFlow, Scikit-learn \\
+\textbf{Cloud Platforms:} AWS, GCP, Azure, Docker, Kubernetes \\
+\textbf{Integration:} REST APIs, GraphQL, Webhooks, ETL Pipelines \\
+\textbf{Tools:} GitHub, Jira, Confluence, Postman, Figma \\
+\textbf{Soft Skills:} Technical Communication, Client Enablement, Solution Architecture, Documentation
+\end{onecolentry}
+
+% --- Experience ---
+\section{Experience}
+\begin{twocolentry}{Jan 2024 – Present}
+    \textbf{AI Solutions Engineer} — Example AI Labs (Remote)
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Designed and deployed AI-powered workflows for enterprise SaaS customers.
+    \item Integrated large language models into production systems using REST and GraphQL APIs.
+    \item Developed proof-of-concept demos supporting pre-sales and customer onboarding.
+    \item Collaborated with product and customer success teams to ensure smooth deployments.
+    \item Delivered technical walkthroughs and post-deployment support sessions.
+\end{highlights}
+\end{onecolentry}
+
+\begin{twocolentry}{Jun 2023 – Dec 2023}
+    \textbf{Integration Engineer} — SampleCloud Technologies (Remote)
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Built data integration pipelines across multi-cloud environments.
+    \item Automated onboarding workflows, reducing setup time for new clients.
+    \item Monitored and optimized system reliability across production environments.
+    \item Authored internal documentation and integration best practices.
+\end{highlights}
+\end{onecolentry}
+
+\begin{twocolentry}{Aug 2021 – May 2023}
+    \textbf{Software Engineer} — DemoSoft Solutions (Hybrid)
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Developed scalable backend services supporting high-volume user traffic.
+    \item Integrated analytics and reporting dashboards for business stakeholders.
+    \item Collaborated with cross-functional teams on secure cloud deployments.
+    \item Participated in client-facing issue resolution and technical discussions.
+\end{highlights}
+\end{onecolentry}
+
+% --- Projects ---
+\section{Projects}
+
+\begin{twocolentry}{\textbf{AI Support Agent Platform} — Enterprise Prototype}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Built an AI-powered customer support agent using LangChain and GPT APIs.
+    \item Integrated structured data sources for real-time query resolution.
+    \item Implemented intent classification and workflow routing logic.
+    \item Deployed containerized services using Docker and cloud-native tooling.
+\end{highlights}
+\end{onecolentry}
+
+\begin{twocolentry}{\textbf{Cloud Data Integrator} — Integration Framework}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Designed a reusable framework for syncing enterprise data systems.
+    \item Automated ETL pipelines using Python microservices.
+    \item Built monitoring dashboards for data validation and observability.
+    \item Delivered technical documentation and onboarding guides.
+\end{highlights}
+\end{onecolentry}
+
+\begin{twocolentry}{\textbf{AI Demo Toolkit} — Internal Enablement Tool}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item Created a toolkit for rapidly deploying customized AI demos.
+    \item Integrated CRM and ticketing systems for end-to-end workflows.
+    \item Enabled configurable deployments within minutes for sales engineers.
+\end{highlights}
+\end{onecolentry}
+
+% --- Certificates ---
+\section{Certificates}
+\begin{onecolentry}
+\begin{multicols}{2}
+\begin{itemize}[leftmargin=*, itemsep=1pt]
+    \item AWS Certified Solutions Architect
+    \item Machine Learning Specialization
+    \item API Design and Integration
+    \item Advanced Python Programming
+    \item Cloud Engineering Fundamentals
+\end{itemize}
+\end{multicols}
+\end{onecolentry}
+
+\end{document}
