@@ -11,7 +11,16 @@ interface DialogProps {
   children: React.ReactNode;
 }
 
+import { createPortal } from "react-dom";
+
 const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
   React.useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -23,16 +32,17 @@ const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
     };
   }, [open]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50">
       <div
         className="fixed inset-0 bg-black/80 backdrop-blur-sm"
         onClick={() => onOpenChange?.(false)}
       />
       {children}
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -40,7 +50,7 @@ const DialogContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & { onClose?: () => void }
 >(({ className, children, onClose, ...props }, ref) => (
-  <div className="fixed inset-0 z-50 overflow-y-auto">
+  <div className="fixed inset-0 z-50 overflow-y-auto pointer-events-auto">
     <div className="flex min-h-full items-center justify-center p-4">
       <div
         ref={ref}
