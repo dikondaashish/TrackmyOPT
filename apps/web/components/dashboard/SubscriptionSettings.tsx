@@ -27,10 +27,11 @@ interface PricingSectionProps {
     isLoading?: boolean;
     userEmail: string;
     premium: PremiumStatus;
-    onUpgrade: (planId: string, interval: string) => void;
+    onUpgrade: (planId: string, interval: string) => Promise<void>;
+    isCheckoutLoading?: string | null;
 }
 
-function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, userEmail, premium, onUpgrade }: PricingSectionProps) {
+function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, userEmail, premium, onUpgrade, isCheckoutLoading }: PricingSectionProps) {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
     const handleDowngrade = (planName: string) => {
@@ -131,6 +132,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                     let buttonText = plan.cta;
                     let isDisabled = false;
                     let onClick = () => { };
+                    const isPlanLoading = isCheckoutLoading === plan.id;
 
                     if (isCurrentPlan) {
                         buttonText = "Current Plan";
@@ -218,10 +220,17 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                                         ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
                                         : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
                                     }`}
-                                disabled={isDisabled || isLoading}
+                                disabled={isDisabled || isLoading || !!isCheckoutLoading}
                                 variant={isCurrentPlan ? "outline" : "default"}
                             >
-                                {buttonText}
+                                {isPlanLoading ? (
+                                    <span className="flex items-center gap-2">
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Processing...
+                                    </span>
+                                ) : (
+                                    buttonText
+                                )}
                             </Button>
                         </div>
                     );
@@ -235,6 +244,36 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
     const [showPricingModal, setShowPricingModal] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState<string>('pro');
     const [selectedInterval, setSelectedInterval] = useState<string>('month');
+    const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState<string | null>(null);
+
+    // Direct Checkout Handler (Bypasses Modal)
+    const handleDirectCheckout = async (planId: string, interval: string) => {
+        setCheckoutLoadingPlan(planId);
+        try {
+            const response = await fetch('/api/premium/create-checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    successUrl: `${window.location.origin}/dashboard?upgrade=success`,
+                    cancelUrl: `${window.location.origin}/dashboard?upgrade=canceled`,
+                    planId: planId,
+                    interval: interval,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create checkout session');
+            }
+
+            const { url } = await response.json();
+            window.location.href = url;
+        } catch (error) {
+            alert('Failed to start upgrade process. Please try again.');
+            setCheckoutLoadingPlan(null);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -281,7 +320,8 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
                 isLoading={isLoading}
                 userEmail={userEmail}
                 premium={premium}
-                onUpgrade={handleOpenPricing}
+                onUpgrade={handleDirectCheckout}
+                isCheckoutLoading={checkoutLoadingPlan}
             />
 
             <div className="flex justify-center -mt-4 mb-8">
