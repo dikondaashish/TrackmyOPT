@@ -20,12 +20,17 @@ interface PricingModalProps {
 
 export function PricingModal({ open, onClose, userEmail, isPremium = false, initialPlan, initialInterval }: PricingModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isYearly, setIsYearly] = useState(true);
+  // Initialize state based on props or default to true (Yearly)
+  const [isYearly, setIsYearly] = useState(initialInterval === 'month' ? false : true);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
-  const handleUpgrade = async (selectedPlan: string) => {
+  const handleUpgrade = async (selectedPlan: string, intervalOverride?: string) => {
     setIsLoading(true);
     setLoadingPlan(selectedPlan);
+
+    // Determine interval: override > state > default
+    const currentInterval = intervalOverride || (isYearly ? 'year' : 'month');
+
     try {
       const response = await fetch('/api/premium/create-checkout', {
         method: 'POST',
@@ -36,7 +41,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
           successUrl: `${window.location.origin}/premium/success`,
           cancelUrl: `${window.location.origin}/premium/checkout`,
           planId: selectedPlan,
-          interval: isYearly ? 'year' : 'month',
+          interval: currentInterval,
         }),
       });
 
@@ -55,8 +60,14 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
   // Auto-start if params are present and not already premium
   if (open && initialPlan && !isPremium && !isLoading) {
+    // Only auto-start if we haven't already (to prevent loops if logic fails)
+    // We use a timeout to let state settle
     setTimeout(() => {
-      if (!isLoading) handleUpgrade(initialPlan);
+      // Ensure we don't trigger if user cancelled or closed
+      if (!isLoading && open) {
+        const interval = initialInterval || (isYearly ? 'year' : 'month');
+        handleUpgrade(initialPlan, interval);
+      }
     }, 100);
   }
 
