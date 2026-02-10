@@ -117,112 +117,136 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         }
 
         if (template.id === 'professional') {
+            const pageHeight = 1131;
+            const gap = 32; // 2rem
+            const totalHeight = pageHeight * 2 + gap;
+
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top"
+                    className="w-full flex flex-col items-center transition-all duration-300 origin-top"
                     style={{
-                        minHeight: '1131px',
-                        fontFamily: 'Helvetica, Arial, sans-serif',
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
-                        marginBottom: `-${(1 - scale) * 1131}px`
+                        marginBottom: `-${(1 - scale) * totalHeight}px`
                     }}
                 >
-                    <div className="p-12 text-gray-900 h-full flex flex-col">
-                        {/* Professional Header */}
-                        <div className="text-center mb-6">
-                            <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Harshibar</h1>
-                            <div className="flex justify-center items-center gap-3 text-sm text-gray-800">
-                                <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> 555.555.5555</span>
-                                <span className="text-gray-400">|</span>
-                                <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> hello@email.com</span>
-                                <span className="text-gray-400">|</span>
-                                <span className="flex items-center gap-1"><Youtube className="w-3 h-3" /> harshibar</span>
-                                <span className="text-gray-400">|</span>
-                                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> U.S. Citizen</span>
-                            </div>
-                        </div>
-
-                        {/* Professional Content */}
-                        <div className="space-y-6">
-                            {/* Experience */}
-                            <div>
-                                <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">EXPERIENCE</h2>
-                                <div className="space-y-4">
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>YouTube</span>
-                                            <span>Aug. 2019 -- Present</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-1">
-                                            <span>Creator (@harshibar)</span>
-                                            <span>San Francisco, CA</span>
-                                        </div>
-                                        <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
-                                            <li>Grew channel to <strong>60k subscribers in 1.5 years</strong>; created 80+ videos on tech and productivity</li>
-                                            <li>Conducted A/B testing on titles and thumbnails; <strong>increased video impressions by 2.5M</strong> in 3 months</li>
-                                            <li>Designed a Notion workflow to streamline video production and roadmapping; boosted productivity by 20%</li>
-                                            <li><strong>Partnered with brands like Skillshare and Squarespace</strong> to expand their outreach via sponsorships</li>
-                                            <li><strong>Highlights</strong>: The Problem with Productivity Apps, Obsidian App Review, Not-So-Minimal Desk Setup</li>
-                                        </ul>
-                                    </div>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Google Verily</span>
-                                            <span>Aug. 2018 -- Sept. 2019</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-1">
-                                            <span>Software Engineer</span>
-                                            <span>San Francisco, CA</span>
-                                        </div>
-                                        <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
-                                            <li><strong>Led front-end development</strong> of a dashboard to process 50k blood samples and detect early-stage cancer</li>
-                                            <li>Rebuilt a Quality Control product with input from 20 cross-functional stakeholders, <strong>saving $1M annually</strong></li>
-                                            <li>Spearheaded product development of a new lab workflow tool, leading to a 40% increase in efficiency; shadowed 10 core users, iterated on design docs, and implemented the solution with one engineer</li>
-                                        </ul>
-                                    </div>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Amazon</span>
-                                            <span>May 2017 -- Aug. 2017</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-1">
-                                            <span>Software Engineering Intern</span>
-                                            <span>Seattle, WA</span>
-                                        </div>
-                                        <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
-                                            <li>Worked on the Search Customer Experience Team; <strong>received a return offer</strong> for a full-time position</li>
-                                            <li><strong>Shipped a new feature to 2M+ users</strong> to improve the search experience for movie series-related queries</li>
-                                            <li>Built a back-end database service in Java and implemented a front-end UI to support future changes</li>
-                                        </ul>
-                                    </div>
+                    {/* Page 1 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: 'Helvetica, Arial, sans-serif' }}
+                    >
+                        <div className="p-12 text-gray-900 h-full flex flex-col">
+                            {/* Professional Header */}
+                            <div className="text-center mb-6">
+                                <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Harshibar</h1>
+                                <div className="flex justify-center items-center gap-3 text-sm text-gray-800">
+                                    <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> 555.555.5555</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> hello@email.com</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="flex items-center gap-1"><Youtube className="w-3 h-3" /> harshibar</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> U.S. Citizen</span>
                                 </div>
                             </div>
 
-                            {/* Projects */}
-                            <div>
-                                <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">PROJECTS</h2>
-                                <div className="space-y-3 text-sm">
-                                    <div>
-                                        <div className="flex justify-between font-bold text-gray-900 mb-1">
-                                            <span>Hyku Consulting</span>
-                                            <span>Sept. 2019 -- Mar. 2021</span>
+                            {/* Professional Content */}
+                            <div className="space-y-6">
+                                {/* Experience */}
+                                <div>
+                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">EXPERIENCE</h2>
+                                    <div className="space-y-4">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>YouTube</span>
+                                                <span>Aug. 2019 -- Present</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-1">
+                                                <span>Creator (@harshibar)</span>
+                                                <span>San Francisco, CA</span>
+                                            </div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
+                                                <li>Grew channel to <strong>60k subscribers in 1.5 years</strong>; created 80+ videos on tech and productivity</li>
+                                                <li>Conducted A/B testing on titles and thumbnails; <strong>increased video impressions by 2.5M</strong> in 3 months</li>
+                                                <li>Designed a Notion workflow to streamline video production and roadmapping; boosted productivity by 20%</li>
+                                                <li><strong>Partnered with brands like Skillshare and Squarespace</strong> to expand their outreach via sponsorships</li>
+                                                <li><strong>Highlights</strong>: The Problem with Productivity Apps, Obsidian App Review, Not-So-Minimal Desk Setup</li>
+                                            </ul>
                                         </div>
-                                        <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
-                                            <li>Mentored 15 students towards acceptance at top US boarding schools; achieved <strong>100% success rate</strong></li>
-                                            <li>Designed a <strong>collaborative learning ecosystem</strong> for students and parents with Trello, Miro, and Google Suite</li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <div className="flex justify-between font-bold text-gray-900 mb-1">
-                                            <span>Minimal Icon Pack</span>
-                                            <span>Sept. 2020 -- Nov. 2020</span>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Google Verily</span>
+                                                <span>Aug. 2018 -- Sept. 2019</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-1">
+                                                <span>Software Engineer</span>
+                                                <span>San Francisco, CA</span>
+                                            </div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
+                                                <li><strong>Led front-end development</strong> of a dashboard to process 50k blood samples and detect early-stage cancer</li>
+                                                <li>Rebuilt a Quality Control product with input from 20 cross-functional stakeholders, <strong>saving $1M annually</strong></li>
+                                                <li>Spearheaded product development of a new lab workflow tool, leading to a 40% increase in efficiency; shadowed 10 core users, iterated on design docs, and implemented the solution with one engineer</li>
+                                            </ul>
                                         </div>
-                                        <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
-                                            <li>Designed and released 100+ minimal iOS and Android icons from scratch using Procreate and Figma</li>
-                                            <li>Marketed the product and design process on YouTube; accumulated over <strong>$250 in sales</strong> on Gumroad</li>
-                                        </ul>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Amazon</span>
+                                                <span>May 2017 -- Aug. 2017</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-1">
+                                                <span>Software Engineering Intern</span>
+                                                <span>Seattle, WA</span>
+                                            </div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
+                                                <li>Worked on the Search Customer Experience Team; <strong>received a return offer</strong> for a full-time position</li>
+                                                <li><strong>Shipped a new feature to 2M+ users</strong> to improve the search experience for movie series-related queries</li>
+                                                <li>Built a back-end database service in Java and implemented a front-end UI to support future changes</li>
+                                            </ul>
+                                        </div>
                                     </div>
+                                </div>
+                                {/* Projects Part 1 */}
+                                <div>
+                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">PROJECTS</h2>
+                                    <div className="space-y-3 text-sm">
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900 mb-1">
+                                                <span>Hyku Consulting</span>
+                                                <span>Sept. 2019 -- Mar. 2021</span>
+                                            </div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
+                                                <li>Mentored 15 students towards acceptance at top US boarding schools; achieved <strong>100% success rate</strong></li>
+                                                <li>Designed a <strong>collaborative learning ecosystem</strong> for students and parents with Trello, Miro, and Google Suite</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900 mb-1">
+                                                <span>Minimal Icon Pack</span>
+                                                <span>Sept. 2020 -- Nov. 2020</span>
+                                            </div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
+                                                <li>Designed and released 100+ minimal iOS and Android icons from scratch using Procreate and Figma</li>
+                                                <li>Marketed the product and design process on YouTube; accumulated over <strong>$250 in sales</strong> on Gumroad</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Page Break / Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: 'Helvetica, Arial, sans-serif' }}
+                    >
+                        <div className="p-12 text-gray-900 h-full flex flex-col">
+                            <div className="space-y-6">
+                                {/* Projects Part 2 */}
+                                <div className="text-sm">
                                     <div>
                                         <div className="flex justify-between font-bold text-gray-900 mb-1">
                                             <span>CommonIntern</span>
@@ -234,33 +258,33 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </ul>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Education */}
-                            <div>
-                                <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">EDUCATION</h2>
-                                <div className="text-sm">
-                                    <div className="flex justify-between font-bold text-gray-900">
-                                        <span>Wellesley College</span>
-                                        <span>Aug. 2014 -- May 2018</span>
+                                {/* Education */}
+                                <div>
+                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">EDUCATION</h2>
+                                    <div className="text-sm">
+                                        <div className="flex justify-between font-bold text-gray-900">
+                                            <span>Wellesley College</span>
+                                            <span>Aug. 2014 -- May 2018</span>
+                                        </div>
+                                        <div className="flex justify-between italic text-gray-700 mb-1">
+                                            <span>Bachelor of Arts in Computer Science and Pre-Med</span>
+                                            <span>Wellesley, MA</span>
+                                        </div>
+                                        <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
+                                            <li><strong>Coursework</strong>: Data Structures, Algorithms, Databases, Computer Systems, Machine Learning</li>
+                                            <li><strong>Research</strong>: MIT Graybiel Lab (published author), MIT Media Lab (analyzed urban microbe spread)</li>
+                                        </ul>
                                     </div>
-                                    <div className="flex justify-between italic text-gray-700 mb-1">
-                                        <span>Bachelor of Arts in Computer Science and Pre-Med</span>
-                                        <span>Wellesley, MA</span>
-                                    </div>
-                                    <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
-                                        <li><strong>Coursework</strong>: Data Structures, Algorithms, Databases, Computer Systems, Machine Learning</li>
-                                        <li><strong>Research</strong>: MIT Graybiel Lab (published author), MIT Media Lab (analyzed urban microbe spread)</li>
-                                    </ul>
                                 </div>
-                            </div>
 
-                            {/* Skills */}
-                            <div>
-                                <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">SKILLS</h2>
-                                <div className="text-sm text-gray-800 space-y-1">
-                                    <div><span className="font-bold">Languages:</span> Python, JavaScript (React.js), HTML/CSS, SQL (PostgreSQL, MySQL)</div>
-                                    <div><span className="font-bold">Tools:</span> Figma, Notion, Jira, Trello, Miro, Google Analytics, GitHub, DaVinci Resolve, OBS</div>
+                                {/* Skills */}
+                                <div>
+                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">SKILLS</h2>
+                                    <div className="text-sm text-gray-800 space-y-1">
+                                        <div><span className="font-bold">Languages:</span> Python, JavaScript (React.js), HTML/CSS, SQL (PostgreSQL, MySQL)</div>
+                                        <div><span className="font-bold">Tools:</span> Figma, Notion, Jira, Trello, Miro, Google Analytics, GitHub, DaVinci Resolve, OBS</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
