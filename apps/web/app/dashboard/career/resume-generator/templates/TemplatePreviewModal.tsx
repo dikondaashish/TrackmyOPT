@@ -43,71 +43,99 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
     const renderPreviewContent = () => {
         if (template.id === 'modern') {
+            const pageHeight = 1131;
+            const gap = 32;
+            const totalHeight = pageHeight * 2 + gap;
+
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top"
+                    className="w-full flex flex-col items-center transition-all duration-300 origin-top"
                     style={{
-                        minHeight: '1131px',
-                        fontFamily: '"Source Sans Pro", sans-serif',
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
-                        marginBottom: `-${(1 - scale) * 1131}px` // Negative margin to reduce white space
+                        marginBottom: `-${(1 - scale) * totalHeight}px`
                     }}
                 >
-                    <div className="p-10 text-gray-900 h-full flex flex-col">
-                        {/* Modern Header */}
-                        <div className="border-b-[3px] border-[#3D5A80] pb-2 mb-6">
-                            <div className="grid grid-cols-3 items-end">
-                                <div className="text-left text-sm space-y-0.5 leading-snug">
-                                    <div>(xxx) xxx-xxxx</div>
-                                    <div>somewhere, state</div>
-                                    <div className="text-[#3D5A80] font-medium">yourname@gmail.com</div>
+                    {/* Page 1 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Source Sans Pro", sans-serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            {/* Modern Header */}
+                            <div className="border-b-[3px] border-[#3D5A80] pb-2 mb-6">
+                                <div className="grid grid-cols-3 items-end">
+                                    <div className="text-left text-sm space-y-0.5 leading-snug">
+                                        <div>(xxx) xxx-xxxx</div>
+                                        <div>somewhere, state</div>
+                                        <div className="text-[#3D5A80] font-medium">yourname@gmail.com</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <h1 className="text-5xl font-['Montserrat'] font-bold uppercase tracking-tighter text-gray-900 mb-1">Your Name</h1>
+                                        <div className="text-[#3D5A80] text-xl font-semibold tracking-wide uppercase">Data Scientist / Junior Developer</div>
+                                    </div>
+                                    <div className="text-right text-sm space-y-0.5 leading-snug">
+                                        <div>Portfolio: <span className="text-[#3D5A80] font-medium">MathtoData.com</span></div>
+                                        <div className="text-[#3D5A80] font-medium">github.com/TimmyChan</div>
+                                        <div className="text-[#3D5A80] font-medium">linkedin.com/in/timmy-l-chan</div>
+                                    </div>
                                 </div>
-                                <div className="text-center">
-                                    <h1 className="text-5xl font-['Montserrat'] font-bold uppercase tracking-tighter text-gray-900 mb-1">Your Name</h1>
-                                    <div className="text-[#3D5A80] text-xl font-semibold tracking-wide uppercase">Data Scientist / Junior Developer</div>
+                            </div>
+
+                            {/* Modern Content Page 1 */}
+                            <div className="space-y-5 flex-1">
+                                <div className="text-[10pt] leading-relaxed text-gray-800">
+                                    <p>A data scientist with 2 years of experience in data analysis and machine learning... [Objective Placeholder]</p>
                                 </div>
-                                <div className="text-right text-sm space-y-0.5 leading-snug">
-                                    <div>Portfolio: <span className="text-[#3D5A80] font-medium">MathtoData.com</span></div>
-                                    <div className="text-[#3D5A80] font-medium">github.com/TimmyChan</div>
-                                    <div className="text-[#3D5A80] font-medium">linkedin.com/in/timmy-l-chan</div>
+                                <div>
+                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-2 flex items-center">Skills</h2>
+                                    <div className="text-sm grid grid-cols-[100px_1fr] gap-y-1 gap-x-4">
+                                        <span className="font-bold">Languages</span><span>Python, R, SQL, LaTeX, Java, C++</span>
+                                        <span className="font-bold">Libraries</span><span>pandas, numpy, scikit-learn, matplotlib, torch</span>
+                                        <span className="font-bold">Tools</span><span>Git, Docker, AWS, Jupyter, Tableau</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Technical Experience</h2>
+                                    <div className="space-y-4">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Data Scientist</h3><span className="text-gray-600 font-medium">Jan 2022 - Present</span></div>
+                                            <div className="italic text-gray-700 mb-1">Tech Company A, San Francisco, CA</div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500"><li>Developed machine learning models to predict user churn with 85% accuracy.</li><li>Analyzed large datasets using Python and SQL to identify key business trends.</li></ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Modern Content */}
-                        <div className="space-y-5 flex-1">
-                            <div className="text-[10pt] leading-relaxed text-gray-800">
-                                <p>A data scientist with 2 years of experience in data analysis and machine learning... [Objective Placeholder]</p>
-                            </div>
-                            <div>
-                                <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-2 flex items-center">Skills</h2>
-                                <div className="text-sm grid grid-cols-[100px_1fr] gap-y-1 gap-x-4">
-                                    <span className="font-bold">Languages</span><span>Python, R, SQL, LaTeX, Java, C++</span>
-                                    <span className="font-bold">Libraries</span><span>pandas, numpy, scikit-learn, matplotlib, torch</span>
-                                    <span className="font-bold">Tools</span><span>Git, Docker, AWS, Jupyter, Tableau</span>
-                                </div>
-                            </div>
-                            <div>
-                                <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Technical Experience</h2>
-                                <div className="space-y-4">
-                                    <div className="text-sm">
-                                        <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Data Scientist</h3><span className="text-gray-600 font-medium">Jan 2022 - Present</span></div>
-                                        <div className="italic text-gray-700 mb-1">Tech Company A, San Francisco, CA</div>
-                                        <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500"><li>Developed machine learning models to predict user churn with 85% accuracy.</li><li>Analyzed large datasets using Python and SQL to identify key business trends.</li></ul>
-                                    </div>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Research Assistant</h3><span className="text-gray-600 font-medium">Sep 2020 - Dec 2021</span></div>
-                                        <div className="italic text-gray-700 mb-1">University Lab, Boston, MA</div>
-                                        <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500"><li>Conducted research on natural language processing algorithms.</li><li>Published findings in a top-tier conference.</li></ul>
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Source Sans Pro", sans-serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            {/* Modern Content Page 2 */}
+                            <div className="space-y-5 flex-1">
+                                <div>
+                                    {/* <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Technical Experience (Cont.)</h2> */}
+                                    <div className="space-y-4">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Research Assistant</h3><span className="text-gray-600 font-medium">Sep 2020 - Dec 2021</span></div>
+                                            <div className="italic text-gray-700 mb-1">University Lab, Boston, MA</div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500"><li>Conducted research on natural language processing algorithms.</li><li>Published findings in a top-tier conference.</li></ul>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div>
-                                <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Education</h2>
-                                <div className="text-sm">
-                                    <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Master of Science in Data Science</h3><span className="text-gray-600 font-medium">May 2022</span></div>
-                                    <div className="italic text-gray-700">University of Technology, City, State</div>
+                                <div>
+                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Education</h2>
+                                    <div className="text-sm">
+                                        <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Master of Science in Data Science</h3><span className="text-gray-600 font-medium">May 2022</span></div>
+                                        <div className="italic text-gray-700">University of Technology, City, State</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -294,132 +322,160 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         }
 
         if (template.id === 'creative') {
+            const pageHeight = 1131;
+            const gap = 32;
+            const totalHeight = pageHeight * 2 + gap;
+
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top"
+                    className="w-full flex flex-col items-center transition-all duration-300 origin-top"
                     style={{
-                        minHeight: '1131px',
-                        fontFamily: '"Georgia", "Times New Roman", serif',
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
-                        marginBottom: `-${(1 - scale) * 1131}px`
+                        marginBottom: `-${(1 - scale) * totalHeight}px`
                     }}
                 >
-                    <div className="p-10 text-gray-900 h-full flex flex-col">
-                        {/* Creative Header - 2 Columns */}
-                        <div className="flex justify-between items-start mb-6">
-                            <div>
-                                <h1 className="text-3xl font-bold text-blue-800 mb-1">Sourabh Bajaj</h1>
-                                <a href="#" className="text-blue-600 text-sm block hover:underline">http://www.sourabhbajaj.com</a>
+                    {/* Page 1 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Georgia", "Times New Roman", serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            {/* Creative Header - 2 Columns */}
+                            <div className="flex justify-between items-start mb-6">
+                                <div>
+                                    <h1 className="text-3xl font-bold text-blue-800 mb-1">Sourabh Bajaj</h1>
+                                    <a href="#" className="text-blue-600 text-sm block hover:underline">http://www.sourabhbajaj.com</a>
+                                </div>
+                                <div className="text-right text-sm">
+                                    <div>Email : <a href="#" className="text-blue-600 hover:underline">mail@website.com</a></div>
+                                    <div>Mobile : +1-123-456-7890</div>
+                                </div>
                             </div>
-                            <div className="text-right text-sm">
-                                <div>Email : <a href="#" className="text-blue-600 hover:underline">mail@website.com</a></div>
-                                <div>Mobile : +1-123-456-7890</div>
+
+                            {/* Creative Content Page 1 */}
+                            <div className="space-y-6">
+
+                                {/* Education */}
+                                <div>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Education</h2>
+                                    <div className="space-y-4">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Georgia Institute of Technology</span>
+                                                <span>Aug. 2012 -- Dec. 2013</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700">
+                                                <span>Master of Science in Computer Science; GPA: 4.00</span>
+                                                <span>Atlanta, GA</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Birla Institute of Technology and Science</span>
+                                                <span>Aug. 2008 -- July. 2012</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700">
+                                                <span>Bachelor of Engineering in Electrical and Electronics; GPA: 3.66</span>
+                                                <span>Pilani, India</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Experience (Part 1) */}
+                                <div>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience</h2>
+                                    <div className="space-y-5">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Google</span>
+                                                <span>Oct 2016 - Present</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Software Engineer</span>
+                                                <span>Mountain View, CA</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-2 text-gray-800">
+                                                <li><span className="font-bold">Tensorflow:</span> TensorFlow is an open source software library for numerical computation using data flow graphs; primarily used for training deep learning models.</li>
+                                                <li><span className="font-bold">Apache Beam:</span> Apache Beam is a unified model for defining both batch and streaming data-parallel processing pipelines.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Creative Content */}
-                        <div className="space-y-6">
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
 
-                            {/* Education */}
-                            <div>
-                                <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Education</h2>
-                                <div className="space-y-4">
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Georgia Institute of Technology</span>
-                                            <span>Aug. 2012 -- Dec. 2013</span>
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Georgia", "Times New Roman", serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            <div className="space-y-6">
+                                {/* Experience (Part 2) */}
+                                <div>
+                                    {/* <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience (Cont.)</h2> */}
+                                    <div className="space-y-5">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Coursera</span>
+                                                <span>Jan 2014 - Oct 2016</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Senior Software Engineer</span>
+                                                <span>Mountain View, CA</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-2 text-gray-800">
+                                                <li><span className="font-bold">Notifications:</span> Service for sending email, push and in-app notifications. Involved in features such as delivery time optimization, tracking, queuing and A/B testing.</li>
+                                                <li><span className="font-bold">Nostos:</span> Bulk data processing and injection service from Hadoop to Cassandra and provides a thin REST layer on top for serving offline computed data online.</li>
+                                                <li><span className="font-bold">Workflows:</span> Dataduct an open source workflow framework to create and manage data pipelines leveraging reusables patterns to expedite developer productivity.</li>
+                                                <li><span className="font-bold">Data Collection:</span> Designed the internal survey and crowd sourcing platform.</li>
+                                                <li><span className="font-bold">Dev Environment:</span> Analytics environment based on docker and AWS, standardized the python and R dependencies.</li>
+                                                <li><span className="font-bold">Data Warehousing:</span> Setup, schema design and management of Amazon Redshift.</li>
+                                                <li><span className="font-bold">Recommendations:</span> Core service for all recommendation systems at Coursera.</li>
+                                                <li><span className="font-bold">Content Discovery:</span> Improved content discovery by building a new onboarding experience.</li>
+                                            </ul>
                                         </div>
-                                        <div className="flex justify-between italic text-gray-700">
-                                            <span>Master of Science in Computer Science; GPA: 4.00</span>
-                                            <span>Atlanta, GA</span>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Lucena Research</span>
+                                                <span>Summer 2012 and 2013</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Data Scientist</span>
+                                                <span>Atlanta, GA</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-2 text-gray-800">
+                                                <li><span className="font-bold">Portfolio Management:</span> Created models for portfolio hedging, portfolio optimization and price forecasting.</li>
+                                                <li><span className="font-bold">QuantDesk:</span> Python backend for a web application used by hedge fund managers.</li>
+                                            </ul>
                                         </div>
-                                    </div>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Birla Institute of Technology and Science</span>
-                                            <span>Aug. 2008 -- July. 2012</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700">
-                                            <span>Bachelor of Engineering in Electrical and Electronics; GPA: 3.66</span>
-                                            <span>Pilani, India</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Experience */}
-                            <div>
-                                <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience</h2>
-                                <div className="space-y-5">
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Google</span>
-                                            <span>Oct 2016 - Present</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-2">
-                                            <span>Software Engineer</span>
-                                            <span>Mountain View, CA</span>
-                                        </div>
-                                        <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                            <li><span className="font-bold">Tensorflow:</span> TensorFlow is an open source software library for numerical computation using data flow graphs; primarily used for training deep learning models.</li>
-                                            <li><span className="font-bold">Apache Beam:</span> Apache Beam is a unified model for defining both batch and streaming data-parallel processing pipelines.</li>
-                                        </ul>
-                                    </div>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Coursera</span>
-                                            <span>Jan 2014 - Oct 2016</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-2">
-                                            <span>Senior Software Engineer</span>
-                                            <span>Mountain View, CA</span>
-                                        </div>
-                                        <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                            <li><span className="font-bold">Notifications:</span> Service for sending email, push and in-app notifications. Involved in features such as delivery time optimization, tracking, queuing and A/B testing.</li>
-                                            <li><span className="font-bold">Nostos:</span> Bulk data processing and injection service from Hadoop to Cassandra and provides a thin REST layer on top for serving offline computed data online.</li>
-                                            <li><span className="font-bold">Workflows:</span> Dataduct an open source workflow framework to create and manage data pipelines leveraging reusables patterns to expedite developer productivity.</li>
-                                            <li><span className="font-bold">Data Collection:</span> Designed the internal survey and crowd sourcing platform.</li>
-                                            <li><span className="font-bold">Dev Environment:</span> Analytics environment based on docker and AWS, standardized the python and R dependencies.</li>
-                                            <li><span className="font-bold">Data Warehousing:</span> Setup, schema design and management of Amazon Redshift.</li>
-                                            <li><span className="font-bold">Recommendations:</span> Core service for all recommendation systems at Coursera.</li>
-                                            <li><span className="font-bold">Content Discovery:</span> Improved content discovery by building a new onboarding experience.</li>
-                                        </ul>
-                                    </div>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Lucena Research</span>
-                                            <span>Summer 2012 and 2013</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-2">
-                                            <span>Data Scientist</span>
-                                            <span>Atlanta, GA</span>
-                                        </div>
-                                        <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                            <li><span className="font-bold">Portfolio Management:</span> Created models for portfolio hedging, portfolio optimization and price forecasting.</li>
-                                            <li><span className="font-bold">QuantDesk:</span> Python backend for a web application used by hedge fund managers.</li>
-                                        </ul>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Projects */}
-                            <div>
-                                <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Projects</h2>
-                                <ul className="list-disc ml-5 space-y-1 text-sm text-gray-800">
-                                    <li><span className="font-bold">QuantSoftware Toolkit:</span> Open source python library for financial data analysis and machine learning for finance.</li>
-                                    <li><span className="font-bold">Github Visualization:</span> Data Visualization of Git Log data using D3 to analyze project trends over time.</li>
-                                    <li><span className="font-bold">Recommendation System:</span> Music and Movie recommender systems using collaborative filtering on public datasets.</li>
-                                </ul>
-                            </div>
+                                {/* Projects */}
+                                <div>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Projects</h2>
+                                    <ul className="list-disc ml-5 space-y-1 text-sm text-gray-800">
+                                        <li><span className="font-bold">QuantSoftware Toolkit:</span> Open source python library for financial data analysis and machine learning for finance.</li>
+                                        <li><span className="font-bold">Github Visualization:</span> Data Visualization of Git Log data using D3 to analyze project trends over time.</li>
+                                        <li><span className="font-bold">Recommendation System:</span> Music and Movie recommender systems using collaborative filtering on public datasets.</li>
+                                    </ul>
+                                </div>
 
-                            {/* Skills */}
-                            <div>
-                                <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Programming Skills</h2>
-                                <div className="text-sm text-gray-800">
-                                    <span className="font-bold">Languages:</span> Scala, Python, Javascript, C++, SQL, Java
-                                    <span className="mx-4 text-gray-400">|</span>
-                                    <span className="font-bold">Technologies:</span> AWS, Play, React, Kafka, GCE
+                                {/* Skills */}
+                                <div>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Programming Skills</h2>
+                                    <div className="text-sm text-gray-800">
+                                        <span className="font-bold">Languages:</span> Scala, Python, Javascript, C++, SQL, Java
+                                        <span className="mx-4 text-gray-400">|</span>
+                                        <span className="font-bold">Technologies:</span> AWS, Play, React, Kafka, GCE
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -429,128 +485,156 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         }
 
         if (template.id === 'academic') {
+            const pageHeight = 1131;
+            const gap = 32;
+            const totalHeight = pageHeight * 2 + gap;
+
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top"
+                    className="w-full flex flex-col items-center transition-all duration-300 origin-top"
                     style={{
-                        minHeight: '1131px',
-                        fontFamily: '"Times New Roman", Times, serif',
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
-                        marginBottom: `-${(1 - scale) * 1131}px`
+                        marginBottom: `-${(1 - scale) * totalHeight}px`
                     }}
                 >
-                    <div className="p-10 text-gray-900 h-full flex flex-col">
-                        {/* Academic Header */}
-                        <div className="flex justify-between items-start mb-6 border-b-0">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900 mb-1">Vidushi Wahal</h1>
-                            </div>
-                            <div className="text-right text-sm">
-                                <div>Email : <a href="#" className="text-blue-600 hover:underline">vidushi22@gmail.com</a></div>
-                                <div>Mobile : +91-9811405837</div>
-                            </div>
-                        </div>
-
-                        {/* Academic Content */}
-                        <div className="space-y-6">
-
-                            {/* Professional Summary */}
-                            <div>
-                                <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Professional Summary</h2>
-                                <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
-                                    <li><span className="font-bold">Experience: </span>6+ years of diverse experience in Information Technology with emphasis on Software Quality Assurance (Automation and Manual Testing) for various domains like insurance, e-commerce, ERP.</li>
-                                    <li><span className="font-bold">Responsibilities: </span>Involved in all phases of the SDLC and STLC, including requirements gathering, risk analysis, test planning, estimation, scheduling, execution, defect tracking, and reporting.</li>
-                                    <li><span className="font-bold">Testing: </span>Experience in functional, non-functional, integration, regression, system, UAT, and risk based testing.</li>
-                                    <li><span className="font-bold">Automation Exposure: </span>Specialization in designing Automation Frameworks for functional/regression testing in Codedui C# and Selenium (C#/Java), and SOAPUI for API testing.</li>
-                                </ul>
-                            </div>
-
-                            {/* Experience */}
-                            <div>
-                                <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience</h2>
-                                <div className="space-y-5">
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>G4S Technologies</span>
-                                            <span>Gurgaon, Haryana</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-2">
-                                            <span>Senior QA Engineer</span>
-                                            <span>Oct 2016 - Present</span>
-                                        </div>
-                                        <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                            <li><span className="font-bold">Project: </span>Javelin - G4S End To End ERP Business Application</li>
-                                            <li><span className="font-bold">Team Management: </span>Forming testing strategies, ensuring end to end application testing, daily regression and reporting.</li>
-                                            <li><span className="font-bold">Requirement Gathering: </span>Working closely with BA and PFOs for Test Scenarios/Cases.</li>
-                                            <li><span className="font-bold">Awards: </span>Silver Award (2018), Bronze (2018), multiple awards for support.</li>
-                                        </ul>
-                                    </div>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>On Demand Agility Software Solutions</span>
-                                            <span>Gurgaon, Haryana</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-2">
-                                            <span>Senior Software Engineer</span>
-                                            <span>Jun 2014 - Oct 2016</span>
-                                        </div>
-                                        <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                            <li><span className="font-bold">Project: </span>www.horizonhobby.com, www.forcerc.com - E-commerce</li>
-                                            <li><span className="font-bold">Automation Framework: </span>Designing automation frameworks including reporting.</li>
-                                            <li><span className="font-bold">Lead Roles: </span>Managing a team of 3, ensuring quality criteria met.</li>
-                                            <li><span className="font-bold">Test Cases: </span>Creating automated test cases using CodedUI and Selenium.</li>
-                                        </ul>
-                                    </div>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Infogain India Pvt. Ltd.</span>
-                                            <span>Noida, Uttar Pradesh</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-2">
-                                            <span>Software Engineer</span>
-                                            <span>Jan 2013 - Jun 2014</span>
-                                        </div>
-                                        <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                            <li><span className="font-bold">Project: </span>Decision Point (a Mitchell Product) - Insurance</li>
-                                            <li><span className="font-bold">Test Cases: </span>Creating scenario based automated test cases using Coded UI.</li>
-                                            <li><span className="font-bold">Automation: </span>Automating manual test assets, automation code review, Test Impact Analysis.</li>
-                                        </ul>
-                                    </div>
+                    {/* Page 1 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Times New Roman", Times, serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            {/* Academic Header */}
+                            <div className="flex justify-between items-start mb-6 border-b-0">
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-900 mb-1">Vidushi Wahal</h1>
+                                </div>
+                                <div className="text-right text-sm">
+                                    <div>Email : <a href="#" className="text-blue-600 hover:underline">vidushi22@gmail.com</a></div>
+                                    <div>Mobile : +91-9811405837</div>
                                 </div>
                             </div>
 
-                            {/* Programming Skills */}
-                            <div>
-                                <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Programming Skills</h2>
-                                <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
-                                    <li><span className="font-bold">Languages</span>: C#, Java, Javascript, SQL, Groovy</li>
-                                    <li><span className="font-bold">Testing Tools</span>: CodedUI, MTM, TFS, Visual Studio, Selenium, SOAPUI, Google Cloud Console, JIRA, TestNG, QTest, MongoDB</li>
-                                </ul>
-                            </div>
+                            {/* Academic Content Page 1 */}
+                            <div className="space-y-6">
 
-                            {/* Education */}
-                            <div>
-                                <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Education</h2>
-                                <div className="space-y-4">
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Apeejay College Of Engineering</span>
-                                            <span>Gurgaon, Haryana</span>
+                                {/* Professional Summary */}
+                                <div>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Professional Summary</h2>
+                                    <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
+                                        <li><span className="font-bold">Experience: </span>6+ years of diverse experience in Information Technology with emphasis on Software Quality Assurance (Automation and Manual Testing) for various domains like insurance, e-commerce, ERP.</li>
+                                        <li><span className="font-bold">Responsibilities: </span>Involved in all phases of the SDLC and STLC, including requirements gathering, risk analysis, test planning, estimation, scheduling, execution, defect tracking, and reporting.</li>
+                                        <li><span className="font-bold">Testing: </span>Experience in functional, non-functional, integration, regression, system, UAT, and risk based testing.</li>
+                                        <li><span className="font-bold">Automation Exposure: </span>Specialization in designing Automation Frameworks for functional/regression testing in Codedui C# and Selenium (C#/Java), and SOAPUI for API testing.</li>
+                                    </ul>
+                                </div>
+
+                                {/* Experience (Part 1) */}
+                                <div>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience</h2>
+                                    <div className="space-y-5">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>G4S Technologies</span>
+                                                <span>Gurgaon, Haryana</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Senior QA Engineer</span>
+                                                <span>Oct 2016 - Present</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-2 text-gray-800">
+                                                <li><span className="font-bold">Project: </span>Javelin - G4S End To End ERP Business Application</li>
+                                                <li><span className="font-bold">Team Management: </span>Forming testing strategies, ensuring end to end application testing, daily regression and reporting.</li>
+                                                <li><span className="font-bold">Requirement Gathering: </span>Working closely with BA and PFOs for Test Scenarios/Cases.</li>
+                                                <li><span className="font-bold">Awards: </span>Silver Award (2018), Bronze (2018), multiple awards for support.</li>
+                                            </ul>
                                         </div>
-                                        <div className="flex justify-between italic text-gray-700">
-                                            <span>Bachelor of Technology in IT; Percentage: 67</span>
-                                            <span>Aug. 2008 -- Dec. 2012</span>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>On Demand Agility Software Solutions</span>
+                                                <span>Gurgaon, Haryana</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Senior Software Engineer</span>
+                                                <span>Jun 2014 - Oct 2016</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-2 text-gray-800">
+                                                <li><span className="font-bold">Project: </span>www.horizonhobby.com, www.forcerc.com - E-commerce</li>
+                                                <li><span className="font-bold">Automation Framework: </span>Designing automation frameworks including reporting.</li>
+                                                <li><span className="font-bold">Lead Roles: </span>Managing a team of 3, ensuring quality criteria met.</li>
+                                                <li><span className="font-bold">Test Cases: </span>Creating automated test cases using CodedUI and Selenium.</li>
+                                            </ul>
                                         </div>
                                     </div>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Holy Child Auxilium</span>
-                                            <span>Vasant Vihar, Delhi</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Times New Roman", Times, serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            <div className="space-y-6">
+                                {/* Experience (Part 2) */}
+                                <div>
+                                    {/* <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience (Cont.)</h2> */}
+                                    <div className="space-y-5">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Infogain India Pvt. Ltd.</span>
+                                                <span>Noida, Uttar Pradesh</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Software Engineer</span>
+                                                <span>Jan 2013 - Jun 2014</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-2 text-gray-800">
+                                                <li><span className="font-bold">Project: </span>Decision Point (a Mitchell Product) - Insurance</li>
+                                                <li><span className="font-bold">Test Cases: </span>Creating scenario based automated test cases using Coded UI.</li>
+                                                <li><span className="font-bold">Automation: </span>Automating manual test assets, automation code review, Test Impact Analysis.</li>
+                                            </ul>
                                         </div>
-                                        <div className="flex justify-between italic text-gray-700">
-                                            <span>AISSCE (10+2) ; Percentage: 73</span>
-                                            <span>Apr. 2007 -- May. 2008</span>
+                                    </div>
+                                </div>
+
+                                {/* Programming Skills */}
+                                <div>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Programming Skills</h2>
+                                    <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
+                                        <li><span className="font-bold">Languages</span>: C#, Java, Javascript, SQL, Groovy</li>
+                                        <li><span className="font-bold">Testing Tools</span>: CodedUI, MTM, TFS, Visual Studio, Selenium, SOAPUI, Google Cloud Console, JIRA, TestNG, QTest, MongoDB</li>
+                                    </ul>
+                                </div>
+
+                                {/* Education */}
+                                <div>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Education</h2>
+                                    <div className="space-y-4">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Apeejay College Of Engineering</span>
+                                                <span>Gurgaon, Haryana</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700">
+                                                <span>Bachelor of Technology in IT; Percentage: 67</span>
+                                                <span>Aug. 2008 -- Dec. 2012</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Holy Child Auxilium</span>
+                                                <span>Vasant Vihar, Delhi</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700">
+                                                <span>AISSCE (10+2) ; Percentage: 73</span>
+                                                <span>Apr. 2007 -- May. 2008</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -562,94 +646,115 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         }
 
         if (template.id === 'executive') {
+            const pageHeight = 1131;
+            const gap = 32;
+            const totalHeight = pageHeight * 2 + gap;
+
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top"
+                    className="w-full flex flex-col items-center transition-all duration-300 origin-top"
                     style={{
-                        minHeight: '1131px',
-                        fontFamily: '"Lato", "Inter", sans-serif',
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
-                        marginBottom: `-${(1 - scale) * 1131}px`
+                        marginBottom: `-${(1 - scale) * totalHeight}px`
                     }}
                 >
-                    <div className="p-12 text-gray-900 h-full flex flex-col">
-                        {/* Executive Header */}
-                        <div className="text-center mb-8">
-                            <h1 className="text-4xl font-light tracking-widest text-gray-900 uppercase mb-3 text-gray-900">Audric Serador</h1>
-                            <div className="flex justify-center items-center gap-4 text-sm text-gray-600">
-                                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> City, State</span>
-                                <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> 555-555-5555</span>
-                                <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> email@example.com</span>
-                                <span className="flex items-center gap-1"><Linkedin className="w-3.5 h-3.5" /> linkedin.com/in/audric</span>
-                                <span className="flex items-center gap-1"><Github className="w-3.5 h-3.5" /> github.com/audric</span>
-                            </div>
-                        </div>
-
-                        {/* Executive Content */}
-                        <div className="space-y-6">
-
-                            {/* Education */}
-                            <div>
-                                <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Education</h2>
-                                <div className="text-sm">
-                                    <div className="flex justify-between font-bold text-gray-900 text-base">
-                                        <span>University Name</span>
-                                        <span>City, State</span>
-                                    </div>
-                                    <div className="flex justify-between italic text-gray-700 mb-1">
-                                        <span>Bachelor of Science in Computer Science</span>
-                                        <span>Aug 2018 -- May 2022</span>
-                                    </div>
+                    {/* Page 1 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Lato", "Inter", sans-serif' }}
+                    >
+                        <div className="p-12 text-gray-900 h-full flex flex-col">
+                            {/* Executive Header */}
+                            <div className="text-center mb-8">
+                                <h1 className="text-4xl font-light tracking-widest text-gray-900 uppercase mb-3 text-gray-900">Audric Serador</h1>
+                                <div className="flex justify-center items-center gap-4 text-sm text-gray-600">
+                                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> City, State</span>
+                                    <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> 555-555-5555</span>
+                                    <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> email@example.com</span>
+                                    <span className="flex items-center gap-1"><Linkedin className="w-3.5 h-3.5" /> linkedin.com/in/audric</span>
+                                    <span className="flex items-center gap-1"><Github className="w-3.5 h-3.5" /> github.com/audric</span>
                                 </div>
                             </div>
 
-                            {/* Experience */}
-                            <div>
-                                <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Experience</h2>
-                                <div className="space-y-6">
+                            {/* Executive Content Page 1 */}
+                            <div className="space-y-6">
+
+                                {/* Education */}
+                                <div>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Education</h2>
                                     <div className="text-sm">
                                         <div className="flex justify-between font-bold text-gray-900 text-base">
-                                            <span>Company Name</span>
+                                            <span>University Name</span>
                                             <span>City, State</span>
                                         </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-2">
-                                            <span>Software Engineer Intern</span>
-                                            <span>May 2021 -- Aug 2021</span>
+                                        <div className="flex justify-between italic text-gray-700 mb-1">
+                                            <span>Bachelor of Science in Computer Science</span>
+                                            <span>Aug 2018 -- May 2022</span>
                                         </div>
-                                        <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
-                                            <li>Developed a full-stack web application using React, Node.js, and PostgreSQL.</li>
-                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Experience */}
+                                <div>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Experience</h2>
+                                    <div className="space-y-6">
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900 text-base">
+                                                <span>Company Name</span>
+                                                <span>City, State</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Software Engineer Intern</span>
+                                                <span>May 2021 -- Aug 2021</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
+                                                <li>Developed a full-stack web application using React, Node.js, and PostgreSQL.</li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            {/* Projects */}
-                            <div>
-                                <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Projects</h2>
-                                <div className="space-y-4 text-sm">
-                                    <div>
-                                        <div className="flex justify-between font-bold text-gray-900 text-base mb-1">
-                                            <span>Project Name</span>
-                                            <span>Jan 2021 -- Present</span>
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Lato", "Inter", sans-serif' }}
+                    >
+                        <div className="p-12 text-gray-900 h-full flex flex-col">
+                            <div className="space-y-6">
+                                {/* Projects */}
+                                <div>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Projects</h2>
+                                    <div className="space-y-4 text-sm">
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900 text-base mb-1">
+                                                <span>Project Name</span>
+                                                <span>Jan 2021 -- Present</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
+                                                <li>Built a mobile application using Flutter and Firebase.</li>
+                                            </ul>
                                         </div>
-                                        <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
-                                            <li>Built a mobile application using Flutter and Firebase.</li>
-                                        </ul>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Skills */}
-                            <div>
-                                <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Technical Skills</h2>
-                                <div className="text-sm text-gray-800 space-y-1">
-                                    <div><span className="font-bold">Languages:</span> Java, Python, C++, SQL, JavaScript</div>
-                                    <div><span className="font-bold">Frameworks:</span> React, Node.js, Flask, JUnit, WordPress</div>
-                                    <div><span className="font-bold">Developer Tools:</span> Git, Docker, TravisCI, Google Cloud Platform, VS Code</div>
+                                {/* Skills */}
+                                <div>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Technical Skills</h2>
+                                    <div className="text-sm text-gray-800 space-y-1">
+                                        <div><span className="font-bold">Languages:</span> Java, Python, C++, SQL, JavaScript</div>
+                                        <div><span className="font-bold">Frameworks:</span> React, Node.js, Flask, JUnit, WordPress</div>
+                                        <div><span className="font-bold">Developer Tools:</span> Git, Docker, TravisCI, Google Cloud Platform, VS Code</div>
+                                    </div>
                                 </div>
-                            </div>
 
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -657,166 +762,190 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         }
 
         if (template.id === 'tech') {
+            const pageHeight = 1131;
+            const gap = 32;
+            const totalHeight = pageHeight * 2 + gap;
+
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top"
+                    className="w-full flex flex-col items-center transition-all duration-300 origin-top"
                     style={{
-                        minHeight: '1131px',
-                        fontFamily: '"Charter", "Bitstream Charter", "Georgia", serif',
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
-                        marginBottom: `-${(1 - scale) * 1131}px`
+                        marginBottom: `-${(1 - scale) * totalHeight}px`
                     }}
                 >
-                    <div className="p-10 text-gray-900 h-full flex flex-col">
-                        {/* Tech Header */}
-                        <div className="text-center mb-6">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">John Doe</h1>
-                            <div className="flex justify-center items-center gap-3 text-sm text-gray-800">
-                                <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> johndoe@example.com</span>
-                                <span className="text-gray-400">|</span>
-                                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Boston, Massachusetts</span>
-                                <span className="text-gray-400">|</span>
-                                <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> 555-123-4567</span>
-                                <span className="text-gray-400">|</span>
-                                <span className="flex items-center gap-1"><Linkedin className="w-3.5 h-3.5" /> linkedin.com/in/john-doe</span>
+                    {/* Page 1 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Charter", "Bitstream Charter", "Georgia", serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            {/* Tech Header */}
+                            <div className="text-center mb-6">
+                                <h1 className="text-3xl font-bold text-gray-900 mb-2">John Doe</h1>
+                                <div className="flex justify-center items-center gap-3 text-sm text-gray-800">
+                                    <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> johndoe@example.com</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Boston, Massachusetts</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> 555-123-4567</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="flex items-center gap-1"><Linkedin className="w-3.5 h-3.5" /> linkedin.com/in/john-doe</span>
+                                </div>
+                            </div>
+
+                            {/* Tech Content Page 1 */}
+                            <div className="space-y-5">
+                                {/* Professional Summary */}
+                                <div>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Professional Summary</h2>
+                                    <p className="text-sm text-gray-800 leading-relaxed">
+                                        Results-driven <span className="font-bold">AI Solutions Engineer</span> with hands-on experience building production-grade AI systems, cloud integrations, and automation workflows. Adept at translating business requirements into scalable technical solutions across SaaS, fintech, and enterprise platforms. Strong background in Python, API development, and cross-team collaboration within fast-paced startup environments.
+                                    </p>
+                                </div>
+
+                                {/* Education */}
+                                <div>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Education</h2>
+                                    <div className="space-y-2 text-sm">
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Example University — Master’s in Computer Science</span>
+                                                <span>Aug 2022 – May 2024</span>
+                                            </div>
+                                            <div className="text-gray-700">Focus: Artificial Intelligence, Distributed Systems, Cloud Computing</div>
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Sample Institute of Technology — Bachelor of Computer Applications</span>
+                                                <span>Aug 2018 – Jul 2022</span>
+                                            </div>
+                                            <div className="text-gray-700">Focus: Software Engineering, Databases, Web Technologies, Operating Systems</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Technical Skills */}
+                                <div>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Technical Skills</h2>
+                                    <div className="text-sm text-gray-800 space-y-1">
+                                        <div><span className="font-bold">Languages:</span> Python, JavaScript, Java, SQL, Go</div>
+                                        <div><span className="font-bold">AI/ML:</span> LangChain, OpenAI API, TensorFlow, Scikit-learn</div>
+                                        <div><span className="font-bold">Cloud Platforms:</span> AWS, GCP, Azure, Docker, Kubernetes</div>
+                                        <div><span className="font-bold">Integration:</span> REST APIs, GraphQL, Webhooks, ETL Pipelines</div>
+                                        <div><span className="font-bold">Tools:</span> GitHub, Jira, Confluence, Postman, Figma</div>
+                                        <div><span className="font-bold">Soft Skills:</span> Technical Communication, Client Enablement, Solution Architecture, Documentation</div>
+                                    </div>
+                                </div>
+
+                                {/* Experience (Part 1) */}
+                                <div>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Experience</h2>
+                                    <div className="space-y-4 text-sm">
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>AI Solutions Engineer — Example AI Labs (Remote)</span>
+                                                <span>Jan 2024 – Present</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
+                                                <li>Designed and deployed AI-powered workflows for enterprise SaaS customers.</li>
+                                                <li>Integrated large language models into production systems using REST and GraphQL APIs.</li>
+                                                <li>Developed proof-of-concept demos supporting pre-sales and customer onboarding.</li>
+                                                <li>Collaborated with product and customer success teams to ensure smooth deployments.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Tech Content */}
-                        <div className="space-y-5">
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
 
-                            {/* Professional Summary */}
-                            <div>
-                                <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Professional Summary</h2>
-                                <p className="text-sm text-gray-800 leading-relaxed">
-                                    Results-driven <span className="font-bold">AI Solutions Engineer</span> with hands-on experience building production-grade AI systems, cloud integrations, and automation workflows. Adept at translating business requirements into scalable technical solutions across SaaS, fintech, and enterprise platforms. Strong background in Python, API development, and cross-team collaboration within fast-paced startup environments.
-                                </p>
-                            </div>
-
-                            {/* Education */}
-                            <div>
-                                <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Education</h2>
-                                <div className="space-y-2 text-sm">
-                                    <div>
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Example University — Master’s in Computer Science</span>
-                                            <span>Aug 2022 – May 2024</span>
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Charter", "Bitstream Charter", "Georgia", serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            <div className="space-y-5">
+                                {/* Experience (Part 2) */}
+                                <div>
+                                    {/* Continuing Experience Section Header visually distinct if needed, or just continue content */}
+                                    <div className="space-y-4 text-sm">
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Integration Engineer — SampleCloud Technologies (Remote)</span>
+                                                <span>Jun 2023 – Dec 2023</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
+                                                <li>Built data integration pipelines across multi-cloud environments.</li>
+                                                <li>Automated onboarding workflows, reducing setup time for new clients.</li>
+                                                <li>Monitored and optimized system reliability across production environments.</li>
+                                            </ul>
                                         </div>
-                                        <div className="text-gray-700">Focus: Artificial Intelligence, Distributed Systems, Cloud Computing</div>
-                                    </div>
-                                    <div>
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Sample Institute of Technology — Bachelor of Computer Applications</span>
-                                            <span>Aug 2018 – Jul 2022</span>
+
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Software Engineer — DemoSoft Solutions (Hybrid)</span>
+                                                <span>Aug 2021 – May 2023</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
+                                                <li>Developed scalable backend services supporting high-volume user traffic.</li>
+                                                <li>Integrated analytics and reporting dashboards for business stakeholders.</li>
+                                                <li>Collaborated with cross-functional teams on secure cloud deployments.</li>
+                                            </ul>
                                         </div>
-                                        <div className="text-gray-700">Focus: Software Engineering, Databases, Web Technologies, Operating Systems</div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Technical Skills */}
-                            <div>
-                                <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Technical Skills</h2>
-                                <div className="text-sm text-gray-800 space-y-1">
-                                    <div><span className="font-bold">Languages:</span> Python, JavaScript, Java, SQL, Go</div>
-                                    <div><span className="font-bold">AI/ML:</span> LangChain, OpenAI API, TensorFlow, Scikit-learn</div>
-                                    <div><span className="font-bold">Cloud Platforms:</span> AWS, GCP, Azure, Docker, Kubernetes</div>
-                                    <div><span className="font-bold">Integration:</span> REST APIs, GraphQL, Webhooks, ETL Pipelines</div>
-                                    <div><span className="font-bold">Tools:</span> GitHub, Jira, Confluence, Postman, Figma</div>
-                                    <div><span className="font-bold">Soft Skills:</span> Technical Communication, Client Enablement, Solution Architecture, Documentation</div>
-                                </div>
-                            </div>
-
-                            {/* Experience */}
-                            <div>
-                                <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Experience</h2>
-                                <div className="space-y-4 text-sm">
-                                    <div>
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>AI Solutions Engineer — Example AI Labs (Remote)</span>
-                                            <span>Jan 2024 – Present</span>
+                                {/* Projects */}
+                                <div>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Projects</h2>
+                                    <div className="space-y-3 text-sm">
+                                        <div>
+                                            <div className="font-bold text-gray-900">AI Support Agent Platform — Enterprise Prototype</div>
+                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
+                                                <li>Built an AI-powered customer support agent using LangChain and GPT APIs.</li>
+                                                <li>Integrated structured data sources for real-time query resolution.</li>
+                                                <li>Implemented intent classification and workflow routing logic.</li>
+                                                <li>Deployed containerized services using Docker and cloud-native tooling.</li>
+                                            </ul>
                                         </div>
-                                        <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                            <li>Designed and deployed AI-powered workflows for enterprise SaaS customers.</li>
-                                            <li>Integrated large language models into production systems using REST and GraphQL APIs.</li>
-                                            <li>Developed proof-of-concept demos supporting pre-sales and customer onboarding.</li>
-                                            <li>Collaborated with product and customer success teams to ensure smooth deployments.</li>
-                                        </ul>
-                                    </div>
-
-                                    <div>
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Integration Engineer — SampleCloud Technologies (Remote)</span>
-                                            <span>Jun 2023 – Dec 2023</span>
+                                        <div>
+                                            <div className="font-bold text-gray-900">Cloud Data Integrator — Integration Framework</div>
+                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
+                                                <li>Designed a reusable framework for syncing enterprise data systems.</li>
+                                                <li>Automated ETL pipelines using Python microservices.</li>
+                                                <li>Built monitoring dashboards for data validation and observability.</li>
+                                            </ul>
                                         </div>
-                                        <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                            <li>Built data integration pipelines across multi-cloud environments.</li>
-                                            <li>Automated onboarding workflows, reducing setup time for new clients.</li>
-                                            <li>Monitored and optimized system reliability across production environments.</li>
-                                        </ul>
-                                    </div>
-
-                                    <div>
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>Software Engineer — DemoSoft Solutions (Hybrid)</span>
-                                            <span>Aug 2021 – May 2023</span>
+                                        <div>
+                                            <div className="font-bold text-gray-900">AI Demo Toolkit — Internal Enablement Tool</div>
+                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
+                                                <li>Created a toolkit for rapidly deploying customized AI demos.</li>
+                                                <li>Integrated CRM and ticketing systems for end-to-end workflows.</li>
+                                                <li>Enabled configurable deployments within minutes for sales engineers.</li>
+                                            </ul>
                                         </div>
-                                        <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                            <li>Developed scalable backend services supporting high-volume user traffic.</li>
-                                            <li>Integrated analytics and reporting dashboards for business stakeholders.</li>
-                                            <li>Collaborated with cross-functional teams on secure cloud deployments.</li>
-                                        </ul>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Projects */}
-                            <div>
-                                <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Projects</h2>
-                                <div className="space-y-3 text-sm">
-                                    <div>
-                                        <div className="font-bold text-gray-900">AI Support Agent Platform — Enterprise Prototype</div>
-                                        <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                            <li>Built an AI-powered customer support agent using LangChain and GPT APIs.</li>
-                                            <li>Integrated structured data sources for real-time query resolution.</li>
-                                            <li>Implemented intent classification and workflow routing logic.</li>
-                                            <li>Deployed containerized services using Docker and cloud-native tooling.</li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-gray-900">Cloud Data Integrator — Integration Framework</div>
-                                        <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                            <li>Designed a reusable framework for syncing enterprise data systems.</li>
-                                            <li>Automated ETL pipelines using Python microservices.</li>
-                                            <li>Built monitoring dashboards for data validation and observability.</li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-gray-900">AI Demo Toolkit — Internal Enablement Tool</div>
-                                        <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                            <li>Created a toolkit for rapidly deploying customized AI demos.</li>
-                                            <li>Integrated CRM and ticketing systems for end-to-end workflows.</li>
-                                            <li>Enabled configurable deployments within minutes for sales engineers.</li>
+                                {/* Certificates */}
+                                <div>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Certificates</h2>
+                                    <div className="text-sm text-gray-800">
+                                        <ul className="list-disc ml-5 mt-1 space-y-1">
+                                            <li>AWS Certified Solutions Architect</li>
+                                            <li>Machine Learning Specialization</li>
+                                            <li>API Design and Integration</li>
+                                            <li>Advanced Python Programming</li>
+                                            <li>Cloud Engineering Fundamentals</li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Certificates */}
-                            <div>
-                                <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Certificates</h2>
-                                <div className="text-sm text-gray-800">
-                                    <ul className="list-disc ml-5 mt-1 space-y-1">
-                                        <li>AWS Certified Solutions Architect</li>
-                                        <li>Machine Learning Specialization</li>
-                                        <li>API Design and Integration</li>
-                                        <li>Advanced Python Programming</li>
-                                        <li>Cloud Engineering Fundamentals</li>
-                                    </ul>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
