@@ -10,18 +10,11 @@ import {
     Sparkles,
     ChevronRight,
     FileText,
+    Eye,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-interface Template {
-    id: string;
-    name: string;
-    description: string;
-    category: string;
-    isPremium: boolean;
-    preview: string; // Color for preview placeholder
-}
+import { TemplatePreviewModal, Template, TemplateColor } from "./TemplatePreviewModal";
 
 const templates: Template[] = [
     {
@@ -31,6 +24,11 @@ const templates: Template[] = [
         category: "Professional",
         isPremium: false,
         preview: "from-blue-500 to-cyan-500",
+        colors: [
+            { name: "Blue", class: "bg-blue-600", ring: "ring-blue-600" },
+            { name: "Cyan", class: "bg-cyan-600", ring: "ring-cyan-600" },
+            { name: "Slate", class: "bg-slate-600", ring: "ring-slate-600" },
+        ],
     },
     {
         id: "professional",
@@ -39,6 +37,11 @@ const templates: Template[] = [
         category: "Business",
         isPremium: false,
         preview: "from-gray-600 to-gray-800",
+        colors: [
+            { name: "Gray", class: "bg-gray-700", ring: "ring-gray-700" },
+            { name: "Navy", class: "bg-blue-900", ring: "ring-blue-900" },
+            { name: "Black", class: "bg-black", ring: "ring-black" },
+        ],
     },
     {
         id: "creative",
@@ -47,6 +50,11 @@ const templates: Template[] = [
         category: "Design",
         isPremium: true,
         preview: "from-purple-500 to-pink-500",
+        colors: [
+            { name: "Purple", class: "bg-purple-600", ring: "ring-purple-600" },
+            { name: "Pink", class: "bg-pink-600", ring: "ring-pink-600" },
+            { name: "Rose", class: "bg-rose-500", ring: "ring-rose-500" },
+        ],
     },
     {
         id: "academic",
@@ -55,6 +63,11 @@ const templates: Template[] = [
         category: "Education",
         isPremium: false,
         preview: "from-emerald-500 to-teal-500",
+        colors: [
+            { name: "Emerald", class: "bg-emerald-600", ring: "ring-emerald-600" },
+            { name: "Teal", class: "bg-teal-600", ring: "ring-teal-600" },
+            { name: "Green", class: "bg-green-700", ring: "ring-green-700" },
+        ],
     },
     {
         id: "executive",
@@ -63,6 +76,11 @@ const templates: Template[] = [
         category: "Leadership",
         isPremium: true,
         preview: "from-amber-500 to-orange-500",
+        colors: [
+            { name: "Amber", class: "bg-amber-600", ring: "ring-amber-600" },
+            { name: "Orange", class: "bg-orange-600", ring: "ring-orange-600" },
+            { name: "Gold", class: "bg-yellow-600", ring: "ring-yellow-600" },
+        ],
     },
     {
         id: "tech",
@@ -71,12 +89,18 @@ const templates: Template[] = [
         category: "Technology",
         isPremium: false,
         preview: "from-indigo-500 to-violet-500",
+        colors: [
+            { name: "Indigo", class: "bg-indigo-600", ring: "ring-indigo-600" },
+            { name: "Violet", class: "bg-violet-600", ring: "ring-violet-600" },
+            { name: "Code Blue", class: "bg-blue-700", ring: "ring-blue-700" },
+        ],
     },
 ];
 
 export default function TemplateSelectionPage() {
     const router = useRouter();
-    const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+    const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+    const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
     const [resumeText, setResumeText] = useState("");
     const [jobText, setJobText] = useState("");
 
@@ -90,14 +114,23 @@ export default function TemplateSelectionPage() {
     }, []);
 
     const handleSelectTemplate = (templateId: string) => {
-        setSelectedTemplate(templateId);
+        setSelectedTemplateId(templateId);
     };
 
-    const handleContinue = () => {
-        if (!selectedTemplate) return;
+    const handlePreview = (e: React.MouseEvent, template: Template) => {
+        e.stopPropagation();
+        setPreviewTemplate(template);
+    };
+
+    const handleContinue = (templateId?: string, color?: TemplateColor) => {
+        const idToUse = templateId || selectedTemplateId;
+        if (!idToUse) return;
 
         // Store template selection
-        sessionStorage.setItem("resumeGenerator_template", selectedTemplate);
+        sessionStorage.setItem("resumeGenerator_template", idToUse);
+        if (color) {
+            sessionStorage.setItem("resumeGenerator_color", JSON.stringify(color));
+        }
 
         router.push("/dashboard/career/resume-generator/editor");
     };
@@ -161,16 +194,16 @@ export default function TemplateSelectionPage() {
                         <Card
                             key={template.id}
                             onClick={() => handleSelectTemplate(template.id)}
-                            className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${selectedTemplate === template.id
-                                    ? "ring-2 ring-blue-600 dark:ring-blue-400 shadow-xl shadow-blue-500/20"
-                                    : "border-gray-200 dark:border-gray-800"
+                            className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group ${selectedTemplateId === template.id
+                                ? "ring-2 ring-blue-600 dark:ring-blue-400 shadow-xl shadow-blue-500/20"
+                                : "border-gray-200 dark:border-gray-800"
                                 }`}
                         >
                             {/* Preview Area */}
-                            <div className={`h-40 bg-gradient-to-br ${template.preview} relative`}>
+                            <div className={`h-48 bg-gradient-to-br ${template.preview} relative group-hover:scale-105 transition-transform duration-500`}>
                                 {/* Template Preview Placeholder */}
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-24 h-32 bg-white/90 dark:bg-gray-900/90 rounded shadow-lg p-2">
+                                    <div className="w-24 h-32 bg-white/90 dark:bg-gray-900/90 rounded shadow-lg p-2 transform group-hover:-translate-y-2 transition-transform duration-300">
                                         <div className="h-3 w-16 bg-gray-300 dark:bg-gray-700 rounded mb-2" />
                                         <div className="h-2 w-20 bg-gray-200 dark:bg-gray-800 rounded mb-1" />
                                         <div className="h-2 w-18 bg-gray-200 dark:bg-gray-800 rounded mb-1" />
@@ -181,59 +214,89 @@ export default function TemplateSelectionPage() {
                                     </div>
                                 </div>
 
+                                {/* Hover Overlay with Preview Button */}
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                                    <Button
+                                        onClick={(e) => handlePreview(e, template)}
+                                        className="bg-white text-gray-900 hover:bg-gray-100 hover:scale-105 transition-all shadow-lg"
+                                    >
+                                        <Eye className="w-4 h-4 mr-2" />
+                                        Quick Preview
+                                    </Button>
+                                </div>
+
                                 {/* Premium Badge */}
                                 {template.isPremium && (
-                                    <div className="absolute top-2 right-2 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full flex items-center gap-1">
+                                    <div className="absolute top-2 right-2 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full flex items-center gap-1 shadow-md z-10">
                                         <Crown className="w-3 h-3" />
                                         Premium
                                     </div>
                                 )}
 
                                 {/* Selected Check */}
-                                {selectedTemplate === template.id && (
-                                    <div className="absolute top-2 left-2 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                                        <Check className="w-4 h-4 text-white" />
+                                {selectedTemplateId === template.id && (
+                                    <div className="absolute top-2 left-2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg animate-in zoom-in duration-200 z-10">
+                                        <Check className="w-5 h-5 text-white" />
                                     </div>
                                 )}
                             </div>
 
                             {/* Template Info */}
-                            <div className="p-4">
-                                <div className="flex items-center justify-between mb-1">
-                                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                            <div className="p-5 relative bg-white dark:bg-gray-900">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                         {template.name}
                                     </h3>
-                                    <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-400">
+                                    <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-400 font-medium border border-gray-200 dark:border-gray-700">
                                         {template.category}
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                                     {template.description}
                                 </p>
+
+                                {/* Color Dots Preview */}
+                                <div className="mt-4 flex gap-1.5">
+                                    {template.colors.map((color, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`w-3 h-3 rounded-full ${color.class}`}
+                                            title={color.name}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </Card>
                     ))}
                 </div>
 
                 {/* CTA Button */}
-                <div className="mt-8 flex justify-center">
+                <div className="mt-12 flex justify-center pb-12">
                     <Button
-                        onClick={handleContinue}
-                        disabled={!selectedTemplate}
-                        className="px-8 py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                        onClick={() => handleContinue()}
+                        disabled={!selectedTemplateId}
+                        className="px-10 py-7 text-lg font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed group rounded-2xl"
                     >
-                        <Sparkles className="w-5 h-5 mr-2" />
-                        Generate Resume
+                        <Sparkles className="w-5 h-5 mr-3" />
+                        Generate Resume with Selected
                         <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                 </div>
 
-                {!selectedTemplate && (
-                    <p className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                        Select a template to continue
+                {!selectedTemplateId && (
+                    <p className="text-center text-sm text-gray-500 dark:text-gray-400 animate-pulse">
+                        Select a template above to continue
                     </p>
                 )}
             </div>
+
+            {/* Preview Modal */}
+            <TemplatePreviewModal
+                isOpen={!!previewTemplate}
+                onClose={() => setPreviewTemplate(null)}
+                template={previewTemplate}
+                onSelect={(id, color) => handleContinue(id, color)}
+            />
         </div>
     );
 }
