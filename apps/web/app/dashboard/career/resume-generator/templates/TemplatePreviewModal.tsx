@@ -66,18 +66,18 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                             <div className="border-b-[3px] border-[#3D5A80] pb-2 mb-6">
                                 <div className="grid grid-cols-3 items-end">
                                     <div className="text-left text-sm space-y-0.5 leading-snug">
-                                        <div>(xxx) xxx-xxxx</div>
-                                        <div>somewhere, state</div>
-                                        <div className="text-[#3D5A80] font-medium">yourname@gmail.com</div>
+                                        <div>(555) 123-4567</div>
+                                        <div>San Francisco, CA</div>
+                                        <div className="text-[#3D5A80] font-medium">alex.chen@email.com</div>
                                     </div>
                                     <div className="text-center">
-                                        <h1 className="text-5xl font-['Montserrat'] font-bold uppercase tracking-tighter text-gray-900 mb-1">Your Name</h1>
-                                        <div className="text-[#3D5A80] text-xl font-semibold tracking-wide uppercase">Data Scientist / Junior Developer</div>
+                                        <h1 className="text-5xl font-['Montserrat'] font-bold uppercase tracking-tighter text-gray-900 mb-1">Alex Chen</h1>
+                                        <div className="text-[#3D5A80] text-xl font-semibold tracking-wide uppercase">Senior AI Engineer</div>
                                     </div>
                                     <div className="text-right text-sm space-y-0.5 leading-snug">
-                                        <div>Portfolio: <span className="text-[#3D5A80] font-medium">MathtoData.com</span></div>
-                                        <div className="text-[#3D5A80] font-medium">github.com/TimmyChan</div>
-                                        <div className="text-[#3D5A80] font-medium">linkedin.com/in/timmy-l-chan</div>
+                                        <div>Portfolio: <span className="text-[#3D5A80] font-medium">alexchen.ai</span></div>
+                                        <div className="text-[#3D5A80] font-medium">github.com/alexc</div>
+                                        <div className="text-[#3D5A80] font-medium">linkedin.com/in/alexchen</div>
                                     </div>
                                 </div>
                             </div>
@@ -85,23 +85,36 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                             {/* Modern Content Page 1 */}
                             <div className="space-y-5 flex-1">
                                 <div className="text-[10pt] leading-relaxed text-gray-800">
-                                    <p>A data scientist with 2 years of experience in data analysis and machine learning... [Objective Placeholder]</p>
+                                    <p>Results-oriented Senior AI Engineer with 6+ years of experience in developing scalable machine learning systems and large language models. Proven track record at OpenAI and Netflix in optimizing algorithms for performance and user engagement. Passionate about ethical AI and democratizing access to advanced technology.</p>
                                 </div>
                                 <div>
                                     <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-2 flex items-center">Skills</h2>
                                     <div className="text-sm grid grid-cols-[100px_1fr] gap-y-1 gap-x-4">
-                                        <span className="font-bold">Languages</span><span>Python, R, SQL, LaTeX, Java, C++</span>
-                                        <span className="font-bold">Libraries</span><span>pandas, numpy, scikit-learn, matplotlib, torch</span>
-                                        <span className="font-bold">Tools</span><span>Git, Docker, AWS, Jupyter, Tableau</span>
+                                        <span className="font-bold">Languages</span><span>Python, C++, SQL, TypeScript, Go</span>
+                                        <span className="font-bold">ML/AI</span><span>PyTorch, TensorFlow, JAX, Hugging Face, LangChain, CUDA</span>
+                                        <span className="font-bold">Infrastructure</span><span>Kubernetes, Docker, AWS (SageMaker, EC2), Google Cloud, Terraform</span>
                                     </div>
                                 </div>
                                 <div>
                                     <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Technical Experience</h2>
                                     <div className="space-y-4">
                                         <div className="text-sm">
-                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Data Scientist</h3><span className="text-gray-600 font-medium">Jan 2022 - Present</span></div>
-                                            <div className="italic text-gray-700 mb-1">Tech Company A, San Francisco, CA</div>
-                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500"><li>Developed machine learning models to predict user churn with 85% accuracy.</li><li>Analyzed large datasets using Python and SQL to identify key business trends.</li></ul>
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Member of Technical Staff</h3><span className="text-gray-600 font-medium">Jan 2023 - Present</span></div>
+                                            <div className="italic text-gray-700 mb-1">OpenAI, San Francisco, CA</div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500">
+                                                <li>Contributed to the training and fine-tuning of GPT-4, improving reasoning capabilities by 15% on benchmark tasks.</li>
+                                                <li>Designed and implemented a distributed reinforcement learning framework using Ray, reducing training time by 30%.</li>
+                                                <li>Collaborated with safety teams to implement RLHF pathways, reducing harmful outputs by 40%.</li>
+                                            </ul>
+                                        </div>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Senior Data Scientist</h3><span className="text-gray-600 font-medium">Jun 2020 - Dec 2022</span></div>
+                                            <div className="italic text-gray-700 mb-1">Netflix, Los Gatos, CA</div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500">
+                                                <li>Led the "Watch Next" algorithm overhaul, utilizing graph neural networks to increase user retention by 5%.</li>
+                                                <li>Built a real-time personalization engine processing 100k+ requests per second with sub-100ms latency.</li>
+                                                <li>Mentored 3 junior data scientists and established best practices for model versioning and A/B testing.</li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
@@ -124,17 +137,38 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     {/* <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Technical Experience (Cont.)</h2> */}
                                     <div className="space-y-4">
                                         <div className="text-sm">
-                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Research Assistant</h3><span className="text-gray-600 font-medium">Sep 2020 - Dec 2021</span></div>
-                                            <div className="italic text-gray-700 mb-1">University Lab, Boston, MA</div>
-                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500"><li>Conducted research on natural language processing algorithms.</li><li>Published findings in a top-tier conference.</li></ul>
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Data Scientist II</h3><span className="text-gray-600 font-medium">Aug 2018 - May 2020</span></div>
+                                            <div className="italic text-gray-700 mb-1">Uber, San Francisco, CA</div>
+                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500">
+                                                <li>Developed dynamic pricing models using XGBoost, resulting in a $50M annual revenue increase in key markets.</li>
+                                                <li>Created a rider churn prediction model that identified at-risk users with 85% accuracy, enabling targeted retention campaigns.</li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
                                 <div>
                                     <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Education</h2>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Master of Science in Data Science</h3><span className="text-gray-600 font-medium">May 2022</span></div>
-                                        <div className="italic text-gray-700">University of Technology, City, State</div>
+                                    <div className="text-sm space-y-3">
+                                        <div>
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Master of Science in Computer Science (AI Specialization)</h3><span className="text-gray-600 font-medium">May 2018</span></div>
+                                            <div className="italic text-gray-700">Stanford University, Stanford, CA</div>
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Bachelor of Science in Electrical Engineering</h3><span className="text-gray-600 font-medium">May 2016</span></div>
+                                            <div className="italic text-gray-700">University of California, Berkeley, CA</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Selected Projects</h2>
+                                    <div className="space-y-3 text-sm">
+                                        <div>
+                                            <div className="font-bold text-gray-900">Generative Art Tool (Personal)</div>
+                                            <ul className="list-disc ml-4 mt-1 space-y-1 text-gray-800 marker:text-gray-500">
+                                                <li>Built a web-based tool using Stable Diffusion API and React to allow users to generate professional assets.</li>
+                                                <li>Open-sourced the code on GitHub, garnering 1.5k+ stars.</li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -344,12 +378,12 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                             {/* Creative Header - 2 Columns */}
                             <div className="flex justify-between items-start mb-6">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-blue-800 mb-1">Sourabh Bajaj</h1>
-                                    <a href="#" className="text-blue-600 text-sm block hover:underline">http://www.sourabhbajaj.com</a>
+                                    <h1 className="text-3xl font-bold text-blue-800 mb-1">Sarah Jenkins</h1>
+                                    <a href="#" className="text-blue-600 text-sm block hover:underline">sarahjenkins.design</a>
                                 </div>
                                 <div className="text-right text-sm">
-                                    <div>Email : <a href="#" className="text-blue-600 hover:underline">mail@website.com</a></div>
-                                    <div>Mobile : +1-123-456-7890</div>
+                                    <div>Email : <a href="#" className="text-blue-600 hover:underline">hello@sarah.design</a></div>
+                                    <div>Mobile : +1-555-019-2834</div>
                                 </div>
                             </div>
 
@@ -362,22 +396,12 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div className="space-y-4">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Georgia Institute of Technology</span>
-                                                <span>Aug. 2012 -- Dec. 2013</span>
+                                                <span>Rhode Island School of Design (RISD)</span>
+                                                <span>Aug. 2013 -- May 2017</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700">
-                                                <span>Master of Science in Computer Science; GPA: 4.00</span>
-                                                <span>Atlanta, GA</span>
-                                            </div>
-                                        </div>
-                                        <div className="text-sm">
-                                            <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Birla Institute of Technology and Science</span>
-                                                <span>Aug. 2008 -- July. 2012</span>
-                                            </div>
-                                            <div className="flex justify-between italic text-gray-700">
-                                                <span>Bachelor of Engineering in Electrical and Electronics; GPA: 3.66</span>
-                                                <span>Pilani, India</span>
+                                                <span>Bachelor of Fine Arts in Graphic Design; GPA: 3.9</span>
+                                                <span>Providence, RI</span>
                                             </div>
                                         </div>
                                     </div>
@@ -389,16 +413,17 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div className="space-y-5">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Google</span>
-                                                <span>Oct 2016 - Present</span>
+                                                <span>Airbnb</span>
+                                                <span>Jan 2021 - Present</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
-                                                <span>Software Engineer</span>
-                                                <span>Mountain View, CA</span>
+                                                <span>Senior Product Designer</span>
+                                                <span>San Francisco, CA</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                                <li><span className="font-bold">Tensorflow:</span> TensorFlow is an open source software library for numerical computation using data flow graphs; primarily used for training deep learning models.</li>
-                                                <li><span className="font-bold">Apache Beam:</span> Apache Beam is a unified model for defining both batch and streaming data-parallel processing pipelines.</li>
+                                                <li><span className="font-bold">Host Success:</span> Led the redesign of the Host Dashboard, resulting in a 20% increase in host engagement and a 15% reduction in support tickets. Conducted extensive user research with 50+ hosts globally.</li>
+                                                <li><span className="font-bold">Design System:</span> Core contributor to the 'Airwaves' design system. Standardized mobile components, reducing engineering implementation time by 40% across iOS and Android teams.</li>
+                                                <li><span className="font-bold">Accessibility:</span> Spearheaded the accessibility initiative for the booking flow, achieving WCAG 2.1 AA compliance and improving the experience for millions of users.</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -416,6 +441,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         style={{ minHeight: `${pageHeight}px`, fontFamily: '"Georgia", "Times New Roman", serif' }}
                     >
                         <div className="p-10 text-gray-900 h-full flex flex-col">
+                            {/* Creative Content Page 2 */}
                             <div className="space-y-6">
                                 {/* Experience (Part 2) */}
                                 <div>
@@ -423,36 +449,30 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div className="space-y-5">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Coursera</span>
-                                                <span>Jan 2014 - Oct 2016</span>
+                                                <span>Spotify</span>
+                                                <span>Jun 2018 - Dec 2020</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
-                                                <span>Senior Software Engineer</span>
-                                                <span>Mountain View, CA</span>
+                                                <span>Product Designer</span>
+                                                <span>New York, NY</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                                <li><span className="font-bold">Notifications:</span> Service for sending email, push and in-app notifications. Involved in features such as delivery time optimization, tracking, queuing and A/B testing.</li>
-                                                <li><span className="font-bold">Nostos:</span> Bulk data processing and injection service from Hadoop to Cassandra and provides a thin REST layer on top for serving offline computed data online.</li>
-                                                <li><span className="font-bold">Workflows:</span> Dataduct an open source workflow framework to create and manage data pipelines leveraging reusables patterns to expedite developer productivity.</li>
-                                                <li><span className="font-bold">Data Collection:</span> Designed the internal survey and crowd sourcing platform.</li>
-                                                <li><span className="font-bold">Dev Environment:</span> Analytics environment based on docker and AWS, standardized the python and R dependencies.</li>
-                                                <li><span className="font-bold">Data Warehousing:</span> Setup, schema design and management of Amazon Redshift.</li>
-                                                <li><span className="font-bold">Recommendations:</span> Core service for all recommendation systems at Coursera.</li>
-                                                <li><span className="font-bold">Content Discovery:</span> Improved content discovery by building a new onboarding experience.</li>
+                                                <li><span className="font-bold">Personalization:</span> Designed the "Daily Mix" visual experience, contributing to a 10% increase in daily active users for personalized playlists.</li>
+                                                <li><span className="font-bold">Artist Tools:</span> collaborated with data scientists to visualize listener demographics for Spotify for Artists, helping 1M+ artists understand their audience.</li>
                                             </ul>
                                         </div>
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Lucena Research</span>
-                                                <span>Summer 2012 and 2013</span>
+                                                <span>IDEO</span>
+                                                <span>Jun 2017 - May 2018</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
-                                                <span>Data Scientist</span>
-                                                <span>Atlanta, GA</span>
+                                                <span>Interaction Design Intern</span>
+                                                <span>Boston, MA</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                                <li><span className="font-bold">Portfolio Management:</span> Created models for portfolio hedging, portfolio optimization and price forecasting.</li>
-                                                <li><span className="font-bold">QuantDesk:</span> Python backend for a web application used by hedge fund managers.</li>
+                                                <li><span className="font-bold">Future of Mobility:</span> Prototyped in-car digital interfaces for a major automotive client, focusing on trust and safety in autonomous vehicles.</li>
+                                                <li><span className="font-bold">Design Thinking:</span> Facilitated workshops for Fortune 500 clients to identify user needs and generate innovative product concepts.</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -461,22 +481,30 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 {/* Projects */}
                                 <div>
                                     <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Projects</h2>
-                                    <ul className="list-disc ml-5 space-y-1 text-sm text-gray-800">
-                                        <li><span className="font-bold">QuantSoftware Toolkit:</span> Open source python library for financial data analysis and machine learning for finance.</li>
-                                        <li><span className="font-bold">Github Visualization:</span> Data Visualization of Git Log data using D3 to analyze project trends over time.</li>
-                                        <li><span className="font-bold">Recommendation System:</span> Music and Movie recommender systems using collaborative filtering on public datasets.</li>
-                                    </ul>
+                                    <div className="space-y-4 text-sm">
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Design Systems Conference Talk</span>
+                                                <span>2022</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-2 text-gray-800">
+                                                <li>Delivered a talk at Config 2022 titled "Scaling Empathy in Design Systems," viewed by 10k+ designers.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Skills */}
                                 <div>
-                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Programming Skills</h2>
-                                    <div className="text-sm text-gray-800">
-                                        <span className="font-bold">Languages:</span> Scala, Python, Javascript, C++, SQL, Java
-                                        <span className="mx-4 text-gray-400">|</span>
-                                        <span className="font-bold">Technologies:</span> AWS, Play, React, Kafka, GCE
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Skills</h2>
+                                    <div className="text-sm text-gray-800 space-y-1">
+                                        <div><span className="font-bold">Design:</span> UI/UX, Interaction Design, Visual Design, Prototyping, Wireframing</div>
+                                        <div><span className="font-bold">Tools:</span> Figma, Protopie, Adobe CC (Ps, Ai, Ae), Sketch, Principle</div>
+                                        <div><span className="font-bold">Code:</span> HTML/CSS, React (Basic), Storybook, Framer Motion</div>
+                                        <div><span className="font-bold">Research:</span> Usability Testing, User Interviews, A/B Testing, Heuristic Analysis</div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -507,11 +535,11 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                             {/* Academic Header */}
                             <div className="flex justify-between items-start mb-6 border-b-0">
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900 mb-1">Vidushi Wahal</h1>
+                                    <h1 className="text-2xl font-bold text-gray-900 mb-1">Dr. Elena Rodriguez</h1>
                                 </div>
                                 <div className="text-right text-sm">
-                                    <div>Email : <a href="#" className="text-blue-600 hover:underline">vidushi22@gmail.com</a></div>
-                                    <div>Mobile : +91-9811405837</div>
+                                    <div>Email : <a href="#" className="text-blue-600 hover:underline">elena.rodriguez@mit.edu</a></div>
+                                    <div>Website : elenarodriguez.research</div>
                                 </div>
                             </div>
 
@@ -520,49 +548,44 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Professional Summary */}
                                 <div>
-                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Professional Summary</h2>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Research Interests</h2>
                                     <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
-                                        <li><span className="font-bold">Experience: </span>6+ years of diverse experience in Information Technology with emphasis on Software Quality Assurance (Automation and Manual Testing) for various domains like insurance, e-commerce, ERP.</li>
-                                        <li><span className="font-bold">Responsibilities: </span>Involved in all phases of the SDLC and STLC, including requirements gathering, risk analysis, test planning, estimation, scheduling, execution, defect tracking, and reporting.</li>
-                                        <li><span className="font-bold">Testing: </span>Experience in functional, non-functional, integration, regression, system, UAT, and risk based testing.</li>
-                                        <li><span className="font-bold">Automation Exposure: </span>Specialization in designing Automation Frameworks for functional/regression testing in Codedui C# and Selenium (C#/Java), and SOAPUI for API testing.</li>
+                                        <li>Quantum Computing, Distributed Systems, Cryptography, Algorithm Design.</li>
+                                        <li>Focus on developing error-correction protocols for noisy intermediate-scale quantum (NISQ) devices.</li>
                                     </ul>
                                 </div>
 
                                 {/* Experience (Part 1) */}
                                 <div>
-                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience</h2>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Research Experience</h2>
                                     <div className="space-y-5">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>G4S Technologies</span>
-                                                <span>Gurgaon, Haryana</span>
+                                                <span>MIT CSAIL</span>
+                                                <span>Cambridge, MA</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
-                                                <span>Senior QA Engineer</span>
-                                                <span>Oct 2016 - Present</span>
+                                                <span>Postdoctoral Researcher</span>
+                                                <span>Sep 2023 - Present</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                                <li><span className="font-bold">Project: </span>Javelin - G4S End To End ERP Business Application</li>
-                                                <li><span className="font-bold">Team Management: </span>Forming testing strategies, ensuring end to end application testing, daily regression and reporting.</li>
-                                                <li><span className="font-bold">Requirement Gathering: </span>Working closely with BA and PFOs for Test Scenarios/Cases.</li>
-                                                <li><span className="font-bold">Awards: </span>Silver Award (2018), Bronze (2018), multiple awards for support.</li>
+                                                <li><span className="font-bold">Quantum Algorithms: </span>Developing novel algorithms for quantum simulation of chemical systems, aiming to reduce gate count by 20%.</li>
+                                                <li><span className="font-bold">Mentorship: </span>Supervising 2 PhD students and 3 undergraduates in the Quantum Information Science group.</li>
+                                                <li><span className="font-bold">Collaboration: </span>Partnering with IBM Quantum to benchmark error mitigation strategies on 127-qubit processors.</li>
                                             </ul>
                                         </div>
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>On Demand Agility Software Solutions</span>
-                                                <span>Gurgaon, Haryana</span>
+                                                <span>Google Research</span>
+                                                <span>Mountain View, CA</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
-                                                <span>Senior Software Engineer</span>
-                                                <span>Jun 2014 - Oct 2016</span>
+                                                <span>Research Intern</span>
+                                                <span>Summer 2022</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                                <li><span className="font-bold">Project: </span>www.horizonhobby.com, www.forcerc.com - E-commerce</li>
-                                                <li><span className="font-bold">Automation Framework: </span>Designing automation frameworks including reporting.</li>
-                                                <li><span className="font-bold">Lead Roles: </span>Managing a team of 3, ensuring quality criteria met.</li>
-                                                <li><span className="font-bold">Test Cases: </span>Creating automated test cases using CodedUI and Selenium.</li>
+                                                <li><span className="font-bold">Distributed Systems: </span>Investigated consistency models in geo-replicated databases, proposing a new hybrid clock synchronization protocol.</li>
+                                                <li><span className="font-bold">Publication: </span>Co-authored a paper accepted at OSDI '23 based on internship findings.</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -587,28 +610,38 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div className="space-y-5">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Infogain India Pvt. Ltd.</span>
-                                                <span>Noida, Uttar Pradesh</span>
+                                                <span>Stanford University</span>
+                                                <span>Stanford, CA</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
-                                                <span>Software Engineer</span>
-                                                <span>Jan 2013 - Jun 2014</span>
+                                                <span>Graduate Research Assistant</span>
+                                                <span>Sep 2018 - Jun 2023</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                                <li><span className="font-bold">Project: </span>Decision Point (a Mitchell Product) - Insurance</li>
-                                                <li><span className="font-bold">Test Cases: </span>Creating scenario based automated test cases using Coded UI.</li>
-                                                <li><span className="font-bold">Automation: </span>Automating manual test assets, automation code review, Test Impact Analysis.</li>
+                                                <li><span className="font-bold">Thesis: </span>"Optimizing Quantum Gates for Trapped-Ion Systems"</li>
+                                                <li><span className="font-bold">Teaching: </span>Head TA for CS106B (Programming Abstractions), managing a team of 20 section leaders.</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
 
+                                {/* Publications */}
+                                <div>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Selected Publications</h2>
+                                    <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
+                                        <li><span className="font-bold">E. Rodriguez</span>, A. Smith, B. Jones. "Scalable Error Correction for NISQ Devices." <span className="italic">Nature Physics</span>, 2023.</li>
+                                        <li><span className="font-bold">E. Rodriguez</span>, C. Lee. "Hybrid Clock Synchronization for Geo-Replicated Databases." <span className="italic">OSDI</span>, 2023.</li>
+                                        <li>D. Chen, <span className="font-bold">E. Rodriguez</span>. "Quantum Simulation of Fermionic Systems." <span className="italic">Physical Review Letters</span>, 2021.</li>
+                                    </ul>
+                                </div>
+
                                 {/* Programming Skills */}
                                 <div>
-                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Programming Skills</h2>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Technical Skills</h2>
                                     <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
-                                        <li><span className="font-bold">Languages</span>: C#, Java, Javascript, SQL, Groovy</li>
-                                        <li><span className="font-bold">Testing Tools</span>: CodedUI, MTM, TFS, Visual Studio, Selenium, SOAPUI, Google Cloud Console, JIRA, TestNG, QTest, MongoDB</li>
+                                        <li><span className="font-bold">Languages</span>: C++, Python, MATLAB, Julia, Haskell</li>
+                                        <li><span className="font-bold">Quantum Tools</span>: Qiskit, Cirq, PennyLane, QuTiP</li>
+                                        <li><span className="font-bold">Tools</span>: LaTeX, Git, Docker, Kubernetes, AWS</li>
                                     </ul>
                                 </div>
 
@@ -618,22 +651,22 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div className="space-y-4">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Apeejay College Of Engineering</span>
-                                                <span>Gurgaon, Haryana</span>
+                                                <span>Stanford University</span>
+                                                <span>Sep 2018 - Jun 2023</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700">
-                                                <span>Bachelor of Technology in IT; Percentage: 67</span>
-                                                <span>Aug. 2008 -- Dec. 2012</span>
+                                                <span>Ph.D. in Computer Science</span>
+                                                <span>Stanford, CA</span>
                                             </div>
                                         </div>
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Holy Child Auxilium</span>
-                                                <span>Vasant Vihar, Delhi</span>
+                                                <span>Massachusetts Institute of Technology (MIT)</span>
+                                                <span>Sep 2014 - Jun 2018</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700">
-                                                <span>AISSCE (10+2) ; Percentage: 73</span>
-                                                <span>Apr. 2007 -- May. 2008</span>
+                                                <span>B.S. in Mathematics and Physics</span>
+                                                <span>Cambridge, MA</span>
                                             </div>
                                         </div>
                                     </div>
@@ -667,49 +700,57 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         <div className="p-12 text-gray-900 h-full flex flex-col">
                             {/* Executive Header */}
                             <div className="text-center mb-8">
-                                <h1 className="text-4xl font-light tracking-widest text-gray-900 uppercase mb-3 text-gray-900">Audric Serador</h1>
+                                <h1 className="text-4xl font-light tracking-widest text-gray-900 uppercase mb-3 text-gray-900">James Sterling</h1>
                                 <div className="flex justify-center items-center gap-4 text-sm text-gray-600">
-                                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> City, State</span>
-                                    <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> 555-555-5555</span>
-                                    <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> email@example.com</span>
-                                    <span className="flex items-center gap-1"><Linkedin className="w-3.5 h-3.5" /> linkedin.com/in/audric</span>
-                                    <span className="flex items-center gap-1"><Github className="w-3.5 h-3.5" /> github.com/audric</span>
+                                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> San Francisco, CA</span>
+                                    <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> +1-555-010-9988</span>
+                                    <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> james@sterling.tech</span>
+                                    <span className="flex items-center gap-1"><Linkedin className="w-3.5 h-3.5" /> linkedin.com/in/jsterling</span>
                                 </div>
                             </div>
 
                             {/* Executive Content Page 1 */}
                             <div className="space-y-6">
 
-                                {/* Education */}
+                                {/* Executive Summary */}
                                 <div>
-                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Education</h2>
-                                    <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900 text-base">
-                                            <span>University Name</span>
-                                            <span>City, State</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-1">
-                                            <span>Bachelor of Science in Computer Science</span>
-                                            <span>Aug 2018 -- May 2022</span>
-                                        </div>
-                                    </div>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Executive Profile</h2>
+                                    <p className="text-sm text-gray-800 leading-relaxed italic">
+                                        Visionary Technology Executive with 15+ years of experience scaling engineering organizations from pre-seed to IPO. Proven track record in building high-performance teams, driving technical strategy, and delivering mission-critical systems at scale. Expertise in Cloud Architecture, AI/ML integration, and Enterprise Security.
+                                    </p>
                                 </div>
 
-                                {/* Experience */}
+                                {/* Experience (Part 1) */}
                                 <div>
-                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Experience</h2>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Professional Experience</h2>
                                     <div className="space-y-6">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900 text-base">
-                                                <span>Company Name</span>
-                                                <span>City, State</span>
+                                                <span>Stripe</span>
+                                                <span>San Francisco, CA</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
-                                                <span>Software Engineer Intern</span>
-                                                <span>May 2021 -- Aug 2021</span>
+                                                <span>VP of Engineering, Payments Platform</span>
+                                                <span>Mar 2020 -- Present</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
-                                                <li>Developed a full-stack web application using React, Node.js, and PostgreSQL.</li>
+                                                <li>Lead a global engineering organization of 300+ engineers, product managers, and data scientists.</li>
+                                                <li>Architected the next-generation global payments infrastructure, handling $500B+ annual volume with 99.999% availability.</li>
+                                                <li>Spearheaded the integration of machine learning models for real-time fraud detection, reducing fraud losses by 40% year-over-year.</li>
+                                            </ul>
+                                        </div>
+                                        <div className="text-sm">
+                                            <div className="flex justify-between font-bold text-gray-900 text-base">
+                                                <span>Uber</span>
+                                                <span>San Francisco, CA</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Senior Director of Engineering, Infrastructure</span>
+                                                <span>Jun 2016 -- Feb 2020</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
+                                                <li>Managed the core infrastructure teams (Compute, Storage, Network) supporting thousands of microservices.</li>
+                                                <li>Reduced infrastructure costs by 30% ($50M+ annual savings) through strategic multi-cloud adoption and container orchestration optimization.</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -734,23 +775,59 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div className="space-y-4 text-sm">
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900 text-base mb-1">
-                                                <span>Project Name</span>
-                                                <span>Jan 2021 -- Present</span>
+                                                <span>Google</span>
+                                                <span>Mountain View, CA</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700 mb-2">
+                                                <span>Director of Engineering, Google Cloud</span>
+                                                <span>Aug 2012 -- May 2016</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
-                                                <li>Built a mobile application using Flutter and Firebase.</li>
+                                                <li>Founded and led the Kubernetes Engine (GKE) team from inception to general availability.</li>
+                                                <li>Grew the team from 5 to 80+ engineers and product managers.</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
 
+                                {/* Board Memberships */}
+                                <div>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Board Memberships & Advisory</h2>
+                                    <div className="space-y-2 text-sm text-gray-800">
+                                        <div><span className="font-bold">Board Member: </span>TechStart Ups (Series B Fintech), 2021 - Present</div>
+                                        <div><span className="font-bold">Technical Advisor: </span>AI Ventures (Seed Stage VC Fund), 2022 - Present</div>
+                                    </div>
+                                </div>
+
                                 {/* Skills */}
                                 <div>
-                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Technical Skills</h2>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Strategic & Technical Skills</h2>
                                     <div className="text-sm text-gray-800 space-y-1">
-                                        <div><span className="font-bold">Languages:</span> Java, Python, C++, SQL, JavaScript</div>
-                                        <div><span className="font-bold">Frameworks:</span> React, Node.js, Flask, JUnit, WordPress</div>
-                                        <div><span className="font-bold">Developer Tools:</span> Git, Docker, TravisCI, Google Cloud Platform, VS Code</div>
+                                        <div><span className="font-bold">Leadership:</span> Organizational Design, Strategic Planning, M&A Technical Due Diligence, Executive Hiring</div>
+                                        <div><span className="font-bold">Technical:</span> Distributed Systems, Cloud Native Architecture (Kubernetes), AI/ML Platforms, Fintech/Payments</div>
+                                    </div>
+                                </div>
+
+                                {/* Education */}
+                                <div>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Education</h2>
+                                    <div className="text-sm">
+                                        <div className="flex justify-between font-bold text-gray-900 text-base">
+                                            <span>Stanford University</span>
+                                            <span>Stanford, CA</span>
+                                        </div>
+                                        <div className="flex justify-between italic text-gray-700 mb-1">
+                                            <span>Master of Science in Computer Science (Systems)</span>
+                                            <span>2010 -- 2012</span>
+                                        </div>
+                                        <div className="flex justify-between font-bold text-gray-900 text-base mt-2">
+                                            <span>University of California, Berkeley</span>
+                                            <span>Berkeley, CA</span>
+                                        </div>
+                                        <div className="flex justify-between italic text-gray-700 mb-1">
+                                            <span>Bachelor of Science in Electrical Engineering & Computer Science</span>
+                                            <span>2006 -- 2010</span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -783,15 +860,15 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         <div className="p-10 text-gray-900 h-full flex flex-col">
                             {/* Tech Header */}
                             <div className="text-center mb-6">
-                                <h1 className="text-3xl font-bold text-gray-900 mb-2">John Doe</h1>
+                                <h1 className="text-3xl font-bold text-gray-900 mb-2">Michael Chang</h1>
                                 <div className="flex justify-center items-center gap-3 text-sm text-gray-800">
-                                    <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> johndoe@example.com</span>
+                                    <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> m.chang@devops.io</span>
                                     <span className="text-gray-400">|</span>
-                                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Boston, Massachusetts</span>
+                                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Seattle, WA</span>
                                     <span className="text-gray-400">|</span>
-                                    <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> 555-123-4567</span>
+                                    <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> +1-206-555-0199</span>
                                     <span className="text-gray-400">|</span>
-                                    <span className="flex items-center gap-1"><Linkedin className="w-3.5 h-3.5" /> linkedin.com/in/john-doe</span>
+                                    <span className="flex items-center gap-1"><Github className="w-3.5 h-3.5" /> github.com/mchang-ops</span>
                                 </div>
                             </div>
 
@@ -801,41 +878,19 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 <div>
                                     <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Professional Summary</h2>
                                     <p className="text-sm text-gray-800 leading-relaxed">
-                                        Results-driven <span className="font-bold">AI Solutions Engineer</span> with hands-on experience building production-grade AI systems, cloud integrations, and automation workflows. Adept at translating business requirements into scalable technical solutions across SaaS, fintech, and enterprise platforms. Strong background in Python, API development, and cross-team collaboration within fast-paced startup environments.
+                                        Senior DevOps Engineer and Cloud Architect with 8+ years of experience designing and managing scalable infrastructure on AWS and Kubernetes. Expert in CI/CD automation, Infrastructure as Code (Terraform), and Site Reliability Engineering. Proven track record of improving system uptime to 99.99% and reducing deployment times by 70%.
                                     </p>
-                                </div>
-
-                                {/* Education */}
-                                <div>
-                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Education</h2>
-                                    <div className="space-y-2 text-sm">
-                                        <div>
-                                            <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Example University — Master’s in Computer Science</span>
-                                                <span>Aug 2022 – May 2024</span>
-                                            </div>
-                                            <div className="text-gray-700">Focus: Artificial Intelligence, Distributed Systems, Cloud Computing</div>
-                                        </div>
-                                        <div>
-                                            <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Sample Institute of Technology — Bachelor of Computer Applications</span>
-                                                <span>Aug 2018 – Jul 2022</span>
-                                            </div>
-                                            <div className="text-gray-700">Focus: Software Engineering, Databases, Web Technologies, Operating Systems</div>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 {/* Technical Skills */}
                                 <div>
                                     <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Technical Skills</h2>
                                     <div className="text-sm text-gray-800 space-y-1">
-                                        <div><span className="font-bold">Languages:</span> Python, JavaScript, Java, SQL, Go</div>
-                                        <div><span className="font-bold">AI/ML:</span> LangChain, OpenAI API, TensorFlow, Scikit-learn</div>
-                                        <div><span className="font-bold">Cloud Platforms:</span> AWS, GCP, Azure, Docker, Kubernetes</div>
-                                        <div><span className="font-bold">Integration:</span> REST APIs, GraphQL, Webhooks, ETL Pipelines</div>
-                                        <div><span className="font-bold">Tools:</span> GitHub, Jira, Confluence, Postman, Figma</div>
-                                        <div><span className="font-bold">Soft Skills:</span> Technical Communication, Client Enablement, Solution Architecture, Documentation</div>
+                                        <div><span className="font-bold">Cloud & Infrastructure:</span> AWS (EKS, Lambda, RDS), GCP, Azure, Terraform, Ansible</div>
+                                        <div><span className="font-bold">Containerization:</span> Docker, Kubernetes, Helm, Istio</div>
+                                        <div><span className="font-bold">CI/CD:</span> Jenkins, GitHub Actions, GitLab CI, ArgoCD</div>
+                                        <div><span className="font-bold">Monitoring & Logging:</span> Prometheus, Grafana, ELK Stack, Datadog</div>
+                                        <div><span className="font-bold">Scripting:</span> Python, Go, Bash, TypeScript</div>
                                     </div>
                                 </div>
 
@@ -845,14 +900,14 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div className="space-y-4 text-sm">
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>AI Solutions Engineer — Example AI Labs (Remote)</span>
-                                                <span>Jan 2024 – Present</span>
+                                                <span>Senior DevOps Engineer — Amazon Web Services (AWS)</span>
+                                                <span>Jul 2021 – Present</span>
                                             </div>
                                             <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                                <li>Designed and deployed AI-powered workflows for enterprise SaaS customers.</li>
-                                                <li>Integrated large language models into production systems using REST and GraphQL APIs.</li>
-                                                <li>Developed proof-of-concept demos supporting pre-sales and customer onboarding.</li>
-                                                <li>Collaborated with product and customer success teams to ensure smooth deployments.</li>
+                                                <li>Architected a multi-region Kubernetes cluster handling 1M+ requests per second for high-traffic retail services.</li>
+                                                <li>Implemented GitOps workflows using ArgoCD, reducing deployment errors by 90% and enabling 50+ daily deployments.</li>
+                                                <li>Developed custom Terraform modules for standardizing infrastructure provisioning across 20+ engineering teams.</li>
+                                                <li>Led the migration of legacy monolithic applications to microservices architecture, improving scalability and fault tolerance.</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -889,13 +944,23 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Software Engineer — DemoSoft Solutions (Hybrid)</span>
-                                                <span>Aug 2021 – May 2023</span>
+                                                <span>DevOps Engineer — Oracle Cloud Infrastructure</span>
+                                                <span>Jun 2018 – Jun 2021</span>
                                             </div>
                                             <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                                <li>Developed scalable backend services supporting high-volume user traffic.</li>
-                                                <li>Integrated analytics and reporting dashboards for business stakeholders.</li>
-                                                <li>Collaborated with cross-functional teams on secure cloud deployments.</li>
+                                                <li>Built and maintained CI/CD pipelines for 50+ microservices using Jenkins and Docker.</li>
+                                                <li>Automated database backups and disaster recovery procedures, reducing RTO by 50%.</li>
+                                                <li>Implemented centralized logging and monitoring using ELK Stack and Prometheus.</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Systems Administrator — IBM</span>
+                                                <span>Aug 2016 – May 2018</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
+                                                <li>Managed 500+ Linux servers, ensuring 99.9% uptime and security compliance.</li>
+                                                <li>Automated routine administrative tasks using Bash and Python scripts.</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -906,42 +971,31 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Projects</h2>
                                     <div className="space-y-3 text-sm">
                                         <div>
-                                            <div className="font-bold text-gray-900">AI Support Agent Platform — Enterprise Prototype</div>
+                                            <div className="font-bold text-gray-900">Serverless Image Processing Pipeline</div>
                                             <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                                <li>Built an AI-powered customer support agent using LangChain and GPT APIs.</li>
-                                                <li>Integrated structured data sources for real-time query resolution.</li>
-                                                <li>Implemented intent classification and workflow routing logic.</li>
-                                                <li>Deployed containerized services using Docker and cloud-native tooling.</li>
+                                                <li>Built a serverless architecture using AWS Lambda and S3 to process 10k+ images daily.</li>
+                                                <li>Reduced processing costs by 60% compared to EC2-based solution.</li>
+                                                <li>Implemented event-driven triggers for automated resizing and optimization.</li>
                                             </ul>
                                         </div>
                                         <div>
-                                            <div className="font-bold text-gray-900">Cloud Data Integrator — Integration Framework</div>
+                                            <div className="font-bold text-gray-900">Multi-Cloud Disaster Recovery Strategy</div>
                                             <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                                <li>Designed a reusable framework for syncing enterprise data systems.</li>
-                                                <li>Automated ETL pipelines using Python microservices.</li>
-                                                <li>Built monitoring dashboards for data validation and observability.</li>
-                                            </ul>
-                                        </div>
-                                        <div>
-                                            <div className="font-bold text-gray-900">AI Demo Toolkit — Internal Enablement Tool</div>
-                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                                <li>Created a toolkit for rapidly deploying customized AI demos.</li>
-                                                <li>Integrated CRM and ticketing systems for end-to-end workflows.</li>
-                                                <li>Enabled configurable deployments within minutes for sales engineers.</li>
+                                                <li>Designed a failover strategy across AWS and Azure using Terraform and DNS traffic management.</li>
+                                                <li>Conducted successful DR drills to validate RPO/RTO objectives.</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
                                 {/* Certificates */}
                                 <div>
-                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Certificates</h2>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Certifications</h2>
                                     <div className="text-sm text-gray-800">
                                         <ul className="list-disc ml-5 mt-1 space-y-1">
-                                            <li>AWS Certified Solutions Architect</li>
-                                            <li>Machine Learning Specialization</li>
-                                            <li>API Design and Integration</li>
-                                            <li>Advanced Python Programming</li>
-                                            <li>Cloud Engineering Fundamentals</li>
+                                            <li>AWS Certified DevOps Engineer – Professional</li>
+                                            <li>Certified Kubernetes Administrator (CKA)</li>
+                                            <li>HashiCorp Certified: Terraform Associate</li>
+                                            <li>Google Professional Cloud Architect</li>
                                         </ul>
                                     </div>
                                 </div>
