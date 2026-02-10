@@ -48,7 +48,7 @@ const templates: Template[] = [
         name: "Creative",
         description: "Stand out with a vibrant, unique layout designed for creative professionals and portfolios.",
         category: "Design",
-        isPremium: true,
+        isPremium: false,
         preview: "from-purple-500 to-pink-500",
         colors: [
             { name: "Purple", class: "bg-purple-600", ring: "ring-purple-600" },
