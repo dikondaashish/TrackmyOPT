@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronRight, Phone, Mail, MapPin, Youtube, Globe, Linkedin, Github } from "lucide-react";
+import { Check, ChevronRight, Phone, Mail, MapPin, Youtube, Globe, Linkedin, Github, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 
 export interface TemplateColor {
     name: string;
@@ -30,6 +30,7 @@ interface TemplatePreviewModalProps {
 
 export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: TemplatePreviewModalProps) {
     const [selectedColor, setSelectedColor] = useState<TemplateColor | null>(null);
+    const [scale, setScale] = useState(0.65); // Default zoom scale (65%)
 
     if (!template) return null;
 
@@ -44,8 +45,14 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         if (template.id === 'modern') {
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-500 origin-top overflow-hidden"
-                    style={{ minHeight: '1131px', fontFamily: '"Source Sans Pro", sans-serif' }}
+                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top overflow-hidden"
+                    style={{
+                        minHeight: '1131px',
+                        fontFamily: '"Source Sans Pro", sans-serif',
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top center',
+                        marginBottom: `-${(1 - scale) * 1131}px` // Negative margin to reduce white space
+                    }}
                 >
                     <div className="p-10 text-gray-900 h-full flex flex-col">
                         {/* Modern Header */}
@@ -112,8 +119,14 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         if (template.id === 'professional') {
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-500 origin-top overflow-hidden"
-                    style={{ minHeight: '1131px', fontFamily: 'Helvetica, Arial, sans-serif' }}
+                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top overflow-hidden"
+                    style={{
+                        minHeight: '1131px',
+                        fontFamily: 'Helvetica, Arial, sans-serif',
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top center',
+                        marginBottom: `-${(1 - scale) * 1131}px`
+                    }}
                 >
                     <div className="p-12 text-gray-900 h-full flex flex-col">
                         {/* Professional Header */}
@@ -203,8 +216,14 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         if (template.id === 'creative') {
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-500 origin-top overflow-hidden"
-                    style={{ minHeight: '1131px', fontFamily: '"Georgia", "Times New Roman", serif' }}
+                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top overflow-hidden"
+                    style={{
+                        minHeight: '1131px',
+                        fontFamily: '"Georgia", "Times New Roman", serif',
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top center',
+                        marginBottom: `-${(1 - scale) * 1131}px`
+                    }}
                 >
                     <div className="p-10 text-gray-900 h-full flex flex-col">
                         {/* Creative Header - 2 Columns */}
@@ -285,8 +304,14 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         if (template.id === 'academic') {
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-500 origin-top overflow-hidden"
-                    style={{ minHeight: '1131px', fontFamily: '"Times New Roman", Times, serif' }}
+                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top overflow-hidden"
+                    style={{
+                        minHeight: '1131px',
+                        fontFamily: '"Times New Roman", Times, serif',
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top center',
+                        marginBottom: `-${(1 - scale) * 1131}px`
+                    }}
                 >
                     <div className="p-10 text-gray-900 h-full flex flex-col">
                         {/* Academic Header */}
@@ -364,8 +389,14 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         if (template.id === 'executive') {
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-500 origin-top overflow-hidden"
-                    style={{ minHeight: '1131px', fontFamily: '"Lato", "Inter", sans-serif' }}
+                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top overflow-hidden"
+                    style={{
+                        minHeight: '1131px',
+                        fontFamily: '"Lato", "Inter", sans-serif',
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top center',
+                        marginBottom: `-${(1 - scale) * 1131}px`
+                    }}
                 >
                     <div className="p-12 text-gray-900 h-full flex flex-col">
                         {/* Executive Header */}
@@ -453,8 +484,14 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         if (template.id === 'tech') {
             return (
                 <div
-                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-500 origin-top overflow-hidden"
-                    style={{ minHeight: '1131px', fontFamily: '"Charter", "Bitstream Charter", "Georgia", serif' }}
+                    className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl transition-all duration-300 origin-top overflow-hidden"
+                    style={{
+                        minHeight: '1131px',
+                        fontFamily: '"Charter", "Bitstream Charter", "Georgia", serif',
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top center',
+                        marginBottom: `-${(1 - scale) * 1131}px`
+                    }}
                 >
                     <div className="p-10 text-gray-900 h-full flex flex-col">
                         {/* Tech Header */}
@@ -585,8 +622,44 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
 
                 {/* Left: Preview Area (Scrollable) */}
-                <div className="flex-1 bg-gray-100 dark:bg-gray-900 overflow-y-auto p-8 relative flex items-center justify-center">
-                    {renderPreviewContent()}
+                <div className="flex-1 bg-gray-100 dark:bg-gray-900 overflow-y-auto overflow-x-hidden p-8 relative flex flex-col items-center">
+                    {/* Zoom Controls */}
+                    <div className="sticky top-4 z-50 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-2 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 flex items-center gap-2 mb-8 transition-opacity hover:opacity-100 opacity-60">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() => setScale(Math.max(0.3, scale - 0.1))}
+                            disabled={scale <= 0.3}
+                        >
+                            <ZoomOut className="w-4 h-4" />
+                        </Button>
+                        <span className="text-xs font-mono w-12 text-center">{Math.round(scale * 100)}%</span>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() => setScale(Math.min(1.5, scale + 0.1))}
+                            disabled={scale >= 1.5}
+                        >
+                            <ZoomIn className="w-4 h-4" />
+                        </Button>
+                        <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() => setScale(0.65)}
+                            title="Reset Zoom"
+                        >
+                            <Maximize className="w-4 h-4" />
+                        </Button>
+                    </div>
+
+                    {/* Preview Content Container */}
+                    <div className="w-full flex justify-center min-h-0">
+                        {renderPreviewContent()}
+                    </div>
                 </div>
 
                 {/* Right: Customization Sidebar */}

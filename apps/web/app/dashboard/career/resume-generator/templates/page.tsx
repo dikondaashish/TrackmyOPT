@@ -74,7 +74,7 @@ const templates: Template[] = [
         name: "Executive",
         description: "A sophisticated, high-end design tailored for leadership roles, executives, and senior management.",
         category: "Leadership",
-        isPremium: true,
+        isPremium: false,
         preview: "from-amber-500 to-orange-500",
         colors: [
             { name: "Amber", class: "bg-amber-600", ring: "ring-amber-600" },
