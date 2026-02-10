@@ -45,12 +45,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-0 overflow-hidden bg-white dark:bg-gray-950 flex flex-col md:flex-row gap-0">
                 {/* Close Button (Absolute) */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 z-50 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                    <X className="w-5 h-5 text-gray-500" />
-                </button>
+
 
                 {/* Left: Preview Area (Scrollable) */}
                 <div className="flex-1 bg-gray-100 dark:bg-gray-900 overflow-y-auto p-8 relative flex items-center justify-center">
