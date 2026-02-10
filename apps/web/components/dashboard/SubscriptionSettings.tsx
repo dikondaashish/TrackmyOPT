@@ -232,6 +232,10 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
 }
 
 export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }: SubscriptionSettingsProps) {
+    const [showPricingModal, setShowPricingModal] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<string>('pro');
+    const [selectedInterval, setSelectedInterval] = useState<string>('month');
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[300px]">
@@ -245,10 +249,6 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
     if (premium.isPremium) {
         currentPlan = (premium.planName?.toLowerCase() as 'pro' | 'dedicated') || 'pro';
     }
-
-    const [showPricingModal, setShowPricingModal] = useState(false);
-    const [selectedPlan, setSelectedPlan] = useState<string>('pro');
-    const [selectedInterval, setSelectedInterval] = useState<string>('month');
 
     const handleOpenPricing = (planId: string, interval: string) => {
         setSelectedPlan(planId);
