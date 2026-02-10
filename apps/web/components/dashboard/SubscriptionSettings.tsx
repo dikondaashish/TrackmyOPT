@@ -27,12 +27,11 @@ interface PricingSectionProps {
     isLoading?: boolean;
     userEmail: string;
     premium: PremiumStatus;
+    onUpgrade: (planId: string, interval: string) => void;
 }
 
-function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, userEmail, premium }: PricingSectionProps) {
+function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, userEmail, premium, onUpgrade }: PricingSectionProps) {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-    const [selectedUpgradePlan, setSelectedUpgradePlan] = useState<string>('');
 
     const handleDowngrade = (planName: string) => {
         if (currentPlan === 'dedicated') {
@@ -142,9 +141,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                         onClick = () => {
                             if (plan.price[billingCycle] > 0) {
                                 const intervalParam = billingCycle === 'monthly' ? 'month' : 'year';
-                                const planIdParam = plan.id; // Use ID
-                                setSelectedUpgradePlan(planIdParam);
-                                setShowUpgradeModal(true);
+                                onUpgrade(plan.id, intervalParam);
                             }
                         };
                     } else if (currentPlan === 'pro') {
@@ -155,9 +152,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                             buttonText = plan.cta;
                             onClick = () => {
                                 const intervalParam = billingCycle === 'monthly' ? 'month' : 'year';
-                                const planIdParam = plan.id;
-                                setSelectedUpgradePlan(planIdParam);
-                                setShowUpgradeModal(true);
+                                onUpgrade(plan.id, intervalParam);
                             };
                         }
                     } else if (currentPlan === 'dedicated') {
@@ -232,15 +227,6 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                     );
                 })}
             </div>
-            {/* Upgrade Modal */}
-            <PricingModal
-                open={showUpgradeModal}
-                onClose={() => setShowUpgradeModal(false)}
-                initialPlan={selectedUpgradePlan}
-                initialInterval={billingCycle === 'monthly' ? 'month' : 'year'}
-                userEmail={userEmail}
-                isPremium={premium.isPremium}
-            />
         </div>
     );
 }
@@ -259,6 +245,16 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
     if (premium.isPremium) {
         currentPlan = (premium.planName?.toLowerCase() as 'pro' | 'dedicated') || 'pro';
     }
+
+    const [showPricingModal, setShowPricingModal] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<string>('pro');
+    const [selectedInterval, setSelectedInterval] = useState<string>('month');
+
+    const handleOpenPricing = (planId: string, interval: string) => {
+        setSelectedPlan(planId);
+        setSelectedInterval(interval);
+        setShowPricingModal(true);
+    };
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -285,10 +281,11 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
                 isLoading={isLoading}
                 userEmail={userEmail}
                 premium={premium}
+                onUpgrade={handleOpenPricing}
             />
 
             <div className="flex justify-center -mt-4 mb-8">
-                <PlanComparisonModal />
+                <PlanComparisonModal onUpgrade={() => handleOpenPricing('pro', 'month')} />
             </div>
 
             {premium.isPremium && (
@@ -342,6 +339,15 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
             <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
                 <SubscriptionFAQ />
             </div>
+
+            <PricingModal
+                open={showPricingModal}
+                onClose={() => setShowPricingModal(false)}
+                initialPlan={selectedPlan}
+                initialInterval={selectedInterval}
+                userEmail={userEmail}
+                isPremium={premium.isPremium}
+            />
         </div>
     );
 }

@@ -3,8 +3,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 
-export function PlanComparisonModal() {
+interface PlanComparisonModalProps {
+    onUpgrade?: () => void;
+}
+
+export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
     const [isOpen, setIsOpen] = useState(false);
+
+    const handleUpgrade = () => {
+        setIsOpen(false);
+        if (onUpgrade) {
+            onUpgrade();
+        } else {
+            window.location.href = '/premium/checkout?planId=pro';
+        }
+    };
+
 
     const features = [
         { name: "Job Tracker", free: "5 Active Jobs", pro: "Unlimited", highlight: true },
@@ -67,7 +81,7 @@ export function PlanComparisonModal() {
                     <div className="mt-6 text-center">
                         <Button
                             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-2 rounded-lg font-semibold shadow-lg"
-                            onClick={() => window.location.href = '/premium/checkout'}
+                            onClick={handleUpgrade}
                         >
                             Start 7-Day Free Trial
                         </Button>
