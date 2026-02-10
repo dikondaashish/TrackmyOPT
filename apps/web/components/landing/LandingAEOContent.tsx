@@ -38,7 +38,7 @@ const knowledgeBase = [
                 directAnswer:
                     "F-1 students on post-completion OPT are allowed a maximum of 90 days of unemployment.",
                 fullAnswer:
-                    "The 90-day limit is cumulative during your entire OPT period. Days start counting from your EAD start date or program end date (whichever is later). For STEM OPT, you receive an additional 60 days of unemployment allowance (separate, not combined with the initial 90 days). Exceeding your respective limit violates your F-1 status and may require you to leave the United States.",
+                    "The 90-day limit applies to your initial OPT period. For STEM OPT, you get a separate 60-day allowance. Unused days from initial OPT do not carry forward to the STEM period.",
                 keyFacts: [
                     "Initial OPT: 90 days maximum unemployment",
                     "STEM OPT: Additional 60 days (separate from initial OPT)",
@@ -95,17 +95,17 @@ const knowledgeBase = [
                 ],
             },
             {
-                question: "What is the 150-day unemployment rule for STEM OPT?",
+                question: "What is the STEM OPT unemployment limit?",
                 directAnswer:
-                    "STEM OPT provides an additional 60 days of unemployment allowance, on top of your initial 90 days from OPT. These are separate allowances—they do NOT combine into 150 days.",
+                    "STEM OPT provides a separate 60-day unemployment allowance.",
                 fullAnswer:
-                    "STEM OPT provides an additional 60 days. This is separate from your initial OPT 90-day allowance. For example, if you used all 90 days during initial OPT, you start fresh with 60 new days for STEM OPT.",
+                    "This 60-day allowance is specific to the STEM extension period. Unused days from your initial 90-day OPT allowance do not carry forward or combine with these days.",
                 keyFacts: [
-                    "Additional allowance: 60 days for STEM OPT (separate from OPT)",
-                    "Not additional: Replaces, not adds to, 90-day limit",
-                    "Calculation: Initial OPT days + STEM OPT days = 150 max",
-                    "Example: 45 days used = 105 days remaining",
-                    "Reporting: Must report unemployment to DSO",
+                    "Additional allowance: 60 days for STEM OPT",
+                    "Initial OPT Limit: 90 days maximum",
+                    "STEM Extension: Adds 60 days of unemployment",
+                    "Total: 90 days (Initial) + 60 days (STEM)",
+                    "Reporting: Must report changes within 10 days",
                 ],
             },
         ],

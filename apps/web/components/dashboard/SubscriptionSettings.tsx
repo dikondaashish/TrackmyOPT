@@ -5,6 +5,7 @@ import { SubscriptionUsage } from './SubscriptionUsage';
 import { BillingHistory } from './BillingHistory';
 import { SubscriptionFAQ } from './SubscriptionFAQ';
 import { PlanComparisonModal } from './PlanComparisonModal';
+import { PricingModal } from '@/components/pricing/PricingModal';
 
 interface PremiumStatus {
     isPremium: boolean;
@@ -16,6 +17,7 @@ interface SubscriptionSettingsProps {
     premium: PremiumStatus;
     isLoading: boolean;
     onManage: () => void;
+    userEmail: string;
 }
 
 interface PricingSectionProps {
@@ -23,10 +25,14 @@ interface PricingSectionProps {
     expiresAt?: string;
     onManage?: () => void;
     isLoading?: boolean;
+    userEmail: string;
+    premium: PremiumStatus;
 }
 
-function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false }: PricingSectionProps) {
+function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, userEmail, premium }: PricingSectionProps) {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [selectedUpgradePlan, setSelectedUpgradePlan] = useState<string>('');
 
     const handleDowngrade = (planName: string) => {
         if (currentPlan === 'dedicated') {
@@ -137,7 +143,8 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false }:
                             if (plan.price[billingCycle] > 0) {
                                 const intervalParam = billingCycle === 'monthly' ? 'month' : 'year';
                                 const planIdParam = plan.id; // Use ID
-                                window.location.href = `/premium/checkout?planId=${planIdParam}&interval=${intervalParam}`;
+                                setSelectedUpgradePlan(planIdParam);
+                                setShowUpgradeModal(true);
                             }
                         };
                     } else if (currentPlan === 'pro') {
@@ -149,7 +156,8 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false }:
                             onClick = () => {
                                 const intervalParam = billingCycle === 'monthly' ? 'month' : 'year';
                                 const planIdParam = plan.id;
-                                window.location.href = `/premium/checkout?planId=${planIdParam}&interval=${intervalParam}`;
+                                setSelectedUpgradePlan(planIdParam);
+                                setShowUpgradeModal(true);
                             };
                         }
                     } else if (currentPlan === 'dedicated') {
@@ -224,11 +232,20 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false }:
                     );
                 })}
             </div>
+            {/* Upgrade Modal */}
+            <PricingModal
+                open={showUpgradeModal}
+                onClose={() => setShowUpgradeModal(false)}
+                initialPlan={selectedUpgradePlan}
+                initialInterval={billingCycle === 'monthly' ? 'month' : 'year'}
+                userEmail={userEmail}
+                isPremium={premium.isPremium}
+            />
         </div>
     );
 }
 
-export function SubscriptionSettings({ premium, isLoading, onManage }: SubscriptionSettingsProps) {
+export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }: SubscriptionSettingsProps) {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[300px]">
@@ -266,6 +283,8 @@ export function SubscriptionSettings({ premium, isLoading, onManage }: Subscript
                 expiresAt={premium.expiresAt}
                 onManage={onManage}
                 isLoading={isLoading}
+                userEmail={userEmail}
+                premium={premium}
             />
 
             <div className="flex justify-center -mt-4 mb-8">

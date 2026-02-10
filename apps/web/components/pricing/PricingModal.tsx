@@ -58,18 +58,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
     }
   };
 
-  // Auto-start if params are present and not already premium
-  if (open && initialPlan && !isPremium && !isLoading) {
-    // Only auto-start if we haven't already (to prevent loops if logic fails)
-    // We use a timeout to let state settle
-    setTimeout(() => {
-      // Ensure we don't trigger if user cancelled or closed
-      if (!isLoading && open) {
-        const interval = initialInterval || (isYearly ? 'year' : 'month');
-        handleUpgrade(initialPlan, interval);
-      }
-    }, 100);
-  }
+
 
   const plans = [
     {

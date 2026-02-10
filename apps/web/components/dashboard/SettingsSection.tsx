@@ -2272,6 +2272,7 @@ export function SettingsSection() {
                 premium={premium}
                 isLoading={isLoading}
                 onManage={handleManageSubscription}
+                userEmail={profile.email}
               />
             </div>
           </div>

@@ -3,9 +3,9 @@ import { StemClockTool } from "@/components/dashboard/opt-tools/tools/StemClockT
 
 // Comprehensive SEO for STEM OPT Unemployment Calculator
 export const metadata: Metadata = {
-  title: "STEM OPT Unemployment Calculator | 150-Day Limit Tracker | Free Tool",
+  title: "STEM OPT Unemployment Calculator | 90 + 60 Day Limit Tracker | Free Tool",
   description:
-    "Free STEM OPT unemployment days calculator. Track your 150-day aggregate unemployment limit. Know how many days remain on your STEM OPT extension. Avoid status violation.",
+    "Free STEM OPT unemployment days calculator. Track your unemployment days. Know how many days remain on your STEM OPT extension. Avoid status violation.",
   keywords: [
     // Primary Keywords
     "STEM OPT unemployment calculator",
@@ -30,18 +30,18 @@ export const metadata: Metadata = {
     "STEM OPT work authorization gap",
   ],
   openGraph: {
-    title: "STEM OPT Unemployment Calculator | 150-Day Limit Tracker",
+    title: "STEM OPT Unemployment Calculator | 90 + 60 Day Unlimited Tracker",
     description:
-      "Free tool to calculate your STEM OPT unemployment days. Track 150-day aggregate limit.",
+      "Free tool to calculate your STEM OPT unemployment days. Track 90-day initial + 60-day stem extension limits.",
     url: "https://trackmyopt.com/dashboard/opt-tools/stem-clock",
     siteName: "TrackMyOPT",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "STEM OPT 150-Day Unemployment Calculator",
+    title: "STEM OPT Unemployment Calculator",
     description:
-      "Track your STEM OPT unemployment days. Know how many of your 150 aggregate days remain.",
+      "Track your STEM OPT unemployment days. Monitor your 90-day initial and 60-day stem allowances.",
   },
   alternates: {
     canonical: "https://trackmyopt.com/dashboard/opt-tools/stem-clock",
@@ -62,9 +62,9 @@ const jsonLd = [
       priceCurrency: "USD",
     },
     description:
-      "Free calculator to track STEM OPT unemployment days. F-1 students on STEM OPT have a 150-day aggregate unemployment limit (total from initial OPT + STEM extension).",
+      "Free calculator to track STEM OPT unemployment days. F-1 students on STEM OPT have a 90-day initial limit plus an additional 60-day extension allowance.",
     featureList: [
-      "Track 150-day aggregate limit",
+      "Track unemployment days",
       "Visual progress indicator",
       "Include initial OPT days used",
       "Email alerts before limit",
@@ -79,7 +79,7 @@ const jsonLd = [
         name: "How many unemployment days are allowed on STEM OPT?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "STEM OPT has a 150-day AGGREGATE unemployment limit. This means the total unemployment days from both your initial 12-month OPT AND your 24-month STEM extension combined cannot exceed 150 days. If you used 45 days during initial OPT, you have 105 days remaining for your STEM period.",
+          text: "STEM OPT provides a separate 60-day unemployment allowance. This is independent of your initial 90-day limit.",
         },
       },
       {
@@ -87,15 +87,15 @@ const jsonLd = [
         name: "Is the STEM OPT unemployment limit 60 days or 150 days?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "The STEM OPT unemployment limit is 150 days AGGREGATE, not an additional 60 days. The 150 days includes all unemployment from both initial OPT (90 days max) and STEM OPT extension. So STEM students get an additional 60 days beyond the initial 90, for a total of 150 days over the entire 3-year period.",
+          text: "The STEM OPT extension grants a separate 60-day unemployment allowance. Unused days from your initial 90-day OPT period do not carry forward to the STEM period.",
         },
       },
       {
         "@type": "Question",
-        name: "What happens if I exceed 150 days unemployment on STEM OPT?",
+        name: "What happens if I exceed my unemployment limit on STEM OPT?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Exceeding the 150-day aggregate unemployment limit terminates your STEM OPT and F-1 status. You would need to leave the United States. This violation can affect future visa applications, so tracking your days accurately is critical.",
+          text: "Exceeding the unemployment limit terminates your STEM OPT and F-1 status. You would need to leave the United States. This violation can affect future visa applications, so tracking your days accurately is critical.",
         },
       },
     ],

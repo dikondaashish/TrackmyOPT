@@ -124,7 +124,7 @@ export const faqSchema = {
             name: "How many days of unemployment are allowed on OPT?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "For initial Post-Completion OPT, you are allowed a maximum of 90 days of unemployment. For STEM OPT extension, you receive an additional 60 days of unemployment allowance on top of the initial 90 days. These are separate allowances—STEM OPT does NOT combine them into 150 days. Exceeding your respective limit can result in falling out of F-1 status. TrackMyOPT helps you track these days automatically.",
+                text: "For initial Post-Completion OPT, you are allowed a maximum of 90 days of unemployment. For STEM OPT extension, you receive a separate 60-day unemployment allowance. Unused days from the initial OPT period do not carry forward to the STEM period.",
             },
         },
         {

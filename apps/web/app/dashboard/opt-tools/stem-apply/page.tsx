@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     "STEM OPT employer requirements",
     "how long does STEM OPT take to process",
     "STEM OPT cap gap",
-    "STEM OPT 150 days unemployment",
+    "STEM OPT unemployment allowance",
     "STEM OPT I-20 requirements",
     "STEM OPT self-evaluation",
     "STEM OPT work hours requirement",
