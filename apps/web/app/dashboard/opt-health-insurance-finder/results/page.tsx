@@ -401,7 +401,7 @@ function ResultsContent() {
               </div>
 
               <button
-                onClick={() => handleApply("https://www.isistudentinsurance.com/")}
+                onClick={() => handleApply("https://www.internationalstudentinsurance.com/?Trackmyopt")}
                 className="w-full mt-5 h-11 bg-gradient-to-r from-[#3D4F8F] to-[#5563a8] hover:from-[#2d3a6b] hover:to-[#3D4F8F] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:-translate-y-0.5"
               >
                 View Plans

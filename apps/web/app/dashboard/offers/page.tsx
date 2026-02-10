@@ -115,7 +115,7 @@ const OFFERS = [
         badge: "Best Value",
         badgeColor: "from-green-500 to-emerald-500",
         icon: Shield,
-        link: "https://www.isistudentinsurance.com/",
+        link: "https://www.internationalstudentinsurance.com/?Trackmyopt",
         featured: false,
     },
     {

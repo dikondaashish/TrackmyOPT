@@ -4,15 +4,15 @@
   "version": "0.1.0",
   "description": "Track your OPT timeline with precision",
   "permissions": [
-    "identity", 
-    "storage", 
+    "identity",
+    "storage",
     "tabs",
     "alarms",
     "notifications",
     "scripting"
   ],
   "host_permissions": [
-    "http://localhost:3000/*", 
+    "http://localhost:3000/*",
     "https://*.vercel.app/*",
     "https://www.trackmyopt.com/*",
     "https://trackmyopt.com/*"
@@ -49,9 +49,10 @@
         "https://www.trackmyopt.com/*",
         "https://trackmyopt.com/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ]
 }
-
