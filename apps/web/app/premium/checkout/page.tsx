@@ -1,68 +1,64 @@
-"use client";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { Suspense } from "react";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { DashboardLayoutClient } from "@/components/layout/DashboardLayoutClient";
+import { DashboardContent } from "@/components/dashboard/DashboardContent";
+import { CheckoutModalClient } from "./CheckoutModalClient";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { PricingModal } from "@/components/pricing/PricingModal";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+export default async function CheckoutPage() {
+    const cookieStore = cookies();
 
-function CheckoutContent() {
-    const [open, setOpen] = useState(true);
-    const [isPremium, setIsPremium] = useState(false);
-    const [userEmail, setUserEmail] = useState<string | undefined>();
-    const searchParams = useSearchParams();
-
-    const planId = searchParams.get("planId") || undefined;
-    const interval = searchParams.get("interval") || undefined;
-
-    useEffect(() => {
-        const supabase = createClientComponentClient();
-
-        const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                setUserEmail(user.email || undefined);
-
-                // Check premium status
-                const { data: profile } = await supabase
-                    .from("profiles")
-                    .select("is_premium")
-                    .eq("user_id", user.id)
-                    .single();
-
-                setIsPremium(profile?.is_premium || false);
-            }
-        };
-
-        checkUser();
-    }, []);
-
-    const handleClose = () => {
-        setOpen(false);
-        window.location.href = "/dashboard";
-    };
-
-    return (
-        <PricingModal
-            open={open}
-            onClose={handleClose}
-            userEmail={userEmail}
-            isPremium={isPremium}
-            initialPlan={planId}
-            initialInterval={interval}
-        />
+    // Create Supabase client with proper cookie handling
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) {
+                    const value = cookieStore.get(name)?.value;
+                    return value;
+                },
+                set(name: string, value: string, options: CookieOptions) {
+                    try {
+                        cookieStore.set({ name, value, ...options });
+                    } catch (error) {
+                    }
+                },
+                remove(name: string, options: CookieOptions) {
+                    try {
+                        cookieStore.set({ name, value: '', ...options });
+                    } catch (error) {
+                    }
+                },
+            },
+        }
     );
-}
 
-export default function CheckoutPage() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect(`/login`);
+    }
+
     return (
-        <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center p-4">
-            <Suspense fallback={
-                <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600" />
+        <Suspense fallback={<LoadingScreen />}>
+            <DashboardLayoutClient>
+                <div className="relative h-full">
+                    {/* Background Dashboard Content - Blurred and non-interactive */}
+                    <div className="absolute inset-0 overflow-hidden filter blur-[2px] opacity-60 pointer-events-none select-none" aria-hidden="true">
+                        <DashboardContent user={user} />
+                    </div>
+
+                    {/* Checkout Modal Overlay */}
+                    <div className="relative z-50 flex items-center justify-center h-full">
+                        <Suspense fallback={null}>
+                            <CheckoutModalClient user={user} />
+                        </Suspense>
+                    </div>
                 </div>
-            }>
-                <CheckoutContent />
-            </Suspense>
-        </div>
+            </DashboardLayoutClient>
+        </Suspense>
     );
 }
