@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, X, FileText, Download, ChevronRight, Palette, Eye } from "lucide-react";
+import { Check, X, FileText, Download, ChevronRight, Eye } from "lucide-react";
 
 export interface TemplateColor {
     name: string;
@@ -167,23 +167,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         </div>
 
                         <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mb-8">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                <Palette className="w-4 h-4 text-gray-400" />
-                                Color Theme
-                            </h3>
-                            <div className="flex flex-wrap gap-3">
-                                {template.colors.map((color) => (
-                                    <button
-                                        key={color.name}
-                                        onClick={() => setSelectedColor(color)}
-                                        className={`w-10 h-10 rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-950 ${color.class} ${selectedColor?.name === color.name ? `ring-2 ring-offset-2 ${color.ring} scale-110` : 'border border-gray-200 dark:border-gray-700'}`}
-                                        title={color.name}
-                                    />
-                                ))}
-                            </div>
-                            <p className="text-xs text-gray-500 mt-3">
-                                Selected: <span className="font-medium text-gray-900 dark:text-gray-300">{currentColor.name}</span>
-                            </p>
+                            {/* Color Theme selection removed as requested */}
                         </div>
 
                         <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
