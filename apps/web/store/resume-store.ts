@@ -6,6 +6,18 @@ interface AtsAnalysis {
     passed: boolean;
     score: number;
     issues: string[];
+    // Enterprise-grade additions
+    keywordMatch?: {
+        found: string[];
+        missing: string[];
+        score: number; // 0-100
+    };
+    sectionScores?: {
+        impact: number;
+        brevity: number;
+        relevance: number;
+    };
+    improvements?: string[]; // Actionable advice
 }
 
 interface ResumeState {

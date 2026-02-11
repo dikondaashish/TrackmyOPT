@@ -45,6 +45,7 @@ export default function ResumeEditorPage() {
 
     // Local UI State
     const [isCopied, setIsCopied] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
 
     // UI States
     const [editorWidth, setEditorWidth] = useState(50); // Percentage
@@ -133,6 +134,47 @@ export default function ResumeEditorPage() {
             });
         } finally {
             setIsCompiling(false);
+        }
+    };
+
+    // API: Deep ATS Scan
+    const handleDeepScan = async () => {
+        if (!resumeText || !jobDescription || !generatedLatex) return;
+
+        setIsScanning(true);
+        try {
+            const response = await fetch('/api/resume-generator/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    resumeText,          // Original text (for content comparison)
+                    jobDescription,
+                    latexCode: generatedLatex // For formatting check
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Scan failed');
+            }
+
+            setAtsAnalysis(data);
+
+            toast({
+                title: "Deep Analysis Complete",
+                description: "Gemini 2.5 Pro has analyzed your resume against the job description.",
+            });
+
+        } catch (error: any) {
+            console.error(error);
+            toast({
+                title: "Scan Failed",
+                description: "Could not perform deep analysis.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsScanning(false);
         }
     };
 
@@ -432,6 +474,26 @@ export default function ResumeEditorPage() {
 
                             <TabsContent value="ats" className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 m-0 data-[state=inactive]:hidden">
                                 <div className="max-w-2xl mx-auto">
+                                    <div className="mb-4 flex justify-end">
+                                        <Button
+                                            size="sm"
+                                            onClick={handleDeepScan}
+                                            disabled={isScanning || isGenerating}
+                                            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
+                                        >
+                                            {isScanning ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    Scanning...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Sparkles className="w-4 h-4 mr-2" />
+                                                    Run Deep ATS Scan (Gemini 2.5)
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
                                     <AtsScorePanel analysis={atsAnalysis} />
                                 </div>
                             </TabsContent>
