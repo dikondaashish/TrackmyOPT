@@ -1,6 +1,5 @@
-"use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -9,16 +8,11 @@ import {
     Copy,
     RefreshCw,
     Sparkles,
-    FileText,
     Code,
-    Eye,
     Loader2,
     Check,
-    ChevronLeft,
-    ChevronRight,
     Maximize2,
     Minimize2,
-    Settings,
     Play,
 } from "lucide-react";
 import Link from "next/link";
@@ -26,10 +20,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { useResumeStore } from "@/store/resume-store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AtsScorePanel } from "./components/AtsScorePanel";
+import { LatexToolbar, EditorViewMode } from "./components/LatexToolbar";
+import { useEditorHistory } from "@/hooks/use-editor-history";
 
 export default function ResumeEditorPage() {
     const { toast } = useToast();
-
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Store
     const {
@@ -47,19 +43,79 @@ export default function ResumeEditorPage() {
     const [isCopied, setIsCopied] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
 
-    // UI States
+    // View Mode State
+    const [viewMode, setViewMode] = useState<EditorViewMode>('split');
     const [editorWidth, setEditorWidth] = useState(50); // Percentage
     const [showPreview, setShowPreview] = useState(true);
 
+    // History Hook
+    // We wrap setGeneratedLatex to be the "onUpdate"
+    // Note: useEditorHistory manages the history stack locally
+    const {
+        updateText,
+        undo,
+        redo,
+        canUndo,
+        canRedo
+    } = useEditorHistory(generatedLatex, setGeneratedLatex);
+
+    // Sync View Mode
+    const handleViewModeChange = (mode: EditorViewMode) => {
+        setViewMode(mode);
+        switch (mode) {
+            case 'code':
+                setShowPreview(false);
+                setEditorWidth(100);
+                break;
+            case 'visual':
+                setShowPreview(true);
+                setEditorWidth(0);
+                break;
+            case 'split':
+                setShowPreview(true);
+                setEditorWidth(50);
+                break;
+        }
+    };
+
     // 1. Load data & Generate on Mount
-    // 1. Generate on Mount if missing
     useEffect(() => {
-        // Only generate if we have data and NO code yet
-        // If we already have generatedLatex (from persistence), use it
         if (resumeText && jobDescription && selectedTemplateId && !generatedLatex && !isGenerating) {
             generateResume(resumeText, jobDescription, selectedTemplateId);
         }
     }, [resumeText, jobDescription, selectedTemplateId, generatedLatex]);
+
+    // Handle Text Insertion from Toolbar
+    const handleInsert = (startTag: string, endTag: string = '') => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = generatedLatex;
+        const before = text.substring(0, start);
+        const selection = text.substring(start, end);
+        const after = text.substring(end);
+
+        const newText = before + startTag + selection + endTag + after;
+
+        updateText(newText);
+
+        // Restore focus and cursor (approximate, usually inside tags)
+        setTimeout(() => {
+            textarea.focus();
+            const newCursorPos = start + startTag.length + selection.length; // Place after selection inside tags?
+            // Actually usually we want to wrap.
+            // If selection was empty, cursor should be between tags.
+            // If selection existed, cursor should be after endTag? Or keep selection?
+            // Let's just put cursor at end of insertion for now or inside if empty.
+            if (selection.length === 0) {
+                textarea.setSelectionRange(start + startTag.length, start + startTag.length);
+            } else {
+                textarea.setSelectionRange(start + startTag.length, start + startTag.length + selection.length);
+            }
+        }, 0);
+    };
 
     // API: Generate Resume
     const generateResume = async (resume: string, job: string, template: string) => {
@@ -81,7 +137,9 @@ export default function ResumeEditorPage() {
                 throw new Error(data.error || 'Failed to generate resume');
             }
 
-            setGeneratedLatex(data.latex);
+            // Directly set store, history might desync if we don't update it?
+            // useEditorHistory doesn't expose a "reset" but updateText works.
+            updateText(data.latex);
 
             // Auto-compile after generation
             if (data.latex) {
@@ -200,7 +258,7 @@ export default function ResumeEditorPage() {
                 throw new Error(data.error || 'Failed to regenerate resume');
             }
 
-            setGeneratedLatex(data.latex);
+            updateText(data.latex);
             if (data.atsCheck) {
                 setAtsAnalysis(data.atsCheck);
             }
@@ -247,8 +305,6 @@ export default function ResumeEditorPage() {
         } else {
             // Fallback: Compile and download
             compilePdf(generatedLatex).then(() => {
-                // The compile function sets pdfUrl, user has to click again or we automate it? 
-                // For simplicity, just trigger compile if not ready.
                 toast({ description: "Compiling PDF... click download again when ready." });
             });
         }
@@ -320,186 +376,153 @@ export default function ResumeEditorPage() {
                     </div>
                 </div>
 
-                {/* Toolbar */}
-                <div className="px-4 sm:px-6 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleRegenerate}
-                            disabled={isGenerating}
-                            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                        >
-                            {isGenerating ? (
-                                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                            ) : (
-                                <Sparkles className="w-4 h-4 mr-1" />
-                            )}
-                            {isGenerating ? "Regenerating..." : "Regenerate with AI"}
-                        </Button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        {/* View Toggle */}
-                        <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => { setShowPreview(false); setEditorWidth(100); }}
-                                className={`px-3 py-1 rounded ${!showPreview ? 'bg-white dark:bg-gray-700 shadow' : ''}`}
-                            >
-                                <Code className="w-4 h-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => { setShowPreview(true); setEditorWidth(50); }}
-                                className={`px-3 py-1 rounded ${showPreview && editorWidth === 50 ? 'bg-white dark:bg-gray-700 shadow' : ''}`}
-                            >
-                                <Maximize2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => { setShowPreview(true); setEditorWidth(0); }}
-                                className={`px-3 py-1 rounded ${showPreview && editorWidth === 0 ? 'bg-white dark:bg-gray-700 shadow' : ''}`}
-                            >
-                                <Eye className="w-4 h-4" />
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+                {/* Toolbar - NEW */}
+                <LatexToolbar
+                    onUndo={undo}
+                    onRedo={redo}
+                    canUndo={canUndo}
+                    canRedo={canRedo}
+                    onInsert={handleInsert}
+                    viewMode={viewMode}
+                    onViewModeChange={handleViewModeChange}
+                />
             </div>
 
             {/* Main Editor Area */}
             <div className="flex-1 flex overflow-hidden">
                 {/* LaTeX Editor */}
-                {editorWidth > 0 && (
-                    <div
-                        className="flex flex-col border-r border-gray-200 dark:border-gray-800"
-                        style={{ width: showPreview ? `${editorWidth}%` : '100%' }}
-                    >
-                        {/* Editor Header */}
-                        <div className="flex-shrink-0 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Code className="w-4 h-4 text-gray-500" />
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">LaTeX Editor</span>
-                            </div>
+                {/* Note: We keep the container even if width is "0" to keep state alive, 
+                    but simpler to just condition on viewMode for now or use hidden class 
+                */}
+                <div
+                    className={`flex flex-col border-r border-gray-200 dark:border-gray-800 transition-all duration-300 ${viewMode === 'visual' ? 'hidden' : 'block'}`}
+                    style={{ width: viewMode === 'code' ? '100%' : viewMode === 'split' ? '50%' : '0%' }}
+                >
+                    {/* Editor Header */}
+                    <div className="flex-shrink-0 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Code className="w-4 h-4 text-gray-500" />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">LaTeX Editor</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleRegenerate}
+                                disabled={isGenerating}
+                                className="h-6 px-2 text-xs text-purple-600"
+                            >
+                                {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
+                                Optimize
+                            </Button>
                             <span className="text-xs text-gray-400">
                                 {generatedLatex.split('\n').length} lines
                             </span>
                         </div>
-
-                        {/* Code Editor */}
-                        <div className="flex-1 overflow-hidden">
-                            <textarea
-                                value={generatedLatex}
-                                onChange={(e) => setGeneratedLatex(e.target.value)}
-                                className="w-full h-full p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none"
-                                spellCheck={false}
-                                placeholder="LaTeX code will appear here..."
-                                style={{
-                                    lineHeight: '1.6',
-                                    tabSize: 2,
-                                }}
-                            />
-                        </div>
                     </div>
-                )}
 
-                {/* Resize Handle */}
-                {showPreview && editorWidth > 0 && editorWidth < 100 && (
-                    <div className="w-1 bg-gray-200 dark:bg-gray-700 hover:bg-blue-400 dark:hover:bg-blue-500 cursor-col-resize flex-shrink-0" />
-                )}
+                    {/* Code Editor */}
+                    <div className="flex-1 overflow-hidden">
+                        <textarea
+                            ref={textareaRef}
+                            value={generatedLatex}
+                            onChange={(e) => updateText(e.target.value)}
+                            className="w-full h-full p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none"
+                            spellCheck={false}
+                            placeholder="LaTeX code will appear here..."
+                            style={{
+                                lineHeight: '1.6',
+                                tabSize: 2,
+                            }}
+                        />
+                    </div>
+                </div>
 
                 {/* PDF Preview */}
-                {showPreview && (
-                    <div
-                        className="flex flex-col bg-gray-100 dark:bg-gray-800"
-                        style={{ width: editorWidth === 0 ? '100%' : `${100 - editorWidth}%` }}
-                    >
-                        {/* Preview Content */}
-                        <Tabs defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
-                            <div className="flex-shrink-0 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                                <TabsList className="h-8">
-                                    <TabsTrigger value="preview" className="text-xs">PDF Preview</TabsTrigger>
-                                    <TabsTrigger value="ats" className="text-xs">
-                                        ATS Analysis
-                                        {atsAnalysis && !atsAnalysis.passed && (
-                                            <span className="ml-2 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                                        )}
-                                    </TabsTrigger>
-                                </TabsList>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => compilePdf(generatedLatex)}
-                                    disabled={isCompiling}
-                                >
-                                    <RefreshCw className={`w-4 h-4 ${isCompiling ? 'animate-spin' : ''}`} />
-                                </Button>
-                            </div>
+                <div
+                    className={`flex flex-col bg-gray-100 dark:bg-gray-800 transition-all duration-300 ${viewMode === 'code' ? 'hidden' : 'block'}`}
+                    style={{ width: viewMode === 'visual' ? '100%' : viewMode === 'split' ? '50%' : '0%' }}
+                >
+                    {/* Preview Content */}
+                    <Tabs defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
+                        <div className="flex-shrink-0 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                            <TabsList className="h-8">
+                                <TabsTrigger value="preview" className="text-xs">PDF Preview</TabsTrigger>
+                                <TabsTrigger value="ats" className="text-xs">
+                                    ATS Analysis
+                                    {atsAnalysis && !atsAnalysis.passed && (
+                                        <span className="ml-2 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                    )}
+                                </TabsTrigger>
+                            </TabsList>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => compilePdf(generatedLatex)}
+                                disabled={isCompiling}
+                            >
+                                <RefreshCw className={`w-4 h-4 ${isCompiling ? 'animate-spin' : ''}`} />
+                            </Button>
+                        </div>
 
-                            <TabsContent value="preview" className="flex-1 overflow-hidden flex justify-center bg-gray-200/50 dark:bg-gray-900/50 p-4 m-0 data-[state=inactive]:hidden">
-                                {compiledPdfUrl ? (
-                                    <iframe
-                                        src={`${compiledPdfUrl}#toolbar=0&view=FitH`}
-                                        className="w-full h-full max-w-[8.5in] bg-white shadow-2xl rounded-lg"
-                                        title="Resume Preview"
-                                    />
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center p-8 text-gray-500 w-full h-full">
-                                        {isGenerating ? (
+                        <TabsContent value="preview" className="flex-1 overflow-hidden flex justify-center bg-gray-200/50 dark:bg-gray-900/50 p-4 m-0 data-[state=inactive]:hidden">
+                            {compiledPdfUrl ? (
+                                <iframe
+                                    src={`${compiledPdfUrl}#toolbar=0&view=FitH`}
+                                    className="w-full h-full max-w-[8.5in] bg-white shadow-2xl rounded-lg"
+                                    title="Resume Preview"
+                                />
+                            ) : (
+                                <div className="flex flex-col items-center justify-center p-8 text-gray-500 w-full h-full">
+                                    {isGenerating ? (
+                                        <>
+                                            <Loader2 className="w-10 h-10 animate-spin mb-4 text-blue-500" />
+                                            <p>Generating tailored resume...</p>
+                                        </>
+                                    ) : isCompiling ? (
+                                        <>
+                                            <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-500" />
+                                            <p>Compiling PDF...</p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="animate-pulse flex flex-col items-center">
+                                                <RefreshCw className="w-12 h-12 mb-4 opacity-50" />
+                                                <p>Waiting for compilation...</p>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                        </TabsContent>
+
+                        <TabsContent value="ats" className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 m-0 data-[state=inactive]:hidden">
+                            <div className="max-w-2xl mx-auto">
+                                <div className="mb-4 flex justify-end">
+                                    <Button
+                                        size="sm"
+                                        onClick={handleDeepScan}
+                                        disabled={isScanning || isGenerating}
+                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
+                                    >
+                                        {isScanning ? (
                                             <>
-                                                <Loader2 className="w-10 h-10 animate-spin mb-4 text-blue-500" />
-                                                <p>Generating tailored resume...</p>
-                                            </>
-                                        ) : isCompiling ? (
-                                            <>
-                                                <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-500" />
-                                                <p>Compiling PDF...</p>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                Scanning...
                                             </>
                                         ) : (
                                             <>
-                                                <Eye className="w-12 h-12 mb-4 opacity-50" />
-                                                <p>PDF preview will appear here</p>
-                                                <Button variant="link" onClick={() => compilePdf(generatedLatex)}>
-                                                    Force Refresh
-                                                </Button>
+                                                <Sparkles className="w-4 h-4 mr-2" />
+                                                Run Deep ATS Scan (Gemini 2.5)
                                             </>
                                         )}
-                                    </div>
-                                )}
-                            </TabsContent>
-
-                            <TabsContent value="ats" className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 m-0 data-[state=inactive]:hidden">
-                                <div className="max-w-2xl mx-auto">
-                                    <div className="mb-4 flex justify-end">
-                                        <Button
-                                            size="sm"
-                                            onClick={handleDeepScan}
-                                            disabled={isScanning || isGenerating}
-                                            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
-                                        >
-                                            {isScanning ? (
-                                                <>
-                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                                    Scanning...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Sparkles className="w-4 h-4 mr-2" />
-                                                    Run Deep ATS Scan (Gemini 2.5)
-                                                </>
-                                            )}
-                                        </Button>
-                                    </div>
-                                    <AtsScorePanel analysis={atsAnalysis} />
+                                    </Button>
                                 </div>
-                            </TabsContent>
-                        </Tabs>
-                    </div>
-                )}
+                                <AtsScorePanel analysis={atsAnalysis} />
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                </div>
             </div>
         </div>
     );
