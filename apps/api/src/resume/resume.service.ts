@@ -60,7 +60,9 @@ export class ResumeService {
   async getResumes(userId: string) {
     const { data, error } = await this.supabase
       .from('resumes')
-      .select('*')
+      // Exclude structured_data (heavy JSON) to improve list performance
+      // content is kept for the preview and 'Use Resume' feature, assuming it's reasonably small text
+      .select('id, filename, content, created_at, file_path')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
