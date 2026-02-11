@@ -1,25 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronRight, Phone, Mail, MapPin, Youtube, Globe, Linkedin, Github, ZoomIn, ZoomOut, Maximize, TrendingUp, CheckCircle } from "lucide-react";
-
-export interface TemplateColor {
-    name: string;
-    class: string; // Tailwind gradient or bg class
-    ring: string; // Ring color for selection
-}
-
-export interface Template {
-    id: string;
-    name: string;
-    description: string;
-    category: string;
-    isPremium: boolean;
-    preview: string; // Default preview class
-    colors: TemplateColor[];
-}
+import { Check, ChevronRight, Phone, Mail, MapPin, Youtube, Globe, Linkedin, Github, ZoomIn, ZoomOut, Maximize, TrendingUp, CheckCircle, Ruler, Palette, PenTool, FileText } from "lucide-react";
+import Image from "next/image";
+import { Template, TemplateColor } from "@/lib/templates";
 
 interface TemplatePreviewModalProps {
     isOpen: boolean;

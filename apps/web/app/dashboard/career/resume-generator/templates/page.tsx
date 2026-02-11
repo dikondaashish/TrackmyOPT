@@ -14,104 +14,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { TemplatePreviewModal, Template, TemplateColor } from "./TemplatePreviewModal";
+import { TemplatePreviewModal } from "./TemplatePreviewModal";
+import { useResumeStore } from "@/store/resume-store";
+import { RESUME_TEMPLATES, Template, TemplateColor } from "@/lib/templates";
 
-const templates: Template[] = [
-    {
-        id: "modern",
-        name: "Modern",
-        description: "A sleek, contemporary design featuring clean lines and bold typography to make a strong first impression.",
-        category: "Professional",
-        isPremium: false,
-        preview: "from-blue-500 to-cyan-500",
-        colors: [
-            { name: "Blue", class: "bg-blue-600", ring: "ring-blue-600" },
-            { name: "Cyan", class: "bg-cyan-600", ring: "ring-cyan-600" },
-            { name: "Slate", class: "bg-slate-600", ring: "ring-slate-600" },
-        ],
-    },
-    {
-        id: "professional",
-        name: "Professional",
-        description: "A polished, corporate-ready layout optimized for Applicant Tracking Systems (ATS) and conservative industries.",
-        category: "Business",
-        isPremium: false,
-        preview: "from-gray-600 to-gray-800",
-        colors: [
-            { name: "Gray", class: "bg-gray-700", ring: "ring-gray-700" },
-            { name: "Navy", class: "bg-blue-900", ring: "ring-blue-900" },
-            { name: "Black", class: "bg-black", ring: "ring-black" },
-        ],
-    },
-    {
-        id: "creative",
-        name: "Creative",
-        description: "Stand out with a vibrant, unique layout designed for creative professionals and portfolios.",
-        category: "Design",
-        isPremium: false,
-        preview: "from-purple-500 to-pink-500",
-        colors: [
-            { name: "Purple", class: "bg-purple-600", ring: "ring-purple-600" },
-            { name: "Pink", class: "bg-pink-600", ring: "ring-pink-600" },
-            { name: "Rose", class: "bg-rose-500", ring: "ring-rose-500" },
-        ],
-    },
-    {
-        id: "academic",
-        name: "Academic",
-        description: "A structured, content-rich CV format ideal for researchers, educators, and detailed academic histories.",
-        category: "Education",
-        isPremium: false,
-        preview: "from-emerald-500 to-teal-500",
-        colors: [
-            { name: "Emerald", class: "bg-emerald-600", ring: "ring-emerald-600" },
-            { name: "Teal", class: "bg-teal-600", ring: "ring-teal-600" },
-            { name: "Green", class: "bg-green-700", ring: "ring-green-700" },
-        ],
-    },
-    {
-        id: "executive",
-        name: "Executive",
-        description: "A sophisticated, high-end design tailored for leadership roles, executives, and senior management.",
-        category: "Leadership",
-        isPremium: false,
-        preview: "from-amber-500 to-orange-500",
-        colors: [
-            { name: "Amber", class: "bg-amber-600", ring: "ring-amber-600" },
-            { name: "Orange", class: "bg-orange-600", ring: "ring-orange-600" },
-            { name: "Gold", class: "bg-yellow-600", ring: "ring-yellow-600" },
-        ],
-    },
-    {
-        id: "tech",
-        name: "Tech Focus",
-        description: "Highlight your technical stack and project portfolio with a layout built specifically for engineering roles.",
-        category: "Technology",
-        isPremium: false,
-        preview: "from-indigo-500 to-violet-500",
-        colors: [
-            { name: "Indigo", class: "bg-indigo-600", ring: "ring-indigo-600" },
-            { name: "Violet", class: "bg-violet-600", ring: "ring-violet-600" },
-            { name: "Code Blue", class: "bg-blue-700", ring: "ring-blue-700" },
-        ],
-    },
-];
 
 export default function TemplateSelectionPage() {
     const router = useRouter();
-    const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+    const {
+        selectedTemplateId, setSelectedTemplateId,
+        resumeText, jobDescription,
+        setSelectedColor
+    } = useResumeStore();
+
     const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
-    const [resumeText, setResumeText] = useState("");
-    const [jobText, setJobText] = useState("");
-
-    // Load data from sessionStorage
-    useEffect(() => {
-        const storedResume = sessionStorage.getItem("resumeGenerator_resumeText");
-        const storedJob = sessionStorage.getItem("resumeGenerator_jobText");
-
-        if (storedResume) setResumeText(storedResume);
-        if (storedJob) setJobText(storedJob);
-    }, []);
 
     const handleSelectTemplate = (templateId: string) => {
         setSelectedTemplateId(templateId);
@@ -127,9 +43,10 @@ export default function TemplateSelectionPage() {
         if (!idToUse) return;
 
         // Store template selection
-        sessionStorage.setItem("resumeGenerator_template", idToUse);
         if (color) {
-            sessionStorage.setItem("resumeGenerator_color", JSON.stringify(color));
+            setSelectedColor(color);
+        } else {
+            setSelectedColor(null);
         }
 
         router.push("/dashboard/career/resume-generator/editor");
@@ -182,7 +99,7 @@ export default function TemplateSelectionPage() {
                                 Resume loaded: {resumeText.length} characters
                             </p>
                             <p className="text-xs text-blue-600 dark:text-blue-400">
-                                Job description: {jobText.length} characters
+                                Job description: {jobDescription.length} characters
                             </p>
                         </div>
                     </div>
@@ -190,7 +107,7 @@ export default function TemplateSelectionPage() {
 
                 {/* Template Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {templates.map((template) => (
+                    {RESUME_TEMPLATES.map((template) => (
                         <Card
                             key={template.id}
                             onClick={() => handleSelectTemplate(template.id)}
@@ -200,7 +117,7 @@ export default function TemplateSelectionPage() {
                                 }`}
                         >
                             {/* Preview Area */}
-                            <div className={`h-48 bg-gradient-to-br ${template.preview} relative group-hover:scale-105 transition-transform duration-500`}>
+                            <div className={`h-48 bg-gradient-to-br ${template.previewGradient} relative group-hover:scale-105 transition-transform duration-500`}>
                                 {/* Template Preview Placeholder */}
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     <div className="w-24 h-32 bg-white/90 dark:bg-gray-900/90 rounded shadow-lg p-2 transform group-hover:-translate-y-2 transition-transform duration-300">

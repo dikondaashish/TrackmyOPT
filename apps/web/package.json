@@ -31,6 +31,7 @@
     "@vercel/speed-insights": "^1.2.0",
     "bcryptjs": "^3.0.3",
     "canvas-confetti": "^1.9.4",
+    "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -51,7 +52,8 @@
     "sharp": "^0.34.5",
     "stripe": "^19.1.0",
     "tailwind-merge": "^3.4.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",

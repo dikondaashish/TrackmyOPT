@@ -105,30 +105,28 @@ export async function POST(req: NextRequest) {
             // Handle HTML content
             const html = await response.text();
 
-            // Extract text content from HTML
-            // Remove script, style, and other non-content elements
-            let textContent = html
-                .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-                .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-                .replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, '')
-                .replace(/<header[^>]*>[\s\S]*?<\/header>/gi, '')
-                .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '')
-                .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
-                .replace(/<aside[^>]*>[\s\S]*?<\/aside>/gi, '')
-                .replace(/<!--[\s\S]*?-->/g, '')
-                .replace(/<[^>]+>/g, ' ')
-                .replace(/&nbsp;/g, ' ')
-                .replace(/&amp;/g, '&')
-                .replace(/&lt;/g, '<')
-                .replace(/&gt;/g, '>')
-                .replace(/&quot;/g, '"')
-                .replace(/&#39;/g, "'")
-                .replace(/\s+/g, ' ')
-                .trim();
+            // Extract text content using Cheerio
+            const cheerio = await import('cheerio');
+            const $ = cheerio.load(html);
 
-            // Extract title from HTML
-            const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-            const title = titleMatch ? titleMatch[1].trim() : 'Extracted Content';
+            // Remove scripts, styles, and non-content elements
+            $('script').remove();
+            $('style').remove();
+            $('noscript').remove();
+            $('header').remove();
+            $('footer').remove();
+            $('nav').remove();
+            $('aside').remove();
+            $('iframe').remove();
+
+            // Extract text from main content areas if possible, otherwise body
+            let textContent = $('main').text() || $('article').text() || $('body').text();
+
+            // Clean up whitespace
+            textContent = textContent.replace(/\s+/g, ' ').trim();
+
+            // Extract title
+            const title = $('title').text().trim() || 'Extracted Content';
 
             if (!textContent || textContent.length < 50) {
                 return NextResponse.json(

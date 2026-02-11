@@ -26,20 +26,10 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { useResumeStore } from "@/store/resume-store";
+
+
 import { useToast } from "@/components/ui/use-toast";
-
-interface ResumeData {
-    text: string;
-    filename?: string;
-    source: "text" | "file" | "url";
-    s3Key?: string;
-}
-
-interface JobData {
-    text: string;
-    title?: string;
-    source: "text" | "file" | "url";
-}
 
 interface OcrStatus {
     show: boolean;
@@ -56,7 +46,12 @@ export default function ResumeGeneratorPage() {
 
 
     // Resume state
-    const [resumeData, setResumeData] = useState<ResumeData>({ text: "", source: "text" });
+    // Resume state from store
+    const {
+        resumeText, resumeFilename, setResumeText,
+        jobDescription, jobTitle, setJobDescription
+    } = useResumeStore();
+
     const [resumeUrl, setResumeUrl] = useState("");
     const [saveResume, setSaveResume] = useState(true); // Default to true based on user request
     const [resumeName, setResumeName] = useState("");
@@ -64,7 +59,7 @@ export default function ResumeGeneratorPage() {
     const resumeFileInputRef = useRef<HTMLInputElement>(null);
 
     // Job Description state
-    const [jobData, setJobData] = useState<JobData>({ text: "", source: "text" });
+    // Job state
     const [jobUrl, setJobUrl] = useState("");
     const jobFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,19 +75,7 @@ export default function ResumeGeneratorPage() {
     const [resumeOcr, setResumeOcr] = useState<OcrStatus>({ show: false, running: false });
     const [jobOcr, setJobOcr] = useState<OcrStatus>({ show: false, running: false });
 
-    // Load saved resume from localStorage on mount
-    useEffect(() => {
-        const savedResumeData = localStorage.getItem("selectedResumeData");
-        if (savedResumeData) {
-            try {
-                const data = JSON.parse(savedResumeData);
-                setResumeData(data);
-                localStorage.removeItem("selectedResumeData");
-            } catch (e) {
-                console.error("Failed to load saved resume:", e);
-            }
-        }
-    }, []);
+
 
     // Save Resume Handler
     // Save Resume Handler
@@ -164,12 +147,7 @@ export default function ResumeGeneratorPage() {
 
             if (result.success) {
                 if (type === "resume") {
-                    setResumeData({
-                        text: result.text,
-                        filename: result.filename,
-                        source: "file",
-                        s3Key: result.s3Key,
-                    });
+                    setResumeText(result.text, result.filename);
                     setResumeName(result.filename);
                     setResumeOcr({ show: false, running: false });
 
@@ -180,11 +158,7 @@ export default function ResumeGeneratorPage() {
                         }
                     }
                 } else {
-                    setJobData({
-                        text: result.text,
-                        title: result.filename,
-                        source: "file",
-                    });
+                    setJobDescription(result.text, result.filename);
                     setJobOcr({ show: false, running: false });
                 }
             } else if (result.error === "pdf_no_extractable_text" && result.can_ocr) {
@@ -231,11 +205,7 @@ export default function ResumeGeneratorPage() {
 
             if (result.success) {
                 if (type === "resume") {
-                    setResumeData({
-                        text: result.content,
-                        filename: result.title,
-                        source: "url",
-                    });
+                    setResumeText(result.content, result.title);
                     setResumeUrl("");
 
                     // Auto-save if checked
@@ -245,11 +215,7 @@ export default function ResumeGeneratorPage() {
                         }
                     }
                 } else {
-                    setJobData({
-                        text: result.content,
-                        title: result.title,
-                        source: "url",
-                    });
+                    setJobDescription(result.content, result.title);
                     setJobUrl("");
                 }
             } else {
@@ -264,13 +230,13 @@ export default function ResumeGeneratorPage() {
 
     // Clear data handlers
     const clearResume = () => {
-        setResumeData({ text: "", source: "text" });
+        setResumeText("");
         setErrors(prev => ({ ...prev, resume: undefined }));
         if (resumeFileInputRef.current) resumeFileInputRef.current.value = "";
     };
 
     const clearJob = () => {
-        setJobData({ text: "", source: "text" });
+        setJobDescription("");
         setErrors(prev => ({ ...prev, job: undefined }));
         if (jobFileInputRef.current) jobFileInputRef.current.value = "";
     };
@@ -305,22 +271,14 @@ export default function ResumeGeneratorPage() {
             if (result.ok && result.text) {
                 // Update data with extracted text
                 if (type === "resume") {
-                    setResumeData({
-                        text: result.text,
-                        filename: result.filename,
-                        source: "file",
-                    });
+                    setResumeText(result.text, result.filename);
 
                     // Auto-save if checked
                     if (saveResume) {
                         handleSaveResume(result.text, result.filename);
                     }
                 } else {
-                    setJobData({
-                        text: result.text,
-                        title: result.filename,
-                        source: "file",
-                    });
+                    setJobDescription(result.text, result.filename);
                 }
                 setOcr({ show: false, running: false });
             } else {
@@ -340,13 +298,9 @@ export default function ResumeGeneratorPage() {
 
     // Navigate to template selection
     const handleSelectTemplate = () => {
-        if (!resumeData.text || !jobData.text) return;
+        if (!resumeText || !jobDescription) return;
 
-        // Store data in sessionStorage for next step
-        sessionStorage.setItem("resumeGenerator_resumeText", resumeData.text);
-        sessionStorage.setItem("resumeGenerator_jobText", jobData.text);
-        sessionStorage.setItem("resumeGenerator_resumeFilename", resumeData.filename || "");
-
+        // Data is already in Zustand store and persisted
         router.push("/dashboard/career/resume-generator/templates");
     };
 
@@ -370,7 +324,7 @@ export default function ResumeGeneratorPage() {
         if (file) handleFileUpload(file, "job");
     };
 
-    const canProceed = resumeData.text.length > 50 && jobData.text.length > 50;
+    const canProceed = resumeText.length > 50 && jobDescription.length > 50;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -432,12 +386,12 @@ export default function ResumeGeneratorPage() {
                                 </div>
                             </div>
                             <div className="flex gap-2">
-                                {resumeData.text && (
+                                {resumeText && (
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         className="text-gray-500 hover:text-blue-600"
-                                        onClick={() => handleSaveResume(resumeData.text, resumeData.filename || resumeName || "My Resume", resumeData.s3Key)}
+                                        onClick={() => handleSaveResume(resumeText, resumeFilename || resumeName || "My Resume")}
                                         disabled={isSaving}
                                     >
                                         {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -458,12 +412,12 @@ export default function ResumeGeneratorPage() {
                         {/* Text Area */}
                         <div className="relative">
                             <textarea
-                                value={resumeData.text}
-                                onChange={(e) => setResumeData({ text: e.target.value, source: "text" })}
+                                value={resumeText}
+                                onChange={(e) => setResumeText(e.target.value)}
                                 placeholder="Paste your resume text here..."
                                 className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all resize-none text-sm"
                             />
-                            {resumeData.text && (
+                            {resumeText && (
                                 <button
                                     onClick={clearResume}
                                     className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -482,10 +436,10 @@ export default function ResumeGeneratorPage() {
                         )}
 
                         {/* Success indicator */}
-                        {resumeData.filename && (
+                        {resumeFilename && (
                             <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
                                 <Check className="w-4 h-4" />
-                                Loaded: {resumeData.filename}
+                                Loaded: {resumeFilename}
                             </div>
                         )}
 
@@ -666,8 +620,8 @@ export default function ResumeGeneratorPage() {
 
                         {/* Character count */}
                         <div className="mt-3 text-xs text-gray-400">
-                            {resumeData.text.length} characters
-                            {resumeData.text.length < 50 && resumeData.text.length > 0 && (
+                            {resumeText.length} characters
+                            {resumeText.length < 50 && resumeText.length > 0 && (
                                 <span className="text-amber-500"> (min 50 required)</span>
                             )}
                         </div>
@@ -688,12 +642,12 @@ export default function ResumeGeneratorPage() {
                         {/* Text Area */}
                         <div className="relative">
                             <textarea
-                                value={jobData.text}
-                                onChange={(e) => setJobData({ text: e.target.value, source: "text" })}
+                                value={jobDescription}
+                                onChange={(e) => setJobDescription(e.target.value)}
                                 placeholder="Copy and paste the full job description here..."
                                 className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 transition-all resize-none text-sm"
                             />
-                            {jobData.text && (
+                            {jobDescription && (
                                 <button
                                     onClick={clearJob}
                                     className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -712,10 +666,10 @@ export default function ResumeGeneratorPage() {
                         )}
 
                         {/* Success indicator */}
-                        {jobData.title && (
+                        {jobTitle && (
                             <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
                                 <Check className="w-4 h-4" />
-                                Loaded: {jobData.title}
+                                Loaded: {jobTitle}
                             </div>
                         )}
 
@@ -884,8 +838,8 @@ export default function ResumeGeneratorPage() {
 
                         {/* Character count */}
                         <div className="mt-3 text-xs text-gray-400">
-                            {jobData.text.length} characters
-                            {jobData.text.length < 50 && jobData.text.length > 0 && (
+                            {jobDescription.length} characters
+                            {jobDescription.length < 50 && jobDescription.length > 0 && (
                                 <span className="text-amber-500"> (min 50 required)</span>
                             )}
                         </div>

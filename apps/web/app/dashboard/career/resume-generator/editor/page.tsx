@@ -19,148 +19,198 @@ import {
     Maximize2,
     Minimize2,
     Settings,
+    Play,
 } from "lucide-react";
 import Link from "next/link";
-
-// Sample LaTeX template
-const generateSampleLatex = (templateId: string) => {
-    return `%-------------------------
-% Resume in LaTeX
-% Template: ${templateId}
-%-------------------------
-
-\\documentclass[letterpaper,11pt]{article}
-
-\\usepackage{latexsym}
-\\usepackage[empty]{fullpage}
-\\usepackage{titlesec}
-\\usepackage{marvosym}
-\\usepackage[usenames,dvipsnames]{color}
-\\usepackage{verbatim}
-\\usepackage{enumitem}
-\\usepackage[hidelinks]{hyperref}
-\\usepackage{fancyhdr}
-\\usepackage[english]{babel}
-\\usepackage{tabularx}
-
-\\pagestyle{fancy}
-\\fancyhf{}
-\\renewcommand{\\headrulewidth}{0pt}
-\\renewcommand{\\footrulewidth}{0pt}
-
-% Adjust margins
-\\addtolength{\\oddsidemargin}{-0.5in}
-\\addtolength{\\evensidemargin}{-0.5in}
-\\addtolength{\\textwidth}{1in}
-\\addtolength{\\topmargin}{-.5in}
-\\addtolength{\\textheight}{1in}
-
-\\raggedbottom
-\\raggedright
-\\setlength{\\tabcolsep}{0in}
-
-% Sections formatting
-\\titleformat{\\section}{
-  \\vspace{-4pt}\\scshape\\raggedright\\large
-}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
-
-\\begin{document}
-
-%----------HEADING----------
-\\begin{center}
-    \\textbf{\\Huge \\scshape John Doe} \\\\ \\vspace{1pt}
-    \\small 123-456-7890 $|$ 
-    \\href{mailto:john@email.com}{\\underline{john@email.com}} $|$ 
-    \\href{https://linkedin.com/in/johndoe}{\\underline{linkedin.com/in/johndoe}} $|$
-    \\href{https://github.com/johndoe}{\\underline{github.com/johndoe}}
-\\end{center}
-
-%-----------EDUCATION-----------
-\\section{Education}
-  \\begin{itemize}[leftmargin=0.15in, label={}]
-    \\small{\\item{
-     \\textbf{University of Technology} \\hfill May 2024 \\\\
-     Bachelor of Science in Computer Science \\hfill \\textit{GPA: 3.8/4.0} \\\\
-    }}
-  \\end{itemize}
-
-%-----------EXPERIENCE-----------
-\\section{Experience}
-  \\begin{itemize}[leftmargin=0.15in, label={}]
-    \\small{\\item{
-     \\textbf{Software Engineer Intern} \\hfill June 2023 -- August 2023 \\\\
-     \\textit{Tech Company Inc.} \\hfill \\textit{San Francisco, CA} \\\\
-     \\begin{itemize}
-         \\item Developed and maintained web applications using React and Node.js
-         \\item Collaborated with cross-functional teams to deliver features on time
-         \\item Improved application performance by 40\\% through code optimization
-     \\end{itemize}
-    }}
-  \\end{itemize}
-
-%-----------SKILLS-----------
-\\section{Technical Skills}
- \\begin{itemize}[leftmargin=0.15in, label={}]
-    \\small{\\item{
-     \\textbf{Languages}{: JavaScript, TypeScript, Python, Java, SQL} \\\\
-     \\textbf{Frameworks}{: React, Node.js, Next.js, Express} \\\\
-     \\textbf{Tools}{: Git, Docker, AWS, PostgreSQL, MongoDB}
-    }}
- \\end{itemize}
-
-\\end{document}`;
-};
+import { useToast } from "@/components/ui/use-toast";
+import { useResumeStore } from "@/store/resume-store";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AtsScorePanel } from "./components/AtsScorePanel";
 
 export default function ResumeEditorPage() {
-    const [latexCode, setLatexCode] = useState("");
-    const [templateId, setTemplateId] = useState("modern");
-    const [resumeText, setResumeText] = useState("");
-    const [jobText, setJobText] = useState("");
-    const [isGenerating, setIsGenerating] = useState(false);
+    const { toast } = useToast();
+
+
+    // Store
+    const {
+        // Data
+        resumeText, jobDescription, selectedTemplateId,
+        generatedLatex, compiledPdfUrl, atsAnalysis,
+        // Setters
+        setGeneratedLatex, setCompiledPdfUrl, setAtsAnalysis,
+        // Status
+        isGenerating, setIsGenerating,
+        isCompiling, setIsCompiling
+    } = useResumeStore();
+
+    // Local UI State
     const [isCopied, setIsCopied] = useState(false);
+
+    // UI States
     const [editorWidth, setEditorWidth] = useState(50); // Percentage
     const [showPreview, setShowPreview] = useState(true);
 
-    // Load data from sessionStorage
+    // 1. Load data & Generate on Mount
+    // 1. Generate on Mount if missing
     useEffect(() => {
-        const storedResume = sessionStorage.getItem("resumeGenerator_resumeText");
-        const storedJob = sessionStorage.getItem("resumeGenerator_jobText");
-        const storedTemplate = sessionStorage.getItem("resumeGenerator_template");
+        // Only generate if we have data and NO code yet
+        // If we already have generatedLatex (from persistence), use it
+        if (resumeText && jobDescription && selectedTemplateId && !generatedLatex && !isGenerating) {
+            generateResume(resumeText, jobDescription, selectedTemplateId);
+        }
+    }, [resumeText, jobDescription, selectedTemplateId, generatedLatex]);
 
-        if (storedResume) setResumeText(storedResume);
-        if (storedJob) setJobText(storedJob);
-        if (storedTemplate) setTemplateId(storedTemplate);
+    // API: Generate Resume
+    const generateResume = async (resume: string, job: string, template: string) => {
+        setIsGenerating(true);
+        try {
+            const response = await fetch('/api/resume-generator/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    resumeText: resume,
+                    jobDescription: job,
+                    templateId: template
+                })
+            });
 
-        // Generate initial LaTeX
-        setLatexCode(generateSampleLatex(storedTemplate || "modern"));
-    }, []);
+            const data = await response.json();
 
-    const handleCopy = useCallback(() => {
-        navigator.clipboard.writeText(latexCode);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-    }, [latexCode]);
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate resume');
+            }
 
-    const handleDownload = useCallback(() => {
-        // Create a blob and download
-        const blob = new Blob([latexCode], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "resume.tex";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }, [latexCode]);
+            setGeneratedLatex(data.latex);
 
+            // Auto-compile after generation
+            if (data.latex) {
+                compilePdf(data.latex);
+            }
+
+            toast({
+                title: "Resume Generated",
+                description: "AI has tailored your resume to the job description.",
+            });
+
+        } catch (error: any) {
+            console.error(error);
+            toast({
+                title: "Generation Failed",
+                description: error.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    // API: Compile PDF
+    const compilePdf = async (code: string) => {
+        if (!code) return;
+        setIsCompiling(true);
+        try {
+            const response = await fetch('/api/resume-generator/compile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ latexCode: code })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Compilation failed');
+            }
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            setCompiledPdfUrl(url);
+
+        } catch (error: any) {
+            console.error(error);
+            toast({
+                title: "Compilation Failed",
+                description: "Could not create PDF preview. Please check LaTeX syntax.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsCompiling(false);
+        }
+    };
+
+    // Handle Manual Regenerate
     const handleRegenerate = async () => {
         setIsGenerating(true);
-        // Simulate AI regeneration
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setLatexCode(generateSampleLatex(templateId));
-        setIsGenerating(false);
+        try {
+            const response = await fetch('/api/resume-generator/regenerate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    resumeText,
+                    jobDescription,
+                    templateId: selectedTemplateId || "modern",
+                    previousLatex: generatedLatex,
+                    userFeedback: "Make it better" // TODO: Add UI for user feedback
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to regenerate resume');
+            }
+
+            setGeneratedLatex(data.latex);
+            if (data.atsCheck) {
+                setAtsAnalysis(data.atsCheck);
+            }
+
+            // Show toast
+            toast({
+                title: "Resume Regenerated",
+                description: "AI has improved your resume based on the previous version.",
+            });
+
+            // Auto-compile
+            if (data.latex) {
+                compilePdf(data.latex);
+            }
+
+        } catch (error: any) {
+            console.error(error);
+            toast({
+                title: "Regeneration Failed",
+                description: error.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsGenerating(false);
+        }
     };
+
+    const handleCopy = useCallback(() => {
+        navigator.clipboard.writeText(generatedLatex);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+        toast({ description: "LaTeX code copied to clipboard" });
+    }, [generatedLatex, toast]);
+
+    const handleDownload = useCallback(() => {
+        // If we have a compiled PDF, download that
+        if (compiledPdfUrl) {
+            const a = document.createElement("a");
+            a.href = compiledPdfUrl;
+            a.download = `resume_${selectedTemplateId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } else {
+            // Fallback: Compile and download
+            compilePdf(generatedLatex).then(() => {
+                // The compile function sets pdfUrl, user has to click again or we automate it? 
+                // For simplicity, just trigger compile if not ready.
+                toast({ description: "Compiling PDF... click download again when ready." });
+            });
+        }
+    }, [compiledPdfUrl, generatedLatex, selectedTemplateId, toast]);
 
     return (
         <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
@@ -177,18 +227,19 @@ export default function ResumeEditorPage() {
                             <span className="hidden sm:inline">Templates</span>
                         </Link>
 
-                        {/* Title + Progress */}
+                        {/* Title + Status */}
                         <div className="text-center">
                             <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
                                 Resume Editor
                             </h1>
                             <div className="flex items-center justify-center gap-2 mt-0.5">
-                                <div className="flex items-center gap-1">
-                                    <div className="w-6 h-1 rounded-full bg-blue-600" />
-                                    <div className="w-6 h-1 rounded-full bg-blue-600" />
-                                    <div className="w-6 h-1 rounded-full bg-blue-600" />
-                                </div>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">Step 3 of 3</span>
+                                {isGenerating ? (
+                                    <span className="text-xs text-blue-600 animate-pulse font-medium">✨ Generating with AI...</span>
+                                ) : isCompiling ? (
+                                    <span className="text-xs text-amber-600 animate-pulse font-medium">⚙️ Compiling PDF...</span>
+                                ) : (
+                                    <span className="text-xs text-green-600 font-medium">Ready</span>
+                                )}
                             </div>
                         </div>
 
@@ -197,19 +248,31 @@ export default function ResumeEditorPage() {
                             <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={() => compilePdf(generatedLatex)}
+                                disabled={isCompiling || !generatedLatex}
+                                className="hidden sm:flex items-center gap-1 text-gray-600"
+                            >
+                                <Play className="w-4 h-4" />
+                                <span className="hidden lg:inline">Refresh PDF</span>
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={handleCopy}
                                 className="hidden sm:flex items-center gap-1"
                             >
                                 {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                {isCopied ? "Copied!" : "Copy"}
+                                {isCopied ? "Copied" : "Copy Source"}
                             </Button>
                             <Button
                                 size="sm"
                                 onClick={handleDownload}
+                                disabled={!compiledPdfUrl && !generatedLatex}
                                 className="bg-blue-600 hover:bg-blue-700 text-white"
                             >
                                 <Download className="w-4 h-4 mr-1" />
-                                Download
+                                Download PDF
                             </Button>
                         </div>
                     </div>
@@ -281,17 +344,18 @@ export default function ResumeEditorPage() {
                                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">LaTeX Editor</span>
                             </div>
                             <span className="text-xs text-gray-400">
-                                {latexCode.split('\n').length} lines
+                                {generatedLatex.split('\n').length} lines
                             </span>
                         </div>
 
                         {/* Code Editor */}
                         <div className="flex-1 overflow-hidden">
                             <textarea
-                                value={latexCode}
-                                onChange={(e) => setLatexCode(e.target.value)}
+                                value={generatedLatex}
+                                onChange={(e) => setGeneratedLatex(e.target.value)}
                                 className="w-full h-full p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none"
                                 spellCheck={false}
+                                placeholder="LaTeX code will appear here..."
                                 style={{
                                     lineHeight: '1.6',
                                     tabSize: 2,
@@ -312,85 +376,66 @@ export default function ResumeEditorPage() {
                         className="flex flex-col bg-gray-100 dark:bg-gray-800"
                         style={{ width: editorWidth === 0 ? '100%' : `${100 - editorWidth}%` }}
                     >
-                        {/* Preview Header */}
-                        <div className="flex-shrink-0 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Eye className="w-4 h-4 text-gray-500" />
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">PDF Preview</span>
-                            </div>
-                            <Button variant="ghost" size="sm">
-                                <Maximize2 className="w-4 h-4" />
-                            </Button>
-                        </div>
-
                         {/* Preview Content */}
-                        <div className="flex-1 overflow-auto p-6 flex justify-center">
-                            <div className="w-full max-w-[8.5in] bg-white shadow-2xl rounded-lg overflow-hidden">
-                                {/* Simulated PDF Preview */}
-                                <div className="p-8 sm:p-12 min-h-[11in]">
-                                    {/* Header */}
-                                    <div className="text-center mb-6">
-                                        <h1 className="text-2xl font-bold text-gray-900 mb-1">John Doe</h1>
-                                        <p className="text-sm text-gray-600">
-                                            123-456-7890 | john@email.com | linkedin.com/in/johndoe | github.com/johndoe
-                                        </p>
-                                    </div>
-
-                                    {/* Education */}
-                                    <div className="mb-6">
-                                        <h2 className="text-lg font-bold text-gray-900 border-b border-gray-300 pb-1 mb-3">
-                                            EDUCATION
-                                        </h2>
-                                        <div className="flex justify-between">
-                                            <div>
-                                                <p className="font-semibold">University of Technology</p>
-                                                <p className="text-sm text-gray-600">Bachelor of Science in Computer Science</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-sm">May 2024</p>
-                                                <p className="text-sm text-gray-600 italic">GPA: 3.8/4.0</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Experience */}
-                                    <div className="mb-6">
-                                        <h2 className="text-lg font-bold text-gray-900 border-b border-gray-300 pb-1 mb-3">
-                                            EXPERIENCE
-                                        </h2>
-                                        <div className="mb-4">
-                                            <div className="flex justify-between">
-                                                <div>
-                                                    <p className="font-semibold">Software Engineer Intern</p>
-                                                    <p className="text-sm text-gray-600 italic">Tech Company Inc.</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-sm">June 2023 – August 2023</p>
-                                                    <p className="text-sm text-gray-600 italic">San Francisco, CA</p>
-                                                </div>
-                                            </div>
-                                            <ul className="mt-2 text-sm text-gray-700 list-disc list-inside">
-                                                <li>Developed and maintained web applications using React and Node.js</li>
-                                                <li>Collaborated with cross-functional teams to deliver features on time</li>
-                                                <li>Improved application performance by 40% through code optimization</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    {/* Skills */}
-                                    <div>
-                                        <h2 className="text-lg font-bold text-gray-900 border-b border-gray-300 pb-1 mb-3">
-                                            TECHNICAL SKILLS
-                                        </h2>
-                                        <div className="text-sm">
-                                            <p><strong>Languages:</strong> JavaScript, TypeScript, Python, Java, SQL</p>
-                                            <p><strong>Frameworks:</strong> React, Node.js, Next.js, Express</p>
-                                            <p><strong>Tools:</strong> Git, Docker, AWS, PostgreSQL, MongoDB</p>
-                                        </div>
-                                    </div>
-                                </div>
+                        <Tabs defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
+                            <div className="flex-shrink-0 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                                <TabsList className="h-8">
+                                    <TabsTrigger value="preview" className="text-xs">PDF Preview</TabsTrigger>
+                                    <TabsTrigger value="ats" className="text-xs">
+                                        ATS Analysis
+                                        {atsAnalysis && !atsAnalysis.passed && (
+                                            <span className="ml-2 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                        )}
+                                    </TabsTrigger>
+                                </TabsList>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => compilePdf(generatedLatex)}
+                                    disabled={isCompiling}
+                                >
+                                    <RefreshCw className={`w-4 h-4 ${isCompiling ? 'animate-spin' : ''}`} />
+                                </Button>
                             </div>
-                        </div>
+
+                            <TabsContent value="preview" className="flex-1 overflow-hidden flex justify-center bg-gray-200/50 dark:bg-gray-900/50 p-4 m-0 data-[state=inactive]:hidden">
+                                {compiledPdfUrl ? (
+                                    <iframe
+                                        src={`${compiledPdfUrl}#toolbar=0&view=FitH`}
+                                        className="w-full h-full max-w-[8.5in] bg-white shadow-2xl rounded-lg"
+                                        title="Resume Preview"
+                                    />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center p-8 text-gray-500 w-full h-full">
+                                        {isGenerating ? (
+                                            <>
+                                                <Loader2 className="w-10 h-10 animate-spin mb-4 text-blue-500" />
+                                                <p>Generating tailored resume...</p>
+                                            </>
+                                        ) : isCompiling ? (
+                                            <>
+                                                <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-500" />
+                                                <p>Compiling PDF...</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Eye className="w-12 h-12 mb-4 opacity-50" />
+                                                <p>PDF preview will appear here</p>
+                                                <Button variant="link" onClick={() => compilePdf(generatedLatex)}>
+                                                    Force Refresh
+                                                </Button>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            <TabsContent value="ats" className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 m-0 data-[state=inactive]:hidden">
+                                <div className="max-w-2xl mx-auto">
+                                    <AtsScorePanel analysis={atsAnalysis} />
+                                </div>
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 )}
             </div>
