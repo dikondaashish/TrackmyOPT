@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronRight, Phone, Mail, MapPin, Youtube, Globe, Linkedin, Github, ZoomIn, ZoomOut, Maximize } from "lucide-react";
+import { Check, ChevronRight, Phone, Mail, MapPin, Youtube, Globe, Linkedin, Github, ZoomIn, ZoomOut, Maximize, TrendingUp, CheckCircle } from "lucide-react";
 
 export interface TemplateColor {
     name: string;
@@ -126,21 +126,6 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Gap */}
-                    <div className="h-8 w-full shrink-0" />
-
-                    {/* Page 2 */}
-                    <div
-                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
-                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Source Sans Pro", sans-serif' }}
-                    >
-                        <div className="p-10 text-gray-900 h-full flex flex-col">
-                            {/* Modern Content Page 2 */}
-                            <div className="space-y-5 flex-1">
                                 <div>
                                     <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Education</h2>
                                     <div className="text-sm space-y-3">
@@ -166,6 +151,22 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Source Sans Pro", sans-serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            {/* Modern Content Page 2 */}
+                            <div className="space-y-5 flex-1">
+                                {/* Content moved to Page 1 */}
                             </div>
                         </div>
                     </div>
@@ -451,6 +452,32 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
+                                {/* Projects (Moved from Page 2) */}
+                                <div>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Projects</h2>
+                                    <div className="space-y-4 text-sm">
+                                        <div>
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Design Systems Conference Talk</span>
+                                                <span>2022</span>
+                                            </div>
+                                            <ul className="list-disc ml-5 space-y-2 text-gray-800">
+                                                <li>Delivered a talk at Config 2022 titled "Scaling Empathy in Design Systems," viewed by 10k+ designers.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Skills (Moved from Page 2) */}
+                                <div>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Skills</h2>
+                                    <div className="text-sm text-gray-800 space-y-1">
+                                        <div><span className="font-bold">Design:</span> UI/UX, Interaction Design, Visual Design, Prototyping, Wireframing</div>
+                                        <div><span className="font-bold">Tools:</span> Figma, Protopie, Adobe CC (Ps, Ai, Ae), Sketch, Principle</div>
+                                        <div><span className="font-bold">Code:</span> HTML/CSS, React (Basic), Storybook, Framer Motion</div>
+                                        <div><span className="font-bold">Research:</span> Usability Testing, User Interviews, A/B Testing, Heuristic Analysis</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -469,32 +496,10 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 {/* Experience (Part 2 - Empty now, removed) */}
 
 
-                                {/* Projects */}
-                                <div>
-                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Projects</h2>
-                                    <div className="space-y-4 text-sm">
-                                        <div>
-                                            <div className="flex justify-between font-bold text-gray-900">
-                                                <span>Design Systems Conference Talk</span>
-                                                <span>2022</span>
-                                            </div>
-                                            <ul className="list-disc ml-5 space-y-2 text-gray-800">
-                                                <li>Delivered a talk at Config 2022 titled "Scaling Empathy in Design Systems," viewed by 10k+ designers.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                                {/* Projects (Moved to Page 1) */}
 
-                                {/* Skills */}
-                                <div>
-                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Skills</h2>
-                                    <div className="text-sm text-gray-800 space-y-1">
-                                        <div><span className="font-bold">Design:</span> UI/UX, Interaction Design, Visual Design, Prototyping, Wireframing</div>
-                                        <div><span className="font-bold">Tools:</span> Figma, Protopie, Adobe CC (Ps, Ai, Ae), Sketch, Principle</div>
-                                        <div><span className="font-bold">Code:</span> HTML/CSS, React (Basic), Storybook, Framer Motion</div>
-                                        <div><span className="font-bold">Research:</span> Usability Testing, User Interviews, A/B Testing, Heuristic Analysis</div>
-                                    </div>
-                                </div>
+
+                                {/* Skills (Moved to Page 1) */}
 
                             </div>
                         </div>
@@ -595,24 +600,8 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Gap */}
-                    <div className="h-8 w-full shrink-0" />
-
-                    {/* Page 2 */}
-                    <div
-                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
-                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Times New Roman", Times, serif' }}
-                    >
-                        <div className="p-10 text-gray-900 h-full flex flex-col">
-                            <div className="space-y-6">
-                                {/* Experience (Part 2 - Moved to Page 1) */}
-
-
-                                {/* Publications */}
+                                {/* Publications (Moved from Page 2) */}
                                 <div>
                                     <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Selected Publications</h2>
                                     <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
@@ -622,7 +611,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </ul>
                                 </div>
 
-                                {/* Programming Skills */}
+                                {/* Programming Skills (Moved from Page 2) */}
                                 <div>
                                     <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Technical Skills</h2>
                                     <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
@@ -632,7 +621,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </ul>
                                 </div>
 
-                                {/* Education */}
+                                {/* Education (Moved from Page 2) */}
                                 <div>
                                     <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Education</h2>
                                     <div className="space-y-4">
@@ -658,6 +647,30 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Times New Roman", Times, serif' }}
+                    >
+                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                            <div className="space-y-6">
+                                {/* Experience (Part 2 - Moved to Page 1) */}
+
+
+                                {/* Publications (Moved to Page 1) */}
+
+
+                                {/* Programming Skills (Moved to Page 1) */}
+
+                                {/* Education (Moved to Page 1) */}
+
                             </div>
                         </div>
                     </div>
@@ -756,24 +769,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Gap */}
-                    <div className="h-8 w-full shrink-0" />
-
-                    {/* Page 2 */}
-                    <div
-                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
-                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Lato", "Inter", sans-serif' }}
-                    >
-                        <div className="p-12 text-gray-900 h-full flex flex-col">
-                            <div className="space-y-6">
-                                {/* Projects (Moved to Page 1 Experience) */}
-
-
-                                {/* Board Memberships */}
+                                {/* Board Memberships (Moved from Page 2) */}
                                 <div>
                                     <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Board Memberships & Advisory</h2>
                                     <div className="space-y-2 text-sm text-gray-800">
@@ -782,7 +778,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </div>
                                 </div>
 
-                                {/* Skills */}
+                                {/* Skills (Moved from Page 2) */}
                                 <div>
                                     <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Strategic & Technical Skills</h2>
                                     <div className="text-sm text-gray-800 space-y-1">
@@ -790,8 +786,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div><span className="font-bold">Technical:</span> Distributed Systems, Cloud Native Architecture (Kubernetes), AI/ML Platforms, Fintech/Payments</div>
                                     </div>
                                 </div>
-
-                                {/* Education */}
+                                {/* Education (Moved from Page 2) */}
                                 <div>
                                     <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Education</h2>
                                     <div className="text-sm">
@@ -813,6 +808,29 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Gap */}
+                    <div className="h-8 w-full shrink-0" />
+
+                    {/* Page 2 */}
+                    <div
+                        className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
+                        style={{ minHeight: `${pageHeight}px`, fontFamily: '"Lato", "Inter", sans-serif' }}
+                    >
+                        <div className="p-12 text-gray-900 h-full flex flex-col">
+                            <div className="space-y-6">
+                                {/* Projects (Moved to Page 1 Experience) */}
+
+
+                                {/* Board Memberships (Moved to Page 1) */}
+
+
+                                {/* Skills (Moved to Page 1) */}
+
+                                {/* Education (Moved to Page 1) */}
 
                             </div>
                         </div>
@@ -918,6 +936,49 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
+                                {/* Projects (Moved from Page 2) */}
+                                <div>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Projects</h2>
+                                    <div className="space-y-3 text-sm">
+                                        <div>
+                                            <div className="font-bold text-gray-900">Serverless Image Processing Pipeline</div>
+                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
+                                                <li>Built a serverless architecture using AWS Lambda and S3 to process 10k+ images daily.</li>
+                                                <li>Reduced processing costs by 60% compared to EC2-based solution.</li>
+                                                <li>Implemented event-driven triggers for automated resizing and optimization.</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-gray-900">Multi-Cloud Disaster Recovery Strategy</div>
+                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
+                                                <li>Designed a failover strategy across AWS and Azure using Terraform and DNS traffic management.</li>
+                                                <li>Conducted successful DR drills to validate RPO/RTO objectives.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Education (Moved from Page 2) */}
+                                <div>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Education</h2>
+                                    <div className="space-y-2 text-sm text-gray-800">
+                                        <div className="flex justify-between font-bold text-gray-900">
+                                            <span>University of Washington</span>
+                                            <span>Seattle, WA</span>
+                                        </div>
+                                        <div className="flex justify-between italic text-gray-700">
+                                            <span>M.S. in Computer Science</span>
+                                            <span>2014 -- 2016</span>
+                                        </div>
+                                        <div className="flex justify-between font-bold text-gray-900 mt-2">
+                                            <span>Purdue University</span>
+                                            <span>West Lafayette, IN</span>
+                                        </div>
+                                        <div className="flex justify-between italic text-gray-700">
+                                            <span>B.S. in Electrical and Computer Engineering</span>
+                                            <span>2010 -- 2014</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -949,27 +1010,8 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </div>
                                 </div>
 
-                                {/* Projects */}
-                                <div>
-                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Projects</h2>
-                                    <div className="space-y-3 text-sm">
-                                        <div>
-                                            <div className="font-bold text-gray-900">Serverless Image Processing Pipeline</div>
-                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                                <li>Built a serverless architecture using AWS Lambda and S3 to process 10k+ images daily.</li>
-                                                <li>Reduced processing costs by 60% compared to EC2-based solution.</li>
-                                                <li>Implemented event-driven triggers for automated resizing and optimization.</li>
-                                            </ul>
-                                        </div>
-                                        <div>
-                                            <div className="font-bold text-gray-900">Multi-Cloud Disaster Recovery Strategy</div>
-                                            <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
-                                                <li>Designed a failover strategy across AWS and Azure using Terraform and DNS traffic management.</li>
-                                                <li>Conducted successful DR drills to validate RPO/RTO objectives.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                                {/* Projects (Moved to Page 1) */}
+
                                 {/* Certificates */}
                                 <div>
                                     <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Certifications</h2>
@@ -1060,7 +1102,30 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         </div>
 
                         <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mb-8">
-                            {/* Color Theme selection removed as requested */}
+                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="bg-blue-600 rounded-full p-1">
+                                        <TrendingUp className="w-3 h-3 text-white" />
+                                    </div>
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                                        Recent Success
+                                    </span>
+                                </div>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    Using this template cracked <span className="font-bold text-gray-900 dark:text-white">
+                                        {template.id === 'modern' && 'OpenAI'}
+                                        {template.id === 'professional' && 'Google'}
+                                        {template.id === 'creative' && 'Airbnb'}
+                                        {template.id === 'academic' && 'Stanford University'}
+                                        {template.id === 'executive' && 'Meta'}
+                                        {template.id === 'tech' && 'AWS'}
+                                    </span> ATS in recent time.
+                                </p>
+                                <div className="mt-3 flex items-center gap-1.5 text-[11px] text-green-600 dark:text-green-400 font-medium">
+                                    <CheckCircle className="w-3 h-3" />
+                                    Verified ATS-Compatible
+                                </div>
+                            </div>
                         </div>
 
                         <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
