@@ -72,7 +72,11 @@ export default function ResumeEditorPage() {
         text: generatedLatex,
         isEnabled: isStreamingEnabled,
         speed: 5, // Fast typing
-        onComplete: () => setIsStreamingEnabled(false)
+        onComplete: () => {
+            setIsStreamingEnabled(false);
+            // Sync history with the full generated text once streaming is done/stopped
+            updateText(generatedLatex, true);
+        }
     });
 
     // Auto-scroll to bottom while streaming
