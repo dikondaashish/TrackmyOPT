@@ -1,6 +1,6 @@
 {
-    "version": 2,
-    "framework": "nextjs",
-    "buildCommand": "cd apps/web && next build",
-    "outputDirectory": "apps/web/.next"
+    "projectSettings": {
+        "framework": "nextjs",
+        "rootDirectory": "apps/web"
+    }
 }
