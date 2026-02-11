@@ -24,7 +24,10 @@ export default function TemplateSelectionPage() {
     const {
         selectedTemplateId, setSelectedTemplateId,
         resumeText, jobDescription,
-        setSelectedColor
+        setSelectedColor,
+        setGeneratedLatex,
+        setCompiledPdfUrl,
+        setAtsAnalysis
     } = useResumeStore();
 
     const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
@@ -48,6 +51,11 @@ export default function TemplateSelectionPage() {
         } else {
             setSelectedColor(null);
         }
+
+        // CRITICAL: Clear previous generation results to force new generation
+        setGeneratedLatex('');
+        setCompiledPdfUrl('');
+        setAtsAnalysis(null);
 
         router.push("/dashboard/career/resume-generator/editor");
     };
