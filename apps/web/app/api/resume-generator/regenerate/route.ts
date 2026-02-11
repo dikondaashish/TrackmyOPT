@@ -20,16 +20,36 @@ export async function POST(req: NextRequest) {
         }
 
         // 1. Load Template
-        const templatePath = path.join(process.cwd(), 'apps/web/templates/latex', `${templateId}.tex`);
-        let templateTex = '';
+        // Try multiple paths to resolve template file (Vercel Lambda vs Local Monorepo)
+        const possiblePaths = [
+            path.join(process.cwd(), 'templates/latex', `${templateId}.tex`),
+            path.join(process.cwd(), 'apps/web/templates/latex', `${templateId}.tex`),
+        ];
 
-        if (fs.existsSync(templatePath)) {
-            templateTex = fs.readFileSync(templatePath, 'utf-8');
-        } else {
-            const fallbackPath = path.join(process.cwd(), 'apps/web/templates/latex', 'modern.tex');
-            if (fs.existsSync(fallbackPath)) {
-                templateTex = fs.readFileSync(fallbackPath, 'utf-8');
-            } else {
+        let templateTex = '';
+        for (const p of possiblePaths) {
+            if (fs.existsSync(p)) {
+                templateTex = fs.readFileSync(p, 'utf-8');
+                break;
+            }
+        }
+
+        if (!templateTex) {
+            // Fallback to modern.tex
+            const fallbackPaths = [
+                path.join(process.cwd(), 'templates/latex', 'modern.tex'),
+                path.join(process.cwd(), 'apps/web/templates/latex', 'modern.tex'),
+            ];
+
+            for (const p of fallbackPaths) {
+                if (fs.existsSync(p)) {
+                    templateTex = fs.readFileSync(p, 'utf-8');
+                    break;
+                }
+            }
+
+            if (!templateTex) {
+                console.error(`Template not found. Checked paths: ${possiblePaths.join(', ')}`);
                 return NextResponse.json({ error: 'Template not found' }, { status: 404 });
             }
         }
