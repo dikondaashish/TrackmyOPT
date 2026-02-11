@@ -2,13 +2,20 @@
   "name": "trackmyopt-monorepo",
   "version": "0.0.0",
   "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "build": "pnpm --filter web build",
-    "vercel-build": "pnpm --filter web build",
+    "vercel-build": "pnpm install && pnpm --filter web build",
     "dev": "pnpm -r dev",
     "lint": "pnpm -r lint"
   },
   "packageManager": "pnpm@10.18.2",
+  "engines": {
+    "node": ">=18.17.0",
+    "pnpm": ">=9.0.0"
+  },
   "dependencies": {
     "next": "^14.2.0"
   }
