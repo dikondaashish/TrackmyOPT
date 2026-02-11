@@ -1,6 +1,6 @@
 {
-    "projectSettings": {
-        "framework": "nextjs",
-        "rootDirectory": "apps/web"
-    }
+    "buildCommand": "cd apps/web && npx next build",
+    "outputDirectory": "apps/web/.next",
+    "framework": "nextjs",
+    "packageManager": "pnpm"
 }
