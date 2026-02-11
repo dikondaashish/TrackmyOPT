@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AtsScorePanel } from "./components/AtsScorePanel";
 import { LatexToolbar, EditorViewMode } from "./components/LatexToolbar";
 import { useEditorHistory } from "@/hooks/use-editor-history";
+import { useStreamingEffect } from "@/hooks/use-streaming-effect";
 
 export default function ResumeEditorPage() {
     const { toast } = useToast();
@@ -57,8 +58,32 @@ export default function ResumeEditorPage() {
         undo,
         redo,
         canUndo,
-        canRedo
+        canRedo,
+        text: historyText
     } = useEditorHistory(generatedLatex, setGeneratedLatex);
+
+    // Streaming Effect
+    const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
+
+    // Auto-scroll ref
+    const bottomRef = useRef<HTMLDivElement>(null);
+
+    const { displayedText, isStreaming, stopStreaming } = useStreamingEffect({
+        text: generatedLatex,
+        isEnabled: isStreamingEnabled,
+        speed: 5, // Fast typing
+        onComplete: () => setIsStreamingEnabled(false)
+    });
+
+    // Auto-scroll to bottom while streaming
+    useEffect(() => {
+        if (isStreaming && bottomRef.current) {
+            bottomRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [displayedText, isStreaming]);
+
+    // Use streaming text if active, otherwise history text
+    const editorValue = isStreaming ? displayedText : historyText;
 
     // Sync View Mode
     const handleViewModeChange = (mode: EditorViewMode) => {
@@ -138,9 +163,9 @@ export default function ResumeEditorPage() {
                 throw new Error(data.error || 'Failed to generate resume');
             }
 
-            // Directly set store, history might desync if we don't update it?
-            // useEditorHistory doesn't expose a "reset" but updateText works.
-            updateText(data.latex);
+            // Start streaming the new text
+            updateText(data.latex, false); // Update history/store without saving a new step yet? Or just update.
+            setIsStreamingEnabled(true);
 
             // Auto-compile after generation
             if (data.latex) {
@@ -259,7 +284,8 @@ export default function ResumeEditorPage() {
                 throw new Error(data.error || 'Failed to regenerate resume');
             }
 
-            updateText(data.latex);
+            updateText(data.latex, false);
+            setIsStreamingEnabled(true);
             if (data.atsCheck) {
                 setAtsAnalysis(data.atsCheck);
             }
@@ -423,12 +449,15 @@ export default function ResumeEditorPage() {
                     </div>
 
                     {/* Code Editor */}
-                    <div className="flex-1 overflow-hidden">
+                    <div className="flex-1 overflow-hidden relative group">
                         <textarea
                             ref={textareaRef}
-                            value={generatedLatex}
-                            onChange={(e) => updateText(e.target.value)}
-                            className="w-full h-full p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none"
+                            value={editorValue}
+                            onChange={(e) => {
+                                if (!isStreaming) updateText(e.target.value);
+                            }}
+                            readOnly={isStreaming}
+                            className={`w-full h-full p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none ${isStreaming ? 'cursor-not-allowed opacity-90' : ''}`}
                             spellCheck={false}
                             placeholder="LaTeX code will appear here..."
                             style={{
@@ -436,6 +465,23 @@ export default function ResumeEditorPage() {
                                 tabSize: 2,
                             }}
                         />
+                        {/* Invisible div for auto-scrolling */}
+                        <div ref={bottomRef} />
+
+                        {/* Stop Streaming Button */}
+                        {isStreaming && (
+                            <div className="absolute bottom-6 right-6 z-10">
+                                <Button
+                                    onClick={stopStreaming}
+                                    variant="secondary"
+                                    size="sm"
+                                    className="shadow-lg bg-white text-gray-900 hover:bg-gray-100"
+                                >
+                                    <span className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse" />
+                                    Stop Generating
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
