@@ -4,12 +4,10 @@
   "private": true,
   "scripts": {
     "build": "pnpm --filter web build",
+    "vercel-build": "pnpm --filter web build",
     "dev": "pnpm -r dev",
     "lint": "pnpm -r lint"
   },
   "packageManager": "pnpm@10.18.2",
-  "dependencies": {
-    "@radix-ui/react-tooltip": "^1.2.8",
-    "next": "^14.2.0"
-  }
+  "dependencies": {}
 }
