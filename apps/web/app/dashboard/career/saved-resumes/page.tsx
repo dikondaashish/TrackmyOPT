@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/components/ui/use-toast";
+import { useResumeStore } from "@/store/resume-store";
 
 import {
     AlertDialog,
@@ -113,14 +114,10 @@ export default function SavedResumesPage() {
         }
     };
 
+    const { setResumeText } = useResumeStore();
+
     const handleLoadResume = (resume: SavedResume) => {
-        // Store in localStorage to pass to generator page
-        localStorage.setItem("selectedResumeData", JSON.stringify({
-            text: resume.content,
-            filename: resume.filename,
-            source: "saved",
-            s3Key: resume.file_path
-        }));
+        setResumeText(resume.content, resume.filename);
         router.push("/dashboard/career/resume-generator");
     };
 
