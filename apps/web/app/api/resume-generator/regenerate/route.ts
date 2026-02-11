@@ -55,7 +55,8 @@ export async function POST(req: NextRequest) {
         }
 
         // 2. Build Prompt
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        // Using gemini-2.5-pro as requested by user
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
         const prompt = buildRegeneratePrompt(
             resumeText,
             jobDescription,
