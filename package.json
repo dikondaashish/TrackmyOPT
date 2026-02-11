@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "cd apps/web && next build",
+    "build": "pnpm --filter web build",
     "dev": "pnpm -r dev",
     "lint": "pnpm -r lint"
   },
