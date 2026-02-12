@@ -131,35 +131,48 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Build Prompt
-        // Using gemini-2.5-flash as requested by user
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        // Using gemini-2.5-pro as requested by user (Brain)
+        const primaryModel = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+        const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex);
 
-        let result;
+        let streamResult;
+
         try {
-            result = await model.generateContent(prompt);
-        } catch (modelError: any) {
-            console.warn("Gemini 2.5 Flash failed, falling back to Gemini Pro", modelError);
-            const fallbackModel = genAI.getGenerativeModel({ model: "gemini-pro" });
-            result = await fallbackModel.generateContent(prompt);
+            streamResult = await primaryModel.generateContentStream(prompt);
+        } catch (error) {
+            console.warn("Gemini 2.5 Pro failed to start stream, falling back to Flash", error);
+            streamResult = await fallbackModel.generateContentStream(prompt);
         }
 
-        const response = await result.response;
-        let latex = response.text();
-
-        // Clean Output
-        latex = latex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
-
-        // ATS Validation
-        const atsCheck = checkAtsCompliance(latex);
-
-        // 6. Track Usage
+        // 6. Track Usage (Track before streaming starts)
         await trackResumeGeneration(user.id, 'generate');
 
-        return NextResponse.json(
-            { success: true, latex, atsCheck },
-            { status: 200, headers: corsHeaders }
-        );
+        // 7. Create ReadableStream
+        const stream = new ReadableStream({
+            async start(controller) {
+                const encoder = new TextEncoder();
+                try {
+                    for await (const chunk of streamResult.stream) {
+                        const chunkText = chunk.text();
+                        if (chunkText) {
+                            controller.enqueue(encoder.encode(chunkText));
+                        }
+                    }
+                    controller.close();
+                } catch (error) {
+                    controller.error(error);
+                }
+            },
+        });
+
+        return new NextResponse(stream, {
+            headers: {
+                ...corsHeaders,
+                'Content-Type': 'text/plain; charset=utf-8',
+                'Transfer-Encoding': 'chunked',
+            },
+        });
 
     } catch (error: any) {
         console.error('Generation Error:', error);
