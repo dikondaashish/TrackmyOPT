@@ -6,8 +6,28 @@ export function buildRegeneratePrompt(
     jobDescription: string,
     templateTex: string,
     previousLatex: string,
-    userFeedback?: string
+    userFeedback?: string,
+    atsAnalysis?: any
 ): string {
+
+    let atsContext = "";
+    if (atsAnalysis && !atsAnalysis.passed) {
+        atsContext = `
+--- CRITICAL ATS FEEDBACK (MUST FIX) ---
+The previous resume FAILED the ATS scan with a score of ${atsAnalysis.score}/100.
+You MUST address the following gaps to achieve a >95% score:
+
+MISSING KEYWORDS (Integrate these naturally):
+${atsAnalysis.missingKeywords?.join(', ') || "None identified"}
+
+CRITICAL ISSUES:
+${atsAnalysis.issues?.map((i: any) => `- ${i}`).join('\n') || "None identified"}
+
+IMPROVEMENT PLAN:
+Focus strictly on adding these missing keywords and fixing the identified issues while maintaining the flow.
+`;
+    }
+
     return `
 ${SYSTEM_PROMPT}
 
@@ -23,6 +43,8 @@ Below is the previous version of the LaTeX resume that was generated. The user w
 4. Improve the professional summary to be more compelling
 5. Ensure all formatting and LaTeX structure remains identical to the template
 6. If the user provided specific feedback, prioritize that above all else
+
+${atsContext}
 
 --- PREVIOUS LATEX OUTPUT ---
 ${previousLatex}

@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { useResumeStore } from "@/store/resume-store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OptimizationFeedbackModal } from "./components/OptimizationFeedbackModal";
 import { AtsScorePanel } from "./components/AtsScorePanel";
 import { LatexToolbar, EditorViewMode } from "./components/LatexToolbar";
 import { useEditorHistory } from "@/hooks/use-editor-history";
@@ -44,6 +45,7 @@ export default function ResumeEditorPage() {
     // Local UI State
     const [isCopied, setIsCopied] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
     // View Mode State
     const [viewMode, setViewMode] = useState<EditorViewMode>('split');
@@ -194,7 +196,7 @@ export default function ResumeEditorPage() {
     };
 
     // API: Compile PDF
-    const compilePdf = async (code: string) => {
+    const compilePdf = async (code: string, retryCount = 0) => {
         if (!code) return;
         setIsCompiling(true);
         try {
@@ -206,7 +208,37 @@ export default function ResumeEditorPage() {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || 'Compilation failed');
+                const errorMessage = errorData.error || 'Compilation failed';
+
+                // Auto-Fix Logic (Try once)
+                if (retryCount === 0) {
+                    toast({
+                        title: "Syntax Error Detected",
+                        description: "AI is automatically fixing the LaTeX code...",
+                        variant: "default",
+                    });
+
+                    // Call Fix Endpoint
+                    const fixResponse = await fetch('/api/resume-generator/fix-latex', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            latexCode: code,
+                            errorMessage: errorMessage
+                        })
+                    });
+
+                    const fixData = await fixResponse.json();
+
+                    if (fixResponse.ok && fixData.latex) {
+                        // Apply fix and retry
+                        updateText(fixData.latex, false);
+                        await compilePdf(fixData.latex, 1); // Retry once
+                        return;
+                    }
+                }
+
+                throw new Error(errorMessage);
             }
 
             const blob = await response.blob();
@@ -221,7 +253,7 @@ export default function ResumeEditorPage() {
                 variant: "destructive",
             });
         } finally {
-            setIsCompiling(false);
+            if (retryCount === 0) setIsCompiling(false); // Only unset if not retrying
         }
     };
 
@@ -267,8 +299,9 @@ export default function ResumeEditorPage() {
     };
 
     // Handle Manual Regenerate
-    const handleRegenerate = async () => {
+    const handleRegenerate = async (feedback: string) => {
         setIsGenerating(true);
+        setShowFeedbackModal(false); // Close modal on start
         try {
             const response = await fetch('/api/resume-generator/regenerate', {
                 method: 'POST',
@@ -278,7 +311,8 @@ export default function ResumeEditorPage() {
                     jobDescription,
                     templateId: selectedTemplateId || "modern",
                     previousLatex: generatedLatex,
-                    userFeedback: "Make it better" // TODO: Add UI for user feedback
+                    userFeedback: feedback,
+                    atsAnalysis // Pass ATS data to backend
                 })
             });
 
@@ -297,7 +331,7 @@ export default function ResumeEditorPage() {
             // Show toast
             toast({
                 title: "Resume Regenerated",
-                description: "AI has improved your resume based on the previous version.",
+                description: "AI has improved your resume based on your feedback.",
             });
 
             // Auto-compile
@@ -343,6 +377,14 @@ export default function ResumeEditorPage() {
 
     return (
         <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
+            {/* Feedback Modal */}
+            <OptimizationFeedbackModal
+                isOpen={showFeedbackModal}
+                onClose={() => setShowFeedbackModal(false)}
+                onConfirm={handleRegenerate}
+                isGenerating={isGenerating}
+            />
+
             {/* Header */}
             <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
                 <div className="px-4 sm:px-6 py-3">
@@ -439,7 +481,7 @@ export default function ResumeEditorPage() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={handleRegenerate}
+                                onClick={() => setShowFeedbackModal(true)}
                                 disabled={isGenerating}
                                 className="h-6 px-2 text-xs text-purple-600"
                             >

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkResumeLimit } from '@/lib/usage-limit';
 
 export const dynamic = 'force-dynamic';
 import { createServerClient } from '@supabase/ssr';
@@ -44,9 +45,14 @@ export async function GET(req: NextRequest) {
         const isPaid = profile?.premium_status || false;
         const jobLimit = isPaid ? 1000 : 5; // 1000 acts as 'Unlimited' for UI practical purposes
 
+        // Get Resume Usage
+        const { usage: resumeUsage, limit: resumeLimit } = await checkResumeLimit(user.id);
+
         return NextResponse.json({
             jobsCount: jobCount || 0,
-            jobLimit: jobLimit
+            jobLimit: jobLimit,
+            resumeUsage,
+            resumeLimit
         });
 
     } catch (error) {

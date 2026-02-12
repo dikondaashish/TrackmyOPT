@@ -27,9 +27,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useResumeStore } from "@/store/resume-store";
-
-
 import { useToast } from "@/components/ui/use-toast";
+
+import { ResumeUsageStats } from "@/components/dashboard/resume/ResumeUsageStats";
 
 interface OcrStatus {
     show: boolean;
@@ -373,259 +373,262 @@ export default function ResumeGeneratorPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                    {/* Resume Panel */}
-                    <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <div>
-                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Resume</h2>
-                                    <p className="text-xs text-gray-500">Paste or upload your current resume</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                {resumeText && (
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-gray-500 hover:text-blue-600"
-                                        onClick={() => handleSaveResume(resumeText, resumeFilename || resumeName || "My Resume")}
-                                        disabled={isSaving}
-                                    >
-                                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                    </Button>
-                                )}
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
-                                    onClick={() => router.push("/dashboard/career/saved-resumes")}
-                                >
-                                    <BookOpen className="w-4 h-4 mr-1" />
-                                    Saved
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* Text Area */}
-                        <div className="relative">
-                            <textarea
-                                value={resumeText}
-                                onChange={(e) => setResumeText(e.target.value)}
-                                placeholder="Paste your resume text here..."
-                                className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all resize-none text-sm"
-                            />
-                            {resumeText && (
-                                <button
-                                    onClick={clearResume}
-                                    className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                >
-                                    <X className="w-4 h-4" />
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Error Message */}
-                        {errors.resume && (
-                            <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-start gap-2">
-                                <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-                                <p className="text-sm text-red-600 dark:text-red-400">{errors.resume}</p>
-                            </div>
-                        )}
-
-                        {/* Success indicator */}
-                        {resumeFilename && (
-                            <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                                <Check className="w-4 h-4" />
-                                Loaded: {resumeFilename}
-                            </div>
-                        )}
-
-                        {/* OCR Processing UI */}
-                        {resumeOcr.show && (
-                            <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl">
-                                {!resumeOcr.running ? (
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <FileSearch className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                                                Scanned Document Detected
-                                            </h4>
-                                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                                                This PDF contains images instead of text. Use OCR to extract the content.
-                                            </p>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    onClick={() => startOcr("resume")}
-                                                    className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
-                                                >
-                                                    <FileSearch className="w-3.5 h-3.5" />
-                                                    Extract Text
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    onClick={() => cancelOcr("resume")}
-                                                    className="text-gray-600 dark:text-gray-400"
-                                                >
-                                                    Cancel
-                                                </Button>
-                                            </div>
-                                        </div>
+                    <div className="space-y-6">
+                        <ResumeUsageStats />
+                        {/* Resume Panel */}
+                        <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                        <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                                     </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {/* Header */}
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                                                <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Resume</h2>
+                                        <p className="text-xs text-gray-500">Paste or upload your current resume</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    {resumeText && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-gray-500 hover:text-blue-600"
+                                            onClick={() => handleSaveResume(resumeText, resumeFilename || resumeName || "My Resume")}
+                                            disabled={isSaving}
+                                        >
+                                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                        </Button>
+                                    )}
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+                                        onClick={() => router.push("/dashboard/career/saved-resumes")}
+                                    >
+                                        <BookOpen className="w-4 h-4 mr-1" />
+                                        Saved
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Text Area */}
+                            <div className="relative">
+                                <textarea
+                                    value={resumeText}
+                                    onChange={(e) => setResumeText(e.target.value)}
+                                    placeholder="Paste your resume text here..."
+                                    className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all resize-none text-sm"
+                                />
+                                {resumeText && (
+                                    <button
+                                        onClick={clearResume}
+                                        className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Error Message */}
+                            {errors.resume && (
+                                <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-start gap-2">
+                                    <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                                    <p className="text-sm text-red-600 dark:text-red-400">{errors.resume}</p>
+                                </div>
+                            )}
+
+                            {/* Success indicator */}
+                            {resumeFilename && (
+                                <div className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                                    <Check className="w-4 h-4" />
+                                    Loaded: {resumeFilename}
+                                </div>
+                            )}
+
+                            {/* OCR Processing UI */}
+                            {resumeOcr.show && (
+                                <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl">
+                                    {!resumeOcr.running ? (
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                <FileSearch className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                                             </div>
-                                            <div>
-                                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                    Processing Document
+                                            <div className="flex-1">
+                                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                                                    Scanned Document Detected
                                                 </h4>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    Extracting text from scanned pages...
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                                                    This PDF contains images instead of text. Use OCR to extract the content.
+                                                </p>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => startOcr("resume")}
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+                                                    >
+                                                        <FileSearch className="w-3.5 h-3.5" />
+                                                        Extract Text
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        onClick={() => cancelOcr("resume")}
+                                                        className="text-gray-600 dark:text-gray-400"
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {/* Header */}
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                                    <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                        Processing Document
+                                                    </h4>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                        Extracting text from scanned pages...
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Progress Steps */}
+                                            <div className="ml-2 space-y-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-5 h-5 rounded-full bg-blue-600 dark:bg-blue-500 flex items-center justify-center">
+                                                        <Check className="w-3 h-3 text-white" />
+                                                    </div>
+                                                    <span className="text-xs text-gray-700 dark:text-gray-300">Document uploaded securely</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-5 h-5 rounded-full bg-blue-600 dark:bg-blue-500 flex items-center justify-center">
+                                                        <Loader2 className="w-3 h-3 text-white animate-spin" />
+                                                    </div>
+                                                    <span className="text-xs text-blue-700 dark:text-blue-400 font-medium">Analyzing page content...</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">3</span>
+                                                    </div>
+                                                    <span className="text-xs text-gray-400 dark:text-gray-500">Finalizing extraction</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Progress Indicator */}
+                                            <div className="space-y-1.5">
+                                                <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                                    <div className="h-full w-2/3 bg-blue-600 dark:bg-blue-500 rounded-full animate-pulse" />
+                                                </div>
+                                                <p className="text-[11px] text-gray-500 dark:text-gray-400 text-center">
+                                                    This typically takes 1-2 minutes
                                                 </p>
                                             </div>
                                         </div>
+                                    )}
+                                </div>
+                            )}
 
-                                        {/* Progress Steps */}
-                                        <div className="ml-2 space-y-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-5 h-5 rounded-full bg-blue-600 dark:bg-blue-500 flex items-center justify-center">
-                                                    <Check className="w-3 h-3 text-white" />
-                                                </div>
-                                                <span className="text-xs text-gray-700 dark:text-gray-300">Document uploaded securely</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-5 h-5 rounded-full bg-blue-600 dark:bg-blue-500 flex items-center justify-center">
-                                                    <Loader2 className="w-3 h-3 text-white animate-spin" />
-                                                </div>
-                                                <span className="text-xs text-blue-700 dark:text-blue-400 font-medium">Analyzing page content...</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                                                    <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">3</span>
-                                                </div>
-                                                <span className="text-xs text-gray-400 dark:text-gray-500">Finalizing extraction</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Progress Indicator */}
-                                        <div className="space-y-1.5">
-                                            <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                                <div className="h-full w-2/3 bg-blue-600 dark:bg-blue-500 rounded-full animate-pulse" />
-                                            </div>
-                                            <p className="text-[11px] text-gray-500 dark:text-gray-400 text-center">
-                                                This typically takes 1-2 minutes
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* File Upload Area */}
-                        <div
-                            onDragOver={handleDragOver}
-                            onDrop={handleResumeDrop}
-                            onClick={() => resumeFileInputRef.current?.click()}
-                            className="mt-4 p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer group"
-                        >
-                            <input
-                                ref={resumeFileInputRef}
-                                type="file"
-                                accept=".pdf,.doc,.docx,.txt"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) handleFileUpload(file, "resume");
-                                }}
-                                className="hidden"
-                            />
-                            <div className="flex flex-col items-center text-center">
-                                {isResumeUploading ? (
-                                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
-                                ) : (
-                                    <Upload className="w-7 h-7 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors mb-2" />
-                                )}
-                                <p className="text-sm">
-                                    <span className="text-blue-600 dark:text-blue-400 font-medium">
-                                        {isResumeUploading ? "Processing..." : "Upload a file"}
-                                    </span>
-                                    {!isResumeUploading && <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>}
-                                </p>
-                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                    PDF, DOC, DOCX, TXT (max 10MB)
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* URL Input */}
-                        <div className="mt-4 flex gap-2">
-                            <Input
-                                value={resumeUrl}
-                                onChange={(e) => setResumeUrl(e.target.value)}
-                                placeholder="Or enter Google Drive / cloud storage URL"
-                                className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter" && resumeUrl.trim()) {
-                                        handleUrlProcess(resumeUrl, "resume");
-                                    }
-                                }}
-                            />
-                            <Button
-                                onClick={() => handleUrlProcess(resumeUrl, "resume")}
-                                disabled={!resumeUrl.trim() || isResumeUrlProcessing}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-3"
+                            {/* File Upload Area */}
+                            <div
+                                onDragOver={handleDragOver}
+                                onDrop={handleResumeDrop}
+                                onClick={() => resumeFileInputRef.current?.click()}
+                                className="mt-4 p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer group"
                             >
-                                {isResumeUrlProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Link2 className="w-4 h-4" />}
-                            </Button>
-                            <div className="relative group">
-                                <Button variant="ghost" size="icon" className="text-gray-400">
-                                    <HelpCircle className="w-4 h-4" />
-                                </Button>
-                                <div className="absolute bottom-full right-0 mb-2 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                                    <div className="font-medium mb-1">Supported URLs:</div>
-                                    <div>✅ Google Drive, Dropbox</div>
-                                    <div>❌ LinkedIn (copy text manually)</div>
+                                <input
+                                    ref={resumeFileInputRef}
+                                    type="file"
+                                    accept=".pdf,.doc,.docx,.txt"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleFileUpload(file, "resume");
+                                    }}
+                                    className="hidden"
+                                />
+                                <div className="flex flex-col items-center text-center">
+                                    {isResumeUploading ? (
+                                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
+                                    ) : (
+                                        <Upload className="w-7 h-7 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors mb-2" />
+                                    )}
+                                    <p className="text-sm">
+                                        <span className="text-blue-600 dark:text-blue-400 font-medium">
+                                            {isResumeUploading ? "Processing..." : "Upload a file"}
+                                        </span>
+                                        {!isResumeUploading && <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>}
+                                    </p>
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                        PDF, DOC, DOCX, TXT (max 10MB)
+                                    </p>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Save Checkbox */}
-                        <div className="mt-4 flex items-center gap-3">
-                            <Checkbox
-                                id="save-resume"
-                                checked={saveResume}
-                                onCheckedChange={(c) => setSaveResume(c as boolean)}
-                            />
-                            <label htmlFor="save-resume" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
-                                Save resume for future use
-                            </label>
-                            {saveResume && (
+                            {/* URL Input */}
+                            <div className="mt-4 flex gap-2">
                                 <Input
-                                    value={resumeName}
-                                    onChange={(e) => setResumeName(e.target.value)}
-                                    placeholder="Resume name (optional)"
-                                    className="flex-1 h-8 text-sm"
+                                    value={resumeUrl}
+                                    onChange={(e) => setResumeUrl(e.target.value)}
+                                    placeholder="Or enter Google Drive / cloud storage URL"
+                                    className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && resumeUrl.trim()) {
+                                            handleUrlProcess(resumeUrl, "resume");
+                                        }
+                                    }}
                                 />
-                            )}
-                        </div>
+                                <Button
+                                    onClick={() => handleUrlProcess(resumeUrl, "resume")}
+                                    disabled={!resumeUrl.trim() || isResumeUrlProcessing}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3"
+                                >
+                                    {isResumeUrlProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Link2 className="w-4 h-4" />}
+                                </Button>
+                                <div className="relative group">
+                                    <Button variant="ghost" size="icon" className="text-gray-400">
+                                        <HelpCircle className="w-4 h-4" />
+                                    </Button>
+                                    <div className="absolute bottom-full right-0 mb-2 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                                        <div className="font-medium mb-1">Supported URLs:</div>
+                                        <div>✅ Google Drive, Dropbox</div>
+                                        <div>❌ LinkedIn (copy text manually)</div>
+                                    </div>
+                                </div>
+                            </div>
 
-                        {/* Character count */}
-                        <div className="mt-3 text-xs text-gray-400">
-                            {resumeText.length} characters
-                            {resumeText.length < 50 && resumeText.length > 0 && (
-                                <span className="text-amber-500"> (min 50 required)</span>
-                            )}
-                        </div>
-                    </Card>
+                            {/* Save Checkbox */}
+                            <div className="mt-4 flex items-center gap-3">
+                                <Checkbox
+                                    id="save-resume"
+                                    checked={saveResume}
+                                    onCheckedChange={(c) => setSaveResume(c as boolean)}
+                                />
+                                <label htmlFor="save-resume" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                                    Save resume for future use
+                                </label>
+                                {saveResume && (
+                                    <Input
+                                        value={resumeName}
+                                        onChange={(e) => setResumeName(e.target.value)}
+                                        placeholder="Resume name (optional)"
+                                        className="flex-1 h-8 text-sm"
+                                    />
+                                )}
+                            </div>
+
+                            {/* Character count */}
+                            <div className="mt-3 text-xs text-gray-400">
+                                {resumeText.length} characters
+                                {resumeText.length < 50 && resumeText.length > 0 && (
+                                    <span className="text-amber-500"> (min 50 required)</span>
+                                )}
+                            </div>
+                        </Card>
+                    </div>
 
                     {/* Job Description Panel */}
                     <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">

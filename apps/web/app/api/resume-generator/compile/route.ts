@@ -31,35 +31,62 @@ export async function POST(req: NextRequest) {
 
         // This is a common public latex compiler endpoint (Ytotech) or similar
         // If this is flaky, you can use: https://latex.online/compile
-        const COMPILER_URL = process.env.LATEX_COMPILER_URL || 'https://latex.ytotech.com/builds/sync';
-
-        const response = await fetch(COMPILER_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+        // Compiler Endpoints (Primary + Fallback)
+        const COMPILERS = [
+            {
+                name: 'Primary (Ytotech)',
+                url: process.env.LATEX_COMPILER_URL || 'https://latex.ytotech.com/builds/sync',
+                payload: (code: string) => ({
+                    compiler: 'pdflatex',
+                    resources: [{ main: true, content: code }],
+                })
             },
-            body: JSON.stringify({
-                compiler: 'pdflatex',
-                resources: [
-                    {
-                        main: true,
-                        content: latexCode,
-                    },
-                ],
-            }),
-        });
+            {
+                name: 'Fallback (LaTeX.Online)',
+                url: 'https://latex.online/compile?text=' + encodeURIComponent(latexCode),
+                method: 'GET', // Latex.online supports GET for text
+                // payload: null // GET request
+            }
+        ];
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Compilation Service Error:', errorText);
+        let pdfBuffer: ArrayBuffer | null = null;
+        let lastError = "";
 
-            // Try fallback compiler if primary fails
-            // Fallback to latex.online (requires URL encoding or multipart, simple content POST might differ)
-            // For now, return detailed error so client knows
-            throw new Error(`Compilation failed: ${response.statusText}. Log: ${errorText.substring(0, 200)}...`);
+        for (const compiler of COMPILERS) {
+            try {
+                console.log(`Attempting compilation with ${compiler.name}...`);
+
+                let response;
+                if (compiler.method === 'GET') {
+                    response = await fetch(compiler.url);
+                } else {
+                    response = await fetch(compiler.url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(compiler.payload ? compiler.payload(latexCode) : {})
+                    });
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.warn(`${compiler.name} failed: ${response.status} - ${errorText.substring(0, 100)}`);
+                    lastError = `${compiler.name} Error: ${response.statusText}`;
+                    continue; // Try next compiler
+                }
+
+                pdfBuffer = await response.arrayBuffer();
+                console.log(`Success with ${compiler.name}!`);
+                break; // Stop loop on success
+
+            } catch (err: any) {
+                console.warn(`${compiler.name} network error:`, err.message);
+                lastError = `${compiler.name} Exception: ${err.message}`;
+            }
         }
 
-        const pdfBuffer = await response.arrayBuffer();
+        if (!pdfBuffer) {
+            throw new Error(`All compilers failed. Last error: ${lastError}`);
+        }
 
         // Return PDF as binary stream
         return new NextResponse(pdfBuffer, {

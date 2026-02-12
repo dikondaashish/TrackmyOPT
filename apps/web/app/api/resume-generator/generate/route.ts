@@ -1,10 +1,28 @@
 
-import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import path from 'path';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
+import path from 'path';
 import { buildGeneratePrompt } from '@/lib/prompts/generate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
+import { z } from 'zod';
+import rateLimit from '@/lib/rate-limit';
+import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+// Rate Limiter: 10 requests per minute per IP
+const limiter = rateLimit({
+    interval: 60 * 1000,
+    uniqueTokenPerInterval: 500,
+});
+
+// Input Validation Schema
+const GenerateSchema = z.object({
+    resumeText: z.string().min(1).max(25000, "Resume text too long (max 25k chars)"),
+    jobDescription: z.string().min(1).max(15000, "Job description too long (max 15k chars)"),
+    templateId: z.string().min(1).max(50),
+});
 
 // CORS headers
 const corsHeaders = {
@@ -22,18 +40,63 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
-        const { resumeText, jobDescription, templateId } = body;
+        // 0. Auth Check
+        const cookieStore = cookies();
+        const supabase = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    get(name: string) {
+                        return cookieStore.get(name)?.value;
+                    },
+                },
+            }
+        );
 
-        if (!resumeText || !jobDescription || !templateId) {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+        if (authError || !user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+        }
+
+        // 1. Check Usage Limits
+        const { allowed, limit, usage, tier } = await checkResumeLimit(user.id);
+        if (!allowed) {
             return NextResponse.json(
-                { error: 'Missing required fields' },
+                {
+                    error: 'Usage limit reached',
+                    details: `You have used ${usage}/${limit} generations this month. Please upgrade your plan.`
+                },
+                { status: 403, headers: corsHeaders }
+            );
+        }
+
+        // 2. Rate Limiting
+        const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+        const { isRateLimited } = limiter.check(req, 10, ip);
+
+        if (isRateLimited) {
+            return NextResponse.json(
+                { error: 'Too many requests. Please try again later.' },
+                { status: 429, headers: corsHeaders }
+            );
+        }
+
+        const body = await req.json();
+
+        // 3. Input Validation
+        const validation = GenerateSchema.safeParse(body);
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: 'Invalid input', details: validation.error.format() },
                 { status: 400, headers: corsHeaders }
             );
         }
 
-        // 1. Load Template
-        // Try multiple paths to resolve template file (Vercel Lambda vs Local Monorepo)
+        const { resumeText, jobDescription, templateId } = validation.data;
+
+        // 4. Load Template
         const possiblePaths = [
             path.join(process.cwd(), 'templates/latex', `${templateId}.tex`),
             path.join(process.cwd(), 'apps/web/templates/latex', `${templateId}.tex`),
@@ -63,23 +126,20 @@ export async function POST(req: NextRequest) {
 
             if (!templateTex) {
                 console.error(`Template not found. Checked paths: ${possiblePaths.join(', ')}`);
-                return NextResponse.json(
-                    { error: 'Template file not found' },
-                    { status: 404 }
-                );
+                return NextResponse.json({ error: 'Template not found' }, { status: 404 });
             }
         }
 
-        // 2. Build Prompt
-        // Using gemini-2.0-flash as requested by user
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        // 5. Build Prompt
+        // Using gemini-2.5-flash as requested by user
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex);
 
         let result;
         try {
             result = await model.generateContent(prompt);
         } catch (modelError: any) {
-            console.warn("Gemini 2.0 Flash failed, falling back to Gemini Pro", modelError);
+            console.warn("Gemini 2.5 Flash failed, falling back to Gemini Pro", modelError);
             const fallbackModel = genAI.getGenerativeModel({ model: "gemini-pro" });
             result = await fallbackModel.generateContent(prompt);
         }
@@ -90,13 +150,11 @@ export async function POST(req: NextRequest) {
         // Clean Output
         latex = latex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
 
-        // Verify basic structure
-        if (!latex.includes('\\documentclass') || !latex.includes('\\end{document}')) {
-            console.warn("Generated LaTeX might be incomplete or malformed.");
-        }
-
         // ATS Validation
         const atsCheck = checkAtsCompliance(latex);
+
+        // 6. Track Usage
+        await trackResumeGeneration(user.id, 'generate');
 
         return NextResponse.json(
             { success: true, latex, atsCheck },

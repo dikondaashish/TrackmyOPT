@@ -13,14 +13,14 @@
   ],
   "host_permissions": [
     "http://localhost:3000/*",
-    "https://*.vercel.app/*",
+    "https://trackmyopt-*.vercel.app/*",
     "https://www.trackmyopt.com/*",
     "https://trackmyopt.com/*"
   ],
   "externally_connectable": {
     "matches": [
       "http://localhost:3000/*",
-      "https://*.vercel.app/*",
+      "https://trackmyopt-*.vercel.app/*",
       "https://www.trackmyopt.com/*",
       "https://trackmyopt.com/*"
     ]
@@ -45,7 +45,7 @@
     {
       "matches": [
         "http://localhost:3000/*",
-        "https://*.vercel.app/*",
+        "https://trackmyopt-*.vercel.app/*",
         "https://www.trackmyopt.com/*",
         "https://trackmyopt.com/*"
       ],
