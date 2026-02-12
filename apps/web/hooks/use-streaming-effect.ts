@@ -41,9 +41,10 @@ export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: U
 
         timerRef.current = setInterval(() => {
             if (indexRef.current < fullTextRef.current.length) {
-                // Add a chunk of characters (variable chunk size for natural feel or speed)
-                // Chunk size of 3-5 chars makes it feel faster and more responsive for long docs
-                const chunkSize = 4;
+                // Add a bigger chunk for speed
+                // 10-15 chars per frame at 5ms interval = ~2000-3000 chars/sec
+                // This ensures even long resumes (5k chars) finish in ~2 seconds
+                const chunkSize = 12;
                 const chunk = fullTextRef.current.slice(indexRef.current, indexRef.current + chunkSize);
                 setDisplayedText(prev => prev + chunk);
                 indexRef.current += chunkSize;
@@ -51,7 +52,7 @@ export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: U
                 // Done
                 stopStreaming();
             }
-        }, speed);
+        }, 5); // Ultra fast updates
     }, [speed, stopStreaming]);
 
     // Effect to trigger stream when `isEnabled` becomes true or text changes significantly while enabled
