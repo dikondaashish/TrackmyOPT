@@ -71,12 +71,19 @@ export async function POST(req: NextRequest) {
         }
 
         // 2. Build Prompt
-        // Using gemini-1.5-flash for speed as requested
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Using gemini-2.0-flash as requested by user
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex);
 
-        // Generate Content
-        const result = await model.generateContent(prompt);
+        let result;
+        try {
+            result = await model.generateContent(prompt);
+        } catch (modelError: any) {
+            console.warn("Gemini 2.0 Flash failed, falling back to Gemini Pro", modelError);
+            const fallbackModel = genAI.getGenerativeModel({ model: "gemini-pro" });
+            result = await fallbackModel.generateContent(prompt);
+        }
+
         const response = await result.response;
         let latex = response.text();
 
