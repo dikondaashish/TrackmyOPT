@@ -64,8 +64,8 @@ export default function ResumeEditorPage() {
         text: historyText
     } = useEditorHistory(generatedLatex, setGeneratedLatex);
 
-    // Use history text directly (steaming updates history now)
-    const editorValue = historyText;
+    // Use store text directly (steaming updates store, history tracks checkpoints)
+    const editorValue = generatedLatex;
 
     // Sync View Mode
     const handleViewModeChange = (mode: EditorViewMode) => {
@@ -133,7 +133,8 @@ export default function ResumeEditorPage() {
 
     // Status Animation Cycle
     useEffect(() => {
-        if (!isGenerating || isStreaming) {
+        // Run animation if generating AND no text yet (streaming hasn't visualized)
+        if (!isGenerating || (generatedLatex && generatedLatex.length > 0)) {
             setStreamStatus("");
             return;
         }
@@ -155,7 +156,7 @@ export default function ResumeEditorPage() {
         }, 2000);
 
         return () => clearInterval(interval);
-    }, [isGenerating, isStreaming]);
+    }, [isGenerating, generatedLatex]);
 
     // Cleanup abort controller on unmount
     useEffect(() => {
@@ -211,7 +212,7 @@ export default function ResumeEditorPage() {
     const generateResume = async (resume: string, job: string, template: string) => {
         setIsGenerating(true);
         setGeneratedLatex(""); // Clear previous
-        // setIsStreaming(true); // Enable UI streaming state
+        setIsStreaming(true); // Enable UI streaming state
 
         // Abort previous if any
         if (abortControllerRef.current) abortControllerRef.current.abort();
@@ -236,12 +237,7 @@ export default function ResumeEditorPage() {
             }
 
             // Process Stream
-            let hasStartedStreaming = false;
             const finalText = await processStream(response, (text) => {
-                if (!hasStartedStreaming) {
-                    setIsStreaming(true);
-                    hasStartedStreaming = true;
-                }
                 // Clean markdown code blocks from stream if they appear
                 // Simple cleaning: remove starting ```latex if present, but we do this at end mostly
                 // For real-time, just show raw or lightly cleaned
@@ -387,7 +383,7 @@ export default function ResumeEditorPage() {
     // Handle Manual Regenerate
     const handleRegenerate = async (feedback: string) => {
         setIsGenerating(true);
-        // setIsStreaming(true); // Wait for first chunk
+        setIsStreaming(true);
         setShowFeedbackModal(false);
 
         // Abort previous
@@ -416,12 +412,7 @@ export default function ResumeEditorPage() {
             }
 
             // Process Stream
-            let hasStartedStreaming = false;
             const finalText = await processStream(response, (text) => {
-                if (!hasStartedStreaming) {
-                    setIsStreaming(true);
-                    hasStartedStreaming = true;
-                }
                 let clean = text;
                 if (clean.startsWith('```latex')) clean = clean.substring(8);
                 if (clean.startsWith('```')) clean = clean.substring(3);
