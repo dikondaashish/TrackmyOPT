@@ -11,15 +11,14 @@ interface UseEditorHistoryReturn {
 }
 
 export function useEditorHistory(initialText: string, onUpdate: (text: string) => void): UseEditorHistoryReturn {
-    // History stack
-    const [history, setHistory] = useState<string[]>([initialText]);
-    const [currentIndex, setCurrentIndex] = useState(0);
+    // Track current text separately from history to allow non-historic updates (e.g. streaming)
+    const [currentText, setCurrentText] = useState(initialText);
 
-    // Current text (can be ahead of history if we haven't saved yet, e.g. typing)
-    // But for simplicity, let's keep them in sync or just use the parent's text?
-    // Actually, distinct history state is safer.
+    // Sync with external updates if needed (optional, but good if parent updates prop)
+    // useEffect(() => setCurrentText(initialText), [initialText]); 
 
     const updateText = useCallback((newText: string, saveToHistory = true) => {
+        setCurrentText(newText);
         onUpdate(newText);
 
         if (saveToHistory) {
@@ -37,6 +36,7 @@ export function useEditorHistory(initialText: string, onUpdate: (text: string) =
             const newIndex = currentIndex - 1;
             const previousText = history[newIndex];
             setCurrentIndex(newIndex);
+            setCurrentText(previousText);
             onUpdate(previousText);
         }
     }, [currentIndex, history, onUpdate]);
@@ -46,12 +46,13 @@ export function useEditorHistory(initialText: string, onUpdate: (text: string) =
             const newIndex = currentIndex + 1;
             const nextText = history[newIndex];
             setCurrentIndex(newIndex);
+            setCurrentText(nextText);
             onUpdate(nextText);
         }
     }, [currentIndex, history, onUpdate]);
 
     return {
-        text: history[currentIndex], // This might be laggy if we don't track intermediate typing
+        text: currentText,
         updateText,
         undo,
         redo,

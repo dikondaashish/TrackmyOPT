@@ -211,7 +211,7 @@ export default function ResumeEditorPage() {
     const generateResume = async (resume: string, job: string, template: string) => {
         setIsGenerating(true);
         setGeneratedLatex(""); // Clear previous
-        setIsStreaming(true); // Enable UI streaming state
+        // setIsStreaming(true); // Enable UI streaming state
 
         // Abort previous if any
         if (abortControllerRef.current) abortControllerRef.current.abort();
@@ -236,7 +236,12 @@ export default function ResumeEditorPage() {
             }
 
             // Process Stream
+            let hasStartedStreaming = false;
             const finalText = await processStream(response, (text) => {
+                if (!hasStartedStreaming) {
+                    setIsStreaming(true);
+                    hasStartedStreaming = true;
+                }
                 // Clean markdown code blocks from stream if they appear
                 // Simple cleaning: remove starting ```latex if present, but we do this at end mostly
                 // For real-time, just show raw or lightly cleaned
@@ -382,7 +387,7 @@ export default function ResumeEditorPage() {
     // Handle Manual Regenerate
     const handleRegenerate = async (feedback: string) => {
         setIsGenerating(true);
-        setIsStreaming(true);
+        // setIsStreaming(true); // Wait for first chunk
         setShowFeedbackModal(false);
 
         // Abort previous
@@ -411,7 +416,12 @@ export default function ResumeEditorPage() {
             }
 
             // Process Stream
+            let hasStartedStreaming = false;
             const finalText = await processStream(response, (text) => {
+                if (!hasStartedStreaming) {
+                    setIsStreaming(true);
+                    hasStartedStreaming = true;
+                }
                 let clean = text;
                 if (clean.startsWith('```latex')) clean = clean.substring(8);
                 if (clean.startsWith('```')) clean = clean.substring(3);
