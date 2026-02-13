@@ -15,6 +15,7 @@ import {
     Maximize2,
     Minimize2,
     Play,
+    StopCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
@@ -24,11 +25,15 @@ import { OptimizationFeedbackModal } from "./components/OptimizationFeedbackModa
 import { AtsScorePanel } from "./components/AtsScorePanel";
 import { LatexToolbar, EditorViewMode } from "./components/LatexToolbar";
 import { useEditorHistory } from "@/hooks/use-editor-history";
-
+import { useStreamingEffect } from "@/hooks/use-streaming-effect";
+import { GenerationLoadingState } from "./components/GenerationLoadingState";
 
 export default function ResumeEditorPage() {
     const { toast } = useToast();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Abort Controller for cancelling generation requests
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     // Store
     const {
@@ -64,8 +69,32 @@ export default function ResumeEditorPage() {
         text: historyText
     } = useEditorHistory(generatedLatex, setGeneratedLatex);
 
-    // Use store text directly (steaming updates store, history tracks checkpoints)
-    const editorValue = generatedLatex;
+    // Streaming Effect
+    const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
+
+    // Auto-scroll ref
+    const bottomRef = useRef<HTMLDivElement>(null);
+
+    const { displayedText, isStreaming, stopStreaming } = useStreamingEffect({
+        text: generatedLatex,
+        isEnabled: isStreamingEnabled,
+        speed: 12, // Tuned for natural typing feel
+        onComplete: () => {
+            setIsStreamingEnabled(false);
+            // Sync history with the full generated text once streaming is done/stopped
+            updateText(generatedLatex, true);
+        }
+    });
+
+    // Auto-scroll to bottom while streaming
+    useEffect(() => {
+        if (isStreaming && bottomRef.current) {
+            bottomRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [displayedText, isStreaming]);
+
+    // Use streaming text if active, otherwise history text
+    const editorValue = isStreaming ? displayedText : historyText;
 
     // Sync View Mode
     const handleViewModeChange = (mode: EditorViewMode) => {
@@ -91,6 +120,7 @@ export default function ResumeEditorPage() {
         if (resumeText && jobDescription && selectedTemplateId && !generatedLatex && !isGenerating) {
             generateResume(resumeText, jobDescription, selectedTemplateId);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resumeText, jobDescription, selectedTemplateId, generatedLatex]);
 
     // Handle Text Insertion from Toolbar
@@ -125,99 +155,44 @@ export default function ResumeEditorPage() {
         }, 0);
     };
 
-    // Streaming Logic
-    const [isStreaming, setIsStreaming] = useState(false);
-    const abortControllerRef = useRef<AbortController | null>(null);
-    const [streamStatus, setStreamStatus] = useState<string>("");
-    const bottomRef = useRef<HTMLDivElement>(null);
-
-    // Status Animation Cycle
-    useEffect(() => {
-        // Run animation if generating AND no text yet (streaming hasn't visualized)
-        if (!isGenerating || (generatedLatex && generatedLatex.length > 0)) {
-            setStreamStatus("");
-            return;
-        }
-
-        const states = [
-            "Thinking...",
-            "Analyzing Job Description...",
-            "Mapping Skills...",
-            "Structuring LaTeX...",
-            "Optimizing Keywords..."
-        ];
-
-        let i = 0;
-        setStreamStatus(states[0]);
-
-        const interval = setInterval(() => {
-            i = (i + 1) % states.length;
-            setStreamStatus(states[i]);
-        }, 2000);
-
-        return () => clearInterval(interval);
-    }, [isGenerating, generatedLatex]);
-
-    // Cleanup abort controller on unmount
-    useEffect(() => {
-        return () => {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
-        };
-    }, []);
-
-    const stopGeneration = () => {
-        if (abortControllerRef.current) {
+    const handleStopGeneration = useCallback(() => {
+        // 1. If waiting for API (Loading Phase)
+        if (isGenerating && abortControllerRef.current) {
             abortControllerRef.current.abort();
             abortControllerRef.current = null;
             setIsGenerating(false);
-            setIsStreaming(false);
-            toast({ description: "Generation stopped by user." });
+            toast({
+                title: "Generation Stopped",
+                description: "The request to Gemini was cancelled.",
+                variant: "default",
+            });
         }
-    };
-
-    // Helper to process stream
-    const processStream = async (response: Response, onChunk: (text: string) => void) => {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-
-        if (!reader) throw new Error("No reader available");
-
-        let accumulatedText = "";
-
-        try {
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                const chunk = decoder.decode(value, { stream: true });
-                accumulatedText += chunk;
-                onChunk(accumulatedText);
-            }
-        } catch (error: any) {
-            if (error.name === 'AbortError') {
-                console.log('Stream aborted');
-            } else {
-                throw error;
-            }
-        } finally {
-            reader.releaseLock();
+        // 2. If Streaming (Typing Phase)
+        if (isStreaming) {
+            stopStreaming();
+            toast({
+                description: "Typing animation stopped. Showing full text.",
+            });
         }
-
-        return accumulatedText;
-    };
+    }, [isGenerating, isStreaming, stopStreaming, setIsGenerating, toast]);
 
     // API: Generate Resume
     const generateResume = async (resume: string, job: string, template: string) => {
-        setIsGenerating(true);
-        setGeneratedLatex(""); // Clear previous
-        setIsStreaming(true); // Enable UI streaming state
+        // Cancel any previous request
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
 
-        // Abort previous if any
-        if (abortControllerRef.current) abortControllerRef.current.abort();
-        const ac = new AbortController();
-        abortControllerRef.current = ac;
+        // Create new controller
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
+        setIsGenerating(true);
+        // Clear previous latex to ensure loading state shows if re-generating significantly? 
+        // Or keep old one until new one arrives? 
+        // Requirement said "Clear loading messages... LaTeX code types in".
+        // If this is a fresh generation, maybe clear. If regen, maybe keep?
+        // Let's keep logic simple: updateText handles the replacement.
 
         try {
             const response = await fetch('/api/resume-generator/generate', {
@@ -228,32 +203,22 @@ export default function ResumeEditorPage() {
                     jobDescription: job,
                     templateId: template
                 }),
-                signal: ac.signal
+                signal: controller.signal
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const data = await response.json();
                 throw new Error(data.error || 'Failed to generate resume');
             }
 
-            // Process Stream
-            const finalText = await processStream(response, (text) => {
-                // Clean markdown code blocks from stream if they appear
-                // Simple cleaning: remove starting ```latex if present, but we do this at end mostly
-                // For real-time, just show raw or lightly cleaned
-                let clean = text;
-                if (clean.startsWith('```latex')) clean = clean.substring(8);
-                if (clean.startsWith('```')) clean = clean.substring(3);
-                updateText(clean, false);
-            });
+            // Start streaming the new text
+            updateText(data.latex, false); // Update history/store without saving a new step yet
+            setIsStreamingEnabled(true);
 
-            // Final Cleanup & Save
-            let finalClean = finalText.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
-            updateText(finalClean, true);
-
-            // Auto-compile
-            if (finalClean) {
-                compilePdf(finalClean);
+            // Auto-compile after generation (background)
+            if (data.latex) {
+                compilePdf(data.latex);
             }
 
             toast({
@@ -262,22 +227,27 @@ export default function ResumeEditorPage() {
             });
 
         } catch (error: any) {
-            if (error.name !== 'AbortError') {
-                console.error(error);
-                toast({
-                    title: "Generation Failed",
-                    description: error.message,
-                    variant: "destructive",
-                });
+            if (error.name === 'AbortError') {
+                console.log('Generation aborted by user');
+                return;
             }
+            console.error(error);
+            toast({
+                title: "Generation Failed",
+                description: error.message,
+                variant: "destructive",
+            });
         } finally {
-            setIsGenerating(false);
-            setIsStreaming(false);
-            abortControllerRef.current = null;
+            // Only unset if we didn't abort (or if we did, handleStop handles it)
+            // But safely:
+            if (abortControllerRef.current === controller) {
+                setIsGenerating(false);
+                abortControllerRef.current = null;
+            }
         }
     };
 
-    // API: Compile PDF (Unchanged)
+    // API: Compile PDF
     const compilePdf = async (code: string, retryCount = 0) => {
         if (!code) return;
         setIsCompiling(true);
@@ -339,7 +309,7 @@ export default function ResumeEditorPage() {
         }
     };
 
-    // API: Deep ATS Scan (Unchanged)
+    // API: Deep ATS Scan
     const handleDeepScan = async () => {
         if (!resumeText || !jobDescription || !generatedLatex) return;
 
@@ -382,15 +352,16 @@ export default function ResumeEditorPage() {
 
     // Handle Manual Regenerate
     const handleRegenerate = async (feedback: string) => {
+        // Cancel any previous request
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
         setIsGenerating(true);
-        setIsStreaming(true);
-        setShowFeedbackModal(false);
-
-        // Abort previous
-        if (abortControllerRef.current) abortControllerRef.current.abort();
-        const ac = new AbortController();
-        abortControllerRef.current = ac;
-
+        setShowFeedbackModal(false); // Close modal on start
         try {
             const response = await fetch('/api/resume-generator/regenerate', {
                 method: 'POST',
@@ -401,27 +372,22 @@ export default function ResumeEditorPage() {
                     templateId: selectedTemplateId || "modern",
                     previousLatex: generatedLatex,
                     userFeedback: feedback,
-                    atsAnalysis
+                    atsAnalysis // Pass ATS data to backend
                 }),
-                signal: ac.signal
+                signal: controller.signal
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const data = await response.json();
                 throw new Error(data.error || 'Failed to regenerate resume');
             }
 
-            // Process Stream
-            const finalText = await processStream(response, (text) => {
-                let clean = text;
-                if (clean.startsWith('```latex')) clean = clean.substring(8);
-                if (clean.startsWith('```')) clean = clean.substring(3);
-                updateText(clean, false);
-            });
-
-            // Final Cleanup & Save
-            let finalClean = finalText.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
-            updateText(finalClean, true);
+            updateText(data.latex, false);
+            setIsStreamingEnabled(true);
+            if (data.atsCheck) {
+                setAtsAnalysis(data.atsCheck);
+            }
 
             // Show toast
             toast({
@@ -430,23 +396,23 @@ export default function ResumeEditorPage() {
             });
 
             // Auto-compile
-            if (finalClean) {
-                compilePdf(finalClean);
+            if (data.latex) {
+                compilePdf(data.latex);
             }
 
         } catch (error: any) {
-            if (error.name !== 'AbortError') {
-                console.error(error);
-                toast({
-                    title: "Regeneration Failed",
-                    description: error.message,
-                    variant: "destructive",
-                });
-            }
+            if (error.name === 'AbortError') return;
+            console.error(error);
+            toast({
+                title: "Regeneration Failed",
+                description: error.message,
+                variant: "destructive",
+            });
         } finally {
-            setIsGenerating(false);
-            setIsStreaming(false);
-            abortControllerRef.current = null;
+            if (abortControllerRef.current === controller) {
+                setIsGenerating(false);
+                abortControllerRef.current = null;
+            }
         }
     };
 
@@ -475,7 +441,7 @@ export default function ResumeEditorPage() {
     }, [compiledPdfUrl, generatedLatex, selectedTemplateId, toast]);
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
+        <div className="h-full flex flex-col bg-gray-50 dark:bg-gray-950">
             {/* Feedback Modal */}
             <OptimizationFeedbackModal
                 isOpen={showFeedbackModal}
@@ -519,7 +485,7 @@ export default function ResumeEditorPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => compilePdf(generatedLatex)}
-                                disabled={isCompiling || !generatedLatex}
+                                disabled={isCompiling || !generatedLatex || isGenerating || isStreaming}
                                 className="hidden sm:flex items-center gap-1 text-gray-600"
                             >
                                 <Play className="w-4 h-4" />
@@ -531,6 +497,7 @@ export default function ResumeEditorPage() {
                                 size="sm"
                                 onClick={handleCopy}
                                 className="hidden sm:flex items-center gap-1"
+                                disabled={isGenerating || isStreaming}
                             >
                                 {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                 {isCopied ? "Copied" : "Copy Source"}
@@ -563,9 +530,6 @@ export default function ResumeEditorPage() {
             {/* Main Editor Area */}
             <div className="flex-1 flex overflow-hidden">
                 {/* LaTeX Editor */}
-                {/* Note: We keep the container even if width is "0" to keep state alive, 
-                    but simpler to just condition on viewMode for now or use hidden class 
-                */}
                 <div
                     className={`flex flex-col border-r border-gray-200 dark:border-gray-800 transition-all duration-300 ${viewMode === 'visual' ? 'hidden' : 'block'}`}
                     style={{ width: viewMode === 'code' ? '100%' : viewMode === 'split' ? '50%' : '0%' }}
@@ -581,58 +545,57 @@ export default function ResumeEditorPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setShowFeedbackModal(true)}
-                                disabled={isGenerating}
+                                disabled={isGenerating || isStreaming}
                                 className="h-6 px-2 text-xs text-purple-600"
                             >
-                                {isGenerating ? (
-                                    <>
-                                        <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                                        {streamStatus || "Generating..."}
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-3 h-3 mr-1" />
-                                        Optimize
-                                    </>
-                                )}
+                                {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
+                                Optimize
                             </Button>
                             <span className="text-xs text-gray-400">
-                                {generatedLatex.split('\n').length} lines
+                                {generatedLatex ? generatedLatex.split('\n').length : 0} lines
                             </span>
                         </div>
                     </div>
 
                     {/* Code Editor */}
-                    <div className="flex-1 overflow-hidden relative group">
-                        <textarea
-                            ref={textareaRef}
-                            value={editorValue}
-                            onChange={(e) => {
-                                if (!isStreaming) updateText(e.target.value);
-                            }}
-                            readOnly={isStreaming}
-                            className={`w-full h-full p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none ${isStreaming ? 'cursor-not-allowed opacity-90' : ''}`}
-                            spellCheck={false}
-                            placeholder={streamStatus || "LaTeX code will appear here..."}
-                            style={{
-                                lineHeight: '1.6',
-                                tabSize: 2,
-                            }}
-                        />
+                    <div className="flex-1 overflow-hidden relative group bg-gray-900">
+                        {isGenerating ? (
+                            /* PHASE 1: Loading State */
+                            <div className="absolute inset-0 z-20 bg-gray-50 dark:bg-gray-900 border-2 border-blue-100 dark:border-blue-900/30">
+                                <GenerationLoadingState />
+                            </div>
+                        ) : (
+                            <textarea
+                                ref={textareaRef}
+                                value={editorValue}
+                                onChange={(e) => {
+                                    if (!isStreaming) updateText(e.target.value);
+                                }}
+                                readOnly={isStreaming}
+                                className={`w-full h-full p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none ${isStreaming ? 'cursor-not-allowed opacity-90' : ''}`}
+                                spellCheck={false}
+                                placeholder="LaTeX code will appear here..."
+                                style={{
+                                    lineHeight: '1.6',
+                                    tabSize: 2,
+                                }}
+                            />
+                        )}
+
                         {/* Invisible div for auto-scrolling */}
                         <div ref={bottomRef} />
 
-                        {/* Stop Streaming Button */}
-                        {isStreaming && (
-                            <div className="absolute bottom-6 right-6 z-10">
+                        {/* Stop Generating Button (Visible during Loading AND Streaming) */}
+                        {(isGenerating || isStreaming) && (
+                            <div className="absolute bottom-6 right-6 z-30 animate-in slide-in-from-bottom-4 fade-in duration-300">
                                 <Button
-                                    onClick={stopGeneration}
+                                    onClick={handleStopGeneration}
                                     variant="secondary"
                                     size="sm"
-                                    className="shadow-lg bg-white text-gray-900 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+                                    className="shadow-xl bg-white text-red-600 hover:bg-red-50 hover:text-red-700 border border-red-100"
                                 >
-                                    <span className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse" />
-                                    Stop Generating
+                                    <StopCircle className="w-4 h-4 mr-2 animate-pulse fill-red-100" />
+                                    Stop Converting
                                 </Button>
                             </div>
                         )}
@@ -660,7 +623,7 @@ export default function ResumeEditorPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => compilePdf(generatedLatex)}
-                                disabled={isCompiling}
+                                disabled={isCompiling || isGenerating || isStreaming}
                             >
                                 <RefreshCw className={`w-4 h-4 ${isCompiling ? 'animate-spin' : ''}`} />
                             </Button>
