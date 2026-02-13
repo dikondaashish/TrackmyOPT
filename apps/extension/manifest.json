@@ -1,13 +1,11 @@
 {
   "manifest_version": 3,
   "name": "TrackMyOPT",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Track your OPT timeline with precision",
   "permissions": [
-    "identity",
     "storage",
     "tabs",
-    "alarms",
     "notifications",
     "scripting"
   ],
