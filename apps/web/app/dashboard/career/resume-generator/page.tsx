@@ -861,7 +861,7 @@ export default function ResumeGeneratorPage() {
                     <Button
                         onClick={handleSelectTemplate}
                         disabled={!canProceed}
-                        className="px-8 py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                        className="px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                     >
                         <Sparkles className="w-5 h-5 mr-2" />
                         Select Template

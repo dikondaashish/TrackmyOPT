@@ -610,7 +610,7 @@ export default function ResumeEditorPage() {
                                         size="sm"
                                         onClick={handleDeepScan}
                                         disabled={isScanning || isGenerating}
-                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
+                                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                     >
                                         {isScanning ? (
                                             <>

@@ -1145,7 +1145,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                     <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
                         <Button
                             onClick={() => onSelect(template.id, currentColor)}
-                            className="w-full h-12 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20"
+                            className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-blue-500/20"
                         >
                             Use This Template
                             <ChevronRight className="w-5 h-5 ml-2" />
