@@ -131,16 +131,16 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Build Prompt
-        // Using gemini-2.5-pro as requested by user (Brain)
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+        // Primary: gemini-3-pro | Fallback: gemini-2.5-pro
+        const model = genAI.getGenerativeModel({ model: "gemini-3-pro" });
         const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex);
 
         let result;
         try {
             result = await model.generateContent(prompt);
         } catch (modelError: any) {
-            console.warn("Gemini 2.5 Pro failed, falling back to Gemini 2.5 Flash", modelError);
-            const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            console.warn("Gemini 3 Pro failed, falling back to Gemini 2.5 Pro", modelError);
+            const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
             result = await fallbackModel.generateContent(prompt);
         }
 

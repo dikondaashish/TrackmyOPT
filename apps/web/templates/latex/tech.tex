@@ -2,7 +2,6 @@
 
 % --- Preamble & Packages ---
 \usepackage{ragged2e}
-\usepackage{multicol}
 \usepackage[
     ignoreheadfoot,
     top=1.3cm,
@@ -12,25 +11,19 @@
     footskip=0.8cm,
 ]{geometry}
 \usepackage{titlesec}
-\usepackage{tabularx}
-\usepackage{array}
-\usepackage[dvipsnames]{xcolor}
-\definecolor{primaryColor}{RGB}{0, 0, 0}
 \usepackage{enumitem}
 \usepackage{fontawesome}
-\usepackage{amsmath}
 \usepackage[
     pdftitle={John Doe - AI Agent Engineer Resume},
     pdfauthor={John Doe},
     colorlinks=true,
-    urlcolor=primaryColor
+    urlcolor=black
 ]{hyperref}
 \usepackage[pscoord]{eso-pic}
 \usepackage{calc}
 \usepackage{bookmark}
 \usepackage{lastpage}
 \usepackage{changepage}
-\usepackage{paracol}
 \usepackage{ifthen}
 \usepackage{needspace}
 \usepackage{iftex}
@@ -50,7 +43,6 @@
 \setcounter{secnumdepth}{0}
 \setlength{\parindent}{0pt}
 \setlength{\topskip}{0pt}
-\setlength{\columnsep}{0.1cm}
 \pagenumbering{gobble}
 
 \titleformat{\section}{\needspace{4\baselineskip}\bfseries\large}{}{0pt}{}[\vspace{1pt}\titlerule]
@@ -64,20 +56,14 @@
 }
 
 \newenvironment{onecolentry}{
-    \begin{adjustwidth}{0.00001cm}{0.00001cm}
+    \begin{adjustwidth}{0cm}{0cm}
 }{
     \end{adjustwidth}
 }
 
-\newenvironment{twocolentry}[2][]{
-    \onecolentry
-    \def\secondColumn{#2}
-    \setcolumnwidth{\fill, 4.5 cm}
-    \begin{paracol}{2}
-}{
-    \switchcolumn \raggedleft \secondColumn
-    \end{paracol}
-    \endonecolentry
+% Replaced twocolentry environment with a command for ATS compatibility
+\newcommand{\resumeEntry}[2]{
+    \noindent \textbf{#2} \hfill #1 \par
 }
 
 \newenvironment{header}{
@@ -112,16 +98,12 @@ Results-driven \textbf{AI Solutions Engineer} with hands-on experience building 
 
 % --- Education ---
 \section{Education}
-\begin{twocolentry}{Aug 2022 – May 2024}
-    \textbf{Example University} — Master’s in Computer Science
-\end{twocolentry}
+\resumeEntry{Aug 2022 – May 2024}{Example University — Master’s in Computer Science}
 \begin{onecolentry}
 Focus: Artificial Intelligence, Distributed Systems, Cloud Computing
 \end{onecolentry}
 
-\begin{twocolentry}{Aug 2018 – Jul 2022}
-    \textbf{Sample Institute of Technology} — Bachelor of Computer Applications
-\end{twocolentry}
+\resumeEntry{Aug 2018 – Jul 2022}{Sample Institute of Technology — Bachelor of Computer Applications}
 \begin{onecolentry}
 Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 \end{onecolentry}
@@ -139,9 +121,7 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 
 % --- Experience ---
 \section{Experience}
-\begin{twocolentry}{Jan 2024 – Present}
-    \textbf{AI Solutions Engineer} — Example AI Labs (Remote)
-\end{twocolentry}
+\resumeEntry{Jan 2024 – Present}{AI Solutions Engineer — Example AI Labs (Remote)}
 \begin{onecolentry}
 \begin{highlights}
     \item Designed and deployed AI-powered workflows for enterprise SaaS customers.
@@ -152,9 +132,7 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 \end{highlights}
 \end{onecolentry}
 
-\begin{twocolentry}{Jun 2023 – Dec 2023}
-    \textbf{Integration Engineer} — SampleCloud Technologies (Remote)
-\end{twocolentry}
+\resumeEntry{Jun 2023 – Dec 2023}{Integration Engineer — SampleCloud Technologies (Remote)}
 \begin{onecolentry}
 \begin{highlights}
     \item Built data integration pipelines across multi-cloud environments.
@@ -164,9 +142,7 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 \end{highlights}
 \end{onecolentry}
 
-\begin{twocolentry}{Aug 2021 – May 2023}
-    \textbf{Software Engineer} — DemoSoft Solutions (Hybrid)
-\end{twocolentry}
+\resumeEntry{Aug 2021 – May 2023}{Software Engineer — DemoSoft Solutions (Hybrid)}
 \begin{onecolentry}
 \begin{highlights}
     \item Developed scalable backend services supporting high-volume user traffic.
@@ -179,8 +155,7 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 % --- Projects ---
 \section{Projects}
 
-\begin{twocolentry}{\textbf{AI Support Agent Platform} — Enterprise Prototype}
-\end{twocolentry}
+\resumeEntry{}{\textbf{AI Support Agent Platform} — Enterprise Prototype}
 \begin{onecolentry}
 \begin{highlights}
     \item Built an AI-powered customer support agent using LangChain and GPT APIs.
@@ -190,8 +165,7 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 \end{highlights}
 \end{onecolentry}
 
-\begin{twocolentry}{\textbf{Cloud Data Integrator} — Integration Framework}
-\end{twocolentry}
+\resumeEntry{}{\textbf{Cloud Data Integrator} — Integration Framework}
 \begin{onecolentry}
 \begin{highlights}
     \item Designed a reusable framework for syncing enterprise data systems.
@@ -201,8 +175,7 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 \end{highlights}
 \end{onecolentry}
 
-\begin{twocolentry}{\textbf{AI Demo Toolkit} — Internal Enablement Tool}
-\end{twocolentry}
+\resumeEntry{}{\textbf{AI Demo Toolkit} — Internal Enablement Tool}
 \begin{onecolentry}
 \begin{highlights}
     \item Created a toolkit for rapidly deploying customized AI demos.
@@ -214,7 +187,6 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 % --- Certificates ---
 \section{Certificates}
 \begin{onecolentry}
-\begin{multicols}{2}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
     \item AWS Certified Solutions Architect
     \item Machine Learning Specialization
@@ -222,7 +194,6 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
     \item Advanced Python Programming
     \item Cloud Engineering Fundamentals
 \end{itemize}
-\end{multicols}
 \end{onecolentry}
 
 \end{document}

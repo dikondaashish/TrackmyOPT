@@ -7,7 +7,6 @@
 
 \documentclass[letterpaper,11pt]{article}
 
-\usepackage{fontawesome5}
 \usepackage{latexsym}
 \usepackage[empty]{fullpage}
 \usepackage{titlesec}
@@ -20,11 +19,6 @@
 \usepackage[english]{babel}
 \usepackage{tabularx}
 \input{glyphtounicode}
-
-
-
-% Custom font
-\usepackage[default]{lato}
 
 \pagestyle{fancy}
 \fancyhf{} % clear all header and footer fields
@@ -48,34 +42,117 @@
 % Sections formatting
 \titleformat{\section}{
   \vspace{-4pt}\scshape\raggedright\large
-}{}{0em}{}[\color{black}\titlerule\vspace{-5pt}]
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
 
 % Ensure that generate pdf is machine readable/ATS parsable
 \pdfgentounicode=1
 
-%-------------------------%
+%-------------------------
 % Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-1pt}\item
+    \textbf{#1} \hfill #2 \par
+    \textit{\small#3} \hfill \textit{\small #4} \\
+    \vspace{-4pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \textit{\small#1} \hfill \textit{\small #2} \\
+    \vspace{-4pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \textbf{\small #1} \hfill \small #2 \\
+    \vspace{-4pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.0in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \begin{document}
-% \include{custom-commands} % Commented out as files are missing
-% NOTE: This template requires src/ files. We will likely need to consolidate or ask for them.
 
-%-------------------------------------------%
-%%%%%%  RESUME STARTS HERE  %%%%%
+%----------HEADING----------
+\begin{center}
+    \textbf{\Huge \scshape First Last} \\ \vspace{5pt}
+    \small 123-456-7890 $|$ \href{mailto:x@x.com}{x@x.com} $|$ 
+    \href{https://linkedin.com/in/...}{linkedin.com/in/...} $|$
+    \href{https://github.com/...}{github.com/...}
+\end{center}
 
-%----------HEADING----------%
-% \input{src/heading}
 
-%-----------EDUCATION-----------%
-% \input{src/education.tex}
+%-----------EDUCATION-----------
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {University Name}{Location}
+      {Bachelor of Arts in Computer Science}{Aug. 2018 -- May 2022}
+  \resumeSubHeadingListEnd
 
-%-----------EXPERIENCE-----------%
-% \input{src/experience}
 
-%-----------PROJECTS-----------%
-% \input{src/projects}
+%-----------EXPERIENCE-----------
+\section{Experience}
+  \resumeSubHeadingListStart
 
-%-----------SKILLS-----------%
-% \input{src/skills.tex}
+    \resumeSubheading
+      {Company Name}{Location}
+      {Role Title}{Date Range}
+      \resumeItemListStart
+        \resumeItem{Achievement 1: Action + Context + Result.}
+        \resumeItem{Achievement 2: Action + Context + Result.}
+      \resumeItemListStart
 
-%-------------------------------------------%
+    \resumeSubheading
+      {Company Name}{Location}
+      {Role Title}{Date Range}
+      \resumeItemListStart
+        \resumeItem{Achievement 1: Action + Context + Result.}
+        \resumeItem{Achievement 2: Action + Context + Result.}
+      \resumeItemListStart
+
+  \resumeSubHeadingListEnd
+
+
+%-----------PROJECTS-----------
+\section{Projects}
+    \resumeSubHeadingListStart
+      \resumeProjectHeading
+          {\textbf{Project Name} $|$ \emph{React, Node.js, PostgreSQL}}{Date}
+          \resumeItemListStart
+            \resumeItem{Developed a full-stack application...}
+            \resumeItem{Implemented...}
+          \resumeItemListEnd
+    \resumeSubHeadingListEnd
+
+
+%-----------SKILLS-----------
+\section{Technical Skills}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Languages}{: Java, Python, C/C++, SQL (Postgres), JavaScript, HTML/CSS, R} \\
+     \textbf{Frameworks}{: React, Node.js, Flask, JUnit, WordPress, Material-UI, FastAPI} \\
+     \textbf{Developer Tools}{: Git, Docker, TravisCI, Google Cloud Platform, VS Code, Visual Studio} \\
+     \textbf{Libraries}{: pandas, NumPy, Matplotlib}
+    }}
+ \end{itemize}
+
+
+%-------------------------------------------
 \end{document}
