@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { LoadingScreen } from '@/components/ui/loading-screen';
 
 type Tab = 'google' | 'manual';
 

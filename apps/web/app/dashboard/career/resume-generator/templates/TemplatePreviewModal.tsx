@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Check, ChevronRight, Phone, Mail, MapPin, Youtube, Globe, Linkedin, Github, ZoomIn, ZoomOut, Maximize, TrendingUp, CheckCircle, Ruler, Palette, PenTool, FileText } from "lucide-react";
 import Image from "next/image";
-import { Template, TemplateColor } from "@/lib/templates";
+import { Template, TemplateColor } from "@/lib/documents/templates";
 
 interface TemplatePreviewModalProps {
     isOpen: boolean;

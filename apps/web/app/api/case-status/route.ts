@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { verifyToken } from '@/lib/jwt';
-import { sendEnrollmentEmail } from '@/lib/email-service';
+import { verifyToken } from '@/lib/auth/jwt';
+import { sendEnrollmentEmail } from '@/lib/notifications/email-service';
 import {
   API_RATE_LIMIT,
   checkRateLimitByIP,
   checkRateLimitByUser,
   rateLimitResponse,
   addRateLimitHeaders
-} from '@/lib/api-rate-limit';
+} from '@/lib/auth/api-rate-limit';
 import { caseStatusRequestSchema, validateRequest } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';

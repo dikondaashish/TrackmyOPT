@@ -2,17 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  calculateOPTDates, 
-  calculateUnemploymentDays, 
+import {
+  calculateOPTDates,
+  calculateUnemploymentDays,
   getUnemploymentStatus,
   formatDate,
   formatDateRange,
   isoToMMDDYYYY,
   type OPTDates,
   type EmploymentSpan,
-} from '@/lib/optCalculations';
-import { DateSelector } from './DateSelector';
+} from '@/lib/immigration/optCalculations';
+import { DateSelector } from './opt/DateSelector';
 
 interface Profile {
   user_id: string;
@@ -39,16 +39,16 @@ interface DashboardClientProps {
   userEmail: string;
 }
 
-export default function DashboardClient({ 
-  profile, 
-  optStatus, 
+export default function DashboardClient({
+  profile,
+  optStatus,
   employmentSpans: initialSpans,
-  userEmail 
+  userEmail
 }: DashboardClientProps) {
   // Calculate dates if we have OPT data
   let calculated = null;
   let unemployment = null;
-  
+
   if (optStatus) {
     calculated = calculateOPTDates(optStatus as OPTDates);
     unemployment = calculateUnemploymentDays(
@@ -117,13 +117,12 @@ export default function DashboardClient({
                 <p className="text-lg font-bold text-gray-900 dark:text-white">
                   {unemployment.used} / {unemployment.max} days
                 </p>
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-2 ${
-                  unemploymentStatus.level === 'ok' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                  unemploymentStatus.level === 'warning' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                  'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                }`}>
-                  {unemploymentStatus.level === 'ok' ? '✅' : 
-                   unemploymentStatus.level === 'warning' ? '⚠️' : '🚨'} {unemploymentStatus.label}
+                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-2 ${unemploymentStatus.level === 'ok' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                    unemploymentStatus.level === 'warning' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                      'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                  }`}>
+                  {unemploymentStatus.level === 'ok' ? '✅' :
+                    unemploymentStatus.level === 'warning' ? '⚠️' : '🚨'} {unemploymentStatus.label}
                 </span>
               </>
             )}
@@ -154,39 +153,39 @@ export default function DashboardClient({
             <span>📅</span> Your OPT Timeline
           </h2>
           <div className="space-y-4">
-            <TimelineItem 
+            <TimelineItem
               label="Program End Date"
               date={optStatus.program_end_date}
               description="Last day of studies"
               color="gray"
             />
             {optStatus.dso_recommendation_date && (
-              <TimelineItem 
+              <TimelineItem
                 label="DSO Recommendation"
                 date={optStatus.dso_recommendation_date}
                 description="Optional, if received"
                 color="gray"
               />
             )}
-            <TimelineItem 
+            <TimelineItem
               label="Earliest File Date"
               date={calculated.earliestFileDate}
               description="90 days before program end"
               color="blue"
             />
-            <TimelineItem 
+            <TimelineItem
               label="Recommended Target"
               date={calculated.recommendedTarget}
               description="Recommended submission"
               color="blue"
             />
-            <TimelineItem 
+            <TimelineItem
               label="Must Arrive By"
               date={calculated.mustArriveBy}
               description="Hard deadline"
               color="red"
             />
-            <TimelineItem 
+            <TimelineItem
               label="OPT Start Window"
               date={`${formatDateRange(calculated.optStartEarliest, calculated.optStartLatest)}`}
               description="Earliest - Latest"
@@ -194,7 +193,7 @@ export default function DashboardClient({
               isRange
             />
             {profile.is_stem_eligible && optStatus.stem_start_date && (
-              <TimelineItem 
+              <TimelineItem
                 label="STEM Start Date"
                 date={optStatus.stem_start_date}
                 description="If STEM-eligible"
@@ -213,8 +212,8 @@ export default function DashboardClient({
           </h2>
           <a
             href="/dashboard/opt-dates"
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-            >
+            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          >
             Edit Dates →
           </a>
         </div>
@@ -242,7 +241,7 @@ function TimelineItem({ label, date, description, color, isRange }: TimelineItem
     purple: 'bg-purple-500 dark:bg-purple-600',
   };
 
-  const displayDate = isRange 
+  const displayDate = isRange
     ? (typeof date === 'string' ? date : formatDate(date))
     : formatDate(date);
 

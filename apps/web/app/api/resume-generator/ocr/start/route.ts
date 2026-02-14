@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { textractService } from '@/lib/textract';
+import { textractService } from '@/lib/aws/textract';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // CORS headers

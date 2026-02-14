@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeAtsGap } from '@/lib/gemini-ai';
+import { analyzeAtsGap } from '@/lib/ai/gemini-ai';
 
 // CORS headers
 const corsHeaders = {

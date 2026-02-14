@@ -12,8 +12,8 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/jwt';
-import { sendEnrollmentEmail, type EnrollmentEmailData } from '@/lib/email-service';
+import { verifyToken } from '@/lib/auth/jwt';
+import { sendEnrollmentEmail, type EnrollmentEmailData } from '@/lib/notifications/email-service';
 
 export const dynamic = 'force-dynamic';
 

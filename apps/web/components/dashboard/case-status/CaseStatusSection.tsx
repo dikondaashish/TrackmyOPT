@@ -5,8 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Collapsible } from "@/components/ui/collapsible";
 import { PremiumUpsellModal } from "@/components/dashboard/PremiumUpsellModal";
-import { CaseProgressStepper } from "@/components/dashboard/CaseProgressStepper";
-import { CaseHistoryTimeline } from "@/components/dashboard/CaseHistoryTimeline";
+import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
+import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
 import {
   ClipboardCheck,
   RefreshCw,

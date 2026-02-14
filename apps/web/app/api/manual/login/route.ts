@@ -14,7 +14,7 @@ import {
   checkRateLimitByIP,
   rateLimitResponse,
   addRateLimitHeaders
-} from "@/lib/api-rate-limit";
+} from "@/lib/auth/api-rate-limit";
 import { loginRequestSchema, validateRequest } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { sendExportOtpEmail } from '@/lib/email-service';
+import { sendExportOtpEmail } from '@/lib/notifications/email-service';
 
 /**
  * POST /api/user/send-export-otp

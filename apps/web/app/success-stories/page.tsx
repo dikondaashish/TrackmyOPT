@@ -9,7 +9,7 @@ import { FeatureHero } from "../../components/features/FeatureHero";
 import { FeatureCTA } from "../../components/features/FeatureCTA";
 import { MasonryWallOfLove } from "@/components/features/MasonryWallOfLove";
 import { FilterableCaseStudies } from "@/components/features/FilterableCaseStudies";
-import { CountUp } from "@/components/ui/CountUp";
+import { CountUp } from "@/components/ui/count-up";
 
 // Success Stats Card Visual
 function SuccessStatsVisual() {

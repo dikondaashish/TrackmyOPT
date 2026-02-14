@@ -8,7 +8,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { LoadingScreen } from '@/components/ui/loading-screen';
 
 function PremiumSuccessContent() {
   const router = useRouter();

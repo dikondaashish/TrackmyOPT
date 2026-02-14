@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
-import { verifyToken } from '@/lib/jwt';
+import { verifyToken } from '@/lib/auth/jwt';
 
 // Admin client to bypass RLS for session management
 const getAdminClient = () => createClient(

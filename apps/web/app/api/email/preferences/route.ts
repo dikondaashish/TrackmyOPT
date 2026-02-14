@@ -10,10 +10,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { verifyToken } from '@/lib/jwt';
+import { verifyToken } from '@/lib/auth/jwt';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
-import { sendEmailChangeNotification } from '@/lib/email-service';
+import { sendEmailChangeNotification } from '@/lib/notifications/email-service';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

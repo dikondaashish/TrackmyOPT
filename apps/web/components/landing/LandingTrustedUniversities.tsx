@@ -1,6 +1,6 @@
 "use client";
 
-import { ParallaxScroll } from "@/components/ui/ParallaxScroll";
+import { ParallaxScroll } from "@/components/animations/parallax-scroll";
 
 export function LandingTrustedUniversities() {
     const universities = [

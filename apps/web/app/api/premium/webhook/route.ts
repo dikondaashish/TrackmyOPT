@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
-import { sendPremiumWelcomeEmail } from '@/lib/email-service';
+import { sendPremiumWelcomeEmail } from '@/lib/notifications/email-service';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-09-30.clover',

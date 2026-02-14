@@ -1,5 +1,6 @@
 
 import React from 'react';
+import type { LucideIcon } from 'lucide-react';
 import {
     Undo,
     Redo,
@@ -186,7 +187,7 @@ export function LatexToolbar({
     );
 }
 
-function ToolbarButton({ icon: Icon, label, onClick, disabled }: { icon: any, label: string, onClick: () => void, disabled?: boolean }) {
+function ToolbarButton({ icon: Icon, label, onClick, disabled }: { icon: LucideIcon, label: string, onClick: () => void, disabled?: boolean }) {
     return (
         <Tooltip>
             <TooltipTrigger asChild>

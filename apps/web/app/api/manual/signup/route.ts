@@ -16,7 +16,7 @@ import {
   checkRateLimitByIP,
   rateLimitResponse,
   addRateLimitHeaders
-} from "@/lib/api-rate-limit";
+} from "@/lib/auth/api-rate-limit";
 import { z } from "zod";
 import { validateRequest, emailSchema, passwordSchema, sanitizeString } from "@/lib/validation";
 

@@ -1,4 +1,4 @@
-import { GlassyFeatureTags } from "@/components/ui/glassy-feature-tags";
+import { GlassyFeatureTags } from "@/components/landing/glassy-feature-tags";
 
 export function LandingFeatureCloud() {
     return (

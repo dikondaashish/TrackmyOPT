@@ -1,8 +1,8 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { buildFixSyntaxPrompt } from '@/lib/prompts/fix-syntax';
-import rateLimit from '@/lib/rate-limit';
+import { buildFixSyntaxPrompt } from '@/lib/ai/prompts/fix-syntax';
+import rateLimit from '@/lib/auth/rate-limit';
 
 // Rate Limiter: 20 requests per minute per IP (higher limit for debugging cycle)
 const limiter = rateLimit({

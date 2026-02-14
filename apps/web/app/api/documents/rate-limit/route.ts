@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getRateLimitStatus, getTimeUntilReset } from '@/lib/rate-limit';
+import { getRateLimitStatus, getTimeUntilReset } from '@/lib/auth/rate-limit';
 
 export const dynamic = 'force-dynamic';
 

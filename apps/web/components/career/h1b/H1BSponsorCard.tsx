@@ -5,7 +5,7 @@ import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Link
 import Link from "next/link";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
-import { getLogoUrl, handleLogoError } from "@/lib/imageUtils";
+import { getLogoUrl, handleLogoError } from "@/lib/documents/imageUtils";
 
 interface H1BSponsorCardProps {
     sponsor: H1BSponsor;

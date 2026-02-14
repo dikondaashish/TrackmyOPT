@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { textractService } from '@/lib/textract';
+import { textractService } from '@/lib/aws/textract';
 
 // CORS headers
 const corsHeaders = {

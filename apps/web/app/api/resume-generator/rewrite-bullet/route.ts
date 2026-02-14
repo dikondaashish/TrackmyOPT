@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { rewriteBulletPoints } from '@/lib/gemini-ai';
+import { rewriteBulletPoints } from '@/lib/ai/gemini-ai';
 
 // CORS headers
 const corsHeaders = {

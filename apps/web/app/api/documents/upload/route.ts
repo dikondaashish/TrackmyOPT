@@ -16,11 +16,11 @@ import {
   isValidDocumentType, 
   getFileExtension,
   generateS3Key 
-} from '@/lib/s3';
-import { analyzeDocument, normalizeText } from '@/lib/gemini-ai';
-import { generateRemindersForDocument } from '@/lib/reminders';
-import { checkDocumentUploadRateLimit, getTimeUntilReset } from '@/lib/rate-limit';
-import { scanFileForViruses, checkSuspiciousFileType } from '@/lib/virus-scan';
+} from '@/lib/aws/s3';
+import { analyzeDocument, normalizeText } from '@/lib/ai/gemini-ai';
+import { generateRemindersForDocument } from '@/lib/notifications/reminders';
+import { checkDocumentUploadRateLimit, getTimeUntilReset } from '@/lib/auth/rate-limit';
+import { scanFileForViruses, checkSuspiciousFileType } from '@/lib/aws/virus-scan';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { checkUSCISStatus, mockUSCISStatus } from '@/lib/uscis-checker';
+import { checkUSCISStatus, mockUSCISStatus } from '@/lib/immigration/uscis-checker';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

@@ -5,6 +5,10 @@ node_modules/
 
 # Testing
 coverage/
+*.pdf
+
+# Build artifacts
+*.zip
 
 # Next.js
 .next/

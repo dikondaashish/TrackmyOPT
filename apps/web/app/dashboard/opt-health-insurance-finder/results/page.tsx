@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, Baby, AlertTriangle, Lightbulb, CheckCircle2, CirclePause } from "lucide-react";
-import { calculateEligibility, type EligibilityStatus } from "@/lib/state-eligibility";
+import { calculateEligibility, type EligibilityStatus } from "@/lib/immigration/state-eligibility";
 
 // Age-based pricing for insurance partners
 function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {

@@ -17,7 +17,7 @@ import {
     Play,
 } from "lucide-react";
 import Link from "next/link";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useResumeStore } from "@/store/resume-store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OptimizationFeedbackModal } from "./components/OptimizationFeedbackModal";
@@ -110,12 +110,16 @@ export default function ResumeEditorPage() {
         }
     };
 
-    // 1. Load data & Generate on Mount
+    // 1. Load data & Generate on Mount (run once)
     useEffect(() => {
         if (resumeText && jobDescription && selectedTemplateId && !generatedLatex && !isGenerating) {
             generateResume(resumeText, jobDescription, selectedTemplateId);
+        } else if (generatedLatex && !compiledPdfUrl && !isCompiling) {
+            // Auto-compile persisted latex on page reload (blob URLs don't persist)
+            compilePdf(generatedLatex);
         }
-    }, [resumeText, jobDescription, selectedTemplateId, generatedLatex]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Handle Text Insertion from Toolbar
     const handleInsert = (startTag: string, endTag: string = '') => {
@@ -124,7 +128,7 @@ export default function ResumeEditorPage() {
 
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
-        const text = generatedLatex;
+        const text = textarea.value; // Use actual textarea content, not potentially stale store state
         const before = text.substring(0, start);
         const selection = text.substring(start, end);
         const after = text.substring(end);
@@ -136,11 +140,8 @@ export default function ResumeEditorPage() {
         // Restore focus and cursor (approximate, usually inside tags)
         setTimeout(() => {
             textarea.focus();
-            const newCursorPos = start + startTag.length + selection.length; // Place after selection inside tags?
-            // Actually usually we want to wrap.
-            // If selection was empty, cursor should be between tags.
-            // If selection existed, cursor should be after endTag? Or keep selection?
-            // Let's just put cursor at end of insertion for now or inside if empty.
+            // Place cursor after insertion
+
             if (selection.length === 0) {
                 textarea.setSelectionRange(start + startTag.length, start + startTag.length);
             } else {
@@ -183,11 +184,12 @@ export default function ResumeEditorPage() {
                 description: "AI has tailored your resume to the job description.",
             });
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
+            const message = error instanceof Error ? error.message : 'An unexpected error occurred';
             toast({
                 title: "Generation Failed",
-                description: error.message,
+                description: message,
                 variant: "destructive",
             });
         } finally {
@@ -243,9 +245,12 @@ export default function ResumeEditorPage() {
 
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
+            // Revoke previous blob URL to prevent memory leak
+            const prevUrl = useResumeStore.getState().compiledPdfUrl;
+            if (prevUrl) URL.revokeObjectURL(prevUrl);
             setCompiledPdfUrl(url);
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
             toast({
                 title: "Compilation Failed",
@@ -253,9 +258,17 @@ export default function ResumeEditorPage() {
                 variant: "destructive",
             });
         } finally {
-            if (retryCount === 0) setIsCompiling(false); // Only unset if not retrying
+            setIsCompiling(false);
         }
     };
+
+    // Cleanup blob URL on unmount
+    useEffect(() => {
+        return () => {
+            const currentUrl = useResumeStore.getState().compiledPdfUrl;
+            if (currentUrl) URL.revokeObjectURL(currentUrl);
+        };
+    }, []);
 
     // API: Deep ATS Scan
     const handleDeepScan = async () => {
@@ -286,7 +299,7 @@ export default function ResumeEditorPage() {
                 description: "Gemini 2.5 Pro has analyzed your resume against the job description.",
             });
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
             toast({
                 title: "Scan Failed",
@@ -339,11 +352,12 @@ export default function ResumeEditorPage() {
                 compilePdf(data.latex);
             }
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
+            const message = error instanceof Error ? error.message : 'An unexpected error occurred';
             toast({
                 title: "Regeneration Failed",
-                description: error.message,
+                description: message,
                 variant: "destructive",
             });
         } finally {
@@ -369,10 +383,10 @@ export default function ResumeEditorPage() {
             document.body.removeChild(a);
         } else {
             // Fallback: Compile and download
-            compilePdf(generatedLatex).then(() => {
-                toast({ description: "Compiling PDF... click download again when ready." });
-            });
+            compilePdf(generatedLatex);
+            toast({ description: "Compiling PDF... click download again when ready." });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [compiledPdfUrl, generatedLatex, selectedTemplateId, toast]);
 
     return (

@@ -12,7 +12,7 @@ import { Database } from "@/types/supabase";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
 import { AnalyticsDashboard } from "@/components/career/h1b/profile/analytics/AnalyticsDashboard";
 import { LCAFilingsTable } from "@/components/career/h1b/profile/LCAExplorer/LCAFilingsTable";
-import { getLogoUrl, handleLogoError } from "@/lib/imageUtils";
+import { getLogoUrl, handleLogoError } from "@/lib/documents/imageUtils";
 
 type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];

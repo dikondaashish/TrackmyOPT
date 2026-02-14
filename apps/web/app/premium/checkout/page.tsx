@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { DashboardLayoutClient } from "@/components/layout/DashboardLayoutClient";
-import { DashboardContent } from "@/components/dashboard/DashboardContent";
+import { DashboardContent } from "@/components/dashboard/widgets/DashboardContent";
 import { CheckoutModalClient } from "./CheckoutModalClient";
-import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 
 export default async function CheckoutPage() {
     const cookieStore = cookies();

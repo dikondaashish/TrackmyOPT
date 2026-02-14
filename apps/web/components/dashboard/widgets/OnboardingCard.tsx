@@ -1,5 +1,5 @@
 "use client";
-import { DateSelector } from "./DateSelector";
+import { DateSelector } from "../opt/DateSelector";
 
 export function OnboardingCard() {
   return (
@@ -18,7 +18,7 @@ export function OnboardingCard() {
         <p className="text-sm mb-4 font-medium">
           🎯 Your dates are displayed below. Click <strong>"Edit Dates →"</strong> to update them.
         </p>
-        
+
         <div className="space-y-2 text-sm">
           <p className="font-semibold text-foreground">What we track:</p>
           <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">

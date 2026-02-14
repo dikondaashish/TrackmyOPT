@@ -15,7 +15,7 @@ import {
   isValidPasscode,
   checkLockoutStatus,
   getRemainingAttempts 
-} from '@/lib/passcode';
+} from '@/lib/auth/passcode';
 
 export async function POST(request: NextRequest) {
   try {

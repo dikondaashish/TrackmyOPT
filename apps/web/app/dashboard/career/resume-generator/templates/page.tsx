@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TemplatePreviewModal } from "./TemplatePreviewModal";
 import { useResumeStore } from "@/store/resume-store";
-import { RESUME_TEMPLATES, Template, TemplateColor } from "@/lib/templates";
+import { RESUME_TEMPLATES, Template, TemplateColor } from "@/lib/documents/templates";
 
 
 export default function TemplateSelectionPage() {

@@ -1,7 +1,7 @@
 "use client";
 
-import { GlassyFeatureTags } from "@/components/ui/glassy-feature-tags";
-import { AnimatedRoadmap } from "@/components/ui/animated-roadmap";
+import { GlassyFeatureTags } from "@/components/landing/glassy-feature-tags";
+import { AnimatedRoadmap } from "@/components/landing/animated-roadmap";
 import { MoveRight } from "lucide-react";
 import Link from "next/link";
 

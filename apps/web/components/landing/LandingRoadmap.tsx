@@ -1,4 +1,4 @@
-import { AnimatedRoadmap } from "@/components/ui/animated-roadmap";
+import { AnimatedRoadmap } from "@/components/landing/animated-roadmap";
 
 export function LandingRoadmap() {
     return (

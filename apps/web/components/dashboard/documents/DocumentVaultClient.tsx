@@ -11,8 +11,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { PasscodeSetupModal } from './PasscodeSetupModal';
-import { PasscodeVerifyModal } from './PasscodeVerifyModal';
+import { PasscodeSetupModal } from '../settings/PasscodeSetupModal';
+import { PasscodeVerifyModal } from '../security/PasscodeVerifyModal';
 import { DocumentUploadModal } from './DocumentUploadModal';
 import { DocumentGrid } from './DocumentGrid';
 import { DocumentStats } from './DocumentStats';

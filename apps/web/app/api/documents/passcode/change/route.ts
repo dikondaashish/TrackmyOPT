@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { hashPasscode, verifyPasscode, isValidPasscode } from '@/lib/passcode';
+import { hashPasscode, verifyPasscode, isValidPasscode } from '@/lib/auth/passcode';
 
 export async function POST(request: NextRequest) {
   try {

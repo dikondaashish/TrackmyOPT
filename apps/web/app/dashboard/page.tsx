@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { DashboardContent } from "@/components/dashboard/DashboardContent";
+import { DashboardContent } from "@/components/dashboard/widgets/DashboardContent";
 
 export default async function DashboardPage() {
   const cookieStore = cookies();

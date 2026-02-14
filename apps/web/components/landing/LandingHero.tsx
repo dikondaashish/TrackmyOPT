@@ -5,8 +5,8 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { LandingTrustedUniversities } from "./LandingTrustedUniversities";
 import { ResumeEditorMockup } from "./ResumeEditorMockup";
-import { MagneticButton } from "@/components/ui/MagneticButton";
-import { ParallaxImage } from "@/components/ui/ParallaxImage";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import { ParallaxImage } from "@/components/animations/parallax-image";
 import {
     Clock,
     Calendar,

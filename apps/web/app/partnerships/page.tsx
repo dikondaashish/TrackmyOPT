@@ -9,7 +9,7 @@ import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";
 import { FeatureCTA } from "../../components/features/FeatureCTA";
 import { UniversityDashboardPreview } from "@/components/features/UniversityDashboardPreview";
-import { CountUp } from "@/components/ui/CountUp";
+import { CountUp } from "@/components/ui/count-up";
 
 // Partnership Visual
 function PartnershipVisual() {

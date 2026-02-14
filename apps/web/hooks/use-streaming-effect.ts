@@ -15,11 +15,16 @@ export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: U
     const indexRef = useRef(0);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const fullTextRef = useRef(text);
+    const onCompleteRef = useRef(onComplete);
 
-    // Update full text ref when prop changes
+    // Update refs when props change
     useEffect(() => {
         fullTextRef.current = text;
     }, [text]);
+
+    useEffect(() => {
+        onCompleteRef.current = onComplete;
+    }, [onComplete]);
 
     const stopStreaming = useCallback(() => {
         if (timerRef.current) {
@@ -28,8 +33,8 @@ export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: U
         }
         setIsStreaming(false);
         setDisplayedText(fullTextRef.current);
-        if (onComplete) onComplete();
-    }, [onComplete]);
+        if (onCompleteRef.current) onCompleteRef.current();
+    }, []);
 
     const startStreaming = useCallback(() => {
         // Clear any existing timer
@@ -52,7 +57,7 @@ export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: U
                 // Done
                 stopStreaming();
             }
-        }, 5); // Ultra fast updates
+        }, speed);
     }, [speed, stopStreaming]);
 
     // Effect to trigger stream when `isEnabled` becomes true or text changes significantly while enabled

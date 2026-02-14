@@ -98,7 +98,7 @@ await supabase.auth.signIn({ email, password });
 #### JWT Utilities (`lib/jwt.ts`)
 Mint and verify short-lived JWTs for extension auth:
 ```typescript
-import { mintToken, verifyToken } from '@/lib/jwt';
+import { mintToken, verifyToken } from '@/lib/auth/jwt';
 
 // Mint a token (5 min expiry)
 const token = await mintToken({ userId, email });

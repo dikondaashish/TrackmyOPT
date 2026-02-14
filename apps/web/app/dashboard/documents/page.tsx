@@ -6,7 +6,7 @@
  */
 
 import { Suspense } from 'react';
-import { DocumentVaultClient } from '@/components/dashboard/DocumentVaultClient';
+import { DocumentVaultClient } from '@/components/dashboard/documents/DocumentVaultClient';
 
 export const metadata = {
   title: 'Document Vault | TrackMyOPT',

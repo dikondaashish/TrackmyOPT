@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { generateSignedUrl } from '@/lib/s3';
+import { generateSignedUrl } from '@/lib/aws/s3';
 
 type RouteContext = {
   params: Promise<{

@@ -1,6 +1,6 @@
 
-import { buildRegeneratePrompt } from '../lib/prompts/regenerate';
-import { checkAtsCompliance } from '../lib/validators/ats-checker';
+import { buildRegeneratePrompt } from '../../lib/ai/prompts/regenerate';
+import { checkAtsCompliance } from '../../lib/validators/ats-checker';
 
 const mockResume = "John Doe\nSoftware Engineer\nExperience: Google...";
 const mockJob = "Software Engineer at OpenAI...";

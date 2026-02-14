@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
-import { getServerSideEnv } from './env';
+import { getServerSideEnv } from '../env';
 
 const JWT_ALGORITHM = 'HS256';
 const JWT_ISSUER = 'trackmyopt-web';
@@ -49,8 +49,8 @@ export async function signToken(
   expiresIn: string = '10m'
 ): Promise<string> {
   const secret = getSecretKey();
-  
-  const token = await new SignJWT({ 
+
+  const token = await new SignJWT({
     userId: payload.userId,
     email: payload.email,
     sub: payload.userId, // Standard 'sub' claim for user ID
@@ -77,7 +77,7 @@ export async function mintToken(
   expiresInSeconds: number = 300 // 5 minutes
 ): Promise<string> {
   const secret = getSecretKey();
-  
+
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: JWT_ALGORITHM })
     .setIssuedAt()
@@ -98,7 +98,7 @@ export async function mintToken(
 export async function verifyToken(token: string): Promise<DecodedToken | null> {
   try {
     const secret = getSecretKey();
-    
+
     const { payload } = await jwtVerify(token, secret, {
       issuer: JWT_ISSUER,
       audience: JWT_AUDIENCE,

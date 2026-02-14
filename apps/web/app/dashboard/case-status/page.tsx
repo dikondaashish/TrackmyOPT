@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { CaseStatusSection } from "@/components/dashboard/CaseStatusSection";
+import { CaseStatusSection } from "@/components/dashboard/case-status/CaseStatusSection";
 
 export const metadata: Metadata = {
   title: "Case Status | TrackMyOPT",

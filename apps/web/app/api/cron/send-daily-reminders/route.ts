@@ -24,7 +24,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/email-service';
+import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/notifications/email-service';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max execution time

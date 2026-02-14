@@ -13,7 +13,7 @@ import {
     FileText
 } from "lucide-react";
 import Link from "next/link";
-import { ParallaxImage } from "@/components/ui/ParallaxImage";
+import { ParallaxImage } from "@/components/animations/parallax-image";
 
 export function LandingFeatures() {
     return (

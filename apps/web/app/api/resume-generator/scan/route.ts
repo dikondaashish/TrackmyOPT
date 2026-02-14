@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { buildAtsScanPrompt } from '@/lib/prompts/ats-scan';
+import { buildAtsScanPrompt } from '@/lib/ai/prompts/ats-scan';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 
 const corsHeaders = {

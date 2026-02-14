@@ -1,6 +1,8 @@
 
 import { useState, useCallback } from 'react';
 
+const MAX_HISTORY = 100;
+
 interface UseEditorHistoryReturn {
     text: string;
     updateText: (newText: string, saveToHistory?: boolean) => void;
@@ -15,22 +17,27 @@ export function useEditorHistory(initialText: string, onUpdate: (text: string) =
     const [history, setHistory] = useState<string[]>([initialText]);
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    // Current text (can be ahead of history if we haven't saved yet, e.g. typing)
-    // But for simplicity, let's keep them in sync or just use the parent's text?
-    // Actually, distinct history state is safer.
-
     const updateText = useCallback((newText: string, saveToHistory = true) => {
         onUpdate(newText);
 
         if (saveToHistory) {
-            setHistory(prev => {
-                const newHistory = prev.slice(0, currentIndex + 1);
-                newHistory.push(newText);
-                return newHistory;
+            // Use functional updater for currentIndex to avoid stale closure
+            setCurrentIndex(prevIndex => {
+                setHistory(prev => {
+                    const newHistory = prev.slice(0, prevIndex + 1);
+                    newHistory.push(newText);
+                    // Cap history to prevent memory bloat
+                    if (newHistory.length > MAX_HISTORY) {
+                        return newHistory.slice(newHistory.length - MAX_HISTORY);
+                    }
+                    return newHistory;
+                });
+                // Adjust index if history was capped
+                const nextIndex = prevIndex + 1;
+                return Math.min(nextIndex, MAX_HISTORY - 1);
             });
-            setCurrentIndex(prev => prev + 1);
         }
-    }, [currentIndex, onUpdate]);
+    }, [onUpdate]);
 
     const undo = useCallback(() => {
         if (currentIndex > 0) {
