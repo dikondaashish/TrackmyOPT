@@ -46,10 +46,13 @@ export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: U
 
         timerRef.current = setInterval(() => {
             if (indexRef.current < fullTextRef.current.length) {
-                // Add a bigger chunk for speed
-                // 10-15 chars per frame at 5ms interval = ~2000-3000 chars/sec
-                // This ensures even long resumes (5k chars) finish in ~2 seconds
-                const chunkSize = 12;
+                // Variable chunk size for natural feel (1-4 chars)
+                // Speed is base interval (default 12ms) * randomization
+
+                // Randomize chunk size slightly (1 to 3 chars)
+                // This makes it look like it's "thinking" or processing tokens
+                const chunkSize = Math.floor(Math.random() * 3) + 1;
+
                 const chunk = fullTextRef.current.slice(indexRef.current, indexRef.current + chunkSize);
                 setDisplayedText(prev => prev + chunk);
                 indexRef.current += chunkSize;

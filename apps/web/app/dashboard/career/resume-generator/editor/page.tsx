@@ -22,6 +22,7 @@ import { useResumeStore } from "@/store/resume-store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OptimizationFeedbackModal } from "./components/OptimizationFeedbackModal";
 import { AtsScorePanel } from "./components/AtsScorePanel";
+import { GeneratingOverlay } from "./components/GeneratingOverlay";
 import { LatexToolbar, EditorViewMode } from "./components/LatexToolbar";
 import { useEditorHistory } from "@/hooks/use-editor-history";
 import { useStreamingEffect } from "@/hooks/use-streaming-effect";
@@ -75,7 +76,7 @@ export default function ResumeEditorPage() {
     const { displayedText, isStreaming, stopStreaming } = useStreamingEffect({
         text: generatedLatex,
         isEnabled: isStreamingEnabled,
-        speed: 5, // Fast typing
+        speed: 12, // Natural typing speed (12ms base + random chunk variance)
         onComplete: () => {
             setIsStreamingEnabled(false);
             // Sync history with the full generated text once streaming is done/stopped
@@ -91,7 +92,8 @@ export default function ResumeEditorPage() {
     }, [displayedText, isStreaming]);
 
     // Use streaming text if active, otherwise history text
-    const editorValue = isStreaming ? displayedText : historyText;
+    // If generating OR streaming is enabled but not started (transition) -> show empty to trigger overlay/prevent flash
+    const editorValue = ((isGenerating || isStreamingEnabled) && !isStreaming) ? "" : (isStreaming ? displayedText : historyText);
 
     // Sync View Mode
     const handleViewModeChange = (mode: EditorViewMode) => {
@@ -155,6 +157,7 @@ export default function ResumeEditorPage() {
     // API: Generate Resume
     const generateResume = async (resume: string, job: string, template: string) => {
         setIsGenerating(true);
+
         try {
             const response = await fetch('/api/resume-generator/generate', {
                 method: 'POST',
@@ -356,6 +359,7 @@ export default function ResumeEditorPage() {
     const handleRegenerate = async (feedback: string) => {
         setIsGenerating(true);
         setShowFeedbackModal(false); // Close modal on start
+
         try {
             const response = await fetch('/api/resume-generator/regenerate', {
                 method: 'POST',
@@ -638,6 +642,9 @@ export default function ResumeEditorPage() {
                         />
                         {/* Invisible div for auto-scrolling */}
                         <div ref={bottomRef} />
+
+                        {/* AI Generating Overlay — shown while waiting for Gemini */}
+                        {isGenerating && !editorValue && <GeneratingOverlay />}
 
                         {/* Stop Streaming Button */}
                         {isStreaming && (
