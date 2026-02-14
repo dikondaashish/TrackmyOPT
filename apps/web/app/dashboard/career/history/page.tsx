@@ -38,6 +38,7 @@ interface SavedResume {
     content: string;
     created_at: string;
     file_path?: string;
+    structuredData?: any;
 }
 
 export default function HistoryPage() {
@@ -249,7 +250,7 @@ export default function HistoryPage() {
                         </Link>
 
                         <div className="text-center">
-                            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
+                            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 dark:from-purple-300 dark:via-pink-300 dark:to-blue-300 bg-clip-text text-transparent">
                                 Resume History
                             </h1>
                         </div>
@@ -323,6 +324,13 @@ export default function HistoryPage() {
                                             <span>✓</span>
                                             <span>Parsed</span>
                                         </div>
+                                        {/* Generated Badge */}
+                                        {(resume.structuredData?.latexCode || resume.structuredData?.generatedLatex) && (
+                                            <div className="ml-2 flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
+                                                <span>⚡</span>
+                                                <span>Generated</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

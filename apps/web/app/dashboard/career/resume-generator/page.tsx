@@ -410,7 +410,7 @@ export default function ResumeGeneratorPage() {
 
                             <Button
                                 variant="outline"
-                                onClick={() => router.push("/dashboard/career/saved-resumes")}
+                                onClick={() => router.push("/dashboard/career/history")}
                                 className="flex items-center gap-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
                             >
                                 <History className="w-4 h-4" />
