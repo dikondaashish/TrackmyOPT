@@ -11,7 +11,7 @@ interface UsageData {
     resumeLimit: number;
 }
 
-export function ResumeUsageStats() {
+export function ResumeUsageStats({ compact = false }: { compact?: boolean }) {
     const [stats, setStats] = useState<UsageData | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -44,8 +44,8 @@ export function ResumeUsageStats() {
     const isNearLimit = percentage >= 80;
 
     return (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 shadow-sm mb-6">
-            <div className="flex items-center justify-between mb-3">
+        <div className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm ${compact ? 'px-4 py-2 mr-4' : 'p-4 mb-6'}`}>
+            <div className={`flex items-center justify-between ${compact ? 'gap-6' : 'mb-3'}`}>
                 <div className="flex items-center gap-2">
                     <div className={`p-2 rounded-lg ${isLimitReached ? 'bg-red-100 dark:bg-red-900/30 text-red-600' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'}`}>
                         <Zap className="w-4 h-4" />
@@ -54,7 +54,7 @@ export function ResumeUsageStats() {
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                             Monthly Usage
                         </h3>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 whitespace-nowrap">
                             Resumes generated this month
                         </p>
                     </div>
@@ -67,23 +67,27 @@ export function ResumeUsageStats() {
                 </div>
             </div>
 
-            <Progress value={percentage} className={`h-2 mb-3 ${isLimitReached ? 'bg-red-100 dark:bg-red-900/30 [&>div]:bg-red-600' : ''}`} />
+            {!compact && (
+                <>
+                    <Progress value={percentage} className={`h-2 mb-3 ${isLimitReached ? 'bg-red-100 dark:bg-red-900/30 [&>div]:bg-red-600' : ''}`} />
 
-            {isNearLimit && !isLimitReached && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">
-                    You are approaching your monthly limit.
-                </p>
-            )}
+                    {isNearLimit && !isLimitReached && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">
+                            You are approaching your monthly limit.
+                        </p>
+                    )}
 
-            {isLimitReached && (
-                <div className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/50">
-                    <p className="text-xs text-red-600 dark:text-red-400 font-medium">
-                        Limit reached. Upgrade for more.
-                    </p>
-                    <Button size="sm" variant="default" className="bg-red-600 hover:bg-red-700 text-white h-7 text-xs" asChild>
-                        <Link href="/dashboard/settings/billing">Upgrade Plan</Link>
-                    </Button>
-                </div>
+                    {isLimitReached && (
+                        <div className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/50">
+                            <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                                Limit reached. Upgrade for more.
+                            </p>
+                            <Button size="sm" variant="default" className="bg-red-600 hover:bg-red-700 text-white h-7 text-xs" asChild>
+                                <Link href="/dashboard/settings/billing">Upgrade Plan</Link>
+                            </Button>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

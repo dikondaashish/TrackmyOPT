@@ -331,18 +331,20 @@ export default function ResumeGeneratorPage() {
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-                    <div className="flex items-center justify-between">
+                    <div className="grid grid-cols-[auto_1fr_auto] lg:grid-cols-3 items-center gap-4">
                         {/* Back Button */}
-                        <Link
-                            href="/dashboard/career"
-                            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                            <span className="hidden sm:inline">Back</span>
-                        </Link>
+                        <div className="flex justify-start">
+                            <Link
+                                href="/dashboard/career"
+                                className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                            >
+                                <ArrowLeft className="w-5 h-5" />
+                                <span className="hidden sm:inline">Back</span>
+                            </Link>
+                        </div>
 
                         {/* Title + Progress */}
-                        <div className="text-center">
+                        <div className="text-center flex flex-col items-center">
                             <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
                                 Resume Generator
                             </h1>
@@ -356,15 +358,21 @@ export default function ResumeGeneratorPage() {
                             </div>
                         </div>
 
-                        {/* History Button */}
-                        <Button
-                            variant="outline"
-                            onClick={() => router.push("/dashboard/career/resume-generator/history")}
-                            className="flex items-center gap-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                        >
-                            <History className="w-4 h-4" />
-                            <span className="hidden sm:inline text-sm font-medium">History</span>
-                        </Button>
+                        {/* Right Actions */}
+                        <div className="flex items-center justify-end gap-3">
+                            <div className="hidden xl:block">
+                                <ResumeUsageStats compact />
+                            </div>
+
+                            <Button
+                                variant="outline"
+                                onClick={() => router.push("/dashboard/career/resume-generator/history")}
+                                className="flex items-center gap-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                            >
+                                <History className="w-4 h-4" />
+                                <span className="hidden sm:inline text-sm font-medium">History</span>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -374,7 +382,6 @@ export default function ResumeGeneratorPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                     <div className="space-y-6">
-                        <ResumeUsageStats />
                         {/* Resume Panel */}
                         <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
                             <div className="flex items-center justify-between mb-4">
