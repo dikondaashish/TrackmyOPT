@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, FileSearch, Target, Cpu, Zap, BarChart3, Layout, CheckCircle2 } from "lucide-react";
 
 const STAGES = [
-    { text: "Analyzing your resume", icon: "📄" },
-    { text: "Matching job requirements", icon: "🔍" },
-    { text: "Extracting key skills", icon: "⚙️" },
-    { text: "Optimizing for ATS", icon: "🎯" },
-    { text: "Adding impact metrics", icon: "📊" },
-    { text: "Structuring sections", icon: "📐" },
-    { text: "Polishing final draft", icon: "✨" },
+    { text: "Analyzing your resume", icon: FileSearch },
+    { text: "Matching job requirements", icon: Target },
+    { text: "Extracting key skills", icon: Cpu },
+    { text: "Optimizing for ATS", icon: Zap },
+    { text: "Adding impact metrics", icon: BarChart3 },
+    { text: "Structuring sections", icon: Layout },
+    { text: "Polishing final draft", icon: Sparkles },
 ];
 
 export function GeneratingOverlay() {
@@ -34,6 +34,7 @@ export function GeneratingOverlay() {
     }, []);
 
     const stage = STAGES[stageIndex];
+    const Icon = stage.icon;
 
     return (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-900/95 backdrop-blur-sm">
@@ -51,7 +52,7 @@ export function GeneratingOverlay() {
             {/* Stage text */}
             <div className="text-center space-y-3">
                 <div className="flex items-center justify-center gap-2.5 text-gray-200 text-sm font-medium min-h-[24px]">
-                    <span className="text-base">{stage.icon}</span>
+                    <Icon className="w-5 h-5 text-blue-400" />
                     <span>{stage.text}{dots}</span>
                 </div>
 
