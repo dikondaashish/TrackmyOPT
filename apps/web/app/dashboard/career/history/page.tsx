@@ -361,7 +361,7 @@ export default function HistoryPage() {
                                                     Loading...
                                                 </>
                                             ) : (
-                                                "Use Resume"
+                                                (resume.structuredData?.latexCode || resume.structuredData?.generatedLatex) ? "Edit Resume" : "Use Resume"
                                             )}
                                         </Button>
 

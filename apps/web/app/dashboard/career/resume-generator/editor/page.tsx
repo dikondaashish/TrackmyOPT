@@ -217,7 +217,7 @@ export default function ResumeEditorPage() {
                 },
                 body: JSON.stringify({
                     userId: user.id,
-                    filename: `Generated Resume - ${selectedTemplateId} - ${new Date().toLocaleDateString()}`,
+                    filename: `Generated Resume - ${selectedTemplateId} #${Math.floor(1000 + Math.random() * 9000)}`,
                     content: resumeText,
                     structuredData: {
                         latexCode: latex,
@@ -457,7 +457,7 @@ export default function ResumeEditorPage() {
                 },
                 body: JSON.stringify({
                     userId: user.id,
-                    filename: `Generated Resume - ${selectedTemplateId} - ${new Date().toLocaleDateString()}`,
+                    filename: `Generated Resume - ${selectedTemplateId} #${Math.floor(1000 + Math.random() * 9000)}`,
                     content: resumeText, // Source content for reference
                     structuredData: {
                         latexCode: generatedLatex,
