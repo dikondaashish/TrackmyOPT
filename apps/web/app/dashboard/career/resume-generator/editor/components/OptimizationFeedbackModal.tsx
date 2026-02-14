@@ -61,7 +61,7 @@ export function OptimizationFeedbackModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && !isGenerating && onClose()}>
-            <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none rounded-2xl">
+            <DialogContent onClose={onClose} className="sm:max-w-md p-0 overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none rounded-2xl">
                 {/* Header */}
                 <div className="px-5 pt-5 pb-3">
                     <DialogHeader>
