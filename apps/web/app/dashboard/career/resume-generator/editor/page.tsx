@@ -25,6 +25,8 @@ import { AtsScorePanel } from "./components/AtsScorePanel";
 import { LatexToolbar, EditorViewMode } from "./components/LatexToolbar";
 import { useEditorHistory } from "@/hooks/use-editor-history";
 import { useStreamingEffect } from "@/hooks/use-streaming-effect";
+import { supabase } from "@/lib/supabaseClient";
+import { Save } from "lucide-react";
 
 export default function ResumeEditorPage() {
     const { toast } = useToast();
@@ -184,6 +186,9 @@ export default function ResumeEditorPage() {
                 description: "AI has tailored your resume to the job description.",
             });
 
+            // Auto-save
+            autoSaveResume(data.latex, atsAnalysis);
+
         } catch (error: unknown) {
             console.error(error);
             const message = error instanceof Error ? error.message : 'An unexpected error occurred';
@@ -194,6 +199,42 @@ export default function ResumeEditorPage() {
             });
         } finally {
             setIsGenerating(false);
+        }
+    };
+
+    // Auto-save function (silent)
+    const autoSaveResume = async (latex: string, analysis: any) => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            await fetch(`${apiUrl}/resume/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
+                },
+                body: JSON.stringify({
+                    userId: user.id,
+                    filename: `Generated Resume - ${selectedTemplateId} - ${new Date().toLocaleDateString()}`,
+                    content: resumeText,
+                    structuredData: {
+                        latexCode: latex,
+                        jobDescription: jobDescription,
+                        atsAnalysis: analysis,
+                        templateId: selectedTemplateId,
+                        type: 'generated'
+                    },
+                }),
+            });
+
+            toast({
+                title: "Auto-saved",
+                description: "Resume saved to history.",
+            });
+        } catch (error) {
+            console.error("Auto-save failed:", error);
         }
     };
 
@@ -389,6 +430,64 @@ export default function ResumeEditorPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [compiledPdfUrl, generatedLatex, selectedTemplateId, toast]);
 
+    // Handle Save Generated Resume
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = async () => {
+        if (!generatedLatex) return;
+
+        setIsSaving(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                toast({
+                    title: "Authentication Error",
+                    description: "You must be logged in to save resumes.",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const response = await fetch(`${apiUrl}/resume/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
+                },
+                body: JSON.stringify({
+                    userId: user.id,
+                    filename: `Generated Resume - ${selectedTemplateId} - ${new Date().toLocaleDateString()}`,
+                    content: resumeText, // Source content for reference
+                    structuredData: {
+                        latexCode: generatedLatex,
+                        jobDescription: jobDescription,
+                        atsAnalysis: atsAnalysis,
+                        templateId: selectedTemplateId,
+                        type: 'generated'
+                    },
+                }),
+            });
+
+            if (!response.ok) throw new Error("Failed to save resume");
+
+            toast({
+                title: "Resume Saved",
+                description: "Your generated resume and analysis have been saved to history.",
+            });
+
+        } catch (error) {
+            console.error("Save error:", error);
+            toast({
+                title: "Save Failed",
+                description: "Could not save your resume. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
             {/* Feedback Modal */}
@@ -433,6 +532,18 @@ export default function ResumeEditorPage() {
                             <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={handleSave}
+                                disabled={isSaving || !generatedLatex}
+                                className="hidden sm:flex items-center gap-1 text-gray-600"
+                            >
+                                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                <span className="hidden lg:inline">Save</span>
+                            </Button>
+
+
+                            <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => compilePdf(generatedLatex)}
                                 disabled={isCompiling || !generatedLatex}
                                 className="hidden sm:flex items-center gap-1 text-gray-600"
@@ -462,18 +573,18 @@ export default function ResumeEditorPage() {
                         </div>
                     </div>
                 </div>
-
-                {/* Toolbar - NEW */}
-                <LatexToolbar
-                    onUndo={undo}
-                    onRedo={redo}
-                    canUndo={canUndo}
-                    canRedo={canRedo}
-                    onInsert={handleInsert}
-                    viewMode={viewMode}
-                    onViewModeChange={handleViewModeChange}
-                />
             </div>
+
+            {/* Toolbar - NEW */}
+            <LatexToolbar
+                onUndo={undo}
+                onRedo={redo}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                onInsert={handleInsert}
+                viewMode={viewMode}
+                onViewModeChange={handleViewModeChange}
+            />
 
             {/* Main Editor Area */}
             <div className="flex-1 flex overflow-hidden">
@@ -631,6 +742,6 @@ export default function ResumeEditorPage() {
                     </Tabs>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

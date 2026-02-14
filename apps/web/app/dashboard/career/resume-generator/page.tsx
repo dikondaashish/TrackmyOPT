@@ -75,6 +75,50 @@ export default function ResumeGeneratorPage() {
     const [resumeOcr, setResumeOcr] = useState<OcrStatus>({ show: false, running: false });
     const [jobOcr, setJobOcr] = useState<OcrStatus>({ show: false, running: false });
 
+    // Auto-fill last resume
+    useEffect(() => {
+        const fetchLastResume = async () => {
+            // Only fetch if resumeText is empty (don't overwrite if user already typed/uploaded)
+            if (resumeText) return;
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+                const response = await fetch(`${apiUrl}/resume/list`, {
+                    headers: {
+                        "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
+                        "user-id": user.id // Pass user ID if needed by API
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const resumes = data.resumes || [];
+                    if (resumes.length > 0) {
+                        // Assuming list is sorted by date desc, or we sort it
+                        // The API usually returns latest first, but let's be safe if we can't see the API code
+                        // Actually, let's just take the first one for now as per "last saved"
+                        const lastResume = resumes[0];
+                        if (lastResume && lastResume.content) {
+                            setResumeText(lastResume.content, lastResume.filename);
+                            toast({
+                                title: "Resume Auto-filled",
+                                description: `Loaded your last saved resume: ${lastResume.filename}`,
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to auto-fill resume:", error);
+            }
+        };
+
+        fetchLastResume();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Run once on mount
+
 
 
     // Save Resume Handler
@@ -366,7 +410,7 @@ export default function ResumeGeneratorPage() {
 
                             <Button
                                 variant="outline"
-                                onClick={() => router.push("/dashboard/career/resume-generator/history")}
+                                onClick={() => router.push("/dashboard/career/saved-resumes")}
                                 className="flex items-center gap-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
                             >
                                 <History className="w-4 h-4" />

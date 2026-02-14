@@ -50,6 +50,7 @@ export default function SavedResumesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [loadingId, setLoadingId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchResumes();
@@ -114,11 +115,76 @@ export default function SavedResumesPage() {
         }
     };
 
-    const { setResumeText } = useResumeStore();
+    const { setResumeText, setGeneratedLatex, setJobDescription, setAtsAnalysis } = useResumeStore();
 
-    const handleLoadResume = (resume: SavedResume) => {
-        setResumeText(resume.content, resume.filename);
-        router.push("/dashboard/career/resume-generator");
+    const handleLoadResume = async (resume: SavedResume) => {
+        setLoadingId(resume.id);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                toast({
+                    title: "Authentication Error",
+                    description: "Please log in to load resumes.",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const response = await fetch(`${apiUrl}/resume/${resume.id}?userId=${user.id}`, {
+                headers: {
+                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
+                },
+            });
+
+            if (!response.ok) {
+                // Fallback to basic content if detailed fetch fails
+                console.warn("Could not fetch full resume details, using basic content");
+                setResumeText(resume.content, resume.filename);
+                router.push("/dashboard/career/resume-generator");
+                return;
+            }
+
+            const fullResume = await response.json();
+            const structuredData = fullResume.structuredData || {};
+
+            // Check if we have generated LaTeX content
+            if (structuredData.generatedLatex || structuredData.latexCode) {
+                const latex = structuredData.generatedLatex || structuredData.latexCode;
+
+                // Set store state for editor
+                setGeneratedLatex(latex);
+                setResumeText(resume.content, resume.filename); // Keep source text too
+
+                if (structuredData.jobDescription) {
+                    setJobDescription(structuredData.jobDescription);
+                }
+
+                if (structuredData.atsAnalysis) {
+                    // Ensure type compatibility or let it be inferred
+                    setAtsAnalysis(structuredData.atsAnalysis);
+                }
+
+                router.push("/dashboard/career/resume-generator/editor");
+            } else {
+                // Legacy behavior - just text
+                setResumeText(resume.content, resume.filename);
+                router.push("/dashboard/career/resume-generator");
+            }
+
+        } catch (error) {
+            console.error("Error loading resume:", error);
+            toast({
+                title: "Error",
+                description: "Failed to load resume details. Using available content.",
+                variant: "destructive",
+            });
+            // Fallback
+            setResumeText(resume.content, resume.filename);
+            router.push("/dashboard/career/resume-generator");
+        } finally {
+            setLoadingId(null);
+        }
     };
 
     const handleDownload = async (resume: SavedResume) => {
@@ -263,9 +329,17 @@ export default function SavedResumesPage() {
                                     <div className="flex gap-2 pt-2">
                                         <Button
                                             onClick={() => handleLoadResume(resume)}
+                                            disabled={loadingId === resume.id}
                                             className="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium hover:shadow-md h-9"
                                         >
-                                            Use Resume
+                                            {loadingId === resume.id ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    Loading...
+                                                </>
+                                            ) : (
+                                                "Use Resume"
+                                            )}
                                         </Button>
 
                                         {resume.file_path && (
