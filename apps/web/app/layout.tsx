@@ -63,6 +63,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://www.trackmyopt.com',
   },
+  other: {
+    'google-adsense-account': 'ca-pub-4262248775973692',
+  },
 };
 
 export default function RootLayout({
