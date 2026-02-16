@@ -9,12 +9,16 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LoadingScreen } from '@/components/ui/loading-screen';
+import { Check, Mail, Zap, Shield, Crown, FileText, Search, Clock, Sparkles } from 'lucide-react';
 
 function PremiumSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
+  const planId = searchParams.get('planId') || 'pro'; // Default to pro if not specified
   const [countdown, setCountdown] = useState(5);
+
+  const isDedicated = planId === 'dedicated';
 
   useEffect(() => {
     // Redirect to dashboard after 5 seconds
@@ -35,57 +39,85 @@ function PremiumSuccessContent() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-background dark:via-background dark:to-background flex items-center justify-center p-4">
       <div className="max-w-lg w-full bg-white dark:bg-card rounded-2xl shadow-2xl p-8 text-center">
         {/* Success Icon */}
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
-          <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+        <div className={`inline-flex items-center justify-center w-20 h-20 ${isDedicated ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-green-100 dark:bg-green-900/30'} rounded-full mb-6`}>
+          {isDedicated ? (
+            <Shield className="w-10 h-10 text-amber-600 dark:text-amber-500" />
+          ) : (
+            <Crown className="w-10 h-10 text-green-600 dark:text-green-500" />
+          )}
         </div>
 
         {/* Title */}
         <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-3">
-          Welcome to Premium! 🎉
+          {isDedicated ? 'Welcome to Dedicated!' : 'Welcome to Premium!'}
         </h1>
 
         <p className="text-gray-600 dark:text-muted-foreground mb-6">
-          Your payment was successful. You now have full Pro access!
+          {isDedicated
+            ? 'Your payment was successful. You now have full Dedicated access with expert support!'
+            : 'Your payment was successful. You now have full Pro access!'
+          }
         </p>
 
         {/* Features Unlocked */}
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-xl p-6 mb-6 text-left">
+        <div className={`bg-gradient-to-br ${isDedicated ? 'from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30' : 'from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30'} rounded-xl p-6 mb-6 text-left`}>
           <h3 className="font-bold text-gray-900 dark:text-foreground mb-4 text-center">You've Unlocked:</h3>
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-gray-700 dark:text-foreground">📧 Daily email reminders (9 AM EST)</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-gray-700 dark:text-foreground">⚡ Smart urgency detection</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-gray-700 dark:text-foreground">🔧 All tracking tools</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-gray-700 dark:text-foreground">🎯 Priority support</span>
-            </div>
+            {isDedicated ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg flex items-center justify-center">
+                    <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <span className="text-gray-700 dark:text-foreground text-sm font-medium">1-on-1 Lawyer Session (1 hr/mo)</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <span className="text-gray-700 dark:text-foreground text-sm font-medium">Complete Application Audit</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <span className="text-gray-700 dark:text-foreground text-sm font-medium">24/7 Dedicated Support</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg flex items-center justify-center">
+                    <Crown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <span className="text-gray-700 dark:text-foreground text-sm font-medium">Everything in Pro Plan</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span className="text-gray-700 dark:text-foreground text-sm font-medium">Daily email reminders (9 AM EST)</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                    <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span className="text-gray-700 dark:text-foreground text-sm font-medium">Smart urgency detection</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                    <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span className="text-gray-700 dark:text-foreground text-sm font-medium">All tracking tools</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span className="text-gray-700 dark:text-foreground text-sm font-medium">Priority support</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -94,6 +126,7 @@ function PremiumSuccessContent() {
           <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">📝 Next Steps:</h4>
           <ol className="text-sm text-blue-800 dark:text-blue-400 space-y-2 list-decimal list-inside">
             <li>Go to your dashboard to set up your OPT dates</li>
+            {isDedicated && <li>Check your email for instructions on scheduling your lawyer session</li>}
             <li>Add your email address in settings</li>
             <li>Verify your email to start receiving reminders</li>
           </ol>

@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
           interval
         }
       },
-      success_url: `${origin}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/premium/success?session_id={CHECKOUT_SESSION_ID}&planId=${planId}`,
       cancel_url: `${origin}/premium/checkout?canceled=true`,
       metadata: {
         supabase_user_id: userId,
