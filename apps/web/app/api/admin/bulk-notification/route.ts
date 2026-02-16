@@ -88,15 +88,29 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < users.length; i += batchSize) {
       const batch = users.slice(i, i + batchSize);
 
+      // Simple HTML escape function to prevent XSS
+      const escapeHtml = (unsafe: string) => {
+        return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      };
+
       await Promise.all(batch.map(async (user) => {
         try {
+          const safeFirstName = escapeHtml(user.first_name || 'there');
+          const safeEmail = escapeHtml(user.email || '');
+          const userId = user.user_id; // UUIDs are generally safe, but could escape if wanted
+
           const personalizedHtml = htmlContent
-            .replace('{{firstName}}', user.first_name || 'there')
-            .replace('{{email}}', user.email || '')
-            .replace('{{userId}}', user.user_id);
+            .replace('{{firstName}}', safeFirstName)
+            .replace('{{email}}', safeEmail)
+            .replace('{{userId}}', userId);
 
           const personalizedText = plainTextContent
-            .replace('{{firstName}}', user.first_name || 'there')
+            .replace('{{firstName}}', user.first_name || 'there') // Text email doesn't need HTML escaping
             .replace('{{email}}', user.email || '');
 
           await transporter.sendMail({

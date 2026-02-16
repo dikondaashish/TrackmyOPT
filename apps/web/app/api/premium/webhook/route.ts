@@ -136,6 +136,18 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
+  // Idempotency: Check if already processed
+  const { data: existingTransaction } = await supabase
+    .from('payment_transactions')
+    .select('id')
+    .eq('stripe_checkout_session_id', session.id)
+    .single();
+
+  if (existingTransaction) {
+    console.log('✅ processing skipped: Transaction already recorded for session:', session.id);
+    return;
+  }
+
   try {
     // Get subscription details from Stripe to get period end
     let expiresAt = new Date();
