@@ -25,7 +25,7 @@ async function getUserId(req: NextRequest): Promise<string | null> {
             const decoded = await verifyToken(token);
             if (decoded) return decoded.userId || decoded.sub;
         } catch (error) {
-            console.error('JWT verification error:', error);
+            console.error('JWT verification failed for request');
         }
     }
 
@@ -91,9 +91,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ url: session.url });
 
     } catch (error: any) {
-        console.error('Stripe Portal Error:', error);
+        console.error('Stripe Portal Error:', error?.message || 'Unknown error');
         return NextResponse.json(
-            { error: error.message || 'Internal Server Error' },
+            { error: 'Internal Server Error' },
             { status: 500 }
         );
     }

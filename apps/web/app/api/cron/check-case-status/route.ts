@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { sanitizeError } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Extend Vercel timeout to 60s
@@ -41,9 +42,8 @@ export async function GET(req: NextRequest) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ Backend Error (${response.status}):`, errorText);
-      throw new Error(`Backend returned ${response.status}: ${errorText}`);
+      console.error(`❌ Backend Error: received status ${response.status}`);
+      throw new Error(`Backend returned ${response.status}`);
     }
 
     const result = await response.json();
@@ -58,12 +58,11 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('❌ Cron job error:', error);
+    console.error('❌ Cron job error:', sanitizeError(error));
     return NextResponse.json(
       {
         ok: false,
-        error: error.message || 'Internal server error',
-        details: 'Check Vercel logs for full stack trace'
+        error: 'Internal server error',
       },
       { status: 500 }
     );

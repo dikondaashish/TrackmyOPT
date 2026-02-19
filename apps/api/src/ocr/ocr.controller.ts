@@ -56,7 +56,7 @@ export class OcrController {
         );
       }
     } catch (error: any) {
-      console.error('PDF parse/upload error:', error);
+      console.error('PDF parse/upload error:', error.message);
       throw new HttpException(
         `Failed to parse file: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -104,7 +104,7 @@ export class OcrController {
         s3Key: s3Key,
       };
     } catch (error: any) {
-      console.error('❌ Direct OCR error:', error);
+      console.error('❌ Direct OCR error:', error.message);
       throw new HttpException(
         error.message || 'OCR processing failed',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -143,7 +143,7 @@ export class OcrController {
         timestamp: new Date(),
       };
     } catch (error: any) {
-      console.error('❌ Queue OCR error:', error);
+      console.error('❌ Queue OCR error:', error.message);
       throw new HttpException(
         error.message || 'Failed to queue OCR job',
         HttpStatus.INTERNAL_SERVER_ERROR,

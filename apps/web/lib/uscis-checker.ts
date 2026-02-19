@@ -8,6 +8,8 @@
  * - Production: 10 TPS, 400,000 requests/day
  */
 
+import { sanitizeError } from '@/lib/secure-logger';
+
 export interface USCISHistoryItem {
   date: string;
   completedText: string;
@@ -92,8 +94,7 @@ async function getUSCISAccessToken(): Promise<string | null> {
 
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ USCIS OAuth failed (${response.status}):`, errorText);
+      console.error(`❌ USCIS OAuth failed with status ${response.status}`);
       console.error('💡 Check if Client ID and Client Secret are correct in Vercel');
       return null;
     }
@@ -116,7 +117,7 @@ async function getUSCISAccessToken(): Promise<string | null> {
 
     return access_token;
   } catch (error) {
-    console.error('❌ Error getting USCIS access token:', error);
+    console.error('❌ Error getting USCIS access token:', sanitizeError(error));
     return null;
   }
 }
@@ -171,7 +172,6 @@ export async function checkUSCISStatus(
       const errorMessage = errorData?.message || 'Unknown error';
 
       console.error(`❌ [USCIS API] ERROR ${response.status}: ${errorMessage}`);
-      console.error(`📦 [USCIS API] Error Response:`, JSON.stringify(errorData, null, 2));
 
       // Handle specific error codes with detailed logging
       switch (response.status) {
@@ -287,12 +287,7 @@ export async function checkUSCISStatus(
     console.log(`✅ [USCIS API] SUCCESS 200: Case status retrieved for ${receiptNumber}`);
 
     const data: USCISAPIResponse = await response.json();
-    console.log(`📦 [USCIS API] Response Data:`, JSON.stringify({
-      receiptNumber: data.case_status.receiptNumber,
-      status: data.case_status.current_case_status_text_en,
-      formType: data.case_status.formType,
-      historyCount: data.case_status.hist_case_status?.length || 0,
-    }, null, 2));
+    console.log(`📦 [USCIS API] Response received for ${receiptNumber}: status=${data.case_status.current_case_status_text_en}, formType=${data.case_status.formType}`);
 
     // Transform API response to our format
     const histCaseStatus: USCISHistoryItem[] = (data.case_status.hist_case_status || []).map(item => ({
@@ -311,7 +306,7 @@ export async function checkUSCISStatus(
 
     return { success: true, data: status };
   } catch (error) {
-    console.error('❌ [USCIS API] EXCEPTION:', error);
+    console.error('❌ [USCIS API] EXCEPTION:', sanitizeError(error));
     return {
       success: false,
       error: {

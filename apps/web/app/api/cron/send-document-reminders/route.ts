@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
+import { sanitizeError } from '@/lib/secure-logger';
 
 // Create SMTP transporter for Hostinger
 const transporter = nodemailer.createTransport({
@@ -212,13 +213,10 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Cron job error:', error);
+    console.error('❌ Cron job error:', sanitizeError(error));
 
     return NextResponse.json(
-      {
-        error: 'Cron job failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Cron job failed' },
       { status: 500 }
     );
   }

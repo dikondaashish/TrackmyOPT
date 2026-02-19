@@ -9,6 +9,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { sendEnrollmentEmail } from '@/lib/notifications/email-service';
+import { sanitizeError } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -150,8 +151,7 @@ export async function POST(request: Request) {
       });
 
     if (upsertError) {
-      console.error('Error upserting notification email:', upsertError);
-      console.error('Error details:', JSON.stringify(upsertError, null, 2));
+      console.error('Error upserting notification email:', sanitizeError(upsertError));
 
       // Check if column doesn't exist
       if (upsertError.code === '42703' || upsertError.message?.includes('column') || upsertError.message?.includes('does not exist')) {

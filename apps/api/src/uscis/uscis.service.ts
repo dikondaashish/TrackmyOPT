@@ -147,7 +147,9 @@ export class UscisService {
         histCaseStatus,
       };
     } catch (error) {
-      this.logger.error(`Failed to check status for ${receiptNumber}`, error);
+      this.logger.error(
+        `Failed to check status for ${receiptNumber}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw error;
     }
   }
@@ -194,7 +196,9 @@ export class UscisService {
 
       return access_token;
     } catch (error) {
-      this.logger.error('Failed to get Access Token', error);
+      this.logger.error(
+        `Failed to get Access Token: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       return null;
     }
   }

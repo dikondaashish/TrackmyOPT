@@ -13,6 +13,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
 import { sendPremiumWelcomeEmail } from '@/lib/notifications/email-service';
+import { sanitizeError } from '@/lib/secure-logger';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-09-30.clover',
@@ -117,9 +118,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error(`❌ Error handling webhook event:`, error);
+    console.error(`❌ Error handling webhook event:`, sanitizeError(error));
     return NextResponse.json(
-      { error: 'Webhook handler failed', details: error.message },
+      { error: 'Webhook handler failed' },
       { status: 500 }
     );
   }
@@ -214,7 +215,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
 
   } catch (error) {
-    console.error(`❌ Error in handleCheckoutCompleted:`, error);
+    console.error(`❌ Error in handleCheckoutCompleted:`, sanitizeError(error));
     throw error;
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
+import { sanitizeError } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -161,7 +162,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Bulk notification error:', error);
+    console.error('Bulk notification error:', sanitizeError(error));
     return NextResponse.json(
       { error: 'Failed to send bulk notification' },
       { status: 500 }

@@ -55,7 +55,9 @@ export class UscisProcessor {
       this.logger.log(`Updated status for ${receiptNumber}: ${result.status}`);
       return result;
     } catch (error: any) {
-      this.logger.error(`Job failed for ${receiptNumber}`, error);
+      this.logger.error(
+        `Job failed for ${receiptNumber}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw error;
     }
   }

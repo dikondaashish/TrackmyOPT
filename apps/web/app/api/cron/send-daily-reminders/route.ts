@@ -25,6 +25,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/notifications/email-service';
+import { sanitizeError } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max execution time
@@ -190,7 +191,7 @@ export async function GET(req: NextRequest) {
       } catch (error: any) {
         results.failed++;
         results.errors.push(`User ${profile.user_id}: ${error.message}`);
-        console.error(`❌ Error processing user:`, error);
+        console.error(`❌ Error processing user ${profile.user_id}:`, sanitizeError(error));
       }
     }
 
@@ -204,8 +205,8 @@ export async function GET(req: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error('❌ Cron job error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('❌ Cron job error:', sanitizeError(error));
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

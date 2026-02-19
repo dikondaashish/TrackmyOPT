@@ -34,7 +34,7 @@ async function getUserId(req: NextRequest): Promise<string | null> {
       const decoded = await verifyToken(token);
       if (decoded) return decoded.userId || decoded.sub;
     } catch (error) {
-      console.error('JWT verification error:', error);
+      console.error('JWT verification failed for request');
     }
   }
 
@@ -114,9 +114,9 @@ export async function GET(req: NextRequest) {
       hasPreferences: true
     });
   } catch (error: any) {
-    console.error('GET /api/email/preferences error:', error);
+    console.error('GET /api/email/preferences error:', error?.message || 'Unknown error');
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch preferences' },
+      { error: 'Failed to fetch preferences' },
       { status: 500 }
     );
   }
@@ -207,9 +207,9 @@ export async function POST(req: NextRequest) {
       message: email_address ? 'Email preferences updated. Please verify your email.' : 'Email preferences updated.'
     });
   } catch (error: any) {
-    console.error('POST /api/email/preferences error:', error);
+    console.error('POST /api/email/preferences error:', error?.message || 'Unknown error');
     return NextResponse.json(
-      { error: error.message || 'Failed to update preferences' },
+      { error: 'Failed to update preferences' },
       { status: 500 }
     );
   }
@@ -249,9 +249,9 @@ export async function DELETE(req: NextRequest) {
       message: 'Email preferences deleted. You will no longer receive reminders.'
     });
   } catch (error: any) {
-    console.error('DELETE /api/email/preferences error:', error);
+    console.error('DELETE /api/email/preferences error:', error?.message || 'Unknown error');
     return NextResponse.json(
-      { error: error.message || 'Failed to delete preferences' },
+      { error: 'Failed to delete preferences' },
       { status: 500 }
     );
   }

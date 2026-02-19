@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
     }, { headers: corsHeaders });
 
   } catch (error) {
-    console.error('Extension ping error:', error);
+    console.error('Extension ping error:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500, headers: corsHeaders }
@@ -155,7 +155,7 @@ export async function GET(req: NextRequest) {
     }, { headers: corsHeaders });
 
   } catch (error) {
-    console.error('Extension ping GET error:', error);
+    console.error('Extension ping GET error:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500, headers: corsHeaders }

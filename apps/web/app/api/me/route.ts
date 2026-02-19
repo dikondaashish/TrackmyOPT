@@ -3,6 +3,7 @@ import { verifyToken } from '@/lib/auth/jwt';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { sanitizeError } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -224,7 +225,7 @@ export async function GET(request: NextRequest) {
       unemploymentDays,
     }, { headers: corsHeaders });
   } catch (error) {
-    console.error('API /me error:', error);
+    console.error('API /me error:', sanitizeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500, headers: corsHeaders }

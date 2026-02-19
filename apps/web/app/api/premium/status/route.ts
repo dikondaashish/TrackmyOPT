@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
       headers: corsHeaders
     });
   } catch (error: any) {
-    console.error('GET /api/premium/status error:', error);
+    console.error('GET /api/premium/status error:', error?.message || 'Unknown error');
     return NextResponse.json(
       { isPremium: false },
       {

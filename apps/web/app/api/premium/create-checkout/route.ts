@@ -11,6 +11,7 @@ import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/auth/jwt';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
+import { sanitizeError } from '@/lib/secure-logger';
 
 // Initialize Stripe
 const getStripe = () => {
@@ -42,7 +43,7 @@ async function getUserId(req: NextRequest): Promise<string | null> {
       const decoded = await verifyToken(token);
       if (decoded) return decoded.userId || decoded.sub;
     } catch (error) {
-      console.error('JWT verification error:', error);
+      console.error('JWT verification failed for request');
     }
   }
 
@@ -66,7 +67,7 @@ async function getUserId(req: NextRequest): Promise<string | null> {
     const { data: { user } } = await sessionClient.auth.getUser();
     return user?.id || null;
   } catch (error) {
-    console.error('Session auth error:', error);
+    console.error('Session auth error:', sanitizeError(error));
     return null;
   }
 }
@@ -211,7 +212,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sessionId: session.id, url: session.url });
 
   } catch (error: any) {
-    console.error('Stripe checkout error:', error);
+    console.error('Stripe checkout error:', sanitizeError(error));
 
     // Provide more specific error messages
     if (error.message?.includes('API key')) {
