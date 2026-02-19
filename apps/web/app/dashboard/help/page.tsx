@@ -1,5 +1,19 @@
 import { Metadata } from "next";
-import { HelpSection } from "@/components/dashboard/HelpSection";
+import dynamic from "next/dynamic";
+
+const HelpSection = dynamic(
+  () => import("@/components/dashboard/HelpSection").then((m) => ({ default: m.HelpSection })),
+  {
+    loading: () => (
+      <div className="space-y-4 p-6">
+        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+        <div className="h-12 w-full bg-muted animate-pulse rounded" />
+        <div className="h-12 w-full bg-muted animate-pulse rounded" />
+        <div className="h-12 w-full bg-muted animate-pulse rounded" />
+      </div>
+    ),
+  }
+);
 
 // Comprehensive SEO for Help Center / FAQ Page
 export const metadata: Metadata = {

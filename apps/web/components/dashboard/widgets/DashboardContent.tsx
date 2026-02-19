@@ -1,24 +1,61 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { User } from "@supabase/supabase-js";
 import { MetricCards } from "./MetricCards";
 import { OnboardingCard } from "./OnboardingCard";
-import { ToolsGrid } from "../ToolsGrid";
-import { ChartsSection } from "../case-status/ChartsSection";
-import { UpcomingDeadlinesPanel } from "../opt/UpcomingDeadlinesPanel";
-import { ActionableReminders } from "./ActionableReminders";
-import { NotificationBanner } from "../case-status/NotificationBanner";
-import { EmploymentHistoryLog } from "../opt/EmploymentHistoryLog";
-import { ResourceCenter } from "../ResourceCenter";
-import { CaseStatusSummary } from "../case-status/CaseStatusSummary";
 import { QuickActions } from "./QuickActions";
-import { PersonalizedTips } from "./PersonalizedTips";
+import { NotificationBanner } from "../case-status/NotificationBanner";
 import {
   useDashboardWidgets,
-  DashboardWidgetsSettings,
   DashboardCustomizeButton
 } from "./DashboardWidgets";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const WidgetSkeleton = () => (
+  <div className="rounded-lg border bg-card p-6 space-y-3">
+    <Skeleton className="h-5 w-40" />
+    <Skeleton className="h-24 w-full" />
+  </div>
+);
+
+const ChartsSection = dynamic(
+  () => import("../case-status/ChartsSection").then((m) => ({ default: m.ChartsSection })),
+  { loading: () => <WidgetSkeleton />, ssr: false }
+);
+const CaseStatusSummary = dynamic(
+  () => import("../case-status/CaseStatusSummary").then((m) => ({ default: m.CaseStatusSummary })),
+  { loading: () => <WidgetSkeleton /> }
+);
+const UpcomingDeadlinesPanel = dynamic(
+  () => import("../opt/UpcomingDeadlinesPanel").then((m) => ({ default: m.UpcomingDeadlinesPanel })),
+  { loading: () => <WidgetSkeleton /> }
+);
+const ActionableReminders = dynamic(
+  () => import("./ActionableReminders").then((m) => ({ default: m.ActionableReminders })),
+  { loading: () => <WidgetSkeleton /> }
+);
+const EmploymentHistoryLog = dynamic(
+  () => import("../opt/EmploymentHistoryLog").then((m) => ({ default: m.EmploymentHistoryLog })),
+  { loading: () => <WidgetSkeleton /> }
+);
+const ResourceCenter = dynamic(
+  () => import("../ResourceCenter").then((m) => ({ default: m.ResourceCenter })),
+  { loading: () => <WidgetSkeleton /> }
+);
+const PersonalizedTips = dynamic(
+  () => import("./PersonalizedTips").then((m) => ({ default: m.PersonalizedTips })),
+  { loading: () => <WidgetSkeleton /> }
+);
+const ToolsGrid = dynamic(
+  () => import("../ToolsGrid").then((m) => ({ default: m.ToolsGrid })),
+  { loading: () => <WidgetSkeleton /> }
+);
+const DashboardWidgetsSettings = dynamic(
+  () => import("./DashboardWidgets").then((m) => ({ default: m.DashboardWidgetsSettings })),
+  { ssr: false }
+);
 
 interface OptStatus {
   program_end_date: string;

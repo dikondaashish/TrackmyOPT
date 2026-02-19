@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { PricingModal } from "@/components/pricing/PricingModal";
+import dynamic from "next/dynamic";
+
+const PricingModal = dynamic(
+  () => import("@/components/pricing/PricingModal").then((m) => ({ default: m.PricingModal })),
+  { ssr: false }
+);
 
 interface OptDatesData {
   program_end_date?: string;
@@ -326,11 +331,9 @@ export function OptDatesSection() {
   const [emailSaving, setEmailSaving] = useState<ToolName | null>(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
-  // Load existing dates and premium status on mount
+  // Load all data in parallel on mount
   useEffect(() => {
-    loadDates();
-    checkPremiumStatus();
-    loadToolEmails();
+    Promise.all([loadDates(), checkPremiumStatus(), loadToolEmails()]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
