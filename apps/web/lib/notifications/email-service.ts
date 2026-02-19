@@ -1632,7 +1632,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
           <div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="${baseStyles.sectionTitle}">📋 How Case Tracking Works</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
-              <li style="${baseStyles.listItem}"><strong>Automatic Checks:</strong> We check your case status every 6 hours</li>
+              <li style="${baseStyles.listItem}"><strong>Automatic Checks:</strong> We check your case status daily</li>
               <li style="${baseStyles.listItem}"><strong>Instant Alerts:</strong> Get notified immediately when status changes</li>
               <li style="${baseStyles.listItem}"><strong>Status History:</strong> Track all changes over time</li>
               <li style="${baseStyles.listItem}"><strong>USCIS Direct:</strong> Data comes directly from USCIS servers</li>
@@ -1654,7 +1654,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         whatToExpectHtml: `
           <ul style="margin: 0; padding: 0 0 0 20px; color: #4B5563; font-size: 14px; line-height: 1.8;">
             <li>Email alerts when your case status changes</li>
-            <li>Status checks every 6 hours</li>
+            <li>Daily automatic status checks</li>
             <li>Explanation of what each status means</li>
             <li>Next steps guidance after updates</li>
           </ul>

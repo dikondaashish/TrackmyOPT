@@ -13,7 +13,7 @@ const corsHeaders = {
  * POST /api/case-status/check
  * Check USCIS status for a receipt number and update database
  * This endpoint is called by:
- * 1. Cron job (every 6 hours)
+ * 1. Cron job (daily via Vercel Cron)
  * 2. User manual refresh
  * 3. Initial save (immediate check)
  */

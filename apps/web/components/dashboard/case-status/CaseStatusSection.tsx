@@ -351,7 +351,7 @@ export function CaseStatusSection() {
   const calculateNextCheck = (lastCheckedAt: string | null) => {
     if (!lastCheckedAt) return 'Checking soon...';
     const lastCheck = new Date(lastCheckedAt);
-    const nextCheck = new Date(lastCheck.getTime() + 6 * 60 * 60 * 1000); // Add 6 hours
+    const nextCheck = new Date(lastCheck.getTime() + 24 * 60 * 60 * 1000); // Add 24 hours
     const now = new Date();
 
     if (nextCheck <= now) return 'Checking soon...';
@@ -418,7 +418,7 @@ export function CaseStatusSection() {
           <h1 className="text-2xl sm:text-3xl font-bold">USCIS Case Status Tracker</h1>
         </div>
         <p className="text-muted-foreground">
-          Track your USCIS case status automatically. We'll check every 6 hours and notify you when it changes.
+          Track your USCIS case status automatically. We'll check daily and notify you when it changes.
         </p>
       </div>
 
@@ -588,7 +588,7 @@ export function CaseStatusSection() {
                   </p>
                   {isPremium ? (
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {calculateNextCheck(caseStatus.last_checked_at)} • Automatic checks every 6 hours
+                      {calculateNextCheck(caseStatus.last_checked_at)} • Automatic daily checks
                     </p>
                   ) : (
                     <p className="text-xs text-gray-500 dark:text-gray-500">
@@ -683,7 +683,7 @@ export function CaseStatusSection() {
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Automatic checks every 6 hours
+                        Automatic daily checks
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
@@ -869,7 +869,7 @@ export function CaseStatusSection() {
               </div>
             </div>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-              We'll check your status every 6 hours and notify you when it changes.
+              We'll check your status daily and notify you when it changes.
             </p>
           </Card>
         )}
@@ -885,7 +885,7 @@ export function CaseStatusSection() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-600 dark:text-blue-400">2.</span>
-              We'll automatically check your case status every 6 hours
+              We'll automatically check your case status daily
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-600 dark:text-blue-400">3.</span>

@@ -59,7 +59,7 @@ export function LandingPricing() {
                 { label: "Smart Suggestions & Auto-Tracking", included: true },
 
                 { label: "USCIS Case Tracker", included: true, isHeader: true },
-                { label: "Auto-Checks Every 6 Hours", included: true, tooltip: "Automatic case status monitoring" },
+                { label: "Daily Auto-Checks", included: true, tooltip: "Automatic daily case status monitoring" },
                 { label: "Instant Status Change Alerts", included: true, tooltip: "Email alerts for any status changes" },
 
                 { label: "Enhanced Insights", included: true, isHeader: true },

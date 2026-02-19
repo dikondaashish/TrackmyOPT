@@ -102,7 +102,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
       features: [
         { text: 'Everything in Free, plus:', included: true, isHeader: true },
         { text: 'Daily 9AM Email Reminders', included: true, isHeader: false },
-        { text: 'USCIS Auto-Checks (Every 6 Hours)', included: true, isHeader: false },
+        { text: 'USCIS Auto-Checks (Daily)', included: true, isHeader: false },
         { text: 'Instant Status Change Alerts', included: true, isHeader: false },
         { text: 'H-1B Sponsors (Unlimited)', included: true, isHeader: false },
         { text: 'Document Vault + Expiry Alerts', included: true, isHeader: false },
