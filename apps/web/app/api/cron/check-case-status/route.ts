@@ -2,15 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sanitizeError } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // Extend Vercel timeout to 60s
+export const maxDuration = 60;
 
 /**
  * Cron Job: Trigger USCIS Status Check Batch
- * Triggered by cron-job.org
+ * 
+ * Runs once daily at 9:00 AM ET (14:00 UTC) via Vercel Cron.
+ * Schedule configured in vercel.json: "0 14 * * *"
+ * 
+ * Vercel automatically sends CRON_SECRET in the Authorization header.
+ * Set CRON_SECRET in Vercel Environment Variables.
  */
 export async function GET(req: NextRequest) {
   try {
-    // Verify cron secret
+    // Verify cron secret (Vercel sends this automatically for cron invocations)
     const authHeader = req.headers.get('authorization');
 
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
