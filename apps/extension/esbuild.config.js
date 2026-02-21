@@ -40,6 +40,7 @@ const buildOptions = {
     'src/background.ts',
     'src/popup.ts',
     'src/content.ts',
+    'src/content-job-portal.ts',
   ],
   bundle: true,
   outdir: 'dist',

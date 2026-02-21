@@ -2,11 +2,17 @@ import { API_ENDPOINTS, WEBSITE_URL } from './config';
 
 chrome.runtime.setUninstallURL(`${WEBSITE_URL}/extension/uninstall`);
 
-// Internal message listener (from popup)
+// Internal message listener (from popup and content scripts)
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === 'BEGIN_AUTH') {
     beginAuth().then(()=>sendResponse({ok:true})).catch(e=>sendResponse({ok:false, err:String(e)}));
     return true;
+  }
+  if (msg.type === 'ADD_JOB_TO_TRACKER') {
+    handleAddJobToTracker(msg.job, !!msg.autoAdd).then(sendResponse).catch((e) => {
+      sendResponse({ ok: false, error: e instanceof Error ? e.message : 'Failed to add job' });
+    });
+    return true; // async response
   }
 });
 
@@ -67,6 +73,64 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
   sendResponse({ ok: false, error: 'Unknown message type' });
   return true;
 });
+
+async function handleAddJobToTracker(
+  job: { company_name: string; role_title: string; job_url?: string; location?: string },
+  autoAdd: boolean = false
+) {
+  const { idToken } = await chrome.storage.sync.get('idToken');
+  if (!idToken) {
+    const err = new Error('Sign in to TrackMyOPT in the extension to add jobs.');
+    if (chrome.notifications) {
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: chrome.runtime.getURL('icons/icon128.png'),
+        title: 'TrackMyOPT',
+        message: err.message,
+      });
+    }
+    throw err;
+  }
+  const res = await fetch(`${WEBSITE_URL}/api/extension/job-application`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({
+      company_name: job.company_name,
+      role_title: job.role_title,
+      job_url: job.job_url || null,
+      location: job.location || null,
+      status: 'Applied',
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = (data as { error?: string }).error || 'Failed to add job to tracker';
+    if (chrome.notifications) {
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: chrome.runtime.getURL('icons/icon128.png'),
+        title: 'TrackMyOPT',
+        message: msg,
+      });
+    }
+    throw new Error(msg);
+  }
+  if (chrome.notifications) {
+    const message = autoAdd
+      ? `Application auto-added: "${job.role_title}" at ${job.company_name}`
+      : `"${job.role_title}" at ${job.company_name} added to Job Tracker!`;
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: chrome.runtime.getURL('icons/icon128.png'),
+      title: 'TrackMyOPT',
+      message,
+    });
+  }
+  return { ok: true };
+}
 
 async function beginAuth(){
   const tab = await chrome.tabs.create({ url: API_ENDPOINTS.AUTH });

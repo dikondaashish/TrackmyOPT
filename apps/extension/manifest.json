@@ -3,21 +3,14 @@
   "name": "TrackMyOPT",
   "version": "0.1.2",
   "description": "Track your OPT timeline with precision",
-  "permissions": [
-    "storage",
-    "tabs",
-    "notifications",
-    "scripting"
-  ],
+  "permissions": ["storage", "tabs", "notifications", "scripting"],
   "host_permissions": [
     "https://www.trackmyopt.com/*",
-    "https://trackmyopt.com/*"
+    "https://trackmyopt.com/*",
+    "https://*/*"
   ],
   "externally_connectable": {
-    "matches": [
-      "https://www.trackmyopt.com/*",
-      "https://trackmyopt.com/*"
-    ]
+    "matches": ["https://www.trackmyopt.com/*", "https://trackmyopt.com/*"]
   },
   "action": {
     "default_popup": "popup.html",
@@ -37,13 +30,13 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://www.trackmyopt.com/*",
-        "https://trackmyopt.com/*"
-      ],
-      "js": [
-        "content.js"
-      ],
+      "matches": ["https://www.trackmyopt.com/*", "https://trackmyopt.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*/*"],
+      "js": ["content-job-portal.js"],
       "run_at": "document_idle"
     }
   ]
