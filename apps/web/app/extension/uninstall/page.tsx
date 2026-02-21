@@ -414,7 +414,7 @@ export default function ExtensionUninstallPage() {
                                             {isSubmitting ? "Sending..." : "Submit Feedback"}
                                         </button>
                                         <Link
-                                            href="https://chrome.google.com/webstore"
+                                            href="https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb"
                                             target="_blank"
                                             className="flex items-center gap-2 px-6 py-3.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl font-medium transition-all w-full sm:w-auto justify-center"
                                         >
@@ -452,7 +452,7 @@ export default function ExtensionUninstallPage() {
 
                                 <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
                                     <Link
-                                        href="https://chrome.google.com/webstore"
+                                        href="https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb"
                                         target="_blank"
                                         className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5"
                                     >
