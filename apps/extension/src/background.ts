@@ -1,4 +1,6 @@
-import { API_ENDPOINTS } from './config';
+import { API_ENDPOINTS, WEBSITE_URL } from './config';
+
+chrome.runtime.setUninstallURL(`${WEBSITE_URL}/extension/uninstall`);
 
 // Internal message listener (from popup)
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
