@@ -366,28 +366,30 @@ export default function ExtensionUninstallPage() {
                                     >
                                         <div className="flex gap-4">
                                             <div className="flex-shrink-0">
-                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
-                                                    A
+                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                                                    <Image
+                                                        src="/TrackMyOPT Logo/Favicon.png"
+                                                        alt="TrackMyOPT"
+                                                        width={32}
+                                                        height={32}
+                                                        className="rounded-full"
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="flex-1">
                                                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
-                                                    Hi, I&apos;m Ashish, the founder of TrackMyOPT. As a former international student myself,
-                                                    I built this extension to help F-1 students make smarter career decisions. My team
-                                                    works hard to bring sponsor data right where you need it.
+                                                    As former international students ourselves, we built this extension to help
+                                                    F-1 students make smarter career decisions. Our team works hard to bring
+                                                    sponsor data right where you need it.
                                                 </p>
                                                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                                                     We know our extension isn&apos;t perfect, but we&apos;re committed to making it the best
                                                     tool for international students. Your feedback helps us understand how we can
                                                     improve, and we hope to see you again in the future.
                                                 </p>
-                                                <div className="flex items-center gap-2">
-                                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                        Ashish Dikonda
-                                                    </p>
-                                                    <span className="text-xs text-gray-500">·</span>
-                                                    <p className="text-xs text-gray-500">Founder, TrackMyOPT</p>
-                                                </div>
+                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                    The TrackMyOPT Team
+                                                </p>
                                             </div>
                                         </div>
                                     </motion.div>
