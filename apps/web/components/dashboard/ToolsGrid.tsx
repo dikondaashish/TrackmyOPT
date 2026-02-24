@@ -32,7 +32,7 @@ interface ExtensionResponse {
 // Chrome Extension Configuration
 const EXTENSION_ID = process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID || "";
 const CHROME_STORE_URL = process.env.NEXT_PUBLIC_CHROME_STORE_URL || 
-  "https://chrome.google.com/webstore/detail/trackmyopt";
+  "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb";
 
 
 // Tool to extension page mapping

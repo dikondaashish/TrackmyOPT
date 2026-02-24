@@ -2159,7 +2159,7 @@ export function SettingsSection() {
                     ) : (
                       <Button
                         variant="outline"
-                        onClick={() => window.open('https://chrome.google.com/webstore', '_blank')}
+                        onClick={() => window.open('https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb', '_blank')}
                         className="h-10"
                       >
                         Install Extension

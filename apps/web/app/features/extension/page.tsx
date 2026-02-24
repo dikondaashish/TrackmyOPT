@@ -123,7 +123,7 @@ export default function ExtensionPage() {
                 headline="Sponsor Intel. Right on LinkedIn."
                 subheadline="See H-1B history, E-Verify status, and fraud alerts directly on job listings—without leaving your job search."
                 ctaText="Add to Chrome - Free"
-                ctaHref="https://chrome.google.com/webstore"
+                ctaHref="https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb"
                 secondaryCta={{
                     text: "See Demo",
                     href: "#demo"
@@ -317,7 +317,7 @@ export default function ExtensionPage() {
                 subheadline="See which companies sponsor H-1B visas right on LinkedIn and Indeed. No more wasted applications."
                 primaryCTA={{
                     text: "Add to Chrome—Free Forever",
-                    href: "https://chrome.google.com/webstore",
+                    href: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb",
                 }}
                 secondaryCTA={{
                     text: "See Demo",

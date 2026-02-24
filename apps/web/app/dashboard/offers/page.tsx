@@ -139,7 +139,7 @@ const OFFERS = [
         badge: "New",
         badgeColor: "from-cyan-500 to-blue-500",
         icon: Chrome,
-        link: "https://chrome.google.com/webstore",
+        link: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb",
         featured: false,
     },
 ];
