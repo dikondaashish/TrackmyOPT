@@ -51,9 +51,11 @@ export function LandingChromeExtension() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 justify-center lg:justify-start">
-                            <Button size="lg" className="h-12 px-8 text-base gap-2 bg-[#2563EB] hover:bg-[#1d4ed8]">
-                                <Download className="w-5 h-5" />
-                                Add to Chrome - It's Free
+                            <Button asChild size="lg" className="h-12 px-8 text-base gap-2 bg-[#2563EB] hover:bg-[#1d4ed8]">
+                                <a href="https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb" target="_blank" rel="noreferrer">
+                                    <Download className="w-5 h-5" />
+                                    Add to Chrome - It's Free
+                                </a>
                             </Button>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                 <div className="flex -space-x-2">
