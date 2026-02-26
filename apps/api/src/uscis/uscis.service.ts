@@ -107,7 +107,7 @@ export class UscisService {
 
     const baseUrl =
       this.configService.get('USCIS_API_BASE_URL') ||
-      'https://api-int.uscis.gov/case-status';
+      'https://api.uscis.gov/case-status';
     const url = `${baseUrl}/${receiptNumber}`;
 
     try {
@@ -116,7 +116,6 @@ export class UscisService {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           Accept: 'application/json',
-          demo_id: '3333',
         },
       });
 
@@ -163,7 +162,7 @@ export class UscisService {
     const clientSecret = this.configService.get('USCIS_CLIENT_SECRET');
     const tokenUrl =
       this.configService.get('USCIS_TOKEN_URL') ||
-      'https://api-int.uscis.gov/oauth/accesstoken';
+      'https://api.uscis.gov/oauth/accesstoken';
 
     if (!clientId || !clientSecret) {
       this.logger.error('USCIS credentials missing');
@@ -175,7 +174,6 @@ export class UscisService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          demo_id: '3333',
         },
         body: new URLSearchParams({
           grant_type: 'client_credentials',

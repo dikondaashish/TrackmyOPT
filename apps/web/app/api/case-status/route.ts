@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
     const isNewEnrollment = notifications_enabled && !caseStatus?.current_status;
 
     if (isNewEnrollment) {
-      console.log(`📧 Case status enrollment - Receipt: ${receipt_number}, Notifications: ${notifications_enabled}`);
+      console.log(`[case-status] New enrollment: ${receipt_number}`);
 
       // Get user's email, name, and premium status from profiles
       const { data: profile } = await supabaseAdmin
@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
       const isPremium = profile?.premium_status === true;
 
       if (!isPremium) {
-        console.log(`⏭️ Skipping case-status enrollment email - user is not premium`);
+        console.log(`[case-status] Skipping enrollment email — not premium`);
       } else {
         // Try to get email from auth.users table directly
         const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
@@ -210,20 +210,20 @@ export async function POST(req: NextRequest) {
         if (userEmail) {
           const firstName = profile?.first_name || 'there';
 
-          console.log(`📤 Sending case-status enrollment email to ${userEmail} (Premium user)`);
+          console.log(`[case-status] Sending enrollment email to premium user`);
 
           try {
             const result = await sendEnrollmentEmail(userEmail, firstName, 'case-status');
             if (result.success) {
-              console.log(`✅ Case status enrollment email sent successfully to ${userEmail}`);
+              console.log(`[case-status] Enrollment email sent`);
             } else {
-              console.error(`❌ Failed to send case-status enrollment email:`, result.error);
+              console.error(`[case-status] Enrollment email failed:`, result.error);
             }
           } catch (err) {
-            console.error(`❌ Case-status enrollment email error:`, err);
+            console.error(`[case-status] Enrollment email error:`, err);
           }
         } else {
-          console.log(`⚠️ Could not find user email for case-status enrollment`);
+          console.log(`[case-status] No email found for enrollment notification`);
         }
       }
     }

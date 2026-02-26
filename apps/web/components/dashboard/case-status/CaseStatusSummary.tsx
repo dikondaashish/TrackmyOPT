@@ -27,8 +27,8 @@ export function CaseStatusSummary() {
           setCaseStatus(data.caseStatus);
         }
       }
-    } catch (err) {
-      console.error("Failed to fetch case status:", err);
+    } catch {
+      // Fetch failed silently — non-critical widget
     } finally {
       setIsLoading(false);
     }

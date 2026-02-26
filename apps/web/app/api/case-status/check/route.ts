@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
         );
 
         if (isFinalState) {
-          console.log(`⏭️ Smart Polling: Skipping check for ${receipt_number} (Final State: ${existingCase.current_status})`);
+          console.log(`[case-status] Skipping ${receipt_number} (final state: ${existingCase.current_status})`);
           return NextResponse.json(
             {
               ok: true,
@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
 
     // Handle USCIS API errors
     if (!uscisResult.success) {
-      console.error(`❌ USCIS API Error for ${receipt_number}:`, uscisResult.error);
+      console.error(`[case-status] USCIS API error for ${receipt_number}: ${uscisResult.error.code}`);
       return NextResponse.json(
         {
           ok: false,

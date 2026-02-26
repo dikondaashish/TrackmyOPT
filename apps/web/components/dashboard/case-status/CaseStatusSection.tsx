@@ -15,7 +15,6 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
-  AlertTriangle,
   ChevronDown,
   ChevronUp,
   Loader2,
@@ -26,13 +25,6 @@ import {
   Edit,
   Trash2
 } from "lucide-react";
-
-// Sandbox mode check (true while using USCIS Sandbox API)
-const IS_SANDBOX_MODE = true;
-
-// Real receipt number prefixes (production numbers)
-const REAL_RECEIPT_PREFIXES = ['IOE', 'MSC', 'WAC', 'NBC', 'YSC', 'LIN', 'SRC', 'EAC'];
-const STAGING_RECEIPT_PATTERNS = ['EAC9999', 'SRC9999', 'LIN9999'];
 
 interface CaseStatus {
   id: string;
@@ -64,22 +56,7 @@ export function CaseStatusSection() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [notificationEmail, setNotificationEmail] = useState("");
   const [isEditingEmail, setIsEditingEmail] = useState(false);
-  const [nextCheckTime, setNextCheckTime] = useState<string>("");
   const [isPolling, setIsPolling] = useState(false);
-  const [isSandboxExpanded, setIsSandboxExpanded] = useState(false);
-
-  // Smart input validation: detect if user enters real receipt in sandbox mode
-  const { isRealReceiptWarning, isStagingNumber } = useMemo(() => {
-    const upper = receiptNumber.toUpperCase();
-    const isStagingNumber = STAGING_RECEIPT_PATTERNS.some(p => upper.startsWith(p));
-    const hasRealPrefix = REAL_RECEIPT_PREFIXES.some(p => upper.startsWith(p));
-    const isLongEnough = upper.length > 3;
-
-    // Show warning if: sandbox mode + has real prefix + not a staging number + long enough
-    const isRealReceiptWarning = IS_SANDBOX_MODE && hasRealPrefix && !isStagingNumber && isLongEnough;
-
-    return { isRealReceiptWarning, isStagingNumber };
-  }, [receiptNumber]);
 
   useEffect(() => {
     loadCaseStatus();
@@ -98,7 +75,8 @@ export function CaseStatusSection() {
         const data = await response.json();
         setIsPremium(data.isPremium || false);
       }
-    } catch (err) {
+    } catch {
+      // Premium check failed silently
     }
   };
 
@@ -111,7 +89,8 @@ export function CaseStatusSection() {
         const data = await response.json();
         setNotificationEmail(data.email || "");
       }
-    } catch (err) {
+    } catch {
+      // Email load failed silently
     }
   };
 
@@ -132,7 +111,7 @@ export function CaseStatusSection() {
         }
       }
       return null;
-    } catch (err) {
+    } catch {
       return null;
     } finally {
       setIsLoading(false);
@@ -143,14 +122,15 @@ export function CaseStatusSection() {
     setError(null);
     setSuccess(false);
 
-    if (!receiptNumber.trim()) {
-      setError('Please enter a receipt number');
+    const trimmed = receiptNumber.trim().toUpperCase();
+    if (!trimmed) {
+      setError('Please enter a receipt number.');
       return;
     }
 
-    const receiptPattern = /^[A-Z]{3}\d{10}$/i;
-    if (!receiptPattern.test(receiptNumber.toUpperCase())) {
-      setError('Invalid receipt number format. Should be like IOE1234567890');
+    const receiptPattern = /^[A-Z]{3}\d{10}$/;
+    if (!receiptPattern.test(trimmed)) {
+      setError('Invalid format. A receipt number is 3 letters followed by 10 digits (e.g., IOE1234567890).');
       return;
     }
 
@@ -159,11 +139,9 @@ export function CaseStatusSection() {
       const response = await fetch('/api/case-status', {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          receipt_number: receiptNumber.toUpperCase(),
+          receipt_number: trimmed,
           notifications_enabled: caseStatus?.notifications_enabled ?? true,
         }),
       });
@@ -174,43 +152,30 @@ export function CaseStatusSection() {
         setSuccess(true);
         setIsPolling(true);
 
-        let attempts = 0;
         const maxAttempts = 10;
+        for (let i = 0; i < maxAttempts; i++) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const data = await loadCaseStatus();
 
-        const pollForStatus = async () => {
-          for (let i = 0; i < maxAttempts; i++) {
-            attempts++;
-            await new Promise(resolve => setTimeout(resolve, 2000));
+          const hasStatus = data?.current_status &&
+            data.current_status !== 'Status will be fetched shortly...' &&
+            data.last_checked_at;
 
-            const data = await loadCaseStatus();
-
-            const hasStatus = data?.current_status &&
-              data.current_status !== 'Status will be fetched shortly...' &&
-              data.last_checked_at;
-
-            if (hasStatus) {
-              setSuccess(true);
-              setIsPolling(false);
-              setTimeout(() => setSuccess(false), 3000);
-              return;
-            }
+          if (hasStatus) {
+            setSuccess(true);
+            setIsPolling(false);
+            setTimeout(() => setSuccess(false), 3000);
+            return;
           }
+        }
 
-          const isStagingNumber = /^(EAC|SRC|LIN)9999\d{6}$/i.test(receiptNumber);
-
-          if (!isStagingNumber) {
-            setError(`⚠️ Sandbox Mode: Cannot check real receipt numbers yet. We're currently in testing mode and can only check staging numbers like EAC9999103403.`);
-          }
-          setIsPolling(false);
-        };
-
-        pollForStatus();
-
+        setError('Status check is taking longer than expected. It will update automatically — please check back shortly.');
+        setIsPolling(false);
       } else {
-        setError(result.error || 'Failed to save receipt number');
+        setError(result.error || 'Failed to save receipt number.');
       }
-    } catch (err) {
-      setError('An error occurred while saving');
+    } catch {
+      setError('An error occurred. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -221,6 +186,7 @@ export function CaseStatusSection() {
 
     try {
       setIsRefreshing(true);
+      setError(null);
       const response = await fetch('/api/case-status/refresh', {
         method: 'POST',
         credentials: 'include',
@@ -233,10 +199,10 @@ export function CaseStatusSection() {
         setTimeout(() => setSuccess(false), 3000);
         await loadCaseStatus();
       } else {
-        setError(result.error || 'Failed to refresh status');
+        setError(result.error || 'Failed to refresh status. Please try again.');
       }
-    } catch (err) {
-      setError('An error occurred while refreshing');
+    } catch {
+      setError('Unable to reach the server. Please check your connection.');
     } finally {
       setIsRefreshing(false);
     }
@@ -258,13 +224,13 @@ export function CaseStatusSection() {
         setCaseStatus(null);
         setReceiptNumber("");
         setError(null);
-        setSuccess(false); // Reset success state
+        setSuccess(false);
       } else {
         const result = await response.json();
-        setError(result.error || 'Failed to remove case');
+        setError(result.error || 'Failed to remove case.');
       }
-    } catch (err) {
-      setError('An error occurred while removing the case');
+    } catch {
+      setError('An error occurred while removing the case.');
     } finally {
       setIsLoading(false);
     }
@@ -277,9 +243,7 @@ export function CaseStatusSection() {
       const response = await fetch('/api/case-status/notifications', {
         method: 'PATCH',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           notifications_enabled: !caseStatus.notifications_enabled,
         }),
@@ -288,10 +252,10 @@ export function CaseStatusSection() {
       if (response.ok) {
         await loadCaseStatus();
       } else {
-        setError('Failed to update notification settings');
+        setError('Failed to update notification settings.');
       }
-    } catch (err) {
-      setError('An error occurred');
+    } catch {
+      setError('An error occurred. Please try again.');
     }
   };
 
@@ -319,6 +283,8 @@ export function CaseStatusSection() {
   const getDaysAgo = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     const days = Math.floor((new Date().getTime() - new Date(dateString).getTime()) / (1000 * 60 * 60 * 24));
+    if (days === 0) return 'Today';
+    if (days === 1) return '1 day ago';
     return `${days} days ago`;
   };
 
@@ -330,19 +296,26 @@ export function CaseStatusSection() {
       'WAC': 'California Service Center',
       'LIN': 'Nebraska Service Center',
       'SRC': 'Texas Service Center',
+      'MSC': 'National Benefits Center',
+      'NBC': 'National Benefits Center',
+      'YSC': 'Potomac Service Center',
     };
-    return centerMap[prefix] || 'Potomac Service Center';
+    return centerMap[prefix] || 'USCIS Service Center';
   };
 
   const getStatusExplanation = (status: string) => {
     const statusLower = status.toLowerCase();
     if (statusLower.includes('approved')) {
       return { color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-950/30', borderColor: 'border-green-200 dark:border-green-800', explanation: 'Your case has been approved. You should receive an approval notice soon.' };
+    } else if (statusLower.includes('denied') || statusLower.includes('rejected') || statusLower.includes('terminated')) {
+      return { color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-50 dark:bg-red-950/30', borderColor: 'border-red-200 dark:border-red-800', explanation: 'Your case was not approved. Review the notice for next steps, including any appeal options.' };
+    } else if (statusLower.includes('evidence')) {
+      return { color: 'text-amber-600 dark:text-amber-400', bgColor: 'bg-amber-50 dark:bg-amber-950/30', borderColor: 'border-amber-200 dark:border-amber-800', explanation: 'USCIS needs more information. Check your mail for a Request for Evidence (RFE) and respond by the deadline.' };
     } else if (statusLower.includes('pending') || statusLower.includes('received')) {
       return { color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-50 dark:bg-yellow-950/30', borderColor: 'border-yellow-200 dark:border-yellow-800', explanation: 'Your case is currently being reviewed by USCIS.' };
     } else if (statusLower.includes('ready') || statusLower.includes('scheduled')) {
       return { color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-50 dark:bg-blue-950/30', borderColor: 'border-blue-200 dark:border-blue-800', explanation: 'USCIS is preparing for the next step in your case.' };
-    } else if (statusLower.includes('produced') || statusLower.includes('mailed')) {
+    } else if (statusLower.includes('produced') || statusLower.includes('mailed') || statusLower.includes('delivered')) {
       return { color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-50 dark:bg-purple-950/30', borderColor: 'border-purple-200 dark:border-purple-800', explanation: 'Your document has been produced and is being mailed to you.' };
     }
     return { color: 'text-gray-600 dark:text-gray-400', bgColor: 'bg-gray-50 dark:bg-gray-900/30', borderColor: 'border-gray-200 dark:border-gray-700', explanation: 'Your case is being processed.' };
@@ -351,7 +324,7 @@ export function CaseStatusSection() {
   const calculateNextCheck = (lastCheckedAt: string | null) => {
     if (!lastCheckedAt) return 'Checking soon...';
     const lastCheck = new Date(lastCheckedAt);
-    const nextCheck = new Date(lastCheck.getTime() + 24 * 60 * 60 * 1000); // Add 24 hours
+    const nextCheck = new Date(lastCheck.getTime() + 24 * 60 * 60 * 1000);
     const now = new Date();
 
     if (nextCheck <= now) return 'Checking soon...';
@@ -371,10 +344,9 @@ export function CaseStatusSection() {
       return;
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!notificationEmail || !emailRegex.test(notificationEmail)) {
-      setError('Please enter a valid email address');
+      setError('Please enter a valid email address.');
       return;
     }
 
@@ -394,10 +366,10 @@ export function CaseStatusSection() {
         setError(null);
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.error || 'Failed to save email');
+        setError(result.error || 'Failed to save email.');
       }
-    } catch (err) {
-      setError('An error occurred while saving email');
+    } catch {
+      setError('An error occurred while saving email.');
     }
   };
 
@@ -418,46 +390,9 @@ export function CaseStatusSection() {
           <h1 className="text-2xl sm:text-3xl font-bold">USCIS Case Status Tracker</h1>
         </div>
         <p className="text-muted-foreground">
-          Track your USCIS case status automatically. We'll check daily and notify you when it changes.
+          Track your USCIS case status automatically. We check daily and notify you when it changes.
         </p>
       </div>
-
-      {/* Sandbox Mode Notice - Compact Collapsible */}
-      {IS_SANDBOX_MODE && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg overflow-hidden">
-          <button
-            onClick={() => setIsSandboxExpanded(!isSandboxExpanded)}
-            className="w-full p-3 flex items-center justify-between hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                ⚠️ Sandbox Mode — Testing only with staging receipt numbers
-              </span>
-            </div>
-            {isSandboxExpanded ? (
-              <ChevronUp className="w-4 h-4 text-amber-600" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-amber-600" />
-            )}
-          </button>
-
-          {isSandboxExpanded && (
-            <div className="px-3 pb-3 border-t border-amber-200 dark:border-amber-700">
-              <div className="mt-3 space-y-3">
-                <div className="flex flex-wrap gap-2 text-xs">
-                  <span className="text-amber-700 dark:text-amber-300">✅ Try:</span>
-                  <code className="bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded font-mono text-amber-800 dark:text-amber-200">EAC9999103403</code>
-                  <code className="bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded font-mono text-amber-800 dark:text-amber-200">SRC9999102777</code>
-                </div>
-                <p className="text-xs text-amber-700 dark:text-amber-300">
-                  🕐 <strong>Hours:</strong> Mon-Fri 7AM-8PM EST • Real receipts coming soon!
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Receipt Number Input */}
       <Card className="p-6">
@@ -471,13 +406,10 @@ export function CaseStatusSection() {
               <Input
                 id="receipt-number-input"
                 type="text"
-                placeholder="Try: EAC9999103403 (test number)"
+                placeholder="e.g., IOE1234567890"
                 value={receiptNumber}
                 onChange={(e) => setReceiptNumber(e.target.value.toUpperCase())}
-                className={`w-full sm:flex-1 font-mono transition-colors ${isRealReceiptWarning
-                  ? 'border-orange-400 focus:border-orange-500 focus:ring-orange-200 dark:border-orange-600 dark:focus:ring-orange-900/30'
-                  : ''
-                  }`}
+                className="w-full sm:flex-1 font-mono"
                 maxLength={13}
                 aria-label="Enter your USCIS receipt number"
                 aria-describedby="receipt-number-help"
@@ -499,44 +431,33 @@ export function CaseStatusSection() {
                 )}
               </Button>
             </div>
-
-            {/* Inline Warning for Real Receipt in Sandbox Mode */}
-            {isRealReceiptWarning && (
-              <div className="mt-2 p-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-orange-700 dark:text-orange-300">
-                  <strong>Real receipt numbers not supported in Sandbox mode.</strong> Please use a test number like <code className="bg-orange-100 dark:bg-orange-900/40 px-1 rounded">EAC9999103403</code>
-                </p>
-              </div>
-            )}
-
-            {!isRealReceiptWarning && (
-              <p id="receipt-number-help" className="text-sm text-muted-foreground mt-2">
-                Format: 3 letters + 10 digits (e.g., EAC9999103403)
-              </p>
-            )}
+            <p id="receipt-number-help" className="text-sm text-muted-foreground mt-2">
+              13 characters: 3-letter prefix + 10 digits (e.g., IOE1234567890)
+            </p>
           </div>
 
           {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
-              {error}
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
           {success && (
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
-              ✓ Receipt number saved successfully!
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-green-700 dark:text-green-300">Receipt number saved successfully!</p>
             </div>
           )}
           {isPolling && (
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center gap-3">
-              <Loader2 className="w-5 h-5 animate-spin text-blue-600 dark:text-blue-400" />
-              <span className="text-blue-700 dark:text-blue-300">Fetching status from USCIS... This may take a few seconds.</span>
+              <Loader2 className="w-5 h-5 animate-spin text-blue-600 dark:text-blue-400 flex-shrink-0" />
+              <span className="text-sm text-blue-700 dark:text-blue-300">Fetching status from USCIS... This may take a few seconds.</span>
             </div>
           )}
         </div>
       </Card>
 
-      {/* Case Status Sections - NEW DESIGN */}
+      {/* Case Status Sections */}
       {caseStatus && (
         <>
           {/* Action Buttons */}
@@ -565,7 +486,7 @@ export function CaseStatusSection() {
               className="flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Refresh Now
+              {isRefreshing ? 'Refreshing...' : 'Refresh Now'}
             </Button>
             <Button
               variant="outline"
@@ -588,11 +509,17 @@ export function CaseStatusSection() {
                   </p>
                   {isPremium ? (
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {calculateNextCheck(caseStatus.last_checked_at)} • Automatic daily checks
+                      {calculateNextCheck(caseStatus.last_checked_at)} &middot; Automatic daily checks
                     </p>
                   ) : (
                     <p className="text-xs text-gray-500 dark:text-gray-500">
-                      Manual refresh only • <span className="text-purple-600 dark:text-purple-400 cursor-pointer hover:underline" onClick={() => setShowPremiumModal(true)}>Upgrade for auto-checks</span>
+                      Manual refresh only &middot;{' '}
+                      <button
+                        onClick={() => setShowPremiumModal(true)}
+                        className="text-purple-600 dark:text-purple-400 hover:underline"
+                      >
+                        Upgrade for auto-checks
+                      </button>
                     </p>
                   )}
                 </div>
@@ -659,7 +586,7 @@ export function CaseStatusSection() {
                           {notificationEmail || 'No email set'}
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">
-                          📧 Get notified when your case status changes
+                          You will be notified when your case status changes.
                         </p>
                       </div>
                     )}
@@ -670,7 +597,7 @@ export function CaseStatusSection() {
                       Premium Feature: Instant Notifications
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      Get notified via email and SMS the moment your case status changes. Never miss an important update!
+                      Get notified via email the moment your case status changes. Never miss an important update.
                     </p>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
                       <li className="flex items-center gap-2">
@@ -679,11 +606,7 @@ export function CaseStatusSection() {
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        SMS alerts (coming soon)
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Automatic daily checks
+                        Automatic daily status checks
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
@@ -703,14 +626,14 @@ export function CaseStatusSection() {
             </div>
           </Card>
 
-          {/* 1. Recent Updated Case Message */}
+          {/* Recent Updated Case Message */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 && (
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                   <Bell className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                 </div>
-                <h2 className="text-xl font-bold">Recent Updated Case Message</h2>
+                <h2 className="text-xl font-bold">Latest Case Update</h2>
               </div>
 
               {(() => {
@@ -720,7 +643,6 @@ export function CaseStatusSection() {
                     title={
                       <div className="flex items-center gap-2">
                         <span className={`text-lg ${statusInfo.color}`}>{caseStatus.status_history[0].status}</span>
-                        <span className="text-2xl">🎉</span>
                       </div>
                     }
                     defaultOpen={true}
@@ -734,7 +656,6 @@ export function CaseStatusSection() {
                       <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
                         {caseStatus.status_history[0].description || caseStatus.current_status}
                       </p>
-                      {/* Status Explanation */}
                       <div className={`p-3 rounded-lg ${statusInfo.bgColor} border ${statusInfo.borderColor}`}>
                         <div className="flex items-start gap-2">
                           <Info className={`w-4 h-4 mt-0.5 ${statusInfo.color}`} />
@@ -749,9 +670,9 @@ export function CaseStatusSection() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
-                          aria-label="Check your case status on USCIS website"
+                          aria-label="Check your case status on the official USCIS website"
                         >
-                          Check online
+                          View on USCIS.gov
                         </a>
                       </div>
                     </div>
@@ -761,10 +682,10 @@ export function CaseStatusSection() {
             </Card>
           )}
 
-          {/* 2 & 3. Case Message History and My Case Info - Side by Side */}
+          {/* Case History and Case Info - Side by Side */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left: Case History Timeline - Now Collapsible */}
+              {/* Left: Case History Timeline */}
               <Card className="p-6">
                 <CaseHistoryTimeline
                   statusHistory={caseStatus.status_history}
@@ -772,41 +693,37 @@ export function CaseStatusSection() {
                 />
               </Card>
 
-              {/* Right: My Case Info */}
+              {/* Right: Case Info */}
               <Card className="p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                     <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h2 className="text-lg font-bold">My case info</h2>
+                  <h2 className="text-lg font-bold">Case Information</h2>
                 </div>
 
                 <div className="space-y-3">
-                  {/* Case Type */}
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Case Type</span>
                     <span className="text-sm font-semibold text-right">
-                      {caseStatus.case_type || 'I-765'}
+                      {caseStatus.case_type || '—'}
                     </span>
                   </div>
 
-                  {/* Case Category */}
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Case Category</span>
-                    <span className="text-sm font-medium text-right max-w-[60%]">
-                      All other applications for employment authorization
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Receipt Number</span>
+                    <span className="text-sm font-semibold font-mono text-right">
+                      {caseStatus.receipt_number}
                     </span>
                   </div>
 
-                  {/* Application Filing Date */}
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Application Filing Date</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Filing Date</span>
                     <span className="text-sm font-semibold text-right">
-                      {caseStatus.received_date ? formatDateShort(caseStatus.received_date) : 'Not available'}
+                      {caseStatus.received_date ? formatDateShort(caseStatus.received_date) : '—'}
                     </span>
                   </div>
 
-                  {/* Service Center */}
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Service Center</span>
                     <span className="text-sm font-semibold text-right">
@@ -814,25 +731,23 @@ export function CaseStatusSection() {
                     </span>
                   </div>
 
-                  {/* Status */}
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Status</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Current Status</span>
                     <span className="text-sm font-semibold text-right max-w-[60%]">
                       {caseStatus.current_status || 'Fetching...'}
                     </span>
                   </div>
 
-                  {/* Time Information */}
                   <div className="flex items-center justify-between pt-4 text-sm text-gray-500 dark:text-gray-400">
                     <div>
-                      <span className="text-xs font-medium">Total</span>
+                      <span className="text-xs font-medium">Time Since Filed</span>
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {getDaysAgo(caseStatus.received_date)}
                       </p>
                     </div>
                     <div className="w-px h-10 bg-gray-300 dark:bg-gray-700"></div>
                     <div className="text-right">
-                      <span className="text-xs font-medium">Last update</span>
+                      <span className="text-xs font-medium">Last Status Change</span>
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {getDaysAgo(caseStatus.last_status_change_at)}
                       </p>
@@ -859,17 +774,17 @@ export function CaseStatusSection() {
               <p className="font-medium text-gray-900 dark:text-gray-100">{caseStatus.current_status}</p>
               <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-600 dark:text-gray-400">Case Type:</span>
-                  <p className="font-semibold">{caseStatus.case_type || 'N/A'}</p>
+                  <span className="text-gray-600 dark:text-gray-400">Case Type</span>
+                  <p className="font-semibold">{caseStatus.case_type || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-gray-600 dark:text-gray-400">Received:</span>
-                  <p className="font-semibold">{caseStatus.received_date || 'N/A'}</p>
+                  <span className="text-gray-600 dark:text-gray-400">Filed</span>
+                  <p className="font-semibold">{caseStatus.received_date || '—'}</p>
                 </div>
               </div>
             </div>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-              We'll check your status daily and notify you when it changes.
+              Your status will be checked daily. You will be notified when it changes.
             </p>
           </Card>
         )}
@@ -880,26 +795,25 @@ export function CaseStatusSection() {
           <h3 className="font-semibold mb-2">How it works</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
-              <span className="text-blue-600 dark:text-blue-400">1.</span>
-              Enter your USCIS receipt number above
+              <span className="text-blue-600 dark:text-blue-400 font-medium">1.</span>
+              Enter your 13-character USCIS receipt number above
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-blue-600 dark:text-blue-400">2.</span>
-              We'll automatically check your case status daily
+              <span className="text-blue-600 dark:text-blue-400 font-medium">2.</span>
+              We automatically check your case status with USCIS daily
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-blue-600 dark:text-blue-400">3.</span>
-              Get notified via email when your status changes (Premium feature)
+              <span className="text-blue-600 dark:text-blue-400 font-medium">3.</span>
+              Get notified via email when your status changes (Premium)
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-blue-600 dark:text-blue-400">4.</span>
+              <span className="text-blue-600 dark:text-blue-400 font-medium">4.</span>
               View your complete status history in one place
             </li>
           </ul>
         </Card>
       )}
 
-      {/* Premium Upsell Modal */}
       <PremiumUpsellModal
         open={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}

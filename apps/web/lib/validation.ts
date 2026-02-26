@@ -46,14 +46,14 @@ export const uuidSchema = z
 
 /**
  * SECURITY: USCIS Receipt Number validation
- * Format: 3 letters + 10 digits (e.g., EAC9999103403)
+ * Format: 3 letters + 10 digits (e.g., IOE1234567890)
  */
 export const receiptNumberSchema = z
     .string()
     .length(13, 'Receipt number must be exactly 13 characters')
     .regex(
         /^[A-Z]{3}[0-9]{10}$/,
-        'Invalid receipt number format. Expected: 3 letters + 10 digits (e.g., EAC9999103403)'
+        'Invalid receipt number format. Expected: 3 letters + 10 digits (e.g., IOE1234567890)'
     )
     .transform((rn) => rn.toUpperCase());
 

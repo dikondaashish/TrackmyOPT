@@ -86,7 +86,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Trigger status check
     const checkResponse = await fetch(
       `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/check`,
       {
@@ -94,6 +93,7 @@ export async function POST(req: NextRequest) {
         headers: {
           'Content-Type': 'application/json',
           'X-Internal-Request': 'true',
+          'X-Force-Refresh': 'true',
         },
         body: JSON.stringify({ receipt_number: caseStatus.receipt_number }),
       }
