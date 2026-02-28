@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { verifyToken } from '@/lib/auth/jwt';
+import { getUserId } from '@/lib/auth/getUserId';
 import { sendEnrollmentEmail } from '@/lib/notifications/email-service';
 import {
   API_RATE_LIMIT,
@@ -22,43 +20,7 @@ const corsHeaders = {
   'Cache-Control': 'no-store, no-cache, must-revalidate',
 };
 
-/**
- * Get user ID from either JWT token or session
- */
-async function getUserId(req: NextRequest): Promise<string | null> {
-  // Try JWT token first (for extension)
-  const authHeader = req.headers.get('Authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    const decoded = await verifyToken(token);
-    if (decoded) {
-      return decoded.userId || decoded.sub;
-    }
-  }
 
-  // Fall back to session cookies (for web)
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: '', ...options });
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id || null;
-}
 
 /**
  * GET /api/case-status
@@ -233,7 +195,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Internal-Request': 'true',
+        'X-Internal-Secret': process.env.CRON_SECRET || '',
       },
       body: JSON.stringify({ receipt_number: receipt_number.toUpperCase() }),
     }).catch((err) => {

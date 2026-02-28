@@ -5,7 +5,7 @@ import { checkUSCISStatus, mockUSCISStatus } from '@/lib/immigration/uscis-check
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Internal-Request',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Internal-Secret',
   'Cache-Control': 'no-store',
 };
 
@@ -21,10 +21,11 @@ export async function POST(req: NextRequest) {
   try {
     // Verify internal request or cron authorization
     const authHeader = req.headers.get('authorization');
-    const internalHeader = req.headers.get('X-Internal-Request');
+    const internalSecret = req.headers.get('X-Internal-Secret');
+    const expectedSecret = process.env.CRON_SECRET;
 
-    // Check if this is a cron job request
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && internalHeader !== 'true') {
+    // Check if this is a cron job request or internal request with shared secret
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && internalSecret !== expectedSecret) {
       return NextResponse.json(
         { ok: false, error: 'Unauthorized' },
         { status: 401, headers: corsHeaders }
@@ -118,6 +119,16 @@ export async function POST(req: NextRequest) {
         currentCase.current_status !== null &&
         currentCase.current_status !== mockStatus.status;
 
+      // Build change_log entry (our own changelog)
+      const existingChangelog = Array.isArray(currentCase?.change_log) ? currentCase.change_log : [];
+      if (hasStatusChanged) {
+        existingChangelog.push({
+          date: new Date().toISOString(),
+          old_status: currentCase!.current_status,
+          new_status: mockStatus.status,
+        });
+      }
+
       await supabase
         .from('case_status')
         .update({
@@ -129,6 +140,7 @@ export async function POST(req: NextRequest) {
             ? new Date().toISOString()
             : currentCase?.last_status_change_at,
           status_history: statusHistory,
+          change_log: existingChangelog,
           updated_at: new Date().toISOString(),
         })
         .eq('receipt_number', receipt_number);
@@ -197,6 +209,16 @@ export async function POST(req: NextRequest) {
     }));
 
 
+    // Build change_log entry (our own changelog)
+    const existingChangelog = Array.isArray(currentCase?.change_log) ? currentCase.change_log : [];
+    if (hasStatusChanged) {
+      existingChangelog.push({
+        date: new Date().toISOString(),
+        old_status: currentCase!.current_status,
+        new_status: uscisStatus.status,
+      });
+    }
+
     // Update database
     const { error: updateError } = await supabase
       .from('case_status')
@@ -209,6 +231,7 @@ export async function POST(req: NextRequest) {
           ? new Date().toISOString()
           : currentCase?.last_status_change_at,
         status_history: statusHistory,
+        change_log: existingChangelog,
         updated_at: new Date().toISOString(),
       })
       .eq('receipt_number', receipt_number);
@@ -230,7 +253,7 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Internal-Request': 'true',
+          'X-Internal-Secret': process.env.CRON_SECRET || '',
         },
         body: JSON.stringify({
           user_id: currentCase.user_id,

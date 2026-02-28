@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Internal-Request',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Internal-Secret',
   'Cache-Control': 'no-store',
 };
 
@@ -27,10 +27,11 @@ const transporter = nodemailer.createTransport({
  */
 export async function POST(req: NextRequest) {
   try {
-    // Verify internal request
-    const internalHeader = req.headers.get('X-Internal-Request');
+    // Verify internal request via shared secret (not spoofable header)
+    const internalSecret = req.headers.get('X-Internal-Secret');
+    const expectedSecret = process.env.CRON_SECRET;
 
-    if (internalHeader !== 'true') {
+    if (!expectedSecret || internalSecret !== expectedSecret) {
       return NextResponse.json(
         { ok: false, error: 'Unauthorized' },
         { status: 401, headers: corsHeaders }
@@ -57,8 +58,8 @@ export async function POST(req: NextRequest) {
     // Get user details and check if premium
     const { data: userData, error: userError } = await supabase
       .from('profiles')
-      .select('email, full_name, premium_status')
-      .eq('id', user_id)
+      .select('email, first_name, last_name, premium_status')
+      .eq('user_id', user_id)
       .single();
 
     if (userError || !userData) {
@@ -119,7 +120,7 @@ export async function POST(req: NextRequest) {
         to: userEmail,
         subject: `🔔 Your USCIS Case Status Has Changed - ${receipt_number}`,
         html: generateEmailHTML({
-          name: userData.full_name || 'there',
+          name: [userData.first_name, userData.last_name].filter(Boolean).join(' ') || 'there',
           receipt_number,
           old_status,
           new_status,
@@ -128,12 +129,40 @@ export async function POST(req: NextRequest) {
 
       console.log('Email sent:', info.messageId);
 
+      // Log successful email to email_queue for delivery tracking
+      await supabase.from('email_queue').insert({
+        user_id,
+        email_address: userEmail,
+        email_type: 'case_status_change',
+        email_subject: `🔔 Your USCIS Case Status Has Changed - ${receipt_number}`,
+        email_data: { receipt_number, old_status, new_status },
+        sent_at: new Date().toISOString(),
+        status: 'sent',
+        provider_message_id: info.messageId || null,
+      });
+
       return NextResponse.json(
         { ok: true, message: 'Notification sent', email_id: info.messageId },
         { status: 200, headers: corsHeaders }
       );
     } catch (emailError) {
       console.error('Error sending email:', emailError);
+
+      // Log failed email to email_queue for debugging/retry
+      try {
+        await supabase.from('email_queue').insert({
+          user_id,
+          email_address: userEmail,
+          email_type: 'case_status_change',
+          email_subject: `🔔 Your USCIS Case Status Has Changed - ${receipt_number}`,
+          email_data: { receipt_number, old_status, new_status },
+          status: 'failed',
+          error_message: emailError instanceof Error ? emailError.message : 'Unknown error',
+        });
+      } catch (logErr) {
+        console.error('Failed to log email to queue:', logErr);
+      }
+
       return NextResponse.json(
         { ok: false, error: 'Failed to send email' },
         { status: 500, headers: corsHeaders }

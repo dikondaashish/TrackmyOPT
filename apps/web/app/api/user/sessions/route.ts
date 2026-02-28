@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createClient as createServerClient } from '@/lib/supabase/server';
-import { verifyToken } from '@/lib/auth/jwt';
+import { getUserId } from '@/lib/auth/getUserId';
 
 // Admin client to bypass RLS for session management
 const getAdminClient = () => createClient(
@@ -22,25 +21,7 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
-/**
- * Get user ID from either JWT token or session
- */
-async function getUserId(req: NextRequest): Promise<string | null> {
-  // Try JWT token first (for extension)
-  const authHeader = req.headers.get('Authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    const decoded = await verifyToken(token);
-    if (decoded) {
-      return decoded.userId || decoded.sub;
-    }
-  }
 
-  // Try session (for web)
-  const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id || null;
-}
 
 /**
  * GET /api/user/sessions
@@ -49,7 +30,7 @@ async function getUserId(req: NextRequest): Promise<string | null> {
 export async function GET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -83,11 +64,11 @@ export async function GET(req: NextRequest) {
     const extensionSession = sessions?.find(
       s => s.device_type === 'extension' && s.is_active
     );
-    
+
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-    
-    const extensionConnected = extensionSession && 
+
+    const extensionConnected = extensionSession &&
       new Date(extensionSession.last_active_at) > oneDayAgo;
 
     return NextResponse.json({
@@ -116,7 +97,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -137,9 +118,9 @@ export async function POST(req: NextRequest) {
     const supabase = getAdminClient();
 
     // Get IP from headers (might be behind proxy)
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 
-               req.headers.get('x-real-ip') || 
-               'Unknown';
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ||
+      req.headers.get('x-real-ip') ||
+      'Unknown';
 
     // Check if session exists for this device type
     const { data: existingSession } = await supabase
@@ -210,7 +191,7 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const userId = await getUserId(req);
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },

@@ -8,11 +8,9 @@
  * - stem_clock: STEM Clock Tracker tool
  */
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth/jwt';
+import { getUserId } from '@/lib/auth/getUserId';
 import { sendEnrollmentEmail, type EnrollmentEmailData } from '@/lib/notifications/email-service';
 
 export const dynamic = 'force-dynamic';
@@ -33,47 +31,7 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 200, headers: corsHeaders });
 }
 
-/**
- * Get user ID from either JWT token or session
- */
-async function getUserId(req: NextRequest): Promise<string | null> {
-  // Try JWT token first (for extension)
-  const authHeader = req.headers.get('Authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    const decoded = await verifyToken(token);
-    if (decoded) {
-      return decoded.userId || decoded.sub;
-    }
-  }
 
-  // Fall back to session cookies (for web)
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options });
-          } catch { /* ignore */ }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options });
-          } catch { /* ignore */ }
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id || null;
-}
 
 // GET - Fetch emails for all tools or specific tool
 export async function GET(req: NextRequest) {
@@ -193,7 +151,7 @@ export async function POST(req: NextRequest) {
     const isNewEnrollment = email && (!previousEmail || previousEmail !== email) && isPremium;
 
     let error;
-    
+
     if (existingProfile) {
       // Profile exists, update the email column
       const { error: updateError } = await supabase
@@ -214,7 +172,7 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('Error saving tool email:', error);
-      
+
       // Check if column doesn't exist
       if (error.message?.includes('column') || error.code === '42703') {
         return NextResponse.json(
@@ -222,7 +180,7 @@ export async function POST(req: NextRequest) {
           { status: 500, headers: corsHeaders }
         );
       }
-      
+
       return NextResponse.json(
         { error: `Failed to save email: ${error.message}` },
         { status: 500, headers: corsHeaders }
@@ -231,25 +189,25 @@ export async function POST(req: NextRequest) {
 
     // Send enrollment confirmation email if this is a new enrollment (premium users only)
     console.log(`📧 Tool email save - Tool: ${tool}, Email: ${email}, PreviousEmail: ${previousEmail}, IsPremium: ${isPremium}, IsNewEnrollment: ${isNewEnrollment}`);
-    
+
     if (!isPremium && email && (!previousEmail || previousEmail !== email)) {
       console.log(`⏭️ Skipping tool enrollment email for ${tool} - user is not premium`);
     }
-    
+
     if (isNewEnrollment) {
       const toolNameForEmail = tool.replace('_', '-'); // Convert opt_apply to opt-apply
       const firstName = profileData?.first_name || 'there';
-      
+
       // Fetch OPT data for timeline information in email
       let enrollmentData: EnrollmentEmailData | undefined;
-      
+
       try {
         const { data: optData } = await supabase
           .from('opt_data')
           .select('program_end_date, opt_start_date, opt_ead_end_date, stem_start_date')
           .eq('user_id', userId)
           .single();
-        
+
         if (optData) {
           const formatDate = (dateStr: string | null) => {
             if (!dateStr) return undefined;
@@ -259,7 +217,7 @@ export async function POST(req: NextRequest) {
               year: 'numeric',
             });
           };
-          
+
           // Calculate dates based on tool type
           if (tool === 'opt_apply' && optData.program_end_date) {
             const programEnd = new Date(optData.program_end_date);
@@ -267,7 +225,7 @@ export async function POST(req: NextRequest) {
             earliestFiling.setDate(earliestFiling.getDate() - 90);
             const filingDeadline = new Date(programEnd);
             filingDeadline.setDate(filingDeadline.getDate() + 60);
-            
+
             enrollmentData = {
               startDate: formatDate(earliestFiling.toISOString()),
               endDate: formatDate(filingDeadline.toISOString()),
@@ -284,7 +242,7 @@ export async function POST(req: NextRequest) {
             const optEadEnd = new Date(optData.opt_ead_end_date);
             const earliestStemFiling = new Date(optEadEnd);
             earliestStemFiling.setDate(earliestStemFiling.getDate() - 90);
-            
+
             enrollmentData = {
               startDate: formatDate(earliestStemFiling.toISOString()),
               endDate: formatDate(optData.opt_ead_end_date),
@@ -299,9 +257,9 @@ export async function POST(req: NextRequest) {
       } catch (err) {
         console.log('Could not fetch OPT data for enrollment email:', err);
       }
-      
+
       console.log(`📤 Sending enrollment email for ${toolNameForEmail} to ${email}`);
-      
+
       // Send enrollment email and wait for result to ensure it's sent
       try {
         const result = await sendEnrollmentEmail(email, firstName, toolNameForEmail, enrollmentData);

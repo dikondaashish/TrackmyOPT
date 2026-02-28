@@ -450,29 +450,30 @@ export function OptDatesSection() {
       const newDates = { ...prev, [field]: value };
 
       // Logic 1: Sync Program End Date ↔ DSO Recommendation Date
-      if (field === 'program_end_date' && value) {
-        // When Program End Date is updated, also update DSO Recommendation Date
+      if (field === 'program_end_date') {
+        // When Program End Date is updated or cleared, sync DSO Recommendation Date
         newDates.dso_recommendation_date = value;
-      } else if (field === 'dso_recommendation_date' && value) {
-        // When DSO Recommendation Date is updated, also update Program End Date
+      } else if (field === 'dso_recommendation_date') {
+        // When DSO Recommendation Date is updated or cleared, sync Program End Date
         newDates.program_end_date = value;
       }
 
-      // Logic 2: OPT Start Date → OPT EAD End Date (+ 365 days = 1 year)
-      // OPT period is 12 months, so end date is 365 days after start date
-      if (field === 'opt_start_date' && value) {
-        const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-        if (dateRegex.test(value)) {
-          // Calculate OPT EAD End Date as OPT Start Date + 364 days (1 year minus 1 day)
-          // Example: July 15, 2025 → July 14, 2026
-          const endDate = addDaysToDate(value, 364);
-          if (endDate) {
-            newDates.opt_ead_end_date = endDate;
+      // Logic 2: OPT Start Date → OPT EAD End Date (+ 364 days = ~1 year)
+      if (field === 'opt_start_date') {
+        if (value) {
+          const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+          if (dateRegex.test(value)) {
+            const endDate = addDaysToDate(value, 364);
+            if (endDate) {
+              newDates.opt_ead_end_date = endDate;
+            }
           }
+        } else {
+          // When OPT Start Date is cleared, also clear OPT EAD End Date
+          newDates.opt_ead_end_date = '';
         }
       }
 
-      return newDates;
       return newDates;
     });
     setLastModifiedField(field);

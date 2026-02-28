@@ -8,9 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { verifyToken } from '@/lib/auth/jwt';
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { getUserId } from '@/lib/auth/getUserId';
 import { sanitizeError } from '@/lib/secure-logger';
 
 // Initialize Stripe
@@ -34,43 +32,7 @@ const getSupabase = () => {
   );
 };
 
-async function getUserId(req: NextRequest): Promise<string | null> {
-  // Try JWT (extension)
-  const authHeader = req.headers.get('Authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    try {
-      const decoded = await verifyToken(token);
-      if (decoded) return decoded.userId || decoded.sub;
-    } catch (error) {
-      console.error('JWT verification failed for request');
-    }
-  }
 
-  // Try session (web)
-  try {
-    const cookieStore = await cookies();
-    const sessionClient = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-          set() { },
-          remove() { },
-        },
-      }
-    );
-
-    const { data: { user } } = await sessionClient.auth.getUser();
-    return user?.id || null;
-  } catch (error) {
-    console.error('Session auth error:', sanitizeError(error));
-    return null;
-  }
-}
 
 const getPrices = () => ({
   pro: {

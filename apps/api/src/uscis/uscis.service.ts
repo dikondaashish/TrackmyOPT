@@ -70,13 +70,16 @@ export class UscisService {
 
     this.logger.log(`Queueing ${cases.length} cases for background check...`);
 
-    const jobs = cases.map((c) => ({
+    // Stagger jobs with 150ms delay between each to stay within USCIS 10 TPS limit
+    const jobs = cases.map((c, index) => ({
       name: 'check-status',
       data: { receiptNumber: c.receipt_number, userId: c.user_id },
       opts: {
         removeOnComplete: true,
+        removeOnFail: false, // Keep failed jobs for dead letter inspection
         attempts: 3,
-        backoff: { type: 'exponential', delay: 5000 },
+        backoff: { type: 'exponential' as const, delay: 5000 },
+        delay: index * 150, // Stagger: 0ms, 150ms, 300ms, ...
       },
     }));
 

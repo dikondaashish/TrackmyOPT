@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { verifyToken } from '@/lib/auth/jwt';
+import { getUserId } from '@/lib/auth/getUserId';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,43 +11,7 @@ const corsHeaders = {
   'Cache-Control': 'no-store',
 };
 
-/**
- * Get user ID from either JWT token or session
- */
-async function getUserId(req: NextRequest): Promise<string | null> {
-  // Try JWT token first (for extension)
-  const authHeader = req.headers.get('Authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    const decoded = await verifyToken(token);
-    if (decoded) {
-      return decoded.userId || decoded.sub;
-    }
-  }
 
-  // Fall back to session cookies (for web)
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: '', ...options });
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id || null;
-}
 
 /**
  * POST /api/case-status/refresh
@@ -86,13 +48,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Rate limit: 1 manual refresh per 5 minutes per user
+    const COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+    if (caseStatus.last_checked_at) {
+      const lastChecked = new Date(caseStatus.last_checked_at).getTime();
+      const elapsed = Date.now() - lastChecked;
+      if (elapsed < COOLDOWN_MS) {
+        const remainingSec = Math.ceil((COOLDOWN_MS - elapsed) / 1000);
+        return NextResponse.json(
+          {
+            ok: false,
+            error: `Please wait ${remainingSec} seconds before refreshing again`,
+            retryAfter: remainingSec,
+          },
+          { status: 429, headers: { ...corsHeaders, 'Retry-After': String(remainingSec) } }
+        );
+      }
+    }
+
     const checkResponse = await fetch(
       `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/check`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Internal-Request': 'true',
+          'X-Internal-Secret': process.env.CRON_SECRET || '',
           'X-Force-Refresh': 'true',
         },
         body: JSON.stringify({ receipt_number: caseStatus.receipt_number }),

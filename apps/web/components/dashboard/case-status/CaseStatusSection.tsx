@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,11 @@ interface CaseStatus {
     date: string;
     description?: string;
   }>;
+  change_log: Array<{
+    date: string;
+    old_status: string;
+    new_status: string;
+  }>;
   notifications_enabled: boolean;
   created_at: string;
   updated_at: string;
@@ -64,6 +70,35 @@ export function CaseStatusSection() {
     loadUserEmail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ── Supabase Realtime: Instant UI updates when cron updates DB ──
+  useEffect(() => {
+    if (!caseStatus?.receipt_number) return;
+
+    const channel = supabase
+      .channel('case-status-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'case_status',
+          filter: `receipt_number=eq.${caseStatus.receipt_number}`,
+        },
+        (payload) => {
+          console.log('[Realtime] Case status updated:', payload.new);
+          // Merge the Realtime payload directly into state for instant UI refresh
+          setCaseStatus((prev) =>
+            prev ? { ...prev, ...(payload.new as Partial<CaseStatus>) } : prev
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [caseStatus?.receipt_number]);
 
   const checkPremiumStatus = async () => {
     try {

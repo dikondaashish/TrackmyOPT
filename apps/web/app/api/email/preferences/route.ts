@@ -10,9 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { verifyToken } from '@/lib/auth/jwt';
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { getUserId } from '@/lib/auth/getUserId';
 import { sendEmailChangeNotification } from '@/lib/notifications/email-service';
 
 const supabase = createClient(
@@ -22,41 +20,7 @@ const supabase = createClient(
 
 export const dynamic = 'force-dynamic';
 
-/**
- * Get user ID from JWT or session
- */
-async function getUserId(req: NextRequest): Promise<string | null> {
-  // Try JWT (extension)
-  const authHeader = req.headers.get('Authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    try {
-      const decoded = await verifyToken(token);
-      if (decoded) return decoded.userId || decoded.sub;
-    } catch (error) {
-      console.error('JWT verification failed for request');
-    }
-  }
 
-  // Try session (web)
-  const cookieStore = cookies();
-  const sessionClient = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set() { },
-        remove() { },
-      },
-    }
-  );
-
-  const { data: { user } } = await sessionClient.auth.getUser();
-  return user?.id || null;
-}
 
 /**
  * Validate email format
