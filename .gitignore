@@ -70,3 +70,4 @@ __pycache__/
 # External Projects (DO NOT TRACK)
 all-in-one-career/
 AutoResumeDev/
+.cursor
