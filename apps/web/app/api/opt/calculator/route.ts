@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
     };
 
     const hasAtLeastOneDate = Object.values(dates).some(date => date && date.trim() !== '');
-    
+
     if (!hasAtLeastOneDate) {
       return NextResponse.json(
         { ok: false, error: 'At least one date is required' },
@@ -205,7 +205,7 @@ export async function POST(req: NextRequest) {
 
     // Determine which field was most recently updated
     let lastUpdatedField = null;
-    
+
     if (_lastModifiedField) {
       // Client explicitly told us which field was modified
       lastUpdatedField = _lastModifiedField;
@@ -218,22 +218,22 @@ export async function POST(req: NextRequest) {
       if (stem_start_date) lastUpdatedField = 'stem_start_date';
     }
 
-    // First, fetch existing data to merge properly
+    // First, fetch existing data to merge properly if some fields were completely omitted
     const { data: existingData } = await supabase
       .from('opt_status')
       .select('program_end_date, dso_recommendation_date, opt_start_date, opt_ead_end_date, stem_start_date')
       .eq('user_id', userId)
       .single();
 
-    // Prepare data for upsert - preserve existing values, only update what was explicitly sent
+    // Prepare data for upsert - preserve existing values only if the field is strictly undefined.
+    // Explicit nulls (and parsed dates) overwrite the DB value.
     const upsertData = {
       user_id: userId,
-      // Use new value if provided, otherwise keep existing value
-      program_end_date: programEndISO !== null ? programEndISO : (existingData?.program_end_date || null),
-      dso_recommendation_date: dsoRecISO !== null ? dsoRecISO : (existingData?.dso_recommendation_date || null),
-      opt_start_date: optStartISO !== null ? optStartISO : (existingData?.opt_start_date || null),
-      opt_ead_end_date: optEadEndISO !== null ? optEadEndISO : (existingData?.opt_ead_end_date || null),
-      stem_start_date: stemStartISO !== null ? stemStartISO : (existingData?.stem_start_date || null),
+      program_end_date: program_end_date !== undefined ? programEndISO : existingData?.program_end_date,
+      dso_recommendation_date: dso_recommendation_date !== undefined ? dsoRecISO : existingData?.dso_recommendation_date,
+      opt_start_date: opt_start_date !== undefined ? optStartISO : existingData?.opt_start_date,
+      opt_ead_end_date: opt_ead_end_date !== undefined ? optEadEndISO : existingData?.opt_ead_end_date,
+      stem_start_date: stem_start_date !== undefined ? stemStartISO : existingData?.stem_start_date,
       last_updated_field: lastUpdatedField,
       updated_at: new Date().toISOString(),
     };
