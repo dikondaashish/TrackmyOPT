@@ -95,7 +95,7 @@ const SIDEBAR_CONFIG: SidebarItem[] = [
     { type: 'link', item: { label: "Tax Filing", href: "/dashboard/tax-filing", icon: Receipt } },
     { type: 'link', item: { label: "Health Insurance", href: "/dashboard/opt-health-insurance-finder", icon: Heart } },
     { type: 'divider' },
-    { type: 'link', item: { label: "Chrome Extension", href: "/auth/extension", icon: Chrome } },
+    { type: 'link', item: { label: "Chrome Extension", href: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm", icon: Chrome } },
     { type: 'link', item: { label: "Settings", href: "/dashboard/settings", icon: Settings } },
     { type: 'link', item: { label: "Help", href: "/dashboard/help", icon: HelpCircle } },
 ];
@@ -113,19 +113,24 @@ const SidebarNavLink = memo(({
     isActive: boolean;
     isCollapsed: boolean;
     onLinkClick?: () => void;
-    onTooltipEnter: (e: React.MouseEvent, label: string) => void;
+    onTooltipEnter: (e: React.MouseEvent<HTMLElement>, label: string) => void;
     onTooltipLeave: () => void;
 }) => {
     const router = useRouter();
     const Icon = link.icon;
+    const isExternal = link.href.startsWith("http");
 
-    const handleClick = (e: React.MouseEvent) => {
-        // Prevent default if it was an anchor, but div doesn't need it.
-        // If we want to support ctrl+click (new tab), we would need <a> or logic.
-        // For Sidebar, usually single page app navigation is desired.
-        // Ensure any parent click handlers don't fire twice if nested (unlikely here)
-        e.preventDefault();
-        e.stopPropagation();
+    const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+        if (!isExternal) {
+            e.preventDefault();
+            e.stopPropagation();
+        } else {
+            // Let the standard <a> tag behavior handle the external navigation
+            if (onLinkClick) {
+                onLinkClick();
+            }
+            return;
+        }
 
         if (onLinkClick) {
             onLinkClick();
@@ -134,21 +139,16 @@ const SidebarNavLink = memo(({
         router.push(link.href);
     };
 
-    return (
-        <div
-            role="button"
-            tabIndex={0}
-            onClick={handleClick}
-            onMouseEnter={(e) => onTooltipEnter(e, link.label)}
-            onMouseLeave={onTooltipLeave}
-            className={cn(
-                "group relative z-20 cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all outline-none focus:ring-2 focus:ring-blue-500/20",
-                isActive
-                    ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
-                isCollapsed && "justify-center px-0 w-10 h-10 mx-auto"
-            )}
-        >
+    const commonClasses = cn(
+        "group relative z-20 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all outline-none focus:ring-2 focus:ring-blue-500/20",
+        isActive
+            ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
+        isCollapsed && "justify-center px-0 w-10 h-10 mx-auto"
+    );
+
+    const content = (
+        <>
             <Icon className={cn("w-5 h-5 flex-shrink-0", isActive && "text-blue-600 dark:text-blue-400")} />
             {!isCollapsed && (
                 <>
@@ -160,6 +160,35 @@ const SidebarNavLink = memo(({
                     )}
                 </>
             )}
+        </>
+    );
+
+    if (isExternal) {
+        return (
+            <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClick as any}
+                onMouseEnter={(e) => onTooltipEnter(e, link.label)}
+                onMouseLeave={onTooltipLeave}
+                className={commonClasses}
+            >
+                {content}
+            </a>
+        );
+    }
+
+    return (
+        <div
+            role="button"
+            tabIndex={0}
+            onClick={handleClick as any}
+            onMouseEnter={(e) => onTooltipEnter(e, link.label)}
+            onMouseLeave={onTooltipLeave}
+            className={cn(commonClasses, "cursor-pointer")}
+        >
+            {content}
         </div>
     );
 });
