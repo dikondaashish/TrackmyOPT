@@ -213,6 +213,20 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       );
     }
 
+    // --- Referral Conversion Tracking ---
+    // If this user was referred, increment the referrer's premium conversion counter
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('referred_by')
+      .eq('user_id', userId)
+      .single();
+
+    if (userProfile?.referred_by) {
+      await supabase.rpc('increment_referral_conversions', {
+        ref_code: userProfile.referred_by,
+      });
+    }
+
 
   } catch (error) {
     console.error(`❌ Error in handleCheckoutCompleted:`, sanitizeError(error));

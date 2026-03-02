@@ -115,7 +115,12 @@ function LoginPageContent() {
     localStorage.setItem('trackmyopt_last_method', 'google');
 
     try {
-      const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
+      // Include referral code in the callback URL so the server-side callback can attribute it
+      const refCode = localStorage.getItem('trackmyopt_ref');
+      let redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
+      if (refCode) {
+        redirectUrl += `&ref=${encodeURIComponent(refCode)}`;
+      }
 
       // Use auth callback route for proper session handling
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -131,6 +136,11 @@ function LoginPageContent() {
 
       if (oauthError) {
         throw oauthError;
+      }
+
+      // Clear referral code from localStorage (will be handled server-side)
+      if (refCode) {
+        localStorage.removeItem('trackmyopt_ref');
       }
 
       // OAuth will redirect automatically, don't set loading to false

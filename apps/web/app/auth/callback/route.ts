@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    
+
     const code = url.searchParams.get('code');
     const next = url.searchParams.get('next') || '/dashboard';
     const error = url.searchParams.get('error');
@@ -94,14 +94,55 @@ export async function GET(req: NextRequest) {
       if (blockedData) {
         // Sign out the user immediately
         await supabase.auth.signOut();
-        
+
         // Delete the newly created user since they're blocked
         await supabaseAdmin.auth.admin.deleteUser(sessionData.user.id);
-        
+
         console.error('❌ Blocked email attempted OAuth login:', userEmail);
         return NextResponse.redirect(
           new URL('/login?error=This+email+has+been+permanently+blocked.+Previously+deleted+accounts+cannot+be+recreated.', req.url)
         );
+      }
+    }
+
+    // --- Referral Attribution for Google OAuth ---
+    // The referral code is passed through the OAuth redirect URL as ?ref=code
+    const refCode = url.searchParams.get('ref');
+    if (refCode && sessionData.user) {
+      const sanitizedRef = refCode.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+      if (sanitizedRef) {
+        const supabaseAdmin = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+
+        // Check if this user already has a referral attribution
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('referred_by')
+          .eq('user_id', sessionData.user.id)
+          .single();
+
+        if (!profile?.referred_by) {
+          // Verify the referral code exists and is active
+          const { data: referral } = await supabaseAdmin
+            .from('referrals')
+            .select('code')
+            .eq('code', sanitizedRef)
+            .eq('is_active', true)
+            .single();
+
+          if (referral) {
+            // Attribute the referral
+            await supabaseAdmin
+              .from('profiles')
+              .update({ referred_by: sanitizedRef })
+              .eq('user_id', sessionData.user.id);
+
+            // Increment signup counter
+            await supabaseAdmin.rpc('increment_referral_signups', { ref_code: sanitizedRef });
+          }
+        }
       }
     }
 
@@ -111,10 +152,10 @@ export async function GET(req: NextRequest) {
     // Add a small delay to ensure cookies are set before redirect
     // Redirect to the dashboard or specified URL
     const response = NextResponse.redirect(redirectUrl);
-    
+
     // Ensure cookies are set properly
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    
+
     return response;
   } catch (error) {
     console.error('❌ OAuth callback error:', error);

@@ -3,6 +3,8 @@
  * 
  * Increments the click counter for a referral code.
  * No auth required — called when someone visits a referral link.
+ * 
+ * Rate limited: one click per IP per referral code per 24 hours.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -13,6 +15,21 @@ const corsHeaders = {
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
 };
+
+// Simple in-memory rate limit for click tracking (per IP + code)
+// Resets on deploy/restart — good enough for click dedup
+const clickCache = new Map<string, number>();
+const CLICK_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+// Clean up old entries every 10 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, timestamp] of clickCache.entries()) {
+        if (now - timestamp > CLICK_COOLDOWN_MS) {
+            clickCache.delete(key);
+        }
+    }
+}, 10 * 60 * 1000);
 
 export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
@@ -32,6 +49,18 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // Rate limit: one click per IP per code per 24 hours
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+            || req.headers.get("x-real-ip")
+            || "unknown";
+        const cacheKey = `${ip}:${code}`;
+        const lastClick = clickCache.get(cacheKey);
+
+        if (lastClick && Date.now() - lastClick < CLICK_COOLDOWN_MS) {
+            // Already counted this click — return success but don't increment
+            return NextResponse.json({ ok: true, deduplicated: true }, { headers: corsHeaders });
+        }
+
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -39,6 +68,9 @@ export async function POST(req: NextRequest) {
 
         // Increment clicks atomically via RPC
         await supabase.rpc("increment_referral_clicks", { ref_code: code });
+
+        // Record this click for dedup
+        clickCache.set(cacheKey, Date.now());
 
         return NextResponse.json({ ok: true }, { headers: corsHeaders });
     } catch {
