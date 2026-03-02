@@ -280,6 +280,16 @@ function LoginPageContent() {
 
       if (error) throw error;
 
+      // Track referral signup if we have a code
+      const refCode = localStorage.getItem('trackmyopt_ref');
+      if (refCode) {
+        fetch('/api/referral/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: refCode }),
+        }).catch(() => { }); // fire-and-forget
+        localStorage.removeItem('trackmyopt_ref');
+      }
 
       // Redirect to intended page or dashboard
       window.location.href = redirectTo;
@@ -320,6 +330,9 @@ function LoginPageContent() {
         throw new Error('This email has been permanently blocked. Previously deleted accounts cannot be recreated.');
       }
 
+      // Capture referral code from localStorage (set by ReferralCapture component)
+      const refCode = localStorage.getItem('trackmyopt_ref');
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -328,6 +341,7 @@ function LoginPageContent() {
             firstName,
             lastName,
             fullName: `${firstName} ${lastName}`,
+            ...(refCode ? { referral_code: refCode } : {}),
           },
           emailRedirectTo: `${window.location.origin}/dashboard`,
         },

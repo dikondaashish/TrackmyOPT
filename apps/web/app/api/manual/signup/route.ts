@@ -32,6 +32,7 @@ const signupRequestSchema = z.object({
   optStart: z.string().min(1, 'OPT start date is required'),
   stemStart: z.string().optional(),
   isStem: z.boolean().optional().default(false),
+  referralCode: z.string().max(50).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
 
   const {
     firstName, lastName, email, password,
-    programEnd, dsoReco, optEadEnd, optStart, stemStart, isStem
+    programEnd, dsoReco, optEadEnd, optStart, stemStart, isStem, referralCode
   } = validation.data;
 
   // Use service role key for admin operations
@@ -94,12 +95,22 @@ export async function POST(req: NextRequest) {
 
   const uid = signUpData.user.id;
 
-  // Create profile
+  // Create profile (with referral attribution if present)
+  const sanitizedRef = referralCode
+    ? referralCode.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase()
+    : null;
+
   await supabase.from("profiles").upsert({
     user_id: uid,
     timezone: "America/New_York",
     is_stem_eligible: !!isStem,
+    ...(sanitizedRef ? { referred_by: sanitizedRef } : {}),
   });
+
+  // Track referral signup if code was provided
+  if (sanitizedRef) {
+    await supabase.rpc('increment_referral_signups', { ref_code: sanitizedRef });
+  }
 
   // Convert and validate dates
   const toISO = (x: string | undefined) => x ? mmddyyyyToISO(x) : null;

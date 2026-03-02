@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { LandingHero } from "../components/landing/LandingHero";
 import { LandingNavbar } from "../components/landing/LandingNavbar";
 import { LandingFeatures } from "../components/landing/LandingFeatures";
@@ -13,6 +14,7 @@ import { LandingChromeExtension } from "../components/landing/LandingChromeExten
 import { LandingTrustedUniversities } from "../components/landing/LandingTrustedUniversities";
 import { LandingToolkit } from "../components/landing/LandingToolkit";
 import { LandingEngine } from "../components/landing/LandingEngine";
+import { ReferralCapture } from "../components/ReferralCapture";
 import dynamic from "next/dynamic";
 import {
     softwareApplicationSchema,
@@ -56,6 +58,9 @@ export default function LandingPage() {
             </div>
 
             <div className="relative z-10">
+                <Suspense fallback={null}>
+                    <ReferralCapture />
+                </Suspense>
                 <LandingNavbar />
                 <LandingHero />
                 <LandingTrustedUniversities />
