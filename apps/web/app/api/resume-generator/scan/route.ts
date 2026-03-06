@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
         // 2. AI Deep Analysis
         // Using gemini-2.5-pro for advanced reasoning on content match
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3.1-pro" });
         const prompt = buildAtsScanPrompt(resumeText, jobDescription);
 
         const result = await model.generateContent(prompt);
@@ -60,18 +60,21 @@ export async function POST(req: NextRequest) {
         }
 
         // 3. Merge Results
+        // Use AI's overall score as the primary score (it already factors in keywords,
+        // bullets, sections, and placement). Apply a small penalty for static format issues.
+        const formatPenalty = Math.min(basicCheck.issues.length * 5, 15);
+        const aiScore = aiAnalysis.overallScore ?? aiAnalysis.keywordMatch?.score ?? 0;
+        const finalScore = Math.max(0, Math.min(100, Math.round(aiScore - formatPenalty)));
+
         const finalAnalysis = {
-            passed: basicCheck.passed,
-            issues: basicCheck.issues, // Formatting issues
+            passed: basicCheck.passed && finalScore >= 75,
+            issues: basicCheck.issues,
             keywordMatch: aiAnalysis.keywordMatch,
             sectionScores: aiAnalysis.sectionScores,
+            bulletAnalysis: aiAnalysis.bulletAnalysis,
             improvements: aiAnalysis.improvements,
-            // Calculate overall score: 40% Formatting, 30% Keywords, 30% Impact
-            score: Math.round(
-                (basicCheck.issues.length === 0 ? 40 : Math.max(0, 40 - basicCheck.issues.length * 10)) +
-                (aiAnalysis.keywordMatch.score * 0.3) +
-                ((aiAnalysis.sectionScores.impact + aiAnalysis.sectionScores.relevance) / 2 * 0.3)
-            )
+            missingKeywordsByCategory: aiAnalysis.missingKeywordsByCategory,
+            score: finalScore,
         };
 
         return NextResponse.json(

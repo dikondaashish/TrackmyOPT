@@ -12,7 +12,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 // Use Gemini 2.5 Pro for best OCR and AI analysis (Tier 1 paid account)
 // This model has high rate limits: 150 RPM, 2M TPM, 10K RPD
-const MODEL_NAME = 'gemini-2.5-pro';
+const MODEL_NAME = 'gemini-3.1-pro';
 
 // Document types we support
 export type DocumentType =
@@ -256,27 +256,32 @@ export async function rewriteBulletPoints(
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const prompt = `
-    You are an expert Resume Writer and ATS Optimizer.
-    I will provide a RESUME and a JOB DESCRIPTION.
-    
-    Task: Identify the 3-5 weak bullet points in the resume that are relevant to the job but poorly phrased.
-    Rewrite them to match the Job Description's keywords and tone.
-    
-    RESUME:
-    ${resumeText.substring(0, 8000)}
-    
-    JOB DESCRIPTION:
-    ${jobDescription.substring(0, 5000)}
-    
-    Respond in strict JSON format:
-    [
-      {
-        "original": "Managed a team",
-        "improved": "Led a cross-functional team of 5 engineers to deliver critical APIs...",
-        "reasoning": "Added metrics and specific keywords from JD like 'cross-functional' and 'deliver'"
-      }
-    ]
-    `;
+You are an elite ATS resume optimization expert. Analyze the resume against the job description and identify the 3-5 weakest bullet points that are relevant to this role but poorly written.
+
+For each weak bullet, rewrite it using the XYZ formula:
+"Accomplished [X] as measured by [Y] by doing [Z]"
+
+Rules for rewriting:
+- Start with a STRONG past-tense action verb (Led, Engineered, Architected, Automated, Optimized, Delivered, Spearheaded — NEVER "Helped", "Assisted", "Worked on")
+- Include a specific metric or quantifiable result (%, $, time saved, team size, user count)
+- Weave in 1-2 exact keywords from the job description naturally
+- If no specific metric exists, describe scope (e.g., "across 3 product lines", "serving 50K+ users")
+
+RESUME:
+${resumeText.substring(0, 8000)}
+
+JOB DESCRIPTION:
+${jobDescription.substring(0, 5000)}
+
+Respond in strict JSON array format only (no markdown):
+[
+  {
+    "original": "Managed a team",
+    "improved": "Spearheaded a cross-functional team of 8 engineers, delivering 3 microservices that reduced API latency by 45% and supported 2M daily requests",
+    "reasoning": "Added team size metric, quantified impact (45% latency reduction), included JD keywords 'microservices' and 'cross-functional'"
+  }
+]
+`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -301,22 +306,34 @@ export async function analyzeAtsGap(
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const prompt = `
-    Act as an ATS (Applicant Tracking System). Compare this Resume to the Job Description.
-    
-    RESUME:
-    ${resumeText.substring(0, 8000)}
-    
-    JOB DESCRIPTION:
-    ${jobDescription.substring(0, 5000)}
-    
-    Output JSON ONLY:
-    {
-      "matchScore": 85,
-      "missingKeywords": ["Python", "AWS", "Agile"],
-      "gapAnalysis": "Candidate lacks specific cloud experience mentioned...",
-      "recommendations": ["Add a 'Skills' section", "Mention 'AWS' in relevant projects"]
-    }
-    `;
+You are an enterprise ATS (Applicant Tracking System) simulator. Parse and score this resume against the job description exactly as Workday, Greenhouse, or Taleo would.
+
+RESUME:
+${resumeText.substring(0, 8000)}
+
+JOB DESCRIPTION:
+${jobDescription.substring(0, 5000)}
+
+Analysis steps:
+1. Extract ALL required and preferred hard skills from the JD
+2. Check each keyword against the resume (exact match only — "Python" does not match "scripting")
+3. Check if keywords appear in multiple locations (Skills section + Experience bullets = higher score)
+4. Evaluate bullet point quality (action verb + metric + result)
+5. Check for Professional Summary containing target job title and core keywords
+
+Output JSON ONLY (no markdown fences):
+{
+  "matchScore": 0-100,
+  "missingKeywords": ["exact keyword from JD not found in resume"],
+  "foundKeywords": ["keywords from JD that ARE in the resume"],
+  "gapAnalysis": "Detailed paragraph explaining the primary gaps and why they matter for this specific role",
+  "recommendations": [
+    "Add [specific keyword] to your Skills section and reference it in your [Company] experience",
+    "Rewrite your [role] bullet about [topic] to include metrics: e.g., 'Reduced deployment time by X%'",
+    "Add a Professional Summary that includes the job title '[title from JD]' and mentions [key skills]"
+  ]
+}
+`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -345,12 +362,21 @@ export async function generateExecutiveSummary(resumeText: string, jobTitle: str
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const prompt = `
-    Write a compelling, professional executive summary (max 3 sentences) for this resume, tailored for a "${jobTitle}" role.
-    Focus on achievements, years of experience, and key skills.
-    
-    RESUME:
-    ${resumeText.substring(0, 5000)}
-    `;
+Write a powerful 3-sentence professional summary for a "${jobTitle}" role.
+
+Rules:
+- Sentence 1: "[X] years of experience in [domain] with expertise in [3-4 core skills from the resume]"
+- Sentence 2: Highlight the candidate's most impressive quantified achievement relevant to the role
+- Sentence 3: Bridge their background to the target role, mentioning 2-3 more relevant skills
+- Include the exact job title "${jobTitle}" in the first sentence
+- Use confident, active language — no "seeking" or "looking for opportunities"
+- Keep it under 60 words total
+
+RESUME:
+${resumeText.substring(0, 5000)}
+
+Return ONLY the summary text, no quotes or formatting.
+`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
