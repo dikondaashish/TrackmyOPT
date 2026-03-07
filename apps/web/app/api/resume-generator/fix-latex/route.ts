@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Using gemini-2.0-flash for speed in debugging
-        const model = genAI.getGenerativeModel({ model: "gemini-3.1-pro-preview" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3-pro" });
         const prompt = buildFixSyntaxPrompt(latexCode, errorMessage);
 
         const result = await model.generateContent(prompt);

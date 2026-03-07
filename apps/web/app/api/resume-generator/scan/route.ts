@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
         // 2. AI Deep Analysis
         // Using gemini-2.5-pro for advanced reasoning on content match
-        const model = genAI.getGenerativeModel({ model: "gemini-3.1-pro-preview" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3-pro" });
         const prompt = buildAtsScanPrompt(resumeText, jobDescription);
 
         const result = await model.generateContent(prompt);
