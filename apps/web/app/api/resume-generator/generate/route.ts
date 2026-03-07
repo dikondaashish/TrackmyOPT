@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
 
         // 5. Build Prompt
         // Primary: gemini-3-pro | Fallback: gemini-2.5-pro
-        const model = genAI.getGenerativeModel({ model: "gemini-3.1-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3.1-pro-preview" });
         const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex);
 
         let result;
