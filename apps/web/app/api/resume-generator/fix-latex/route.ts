@@ -1,5 +1,5 @@
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { buildFixSyntaxPrompt } from '@/lib/ai/prompts/fix-syntax';
 import rateLimit from '@/lib/auth/rate-limit';
@@ -10,7 +10,7 @@ const limiter = rateLimit({
     uniqueTokenPerInterval: 500,
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
     try {
@@ -34,13 +34,13 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Using gemini-2.0-flash for speed in debugging
-        const model = genAI.getGenerativeModel({ model: "gemini-3-pro" });
         const prompt = buildFixSyntaxPrompt(latexCode, errorMessage);
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        let fixedLatex = response.text();
+        const response = await ai.models.generateContent({
+            model: 'gemini-3-pro',
+            contents: prompt,
+        });
+        let fixedLatex = response.text || '';
 
         // Clean output
         fixedLatex = fixedLatex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();

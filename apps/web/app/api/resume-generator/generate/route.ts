@@ -1,5 +1,5 @@
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
@@ -35,8 +35,7 @@ export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
-// Initialize Gemini globally
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
     try {
@@ -132,20 +131,23 @@ export async function POST(req: NextRequest) {
 
         // 5. Build Prompt
         // Primary: gemini-3-pro | Fallback: gemini-2.5-pro
-        const model = genAI.getGenerativeModel({ model: "gemini-3-pro" });
         const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex);
 
-        let result;
+        let response;
         try {
-            result = await model.generateContent(prompt);
+            response = await ai.models.generateContent({
+                model: 'gemini-3-pro',
+                contents: prompt,
+            });
         } catch (modelError: any) {
-            console.warn("Gemini 3 Pro failed, falling back to Gemini 2.5 Pro", modelError);
-            const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
-            result = await fallbackModel.generateContent(prompt);
+            console.warn("Gemini 3 Pro failed, falling back to Gemini 2.5 Pro");
+            response = await ai.models.generateContent({
+                model: 'gemini-2.5-pro',
+                contents: prompt,
+            });
         }
 
-        const response = await result.response;
-        let latex = response.text();
+        let latex = response.text || '';
 
         // Clean Output
         latex = latex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();

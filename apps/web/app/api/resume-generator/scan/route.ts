@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { buildAtsScanPrompt } from '@/lib/ai/prompts/ats-scan';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 
@@ -14,8 +14,7 @@ export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
     try {
@@ -34,13 +33,13 @@ export async function POST(req: NextRequest) {
         const basicCheck = checkAtsCompliance(latexCode || '');
 
         // 2. AI Deep Analysis
-        // Using gemini-2.5-pro for advanced reasoning on content match
-        const model = genAI.getGenerativeModel({ model: "gemini-3-pro" });
         const prompt = buildAtsScanPrompt(resumeText, jobDescription);
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const response = await ai.models.generateContent({
+            model: 'gemini-3-pro',
+            contents: prompt,
+        });
+        const text = response.text || '';
 
         // Parse JSON response from AI
         // Remove markdown code blocks if present

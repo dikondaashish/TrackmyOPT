@@ -5,13 +5,10 @@
  * Single API for complete document processing pipeline
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
-// Initialize Gemini with API key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-// Use Gemini 2.5 Pro for best OCR and AI analysis (Tier 1 paid account)
-// This model has high rate limits: 150 RPM, 2M TPM, 10K RPD
 const MODEL_NAME = 'gemini-3-pro';
 
 // Document types we support
@@ -51,10 +48,6 @@ export async function analyzeDocument(
       throw new Error('GEMINI_API_KEY is not configured');
     }
 
-    // Get Gemini model
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-
-    // Convert buffer to Gemini format
     const imagePart = {
       inlineData: {
         data: fileBuffer.toString('base64'),
@@ -62,13 +55,13 @@ export async function analyzeDocument(
       },
     };
 
-
-    // Single prompt for everything: OCR + Classification + Extraction
-    const prompt = GEMINI_ANALYSIS_PROMPT;
-
-    const result = await model.generateContent([prompt, imagePart]);
-    const response = await result.response;
-    const text = response.text();
+    const result = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: [
+        { role: 'user', parts: [{ text: GEMINI_ANALYSIS_PROMPT }, imagePart] },
+      ],
+    });
+    const text = result.text || '';
 
 
     // Parse JSON response
@@ -254,7 +247,6 @@ export async function rewriteBulletPoints(
   jobDescription: string
 ): Promise<BulletRewrite[]> {
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const prompt = `
 You are an elite ATS resume optimization expert. Analyze the resume against the job description and identify the 3-5 weakest bullet points that are relevant to this role but poorly written.
 
@@ -283,9 +275,11 @@ Respond in strict JSON array format only (no markdown):
 ]
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const result = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt,
+    });
+    const text = result.text || '';
     const jsonMatch = text.match(/\[[\s\S]*\]/);
 
     return jsonMatch ? JSON.parse(jsonMatch[0]) : [];
@@ -304,7 +298,6 @@ export async function analyzeAtsGap(
   jobDescription: string
 ): Promise<AtsGapAnalysis> {
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const prompt = `
 You are an enterprise ATS (Applicant Tracking System) simulator. Parse and score this resume against the job description exactly as Workday, Greenhouse, or Taleo would.
 
@@ -335,9 +328,11 @@ Output JSON ONLY (no markdown fences):
 }
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const result = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt,
+    });
+    const text = result.text || '';
     const jsonMatch = text.match(/\{[\s\S]*\}/);
 
     if (!jsonMatch) throw new Error('Failed to parse AI response');
@@ -360,7 +355,6 @@ Output JSON ONLY (no markdown fences):
  */
 export async function generateExecutiveSummary(resumeText: string, jobTitle: string): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const prompt = `
 Write a powerful 3-sentence professional summary for a "${jobTitle}" role.
 
@@ -378,9 +372,11 @@ ${resumeText.substring(0, 5000)}
 Return ONLY the summary text, no quotes or formatting.
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text().trim();
+    const result = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt,
+    });
+    return (result.text || '').trim();
 
   } catch (error) {
     console.error('❌ Summary Gen Error:', error);

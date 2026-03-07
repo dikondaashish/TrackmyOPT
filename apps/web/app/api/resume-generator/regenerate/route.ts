@@ -1,5 +1,5 @@
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
@@ -29,7 +29,7 @@ const RegenerateSchema = z.object({
     atsAnalysis: z.any().optional(),
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
     try {
@@ -124,8 +124,6 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Build Prompt
-        // Using gemini-2.5-pro as requested by user
-        const model = genAI.getGenerativeModel({ model: "gemini-3-pro" });
         const prompt = buildRegeneratePrompt(
             resumeText,
             jobDescription,
@@ -136,9 +134,11 @@ export async function POST(req: NextRequest) {
         );
 
         // 6. Generate
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        let latex = response.text();
+        const response = await ai.models.generateContent({
+            model: 'gemini-3-pro',
+            contents: prompt,
+        });
+        let latex = response.text || '';
 
         // 7. Clean Output
         latex = latex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
