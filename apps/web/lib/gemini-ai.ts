@@ -9,7 +9,8 @@ import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-const MODEL_NAME = 'gemini-2.5-pro';
+const PRIMARY_MODEL = 'gemini-3.1-pro-preview';
+const FALLBACK_MODEL = 'gemini-2.5-pro';
 
 // Document types we support
 export type DocumentType =
@@ -55,12 +56,22 @@ export async function analyzeDocument(
       },
     };
 
-    const result = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: [
-        { role: 'user', parts: [{ text: GEMINI_ANALYSIS_PROMPT }, imagePart] },
-      ],
-    });
+    let result;
+    try {
+      result = await ai.models.generateContent({
+        model: PRIMARY_MODEL,
+        contents: [
+          { role: 'user', parts: [{ text: GEMINI_ANALYSIS_PROMPT }, imagePart] },
+        ],
+      });
+    } catch {
+      result = await ai.models.generateContent({
+        model: FALLBACK_MODEL,
+        contents: [
+          { role: 'user', parts: [{ text: GEMINI_ANALYSIS_PROMPT }, imagePart] },
+        ],
+      });
+    }
     const text = result.text || '';
 
 
@@ -275,10 +286,18 @@ Respond in strict JSON array format only (no markdown):
 ]
 `;
 
-    const result = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: prompt,
-    });
+    let result;
+    try {
+      result = await ai.models.generateContent({
+        model: PRIMARY_MODEL,
+        contents: prompt,
+      });
+    } catch {
+      result = await ai.models.generateContent({
+        model: FALLBACK_MODEL,
+        contents: prompt,
+      });
+    }
     const text = result.text || '';
     const jsonMatch = text.match(/\[[\s\S]*\]/);
 
@@ -328,10 +347,18 @@ Output JSON ONLY (no markdown fences):
 }
 `;
 
-    const result = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: prompt,
-    });
+    let result;
+    try {
+      result = await ai.models.generateContent({
+        model: PRIMARY_MODEL,
+        contents: prompt,
+      });
+    } catch {
+      result = await ai.models.generateContent({
+        model: FALLBACK_MODEL,
+        contents: prompt,
+      });
+    }
     const text = result.text || '';
     const jsonMatch = text.match(/\{[\s\S]*\}/);
 
@@ -372,10 +399,18 @@ ${resumeText.substring(0, 5000)}
 Return ONLY the summary text, no quotes or formatting.
 `;
 
-    const result = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: prompt,
-    });
+    let result;
+    try {
+      result = await ai.models.generateContent({
+        model: PRIMARY_MODEL,
+        contents: prompt,
+      });
+    } catch {
+      result = await ai.models.generateContent({
+        model: FALLBACK_MODEL,
+        contents: prompt,
+      });
+    }
     return (result.text || '').trim();
 
   } catch (error) {

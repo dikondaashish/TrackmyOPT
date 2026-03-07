@@ -132,10 +132,18 @@ export async function POST(req: NextRequest) {
         // 5. Build Prompt
         const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex);
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: prompt,
-        });
+        let response;
+        try {
+            response = await ai.models.generateContent({
+                model: 'gemini-3.1-pro-preview',
+                contents: prompt,
+            });
+        } catch {
+            response = await ai.models.generateContent({
+                model: 'gemini-2.5-pro',
+                contents: prompt,
+            });
+        }
 
         let latex = response.text || '';
 

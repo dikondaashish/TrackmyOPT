@@ -134,10 +134,18 @@ export async function POST(req: NextRequest) {
         );
 
         // 6. Generate
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: prompt,
-        });
+        let response;
+        try {
+            response = await ai.models.generateContent({
+                model: 'gemini-3.1-pro-preview',
+                contents: prompt,
+            });
+        } catch {
+            response = await ai.models.generateContent({
+                model: 'gemini-2.5-pro',
+                contents: prompt,
+            });
+        }
         let latex = response.text || '';
 
         // 7. Clean Output

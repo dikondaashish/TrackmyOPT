@@ -35,10 +35,18 @@ export async function POST(req: NextRequest) {
         // 2. AI Deep Analysis
         const prompt = buildAtsScanPrompt(resumeText, jobDescription);
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: prompt,
-        });
+        let response;
+        try {
+            response = await ai.models.generateContent({
+                model: 'gemini-3.1-pro-preview',
+                contents: prompt,
+            });
+        } catch {
+            response = await ai.models.generateContent({
+                model: 'gemini-2.5-pro',
+                contents: prompt,
+            });
+        }
         const text = response.text || '';
 
         // Parse JSON response from AI
