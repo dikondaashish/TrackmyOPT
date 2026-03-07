@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         const prompt = buildAtsScanPrompt(resumeText, jobDescription);
 
         const response = await ai.models.generateContent({
-            model: 'gemini-3-pro',
+            model: 'gemini-2.5-pro',
             contents: prompt,
         });
         const text = response.text || '';

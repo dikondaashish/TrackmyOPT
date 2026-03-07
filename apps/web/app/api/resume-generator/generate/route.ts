@@ -130,22 +130,12 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Build Prompt
-        // Primary: gemini-3-pro | Fallback: gemini-2.5-pro
         const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex);
 
-        let response;
-        try {
-            response = await ai.models.generateContent({
-                model: 'gemini-3-pro',
-                contents: prompt,
-            });
-        } catch (modelError: any) {
-            console.warn("Gemini 3 Pro failed, falling back to Gemini 2.5 Pro");
-            response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro',
-                contents: prompt,
-            });
-        }
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-pro',
+            contents: prompt,
+        });
 
         let latex = response.text || '';
 

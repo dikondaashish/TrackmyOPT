@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         const prompt = buildFixSyntaxPrompt(latexCode, errorMessage);
 
         const response = await ai.models.generateContent({
-            model: 'gemini-3-pro',
+            model: 'gemini-2.5-pro',
             contents: prompt,
         });
         let fixedLatex = response.text || '';

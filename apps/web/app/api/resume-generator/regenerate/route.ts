@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
 
         // 6. Generate
         const response = await ai.models.generateContent({
-            model: 'gemini-3-pro',
+            model: 'gemini-2.5-pro',
             contents: prompt,
         });
         let latex = response.text || '';
