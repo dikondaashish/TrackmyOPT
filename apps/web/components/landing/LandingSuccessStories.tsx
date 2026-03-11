@@ -12,8 +12,8 @@ export function LandingSuccessStories() {
                             Success Stories
                         </div>
                         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                            Real Results from <br className="hidden lg:block" />
-                            <span className="text-primary">Real Students</span>
+                            F-1 Student OPT <br className="hidden lg:block" />
+                            <span className="text-primary">Success Stories</span>
                         </h2>
                         <p className="mx-auto lg:mx-0 max-w-[600px] text-muted-foreground text-lg sm:text-xl">
                             Join thousands of international students who secured their future with TrackMyOPT.

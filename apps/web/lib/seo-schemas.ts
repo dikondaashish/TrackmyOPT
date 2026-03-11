@@ -116,7 +116,7 @@ export const faqSchema = {
             name: "What is OPT (Optional Practical Training)?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "OPT (Optional Practical Training) is a temporary employment authorization that allows F-1 students to work in the United States for up to 12 months after completing their academic program. The work must be directly related to the student's major field of study. STEM degree holders may apply for a 24-month extension, allowing up to 36 months of total OPT work authorization.",
+                text: "OPT (Optional Practical Training) is a temporary employment authorization that allows F-1 students to work in the United States for up to 12 months after completing their academic program, as authorized under 8 CFR § 214.2(f)(10)(ii). The work must be directly related to the student's major field of study. STEM degree holders may apply for a 24-month extension under the 2016 STEM OPT Final Rule (81 FR 13039), allowing up to 36 months of total OPT work authorization.",
             },
         },
         {
@@ -124,7 +124,7 @@ export const faqSchema = {
             name: "How many days of unemployment are allowed on OPT?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "For initial Post-Completion OPT, you are allowed a maximum of 90 days of unemployment. For STEM OPT extension, you receive a separate 60-day unemployment allowance. Unused days from the initial OPT period do not carry forward to the STEM period.",
+                text: "According to USCIS regulations (8 CFR § 214.2(f)(10)(ii)(E)), F-1 students on initial Post-Completion OPT are allowed a maximum of 90 days of unemployment. For STEM OPT extension, you receive a separate 60-day unemployment allowance under 8 CFR § 214.16(f). Unused days from the initial OPT period do not carry forward to the STEM period.",
             },
         },
         {
@@ -132,7 +132,7 @@ export const faqSchema = {
             name: "How can I track my USCIS case status?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "You can track your USCIS case status by entering your 13-character receipt number (e.g., IOE1234567890) into TrackMyOPT's Case Status Tracker. The tool checks USCIS directly, shows your current status with plain-English explanations, and sends you email notifications when your status changes.",
+                text: "You can track your USCIS case status by entering your 13-character receipt number (e.g., IOE1234567890) into TrackMyOPT's Case Status Tracker or on USCIS.gov/casestatus. The tool checks USCIS directly, shows your current status with plain-English explanations, and sends you email notifications when your status changes.",
             },
         },
         {
@@ -140,7 +140,7 @@ export const faqSchema = {
             name: "What is the 90-day rule for OPT?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "The 90-day rule states that F-1 students on Post-Completion OPT cannot accumulate more than 90 days of unemployment during their OPT period. Days start counting from your EAD start date or program end date (whichever is later). Working part-time (20+ hours) or as a volunteer stops the clock. Exceeding 90 days violates your F-1 status.",
+                text: "The 90-day rule, established in 8 CFR § 214.2(f)(10)(ii)(E), states that F-1 students on Post-Completion OPT cannot accumulate more than 90 days of unemployment during their OPT period. Days start counting from your EAD start date or program end date (whichever is later). Working part-time (20+ hours) or as a volunteer stops the clock. Exceeding 90 days violates your F-1 status.",
             },
         },
         {
@@ -148,7 +148,7 @@ export const faqSchema = {
             name: "Which companies sponsor H-1B visas?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "TrackMyOPT provides a searchable database of 25,000+ companies that sponsor H-1B visas. Top sponsors include technology companies (Google, Microsoft, Amazon, Meta), consulting firms (Deloitte, Accenture, Cognizant), and financial institutions. You can filter by industry, location, approval rate, and number of petitions filed. The database is updated regularly with LCA data.",
+                text: "According to U.S. Department of Labor LCA filings, over 25,000 US companies sponsor H-1B visas. TrackMyOPT provides a searchable database including technology companies (Google, Microsoft, Amazon, Meta), consulting firms (Deloitte, Accenture, Cognizant), and financial institutions. You can filter by industry, location, approval rate, and number of petitions filed.",
             },
         },
         {
@@ -172,7 +172,7 @@ export const faqSchema = {
             name: "How do I apply for STEM OPT extension?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "To apply for STEM OPT extension: 1) Verify your degree qualifies as STEM (CIP code list), 2) Ensure your employer is enrolled in E-Verify, 3) Complete Form I-983 Training Plan with your employer, 4) Get new I-20 from your DSO recommending STEM extension, 5) File Form I-765 with USCIS before your current OPT expires. You can apply up to 90 days before and must apply before your current EAD expires.",
+                text: "To apply for STEM OPT extension per 8 CFR § 214.16: 1) Verify your degree qualifies as STEM (CIP code list), 2) Ensure your employer is enrolled in E-Verify, 3) Complete Form I-983 Training Plan with your employer, 4) Get new I-20 from your DSO recommending STEM extension, 5) File Form I-765 with USCIS before your current OPT expires. You can apply up to 90 days before and must apply before your current EAD expires.",
             },
         },
         {
@@ -180,7 +180,7 @@ export const faqSchema = {
             name: "Do F-1 students need to file taxes?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "Yes, F-1 students must file taxes even with no income. If you have no income, you must file Form 8843 (Statement for Exempt Individuals). If you have income, most F-1 students file as non-resident aliens using Form 1040-NR. The Substantial Presence Test determines if you're a resident for tax purposes. TrackMyOPT's Tax Guide helps determine your filing requirements.",
+                text: "Yes, according to IRS Publication 519, all F-1 students must file taxes even with no income. If you have no income, you must file Form 8843 (Statement for Exempt Individuals). If you have income, most F-1 students file as non-resident aliens using Form 1040-NR. F-1 students are typically exempt from FICA taxes for the first 5 calendar years under IRC § 3121(b)(19).",
             },
         },
         {
@@ -188,7 +188,31 @@ export const faqSchema = {
             name: "What is cap-gap extension?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "Cap-gap extension automatically extends your OPT work authorization if you have a pending or approved H-1B petition subject to the annual cap. It bridges the gap between your OPT expiration and October 1 (when H-1B status can begin). Your employer must file the H-1B petition, and you must have valid F-1 status when it's filed.",
+                text: "Cap-gap extension, defined in 8 CFR § 214.2(f)(5)(vi), automatically extends your OPT work authorization if you have a pending or approved H-1B petition subject to the annual cap. It bridges the gap between your OPT expiration and October 1 (when H-1B status can begin). Your employer must file the H-1B petition, and you must have valid F-1 status when it's filed.",
+            },
+        },
+        {
+            "@type": "Question",
+            name: "How long does OPT processing take in 2026?",
+            acceptedAnswer: {
+                "@type": "Answer",
+                text: "As of March 2026, USCIS OPT (Form I-765) processing times range from 3 to 5 months. Online-filed cases with IOE receipt numbers generally process faster than paper filings. Premium processing is not available for EAD applications. Check current processing times at egov.uscis.gov/processing-times.",
+            },
+        },
+        {
+            "@type": "Question",
+            name: "Can I travel outside the US while on OPT?",
+            acceptedAnswer: {
+                "@type": "Answer",
+                text: "Yes, F-1 students on approved OPT can travel outside the US and re-enter with: a valid passport, valid F-1 visa stamp, valid EAD card, and a current I-20 with DSO travel signature (within 6 months). Travel while OPT is pending is strongly discouraged — re-entry is not guaranteed. Days abroad while unemployed still count toward the 90-day limit.",
+            },
+        },
+        {
+            "@type": "Question",
+            name: "What happens if my OPT application is denied?",
+            acceptedAnswer: {
+                "@type": "Answer",
+                text: "If your OPT application is denied by USCIS, you cannot work in the US under OPT authorization. According to USCIS guidance, you typically have a 60-day grace period after your program end date to leave the US, transfer to a new school, or change to another valid immigration status. Consult your DSO and an immigration attorney immediately.",
             },
         },
     ],
@@ -473,13 +497,16 @@ export const articleSchema = {
     headline: "Complete Guide to OPT for F-1 International Students",
     description: "Everything you need to know about Optional Practical Training (OPT), STEM OPT extension, unemployment rules, USCIS case tracking, and H-1B sponsorship.",
     author: {
-        "@id": "https://www.trackmyopt.com/#organization",
+        "@type": "Organization",
+        name: "TrackMyOPT",
+        url: "https://www.trackmyopt.com",
+        description: "Built by former F-1 students who navigated OPT, STEM OPT, and H-1B processes firsthand",
     },
     publisher: {
         "@id": "https://www.trackmyopt.com/#organization",
     },
     datePublished: "2024-01-01",
-    dateModified: "2026-01-26",
+    dateModified: "2026-03-10",
     mainEntityOfPage: {
         "@id": "https://www.trackmyopt.com/#webpage",
     },
@@ -490,13 +517,35 @@ export const articleSchema = {
         { "@type": "Thing", name: "H-1B Visa Sponsorship" },
         { "@type": "Thing", name: "International Student Employment" },
     ],
-    keywords: "OPT, STEM OPT, F-1 visa, international students, USCIS, EAD, H-1B sponsor, 90-day rule, unemployment tracker",
+    keywords: "OPT, STEM OPT, F-1 visa, international students, USCIS, EAD, H-1B sponsor, 90-day rule, unemployment tracker, OPT processing time 2026",
     articleSection: [
         "OPT Basics",
         "STEM OPT Extension",
         "USCIS Case Tracking",
         "H-1B Sponsorship",
         "Taxes and Requirements",
+    ],
+    citation: [
+        {
+            "@type": "CreativeWork",
+            name: "8 CFR § 214.2(f) - Students in Colleges, Universities, Seminaries, etc.",
+            url: "https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-214/subpart-A/section-214.2#p-214.2(f)",
+        },
+        {
+            "@type": "CreativeWork",
+            name: "STEM OPT Final Rule (81 FR 13039)",
+            url: "https://www.federalregister.gov/documents/2016/03/11/2016-04828/improving-and-expanding-training-opportunities-for-f-1-nonimmigrant-students",
+        },
+        {
+            "@type": "CreativeWork",
+            name: "IRS Publication 519 - U.S. Tax Guide for Aliens",
+            url: "https://www.irs.gov/publications/p519",
+        },
+        {
+            "@type": "CreativeWork",
+            name: "USCIS H-1B Employer Data Hub",
+            url: "https://www.uscis.gov/tools/reports-and-studies/h-1b-employer-data-hub",
+        },
     ],
     speakable: {
         "@type": "SpeakableSpecification",

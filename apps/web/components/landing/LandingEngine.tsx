@@ -16,7 +16,7 @@ export function LandingEngine() {
                         System Architecture
                     </span>
                     <h2 className="mt-4 text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white tracking-tight">
-                        The Intelligence Engine
+                        USCIS Case Tracking & OPT Intelligence
                     </h2>
                     <p className="mt-6 text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                         We replaced manual spreadsheets with active, government-connected intelligence.

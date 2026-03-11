@@ -8,11 +8,11 @@ import { ThemeProvider } from '@/components/layout/theme-provider';
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.trackmyopt.com'),
   title: {
-    default: 'TrackMyOPT - The #1 OPT Timeline & Job Tracker for F-1 Students',
+    default: 'OPT Tracker & H-1B Finder for F-1 Students | TrackMyOPT',
     template: '%s | TrackMyOPT',
   },
-  description: 'The operating system for international students. Track your OPT deadlines, find H-1B sponsors, create AI resumes, and secure your documents.',
-  keywords: ['F1 Visa', 'OPT Tracker', 'STEM OPT Calculator', 'H1B Sponsors', 'International Student Jobs', 'USCIS Case Status', 'AI Resume Builder'],
+  description: 'Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever — trusted by 2,500+ F-1 students. Start now.',
+  keywords: ['F1 Visa', 'OPT Tracker', 'STEM OPT Calculator', 'H1B Sponsors', 'International Student Jobs', 'USCIS Case Status', 'AI Resume Builder', 'OPT processing time 2026', '90 day rule OPT'],
   authors: [{ name: 'Zyene Inc' }],
   creator: 'Zyene Inc',
   publisher: 'Zyene Inc',
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     apple: '/TrackMyOPT Logo/Favicon.png',
   },
   openGraph: {
-    title: 'TrackMyOPT - Master Your F-1 Journey',
-    description: 'Track your OPT timeline, find H-1B sponsors, and build ATS-friendly resumes with AI. The ultimate tool for international students in the US.',
+    title: 'OPT Timeline Tracker & H-1B Finder for F-1 Students',
+    description: 'Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever — trusted by 2,500+ F-1 students.',
     url: 'https://www.trackmyopt.com',
     siteName: 'TrackMyOPT',
     images: [
@@ -111,7 +111,7 @@ export default function RootLayout({
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4262248775973692"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       </body>
     </html>

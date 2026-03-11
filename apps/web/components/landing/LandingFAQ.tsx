@@ -17,7 +17,7 @@ const faqs = [
     {
         question: "What happens if I miss an OPT deadline?",
         answer:
-            "Missing an OPT deadline can have serious consequences, including falling out of status. That's exactly why TrackMyOPT exists — we send you email alerts before every critical deadline so you never miss one.",
+            "Missing an OPT deadline can have serious consequences, including falling out of F-1 status. According to USCIS, violating the terms of your OPT — such as exceeding the 90-day unemployment limit — can result in status termination. That's exactly why TrackMyOPT exists — we send you email alerts before every critical deadline so you never miss one.",
     },
     {
         question: "Can I track multiple USCIS cases?",
@@ -27,7 +27,22 @@ const faqs = [
     {
         question: "How accurate is the unemployment clock?",
         answer:
-            "Our unemployment clock calculates based on official USCIS rules: 90 days for initial OPT. STEM OPT holders receive an additional 60 days (these are separate allowances, not combined). You log your employment periods, and we automatically calculate remaining days.",
+            "Our unemployment clock calculates based on official USCIS rules (8 CFR § 214.2(f)(10)(ii)(E)): 90 days for initial OPT. STEM OPT holders receive an additional 60 days under 8 CFR § 214.16(f) — these are separate allowances, not combined. You log your employment periods, and we automatically calculate remaining days.",
+    },
+    {
+        question: "How long does OPT processing take in 2026?",
+        answer:
+            "As of March 2026, USCIS OPT (Form I-765) processing times range from 3 to 5 months. Online-filed cases with IOE receipt numbers generally process faster than paper filings. Premium processing is not available for EAD applications. You can check current processing times at egov.uscis.gov/processing-times.",
+    },
+    {
+        question: "Can I travel outside the US while on OPT?",
+        answer:
+            "Yes, you can travel during approved OPT, but you need: a valid passport, valid F-1 visa stamp, valid EAD card, and a current I-20 with a DSO travel signature (signed within the last 6 months). Travel while your OPT application is pending is strongly discouraged — re-entry is not guaranteed. Days abroad while unemployed still count toward your 90-day limit.",
+    },
+    {
+        question: "What happens if my OPT application is denied?",
+        answer:
+            "If your OPT application is denied by USCIS, you cannot work in the US under OPT authorization. According to USCIS guidance, you typically have 60 days (grace period) after your program end date to either leave the US, transfer to a new school, or change to another valid immigration status. TrackMyOPT recommends consulting with your DSO and an immigration attorney immediately if your case is denied.",
     },
 ];
 
@@ -54,18 +69,21 @@ export function LandingFAQ() {
                     </p>
                 </div>
 
-                {/* FAQ Accordion */}
+                {/* FAQ Accordion — answers always rendered in DOM for AI crawlers, visually toggled */}
                 <div className="space-y-4">
                     {faqs.map((faq, index) => (
                         <div
                             key={index}
                             className="bg-gray-50 dark:bg-zinc-800 rounded-xl border border-gray-200 dark:border-zinc-700 overflow-hidden"
+                            itemScope
+                            itemType="https://schema.org/Question"
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
                                 className="w-full flex items-center justify-between p-6 text-left"
+                                aria-expanded={openIndex === index}
                             >
-                                <span className="font-semibold text-gray-900 dark:text-white pr-4">
+                                <span className="font-semibold text-gray-900 dark:text-white pr-4" itemProp="name">
                                     {faq.question}
                                 </span>
                                 <ChevronDown
@@ -73,13 +91,17 @@ export function LandingFAQ() {
                                         }`}
                                 />
                             </button>
-                            {openIndex === index && (
-                                <div className="px-6 pb-6 pt-0">
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                        {faq.answer}
-                                    </p>
-                                </div>
-                            )}
+                            {/* Always render in DOM for AI crawlers — CSS controls visibility */}
+                            <div
+                                className={`px-6 pb-6 pt-0 transition-all duration-200 ${openIndex === index ? "block" : "hidden"}`}
+                                itemScope
+                                itemType="https://schema.org/Answer"
+                                itemProp="acceptedAnswer"
+                            >
+                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed" itemProp="text">
+                                    {faq.answer}
+                                </p>
+                            </div>
                         </div>
                     ))}
                 </div>

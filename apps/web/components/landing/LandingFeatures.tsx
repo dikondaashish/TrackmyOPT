@@ -25,7 +25,7 @@ export function LandingFeatures() {
                         Power Features
                     </span>
                     <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                        Everything You Need to Stay Legal & Get Hired
+                        OPT Timeline, USCIS Alerts & H-1B Sponsor Finder
                     </h2>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
                         Professional tools built specifically for the unique challenges of F-1 students.
@@ -44,7 +44,7 @@ export function LandingFeatures() {
                                     Job Search CRM
                                 </h3>
                                 <p className="text-gray-600 dark:text-gray-300 max-w-md text-lg">
-                                    A Kanban-style tracker to manage your applications, interviews, and offers in one pipeline. Tag H-1B sponsors and track referrals.
+                                    A Kanban-style tracker to manage your applications, interviews, and offers in one pipeline. Tag <Link href="/features/sponsors" className="text-blue-600 dark:text-blue-400 underline underline-offset-2 hover:text-blue-700">H-1B sponsors</Link> and track referrals.
                                 </p>
                             </div>
                             <div className="flex items-center text-purple-600 font-semibold group-hover:translate-x-2 transition-transform cursor-pointer">

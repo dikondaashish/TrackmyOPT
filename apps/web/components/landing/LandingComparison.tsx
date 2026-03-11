@@ -34,9 +34,9 @@ export function LandingComparison() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-                        Stop Managing Your Future in{" "}
+                        OPT Tracking: Spreadsheets vs{" "}
                         <span className="text-red-500 decoration-4 underline decoration-red-200 dark:decoration-red-900/50 underline-offset-4">
-                            Spreadsheets
+                            TrackMyOPT
                         </span>
                     </h2>
                     <p className="text-lg text-muted-foreground">

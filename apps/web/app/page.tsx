@@ -2,25 +2,34 @@ import { Suspense } from "react";
 import { LandingHero } from "../components/landing/LandingHero";
 import { LandingNavbar } from "../components/landing/LandingNavbar";
 import { LandingFeatures } from "../components/landing/LandingFeatures";
-import { LandingSuccessStories } from "../components/landing/LandingSuccessStories";
-import { LandingTestimonials } from "../components/landing/LandingTestimonials";
 import { LandingPricing } from "../components/landing/LandingPricing";
 import { LandingFAQ } from "../components/landing/LandingFAQ";
 import { LandingFooter } from "../components/landing/LandingFooter";
 import { LandingAEOContent } from "../components/landing/LandingAEOContent";
-import { LandingComparison } from "../components/landing/LandingComparison";
-import { LandingValueGrid } from "../components/landing/LandingValueGrid";
 import { LandingChromeExtension } from "../components/landing/LandingChromeExtension";
 import { LandingTrustedUniversities } from "../components/landing/LandingTrustedUniversities";
-import { LandingToolkit } from "../components/landing/LandingToolkit";
-import { LandingEngine } from "../components/landing/LandingEngine";
 import { ReferralCapture } from "../components/ReferralCapture";
 import dynamic from "next/dynamic";
+
+// Lazy-load below-fold components to reduce initial JS bundle (SEO Fix #1 & #2: Mobile LCP/TBT)
+const LandingComparison = dynamic(() => import("../components/landing/LandingComparison").then(mod => mod.LandingComparison), { ssr: false });
+const LandingValueGrid = dynamic(() => import("../components/landing/LandingValueGrid").then(mod => mod.LandingValueGrid), { ssr: false });
+const LandingSuccessStories = dynamic(() => import("../components/landing/LandingSuccessStories").then(mod => mod.LandingSuccessStories), { ssr: false });
+const LandingTestimonials = dynamic(() => import("../components/landing/LandingTestimonials").then(mod => mod.LandingTestimonials), { ssr: false });
+const LandingEngine = dynamic(() => import("../components/landing/LandingEngine").then(mod => mod.LandingEngine), { ssr: false });
+const LandingToolkit = dynamic(() => import("../components/landing/LandingToolkit").then(mod => mod.LandingToolkit), { ssr: false });
 import {
     softwareApplicationSchema,
     faqSchema,
     websiteSchema,
     organizationSchema,
+    breadcrumbSchema,
+    serviceSchemas,
+    howToSchemas,
+    speakableSchema,
+    definedTermSetSchema,
+    articleSchema,
+    knowledgeGraphSchema,
 } from "@/lib/seo-schemas";
 
 const LandingGlobalReach = dynamic(() => import("../components/landing/LandingGlobalReach").then(mod => mod.LandingGlobalReach), {
@@ -29,8 +38,8 @@ const LandingGlobalReach = dynamic(() => import("../components/landing/LandingGl
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "TrackMyOPT - The #1 OPT Timeline & Job Tracker for F-1 Students",
-    description: "Track your OPT deadlines, manage job applications with our CRM, find H-1B sponsors, and secure your documents. The operating system for international students.",
+    title: "OPT Tracker & H-1B Finder for F-1 Students | TrackMyOPT",
+    description: "Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever — trusted by 2,500+ F-1 students. Start now.",
 };
 
 // Combine relevant schemas for the landing page
@@ -39,6 +48,14 @@ const landingPageSchemas = [
     websiteSchema,
     softwareApplicationSchema,
     faqSchema,
+    breadcrumbSchema,
+    ...serviceSchemas,
+    ...howToSchemas,
+    // AEO Schemas for AI models
+    speakableSchema,
+    definedTermSetSchema,
+    articleSchema,
+    knowledgeGraphSchema,
 ];
 
 export default function LandingPage() {

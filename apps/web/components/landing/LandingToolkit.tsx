@@ -13,7 +13,7 @@ export function LandingToolkit() {
                         More Than Just Jobs
                     </span>
                     <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                        The F-1 Student Survival Toolkit
+                        Essential Tools for F-1 OPT Students
                     </h2>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
                         We built the specific tools you need to survive the confusing parts of international student life. Included free.

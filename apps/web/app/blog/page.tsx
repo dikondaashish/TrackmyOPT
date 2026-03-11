@@ -1,0 +1,184 @@
+import { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, Clock, TrendingUp, BookOpen } from "lucide-react";
+
+export const metadata: Metadata = {
+    title: "OPT & F-1 Visa Blog — Guides for International Students",
+    description: "Expert guides on OPT timelines, STEM OPT extensions, H-1B sponsors, USCIS case tracking, and unemployment day rules. Written by former F-1 students.",
+    keywords: ["OPT blog", "F-1 visa guide", "STEM OPT blog", "H-1B guide", "international student blog", "OPT tips"],
+};
+
+const blogPosts = [
+    {
+        slug: "90-day-unemployment-rule-opt",
+        title: "The 90-Day OPT Unemployment Rule: Everything You Need to Know in 2026",
+        description: "Understand the 90-day unemployment limit for OPT, how days are counted, what counts as employment, and how to avoid violating your F-1 status.",
+        category: "OPT Basics",
+        readTime: "8 min read",
+        date: "March 10, 2026",
+        tags: ["OPT", "Unemployment", "F-1 Visa"],
+        featured: true,
+    },
+    {
+        slug: "opt-processing-time-2026",
+        title: "OPT Processing Time 2026: Current Wait Times & Tips to Avoid Delays",
+        description: "Latest EAD processing times for OPT applications in 2026. Learn how long USCIS takes, tips to speed up approval, and what to do while waiting.",
+        category: "USCIS",
+        readTime: "7 min read",
+        date: "March 10, 2026",
+        tags: ["OPT", "Processing Time", "USCIS"],
+        featured: true,
+    },
+    {
+        slug: "stem-opt-unemployment-limit",
+        title: "STEM OPT Unemployment Limit: The 150-Day Rule Explained",
+        description: "How the 150-day unemployment limit works for STEM OPT, counting rules, what qualifies as employment, and strategies to stay compliant.",
+        category: "STEM OPT",
+        readTime: "6 min read",
+        date: "March 10, 2026",
+        tags: ["STEM OPT", "Unemployment", "Compliance"],
+    },
+    {
+        slug: "opt-application-checklist-2026",
+        title: "OPT Application Checklist 2026: Complete I-765 Filing Guide",
+        description: "Step-by-step checklist for filing your OPT application. Every document, form, and deadline you need to know to avoid RFEs and delays.",
+        category: "OPT Basics",
+        readTime: "10 min read",
+        date: "March 10, 2026",
+        tags: ["OPT", "I-765", "Application"],
+    },
+    {
+        slug: "opt-to-h1b-transition",
+        title: "OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)",
+        description: "Complete guide to transitioning from OPT to H-1B. Timeline, cap-gap extension, employer requirements, and backup plans if you're not selected.",
+        category: "H-1B",
+        readTime: "9 min read",
+        date: "March 10, 2026",
+        tags: ["H-1B", "OPT", "Cap-Gap"],
+        featured: true,
+    },
+    {
+        slug: "i-983-training-plan-guide",
+        title: "I-983 Training Plan for STEM OPT: Complete Guide (2026)",
+        description: "Section-by-section guide to Form I-983. Employer requirements, E-Verify enrollment, common mistakes, and how to get it right the first time.",
+        category: "STEM OPT",
+        readTime: "8 min read",
+        date: "March 10, 2026",
+        tags: ["STEM OPT", "I-983", "E-Verify"],
+    },
+    {
+        slug: "what-happens-if-opt-expires",
+        title: "What Happens If Your OPT Expires? Next Steps & Options",
+        description: "Your OPT is expiring — what now? The 60-day grace period, STEM OPT extension, H-1B cap-gap, and what happens to your F-1 status.",
+        category: "OPT Basics",
+        readTime: "7 min read",
+        date: "March 10, 2026",
+        tags: ["OPT", "Expiration", "Grace Period"],
+    },
+    {
+        slug: "h1b-approval-rates-by-company",
+        title: "H-1B Approval Rates by Company 2026: Data Analysis & Top Sponsors",
+        description: "Which companies have the highest H-1B approval rates? Data-driven analysis of 25,000+ employers with approval rates, denial trends, and red flags.",
+        category: "H-1B",
+        readTime: "8 min read",
+        date: "March 10, 2026",
+        tags: ["H-1B", "Approval Rates", "Data"],
+        featured: true,
+    },
+];
+
+function CategoryBadge({ category }: { category: string }) {
+    const colors: Record<string, string> = {
+        "OPT Basics": "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",
+        "USCIS": "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300",
+        "STEM OPT": "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300",
+        "H-1B": "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300",
+    };
+    return (
+        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${colors[category] || "bg-gray-100 text-gray-700"}`}>
+            {category}
+        </span>
+    );
+}
+
+export default function BlogIndexPage() {
+    const featured = blogPosts.filter(p => p.featured);
+    const rest = blogPosts.filter(p => !p.featured);
+
+    return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            {/* Hero */}
+            <div className="text-center mb-16">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+                    <BookOpen className="w-4 h-4" />
+                    OPT Knowledge Hub
+                </div>
+                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                    OPT & F-1 Visa Guides
+                </h1>
+                <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    Expert guides on OPT timelines, STEM OPT extensions, H-1B sponsors, and USCIS tracking.
+                    Written by former F-1 students who've been through it all.
+                </p>
+            </div>
+
+            {/* Featured Posts */}
+            <div className="grid md:grid-cols-2 gap-8 mb-16">
+                {featured.map((post) => (
+                    <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
+                        <article className="h-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-zinc-900 dark:to-zinc-800 rounded-2xl border border-blue-100 dark:border-zinc-700 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                            <div className="flex items-center gap-3 mb-4">
+                                <CategoryBadge category={post.category} />
+                                <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {post.readTime}
+                                </span>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium">
+                                    <TrendingUp className="w-3 h-3" />
+                                    Featured
+                                </span>
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                {post.title}
+                            </h2>
+                            <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                                {post.description}
+                            </p>
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-500">{post.date}</span>
+                                <span className="flex items-center text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:gap-2 transition-all">
+                                    Read Guide <ArrowRight className="w-4 h-4 ml-1" />
+                                </span>
+                            </div>
+                        </article>
+                    </Link>
+                ))}
+            </div>
+
+            {/* All Posts */}
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">All Guides</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+                {rest.map((post) => (
+                    <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
+                        <article className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 hover:shadow-lg transition-all duration-300">
+                            <div className="flex items-center gap-3 mb-3">
+                                <CategoryBadge category={post.category} />
+                                <span className="text-xs text-gray-500 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {post.readTime}
+                                </span>
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                {post.title}
+                            </h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                                {post.description}
+                            </p>
+                            <span className="text-sm text-gray-400">{post.date}</span>
+                        </article>
+                    </Link>
+                ))}
+            </div>
+        </div>
+    );
+}
