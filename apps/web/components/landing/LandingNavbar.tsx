@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, FileText, Users, Star } from "lucide-react";
+import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, FileText, Users, Star, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
@@ -51,6 +51,7 @@ export function LandingNavbar() {
     ];
 
     const navLinks = [
+        { name: "Blog", href: "/blog" },
         { name: "Contact Us", href: "/contact" },
     ];
 
@@ -348,6 +349,16 @@ export function LandingNavbar() {
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Blog */}
+                            <Link
+                                href="/blog"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="flex items-center gap-3 p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                            >
+                                <BookOpen className="w-4 h-4 text-primary" />
+                                Blog
+                            </Link>
 
                             {/* Contact Us */}
                             <Link

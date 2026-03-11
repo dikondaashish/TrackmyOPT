@@ -47,6 +47,7 @@ export function LandingFooter() {
             { label: "Success Stories", href: "/success-stories" },
         ],
         resources: [
+            { label: "Blog", href: "/blog" },
             { label: "Help Center", href: "/dashboard/help" },
             { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors" },
             { label: "Contact", href: "/contact" },
