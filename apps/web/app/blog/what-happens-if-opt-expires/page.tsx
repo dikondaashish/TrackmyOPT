@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2, BookOpen } from "lucide-react";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "What Happens If Your OPT Expires? Next Steps & Options (2026)",

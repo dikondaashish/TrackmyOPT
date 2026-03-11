@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Download, BookOpen } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText } from "lucide-react";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "OPT Application Checklist 2026: Complete I-765 Filing Guide",
@@ -210,6 +211,8 @@ export default function OPTChecklistArticle() {
                     Get Started Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>
+
+            <AuthorBio />
 
             {/* Schema */}
             <script type="application/ld+json" dangerouslySetInnerHTML={{

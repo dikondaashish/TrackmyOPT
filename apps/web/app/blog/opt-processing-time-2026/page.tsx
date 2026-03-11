@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, BookOpen, TrendingUp, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "OPT Processing Time 2026: Current Wait Times & How to Avoid Delays",
@@ -188,6 +189,8 @@ export default function OPTProcessingTimeArticle() {
                     Track My Case Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>
+
+            <AuthorBio />
 
             {/* Schema */}
             <script type="application/ld+json" dangerouslySetInnerHTML={{

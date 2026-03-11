@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Calendar, Briefcase } from "lucide-react";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)",

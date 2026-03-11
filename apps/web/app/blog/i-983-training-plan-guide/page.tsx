@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText, BookOpen } from "lucide-react";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "I-983 Training Plan for STEM OPT: Complete Guide (2026)",

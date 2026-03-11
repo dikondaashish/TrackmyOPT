@@ -56,6 +56,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog/i-983-training-plan-guide',
         '/blog/what-happens-if-opt-expires',
         '/blog/h1b-approval-rates-by-company',
+        '/blog/stem-opt-extension-guide',
+        '/blog/opt-extension-guide',
+        '/blog/f1-visa-jobs-guide',
+        '/blog/opt-ead-card-guide',
+        '/blog/h1b-cap-gap-extension',
+        '/blog/day-1-cpt-vs-opt',
     ];
 
     return [

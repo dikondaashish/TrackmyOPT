@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen, ExternalLink } from "lucide-react";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "The 90-Day OPT Unemployment Rule: Everything You Need to Know (2026)",
@@ -323,6 +324,8 @@ export default function NinetyDayRuleArticle() {
                     </div>
                 </section>
             </div>
+
+            <AuthorBio />
 
             {/* CTA Box */}
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">

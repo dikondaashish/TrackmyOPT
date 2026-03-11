@@ -85,6 +85,61 @@ const blogPosts = [
         tags: ["H-1B", "Approval Rates", "Data"],
         featured: true,
     },
+    {
+        slug: "stem-opt-extension-guide",
+        title: "Complete STEM OPT Guide 2026: Extension, Eligibility & Application",
+        description: "The definitive guide to the 24-month STEM OPT extension. Eligibility, CIP codes, I-983, employer requirements, and unemployment rules.",
+        category: "STEM OPT",
+        readTime: "15 min read",
+        date: "March 10, 2026",
+        tags: ["STEM OPT", "Extension", "Guide"],
+        featured: true,
+    },
+    {
+        slug: "opt-extension-guide",
+        title: "OPT Extension Guide 2026: How to Extend Your Work Authorization",
+        description: "All ways to extend OPT: STEM OPT extension, H-1B cap-gap, and 180-day auto extension. Side-by-side comparison with eligibility details.",
+        category: "OPT Basics",
+        readTime: "10 min read",
+        date: "March 10, 2026",
+        tags: ["OPT", "Extension", "STEM OPT"],
+    },
+    {
+        slug: "f1-visa-jobs-guide",
+        title: "F-1 Visa Jobs 2026: How to Find Jobs as an International Student",
+        description: "Complete job search strategy for F-1 students. Work authorization types, H-1B sponsor companies, industries hiring, and job board recommendations.",
+        category: "Careers",
+        readTime: "12 min read",
+        date: "March 10, 2026",
+        tags: ["F-1 Visa", "Jobs", "H-1B Sponsors"],
+    },
+    {
+        slug: "opt-ead-card-guide",
+        title: "OPT EAD Card 2026: How to Apply, Track & What to Do If Delayed",
+        description: "Everything about your OPT EAD card. Step-by-step I-765 application, tracking methods, processing times, and what to do if delayed.",
+        category: "OPT Basics",
+        readTime: "9 min read",
+        date: "March 10, 2026",
+        tags: ["OPT", "EAD Card", "I-765"],
+    },
+    {
+        slug: "h1b-cap-gap-extension",
+        title: "H-1B Cap-Gap Extension Explained: Timeline, Work Auth & Rules",
+        description: "How the cap-gap bridges OPT expiration and H-1B start date. Work authorization rules, timeline, and what happens if H-1B is denied.",
+        category: "H-1B",
+        readTime: "10 min read",
+        date: "March 10, 2026",
+        tags: ["H-1B", "Cap-Gap", "OPT"],
+    },
+    {
+        slug: "day-1-cpt-vs-opt",
+        title: "Day 1 CPT vs OPT: Key Differences Every F-1 Student Should Know",
+        description: "Comprehensive comparison of Day 1 CPT and OPT. Eligibility, risks, immigration impact, and when OPT is the better choice.",
+        category: "Important",
+        readTime: "11 min read",
+        date: "March 10, 2026",
+        tags: ["CPT", "OPT", "Comparison"],
+    },
 ];
 
 function CategoryBadge({ category }: { category: string }) {
@@ -93,6 +148,8 @@ function CategoryBadge({ category }: { category: string }) {
         "USCIS": "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300",
         "STEM OPT": "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300",
         "H-1B": "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300",
+        "Careers": "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300",
+        "Important": "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300",
     };
     return (
         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${colors[category] || "bg-gray-100 text-gray-700"}`}>

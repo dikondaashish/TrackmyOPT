@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, TrendingUp, Building2, CheckCircle2, BarChart3 } from "lucide-react";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "H-1B Approval Rates by Company 2026: Data Analysis & Top Sponsors",

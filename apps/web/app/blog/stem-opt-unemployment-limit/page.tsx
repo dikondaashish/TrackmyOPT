@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2, BookOpen } from "lucide-react";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "STEM OPT Unemployment Limit: The 150-Day Rule Explained (2026)",
@@ -178,6 +179,8 @@ export default function StemOPTUnemploymentArticle() {
                     Start Tracking Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>
+
+            <AuthorBio />
 
             {/* Schema */}
             <script type="application/ld+json" dangerouslySetInnerHTML={{
