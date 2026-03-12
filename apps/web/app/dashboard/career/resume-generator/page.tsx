@@ -71,9 +71,33 @@ export default function ResumeGeneratorPage() {
     const [errors, setErrors] = useState<{ resume?: string; job?: string }>({});
     const [showHistory, setShowHistory] = useState(false);
 
+    // Usage limit state
+    const [usageLimit, setUsageLimit] = useState<{ resumeUsage: number; resumeLimit: number } | null>(null);
+    const [usageLoading, setUsageLoading] = useState(true);
+
     // OCR state
     const [resumeOcr, setResumeOcr] = useState<OcrStatus>({ show: false, running: false });
     const [jobOcr, setJobOcr] = useState<OcrStatus>({ show: false, running: false });
+
+    useEffect(() => {
+        async function fetchUsage() {
+            try {
+                const res = await fetch("/api/user/usage", { credentials: "include" });
+                if (res.ok) {
+                    const data = await res.json();
+                    setUsageLimit({
+                        resumeUsage: data.resumeUsage,
+                        resumeLimit: data.resumeLimit,
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to fetch resume usage:", error);
+            } finally {
+                setUsageLoading(false);
+            }
+        }
+        fetchUsage();
+    }, []);
 
     // Auto-fill last resume
     useEffect(() => {
@@ -363,6 +387,8 @@ export default function ResumeGeneratorPage() {
     };
 
     const canProceed = resumeText.length > 50 && jobDescription.length > 50;
+    const isLimitReached =
+        !!usageLimit && usageLimit.resumeUsage >= usageLimit.resumeLimit;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -896,21 +922,39 @@ export default function ResumeGeneratorPage() {
 
                 {/* CTA Button */}
                 <div className="mt-8 flex justify-center">
-                    <Button
-                        onClick={handleSelectTemplate}
-                        disabled={!canProceed}
-                        className="px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
-                    >
-                        <Sparkles className="w-5 h-5 mr-2" />
-                        Select Template
-                        <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+                    {isLimitReached ? (
+                        <Button
+                            asChild
+                            className="px-8 py-6 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
+                        >
+                            <Link href="/dashboard/settings/billing">
+                                <Sparkles className="w-5 h-5 mr-2" />
+                                Upgrade to Premium
+                                <ChevronRight className="w-5 h-5 ml-2" />
+                            </Link>
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={handleSelectTemplate}
+                            disabled={!canProceed}
+                            className="px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                        >
+                            <Sparkles className="w-5 h-5 mr-2" />
+                            Select Template
+                            <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                    )}
                 </div>
 
                 {/* Helper Text */}
-                {!canProceed && (
+                {!canProceed && !isLimitReached && (
                     <p className="mt-4 text-center text-sm text-amber-600 dark:text-amber-400">
                         Please add both your resume and job description (min 50 characters each) to continue
+                    </p>
+                )}
+                {isLimitReached && (
+                    <p className="mt-4 text-center text-sm text-red-600 dark:text-red-400">
+                        You&apos;ve reached your monthly free resume limit. Upgrade to generate more ATS-optimized resumes.
                     </p>
                 )}
 
