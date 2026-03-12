@@ -142,7 +142,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
           priority: reportingDaysLeft <= 7 ? "urgent" : "warning",
           action: {
             label: "Update Employment",
-            href: "/dashboard/opt-dates",
+            href: "/dashboard#employment",
           },
         });
       }

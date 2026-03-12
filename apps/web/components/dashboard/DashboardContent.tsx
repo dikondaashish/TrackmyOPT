@@ -150,13 +150,14 @@ export function DashboardContent({ user }: DashboardContentProps) {
         return <ActionableReminders key="reminders" />;
       case "employment":
         return (
-          <EmploymentHistoryLog
-            key="employment"
-            employmentSpans={employmentSpans}
-            optStartDate={optStatus?.opt_start_date}
-            optEndDate={optStatus?.opt_ead_end_date}
-            maxUnemploymentDays={maxUnemploymentDays}
-          />
+          <section id="employment" key="employment" className="scroll-mt-24">
+            <EmploymentHistoryLog
+              employmentSpans={employmentSpans}
+              optStartDate={optStatus?.opt_start_date}
+              optEndDate={optStatus?.opt_ead_end_date}
+              maxUnemploymentDays={maxUnemploymentDays}
+            />
+          </section>
         );
       case "tools":
         return <ToolsGrid key="tools" />;

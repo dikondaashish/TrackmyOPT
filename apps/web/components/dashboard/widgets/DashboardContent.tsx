@@ -197,7 +197,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
         return <ActionableReminders key="reminders" />;
       case "employment":
         return (
-          <div key="employment" className="space-y-6">
+          <section id="employment" key="employment" className="space-y-6 scroll-mt-24">
             <ActiveEmploymentTracker 
               employmentSpans={employmentSpans} 
               isStemEligible={profile?.is_stem_eligible}
@@ -209,7 +209,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
               optEndDate={optStatus?.opt_ead_end_date}
               maxUnemploymentDays={maxUnemploymentDays}
             />
-          </div>
+          </section>
         );
       case "tools":
         return <ToolsGrid key="tools" />;

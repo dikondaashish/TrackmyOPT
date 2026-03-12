@@ -63,7 +63,7 @@ export function NotificationBanner({ optStatus, unemploymentDays = 0, maxUnemplo
         message: `You have used ${unemploymentDays} of ${maxUnemploymentDays} unemployment days. Find employment immediately to maintain your OPT status.`,
         action: {
           label: "Update Employment",
-          href: "/dashboard/opt-dates",
+          href: "/dashboard#employment",
         },
         dismissible: false,
       });
