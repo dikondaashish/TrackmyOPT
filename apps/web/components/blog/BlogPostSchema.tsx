@@ -1,4 +1,4 @@
-// Blog Post Schema Component with FAQ + Article schemas
+// Blog Post Schema Component with FAQ + HowTo + Article schemas
 interface BlogPostSchemaProps {
   title?: string | null | { toString(): string };
   description?: string | null | { toString(): string };
@@ -9,6 +9,12 @@ interface BlogPostSchemaProps {
     question: string;
     answer: string;
   }>;
+  howToItems?: Array<{
+    step: number;
+    name: string;
+    url: string;
+    image: string;
+  }>;
 }
 
 export function BlogPostSchema({
@@ -18,6 +24,7 @@ export function BlogPostSchema({
   modifiedDate,
   author = "TrackMyOPT",
   faqItems = [],
+  howToItems = [],
 }: BlogPostSchemaProps) {
   const safeTitle = typeof title === 'string' || (title && typeof title.toString === 'function') ? String(title) : "TrackMyOPT Blog";
   const safeDescription = typeof description === 'string' || (description && typeof description.toString === 'function') ? String(description) : "Read our latest insights on OPT, H-1B, and F-1 visa information";
@@ -71,6 +78,24 @@ export function BlogPostSchema({
         }
       : null;
 
+  const howToSchema =
+    howToItems.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          name: safeTitle,
+          description: safeDescription,
+          image: "https://www.trackmyopt.com/og-image.png",
+          step: howToItems.map((item) => ({
+            "@type": "HowToStep",
+            position: item.step,
+            name: item.name,
+            url: item.url,
+            image: item.image,
+          })),
+        }
+      : null;
+
   return (
     <>
       <script
@@ -81,6 +106,12 @@ export function BlogPostSchema({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+      {howToSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
         />
       )}
     </>
