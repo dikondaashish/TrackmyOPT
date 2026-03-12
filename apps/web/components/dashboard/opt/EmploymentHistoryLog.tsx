@@ -149,14 +149,18 @@ export function EmploymentHistoryLog({
 
     setSaving(true);
     try {
-      const res = await fetch("/api/employment/upsert", {
+      const res = await fetch("/api/employment-spans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          employer_name: newEmployer.trim(),
-          start_date: newStartDate.trim(),
-          end_date: newEndDate.trim() || null,
+          spans: [
+            {
+              employer_name: newEmployer.trim(),
+              start_date: newStartDate.trim(),
+              end_date: newEndDate.trim() || null,
+            },
+          ],
         }),
       });
 
