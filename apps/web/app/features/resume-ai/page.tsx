@@ -104,12 +104,12 @@ export default function ResumeAIPage() {
                 description="AI-powered resume analysis that beats ATS systems and impresses recruiters. Get actionable feedback on ATS optimization, keyword improvements, and industry-specific recommendations in 60 seconds."
                 featurePath="/features/resume-ai"
                 faqItems={[
-                  {q: "How does AI resume optimization work?", a: "Our AI analyzes your resume against proven patterns from successful job seekers. It checks for ATS compatibility, keyword optimization, formatting issues, and content gaps compared to your target job descriptions."},
-                  {q: "What AI model do you use?", a: "We use the latest enterprise-grade AI models (Gemini Ultra / GPT-4) for analysis. Premium subscribers get access to our most advanced models for deeper analysis and job-specific tailoring."},
-                  {q: "Can I upload my resume in any format?", a: "Yes! We accept PDF, DOCX, and plain text formats. PDF is recommended as it preserves formatting while remaining ATS-friendly."},
-                  {q: "How is this different from other resume tools?", a: "We specifically optimize for the job market international students face—including H-1B-friendly company language, visa sponsorship keywords, and OPT/CPT terminology that recruiters search for."},
-                  {q: "Is my resume data kept private?", a: "Absolutely. Your resume is encrypted, never shared with third parties, and automatically deleted after 30 days of inactivity. We never use your data to train our models."},
-                  {q: "How many times can I analyze my resume?", a: "Free users get 3 analyses per month. Premium subscribers get unlimited analyses plus job-specific tailoring for each application."}
+                  {question: "How does AI resume optimization work?", answer: "Our AI analyzes your resume against proven patterns from successful job seekers. It checks for ATS compatibility, keyword optimization, formatting issues, and content gaps compared to your target job descriptions."},
+                  {question: "What AI model do you use?", answer: "We use the latest enterprise-grade AI models (Gemini Ultra / GPT-4) for analysis. Premium subscribers get access to our most advanced models for deeper analysis and job-specific tailoring."},
+                  {question: "Can I upload my resume in any format?", answer: "Yes! We accept PDF, DOCX, and plain text formats. PDF is recommended as it preserves formatting while remaining ATS-friendly."},
+                  {question: "How is this different from other resume tools?", answer: "We specifically optimize for the job market international students face—including H-1B-friendly company language, visa sponsorship keywords, and OPT/CPT terminology that recruiters search for."},
+                  {question: "Is my resume data kept private?", answer: "Absolutely. Your resume is encrypted, never shared with third parties, and automatically deleted after 30 days of inactivity. We never use your data to train our models."},
+                  {question: "How many times can I analyze my resume?", answer: "Free users get 3 analyses per month. Premium subscribers get unlimited analyses plus job-specific tailoring for each application."}
                 ]}
             />
             {/* Hero */}

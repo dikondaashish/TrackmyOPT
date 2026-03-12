@@ -33,10 +33,10 @@ export default function CommunityPage() {
                 description="Connect with verified alumni mentors from your university working at top companies. Get referrals, interview prep, and visa advice from real people who've navigated OPT successfully."
                 featurePath="/features/community"
                 faqItems={[
-                  {q: "Are mentors paid for their time?", a: "No, our mentors are volunteers who want to pay it forward. However, we recognize top mentors with badges and exclusive networking events."},
-                  {q: "Is the community only for CS majors?", a: "Not at all! We have a growing community of students in Data Science, Business Analytics, UX Design, and Engineering disciplines."},
-                  {q: "How do you verify alumni status?", a: "We verify alumni status through LinkedIn integration and university email verification (.edu addresses) to ensure you're connecting with real people."},
-                  {q: "Can I post anonymously?", a: "Yes, you can choose to post anonymously in the discussion forums if you have sensitive questions about your visa status or offers."}
+                  {question: "Are mentors paid for their time?", answer: "No, our mentors are volunteers who want to pay it forward. However, we recognize top mentors with badges and exclusive networking events."},
+                  {question: "Is the community only for CS majors?", answer: "Not at all! We have a growing community of students in Data Science, Business Analytics, UX Design, and Engineering disciplines."},
+                  {question: "How do you verify alumni status?", answer: "We verify alumni status through LinkedIn integration and university email verification (.edu addresses) to ensure you're connecting with real people."},
+                  {question: "Can I post anonymously?", answer: "Yes, you can choose to post anonymously in the discussion forums if you have sensitive questions about your visa status or offers."}
                 ]}
             />
             {/* Hero */}

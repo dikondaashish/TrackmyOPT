@@ -187,12 +187,12 @@ export default function SponsorsPage() {
                 description="Search 25,000+ verified H-1B sponsors with real LCA filing data. See sponsorship history, approval rates, salary ranges, and fraud alerts before applying. Make strategic job search decisions."
                 featurePath="/features/sponsors"
                 faqItems={[
-                  {q: "Where does your H-1B sponsor data come from?", a: "Our data comes from official sources including the Department of Labor LCA filings, USCIS H-1B employer data, and E-Verify enrollment records. We update our database quarterly with the latest filing information."},
-                  {q: "What does the Sponsor Score mean?", a: "The Sponsor Score is a 0-100 rating based on approval rates, sponsorship volume, trend direction, and company stability. Higher scores indicate more reliable sponsors with consistent H-1B activity."},
-                  {q: "How do I know if a company still sponsors H-1B?", a: "Look for recent FY2025 filings on the company profile. Companies with active filings in the current fiscal year are actively sponsoring. We also show year-over-year trends to help you identify growing vs declining sponsors."},
-                  {q: "What are the fraud alerts for?", a: "We flag companies with DOL investigations, unusually high denial rates, virtual office addresses (common in visa fraud), and other red flags. This helps you avoid problematic sponsors."},
-                  {q: "Can I see what roles companies sponsor for?", a: "Yes! Each sponsor profile shows LCA filings including job titles, salary ranges, and work locations. You can see exactly what positions companies have sponsored historically."},
-                  {q: "Is this database free?", a: "Yes, the H-1B sponsor database is free for all users. Premium subscribers get additional features like saved sponsors, advanced filters, and direct career page links."}
+                  {question: "Where does your H-1B sponsor data come from?", answer: "Our data comes from official sources including the Department of Labor LCA filings, USCIS H-1B employer data, and E-Verify enrollment records. We update our database quarterly with the latest filing information."},
+                  {question: "What does the Sponsor Score mean?", answer: "The Sponsor Score is a 0-100 rating based on approval rates, sponsorship volume, trend direction, and company stability. Higher scores indicate more reliable sponsors with consistent H-1B activity."},
+                  {question: "How do I know if a company still sponsors H-1B?", answer: "Look for recent FY2025 filings on the company profile. Companies with active filings in the current fiscal year are actively sponsoring. We also show year-over-year trends to help you identify growing vs declining sponsors."},
+                  {question: "What are the fraud alerts for?", answer: "We flag companies with DOL investigations, unusually high denial rates, virtual office addresses (common in visa fraud), and other red flags. This helps you avoid problematic sponsors."},
+                  {question: "Can I see what roles companies sponsor for?", answer: "Yes! Each sponsor profile shows LCA filings including job titles, salary ranges, and work locations. You can see exactly what positions companies have sponsored historically."},
+                  {question: "Is this database free?", answer: "Yes, the H-1B sponsor database is free for all users. Premium subscribers get additional features like saved sponsors, advanced filters, and direct career page links."}
                 ]}
             />
             {/* Hero */}

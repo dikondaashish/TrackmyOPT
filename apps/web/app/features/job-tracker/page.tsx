@@ -96,12 +96,12 @@ export default function JobTrackerPage() {
                 description="Track all your job applications with a visual Kanban board that syncs with your OPT unemployment clock. Never lose track of applications or miss follow-ups while staying compliant."
                 featurePath="/features/job-tracker"
                 faqItems={[
-                  {q: "How does the tracker sync with my OPT clock?", a: "When you mark applications as 'Offer Accepted' with a start date, or 'Rejected', the tracker automatically updates your unemployment day count. You always know your compliance status."},
-                  {q: "Can I import applications from LinkedIn?", a: "Not yet, but with our Chrome extension you can save jobs directly from LinkedIn to your tracker with one click. Full import is on our roadmap."},
-                  {q: "What application stages can I track?", a: "Applied, Phone Screen, Technical Interview, Onsite, Offer, Rejected, and Withdrawn. You can customize the stages to match your workflow."},
-                  {q: "Do I get reminders for follow-ups?", a: "Yes! Set custom reminders for each application. We'll notify you via email and in-app when it's time to follow up with a recruiter."},
-                  {q: "Is there a limit to how many applications I can track?", a: "Free users can track up to 50 active applications. Premium users get unlimited tracking plus analytics and company insights."},
-                  {q: "Can I export my application data?", a: "Yes, you can export all your application data to CSV at any time. Your data belongs to you."}
+                  {question: "How does the tracker sync with my OPT clock?", answer: "When you mark applications as 'Offer Accepted' with a start date, or 'Rejected', the tracker automatically updates your unemployment day count. You always know your compliance status."},
+                  {question: "Can I import applications from LinkedIn?", answer: "Not yet, but with our Chrome extension you can save jobs directly from LinkedIn to your tracker with one click. Full import is on our roadmap."},
+                  {question: "What application stages can I track?", answer: "Applied, Phone Screen, Technical Interview, Onsite, Offer, Rejected, and Withdrawn. You can customize the stages to match your workflow."},
+                  {question: "Do I get reminders for follow-ups?", answer: "Yes! Set custom reminders for each application. We'll notify you via email and in-app when it's time to follow up with a recruiter."},
+                  {question: "Is there a limit to how many applications I can track?", answer: "Free users can track up to 50 active applications. Premium users get unlimited tracking plus analytics and company insights."},
+                  {question: "Can I export my application data?", answer: "Yes, you can export all your application data to CSV at any time. Your data belongs to you."}
                 ]}
             />
             {/* Hero */}
