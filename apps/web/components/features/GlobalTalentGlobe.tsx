@@ -71,11 +71,20 @@ function MapSegment() {
     )
 }
 
+// Deterministic hash function for consistent dot generation on server and client
+function seededRandom(seed: number): number {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+}
+
 function DotGroup({ x, y, width, height }: any) {
     const dots = [];
     for (let i = 0; i < width; i += 10) {
         for (let j = 0; j < height; j += 10) {
-            if (Math.random() > 0.4) { // Randomize slightly for organic shape
+            // Use position-based deterministic hash instead of Math.random()
+            // This ensures server and client render identical dot patterns
+            const seed = x + i + (y + j) * width;
+            if (seededRandom(seed) > 0.4) {
                 dots.push(
                     <div
                         key={`${i}-${j}`}

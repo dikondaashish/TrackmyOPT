@@ -56,11 +56,13 @@ export function DocumentVaultClient() {
 
   // Auto-lock timeout state
   const [autoLockTimeout, setAutoLockTimeout] = useState<number>(5); // Default 5 minutes
-  const [lastActivity, setLastActivity] = useState<number>(Date.now());
+  const [lastActivity, setLastActivity] = useState<number>(0);
 
   // Check premium status
   useEffect(() => {
     checkPremiumStatus();
+    // Initialize lastActivity to current time after hydration
+    setLastActivity(Date.now());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

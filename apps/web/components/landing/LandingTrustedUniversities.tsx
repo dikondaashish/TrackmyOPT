@@ -45,6 +45,8 @@ export function LandingTrustedUniversities() {
                     <img
                         src={item.logo}
                         alt={item.name}
+                        width={40}
+                        height={40}
                         className="max-w-full max-h-full object-contain"
                         onError={(e) => {
                             e.currentTarget.style.display = 'none';
