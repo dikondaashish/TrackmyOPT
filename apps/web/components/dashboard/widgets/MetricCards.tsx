@@ -151,7 +151,7 @@ export function MetricCards() {
   
   const optEndValue = metrics.daysUntilOPTEnd === null 
     ? "—" 
-    : metrics.daysUntilOPTEnd <= 0 
+    : metrics.daysUntilOPTEnd < 0 
       ? "Expired" 
       : `${metrics.daysUntilOPTEnd} days`;
 

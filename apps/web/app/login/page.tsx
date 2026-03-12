@@ -111,6 +111,13 @@ function LoginPageContent() {
     setLoading(true);
     setError(null);
 
+    // Safety timeout: if OAuth doesn't complete (user closes popup, etc.),
+    // reset loading state and show a friendly message.
+    const timeoutId = window.setTimeout(() => {
+      setLoading(false);
+      setError('Google sign-in did not complete. Please try again.');
+    }, 60000);
+
     // Save last used method
     localStorage.setItem('trackmyopt_last_method', 'google');
 
@@ -144,7 +151,9 @@ function LoginPageContent() {
       }
 
       // OAuth will redirect automatically, don't set loading to false
+      window.clearTimeout(timeoutId);
     } catch (err: any) {
+      window.clearTimeout(timeoutId);
       setError(err.message || 'Google sign-in failed');
       setLoading(false);
     }

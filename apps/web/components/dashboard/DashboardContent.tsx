@@ -46,6 +46,13 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ user }: DashboardContentProps) {
+  const displayName =
+    (user.user_metadata as any)?.fullName ||
+    [ (user.user_metadata as any)?.firstName, (user.user_metadata as any)?.lastName ]
+      .filter(Boolean)
+      .join(" ") ||
+    (user.email ? user.email.split("@")[0] : "");
+
   const [optStatus, setOptStatus] = useState<OptStatus | null>(null);
   const [employmentSpans, setEmploymentSpans] = useState<EmploymentSpan[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -174,7 +181,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
-            Welcome back{user.email ? `, ${user.email.split("@")[0]}` : ""}
+            Welcome back{displayName ? `, ${displayName}` : ""}
           </p>
         </div>
         <DashboardCustomizeButton onClick={() => setShowSettings(true)} />
