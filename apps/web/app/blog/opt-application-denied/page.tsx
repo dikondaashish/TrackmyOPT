@@ -14,6 +14,7 @@ export const metadata: Metadata = {
         description: "Common OPT denial reasons, your options after denial, and how to refile or maintain status.",
         url: "https://www.trackmyopt.com/blog/opt-application-denied",
         type: "article",
+        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Application Denied? What to Do Next (2026 Guide)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-application-denied" },
 };

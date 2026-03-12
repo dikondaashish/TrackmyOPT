@@ -14,6 +14,7 @@ export const metadata: Metadata = {
         description: "24-month STEM OPT extension guide: eligibility, timeline, I-983, E-Verify, and unemployment rules.",
         url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide",
         type: "article",
+        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Complete STEM OPT Guide 2026: Extension, Eligibility & Application" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/stem-opt-extension-guide" },
 };

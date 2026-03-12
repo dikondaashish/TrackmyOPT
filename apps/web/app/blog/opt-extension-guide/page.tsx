@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: "OPT Extension Guide 2026: How to Extend Your OPT Work Authorization",
     description: "How to extend OPT in 2026. STEM OPT extension eligibility, cap-gap extension, 180-day auto extension, and what to do when your OPT is about to expire.",
     keywords: ["OPT extension", "extend OPT", "OPT extension 2026", "STEM OPT extension", "how to extend OPT", "OPT extension options", "OPT EAD extension"],
-    openGraph: { title: "OPT Extension Guide 2026 | TrackMyOPT", description: "All ways to extend your OPT work authorization.", url: "https://www.trackmyopt.com/blog/opt-extension-guide", type: "article" },
+    openGraph: { title: "OPT Extension Guide 2026 | TrackMyOPT", description: "All ways to extend your OPT work authorization.", url: "https://www.trackmyopt.com/blog/opt-extension-guide", type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Extension Guide 2026: How to Extend Your OPT Work Authorization" }] },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-extension-guide" },
 };
 

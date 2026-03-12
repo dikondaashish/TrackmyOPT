@@ -14,6 +14,14 @@ export const metadata: Metadata = {
         description: "Complete guide to the 90-day OPT unemployment limit. How days are counted, what qualifies as employment, and how to stay compliant.",
         url: "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt",
         type: "article",
+        images: [
+            {
+                url: "https://www.trackmyopt.com/og-image.png",
+                width: 1200,
+                height: 630,
+                alt: "The 90-Day OPT Unemployment Rule: Everything You Need to Know (2026)",
+            },
+        ],
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt",

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: "OPT EAD Card 2026: How to Apply, Track & Renew Your Employment Authorization",
     description: "Everything about the OPT EAD card in 2026. How to apply with Form I-765, required documents, processing times, how to track your card, and what to do if it's lost or delayed.",
     keywords: ["OPT EAD card", "EAD card OPT", "OPT EAD application", "I-765 OPT", "OPT work permit", "employment authorization document"],
-    openGraph: { title: "OPT EAD Card Guide 2026 | TrackMyOPT", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide", type: "article" },
+    openGraph: { title: "OPT EAD Card Guide 2026 | TrackMyOPT", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide", type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT EAD Card 2026: How to Apply, Track & Renew Your Employment Authorization" }] },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-ead-card-guide" },
 };
 

@@ -14,6 +14,14 @@ export const metadata: Metadata = {
         description: "Everything F-1 students need to know about traveling internationally on OPT — required documents, risks, unemployment clock impact, and STEM OPT rules.",
         url: "https://www.trackmyopt.com/blog/can-you-travel-on-opt",
         type: "article",
+        images: [
+            {
+                url: "https://www.trackmyopt.com/og-image.png",
+                width: 1200,
+                height: 630,
+                alt: "Can You Travel on OPT? Complete F-1 Travel Guide (2026)",
+            },
+        ],
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/can-you-travel-on-opt",

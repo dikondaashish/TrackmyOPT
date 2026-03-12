@@ -14,6 +14,7 @@ export const metadata: Metadata = {
         description: "Complete guide to filing taxes as an F-1 student in 2026. Forms, deadlines, FICA exemption, and step-by-step instructions.",
         url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide",
         type: "article",
+        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "F-1 Student Tax Filing Guide 2026: Forms, Deadlines & Step-by-Step" }]
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide",

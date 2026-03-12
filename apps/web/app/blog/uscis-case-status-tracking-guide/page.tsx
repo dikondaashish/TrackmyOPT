@@ -14,6 +14,7 @@ export const metadata: Metadata = {
         description: "Complete guide to checking USCIS case status. Understand receipt numbers, status messages, and how to track your OPT/EAD application in real time.",
         url: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide",
         type: "article",
+        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "How to Track Your USCIS Case Status Online: Complete Guide (2026)" }],
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide",

@@ -14,6 +14,7 @@ export const metadata: Metadata = {
         description: "Complete I-983 guide. Every section explained with employer requirements and common mistakes.",
         url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide",
         type: "article",
+        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "I-983 Training Plan for STEM OPT: Complete Guide (2026)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/i-983-training-plan-guide" },
 };

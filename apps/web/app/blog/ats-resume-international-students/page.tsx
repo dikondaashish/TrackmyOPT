@@ -14,6 +14,12 @@ export const metadata: Metadata = {
         description: "Beat applicant tracking systems with an optimized resume. Formatting rules, keyword strategy, and visa status advice for F-1 students.",
         url: "https://www.trackmyopt.com/blog/ats-resume-international-students",
         type: "article",
+        images: [{
+            url: "https://www.trackmyopt.com/og-image.png",
+            width: 1200,
+            height: 630,
+            alt: "ATS Resume for International Students: Beat the Bots & Get Interviews (2026)",
+        }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/ats-resume-international-students" },
 };

@@ -14,6 +14,7 @@ export const metadata: Metadata = {
         description: "Your options when OPT expires: grace period, STEM extension, H-1B, and more.",
         url: "https://www.trackmyopt.com/blog/what-happens-if-opt-expires",
         type: "article",
+        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "What Happens If Your OPT Expires? Next Steps & Options (2026)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/what-happens-if-opt-expires" },
 };

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: "H-1B Cap-Gap Extension Explained: Timeline, Work Auth & Rules (2026)",
     description: "H-1B cap-gap extension explained for F-1 OPT students. How the automatic extension works, timeline from OPT to H-1B, work authorization during cap-gap, and what happens if your H-1B is denied.",
     keywords: ["H-1B cap-gap", "cap-gap extension", "OPT cap-gap H-1B", "cap-gap work authorization", "H-1B cap-gap timeline", "what is cap-gap"],
-    openGraph: { title: "H-1B Cap-Gap Extension Explained 2026 | TrackMyOPT", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension", type: "article" },
+    openGraph: { title: "H-1B Cap-Gap Extension Explained 2026 | TrackMyOPT", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension", type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "H-1B Cap-Gap Extension Explained: Timeline, Work Auth & Rules (2026)" }] },
     alternates: { canonical: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension" },
 };
 

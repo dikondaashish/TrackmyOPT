@@ -14,6 +14,7 @@ export const metadata: Metadata = {
         description: "Complete checklist for filing I-765. Every document, deadline, and tip to avoid delays.",
         url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026",
         type: "article",
+        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Application Checklist 2026: Complete I-765 Filing Guide" }],
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/opt-application-checklist-2026",
