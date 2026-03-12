@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText } from "lucide-react";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
 export default function OPTChecklistArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "When should I apply for OPT?", answer: "You can file for OPT no earlier than 90 days before your program end date and no later than 60 days after. The sooner you file, the sooner your EAD card may be processed."}, {question: "How much does OPT cost in 2026?", answer: "OPT itself is free, but USCIS filing fees total approximately $410 (if using the online myUSCIS system) or more if using paper filing. Many employers cover this cost."}, {question: "Can I track my OPT application status?", answer: "Yes. Use your receipt number at egov.uscis.gov/casestatus, or use TrackMyOPT's Case Status Tracker for automated daily monitoring and email alerts."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
                 <span>/</span>
@@ -188,13 +190,13 @@ export default function OPTChecklistArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "When should I apply for OPT?", a: "You can file Form I-765 up to 90 days before your program end date and no later than 60 days after. Most experts recommend filing 60-90 days before graduation for the best timing." },
-                            { q: "How much does OPT cost in 2026?", a: "The I-765 filing fee is $410. Premium processing is available for an additional $1,685. No additional SEVIS fee is required for OPT itself." },
-                            { q: "Can I track my OPT application status?", a: "Yes. Use your receipt number (from the I-797C notice) to check status at uscis.gov/case-status, or use TrackMyOPT for real-time alerts and timeline tracking." },
+                            { question: "When should I apply for OPT?", answer: "You can file Form I-765 up to 90 days before your program end date and no later than 60 days after. Most experts recommend filing 60-90 days before graduation for the best timing." },
+                            { question: "How much does OPT cost in 2026?", answer: "The I-765 filing fee is $410. Premium processing is available for an additional $1,685. No additional SEVIS fee is required for OPT itself." },
+                            { question: "Can I track my OPT application status?", answer: "Yes. Use your receipt number (from the I-797C notice) to check status at uscis.gov/case-status, or use TrackMyOPT for real-time alerts and timeline tracking." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
@@ -212,6 +214,21 @@ export default function OPTChecklistArticle() {
                 </Link>
             </div>
 
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Processing Time 2026</Link>
+                    <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day Unemployment Rule</Link>
+                    <Link href="/blog/opt-ead-card-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT EAD Card Guide 2026</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/features/case-status" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">USCIS Case Status Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                </div>
+            </div>
+
             <AuthorBio />
 
             {/* Schema */}
@@ -225,15 +242,6 @@ export default function OPTChecklistArticle() {
                         { "@type": "HowToStep", "name": "Gather Documents", "text": "Collect I-765, I-20, passport copy, I-94, photos, and filing fee." },
                         { "@type": "HowToStep", "name": "File Form I-765", "text": "Submit online at USCIS.gov with category (c)(3)(B) and all supporting documents." },
                         { "@type": "HowToStep", "name": "Track and Wait", "text": "Save receipt number, complete biometrics if requested, and track case status." },
-                    ]
-                })
-            }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "FAQPage",
-                    "mainEntity": [
-                        { "@type": "Question", "name": "When should I apply for OPT?", "acceptedAnswer": { "@type": "Answer", "text": "You can file Form I-765 up to 90 days before your program end date and no later than 60 days after." } },
-                        { "@type": "Question", "name": "How much does OPT cost in 2026?", "acceptedAnswer": { "@type": "Answer", "text": "The I-765 filing fee is $410. Premium processing is available for $1,685." } },
                     ]
                 })
             }} />

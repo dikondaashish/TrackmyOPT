@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Calendar, BookOpen } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
     title: "H-1B Cap-Gap Extension Explained: Timeline, Work Auth & Rules (2026)",
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function CapGapArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What is the H-1B cap-gap?", answer: "The cap-gap is an automatic extension of F-1 status and OPT work authorization that bridges the gap between your OPT expiration and the October 1 H-1B start date, available when your employer files a timely H-1B petition with change of status."}, {question: "Can I travel during the cap-gap?", answer: "Travel is risky during the cap-gap. If you leave the US, you may not be able to re-enter on F-1 status. Most immigration attorneys recommend NOT traveling during this period."}, {question: "Do I need a new EAD card for the cap-gap?", answer: "No. Your existing EAD card is automatically extended by regulation. USCIS does not issue a new card, but your I-20 should show the cap-gap extension. Keep your original EAD and the updated I-20 together."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -118,18 +120,33 @@ export default function CapGapArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "What is the H-1B cap-gap?", a: "The cap-gap is an automatic extension of F-1 status and OPT work authorization that bridges the gap between your OPT expiration and the October 1 H-1B start date, available when your employer files a timely H-1B petition with change of status." },
-                            { q: "Can I travel during the cap-gap?", a: "Travel is risky during the cap-gap. If you leave the US, you may not be able to re-enter on F-1 status. Most immigration attorneys recommend NOT traveling during this period." },
-                            { q: "Do I need a new EAD card for the cap-gap?", a: "No. Your existing EAD card is automatically extended by regulation. USCIS does not issue a new card, but your I-20 should show the cap-gap extension. Keep your original EAD and the updated I-20 together." },
+                            { question: "What is the H-1B cap-gap?", answer: "The cap-gap is an automatic extension of F-1 status and OPT work authorization that bridges the gap between your OPT expiration and the October 1 H-1B start date, available when your employer files a timely H-1B petition with change of status." },
+                            { question: "Can I travel during the cap-gap?", answer: "Travel is risky during the cap-gap. If you leave the US, you may not be able to re-enter on F-1 status. Most immigration attorneys recommend NOT traveling during this period." },
+                            { question: "Do I need a new EAD card for the cap-gap?", answer: "No. Your existing EAD card is automatically extended by regulation. USCIS does not issue a new card, but your I-20 should show the cap-gap extension. Keep your original EAD and the updated I-20 together." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
                 </section>
             </div>
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company 2026</Link>
+                    <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
+                    <Link href="/blog/what-happens-if-opt-expires" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ What Happens If Your OPT Expires?</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/sponsors" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">H-1B Sponsor Database →</Link>
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                </div>
+            </div>
+
             <AuthorBio />
             <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your H-1B Timeline & Cap-Gap Status</h2>

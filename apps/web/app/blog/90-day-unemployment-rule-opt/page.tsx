@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen, ExternalLink } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
     title: "The 90-Day OPT Unemployment Rule: Everything You Need to Know (2026)",
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
 export default function NinetyDayRuleArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-10" author="TrackMyOPT Team" faqItems={[{question: "What is the 90-day rule for OPT?", answer: "The 90-day rule limits F-1 students on post-completion OPT to a maximum of 90 cumulative days of unemployment during their 12-month OPT authorization period. Exceeding this limit results in SEVIS termination."}, {question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 days of unemployment across the combined OPT + STEM OPT period: 90 days from initial OPT plus 60 additional days from the STEM extension."}, {question: "Do weekends count as unemployment days on OPT?", answer: "Yes, weekends and holidays count as unemployment days if you do not have qualifying employment. The unemployment counter counts calendar days, not business days."}, {question: "Can I reset my unemployment days?", answer: "No, unemployment days are cumulative and cannot be reset. They accumulate throughout your entire OPT authorization period."}]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -309,20 +311,36 @@ export default function NinetyDayRuleArticle() {
                     </h2>
                     <div className="space-y-4">
                         {[
-                            { q: "What is the 90-day rule for OPT?", a: "The 90-day rule limits F-1 students on post-completion OPT to a maximum of 90 cumulative days of unemployment during their 12-month OPT authorization period. Exceeding this limit can result in SEVIS termination. Source: USCIS, 8 CFR § 214.2(f)(10)(ii)." },
-                            { q: "How many unemployment days are allowed on STEM OPT?", a: "STEM OPT students are allowed a total of 150 days of unemployment across the combined 36-month OPT + STEM OPT period (90 days from initial OPT + 60 additional days from the STEM extension)." },
-                            { q: "Do weekends count as unemployment days on OPT?", a: "Yes, weekends and holidays count as unemployment days if you do not have qualifying employment. The unemployment counter counts calendar days, not business days." },
-                            { q: "Can I reset my unemployment days?", a: "No, the unemployment days are cumulative and cannot be reset. They accumulate throughout your entire OPT authorization period." },
+                            { question: "What is the 90-day rule for OPT?", answer: "The 90-day rule limits F-1 students on post-completion OPT to a maximum of 90 cumulative days of unemployment during their 12-month OPT authorization period. Exceeding this limit can result in SEVIS termination. Source: USCIS, 8 CFR § 214.2(f)(10)(ii)." },
+                            { question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 days of unemployment across the combined 36-month OPT + STEM OPT period (90 days from initial OPT + 60 additional days from the STEM extension)." },
+                            { question: "Do weekends count as unemployment days on OPT?", answer: "Yes, weekends and holidays count as unemployment days if you do not have qualifying employment. The unemployment counter counts calendar days, not business days." },
+                            { question: "Can I reset my unemployment days?", answer: "No, the unemployment days are cumulative and cannot be reset. They accumulate throughout your entire OPT authorization period." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.q}</h3>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
-                                    <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.a}</p>
+                                    <p className="text-gray-600 dark:text-gray-400 text-sm" itemProp="text">{faq.answer}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </section>
+            </div>
+
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/what-happens-if-opt-expires" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ What Happens If Your OPT Expires?</Link>
+                    <Link href="/blog/opt-ead-card-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT EAD Card Guide 2026</Link>
+                    <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/features/case-status" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">USCIS Case Status Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                    <Link href="/pricing" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">View Pricing →</Link>
+                </div>
             </div>
 
             <AuthorBio />
@@ -338,40 +356,7 @@ export default function NinetyDayRuleArticle() {
                 </Link>
             </div>
 
-            {/* JSON-LD FAQ Schema */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "FAQPage",
-                        "mainEntity": [
-                            { "@type": "Question", "name": "What is the 90-day rule for OPT?", "acceptedAnswer": { "@type": "Answer", "text": "The 90-day rule limits F-1 students on post-completion OPT to a maximum of 90 cumulative days of unemployment during their 12-month OPT authorization period. Exceeding this limit can result in SEVIS termination. Source: USCIS, 8 CFR § 214.2(f)(10)(ii)." } },
-                            { "@type": "Question", "name": "How many unemployment days are allowed on STEM OPT?", "acceptedAnswer": { "@type": "Answer", "text": "STEM OPT students are allowed a total of 150 days of unemployment across the combined 36-month OPT + STEM OPT period (90 days from initial OPT + 60 additional days from the STEM extension)." } },
-                            { "@type": "Question", "name": "Do weekends count as unemployment days on OPT?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, weekends and holidays count as unemployment days if you do not have qualifying employment. The unemployment counter counts calendar days, not business days." } },
-                            { "@type": "Question", "name": "Can I reset my unemployment days?", "acceptedAnswer": { "@type": "Answer", "text": "No, the unemployment days are cumulative and cannot be reset. They accumulate throughout your entire OPT authorization period." } },
-                        ]
-                    })
-                }}
-            />
 
-            {/* Article Schema */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "Article",
-                        "headline": "The 90-Day OPT Unemployment Rule: Everything You Need to Know in 2026",
-                        "description": "Complete guide to the 90-day OPT unemployment limit for F-1 students.",
-                        "author": { "@type": "Organization", "name": "TrackMyOPT", "url": "https://www.trackmyopt.com" },
-                        "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } },
-                        "datePublished": "2026-03-10",
-                        "dateModified": "2026-03-10",
-                        "mainEntityOfPage": "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt"
-                    })
-                }}
-            />
         </article>
     );
 }

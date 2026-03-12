@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2, BookOpen } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
     title: "What Happens If Your OPT Expires? Next Steps & Options (2026)",
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 export default function OPTExpiresArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What happens when my OPT expires?", answer: "When your OPT EAD expires, your work authorization ends immediately. You enter a 60-day grace period during which you can prepare to leave the US, change visa status, transfer to a new school, or wait for a pending H-1B decision (cap-gap)."}, {question: "Can I stay in the US after OPT expires?", answer: "Yes, for up to 60 days (the grace period). However, you cannot work during this time. If you stay beyond 60 days without changing status, you begin accruing unlawful presence."}, {question: "Can I extend my OPT?", answer: "Regular OPT cannot be extended. However, STEM degree holders can apply for a 24-month STEM OPT extension before their current OPT expires. You must have an E-Verify employer and file Form I-765."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -117,17 +119,32 @@ export default function OPTExpiresArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "What happens when my OPT expires?", a: "When your OPT EAD expires, your work authorization ends immediately. You enter a 60-day grace period during which you can prepare to leave the US, change visa status, transfer to a new school, or wait for a pending H-1B decision (cap-gap)." },
-                            { q: "Can I stay in the US after OPT expires?", a: "Yes, for up to 60 days (the grace period). However, you cannot work during this time. If you stay beyond 60 days without changing status, you begin accruing unlawful presence." },
-                            { q: "Can I extend my OPT?", a: "Regular OPT cannot be extended. However, STEM degree holders can apply for a 24-month STEM OPT extension before their current OPT expires. You must have an E-Verify employer and file Form I-765." },
+                            { question: "What happens when my OPT expires?", answer: "When your OPT EAD expires, your work authorization ends immediately. You enter a 60-day grace period during which you can prepare to leave the US, change visa status, transfer to a new school, or wait for a pending H-1B decision (cap-gap)." },
+                            { question: "Can I stay in the US after OPT expires?", answer: "Yes, for up to 60 days (the grace period). However, you cannot work during this time. If you stay beyond 60 days without changing status, you begin accruing unlawful presence." },
+                            { question: "Can I extend my OPT?", answer: "Regular OPT cannot be extended. However, STEM degree holders can apply for a 24-month STEM OPT extension before their current OPT expires. You must have an E-Verify employer and file Form I-765." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
                 </section>
+            </div>
+
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day OPT Unemployment Rule</Link>
+                    <Link href="/blog/h1b-cap-gap-extension" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Cap-Gap Extension Explained</Link>
+                    <Link href="/blog/opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Extension Guide 2026</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/features/case-status" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">USCIS Case Status Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                </div>
             </div>
 
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">

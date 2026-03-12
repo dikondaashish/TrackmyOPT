@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText, BookOpen } from "lucide-react";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 export default function I983Article() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What is the I-983 form?", answer: "Form I-983 is the Employer's Certification of Training & Experience form required for STEM OPT extensions. It documents the employer's commitment to providing structured training and supervision."}, {question: "Is E-Verify required to file I-983?", answer: "Yes. Your employer must be successfully enrolled in E-Verify and have an active Company ID to sign the I-983. E-Verify enrollment is a non-negotiable requirement."}, {question: "When should I update my I-983?", answer: "You must submit a new or updated I-983 at the 12-month and 24-month marks of your STEM OPT to confirm your training progress and continued compliance with the program."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -133,17 +135,31 @@ export default function I983Article() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "What is the I-983 form?", a: "Form I-983 is the Training Plan for STEM OPT Students. It's a formal agreement between you and your employer that describes how your employment provides practical training in your STEM field. It's required before your DSO can recommend the STEM OPT extension." },
-                            { q: "Does my employer need to be E-Verify enrolled?", a: "Yes. E-Verify enrollment is mandatory for STEM OPT employers. Your employer must provide their E-Verify Company ID Number on the I-983 form." },
-                            { q: "When do I need to update my I-983?", a: "You must submit a modified I-983 within 10 days if there are material changes to your training plan, including: new employer, role change, address change, or significant changes to your duties." },
+                            { question: "What is the I-983 form?", answer: "Form I-983 is the Training Plan for STEM OPT Students. It's a formal agreement between you and your employer that describes how your employment provides practical training in your STEM field. It's required before your DSO can recommend the STEM OPT extension." },
+                            { question: "Does my employer need to be E-Verify enrolled?", answer: "Yes. E-Verify enrollment is mandatory for STEM OPT employers. Your employer must provide their E-Verify Company ID Number on the I-983 form." },
+                            { question: "When do I need to update my I-983?", answer: "You must submit a modified I-983 within 10 days if there are material changes to your training plan, including: new employer, role change, address change, or significant changes to your duties." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
                 </section>
+            </div>
+
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete STEM OPT Extension Guide</Link>
+                    <Link href="/blog/stem-opt-unemployment-limit" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ STEM OPT Unemployment Limit Explained</Link>
+                    <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                </div>
             </div>
 
             {/* CTA */}

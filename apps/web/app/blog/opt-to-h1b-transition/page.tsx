@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Calendar, Briefcase } from "lucide-react";
-import { AuthorBio } from "@/components/blog/AuthorBio";
-
+import { AuthorBio } from "@/components/blog/AuthorBio";import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 export const metadata: Metadata = {
     title: "OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)",
     description: "Complete guide to transitioning from OPT to H-1B in 2026. Learn the timeline, cap-gap extension, employer requirements, and what happens if your H-1B isn't selected in the lottery.",
@@ -19,6 +18,7 @@ export const metadata: Metadata = {
 export default function OPTtoH1BArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Can I transition from OPT to H-1B?", answer: "Yes. If your employer filed an H-1B petition while you were on OPT, you can transition to H-1B status if your petition is approved and your OPT is still valid or in the cap-gap period."}, {question: "What is cap-gap and how does it help during H-1B transition?", answer: "Cap-gap is an automatic extension of your OPT work authorization from your OPT end date until October 1 (H-1B start date), allowing you to work while waiting for your H-1B petition decision."}, {question: "Can my H-1B petition be filed multiple times if I don't win the lottery?", answer: "After not being selected in the lottery, you can change employers and file H-1B petitions with different companies. However, each application enters a new lottery cycle."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -144,17 +144,33 @@ export default function OPTtoH1BArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "Can I transition from OPT to H-1B?", a: "Yes. The most common path is for your employer to register you for the H-1B lottery while you're on OPT. If selected, the cap-gap extension bridges your OPT to the H-1B October 1 start date." },
-                            { q: "What is the H-1B cap-gap extension?", a: "The cap-gap automatically extends your F-1 status and OPT work authorization from your EAD expiration date until October 1 (the H-1B start date), as long as your employer filed a timely H-1B petition requesting change of status." },
-                            { q: "How many times can I enter the H-1B lottery?", a: "There is no limit to the number of times you can be registered for the H-1B lottery, as long as you maintain valid immigration status (e.g., OPT, STEM OPT, or another valid visa)." },
+                            { question: "Can I transition from OPT to H-1B?", answer: "Yes. The most common path is for your employer to register you for the H-1B lottery while you're on OPT. If selected, the cap-gap extension bridges your OPT to the H-1B October 1 start date." },
+                            { question: "What is the H-1B cap-gap extension?", answer: "The cap-gap automatically extends your F-1 status and OPT work authorization from your EAD expiration date until October 1 (the H-1B start date), as long as your employer filed a timely H-1B petition requesting change of status." },
+                            { question: "How many times can I enter the H-1B lottery?", answer: "There is no limit to the number of times you can be registered for the H-1B lottery, as long as you maintain valid immigration status (e.g., OPT, STEM OPT, or another valid visa)." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
                 </section>
+            </div>
+
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company 2026</Link>
+                    <Link href="/blog/h1b-cap-gap-extension" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Cap-Gap Extension Explained</Link>
+                    <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete STEM OPT Extension Guide</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/sponsors" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">H-1B Sponsor Database →</Link>
+                    <Link href="/features/case-status" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">USCIS Case Status Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                    <Link href="/pricing" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">View Pricing →</Link>
+                </div>
             </div>
 
             {/* CTA */}

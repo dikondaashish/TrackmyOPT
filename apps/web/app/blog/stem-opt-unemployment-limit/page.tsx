@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2, BookOpen } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
     title: "STEM OPT Unemployment Limit: The 150-Day Rule Explained (2026)",
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
 export default function StemOPTUnemploymentArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 cumulative days of unemployment across the entire 36-month OPT + STEM OPT period. This includes the initial 90 days from post-completion OPT plus an additional 60 days from the STEM extension."}, {question: "Does volunteer work count as employment on STEM OPT?", answer: "No. Unlike regular OPT where volunteer positions (20+ hours/week) can count, STEM OPT requires paid employment at an E-Verify employer. Volunteer and unpaid work does not stop the unemployment clock during STEM OPT."}, {question: "What happens if I exceed 150 days on STEM OPT?", answer: "Exceeding 150 days of unemployment during the OPT + STEM OPT period can result in SEVIS termination and loss of F-1 status. Your DSO is required to report excess unemployment days to SEVP."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
                 <span>/</span>
@@ -156,13 +158,13 @@ export default function StemOPTUnemploymentArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "How many unemployment days are allowed on STEM OPT?", a: "STEM OPT students are allowed a total of 150 cumulative days of unemployment across the entire 36-month OPT + STEM OPT period. This includes the initial 90 days from post-completion OPT plus an additional 60 days from the STEM extension." },
-                            { q: "Does volunteer work count as employment on STEM OPT?", a: "No. Unlike regular OPT where volunteer positions (20+ hours/week) can count, STEM OPT requires paid employment at an E-Verify employer. Volunteer and unpaid work does not stop the unemployment clock during STEM OPT." },
-                            { q: "What happens if I exceed 150 days on STEM OPT?", a: "Exceeding 150 days of unemployment during the OPT + STEM OPT period can result in SEVIS termination and loss of F-1 status. Your DSO is required to report excess unemployment days to SEVP." },
+                            { question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 cumulative days of unemployment across the entire 36-month OPT + STEM OPT period. This includes the initial 90 days from post-completion OPT plus an additional 60 days from the STEM extension." },
+                            { question: "Does volunteer work count as employment on STEM OPT?", answer: "No. Unlike regular OPT where volunteer positions (20+ hours/week) can count, STEM OPT requires paid employment at an E-Verify employer. Volunteer and unpaid work does not stop the unemployment clock during STEM OPT." },
+                            { question: "What happens if I exceed 150 days on STEM OPT?", answer: "Exceeding 150 days of unemployment during the OPT + STEM OPT period can result in SEVIS termination and loss of F-1 status. Your DSO is required to report excess unemployment days to SEVP." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
@@ -178,6 +180,20 @@ export default function StemOPTUnemploymentArticle() {
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />
                 </Link>
+            </div>
+
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day OPT Unemployment Rule</Link>
+                    <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete STEM OPT Extension Guide</Link>
+                    <Link href="/blog/i-983-training-plan-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ I-983 Training Plan Guide</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                </div>
             </div>
 
             <AuthorBio />

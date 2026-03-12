@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText, BookOpen } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
     title: "OPT Extension Guide 2026: How to Extend Your OPT Work Authorization",
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function OPTExtensionGuideArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Can I extend my OPT?", answer: "Regular post-completion OPT cannot be extended, but STEM degree holders can apply for a 24-month STEM OPT extension. Additionally, all students may qualify for the automatic 60-day OPT grace period."}, {question: "How long can I extend OPT for?", answer: "STEM OPT extension provides an additional 24 months (beyond your initial 12 months of OPT). Non-STEM students get a 60-day grace period if their OPT expires while they are job searching."}, {question: "When should I apply for STEM OPT extension?", answer: "File your STEM OPT extension before your initial OPT expires. You must have an I-983 training plan from your employer and be working at an E-Verify employer."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -86,17 +88,32 @@ export default function OPTExtensionGuideArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "Can I extend my OPT?", a: "Yes, if you have a STEM degree you can apply for a 24-month STEM OPT extension. If your employer files an H-1B petition, you get an automatic cap-gap extension until October 1. Non-STEM degree holders cannot extend their initial 12-month OPT." },
-                            { q: "How long can I extend OPT?", a: "The maximum extension is 24 months via STEM OPT, for a total of 36 months of work authorization. The H-1B cap-gap extends until October 1 of the H-1B start year." },
-                            { q: "When should I apply for STEM OPT extension?", a: "Apply 60-90 days before your current OPT expires. Your I-765 must be received by USCIS before your EAD expiration date to qualify for the 180-day automatic extension." },
+                            { question: "Can I extend my OPT?", answer: "Yes, if you have a STEM degree you can apply for a 24-month STEM OPT extension. If your employer files an H-1B petition, you get an automatic cap-gap extension until October 1. Non-STEM degree holders cannot extend their initial 12-month OPT." },
+                            { question: "How long can I extend OPT?", answer: "The maximum extension is 24 months via STEM OPT, for a total of 36 months of work authorization. The H-1B cap-gap extends until October 1 of the H-1B start year." },
+                            { question: "When should I apply for STEM OPT extension?", answer: "Apply 60-90 days before your current OPT expires. Your I-765 must be received by USCIS before your EAD expiration date to qualify for the 180-day automatic extension." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
                 </section>
+            </div>
+
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/what-happens-if-opt-expires" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ What Happens If Your OPT Expires?</Link>
+                    <Link href="/blog/h1b-cap-gap-extension" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Cap-Gap Extension Explained</Link>
+                    <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete STEM OPT Extension Guide</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/features/case-status" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">USCIS Case Status Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                </div>
             </div>
 
             <AuthorBio />
@@ -106,9 +123,6 @@ export default function OPTExtensionGuideArticle() {
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT sends alerts 90, 60, and 30 days before your OPT expires. Stay ahead of every deadline.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
             </div>
-
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", "headline": "OPT Extension Guide 2026", "author": { "@type": "Organization", "name": "TrackMyOPT" }, "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } }, "datePublished": "2026-03-10", "dateModified": "2026-03-10", "mainEntityOfPage": "https://www.trackmyopt.com/blog/opt-extension-guide" }) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "Can I extend my OPT?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, STEM degree holders can apply for a 24-month extension. H-1B petitioners get a cap-gap extension. Non-STEM degrees cannot extend." } }, { "@type": "Question", "name": "How long can I extend OPT?", "acceptedAnswer": { "@type": "Answer", "text": "Maximum 24 months via STEM OPT, for 36 months total." } }, { "@type": "Question", "name": "When should I apply for STEM OPT?", "acceptedAnswer": { "@type": "Answer", "text": "60-90 days before your current OPT expires. Must be received before EAD expiration." } }] }) }} />
         </article>
     );
 }

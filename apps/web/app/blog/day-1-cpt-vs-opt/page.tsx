@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, Scale } from "lucide-react";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function Day1CPTArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Is Day 1 CPT legal?", answer: "Day 1 CPT is technically legal under USCIS regulations, but it is not without risk. Your employer must be certified for CPT participation."}, {question: "Does Day 1 CPT affect my OPT eligibility?", answer: "No. Day 1 CPT does not reduce your OPT period. You still get 12 months of OPT after graduation, regardless of any prior CPT."}, {question: "Can I do Day 1 CPT after I've already used OPT?", answer: "No. Once you're on post-completion OPT, you cannot go back to CPT. However, you can switch during school if the opportunity arises."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -115,26 +117,38 @@ export default function Day1CPTArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "Is Day 1 CPT legal?", a: "Day 1 CPT is technically legal under USCIS regulations IF the school is SEVP-certified and the CPT is a genuine, integral part of the curriculum. However, programs where the academic component is minimal and the primary purpose is work authorization may face scrutiny." },
-                            { q: "Does Day 1 CPT affect OPT eligibility?", a: "Yes. If you use 12 or more months of full-time CPT from ANY program, you become INELIGIBLE for post-completion OPT. Part-time CPT does not count toward this limit." },
-                            { q: "Can I do Day 1 CPT after OPT?", a: "Yes, you can enroll in a new program with Day 1 CPT after your OPT ends. However, be aware of the cumulative CPT limit and its effect on any future OPT eligibility." },
+                            { question: "Is Day 1 CPT legal?", answer: "Day 1 CPT is technically legal under USCIS regulations IF the school is SEVP-certified and the CPT is a genuine, integral part of the curriculum. However, programs where the academic component is minimal and the primary purpose is work authorization may face scrutiny." },
+                            { question: "Does Day 1 CPT affect OPT eligibility?", answer: "Yes. If you use 12 or more months of full-time CPT from ANY program, you become INELIGIBLE for post-completion OPT. Part-time CPT does not count toward this limit." },
+                            { question: "Can I do Day 1 CPT after OPT?", answer: "Yes, you can enroll in a new program with Day 1 CPT after your OPT ends. However, be aware of the cumulative CPT limit and its effect on any future OPT eligibility." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
                 </section>
             </div>
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day Unemployment Rule</Link>
+                    <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>
+                    <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete STEM OPT Extension Guide</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                </div>
+            </div>
+
             <AuthorBio />
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Choosing OPT? Track Every Day That Matters</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT helps you manage OPT deadlines, unemployment days, and H-1B transition — all in one place.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
             </div>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", "headline": "Day 1 CPT vs OPT: Key Differences for F-1 Students", "author": { "@type": "Organization", "name": "TrackMyOPT" }, "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } }, "datePublished": "2026-03-10", "dateModified": "2026-03-10", "mainEntityOfPage": "https://www.trackmyopt.com/blog/day-1-cpt-vs-opt" }) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "Is Day 1 CPT legal?", "acceptedAnswer": { "@type": "Answer", "text": "Technically legal IF the school is SEVP-certified and CPT is a genuine part of the curriculum, but programs with minimal academics may face scrutiny." } }, { "@type": "Question", "name": "Does Day 1 CPT affect OPT?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. 12+ months of full-time CPT makes you ineligible for post-completion OPT." } }, { "@type": "Question", "name": "Can I do Day 1 CPT after OPT?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, but be aware of cumulative CPT limits and their impact on future OPT eligibility." } }] }) }} />
         </article>
     );
 }

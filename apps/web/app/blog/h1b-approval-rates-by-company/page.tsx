@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, TrendingUp, Building2, CheckCircle2, BarChart3 } from "lucide-react";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 export default function H1BApprovalRatesArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Which companies have the highest H-1B approval rates?", answer: "Top tech companies like Google (98%), Apple (97%), and Microsoft (97%) lead with near-perfect approval rates. Direct employers consistently outperform IT staffing firms, which average 60-75% approval rates."}, {question: "What is the average H-1B approval rate?", answer: "The overall H-1B approval rate in FY2025 was approximately 85%. Direct employers average 90-98%, while IT staffing and consulting firms place workers average 65-80%."}, {question: "Why do IT staffing firms have lower approval rates?", answer: "IT staffing firms often place workers at third-party client sites, which USCIS scrutinizes more heavily. Additionally, staffing firms file a much higher volume of petitions, making individual cases receive less thorough vetting per petition."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -165,17 +167,33 @@ export default function H1BApprovalRatesArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "Which companies have the highest H-1B approval rates?", a: "Major tech companies like Google (98%), Microsoft (97%), and Apple (97%) consistently have the highest H-1B approval rates. Large finance and consulting firms like JPMorgan (94%) and Deloitte (93%) also perform well. Source: USCIS H-1B Employer Data Hub." },
-                            { q: "What is the average H-1B approval rate?", a: "The overall H-1B approval rate across all employers in FY2025 was approximately 85%. However, this varies significantly — top tech companies see 95%+ while IT staffing firms may see 60-75%." },
-                            { q: "Why do IT staffing companies have lower approval rates?", a: "USCIS scrutinizes third-party worksite placements more heavily. Common denial reasons include: inability to prove a specialty occupation, employer-employee relationship issues, and wages below prevailing levels." },
+                            { question: "Which companies have the highest H-1B approval rates?", answer: "Major tech companies like Google (98%), Microsoft (97%), and Apple (97%) consistently have the highest H-1B approval rates. Large finance and consulting firms like JPMorgan (94%) and Deloitte (93%) also perform well. Source: USCIS H-1B Employer Data Hub." },
+                            { question: "What is the average H-1B approval rate?", answer: "The overall H-1B approval rate across all employers in FY2025 was approximately 85%. However, this varies significantly — top tech companies see 95%+ while IT staffing firms may see 60-75%." },
+                            { question: "Why do IT staffing companies have lower approval rates?", answer: "USCIS scrutinizes third-party worksite placements more heavily. Common denial reasons include: inability to prove a specialty occupation, employer-employee relationship issues, and wages below prevailing levels." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
                 </section>
+            </div>
+
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
+                    <Link href="/blog/h1b-cap-gap-extension" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Cap-Gap Extension Explained</Link>
+                    <Link href="/blog/f1-visa-jobs-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ F-1 Visa Jobs Guide 2026</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/sponsors" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">H-1B Sponsor Database →</Link>
+                    <Link href="/features/resume-ai" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">AI Resume Builder →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                    <Link href="/pricing" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">View Pricing →</Link>
+                </div>
             </div>
 
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-8 text-center text-white mt-12">
@@ -185,9 +203,6 @@ export default function H1BApprovalRatesArticle() {
                     Search Sponsors Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>
-
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", "headline": "H-1B Approval Rates by Company 2026", "author": { "@type": "Organization", "name": "TrackMyOPT" }, "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } }, "datePublished": "2026-03-10", "dateModified": "2026-03-10", "mainEntityOfPage": "https://www.trackmyopt.com/blog/h1b-approval-rates-by-company" }) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "Which companies have the highest H-1B approval rates?", "acceptedAnswer": { "@type": "Answer", "text": "Google (98%), Microsoft (97%), Apple (97%), Meta (96%), Amazon (95%). Source: USCIS H-1B Employer Data Hub." } }, { "@type": "Question", "name": "What is the average H-1B approval rate?", "acceptedAnswer": { "@type": "Answer", "text": "The overall H-1B approval rate in FY2025 was approximately 85%, varying significantly by company type." } }] }) }} />
         </article>
     );
 }

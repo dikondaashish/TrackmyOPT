@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, BookOpen, TrendingUp, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
 export default function OPTProcessingTimeArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What are current OPT processing times for 2026?", answer: "As of early 2026, the average processing time for Form I-765 OPT applications is 3-5 months from submission to EAD card delivery. Times vary by service center and current backlogs."}, {question: "Can I expedite my OPT processing?", answer: "USCIS offers premium processing for an additional $2,805 fee, which reduces processing time to 15 calendar days. Your application must be eligible (no RFEs or issues)."}, {question: "What is the premium processing fee for OPT in 2026?", answer: "Premium processing for Form I-765 costs $2,805 as of 2026. This fee is in addition to the standard filing fees and reduces processing time to 15 days."} ]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -166,13 +168,13 @@ export default function OPTProcessingTimeArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "How long does OPT processing take in 2026?", a: "As of March 2026, USCIS processes most OPT applications (Form I-765) in 2-5 months. Online filings average 2-3 months, while paper filings take 3-5 months." },
-                            { q: "Can I expedite my OPT application?", a: "Yes, you can request an expedite if you face severe financial loss, emergency situations, or if processing exceeds normal times. File the expedite request through your MyUSCIS account or by calling the USCIS Contact Center." },
-                            { q: "What is the OPT application fee in 2026?", a: "The I-765 filing fee is $410 as of 2026. Premium processing is available for $1,685, guaranteeing a decision within 30 business days." },
+                            { question: "How long does OPT processing take in 2026?", answer: "As of March 2026, USCIS processes most OPT applications (Form I-765) in 2-5 months. Online filings average 2-3 months, while paper filings take 3-5 months." },
+                            { question: "Can I expedite my OPT application?", answer: "Yes, you can request an expedite if you face severe financial loss, emergency situations, or if processing exceeds normal times. File the expedite request through your MyUSCIS account or by calling the USCIS Contact Center." },
+                            { question: "What is the OPT application fee in 2026?", answer: "The I-765 filing fee is $410 as of 2026. Premium processing is available for $1,685, guaranteeing a decision within 30 business days." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
@@ -188,6 +190,21 @@ export default function OPTProcessingTimeArticle() {
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 rounded-xl font-semibold hover:bg-green-50 transition-colors">
                     Track My Case Free <ArrowRight className="w-4 h-4" />
                 </Link>
+            </div>
+
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>
+                    <Link href="/blog/opt-ead-card-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT EAD Card Guide 2026</Link>
+                    <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day Unemployment Rule Explained</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/case-status" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">USCIS Case Status Tracker →</Link>
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                </div>
             </div>
 
             <AuthorBio />

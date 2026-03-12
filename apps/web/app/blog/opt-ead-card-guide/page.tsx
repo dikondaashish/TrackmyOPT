@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, CreditCard, BookOpen, FileText } from "lucide-react";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function OPTEADArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What is the OPT EAD card?", answer: "The OPT EAD (Employment Authorization Document) is your I-766 card, which proves you have work authorization while on OPT. You cannot work without it."}, {question: "How long does it take to get your EAD card?", answer: "Processing typically takes 2-5 months from filing to card delivery. Many employers expedite the card production once your case is approved."}, {question: "Can I work before I receive my EAD card?", answer: "No. You cannot legally work until you receive your physical EAD card in hand. Some employers may offer provisional start dates, but your work authorization does not begin until your EAD is in your possession."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -113,26 +115,39 @@ export default function OPTEADArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "What is an OPT EAD card?", a: "The OPT EAD (Employment Authorization Document) card, Form I-766, is issued by USCIS to F-1 students approved for Optional Practical Training. It's your physical proof of work authorization in the United States." },
-                            { q: "How long does it take to get the OPT EAD card?", a: "Current processing time is 2-5 months from filing. Factors include filing method (online is faster), time of year (spring graduates cause a surge), and your service center." },
-                            { q: "Can I work before receiving my EAD card?", a: "No. You cannot begin employment until you physically receive your EAD card AND your OPT start date has passed. Working without the card is a violation of your F-1 status." },
+                            { question: "What is an OPT EAD card?", answer: "The OPT EAD (Employment Authorization Document) card, Form I-766, is issued by USCIS to F-1 students approved for Optional Practical Training. It's your physical proof of work authorization in the United States." },
+                            { question: "How long does it take to get the OPT EAD card?", answer: "Current processing time is 2-5 months from filing. Factors include filing method (online is faster), time of year (spring graduates cause a surge), and your service center." },
+                            { question: "Can I work before receiving my EAD card?", answer: "No. You cannot begin employment until you physically receive your EAD card AND your OPT start date has passed. Working without the card is a violation of your F-1 status." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
                 </section>
             </div>
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Processing Time 2026</Link>
+                    <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day Unemployment Rule</Link>
+                    <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/case-status" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">USCIS Case Status Tracker →</Link>
+                    <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">OPT Compliance Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                </div>
+            </div>
+
             <AuthorBio />
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your EAD Application in Real-Time</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT monitors your USCIS case status and alerts you the moment your EAD is approved.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">Track My EAD <ArrowRight className="w-4 h-4" /></Link>
             </div>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", "headline": "OPT EAD Card 2026: How to Apply, Track & Renew", "author": { "@type": "Organization", "name": "TrackMyOPT" }, "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } }, "datePublished": "2026-03-10", "dateModified": "2026-03-10", "mainEntityOfPage": "https://www.trackmyopt.com/blog/opt-ead-card-guide" }) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "What is an OPT EAD card?", "acceptedAnswer": { "@type": "Answer", "text": "The OPT EAD (Form I-766) is your Employment Authorization Document issued by USCIS for Optional Practical Training work authorization." } }, { "@type": "Question", "name": "How long does it take to get the OPT EAD card?", "acceptedAnswer": { "@type": "Answer", "text": "Current processing time is 2-5 months." } }, { "@type": "Question", "name": "Can I work before receiving my EAD card?", "acceptedAnswer": { "@type": "Answer", "text": "No, you must have the physical card AND your OPT start date must have passed." } }] }) }} />
         </article>
     );
 }

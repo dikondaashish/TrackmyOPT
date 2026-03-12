@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Briefcase, BookOpen, MapPin } from "lucide-react";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function F1JobsArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Can F-1 students work?", answer: "Yes. F-1 students can work based on CPT (Curricular Practical Training) during school, OPT (Optional Practical Training) after graduation, or on-campus employment up to 20 hours/week during school."}, {question: "How do I find H-1B sponsors?", answer: "Search the USCIS H-1B Employer Data Hub, use TrackMyOPT's Sponsor Database (which shows approval rates and salary data), check LinkedIn, or apply to companies known for sponsoring visa workers."}, {question: "When should I start job searching if I want to transition to H-1B?", answer: "Start job searching 6-9 months before your OPT would end. H-1B registration opens in March for a new fiscal year, so positions should be filled by then."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -101,17 +103,34 @@ export default function F1JobsArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
                         {[
-                            { q: "Can F-1 students work in the US?", a: "Yes. F-1 students can work on-campus during enrollment (up to 20 hrs/wk), and off-campus through CPT (during school) or OPT (after graduation). Post-completion OPT provides 12 months of work authorization, extendable to 36 months with STEM OPT." },
-                            { q: "How do I find H-1B sponsor companies?", a: "Use the USCIS H-1B Employer Data Hub, TrackMyOPT's H-1B Sponsor Database (25,000+ companies with approval rates), or filter for 'visa sponsorship' on LinkedIn and Glassdoor." },
-                            { q: "When should I start looking for a job on OPT?", a: "Start 3-6 months before graduation. Apply for OPT early and begin networking. Remember: your unemployment clock starts on your OPT start date, so having a job lined up is critical." },
+                            { question: "Can F-1 students work in the US?", answer: "Yes. F-1 students can work on-campus during enrollment (up to 20 hrs/wk), and off-campus through CPT (during school) or OPT (after graduation). Post-completion OPT provides 12 months of work authorization, extendable to 36 months with STEM OPT." },
+                            { question: "How do I find H-1B sponsor companies?", answer: "Use the USCIS H-1B Employer Data Hub, TrackMyOPT's H-1B Sponsor Database (25,000+ companies with approval rates), or filter for 'visa sponsorship' on LinkedIn and Glassdoor." },
+                            { question: "When should I start looking for a job on OPT?", answer: "Start 3-6 months before graduation. Apply for OPT early and begin networking. Remember: your unemployment clock starts on your OPT start date, so having a job lined up is critical." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.a}</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
                             </div>
                         ))}
                     </div>
                 </section>
+            </div>
+
+            {/* Related Guides */}
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                    <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company 2026</Link>
+                    <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
+                    <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day Unemployment Rule</Link>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
+                    <Link href="/features/sponsors" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">H-1B Sponsor Database →</Link>
+                    <Link href="/features/resume-ai" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">AI Resume Builder →</Link>
+                    <Link href="/features/job-tracker" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Job Application Tracker →</Link>
+                    <Link href="/glossary" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Immigration Glossary →</Link>
+                    <Link href="/pricing" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">View Pricing →</Link>
+                </div>
             </div>
 
             <AuthorBio />
