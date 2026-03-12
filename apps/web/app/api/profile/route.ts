@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 // PATCH - Update user profile (full_name, timezone)
 export async function PATCH(request: NextRequest) {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -99,7 +99,7 @@ export async function PATCH(request: NextRequest) {
 // GET - Fetch user profile
 export async function GET() {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

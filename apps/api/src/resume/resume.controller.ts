@@ -25,14 +25,16 @@ export class ResumeController {
       userId: string;
       filename: string;
       content: string;
-      structuredData: any;
+      structuredData: Record<string, unknown>;
       filePath?: string;
     },
   ) {
     try {
       return await this.resumeService.saveResume(body.userId, body);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -43,8 +45,10 @@ export class ResumeController {
     try {
       const url = await this.resumeService.getDownloadUrl(body.s3Key);
       return { url };
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -54,8 +58,10 @@ export class ResumeController {
       throw new HttpException('userId is required', HttpStatus.BAD_REQUEST);
     try {
       return await this.resumeService.getResumes(userId);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -63,8 +69,10 @@ export class ResumeController {
   async getResume(@Param('id') id: string) {
     try {
       return await this.resumeService.getResumeById(id);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(errorMessage, HttpStatus.NOT_FOUND);
     }
   }
 
@@ -74,8 +82,10 @@ export class ResumeController {
       throw new HttpException('userId is required', HttpStatus.BAD_REQUEST);
     try {
       return await this.resumeService.deleteResume(id, userId);
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

@@ -36,7 +36,7 @@ export function EmploymentHistoryLog({
   });
 
   useEffect(() => {
-    if (!optStartDate || employmentSpans.length === 0) return;
+    if (!optStartDate) return;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -73,6 +73,12 @@ export function EmploymentHistoryLog({
       if (spanEnd > lastEndDate) lastEndDate = spanEnd;
     });
 
+    // Check gap after last employment if it ended before today
+    if (lastEndDate < effectiveEnd) {
+      const finalGapDays = Math.ceil((effectiveEnd.getTime() - lastEndDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (finalGapDays > longestGap) longestGap = finalGapDays;
+    }
+
     // Calculate current streak (days since last employment ended or current employment)
     const currentSpan = sortedSpans.find((s) => s.is_current);
     let currentStreak = 0;
@@ -81,7 +87,7 @@ export function EmploymentHistoryLog({
     }
 
     // Total days in OPT period
-    const totalOPTDays = Math.ceil((effectiveEnd.getTime() - optStart.getTime()) / (1000 * 60 * 60 * 24));
+    const totalOPTDays = Math.max(0, Math.ceil((effectiveEnd.getTime() - optStart.getTime()) / (1000 * 60 * 60 * 24)));
     const totalUnemployed = Math.max(0, totalOPTDays - totalEmployed);
 
     setStats({

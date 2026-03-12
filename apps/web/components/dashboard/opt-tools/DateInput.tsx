@@ -5,7 +5,7 @@ import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { createPortal } from "react-dom";
 
 interface DateInputProps {
-  label: string;
+  label: React.ReactNode;
   value: string;
   onChange: (value: string) => void;
   description?: string;

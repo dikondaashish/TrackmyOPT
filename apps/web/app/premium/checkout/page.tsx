@@ -8,7 +8,7 @@ import { CheckoutModalClient } from "./CheckoutModalClient";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 
 export default async function CheckoutPage() {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
 
     // Create Supabase client with proper cookie handling
     const supabase = createServerClient(

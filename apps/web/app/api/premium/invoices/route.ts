@@ -20,7 +20,7 @@ const supabase = createClient(
 export async function GET(req: NextRequest) {
     try {
         // 1. Authenticate User
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const supabaseAuth = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

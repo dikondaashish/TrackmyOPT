@@ -211,12 +211,10 @@ export default function ResumeEditorPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            await fetch(`${apiUrl}/resume/save`, {
+            const response = await fetch(`/api/proxy/resume/save`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
                 },
                 body: JSON.stringify({
                     userId: user.id,
@@ -452,12 +450,10 @@ export default function ResumeEditorPage() {
                 return;
             }
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/resume/save`, {
+            const response = await fetch(`/api/proxy/resume/save`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
                 },
                 body: JSON.stringify({
                     userId: user.id,

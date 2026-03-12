@@ -77,12 +77,7 @@ export default function HistoryPage() {
                 return;
             }
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/resume/list?userId=${user.id}`, {
-                headers: {
-                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
-                },
-            });
+            const response = await fetch(`/api/proxy/resume/list?userId=${user.id}`);
 
             if (!response.ok) throw new Error("Failed to fetch resumes");
 
@@ -101,12 +96,8 @@ export default function HistoryPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/resume/${id}?userId=${user.id}`, {
+            const response = await fetch(`/api/proxy/resume/${id}?userId=${user.id}`, {
                 method: "DELETE",
-                headers: {
-                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
-                },
             });
 
             if (!response.ok) throw new Error("Failed to delete resume");
@@ -142,12 +133,7 @@ export default function HistoryPage() {
                 return;
             }
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/resume/${resume.id}?userId=${user.id}`, {
-                headers: {
-                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
-                },
-            });
+            const response = await fetch(`/api/proxy/resume/${resume.id}?userId=${user.id}`);
 
             if (!response.ok) {
                 // Fallback to basic content if detailed fetch fails
@@ -210,12 +196,10 @@ export default function HistoryPage() {
         }
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/resume/download-url`, {
+            const response = await fetch(`/api/proxy/resume/download-url`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
                 },
                 body: JSON.stringify({ s3Key: resume.file_path }),
             });

@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { Request } from 'express';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
@@ -29,14 +30,21 @@ export class ApiKeyGuard implements CanActivate {
       return true; // Skip auth for public endpoints (e.g., health checks)
     }
 
-    const request = context.switchToHttp().getRequest();
-    const apiKey = request.headers['x-api-key'];
+    const request = context.switchToHttp().getRequest<Request>();
+    const apiKey = request.headers['x-api-key'] as string | undefined;
     const validApiKey = this.configService.get<string>('API_SECRET_KEY');
 
     if (!validApiKey) {
-      // If no API key is configured, log a warning but allow (for local dev)
-      console.warn('⚠️ API_SECRET_KEY not configured - API is unprotected!');
-      return true;
+      const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'local';
+      if (isDev) {
+        // If no API key is configured, log a warning but allow for local dev ONLY
+        console.warn('⚠️ API_SECRET_KEY not configured in development mode - API is unprotected!');
+        return true;
+      } else {
+        // In production, failure to load the secret key MUST fail securely
+        console.error('CRITICAL: API_SECRET_KEY is missing in production environment');
+        throw new UnauthorizedException('API key configuration error');
+      }
     }
 
     if (!apiKey || apiKey !== validApiKey) {

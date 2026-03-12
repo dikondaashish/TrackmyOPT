@@ -1692,7 +1692,7 @@ export async function sendEnrollmentEmail(
 ) {
   try {
     const content = getToolEnrollmentContent(toolName, data);
-    const chromeExtensionUrl = 'https://chromewebstore.google.com/detail/your-extension-id'; // TODO: Replace with actual extension URL
+    const chromeExtensionUrl = 'https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm';
 
     const info = await sendMailWithRetry({
       from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,

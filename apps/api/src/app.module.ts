@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
+import * as Bull from 'bull';
 import { APP_GUARD } from '@nestjs/core';
 import { OcrModule } from './ocr/ocr.module';
 import { UscisModule } from './uscis/uscis.module';
@@ -16,15 +17,16 @@ import { ApiKeyGuard } from './common/guards/api-key.guard';
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
-        const url = configService.get('REDIS_URL');
+      useFactory: (configService: ConfigService): Bull.QueueOptions => {
+        const url = configService.get<string>('REDIS_URL');
         if (url) {
-          return { redis: { url } }; // Production (Render/Upstash)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          return { redis: { url } as any }; // Production (Render/Upstash)
         }
         return {
           redis: {
-            host: configService.get('REDIS_HOST') || 'localhost',
-            port: configService.get('REDIS_PORT') || 6379,
+            host: configService.get<string>('REDIS_HOST') || 'localhost',
+            port: configService.get<number>('REDIS_PORT') || 6379,
           },
         };
       },

@@ -5,7 +5,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { DashboardContent } from "@/components/dashboard/widgets/DashboardContent";
 
 export default async function DashboardPage() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   
   
   // Create Supabase client with proper cookie handling

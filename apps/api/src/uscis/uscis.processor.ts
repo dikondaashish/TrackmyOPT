@@ -40,9 +40,9 @@ export class UscisProcessor {
     private readonly configService: ConfigService,
   ) {
     this.supabase = createClient(
-      this.configService.get('NEXT_PUBLIC_SUPABASE_URL') || '',
-      this.configService.get('SUPABASE_SERVICE_ROLE_KEY') || '',
-    );
+      this.configService.get<string>('NEXT_PUBLIC_SUPABASE_URL') || '',
+      this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY') || '',
+    ) as unknown as SupabaseClient;
   }
 
   /**
@@ -50,14 +50,17 @@ export class UscisProcessor {
    * Logs the failure for debugging so it doesn't silently disappear.
    */
   @OnQueueFailed()
-  async onFailed(job: Bull.Job, error: Error) {
+  async onFailed(
+    job: Bull.Job<{ receiptNumber: string; userId: string }>,
+    error: Error,
+  ) {
     const { receiptNumber, userId } = job.data;
     const isFinalFailure = job.attemptsMade >= (job.opts?.attempts || 3);
 
     if (isFinalFailure) {
       this.logger.error(
         `[DEAD LETTER] Job ${job.id} permanently failed for ${receiptNumber} ` +
-        `(User: ${userId}) after ${job.attemptsMade} attempts: ${error.message}`,
+          `(User: ${userId}) after ${job.attemptsMade} attempts: ${error.message}`,
       );
 
       // Optionally update the case_status to reflect the failure
@@ -71,12 +74,14 @@ export class UscisProcessor {
           .eq('receipt_number', receiptNumber)
           .eq('user_id', userId);
       } catch (dbErr) {
-        this.logger.error(`[DEAD LETTER] Failed to update last_checked_at: ${dbErr}`);
+        this.logger.error(
+          `[DEAD LETTER] Failed to update last_checked_at: ${dbErr}`,
+        );
       }
     } else {
       this.logger.warn(
         `[Retry ${job.attemptsMade}/${job.opts?.attempts || 3}] ` +
-        `Job ${job.id} failed for ${receiptNumber}: ${error.message}`,
+          `Job ${job.id} failed for ${receiptNumber}: ${error.message}`,
       );
     }
   }
@@ -94,16 +99,21 @@ export class UscisProcessor {
     if (this.circuitOpenUntil && Date.now() < this.circuitOpenUntil) {
       this.logger.warn(
         `[Job ${job.id}] Circuit OPEN — skipping ${receiptNumber} ` +
-        `(resumes in ${Math.ceil((this.circuitOpenUntil - Date.now()) / 1000)}s)`,
+          `(resumes in ${Math.ceil((this.circuitOpenUntil - Date.now()) / 1000)}s)`,
       );
-      return { skipped: true, reason: 'Circuit breaker open — USCIS API outage' };
+      return {
+        skipped: true,
+        reason: 'Circuit breaker open — USCIS API outage',
+      };
     }
 
     try {
       // ── Step 1: Smart Polling — Skip cases in final states ──
       const { data: existingCase, error: fetchError } = await this.supabase
         .from('case_status')
-        .select('current_status, last_checked_at, notifications_enabled, change_log')
+        .select(
+          'current_status, last_checked_at, notifications_enabled, change_log',
+        )
         .eq('receipt_number', receiptNumber)
         .eq('user_id', userId)
         .single();
@@ -117,7 +127,7 @@ export class UscisProcessor {
 
       if (existingCase?.current_status) {
         const isFinalState = FINAL_STATUS_KEYWORDS.some((keyword) =>
-          existingCase.current_status!.includes(keyword),
+          String(existingCase.current_status).includes(keyword),
         );
 
         if (isFinalState) {
@@ -136,12 +146,11 @@ export class UscisProcessor {
       this.circuitOpenUntil = null;
 
       // ── Step 3: Detect status change ──
-      const isFirstCheck =
-        existingCase && !existingCase.current_status;
+      const isFirstCheck = existingCase && !existingCase.current_status;
       const hasStatusChanged =
         existingCase &&
         existingCase.current_status !== null &&
-        existingCase.current_status !== result.status;
+        existingCase.current_status !== String(result.status);
 
       // ── Step 4: Transform history to match DB schema ──
       const statusHistory = result.histCaseStatus.map((item) => ({
@@ -151,14 +160,20 @@ export class UscisProcessor {
       }));
 
       // ── Step 5: Build change_log entry (our own changelog) ──
-      const existingChangelog = Array.isArray(existingCase?.change_log)
-        ? existingCase.change_log
-        : [];
+      const existingChangelog = (
+        Array.isArray(existingCase?.change_log) ? existingCase.change_log : []
+      ) as Array<{
+        date: string;
+        old_status: string | null;
+        new_status: string;
+      }>;
 
       if (hasStatusChanged) {
         existingChangelog.push({
           date: new Date().toISOString(),
-          old_status: existingCase!.current_status,
+          old_status: existingCase.current_status
+            ? String(existingCase.current_status)
+            : null,
           new_status: result.status,
         });
       }
@@ -201,8 +216,8 @@ export class UscisProcessor {
         await this.triggerNotification(
           userId,
           receiptNumber,
-          existingCase.current_status!,
-          result.status,
+          String(existingCase.current_status),
+          String(result.status),
         );
       }
 
@@ -222,11 +237,13 @@ export class UscisProcessor {
         this.circuitOpenUntil = Date.now() + COOLDOWN_MS;
         this.logger.error(
           `[CIRCUIT BREAKER] Tripped after ${this.consecutiveFailures} consecutive failures. ` +
-          `Pausing all USCIS checks for ${COOLDOWN_MS / 1000}s.`,
+            `Pausing all USCIS checks for ${COOLDOWN_MS / 1000}s.`,
         );
       }
 
-      this.logger.error(`[Job ${job.id}] Failed for ${receiptNumber}: ${errorMessage}`);
+      this.logger.error(
+        `[Job ${job.id}] Failed for ${receiptNumber}: ${errorMessage}`,
+      );
       throw error;
     }
   }
@@ -242,8 +259,9 @@ export class UscisProcessor {
     newStatus: string,
   ): Promise<void> {
     const siteUrl =
-      this.configService.get('NEXT_PUBLIC_SITE_URL') || 'http://localhost:3001';
-    const cronSecret = this.configService.get('CRON_SECRET');
+      this.configService.get<string>('NEXT_PUBLIC_SITE_URL') ||
+      'http://localhost:3001';
+    const cronSecret = this.configService.get<string>('CRON_SECRET');
 
     if (!cronSecret) {
       this.logger.warn(
@@ -279,7 +297,9 @@ export class UscisProcessor {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`[Notification] Error for ${receiptNumber}: ${errorMessage}`);
+      this.logger.error(
+        `[Notification] Error for ${receiptNumber}: ${errorMessage}`,
+      );
       // Don't throw — notification failure shouldn't fail the job
     }
   }

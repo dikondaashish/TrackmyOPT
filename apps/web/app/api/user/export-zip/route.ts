@@ -118,7 +118,6 @@ export async function POST(request: NextRequest) {
         try {
           // Check if document has S3 key
           if (!doc.s3_key) {
-            console.log(`Document ${doc.id} has no S3 key, skipping`);
             continue;
           }
 
@@ -129,17 +128,13 @@ export async function POST(request: NextRequest) {
           const s3Response = await fetch(signedUrl);
           
           if (!s3Response.ok) {
-            console.error(`Failed to fetch document ${doc.id} from S3: ${s3Response.status}`);
             continue;
           }
 
           const arrayBuffer = await s3Response.arrayBuffer();
           const fileName = doc.filename || doc.file_name || doc.original_filename || `document_${doc.id}`;
           documentsFolder?.file(fileName, arrayBuffer);
-          
-          console.log(`✅ Added document: ${fileName}`);
         } catch (err) {
-          console.error(`Failed to download document ${doc.id}:`, err);
           // Continue with other documents
         }
       }
@@ -156,7 +151,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('❌ Error exporting ZIP:', error);
     return NextResponse.json(
       { error: 'Failed to export data' },
       { status: 500 }

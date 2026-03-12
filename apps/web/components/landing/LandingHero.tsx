@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { LandingTrustedUniversities } from "./LandingTrustedUniversities";
 import { ResumeEditorMockup } from "./ResumeEditorMockup";
+import { GuestPreviewModal } from "./GuestPreviewModal";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ParallaxImage } from "@/components/animations/parallax-image";
 import {
@@ -1043,9 +1044,7 @@ export function LandingHero() {
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </Link>
                             </MagneticButton>
-                            <Link href="#features" className="inline-flex items-center justify-center px-8 py-4 text-foreground bg-white dark:bg-zinc-800 border border-border rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-zinc-700 transition-all">
-                                View Demo
-                            </Link>
+                            <GuestPreviewModal />
                         </motion.div>
 
 

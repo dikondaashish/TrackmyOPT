@@ -11,9 +11,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { code: string } }
+    { params }: { params: Promise<{ code: string }> }
 ) {
-    const code = params.code;
+    const resolvedParams = await params;
+    const code = resolvedParams.code;
 
     // Sanitize: only allow alphanumeric, hyphens, underscores
     const sanitized = code?.replace(/[^a-zA-Z0-9_-]/g, "").toLowerCase();

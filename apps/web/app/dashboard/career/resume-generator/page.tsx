@@ -85,10 +85,8 @@ export default function ResumeGeneratorPage() {
                 const { data: { user } } = await supabase.auth.getUser();
                 if (!user) return;
 
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-                const response = await fetch(`${apiUrl}/resume/list`, {
+                const response = await fetch(`/api/proxy/resume/list`, {
                     headers: {
-                        "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
                         "user-id": user.id // Pass user ID if needed by API
                     }
                 });
@@ -138,12 +136,10 @@ export default function ResumeGeneratorPage() {
                 return;
             }
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/resume/save`, {
+            const response = await fetch(`/api/proxy/resume/save`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
                 },
                 body: JSON.stringify({
                     userId: user.id,
@@ -297,12 +293,10 @@ export default function ResumeGeneratorPage() {
 
         try {
             // Use direct OCR endpoint (synchronous, no queue)
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/ocr/direct`, {
+            const response = await fetch(`/api/proxy/ocr/direct`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": process.env.NEXT_PUBLIC_API_SECRET_KEY || "",
                 },
                 body: JSON.stringify({
                     fileBuffer: ocrInfo.fileBuffer,

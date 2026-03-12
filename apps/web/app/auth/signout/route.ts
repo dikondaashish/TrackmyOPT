@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 async function signOut(request: Request) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   
   // Create Supabase client with proper cookie handling
   const supabase = createServerClient(

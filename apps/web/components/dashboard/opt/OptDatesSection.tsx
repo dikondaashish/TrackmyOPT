@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import dynamic from "next/dynamic";
+import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 
 const PricingModal = dynamic(
   () => import("@/components/pricing/PricingModal").then((m) => ({ default: m.PricingModal })),
@@ -46,7 +47,7 @@ function addDaysToDate(dateStr: string, days: number): string {
 
 interface DateInputProps {
   id: string;
-  label: string;
+  label: React.ReactNode;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -627,7 +628,7 @@ export function OptDatesSection() {
             {/* Row 1 Right: OPT EAD End Date */}
             <DateInput
               id="opt_ead_end_date"
-              label="OPT EAD End Date"
+              label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={false} /> <JargonTooltip term="EAD" showIcon={true} /> End Date</span>}
               value={dates.opt_ead_end_date || ''}
               onChange={(value) => handleDateChange('opt_ead_end_date', value)}
               description="Employment Authorization Document expiration date for OPT"
@@ -637,7 +638,7 @@ export function OptDatesSection() {
             {/* Row 2 Left: DSO Recommendation Date */}
             <DateInput
               id="dso_recommendation_date"
-              label="DSO Recommendation Date"
+              label={<span className="flex items-center gap-1"><JargonTooltip term="DSO" showIcon={true} /> Recommendation Date</span>}
               value={dates.dso_recommendation_date || ''}
               onChange={(value) => handleDateChange('dso_recommendation_date', value)}
               description="Date when your Designated School Official recommended OPT"
@@ -647,7 +648,7 @@ export function OptDatesSection() {
             {/* Row 2 Right: STEM Extension Start Date */}
             <DateInput
               id="stem_start_date"
-              label="STEM Extension Start Date"
+              label={<span className="flex items-center gap-1"><JargonTooltip term="STEM OPT" showIcon={true}>STEM Extension</JargonTooltip> Start Date</span>}
               value={dates.stem_start_date || ''}
               onChange={(value) => handleDateChange('stem_start_date', value)}
               description="Start date of STEM OPT extension (if applicable)"
@@ -657,7 +658,7 @@ export function OptDatesSection() {
             {/* Row 3 Left: OPT Start Date */}
             <DateInput
               id="opt_start_date"
-              label="OPT Start Date"
+              label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={true} /> Start Date</span>}
               value={dates.opt_start_date || ''}
               onChange={(value) => handleDateChange('opt_start_date', value)}
               description="The start date of your OPT period"

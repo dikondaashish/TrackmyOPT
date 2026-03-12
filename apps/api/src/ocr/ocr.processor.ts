@@ -24,8 +24,10 @@ export class OcrProcessor {
         text,
         filename: job.data.filename,
       };
-    } catch (error: any) {
-      this.logger.error(`Job ${job.id} failed: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Job ${job.id} failed: ${errorMessage}`);
       throw error;
     }
   }

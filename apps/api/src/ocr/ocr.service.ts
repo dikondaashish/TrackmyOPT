@@ -9,6 +9,18 @@ import {
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 
+interface TextractBlock {
+  BlockType?: string;
+  Text?: string;
+}
+
+interface TextractResponse {
+  JobStatus?: string;
+  NextToken?: string;
+  Blocks?: TextractBlock[];
+  StatusMessage?: string;
+}
+
 @Injectable()
 export class OcrService {
   private readonly logger = new Logger(OcrService.name);
@@ -73,10 +85,10 @@ export class OcrService {
 
     return {
       id: job.id,
-      state: await job.getState(),
-      progress: job.progress(),
-      result: job.returnvalue,
-      error: job.failedReason,
+      state: String(await job.getState()),
+      progress: job.progress() as unknown,
+      result: job.returnvalue as unknown,
+      error: job.failedReason ? String(job.failedReason) : undefined,
     };
   }
 
@@ -86,11 +98,13 @@ export class OcrService {
       throw new Error('Textract Client not initialized');
 
     // 1. Start Job
-    const startCommand = new StartDocumentTextDetectionCommand({
-      DocumentLocation: {
-        S3Object: { Bucket: this.bucket, Name: s3Key },
-      },
-    });
+    const params: import('@aws-sdk/client-textract').StartDocumentTextDetectionCommandInput =
+      {
+        DocumentLocation: {
+          S3Object: { Bucket: String(this.bucket), Name: String(s3Key) },
+        },
+      };
+    const startCommand = new StartDocumentTextDetectionCommand(params);
 
     const startResponse = await this.textractClient.send(startCommand);
     const textractJobId = startResponse.JobId;
@@ -118,12 +132,16 @@ export class OcrService {
         NextToken: nextToken,
       });
 
-      const response = (await this.textractClient.send(command)) as any;
+      const response = (await this.textractClient.send(
+        command,
+      )) as unknown as TextractResponse;
       status = response.JobStatus || 'FAILED'; // Fallback if undefined
 
       if (status === 'SUCCEEDED') {
-        response.Blocks?.forEach((block: any) => {
-          if (block.BlockType === 'LINE') text += block.Text + '\n';
+        response.Blocks?.forEach((block) => {
+          if (block.BlockType === 'LINE' && block.Text) {
+            text += block.Text + '\n';
+          }
         });
 
         if (response.NextToken) {

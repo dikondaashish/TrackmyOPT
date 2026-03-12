@@ -55,10 +55,11 @@ export class OcrController {
           HttpStatus.BAD_REQUEST,
         );
       }
-    } catch (error: any) {
-      console.error('PDF parse/upload error:', error.message);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        `Failed to parse file: ${error.message}`,
+        `Failed to parse file: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -91,11 +92,9 @@ export class OcrController {
         body.fileBuffer,
         body.filename,
       );
-      console.log(`✅ File uploaded to S3: ${s3Key}`);
 
       // Process with Textract directly (synchronous)
       const text = await this.ocrService.processTextractJob(s3Key);
-      console.log(`✅ Textract completed: ${text.length} chars`);
 
       return {
         ok: true,
@@ -103,10 +102,11 @@ export class OcrController {
         filename: body.filename,
         s3Key: s3Key,
       };
-    } catch (error: any) {
-      console.error('❌ Direct OCR error:', error.message);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        error.message || 'OCR processing failed',
+        errorMessage || 'OCR processing failed',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -142,10 +142,11 @@ export class OcrController {
         textractJobId: job.id, // For compatibility with frontend polling
         timestamp: new Date(),
       };
-    } catch (error: any) {
-      console.error('❌ Queue OCR error:', error.message);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        error.message || 'Failed to queue OCR job',
+        errorMessage || 'Failed to queue OCR job',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

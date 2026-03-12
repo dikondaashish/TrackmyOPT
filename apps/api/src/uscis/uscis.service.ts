@@ -45,9 +45,9 @@ export class UscisService {
     @InjectQueue('uscis') private uscisQueue: Bull.Queue,
   ) {
     this.supabase = createClient(
-      this.configService.get('NEXT_PUBLIC_SUPABASE_URL') || '',
-      this.configService.get('SUPABASE_SERVICE_ROLE_KEY') || '',
-    );
+      this.configService.get<string>('NEXT_PUBLIC_SUPABASE_URL') || '',
+      this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY') || '',
+    ) as SupabaseClient;
   }
 
   /**
@@ -55,9 +55,15 @@ export class UscisService {
    */
   async queueAllActiveCases() {
     // Fetch all active cases
-    const { data: cases, error } = await this.supabase
+    const fetchResponse = (await this.supabase
       .from('case_status')
-      .select('receipt_number, user_id');
+      .select('receipt_number, user_id')) as unknown as {
+      data: { receipt_number: string; user_id: string }[] | null;
+      error: Error | null;
+    };
+
+    const cases = fetchResponse.data;
+    const error = fetchResponse.error;
 
     if (error) {
       throw new Error(`Failed to fetch cases: ${error.message}`);
@@ -109,7 +115,7 @@ export class UscisService {
     }
 
     const baseUrl =
-      this.configService.get('USCIS_API_BASE_URL') ||
+      this.configService.get<string>('USCIS_API_BASE_URL') ||
       'https://api.uscis.gov/case-status';
     const url = `${baseUrl}/${receiptNumber}`;
 
@@ -131,21 +137,23 @@ export class UscisService {
         );
       }
 
-      const data: USCISAPIResponse = await response.json();
+      const data = (await response.json()) as USCISAPIResponse;
 
       const histCaseStatus: USCISHistoryItem[] = (
         data.case_status.hist_case_status || []
       ).map((item) => ({
-        date: item.date,
-        completedText: item.completed_text_en,
+        date: String(item.date),
+        completedText: String(item.completed_text_en),
       }));
 
       return {
-        receiptNumber: data.case_status.receiptNumber,
-        status: data.case_status.current_case_status_text_en,
-        caseType: data.case_status.formType,
-        receivedDate: data.case_status.submittedDate,
-        description: data.case_status.current_case_status_desc_en,
+        receiptNumber: String(data.case_status.receiptNumber),
+        status: String(data.case_status.current_case_status_text_en),
+        caseType: String(data.case_status.formType),
+        receivedDate: data.case_status.submittedDate
+          ? String(data.case_status.submittedDate)
+          : null,
+        description: String(data.case_status.current_case_status_desc_en),
         histCaseStatus,
       };
     } catch (error) {
@@ -161,10 +169,10 @@ export class UscisService {
       return this.cachedToken.token;
     }
 
-    const clientId = this.configService.get('USCIS_CLIENT_ID');
-    const clientSecret = this.configService.get('USCIS_CLIENT_SECRET');
+    const clientId = this.configService.get<string>('USCIS_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('USCIS_CLIENT_SECRET');
     const tokenUrl =
-      this.configService.get('USCIS_TOKEN_URL') ||
+      this.configService.get<string>('USCIS_TOKEN_URL') ||
       'https://api.uscis.gov/oauth/accesstoken';
 
     if (!clientId || !clientSecret) {
@@ -187,15 +195,19 @@ export class UscisService {
 
       if (!response.ok) throw new Error('Auth Failed');
 
-      const data = await response.json();
+      const rawData: unknown = await response.json();
+      const data = rawData as {
+        access_token: string;
+        expires_in: number;
+      };
       const { access_token, expires_in } = data;
 
       this.cachedToken = {
-        token: access_token,
-        expiresAt: Date.now() + (expires_in - 60) * 1000,
+        token: String(access_token),
+        expiresAt: Date.now() + (Number(expires_in) - 60) * 1000,
       };
 
-      return access_token;
+      return String(access_token);
     } catch (error) {
       this.logger.error(
         `Failed to get Access Token: ${error instanceof Error ? error.message : 'Unknown error'}`,

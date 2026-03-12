@@ -13,9 +13,9 @@ export class ResumeService {
 
   constructor(private configService: ConfigService) {
     this.supabase = createClient(
-      this.configService.get('NEXT_PUBLIC_SUPABASE_URL') || '',
-      this.configService.get('SUPABASE_SERVICE_ROLE_KEY') || '',
-    );
+      this.configService.get<string>('NEXT_PUBLIC_SUPABASE_URL') || '',
+      this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY') || '',
+    ) as SupabaseClient;
 
     // Initialize S3 Client for downloads
     this.bucket = this.configService.get<string>('AWS_S3_BUCKET') || '';
@@ -33,10 +33,18 @@ export class ResumeService {
     }
   }
 
-  async saveResume(userId: string, data: any) {
+  async saveResume(
+    userId: string,
+    data: {
+      filename: string;
+      content: string;
+      structuredData?: Record<string, unknown>;
+      filePath?: string;
+    },
+  ) {
     if (!userId) throw new Error('User ID is required');
 
-    const { data: result, error } = await this.supabase
+    const response = (await this.supabase
       .from('resumes')
       .insert({
         user_id: userId,
@@ -47,8 +55,13 @@ export class ResumeService {
         created_at: new Date(),
         file_path: data.filePath || null, // Store S3 key
       })
-      .select()
-      .single();
+      .single()) as unknown as {
+      data: Record<string, unknown>;
+      error: Error | null;
+    };
+
+    const result = response.data;
+    const error = response.error;
 
     if (error) {
       this.logger.error(`Failed to save resume: ${error.message}`);
@@ -67,15 +80,21 @@ export class ResumeService {
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
-    return data;
+    return data as Array<Record<string, unknown>>;
   }
 
   async getResumeById(id: string) {
-    const { data, error } = await this.supabase
+    const response = (await this.supabase
       .from('resumes')
       .select('*')
       .eq('id', id)
-      .single();
+      .single()) as unknown as {
+      data: Record<string, unknown>;
+      error: Error | null;
+    };
+
+    const data = response.data;
+    const error = response.error;
 
     if (error) throw new Error(error.message);
     return data;
@@ -106,8 +125,10 @@ export class ResumeService {
         expiresIn: 900,
       });
       return url;
-    } catch (error: any) {
-      this.logger.error(`Failed to generate download URL: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to generate download URL: ${errorMessage}`);
       throw new Error('Could not generate download link');
     }
   }

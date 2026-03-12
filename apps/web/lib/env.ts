@@ -48,6 +48,7 @@ function getServerEnv() {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     JWT_SIGNING_SECRET: process.env.JWT_SIGNING_SECRET,
+    API_SECRET_KEY: process.env.API_SECRET_KEY,
   });
 
   if (!parsed.success) {

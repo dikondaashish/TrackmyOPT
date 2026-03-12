@@ -12,12 +12,12 @@ import { ReferralCapture } from "../components/ReferralCapture";
 import dynamic from "next/dynamic";
 
 // Lazy-load below-fold components to reduce initial JS bundle (SEO Fix #1 & #2: Mobile LCP/TBT)
-const LandingComparison = dynamic(() => import("../components/landing/LandingComparison").then(mod => mod.LandingComparison), { ssr: false });
-const LandingValueGrid = dynamic(() => import("../components/landing/LandingValueGrid").then(mod => mod.LandingValueGrid), { ssr: false });
-const LandingSuccessStories = dynamic(() => import("../components/landing/LandingSuccessStories").then(mod => mod.LandingSuccessStories), { ssr: false });
-const LandingTestimonials = dynamic(() => import("../components/landing/LandingTestimonials").then(mod => mod.LandingTestimonials), { ssr: false });
-const LandingEngine = dynamic(() => import("../components/landing/LandingEngine").then(mod => mod.LandingEngine), { ssr: false });
-const LandingToolkit = dynamic(() => import("../components/landing/LandingToolkit").then(mod => mod.LandingToolkit), { ssr: false });
+const LandingComparison = dynamic(() => import("../components/landing/LandingComparison").then(mod => mod.LandingComparison));
+const LandingValueGrid = dynamic(() => import("../components/landing/LandingValueGrid").then(mod => mod.LandingValueGrid));
+const LandingSuccessStories = dynamic(() => import("../components/landing/LandingSuccessStories").then(mod => mod.LandingSuccessStories));
+const LandingTestimonials = dynamic(() => import("../components/landing/LandingTestimonials").then(mod => mod.LandingTestimonials));
+const LandingEngine = dynamic(() => import("../components/landing/LandingEngine").then(mod => mod.LandingEngine));
+const LandingToolkit = dynamic(() => import("../components/landing/LandingToolkit").then(mod => mod.LandingToolkit));
 import {
     softwareApplicationSchema,
     faqSchema,
@@ -32,9 +32,7 @@ import {
     knowledgeGraphSchema,
 } from "@/lib/seo-schemas";
 
-const LandingGlobalReach = dynamic(() => import("../components/landing/LandingGlobalReach").then(mod => mod.LandingGlobalReach), {
-    ssr: false
-});
+const LandingGlobalReach = dynamic(() => import("../components/landing/LandingGlobalReach").then(mod => mod.LandingGlobalReach));
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

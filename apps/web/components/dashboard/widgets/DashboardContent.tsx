@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { User } from "@supabase/supabase-js";
 import { MetricCards } from "./MetricCards";
 import { OnboardingCard } from "./OnboardingCard";
+import { OnboardingWizard } from "../onboarding/OnboardingWizard";
 import { QuickActions } from "./QuickActions";
 import { NotificationBanner } from "../case-status/NotificationBanner";
 import {
@@ -39,6 +40,10 @@ const ActionableReminders = dynamic(
 const EmploymentHistoryLog = dynamic(
   () => import("../opt/EmploymentHistoryLog").then((m) => ({ default: m.EmploymentHistoryLog })),
   { loading: () => <WidgetSkeleton /> }
+);
+const ActiveEmploymentTracker = dynamic(
+  () => import("./ActiveEmploymentTracker").then((m) => ({ default: m.ActiveEmploymentTracker })),
+  { ssr: false }
 );
 const ResourceCenter = dynamic(
   () => import("../ResourceCenter").then((m) => ({ default: m.ResourceCenter })),
@@ -89,6 +94,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
   const [unemploymentDays, setUnemploymentDays] = useState(0);
   const [maxUnemploymentDays, setMaxUnemploymentDays] = useState(90);
   const [showSettings, setShowSettings] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const {
@@ -127,6 +133,10 @@ export function DashboardContent({ user }: DashboardContentProps) {
           // Calculate unemployment days if we have the data
           if (data.unemploymentDays !== undefined) {
             setUnemploymentDays(data.unemploymentDays);
+          }
+          
+          if (!data.optStatus) {
+            setShowWizard(true);
           }
         }
       } catch (error) {
@@ -180,13 +190,19 @@ export function DashboardContent({ user }: DashboardContentProps) {
         return <ActionableReminders key="reminders" />;
       case "employment":
         return (
-          <EmploymentHistoryLog
-            key="employment"
-            employmentSpans={employmentSpans}
-            optStartDate={optStatus?.opt_start_date}
-            optEndDate={optStatus?.opt_ead_end_date}
-            maxUnemploymentDays={maxUnemploymentDays}
-          />
+          <div key="employment" className="space-y-6">
+            <ActiveEmploymentTracker 
+              employmentSpans={employmentSpans} 
+              isStemEligible={profile?.is_stem_eligible}
+              stemStartDate={optStatus?.stem_start_date}
+            />
+            <EmploymentHistoryLog
+              employmentSpans={employmentSpans}
+              optStartDate={optStatus?.opt_start_date}
+              optEndDate={optStatus?.opt_ead_end_date}
+              maxUnemploymentDays={maxUnemploymentDays}
+            />
+          </div>
         );
       case "tools":
         return <ToolsGrid key="tools" />;
@@ -218,7 +234,8 @@ export function DashboardContent({ user }: DashboardContentProps) {
       </div>
 
       {/* Show onboarding if no OPT dates */}
-      {!isLoading && !optStatus && <OnboardingCard />}
+      {!isLoading && !optStatus && !showWizard && <OnboardingCard />}
+      <OnboardingWizard isOpen={showWizard} onComplete={() => window.location.reload()} />
 
       {/* Render visible widgets */}
       {widgetsLoaded &&

@@ -9,6 +9,7 @@ import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { UnemploymentClock, UnemploymentClockCompact } from "../UnemploymentClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
+import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 
 interface EmploymentSpan {
   id: string;
@@ -269,7 +270,7 @@ export function StemClockTool() {
               <div className="p-4 sm:p-6">
                 <div className="max-w-md">
                   <DateInput
-                    label="STEM Start Date"
+                    label={<span className="flex items-center gap-1"><JargonTooltip term="STEM OPT" showIcon={true}>STEM Extension</JargonTooltip> Start Date</span>}
                     value={stemStartDate}
                     onChange={setStemStartDate}
                     description="From your STEM EAD card"

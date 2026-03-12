@@ -43,6 +43,13 @@ export async function GET(request: NextRequest) {
       .eq('user_id', user.id)
       .single();
 
+    // 4. Get employment spans
+    const { data: employmentSpans } = await supabase
+      .from('employment_spans')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('start_date', { ascending: false });
+
     if (format === 'csv') {
       // Create CSV
       const csvRows = [
@@ -94,6 +101,7 @@ export async function GET(request: NextRequest) {
         currentStatus: caseStatus?.current_status || null,
         lastCheckedAt: caseStatus?.last_checked_at || null,
       },
+      employmentSpans: employmentSpans || [],
     };
 
     return new Response(JSON.stringify(exportData, null, 2), {

@@ -9,6 +9,7 @@ import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { UnemploymentClock, UnemploymentClockCompact } from "../UnemploymentClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
+import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 
 interface EmploymentSpan {
   id: string;
@@ -345,14 +346,14 @@ export function OptClockTool() {
               <div className="p-4 sm:p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DateInput
-                    label="OPT Start Date"
+                    label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={true} /> Start Date</span>}
                     value={optStartDate}
                     onChange={handleOptStartDateChange}
                     description="From your EAD card"
                     required
                   />
                   <DateInput
-                    label="OPT End Date"
+                    label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={false}/> <JargonTooltip term="EAD" showIcon={true} /> End Date</span>}
                     value={optEndDate}
                     onChange={setOptEndDate}
                     description="Auto-calculated (1 year)"
