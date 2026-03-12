@@ -193,7 +193,12 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
           {step === 'dates' && (
             <div className="animate-in fade-in slide-in-from-right-4 flex-1 flex flex-col">
               <h2 className="text-2xl font-bold tracking-tight mb-2">Set your key dates</h2>
-              <p className="text-muted-foreground mb-6">You can always find and edit these later in your settings.</p>
+              <p className="text-muted-foreground mb-2">
+                We use these dates to calculate your filing windows, OPT expiry, and unemployment day limits.
+              </p>
+              <p className="text-xs text-muted-foreground mb-6">
+                You can always edit these later from the OPT Dates section if you don&apos;t have everything handy right now.
+              </p>
               
               <div className="space-y-5 flex-1 overflow-y-auto pr-2 pb-4">
                 {status === 'applying_opt' && (
@@ -235,8 +240,17 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
                 )}
               </div>
               
-              <div className="pt-6 flex justify-between mt-auto border-t">
-                <Button variant="ghost" onClick={() => setStep('status')}>Back</Button>
+              <div className="pt-6 flex items-center justify-between mt-auto border-t">
+                <div className="flex gap-3">
+                  <Button variant="ghost" onClick={() => setStep('status')}>Back</Button>
+                  <button
+                    type="button"
+                    onClick={onComplete}
+                    className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                  >
+                    Skip for now
+                  </button>
+                </div>
                 <Button onClick={handleNext} disabled={isSaving} className="px-8">
                   {isSaving ? 'Saving...' : 'Finish Setup'} 
                   {!isSaving && <ArrowRight className="ml-2 w-4 h-4" />}

@@ -237,17 +237,72 @@ export function DocumentVaultClient() {
     setDocuments(docs => docs.filter(d => d.id !== documentId));
   }
 
-  // Redirect non-premium users to pricing page
+  // Show an upsell / preview for non-premium users instead of hard redirect
   if (isPremium === false) {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/premium/checkout';
-    }
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-muted-foreground">Redirecting to upgrade page...</p>
+      <div className="max-w-4xl mx-auto py-10 space-y-8">
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 border border-blue-100 dark:border-blue-800 rounded-2xl p-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
+                <span className="text-3xl">🔐</span>
+                Document Vault (Pro)
+              </h1>
+              <p className="text-sm text-gray-700 dark:text-muted-foreground mt-2 max-w-xl">
+                Securely store your I-20s, EAD cards, I-983, offer letters, and paystubs with AI-powered analysis
+                and automatic expiry reminders.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <a
+                href="/premium/checkout"
+                className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition shadow-sm hover:shadow-md"
+              >
+                Unlock with Pro
+              </a>
+              <a
+                href="/dashboard"
+                className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-gray-300 dark:border-border text-sm font-medium text-gray-700 dark:text-foreground hover:bg-gray-50 dark:hover:bg-muted transition"
+              >
+                Back to Dashboard
+              </a>
+            </div>
+          </div>
         </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="bg-card border border-border rounded-xl p-5 space-y-2">
+            <h2 className="font-semibold text-foreground flex items-center gap-2">
+              <span className="text-lg">📁</span>
+              All documents in one place
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Upload I-20s, EAD cards, passport, visa, I-983, offer letters, and paystubs with smart tags and filters.
+            </p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-5 space-y-2">
+            <h2 className="font-semibold text-foreground flex items-center gap-2">
+              <span className="text-lg">🤖</span>
+              AI-powered document analysis
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Gemini AI reads your documents to extract expiry dates, SEVIS IDs, receipt numbers, and key fields automatically.
+            </p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-5 space-y-2">
+            <h2 className="font-semibold text-foreground flex items-center gap-2">
+              <span className="text-lg">⏰</span>
+              Smart expiry reminders
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Get email alerts at 60, 45, 30, 20, 15, 10, 5, 3, 2, and 1 day before any critical document expires.
+            </p>
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground text-center">
+          You can continue using the rest of your dashboard on the Free plan. Upgrade any time to unlock Document Vault.
+        </p>
       </div>
     );
   }
