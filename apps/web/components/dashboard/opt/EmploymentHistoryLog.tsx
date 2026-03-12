@@ -393,6 +393,14 @@ export function EmploymentHistoryLog({
                       </span>
                     )}
                   </div>
+                  <div className="mt-2">
+                    <Link
+                      href="/dashboard/opt-tools/opt-clock"
+                      className="text-[11px] text-primary hover:underline"
+                    >
+                      Edit employment in OPT Clock
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
