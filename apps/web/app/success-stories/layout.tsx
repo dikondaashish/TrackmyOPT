@@ -11,6 +11,7 @@ export const metadata: Metadata = {
         title: "TrackMyOPT Success Stories",
         description: "See how 2,500+ students used TrackMyOPT to land jobs at Google, Amazon, Microsoft, and more.",
         url: "https://www.trackmyopt.com/success-stories",
+        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Success Stories from International Students Landing Jobs" }]
     },
 };
 
