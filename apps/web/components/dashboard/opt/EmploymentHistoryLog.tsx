@@ -28,12 +28,25 @@ export function EmploymentHistoryLog({
   maxUnemploymentDays = 90,
 }: EmploymentHistoryLogProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [spans, setSpans] = useState<EmploymentSpan[]>(employmentSpans);
+  const [showInlineForm, setShowInlineForm] = useState(false);
+  const [newEmployer, setNewEmployer] = useState("");
+  const [newStartDate, setNewStartDate] = useState("");
+  const [newEndDate, setNewEndDate] = useState("");
+  const [newJobTitle, setNewJobTitle] = useState("");
+  const [newLocation, setNewLocation] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalEmployedDays: 0,
     totalUnemployedDays: 0,
     currentStreak: 0,
     longestGap: 0,
   });
+
+  useEffect(() => {
+    setSpans(employmentSpans);
+  }, [employmentSpans]);
 
   useEffect(() => {
     if (!optStartDate) return;
@@ -45,7 +58,7 @@ export function EmploymentHistoryLog({
     const effectiveEnd = optEnd < today ? optEnd : today;
 
     // Sort spans by start date
-    const sortedSpans = [...employmentSpans].sort(
+    const sortedSpans = [...spans].sort(
       (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
     );
 
@@ -96,7 +109,7 @@ export function EmploymentHistoryLog({
       currentStreak,
       longestGap,
     });
-  }, [employmentSpans, optStartDate, optEndDate]);
+  }, [spans, optStartDate, optEndDate]);
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("en-US", {
@@ -121,11 +134,57 @@ export function EmploymentHistoryLog({
     return `${years}y ${remainingMonths}m`;
   };
 
-  const sortedSpans = [...employmentSpans].sort(
+  const sortedSpans = [...spans].sort(
     (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
   );
 
   const displayedSpans = isExpanded ? sortedSpans : sortedSpans.slice(0, 3);
+
+  const handleSaveInline = async () => {
+    setFormError(null);
+    if (!newEmployer.trim() || !newStartDate.trim()) {
+      setFormError("Employer name and start date are required.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/employment/upsert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          employer_name: newEmployer.trim(),
+          start_date: newStartDate.trim(),
+          end_date: newEndDate.trim() || null,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Failed to save employment");
+      }
+
+      const spansRes = await fetch("/api/employment-spans", {
+        credentials: "include",
+      });
+      const spansData = await spansRes.json();
+      if (spansRes.ok && spansData.ok && Array.isArray(spansData.spans)) {
+        setSpans(spansData.spans);
+      }
+
+      setShowInlineForm(false);
+      setNewEmployer("");
+      setNewStartDate("");
+      setNewEndDate("");
+      setNewJobTitle("");
+      setNewLocation("");
+    } catch (err: any) {
+      setFormError(err.message || "Failed to save employment");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
@@ -138,17 +197,18 @@ export function EmploymentHistoryLog({
           <div>
             <h2 className="text-lg font-semibold">Employment History</h2>
             <p className="text-sm text-muted-foreground">
-              {employmentSpans.length} employment record{employmentSpans.length !== 1 ? "s" : ""}
+              {spans.length} employment record{spans.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
-        <Link
-          href="/dashboard/opt-dates"
+        <button
+          type="button"
+          onClick={() => setShowInlineForm(true)}
           className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Employment
-        </Link>
+        </button>
       </div>
 
       {/* Stats Summary */}
@@ -207,18 +267,80 @@ export function EmploymentHistoryLog({
         </div>
       </div>
 
+      {/* Inline Add Employment Form */}
+      {showInlineForm && (
+        <div className="px-4 pt-4 pb-2 border-t border-border bg-muted/30 space-y-3">
+          <div className="flex flex-wrap gap-3">
+            <div className="flex-1 min-w-[180px]">
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Employer Name</label>
+              <input
+                type="text"
+                value={newEmployer}
+                onChange={(e) => setNewEmployer(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
+                placeholder="Company Inc."
+              />
+            </div>
+            <div className="w-36">
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Start Date (MM/DD/YYYY)</label>
+              <input
+                type="text"
+                value={newStartDate}
+                onChange={(e) => setNewStartDate(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
+                placeholder="08/01/2025"
+              />
+            </div>
+            <div className="w-36">
+              <label className="block text-xs font-medium text-muted-foreground mb-1">End Date (optional)</label>
+              <input
+                type="text"
+                value={newEndDate}
+                onChange={(e) => setNewEndDate(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
+                placeholder="MM/DD/YYYY"
+              />
+            </div>
+          </div>
+          {formError && (
+            <p className="text-xs text-red-500 font-medium">{formError}</p>
+          )}
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setShowInlineForm(false);
+                setFormError(null);
+              }}
+              className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveInline}
+              disabled={saving}
+              className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-60"
+            >
+              {saving ? "Saving..." : "Save Employment"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Employment List */}
-      {employmentSpans.length === 0 ? (
+      {spans.length === 0 && !showInlineForm ? (
         <div className="p-8 text-center">
           <Building2 className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
           <p className="text-sm text-muted-foreground mb-3">No employment records yet</p>
-          <Link
-            href="/dashboard/opt-dates"
+          <button
+            type="button"
+            onClick={() => setShowInlineForm(true)}
             className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Your First Job
-          </Link>
+          </button>
         </div>
       ) : (
         <div className="divide-y divide-border">
