@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { LoadingScreen } from '@/components/ui/loading-screen';
@@ -33,6 +33,9 @@ function LoginPageContent() {
   const [countdown, setCountdown] = useState(180); // 3 minutes = 180 seconds
   const [canResend, setCanResend] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
+  const [otpAttemptsLeft, setOtpAttemptsLeft] = useState(5);
+  const [otpDigits, setOtpDigits] = useState<string[]>(['', '', '', '', '', '']);
+  const otpInputsRef = useRef<Array<HTMLInputElement | null>>([]);
   const [lastUsedMethod, setLastUsedMethod] = useState<'email' | 'google' | null>(null);
 
   // Password visibility toggles
@@ -103,6 +106,29 @@ function LoginPageContent() {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleOtpDigitChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, '').slice(-1);
+    setOtpDigits((prev) => {
+      const next = [...prev];
+      next[index] = digit;
+      const joined = next.join('');
+      setOtpCode(joined);
+      return next;
+    });
+
+    if (digit && index < 5) {
+      const nextInput = otpInputsRef.current[index + 1];
+      nextInput?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
+      const prevInput = otpInputsRef.current[index - 1];
+      prevInput?.focus();
+    }
+  };
 
   // Don't auto-redirect if already logged in - let user choose
   // This prevents redirect loops if session check is inconsistent
@@ -273,10 +299,13 @@ function LoginPageContent() {
 
       if (error) throw error;
 
-      // Reset timer
+      // Reset timer and attempts
       setCountdown(180);
       setCanResend(false);
       setOtpError('');
+      setOtpAttemptsLeft(5);
+      setOtpCode('');
+      setOtpDigits(['', '', '', '', '', '']);
     } catch (err: any) {
       setOtpError(err.message || 'Failed to resend code');
     } finally {
@@ -313,7 +342,16 @@ function LoginPageContent() {
       // Redirect to intended page or dashboard
       window.location.href = redirectTo;
     } catch (err: any) {
-      setOtpError(err.message || 'Invalid or expired code. Please try again.');
+      const baseMessage = err.message || 'Invalid or expired code. Please try again.';
+      setOtpAttemptsLeft((prev) => {
+        const next = Math.max(prev - 1, 0);
+        const suffix =
+          next > 0
+            ? ` (${next} attempts left)`
+            : ' (No attempts left, please resend a new code.)';
+        setOtpError(baseMessage + suffix);
+        return next;
+      });
     } finally {
       setOtpLoading(false);
     }
@@ -420,23 +458,43 @@ function LoginPageContent() {
             </div>
 
             <form onSubmit={handleVerifyOTP} className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  maxLength={6}
-                  required
-                  disabled={otpLoading}
-                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-border rounded-lg text-center text-2xl font-mono tracking-widest focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-muted dark:text-foreground"
-                  placeholder="Enter 6-digit code"
-                />
+              <div className="flex justify-between gap-2">
+                {otpDigits.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => {
+                      otpInputsRef.current[index] = el;
+                    }}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d*"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpDigitChange(index, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                    disabled={otpLoading || countdown === 0}
+                    className="w-10 h-12 md:w-12 md:h-14 border-2 border-gray-300 dark:border-border rounded-lg text-center text-xl md:text-2xl font-mono tracking-widest focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-muted dark:text-foreground"
+                  />
+                ))}
               </div>
 
-              <div className="text-center">
+              <div className="text-center space-y-1">
                 <p className="text-sm text-gray-500 dark:text-muted-foreground">
-                  Code expires in <span className="font-semibold text-gray-700 dark:text-foreground">{formatTime(countdown)}</span>
+                  Code expires in{' '}
+                  <span className="font-semibold text-gray-700 dark:text-foreground">
+                    {formatTime(countdown)}
+                  </span>
                 </p>
+                {otpAttemptsLeft < 5 && (
+                  <p className="text-xs text-gray-500 dark:text-muted-foreground">
+                    Attempts remaining: <span className="font-semibold">{otpAttemptsLeft}</span>
+                  </p>
+                )}
+                {countdown === 0 && (
+                  <p className="text-xs text-red-600 dark:text-red-400">
+                    Code expired. Please click &quot;Resend Code&quot; to get a new one.
+                  </p>
+                )}
               </div>
 
               {otpError && (
@@ -447,7 +505,12 @@ function LoginPageContent() {
 
               <button
                 type="submit"
-                disabled={otpLoading || otpCode.length !== 6}
+                disabled={
+                  otpLoading ||
+                  otpCode.length !== 6 ||
+                  countdown === 0 ||
+                  otpAttemptsLeft === 0
+                }
                 className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {otpLoading ? 'Verifying...' : 'Verify & Create Account'}
