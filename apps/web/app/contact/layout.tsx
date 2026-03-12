@@ -5,12 +5,12 @@ export const metadata: Metadata = {
     description: "Contact TrackMyOPT support for help with OPT timeline tracking, USCIS case status, H-1B sponsors, or account issues. Response within 4 hours.",
     keywords: ["contact TrackMyOPT", "OPT support", "international student help", "USCIS tracking help"],
     alternates: {
-        canonical: "https://trackmyopt.com/contact",
+        canonical: "https://www.trackmyopt.com/contact",
     },
     openGraph: {
         title: "Contact TrackMyOPT Support",
         description: "Need help with OPT tracking? Our team responds within 4 hours.",
-        url: "https://trackmyopt.com/contact",
+        url: "https://www.trackmyopt.com/contact",
     },
 };
 

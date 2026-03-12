@@ -4,6 +4,7 @@ import { Plane, CheckCircle2, Clock, ArrowRight, BookOpen, AlertTriangle, FileTe
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "Can You Travel on OPT? Complete F-1 Travel Guide (2026)",
     description: "Can you travel internationally while on OPT? Learn what documents you need to re-enter the US, the risks of traveling while OPT is pending, how travel affects your unemployment days, and STEM OPT travel rules.",
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
 export default function TravelOnOPTGuide() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Can You Travel On Opt", url: "https://www.trackmyopt.com/blog/can-you-travel-on-opt" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Can I travel while my OPT application is pending?", answer: "It is strongly discouraged. If you leave the US while your OPT application is pending before receiving your EAD card, USCIS may consider your application abandoned. Consult your DSO and an immigration attorney first."}, {question: "Do I need a valid visa stamp to re-enter the US on OPT?", answer: "Generally yes. However, if traveling to Canada, Mexico, or Caribbean islands for fewer than 30 days, you may qualify for automatic visa revalidation allowing re-entry on an expired stamp."}, {question: "Does travel outside the US stop my unemployment clock?", answer: "No. Days spent outside the US while unemployed still count toward your 90-day unemployment limit. The clock only stops with qualifying employment of at least 20 hours per week."}, {question: "How recent must my I-20 travel signature be?", answer: "Your DSO's travel endorsement signature must be dated within the last 6 months at time of re-entry. If older than 6 months, CBP may deny entry. Get a fresh signature before each trip."}, {question: "Can I travel between jobs on OPT?", answer: "Yes, but carefully. You need a job offer letter for your next position. Days between jobs count toward your 90-day unemployment limit, including days abroad."}]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">

@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Calendar, BookOpen } fr
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "H-1B Cap-Gap Extension Explained: Timeline, Work Auth & Rules (2026)",
     description: "H-1B cap-gap extension explained for F-1 OPT students. How the automatic extension works, timeline from OPT to H-1B, work authorization during cap-gap, and what happens if your H-1B is denied.",
@@ -15,6 +16,11 @@ export const metadata: Metadata = {
 export default function CapGapArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "H1b Cap Gap Extension", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What is the H-1B cap-gap?", answer: "The cap-gap is an automatic extension of F-1 status and OPT work authorization that bridges the gap between your OPT expiration and the October 1 H-1B start date, available when your employer files a timely H-1B petition with change of status."}, {question: "Can I travel during the cap-gap?", answer: "Travel is risky during the cap-gap. If you leave the US, you may not be able to re-enter on F-1 status. Most immigration attorneys recommend NOT traveling during this period."}, {question: "Do I need a new EAD card for the cap-gap?", answer: "No. Your existing EAD card is automatically extended by regulation. USCIS does not issue a new card, but your I-20 should show the cap-gap extension. Keep your original EAD and the updated I-20 together."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

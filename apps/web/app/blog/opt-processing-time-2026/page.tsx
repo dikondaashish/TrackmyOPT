@@ -4,6 +4,7 @@ import { Clock, ArrowRight, BookOpen, TrendingUp, AlertTriangle, CheckCircle2 } 
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "OPT Processing Time 2026: Current Wait Times & How to Avoid Delays",
     description: "Latest OPT EAD processing times in 2026. USCIS currently takes 2-5 months for most OPT applications (Form I-765). Learn processing timelines, tips to avoid RFEs, and what to do while waiting.",
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
 export default function OPTProcessingTimeArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Opt Processing Time 2026", url: "https://www.trackmyopt.com/blog/opt-processing-time-2026" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What are current OPT processing times for 2026?", answer: "As of early 2026, the average processing time for Form I-765 OPT applications is 3-5 months from submission to EAD card delivery. Times vary by service center and current backlogs."}, {question: "Can I expedite my OPT processing?", answer: "USCIS offers premium processing for an additional $2,805 fee, which reduces processing time to 15 calendar days. Your application must be eligible (no RFEs or issues)."}, {question: "What is the premium processing fee for OPT in 2026?", answer: "Premium processing for Form I-765 costs $2,805 as of 2026. This fee is in addition to the standard filing fees and reduces processing time to 15 days."} ]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">

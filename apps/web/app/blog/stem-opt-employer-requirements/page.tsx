@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, Shield, Build
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "STEM OPT Employer Requirements 2026: E-Verify, I-983 & Compliance Checklist",
     description: "Complete guide to STEM OPT employer requirements in 2026. E-Verify enrollment, Form I-983 obligations, wage rules, reporting deadlines, and a full compliance checklist for employers hiring STEM OPT workers.",
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
 export default function STEMOPTEmployerRequirementsArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Stem Opt Employer Requirements", url: "https://www.trackmyopt.com/blog/stem-opt-employer-requirements" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Does my employer need to be enrolled in E-Verify for STEM OPT?", answer: "Yes. E-Verify enrollment is a non-negotiable requirement for STEM OPT employers. The employer must provide their E-Verify Company Identification Number on Form I-983, and enrollment must remain active throughout the entire STEM OPT period."}, {question: "Who fills out the I-983 form?", answer: "Both the student and the employer. The student fills in personal information (name, SEVIS ID, degree program), while the employer completes sections on company info, E-Verify ID, training objectives, supervision plan, and compensation."}, {question: "What happens if my employer loses E-Verify enrollment?", answer: "If your employer's E-Verify enrollment is terminated after your STEM OPT begins, you have 60 days to find a new E-Verify employer and transfer your STEM OPT. Report the change to your DSO right away."}, {question: "Can I change employers on STEM OPT?", answer: "Yes. You can change employers on STEM OPT, but the new employer must be E-Verify enrolled. Submit a new I-983 within 10 days of starting the new position and report to your DSO within 10 days."}, {question: "How often must employers evaluate STEM OPT employees?", answer: "Employers must complete two formal evaluations: one at the 12-month midpoint and one at the conclusion of the 24-month STEM OPT period."}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

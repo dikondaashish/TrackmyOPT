@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Calendar, Briefcase } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)",
     description: "Complete guide to transitioning from OPT to H-1B in 2026. Learn the timeline, cap-gap extension, employer requirements, and what happens if your H-1B isn't selected in the lottery.",
@@ -18,6 +19,11 @@ export const metadata: Metadata = {
 export default function OPTtoH1BArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Opt To H1b Transition", url: "https://www.trackmyopt.com/blog/opt-to-h1b-transition" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Can I transition from OPT to H-1B?", answer: "Yes. If your employer filed an H-1B petition while you were on OPT, you can transition to H-1B status if your petition is approved and your OPT is still valid or in the cap-gap period."}, {question: "What is cap-gap and how does it help during H-1B transition?", answer: "Cap-gap is an automatic extension of your OPT work authorization from your OPT end date until October 1 (H-1B start date), allowing you to work while waiting for your H-1B petition decision."}, {question: "Can my H-1B petition be filed multiple times if I don't win the lottery?", answer: "After not being selected in the lottery, you can change employers and file H-1B petitions with different companies. However, each application enters a new lottery cycle."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

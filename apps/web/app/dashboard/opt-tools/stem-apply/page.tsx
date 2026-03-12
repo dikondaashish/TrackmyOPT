@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: "How to Apply for STEM OPT Extension | 24-Month Guide",
     description:
       "Complete STEM OPT extension guide with I-983, E-Verify requirements, and application timeline.",
-    url: "https://trackmyopt.com/dashboard/opt-tools/stem-apply",
+    url: "https://www.trackmyopt.com/dashboard/opt-tools/stem-apply",
     siteName: "TrackMyOPT",
     type: "article",
   },
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
       "Apply for 24-month STEM OPT extension. Complete checklist with I-983 and E-Verify requirements.",
   },
   alternates: {
-    canonical: "https://trackmyopt.com/dashboard/opt-tools/stem-apply",
+    canonical: "https://www.trackmyopt.com/dashboard/opt-tools/stem-apply",
   },
 };
 

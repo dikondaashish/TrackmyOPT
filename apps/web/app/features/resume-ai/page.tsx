@@ -18,6 +18,7 @@ import {
     TrendingUp,
     AlertTriangle
 } from "lucide-react";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
 import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";

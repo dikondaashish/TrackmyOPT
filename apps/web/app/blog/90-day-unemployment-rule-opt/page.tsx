@@ -4,6 +4,7 @@ import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen, ExternalLink 
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "The 90-Day OPT Unemployment Rule: Everything You Need to Know (2026)",
     description: "Understand the 90-day unemployment limit during OPT. Learn how unemployment days are counted, what counts as employment, and how to avoid violating your F-1 status. Source: USCIS 8 CFR § 214.2(f).",
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
 export default function NinetyDayRuleArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "90 Day Unemployment Rule Opt", url: "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-10" author="TrackMyOPT Team" faqItems={[{question: "What is the 90-day rule for OPT?", answer: "The 90-day rule limits F-1 students on post-completion OPT to a maximum of 90 cumulative days of unemployment during their 12-month OPT authorization period. Exceeding this limit results in SEVIS termination."}, {question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 days of unemployment across the combined OPT + STEM OPT period: 90 days from initial OPT plus 60 additional days from the STEM extension."}, {question: "Do weekends count as unemployment days on OPT?", answer: "Yes, weekends and holidays count as unemployment days if you do not have qualifying employment. The unemployment counter counts calendar days, not business days."}, {question: "Can I reset my unemployment days?", answer: "No, unemployment days are cumulative and cannot be reset. They accumulate throughout your entire OPT authorization period."}]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">

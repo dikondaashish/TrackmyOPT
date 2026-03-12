@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, Scale } from 
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "Day 1 CPT vs OPT: Key Differences Every F-1 Student Should Know (2026)",
     description: "Day 1 CPT vs OPT comparison for F-1 students. Understand the differences in eligibility, work authorization, risks, and long-term immigration impact. Make an informed decision.",
@@ -15,6 +16,11 @@ export const metadata: Metadata = {
 export default function Day1CPTArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Day 1 Cpt Vs Opt", url: "https://www.trackmyopt.com/blog/day-1-cpt-vs-opt" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Is Day 1 CPT legal?", answer: "Day 1 CPT is technically legal under USCIS regulations, but it is not without risk. Your employer must be certified for CPT participation."}, {question: "Does Day 1 CPT affect my OPT eligibility?", answer: "No. Day 1 CPT does not reduce your OPT period. You still get 12 months of OPT after graduation, regardless of any prior CPT."}, {question: "Can I do Day 1 CPT after I've already used OPT?", answer: "No. Once you're on post-completion OPT, you cannot go back to CPT. However, you can switch during school if the opportunity arises."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

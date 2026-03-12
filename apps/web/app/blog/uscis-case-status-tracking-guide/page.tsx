@@ -4,6 +4,7 @@ import { Search, CheckCircle2, Clock, ArrowRight, BookOpen, AlertTriangle, Bell,
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "How to Track Your USCIS Case Status Online: Complete Guide (2026)",
     description: "Learn how to check your USCIS case status online using your receipt number. Understand status messages like 'Case Was Received' and 'New Card Is Being Produced,' plus how TrackMyOPT automates daily tracking for OPT and EAD applications.",
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
 export default function USCISCaseStatusTrackingGuide() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Uscis Case Status Tracking Guide", url: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "How do I check my USCIS case status?", answer: "Visit egov.uscis.gov/casestatus/landing.do and enter your 13-character receipt number (found on your I-797C Notice of Action). USCIS will display the most recent status update for your case."}, {question: "What does 'Case Was Received' mean?", answer: "This means USCIS has accepted your application and assigned it a receipt number, but processing has not yet begun. Your application is in the queue waiting for review."}, {question: "How long does I-765 processing take?", answer: "As of early 2026, the typical processing time for Form I-765 (Application for Employment Authorization) is 3–5 months from submission to card delivery. Processing times vary by service center."}, {question: "What should I do if I get an RFE?", answer: "A Request for Evidence (RFE) means USCIS needs additional documentation. Read the RFE letter carefully, respond well before the deadline (usually 87 days), and include a cover letter referencing your receipt number."}, {question: "Can I track multiple cases at once?", answer: "Yes. On USCIS.gov, you can check one case at a time. However, TrackMyOPT allows you to add multiple receipt numbers and track them all from a single dashboard with email notifications."} ]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">

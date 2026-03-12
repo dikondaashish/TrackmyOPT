@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText } from "lucide
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "OPT Application Checklist 2026: Complete I-765 Filing Guide",
     description: "Step-by-step OPT application checklist. Every document, form, and deadline for filing Form I-765. Avoid RFEs with our comprehensive 2026 checklist for F-1 students.",
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
 export default function OPTChecklistArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Opt Application Checklist 2026", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "When should I apply for OPT?", answer: "You can file for OPT no earlier than 90 days before your program end date and no later than 60 days after. The sooner you file, the sooner your EAD card may be processed."}, {question: "How much does OPT cost in 2026?", answer: "OPT itself is free, but USCIS filing fees total approximately $410 (if using the online myUSCIS system) or more if using paper filing. Many employers cover this cost."}, {question: "Can I track my OPT application status?", answer: "Yes. Use your receipt number at egov.uscis.gov/casestatus, or use TrackMyOPT's Case Status Tracker for automated daily monitoring and email alerts."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>

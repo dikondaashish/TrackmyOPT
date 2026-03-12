@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, CreditCard, BookOpen, F
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "OPT EAD Card 2026: How to Apply, Track & Renew Your Employment Authorization",
     description: "Everything about the OPT EAD card in 2026. How to apply with Form I-765, required documents, processing times, how to track your card, and what to do if it's lost or delayed.",
@@ -15,6 +16,11 @@ export const metadata: Metadata = {
 export default function OPTEADArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Opt Ead Card Guide", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What is the OPT EAD card?", answer: "The OPT EAD (Employment Authorization Document) is your I-766 card, which proves you have work authorization while on OPT. You cannot work without it."}, {question: "How long does it take to get your EAD card?", answer: "Processing typically takes 2-5 months from filing to card delivery. Many employers expedite the card production once your case is approved."}, {question: "Can I work before I receive my EAD card?", answer: "No. You cannot legally work until you receive your physical EAD card in hand. Some employers may offer provisional start dates, but your work authorization does not begin until your EAD is in your possession."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

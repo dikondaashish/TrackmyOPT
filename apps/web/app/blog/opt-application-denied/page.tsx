@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, XCircle, Shie
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "OPT Application Denied? What to Do Next (2026 Guide)",
     description: "Your OPT application was denied — now what? Common denial reasons, whether you can refile, the 60-day grace period, your legal options, and how to prevent OPT denial. Updated for 2026.",
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
 export default function OPTDeniedArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Opt Application Denied", url: "https://www.trackmyopt.com/blog/opt-application-denied" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Can I appeal my OPT denial?", answer: "You cannot formally appeal an OPT denial, but you can file a Motion to Reopen or Motion to Reconsider. This requires new evidence or proof of a legal error in the denial."}, {question: "Can I refile my OPT application after denial?", answer: "Yes. You can refile after addressing the reason for denial. Get an explanation from USCIS, fix the issue (additional documents, corrected form, etc.), and resubmit."}, {question: "What is the 60-day grace period?", answer: "After your OPT is denied, you enter a 60-day grace period to either prepare to leave the US, refile, or obtain another immigration status."}, {question: "How long do I have to leave the US if denied?", answer: "You have 60 days from your OPT end date (or denial notice) to depart. If you stay past this period without alternate status, you accrue unlawful presence."}, {question: "Will an OPT denial affect my future visa applications?", answer: "A single OPT denial is unlikely to permanently harm your immigration record, but consult an immigration attorney before future applications to ensure no issues exist."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

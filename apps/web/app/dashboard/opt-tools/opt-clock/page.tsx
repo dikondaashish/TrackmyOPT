@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     title: "OPT Unemployment Days Calculator | 90-Day Rule Tracker",
     description:
       "Free tool to calculate your OPT unemployment days. Track the 90-day limit and avoid status violation.",
-    url: "https://trackmyopt.com/dashboard/opt-tools/opt-clock",
+    url: "https://www.trackmyopt.com/dashboard/opt-tools/opt-clock",
     siteName: "TrackMyOPT",
     type: "website",
   },
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
       "Track your OPT unemployment days. Know how many of your 90 days you've used.",
   },
   alternates: {
-    canonical: "https://trackmyopt.com/dashboard/opt-tools/opt-clock",
+    canonical: "https://www.trackmyopt.com/dashboard/opt-tools/opt-clock",
   },
 };
 

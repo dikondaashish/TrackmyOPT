@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, FileText, Dol
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "F-1 Student Tax Filing Guide 2026: Forms, Deadlines & Step-by-Step",
     description: "Complete F-1 student tax filing guide for 2026. Learn which forms to file (8843, 1040-NR), FICA tax exemption, resident vs non-resident status, tax treaties, and step-by-step filing instructions.",
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
 export default function F1TaxFilingGuide() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "F1 Student Tax Filing Guide", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Do F-1 students pay taxes?", answer: "Yes. F-1 students who earn income in the US must pay federal and usually state income tax. Even with no income, Form 8843 must be filed. Non-resident alien F-1 students file Form 1040-NR instead of the standard 1040."}, {question: "What is Form 8843?", answer: "Form 8843 is an IRS informational return that all F-1 and J-1 visa holders must file each year they are in the US. It declares exempt status under the Substantial Presence Test. It is not a tax return and does not calculate taxes owed."}, {question: "Can F-1 students use TurboTax?", answer: "Generally no for non-resident aliens. TurboTax only supports Form 1040, not 1040-NR. Non-resident alien F-1 students should use Sprintax or Glacier Tax Prep instead, which are designed for non-resident alien filing."}, {question: "What is the FICA tax exemption for F-1 students?", answer: "F-1 students are exempt from FICA taxes (Social Security 6.2% and Medicare 1.45%) during their first 5 calendar years in the US under IRC Section 3121(b)(19). If incorrectly withheld, you can request a refund."}, {question: "When is the tax filing deadline for F-1 students?", answer: "For the 2025 tax year, the federal deadline is April 15, 2026 if you have US-source income. If only filing Form 8843 with no income, the deadline is June 15, 2026."}]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">

@@ -4,6 +4,7 @@ import { Clock, ArrowRight, AlertTriangle, CheckCircle2, BookOpen } from "lucide
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "STEM OPT Unemployment Limit: The 150-Day Rule Explained (2026)",
     description: "The STEM OPT unemployment limit is 150 cumulative days (90 from initial OPT + 60 additional). Learn counting rules, what qualifies as employment, and how to stay compliant on STEM OPT.",
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
 export default function StemOPTUnemploymentArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Stem Opt Unemployment Limit", url: "https://www.trackmyopt.com/blog/stem-opt-unemployment-limit" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 cumulative days of unemployment across the entire 36-month OPT + STEM OPT period. This includes the initial 90 days from post-completion OPT plus an additional 60 days from the STEM extension."}, {question: "Does volunteer work count as employment on STEM OPT?", answer: "No. Unlike regular OPT where volunteer positions (20+ hours/week) can count, STEM OPT requires paid employment at an E-Verify employer. Volunteer and unpaid work does not stop the unemployment clock during STEM OPT."}, {question: "What happens if I exceed 150 days on STEM OPT?", answer: "Exceeding 150 days of unemployment during the OPT + STEM OPT period can result in SEVIS termination and loss of F-1 status. Your DSO is required to report excess unemployment days to SEVP."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>

@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText, BookOpen } fr
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "OPT Extension Guide 2026: How to Extend Your OPT Work Authorization",
     description: "How to extend OPT in 2026. STEM OPT extension eligibility, cap-gap extension, 180-day auto extension, and what to do when your OPT is about to expire.",
@@ -15,6 +16,11 @@ export const metadata: Metadata = {
 export default function OPTExtensionGuideArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Opt Extension Guide", url: "https://www.trackmyopt.com/blog/opt-extension-guide" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Can I extend my OPT?", answer: "Regular post-completion OPT cannot be extended, but STEM degree holders can apply for a 24-month STEM OPT extension. Additionally, all students may qualify for the automatic 60-day OPT grace period."}, {question: "How long can I extend OPT for?", answer: "STEM OPT extension provides an additional 24 months (beyond your initial 12 months of OPT). Non-STEM students get a 60-day grace period if their OPT expires while they are job searching."}, {question: "When should I apply for STEM OPT extension?", answer: "File your STEM OPT extension before your initial OPT expires. You must have an I-983 training plan from your employer and be working at an E-Verify employer."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

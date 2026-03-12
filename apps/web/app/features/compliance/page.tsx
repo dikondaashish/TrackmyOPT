@@ -16,6 +16,7 @@ import {
     Users,
     XCircle
 } from "lucide-react";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
 import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";
@@ -66,7 +67,13 @@ function CalculatorPreview() {
 
 export default function CompliancePage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <>
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Features", url: "https://www.trackmyopt.com/features" },
+                { name: "Compliance", url: "https://www.trackmyopt.com/features/compliance" },
+            ]} />
+            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="OPT Compliance Tracker & Timeline Manager"
                 description="Track your entire OPT timeline, unemployment days, and USCIS deadlines in real-time. Stay compliant with multi-channel alerts for all critical milestones including filing windows and employer reporting."
@@ -298,5 +305,6 @@ export default function CompliancePage() {
                 badge="Forever Free"
             />
         </main>
+        </>
     );
 }

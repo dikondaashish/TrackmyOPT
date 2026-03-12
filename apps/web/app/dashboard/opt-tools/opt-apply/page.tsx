@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     title: "How to Apply for OPT | Complete I-765 Application Guide",
     description:
       "Step-by-step OPT application guide with I-765 checklist, required documents, and filing timeline for F-1 students.",
-    url: "https://trackmyopt.com/dashboard/opt-tools/opt-apply",
+    url: "https://www.trackmyopt.com/dashboard/opt-tools/opt-apply",
     siteName: "TrackMyOPT",
     type: "article",
   },
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
       "Complete OPT application guide for F-1 students with required documents and timeline.",
   },
   alternates: {
-    canonical: "https://trackmyopt.com/dashboard/opt-tools/opt-apply",
+    canonical: "https://www.trackmyopt.com/dashboard/opt-tools/opt-apply",
   },
 };
 

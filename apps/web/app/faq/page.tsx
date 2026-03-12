@@ -25,7 +25,7 @@ export const metadata: Metadata = {
         title: "OPT FAQ - Frequently Asked Questions | TrackMyOPT",
         description:
             "Complete FAQ for F-1 students on OPT. Get answers about unemployment days, STEM extensions, USCIS tracking, and more.",
-        url: "https://trackmyopt.com/faq",
+        url: "https://www.trackmyopt.com/faq",
         siteName: "TrackMyOPT",
         type: "website",
     },
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
             "Answers to all your OPT, STEM OPT, and F-1 visa questions.",
     },
     alternates: {
-        canonical: "https://trackmyopt.com/faq",
+        canonical: "https://www.trackmyopt.com/faq",
     },
 };
 

@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText, BookOpen } fr
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "I-983 Training Plan for STEM OPT: Complete Guide (2026)",
     description: "How to complete Form I-983 for STEM OPT. Step-by-step guide to each section, employer requirements, E-Verify enrollment, and common mistakes that cause rejections.",
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
 export default function I983Article() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "I 983 Training Plan Guide", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What is the I-983 form?", answer: "Form I-983 is the Employer's Certification of Training & Experience form required for STEM OPT extensions. It documents the employer's commitment to providing structured training and supervision."}, {question: "Is E-Verify required to file I-983?", answer: "Yes. Your employer must be successfully enrolled in E-Verify and have an active Company ID to sign the I-983. E-Verify enrollment is a non-negotiable requirement."}, {question: "When should I update my I-983?", answer: "You must submit a new or updated I-983 at the 12-month and 24-month marks of your STEM OPT to confirm your training progress and continued compliance with the program."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

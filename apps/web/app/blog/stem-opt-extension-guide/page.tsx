@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, Shield, FileT
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "Complete STEM OPT Guide 2026: Extension, Eligibility & Application",
     description: "Everything about STEM OPT in 2026: eligible CIP codes, 24-month extension timeline, I-983 form, E-Verify requirement, employer obligations, and unemployment rules. Updated with latest USCIS data.",
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
 export default function STEMOPTGuideArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Stem Opt Extension Guide", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What is STEM OPT?", answer: "STEM OPT is a 24-month extension of Optional Practical Training available to F-1 students who earned a degree in a Science, Technology, Engineering, or Mathematics field. Combined with the initial 12-month OPT, you can work for up to 36 months total."}, {question: "How long is the STEM OPT extension?", answer: "The STEM OPT extension provides an additional 24 months of work authorization beyond your initial 12-month post-completion OPT, for a total of 36 months of practical training."}, {question: "Is E-Verify required for STEM OPT?", answer: "Yes. Your employer must be enrolled in E-Verify and have an active Company ID number. E-Verify enrollment is a mandatory requirement with no exceptions."}, {question: "Can I apply for STEM OPT extension twice?", answer: "No. STEM OPT extension is a one-time benefit. Once you've used your STEM extension (24 months), you cannot apply for another extension, even if you change employers or jobs."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

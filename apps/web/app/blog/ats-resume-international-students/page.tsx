@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText, BookOpen, Tar
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "ATS Resume for International Students: Beat the Bots & Get Interviews (2026)",
     description: "Learn how to create an ATS-friendly resume as an international student. Formatting rules, keyword optimization, the XYZ bullet formula, and visa status best practices for F-1 and H-1B job seekers.",
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
 export default function ATSResumeArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Ats Resume International Students", url: "https://www.trackmyopt.com/blog/ats-resume-international-students" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2025-03-20" modifiedDate="2026-03-20" author="TrackMyOPT Team" faqItems={[{question: "What is an ATS?", answer: "An Applicant Tracking System is software that scans and filters resumes before reaching a human recruiter."}, {question: "Why do ATS systems reject resumes?", answer: "ATS filters resumes for keywords, formatting, file type, and required qualifications. Poor formatting causes rejection."}, {question: "How do I make my resume ATS-friendly?", answer: "Use standard formatting, include keywords from the job posting, save as .docx or .pdf, use bullet points, avoid images and graphics."}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

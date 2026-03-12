@@ -317,7 +317,13 @@ export const breadcrumbSchema = {
             "@type": "ListItem",
             position: 3,
             name: "Pricing",
-            item: "https://www.trackmyopt.com/#pricing",
+            item: "https://www.trackmyopt.com/pricing",
+        },
+        {
+            "@type": "ListItem",
+            position: 4,
+            name: "Glossary",
+            item: "https://www.trackmyopt.com/glossary",
         },
     ],
 };

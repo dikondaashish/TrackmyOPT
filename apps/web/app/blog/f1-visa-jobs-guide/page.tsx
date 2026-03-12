@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Briefcase, BookOpen, Ma
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "F-1 Visa Jobs 2026: How to Find Jobs as an International Student",
     description: "Complete guide to finding jobs on F-1 visa in 2026. OPT jobs, CPT employment, on-campus work, H-1B sponsor companies, and job search strategies for international students.",
@@ -15,6 +16,11 @@ export const metadata: Metadata = {
 export default function F1JobsArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "F1 Visa Jobs Guide", url: "https://www.trackmyopt.com/blog/f1-visa-jobs-guide" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Can F-1 students work?", answer: "Yes. F-1 students can work based on CPT (Curricular Practical Training) during school, OPT (Optional Practical Training) after graduation, or on-campus employment up to 20 hours/week during school."}, {question: "How do I find H-1B sponsors?", answer: "Search the USCIS H-1B Employer Data Hub, use TrackMyOPT's Sponsor Database (which shows approval rates and salary data), check LinkedIn, or apply to companies known for sponsoring visa workers."}, {question: "When should I start job searching if I want to transition to H-1B?", answer: "Start job searching 6-9 months before your OPT would end. H-1B registration opens in March for a new fiscal year, so positions should be filled by then."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

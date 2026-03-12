@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     title: "STEM OPT Unemployment Calculator | 90 + 60 Day Unlimited Tracker",
     description:
       "Free tool to calculate your STEM OPT unemployment days. Track 90-day initial + 60-day stem extension limits.",
-    url: "https://trackmyopt.com/dashboard/opt-tools/stem-clock",
+    url: "https://www.trackmyopt.com/dashboard/opt-tools/stem-clock",
     siteName: "TrackMyOPT",
     type: "website",
   },
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
       "Track your STEM OPT unemployment days. Monitor your 90-day initial and 60-day stem allowances.",
   },
   alternates: {
-    canonical: "https://trackmyopt.com/dashboard/opt-tools/stem-clock",
+    canonical: "https://www.trackmyopt.com/dashboard/opt-tools/stem-clock",
   },
 };
 

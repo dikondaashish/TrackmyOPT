@@ -4,6 +4,7 @@ import { Clock, ArrowRight, TrendingUp, Building2, CheckCircle2, BarChart3 } fro
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "H-1B Approval Rates by Company 2026: Data Analysis & Top Sponsors",
     description: "H-1B approval rates by company in 2026. See which employers have the highest (and lowest) approval rates, average processing times, and sponsorship trends based on USCIS data.",
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
 export default function H1BApprovalRatesArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "H1b Approval Rates By Company", url: "https://www.trackmyopt.com/blog/h1b-approval-rates-by-company" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Which companies have the highest H-1B approval rates?", answer: "Top tech companies like Google (98%), Apple (97%), and Microsoft (97%) lead with near-perfect approval rates. Direct employers consistently outperform IT staffing firms, which average 60-75% approval rates."}, {question: "What is the average H-1B approval rate?", answer: "The overall H-1B approval rate in FY2025 was approximately 85%. Direct employers average 90-98%, while IT staffing and consulting firms place workers average 65-80%."}, {question: "Why do IT staffing firms have lower approval rates?", answer: "IT staffing firms often place workers at third-party client sites, which USCIS scrutinizes more heavily. Additionally, staffing firms file a much higher volume of petitions, making individual cases receive less thorough vetting per petition."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

@@ -4,6 +4,7 @@ import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Building2, BookOpen, Fi
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "Top H-1B Sponsor Companies 2026: Data-Driven Rankings & Analysis",
     description: "Comprehensive rankings of the top H-1B sponsor companies in 2026. Data-driven analysis of petition counts, approval rates, salary data, and industry breakdowns from USCIS data.",
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
 export default function TopH1BSponsorArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <BreadcrumbSchema items={[
+                { name: "Home", url: "https://www.trackmyopt.com" },
+                { name: "Blog", url: "https://www.trackmyopt.com/blog" },
+                { name: "Top H1b Sponsor Companies 2026", url: "https://www.trackmyopt.com/blog/top-h1b-sponsor-companies-2026" },
+            ]} />
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Which companies sponsor the most H-1B visas?", answer: "Amazon leads with approximately 9,500 petitions filed in FY2025, followed by Infosys (~7,800), TCS (~6,200), Cognizant (~5,400), and Google (~4,800). Direct employers have 95%+ approval rates while IT staffing firms average 70-75%."}, {question: "What is the average H-1B approval rate?", answer: "The overall H-1B approval rate across all employers in FY2025 was approximately 85%. Direct employers average 90-98% while IT staffing and consulting firms average 65-80%."}, {question: "How can I find out if a company sponsors H-1B?", answer: "Three ways: (1) Search the USCIS H-1B Employer Data Hub at uscis.gov/h-1b-data-hub. (2) Use TrackMyOPT's H-1B Sponsor Database. (3) Check the company's job postings for visa sponsorship mentions."}, {question: "How much does H-1B sponsorship cost employers?", answer: "Total employer cost ranges from approximately $5,000 to $10,000+ per petition including the $215 registration fee, $780 base filing fee, $750-$1,500 ACWIA training fee, and attorney fees."}, {question: "Are consulting companies good H-1B sponsors?", answer: "Big 4 firms (Deloitte, EY, PwC, KPMG) and strategy firms have 88-93% approval rates. However, smaller IT staffing firms have lower rates (50-75%) due to USCIS scrutiny of third-party worksite placements."}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>

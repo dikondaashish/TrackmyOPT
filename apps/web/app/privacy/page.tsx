@@ -269,7 +269,7 @@ export default function PrivacyPage() {
                 <li><strong>Company</strong>: Zyene, Inc.</li>
                 <li><strong>Headquarters</strong>: San Francisco, California</li>
                 <li><strong>Email</strong>: <a href="mailto:support@trackmyopt.com">support@trackmyopt.com</a></li>
-                <li><strong>Website</strong>: <a href="https://trackmyopt.com">trackmyopt.com</a></li>
+                <li><strong>Website</strong>: <a href="https://www.trackmyopt.com">trackmyopt.com</a></li>
               </ul>
 
               <hr className="my-8" />

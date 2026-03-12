@@ -8,6 +8,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Core pages — highest priority, updated frequently
     const corePages = [
         { route: '', changeFrequency: 'daily' as const, priority: 1.0 },
+        { route: '/pricing', changeFrequency: 'weekly' as const, priority: 0.9 },
+        { route: '/glossary', changeFrequency: 'weekly' as const, priority: 0.8 },
+        { route: '/tools', changeFrequency: 'weekly' as const, priority: 0.8 },
+        { route: '/guides/f1-tax-filing', changeFrequency: 'weekly' as const, priority: 0.9 },
+        { route: '/guides/opt-career', changeFrequency: 'weekly' as const, priority: 0.9 },
+        { route: '/guides/opt-health-insurance', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/about', changeFrequency: 'monthly' as const, priority: 0.8 },
         { route: '/contact', changeFrequency: 'monthly' as const, priority: 0.6 },
         { route: '/partnerships', changeFrequency: 'monthly' as const, priority: 0.7 },
@@ -22,6 +28,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/features/extension',
         '/features/compliance',
         '/features/community',
+        '/features/case-status',
+        '/features/tax-filing',
+        '/features/health-insurance',
     ];
 
     // Public tools — valuable for SEO, updated with features
@@ -62,6 +71,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog/opt-ead-card-guide',
         '/blog/h1b-cap-gap-extension',
         '/blog/day-1-cpt-vs-opt',
+        '/blog/f1-student-tax-filing-guide',
+        '/blog/opt-health-insurance-guide',
+        '/blog/uscis-case-status-tracking-guide',
+        '/blog/can-you-travel-on-opt',
+        '/blog/ats-resume-international-students',
+        '/blog/top-h1b-sponsor-companies-2026',
+        '/blog/stem-opt-employer-requirements',
+        '/blog/opt-application-denied',
     ];
 
     return [
