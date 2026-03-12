@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense, useRef } from 'react';
+import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { LoadingScreen } from '@/components/ui/loading-screen';
@@ -634,10 +635,19 @@ function LoginPageContent() {
                 }`}
             >
               <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-12 shadow-2xl">
-                <div className="relative mb-12">
-                  <div className={`w-full aspect-square max-w-sm mx-auto rounded-2xl bg-gradient-to-br ${img.gradient} opacity-30 shadow-xl`}></div>
+                <div className="relative mb-12 flex items-center justify-center">
+                  <div className={`w-full aspect-square max-w-sm mx-auto rounded-2xl bg-gradient-to-br ${img.gradient} opacity-30 shadow-xl`} />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className={`w-32 h-32 rounded-full bg-gradient-to-br ${img.gradient} animate-pulse shadow-2xl`}></div>
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-[#226BE7]/80 backdrop-blur-sm flex items-center justify-center shadow-2xl border border-white/20">
+                      <Image
+                        src="/TrackMyOPT Logo/logo.gif"
+                        alt="TrackMyOPT Logo"
+                        width={96}
+                        height={96}
+                        className="w-20 h-20 md:w-24 md:h-24 object-contain"
+                        unoptimized
+                      />
+                    </div>
                   </div>
                 </div>
 
