@@ -522,9 +522,14 @@ export function SettingsSection() {
 
       if (meRes.ok) {
         const meData = await meRes.json();
+        const meta = meData.user?.user_metadata || {};
+        const metaFullName = meta.full_name || meta.fullName;
+        const constructedName = [meta.firstName, meta.lastName].filter(Boolean).join(" ");
+        const fallbackFromEmail = meData.user?.email ? meData.user.email.split("@")[0] : "";
+
         setProfile({
           email: meData.user?.email || "",
-          fullName: meData.user?.user_metadata?.full_name || "",
+          fullName: metaFullName || constructedName || fallbackFromEmail,
           timezone: meData.profile?.timezone || "America/New_York",
           notificationEmail: "",
         });
