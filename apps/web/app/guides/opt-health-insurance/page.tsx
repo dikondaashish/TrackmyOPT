@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Link from "next/link";
 import {
     Heart,
@@ -15,6 +16,14 @@ import {
     BookOpen,
 } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+
+export const metadata: Metadata = {
+    title: "OPT Health Insurance Guide: Plans, Requirements & Costs | TrackMyOPT",
+    description: "Complete guide to health insurance for F-1 students on OPT. Compare plans, understand requirements, budget, and avoid penalties.",
+    alternates: {
+        canonical: "https://www.trackmyopt.com/guides/opt-health-insurance",
+    },
+};
 
 const tocItems = [
     ["#why-critical", "Why Health Insurance Is Critical on OPT"],
@@ -500,7 +509,6 @@ export default function OPTHealthInsurancePillarGuide() {
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         COBRA (Consolidated Omnibus Budget Reconciliation Act) allows you to continue group health coverage after a qualifying event like job loss or graduation. However, there are important caveats for OPT students.
-import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
                     </p>
 
                     <div className="space-y-4 mb-6">

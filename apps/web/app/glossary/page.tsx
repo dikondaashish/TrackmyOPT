@@ -1,4 +1,13 @@
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+    title: "Immigration Glossary: F-1 Visa Terms Explained | TrackMyOPT",
+    description: "Complete glossary of F-1 visa, OPT, STEM OPT, H-1B, and immigration terminology. Definitions for every term you need to understand.",
+    alternates: {
+        canonical: "https://www.trackmyopt.com/glossary",
+    },
+};
 
 interface GlossaryTerm {
     term: string;

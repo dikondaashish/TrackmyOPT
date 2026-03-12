@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { CanonicalURL } from "@/components/CanonicalURL";
 import Link from "next/link";
 import {
     ArrowRight,
@@ -90,7 +91,9 @@ function AnalyticsPreview() {
 
 export default function JobTrackerPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <>
+            <CanonicalURL url="https://www.trackmyopt.com/features/job-tracker" />
+            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="Job Tracker with OPT Unemployment Counter Sync"
                 description="Track all your job applications with a visual Kanban board that syncs with your OPT unemployment clock. Never lose track of applications or miss follow-ups while staying compliant."
@@ -324,5 +327,6 @@ export default function JobTrackerPage() {
                 badge="Syncs with OPT Clock"
             />
         </main>
+        </>
     );
 }

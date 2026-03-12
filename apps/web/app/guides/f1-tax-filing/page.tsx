@@ -15,6 +15,14 @@ import {
 } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
+export const metadata: Metadata = {
+    title: "The Ultimate F-1 Student Tax Guide (2026) | TrackMyOPT",
+    description: "Complete step-by-step guide to US tax filing for international F-1 students. Covers forms, deadlines, FICA refunds, tax treaties, and strategies to maximize refunds.",
+    alternates: {
+        canonical: "https://www.trackmyopt.com/guides/f1-tax-filing",
+    },
+};
+
 export default function F1TaxFilingPillarGuide() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -702,7 +710,6 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         This is one of the most important decisions F-1 students face during tax season. Using the wrong software can result in filing the wrong form entirely. Here is a detailed comparison.
-import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
                     </p>
 
                     <div className="overflow-x-auto mb-6">

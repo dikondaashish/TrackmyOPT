@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { CanonicalURL } from "@/components/CanonicalURL";
 import Link from "next/link";
 import {
     ArrowRight,
@@ -117,7 +118,9 @@ function PrivacyChecklist() {
 
 export default function ExtensionPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <>
+            <CanonicalURL url="https://www.trackmyopt.com/features/extension" />
+            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-rose-50/50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="H-1B Sponsor Intel Chrome Extension"
                 description="See H-1B sponsorship history, E-Verify enrollment status, and fraud alerts directly on LinkedIn and Indeed job listings. Make informed job search decisions without leaving your browser."
@@ -342,5 +345,6 @@ export default function ExtensionPage() {
                 badge="Free Forever"
             />
         </main>
+        </>
     );
 }

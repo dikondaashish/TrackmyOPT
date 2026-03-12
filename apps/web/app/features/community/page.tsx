@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { CanonicalURL } from "@/components/CanonicalURL";
 import Link from "next/link";
 import {
     Users,
@@ -27,7 +28,9 @@ import { H2, Lead, P } from "@/components/ui/typography";
 
 export default function CommunityPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-fuchsia-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <>
+            <CanonicalURL url="https://www.trackmyopt.com/features/community" />
+            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="Alumni Mentorship & Community Network"
                 description="Connect with verified alumni mentors from your university working at top companies. Get referrals, interview prep, and visa advice from real people who've navigated OPT successfully."
@@ -211,5 +214,6 @@ export default function CommunityPage() {
                 badge="5000+ Active Members"
             />
         </main>
+        </>
     );
 }

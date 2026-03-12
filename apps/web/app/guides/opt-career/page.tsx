@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Link from "next/link";
 import {
     Clock, ArrowRight, CheckCircle2, AlertTriangle, Briefcase, BookOpen,
@@ -7,6 +8,14 @@ import {
 } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+
+export const metadata: Metadata = {
+    title: "OPT Career Guide: From Job Search to H-1B Sponsorship | TrackMyOPT",
+    description: "Complete career guide for F-1 students on OPT. Job search strategies, H-1B sponsor companies, salary negotiation, and navigating the visa transition.",
+    alternates: {
+        canonical: "https://www.trackmyopt.com/guides/opt-career",
+    },
+};
 
 const tocSections = [
     { id: "career-landscape", label: "The F-1 Career Landscape" },

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { CanonicalURL } from "@/components/CanonicalURL";
 import Link from "next/link";
 import {
     ArrowRight,
@@ -137,7 +138,9 @@ const faqItems = [
 
 export default function CaseStatusPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <>
+            <CanonicalURL url="https://www.trackmyopt.com/features/case-status" />
+            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="USCIS Case Status Tracker"
                 description="Automated daily USCIS case status checks with instant email alerts when your status changes. Tracks I-765 (EAD), I-140, I-485, and other USCIS applications."
@@ -300,5 +303,6 @@ export default function CaseStatusPage() {
 
 
         </main>
+        </>
     );
 }

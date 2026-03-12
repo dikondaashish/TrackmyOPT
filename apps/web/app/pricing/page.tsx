@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Check, X, ArrowRight, Shield, HelpCircle } from "lucide-react";
+import { CanonicalURL } from "@/components/CanonicalURL";
 import { LandingPricing } from "@/components/landing/LandingPricing";
 
 const comparisonFeatures = [
@@ -97,7 +98,9 @@ const pricingFaqs = [
 
 export default function PricingPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <>
+            <CanonicalURL url="https://www.trackmyopt.com/pricing" />
+            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             {/* Hero */}
             <section className="pt-32 pb-8 text-center">
                 <div className="max-w-4xl mx-auto px-4">
@@ -265,5 +268,6 @@ export default function PricingPage() {
                 }}
             />
         </main>
+        </>
     );
 }

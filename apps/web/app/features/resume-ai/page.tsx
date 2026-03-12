@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { CanonicalURL } from "@/components/CanonicalURL";
 import Link from "next/link";
 import {
     ArrowRight,
@@ -99,7 +100,9 @@ function FeatureCards() {
 
 export default function ResumeAIPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <>
+            <CanonicalURL url="https://www.trackmyopt.com/features/resume-ai" />
+            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-cyan-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="Resume AI Optimizer for H-1B Job Seekers"
                 description="AI-powered resume analysis that beats ATS systems and impresses recruiters. Get actionable feedback on ATS optimization, keyword improvements, and industry-specific recommendations in 60 seconds."
@@ -281,7 +284,6 @@ export default function ResumeAIPage() {
                 icon={<FileText className="w-12 h-12 text-white" />}
                 badge="AI-Powered"
             />
-        </main>
-    );
+        </main>        </>    );
 }
 
