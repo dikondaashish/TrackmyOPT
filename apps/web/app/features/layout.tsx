@@ -10,7 +10,7 @@ export const metadata: Metadata = {
         title: "Features - TrackMyOPT",
         description: "All the tools international students need to protect their OPT status and find H-1B sponsors.",
         type: "website",
-        url: "https://trackmyopt.com/features",
+        url: "https://www.trackmyopt.com/features",
     },
     twitter: {
         card: "summary_large_image",

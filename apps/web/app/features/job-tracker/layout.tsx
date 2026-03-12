@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Track Jobs & OPT Clock Simultaneously | TrackMyOPT',
         description: 'Never miss a deadline. Sync your applications with your 90-day unemployment limit automatically.',
-        url: 'https://trackmyopt.com/features/job-tracker',
+        url: 'https://www.trackmyopt.com/features/job-tracker',
     },
     keywords: ['OPT Job Tracker', 'Unemployment Clock', 'Job Application Tracker', 'Student CRM']
 };

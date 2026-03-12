@@ -22,6 +22,7 @@ import {
 import Image from "next/image";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
+import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";
 import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
 import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
@@ -117,6 +118,19 @@ function PrivacyChecklist() {
 export default function ExtensionPage() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <FeatureServiceSchema
+                name="H-1B Sponsor Intel Chrome Extension"
+                description="See H-1B sponsorship history, E-Verify enrollment status, and fraud alerts directly on LinkedIn and Indeed job listings. Make informed job search decisions without leaving your browser."
+                featurePath="/features/extension"
+                faqItems={[
+                  {question: "Which job sites does the extension work on?", answer: "Currently LinkedIn and Indeed, with Glassdoor coming soon. We show sponsor badges and H-1B filing history directly on job listings."},
+                  {question: "What data does the extension access?", answer: "The extension only reads job listing page content to identify company names. It never accesses your personal data, messages, or login credentials."},
+                  {question: "Is the extension really free?", answer: "Yes, forever! The extension is completely free with no premium version. We believe job seekers shouldn't pay for this essential information."},
+                  {question: "Where does the H-1B data come from?", answer: "We use official Department of Labor LCA filings, USCIS data, and E-Verify records. Data is updated quarterly to ensure accuracy."},
+                  {question: "Does it slow down my browser?", answer: "No, the extension is lightweight and only activates on job sites. It uses minimal resources and won't affect your browsing speed."},
+                  {question: "Can I trust this extension with my data?", answer: "Absolutely. We collect zero personal data, have no analytics, and never track your browsing. The extension is open for security audits."}
+                ]}
+            />
             {/* Hero */}
             <FeatureHero
                 badge="Free"

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
+import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";
 import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
 import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
@@ -27,6 +28,17 @@ import { H2, Lead, P } from "@/components/ui/typography";
 export default function CommunityPage() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-fuchsia-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <FeatureServiceSchema
+                name="Alumni Mentorship & Community Network"
+                description="Connect with verified alumni mentors from your university working at top companies. Get referrals, interview prep, and visa advice from real people who've navigated OPT successfully."
+                featurePath="/features/community"
+                faqItems={[
+                  {q: "Are mentors paid for their time?", a: "No, our mentors are volunteers who want to pay it forward. However, we recognize top mentors with badges and exclusive networking events."},
+                  {q: "Is the community only for CS majors?", a: "Not at all! We have a growing community of students in Data Science, Business Analytics, UX Design, and Engineering disciplines."},
+                  {q: "How do you verify alumni status?", a: "We verify alumni status through LinkedIn integration and university email verification (.edu addresses) to ensure you're connecting with real people."},
+                  {q: "Can I post anonymously?", a: "Yes, you can choose to post anonymously in the discussion forums if you have sensitive questions about your visa status or offers."}
+                ]}
+            />
             {/* Hero */}
             <FeatureHero
                 badge="Community"

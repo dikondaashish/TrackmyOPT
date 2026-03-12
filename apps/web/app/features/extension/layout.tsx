@@ -5,12 +5,12 @@ export const metadata: Metadata = {
     description: "Free Chrome extension that shows H-1B sponsorship history, E-Verify status, and fraud alerts directly on LinkedIn and Indeed job listings.",
     keywords: ["H-1B Chrome extension", "LinkedIn H-1B checker", "job sponsorship checker", "visa sponsor extension", "TrackMyOPT extension"],
     alternates: {
-        canonical: "https://trackmyopt.com/features/extension",
+        canonical: "https://www.trackmyopt.com/features/extension",
     },
     openGraph: {
         title: "TrackMyOPT Chrome Extension - Free Forever",
         description: "See which companies sponsor H-1B visas right on LinkedIn. Save hours of research with instant sponsor intel.",
-        url: "https://trackmyopt.com/features/extension",
+        url: "https://www.trackmyopt.com/features/extension",
     },
 };
 

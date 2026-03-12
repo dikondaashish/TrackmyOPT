@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
+import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";
 import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
 import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
@@ -98,6 +99,19 @@ function FeatureCards() {
 export default function ResumeAIPage() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <FeatureServiceSchema
+                name="Resume AI Optimizer for H-1B Job Seekers"
+                description="AI-powered resume analysis that beats ATS systems and impresses recruiters. Get actionable feedback on ATS optimization, keyword improvements, and industry-specific recommendations in 60 seconds."
+                featurePath="/features/resume-ai"
+                faqItems={[
+                  {q: "How does AI resume optimization work?", a: "Our AI analyzes your resume against proven patterns from successful job seekers. It checks for ATS compatibility, keyword optimization, formatting issues, and content gaps compared to your target job descriptions."},
+                  {q: "What AI model do you use?", a: "We use the latest enterprise-grade AI models (Gemini Ultra / GPT-4) for analysis. Premium subscribers get access to our most advanced models for deeper analysis and job-specific tailoring."},
+                  {q: "Can I upload my resume in any format?", a: "Yes! We accept PDF, DOCX, and plain text formats. PDF is recommended as it preserves formatting while remaining ATS-friendly."},
+                  {q: "How is this different from other resume tools?", a: "We specifically optimize for the job market international students face—including H-1B-friendly company language, visa sponsorship keywords, and OPT/CPT terminology that recruiters search for."},
+                  {q: "Is my resume data kept private?", a: "Absolutely. Your resume is encrypted, never shared with third parties, and automatically deleted after 30 days of inactivity. We never use your data to train our models."},
+                  {q: "How many times can I analyze my resume?", a: "Free users get 3 analyses per month. Premium subscribers get unlimited analyses plus job-specific tailoring for each application."}
+                ]}
+            />
             {/* Hero */}
             <FeatureHero
                 badge="AI Powered"

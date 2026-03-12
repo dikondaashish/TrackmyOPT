@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'AI Resume Scorer for F-1 Students | TrackMyOPT',
         description: 'Get instant feedback on your resume. Optimize for H-1B keywords and beat the ATS.',
-        url: 'https://trackmyopt.com/features/resume-ai',
+        url: 'https://www.trackmyopt.com/features/resume-ai',
     },
     keywords: ['AI Resume Builder', 'ATS Scanner', 'H1B Resume', 'International Student Resume', 'Resume Scorer']
 };

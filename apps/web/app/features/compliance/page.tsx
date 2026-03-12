@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
+import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";
 import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
 import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
@@ -66,6 +67,19 @@ function CalculatorPreview() {
 export default function CompliancePage() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <FeatureServiceSchema
+                name="OPT Compliance Tracker & Timeline Manager"
+                description="Track your entire OPT timeline, unemployment days, and USCIS deadlines in real-time. Stay compliant with multi-channel alerts for all critical milestones including filing windows and employer reporting."
+                featurePath="/features/compliance"
+                faqItems={[
+                  {q: "What happens if I exceed my unemployment limit?", a: "Exceeding your unemployment limit (90 days for Initial OPT, or the additional 60 days for STEM OPT) can result in status violation and potential deportation. TrackMyOPT tracks your unemployment days in real-time and sends alerts before you approach limits."},
+                  {q: "How does TrackMyOPT calculate my unemployment days?", a: "We track the gap between your employment end dates and start dates. You enter your employment history, and our system automatically calculates cumulative unemployment. We account for weekends and holidays per USCIS guidelines."},
+                  {q: "When should I apply for STEM OPT extension?", a: "You must apply 90 days before your OPT expires. Our filing calculator shows you the exact window and sends reminders 60, 30, and 7 days before your deadline."},
+                  {q: "Do I need to report every job change to SEVP?", a: "Yes, you must update the SEVP Portal within 10 days of any employment change including new jobs, address changes, or employer name changes. TrackMyOPT reminds you of these reporting requirements."},
+                  {q: "Is TrackMyOPT free to use?", a: "Yes! Our core OPT tracking features are completely free forever. This includes the countdown timer, unemployment tracker, and deadline alerts. Premium features like document storage and H-1B sponsor search are available with a subscription."},
+                  {q: "How accurate is the filing deadline calculator?", a: "Our calculator uses official USCIS timelines and accounts for your specific OPT start date, employment status, and extension type. It's been validated by immigration attorneys and DSOs."}
+                ]}
+            />
             {/* Hero */}
             <FeatureHero
                 badge="Core Feature"
