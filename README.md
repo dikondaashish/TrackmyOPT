@@ -1,112 +1,95 @@
-# TrackMyOPT (Monorepo) 🎓🚀
+# TrackMyOPT 🚀
 
-**TrackMyOPT** is an all-in-one platform for international students on F-1 OPT and H-1B visas. It helps users track critical immigration deadlines, manage job applications, and monitor their status.
+A comprehensive platform designed to help F-1 students effortlessly manage their OPT, STEM OPT, and immigration journeys.
 
-This repository is a **Monorepo** managed by `pnpm workspaces`, containing the Frontend, Backend, and Browser Extension in a single unified codebase.
+## 🏗 Architecture & Tech Stack
 
----
+This project is built as a **PNPM Monorepo**, ensuring a clean separation between applications and shared configurations.
 
-## 📂 Project Structure
-
-The project is organized into `apps` (applications) and root-level configuration.
-
-### **1. Applications (`apps/`)**
-
-| Path | Type | Tech Stack | Description |
-| :--- | :--- | :--- | :--- |
-| **`apps/web`** | **Frontend** | **Next.js 14**, TailwindCSS, TypeScript | The main user dashboard. Handles UI, auth, and light logic. Deployed to Vercel. |
-| **`apps/api`** | **Backend** | **NestJS**, BullMQ, Redis | The heavy lifting engine. Handles OCR processing, USCIS status checks, and background jobs. Deployed to Render. |
-| **`apps/extension`** | **Extension** | **React**, Vite (Chrome API) | The browser extension that injects tools into job portals and immigration sites. |
-
-### **2. Root Configuration (Do Not Delete)**
-
-These files are essential for orchestrating the monorepo.
-
-| File | Purpose |
-| :--- | :--- |
-| **`pnpm-workspace.yaml`** | **CRITICAL**. Defines the workspace structure. Tells pnpm to manage `apps/*`. |
-| **`package.json`** | **Root Config**. Contains scripts to build/test all apps simultaneously. |
-| **`render.yaml`** | **Deployment**. Blueprint for Render.com to deploy the Backend + Redis. |
-| **`docker-compose.yml`** | **Infrastructure**. Runs a local Redis instance for development (required for Queues). |
-| **`node_modules`** | **Shared Libs**. Stores dependencies for all apps to save space and speed up installs. |
+### Core Technologies
+- **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Database / Auth**: [Supabase](https://supabase.com/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+- **UI Components**: [Radix UI](https://www.radix-ui.com/) & [Lucide Icons](https://lucide.dev/)
+- **AI Engine**: Google Gemini API & AWS Textract (OCR)
+- **Payments**: Stripe
 
 ---
 
-## 🚀 Getting Started
+## 📁 Project Structure
 
-Follow these steps to run the full stack locally.
+### `/apps/web`
+The main Next.js application. It follows a feature-driven directory structure:
+
+- **`/app`**: Next.js App Router. Contains all pages and API routes (Dashboard, Auth, Landing).
+- **`/components`**:
+  - **`/dashboard`**: Sub-divided into logical features:
+    - `widgets/`: Dynamic dashboard tiles (Resource Center, Tools, Help).
+    - `case-status/`: USCIS tracking and timeline visualizations.
+    - `documents/`: The "Document Vault" for encrypted storage.
+    - `opt/`: Specific tools for OPT/STEM OPT reporting.
+    - `settings/` & `security/`: User profile and security (Passcode) management.
+  - **`/layout`**: Global components like Sidebar, Header, and Theme Provider.
+  - **`/landing`**: Marketing components and guest preview features.
+  - **`/ui`**: Base atomic components (buttons, inputs, tooltips).
+- **`/lib`**: Core business logic and utilities:
+  - `auth/`: JWT handling and rate-limiting.
+  - `aws/`: S3 and Textract OCR logic.
+  - `immigration/`: Specialized USCIS and insurance eligibility tools.
+  - `ai/`: AI prompt engineering and generator logic.
+
+---
+
+## 🚀 Key Features
+
+### 1. USCIS Case Tracker 🕵️‍♂️
+Real-time tracking of USCIS applications with automated status updates and timeline visualizations.
+
+### 2. AI Resume Optimizer 📝
+Advanced AI-powered resume generator specifically tuned for international students navigating the OPT job market. Uses OCR (AWS Textract) to parse existing resumes.
+
+### 3. Document Vault 🔒
+Encrypted document storage with multi-layer security (AES-256) and optional passcode protection.
+
+### 4. OPT Clock & Deadlines ⏰
+Automated calculation of unemployment days, filing windows, and critical reporting deadlines.
+
+### 5. Health Insurance Finder 🏥
+A state-by-state eligibility tool helping F-1 students find state-sponsored insurance plans.
+
+---
+
+## 🛠 Development Workflow
 
 ### Prerequisites
-- Node.js 18+
-- pnpm (`npm install -g pnpm`)
-- Docker (for Redis)
+- [PNPM](https://pnpm.io/) installed.
+- Node.js >= 18.17.0.
 
-### 1. Install Dependencies
-Run this in the root folder:
+### Installation
 ```bash
 pnpm install
 ```
 
-### 2. Start Infrastructure (Redis)
-Start the local Redis server (needed for OCR and USCIS queues):
+### Running Locally
 ```bash
-docker-compose up -d
+pnpm dev
 ```
 
-### 3. Start Applications
-You can run them in separate terminals:
-
-**Terminal 1: Backend (`apps/api`)**
+### Deployment
+The project is optimized for **Vercel**. Run the build locally to verify:
 ```bash
-pnpm --filter api start:dev
-# running at http://localhost:3000
-```
-
-**Terminal 2: Frontend (`apps/web`)**
-```bash
-pnpm --filter web dev
-# running at http://localhost:3001
+pnpm build
 ```
 
 ---
 
-## 🛠️ Deployment Guide
+## 🤝 For New Developers
+Welcome! To get started:
+1. Review the [Architectural Overview](./docs/ARCHITECTURAL_OVERVIEW.md).
+2. Explore a component in `apps/web/components/dashboard` to understand our pattern.
+3. Check `apps/web/lib/supabaseClient.ts` for database interaction patterns.
 
-### **Backend (Render.com)**
-1. Connect this repository to Render.
-2. Select **"Blueprints"** -> **"New Blueprint Instance"**.
-3. Render will auto-detect `render.yaml`.
-4. It will deploy:
-   - `trackmyopt-api` (Web Service)
-   - `trackmyopt-queue` (Redis)
-5. **Environment Variables**: Add your AWS and Database secrets in the Render Dashboard.
-
-### **Frontend (Vercel)**
-1. Import this repository to Vercel.
-2. **Root Directory**: Select `apps/web`. (Important!)
-3. **Build Command**: `pnpm build`
-4. **Environment Variables**:
-   - `NEXT_PUBLIC_API_URL`: Set this to your Render Backend URL (e.g., `https://trackmyopt-api.onrender.com`).
-
----
-
-## 🧩 Key Features & Implementation
-
-### **USCIS Status Checker**
-- **Old Way**: Frontend Cron loop (Timeouts).
-- **New Way**: Backend Queue.
-  - Frontend triggers batch job via `apps/web/app/api/cron`.
-  - Backend (`apps/api/src/uscis`) queues jobs in Redis.
-  - Worker processes checks one-by-one safely.
-
-### **Resume OCR**
-- **Architecture**:
-  - Frontend sends file to Backend `POST /ocr/queue`.
-  - Backend uploads to S3 -> Triggers Textract -> Polls for result.
-  - No timeouts, handles large files gracefully.
-
----
-
-## � Maintenance
-- **Clean**: `pnpm -r clean` (removes build artifacts)
-- **Lint**: `pnpm -r lint` (checks code quality)
+**Stay lean**: We prioritize clean code and minimal redundancy. Use our specialized subdirectories rather than dumping files into roots.
