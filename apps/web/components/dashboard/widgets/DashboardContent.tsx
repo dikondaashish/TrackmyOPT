@@ -46,7 +46,7 @@ const ActiveEmploymentTracker = dynamic(
   { ssr: false }
 );
 const ResourceCenter = dynamic(
-  () => import("../ResourceCenter").then((m) => ({ default: m.ResourceCenter })),
+  () => import("./ResourceCenter").then((m) => ({ default: m.ResourceCenter })),
   { loading: () => <WidgetSkeleton /> }
 );
 const PersonalizedTips = dynamic(
@@ -54,7 +54,7 @@ const PersonalizedTips = dynamic(
   { loading: () => <WidgetSkeleton /> }
 );
 const ToolsGrid = dynamic(
-  () => import("../ToolsGrid").then((m) => ({ default: m.ToolsGrid })),
+  () => import("./ToolsGrid").then((m) => ({ default: m.ToolsGrid })),
   { loading: () => <WidgetSkeleton /> }
 );
 const DashboardWidgetsSettings = dynamic(

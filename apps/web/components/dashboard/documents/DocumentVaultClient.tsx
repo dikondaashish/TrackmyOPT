@@ -17,6 +17,7 @@ import { DocumentUploadModal } from './DocumentUploadModal';
 import { DocumentGrid } from './DocumentGrid';
 import { DocumentStats } from './DocumentStats';
 import { DocumentFilters } from './DocumentFilters';
+import { PremiumUpsellModal } from '../widgets/PremiumUpsellModal';
 
 interface Document {
   id: string;

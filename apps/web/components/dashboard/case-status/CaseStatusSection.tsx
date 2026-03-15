@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Collapsible } from "@/components/ui/collapsible";
-import { PremiumUpsellModal } from "@/components/dashboard/PremiumUpsellModal";
+import { PremiumUpsellModal } from "@/components/dashboard/widgets/PremiumUpsellModal";
 import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
 import {

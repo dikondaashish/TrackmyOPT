@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import dynamic from "next/dynamic";
 
 const HelpSection = dynamic(
-  () => import("@/components/dashboard/HelpSection").then((m) => ({ default: m.HelpSection })),
+  () => import("@/components/dashboard/widgets/HelpSection").then((m) => ({ default: m.HelpSection })),
   {
     loading: () => (
       <div className="space-y-4 p-6">
