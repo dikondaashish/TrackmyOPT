@@ -37,6 +37,17 @@ export default function OPTEADArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    The OPT EAD card (Form I-766) is your Employment Authorization Document that proves you can work in the US on OPT. You apply using Form I-765 with a $410 filing fee, and processing currently takes 2 to 5 months.
+                </p>
+            </div>
+
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">The EAD card (Form I-766) is your <strong>Employment Authorization Document</strong> — the card that proves you can work in the US on OPT. You apply using <strong>Form I-765</strong>, the filing fee is <strong>$410</strong>, and current processing takes <strong>2-5 months</strong>. You cannot work until you have the physical card.</p>

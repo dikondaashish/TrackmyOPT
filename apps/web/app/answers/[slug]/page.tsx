@@ -1,298 +1,319 @@
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, CheckCircle2 } from "lucide-react";
-import { answers, type AnswerPageData, type FAQItem } from "../data";
+import { notFound } from "next/navigation";
+import { getAllAnswers, getAnswerBySlug } from "@/lib/answers";
+import {
+    ArrowRight,
+    BookOpen,
+    Clock,
+    MessageCircle,
+    Lightbulb,
+    Shield,
+} from "lucide-react";
 
-// Generate static params for all 50 answers
+type Props = {
+    params: Promise<{ slug: string }>;
+};
+
 export async function generateStaticParams() {
-  return Object.keys(answers).map((slug) => ({
-    slug,
-  }));
+    return getAllAnswers().map((a) => ({ slug: a.slug }));
 }
 
-// Generate metadata for each answer
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
-  const answerData = answers[params.slug];
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { slug } = await params;
+    const answer = getAnswerBySlug(slug);
+    if (!answer) return {};
 
-  if (!answerData) {
-    return {};
-  }
-
-  return {
-    title: `${answerData.question} | TrackMyOPT Answers`,
-    description: answerData.shortAnswer,
-    openGraph: {
-      title: answerData.question,
-      description: answerData.shortAnswer,
-      type: "article",
-      publishedTime: answerData.lastUpdated,
-      authors: ["TrackMyOPT"],
-      url: `https://www.trackmyopt.com/answers/${answerData.slug}`,
-    },
-    alternates: {
-      canonical: `https://www.trackmyopt.com/answers/${answerData.slug}`,
-    },
-  };
-}
-
-// Schema generation functions
-function generateFAQSchema(data: AnswerPageData) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: data.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: data.shortAnswer,
+    return {
+        title: answer.metadata.title,
+        description: answer.metadata.description,
+        keywords: answer.metadata.keywords,
+        alternates: {
+            canonical: `https://www.trackmyopt.com/answers/${answer.slug}`,
         },
-      },
-      ...data.faqItems.map((item: FAQItem) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.answer,
+        openGraph: {
+            title: answer.metadata.title,
+            description: answer.metadata.description,
+            url: `https://www.trackmyopt.com/answers/${answer.slug}`,
+            siteName: "TrackMyOPT",
+            type: "article",
         },
-      })),
-    ],
-  };
+        twitter: {
+            card: "summary_large_image",
+            title: answer.metadata.title,
+            description: answer.metadata.description,
+        },
+    };
 }
 
-function generateArticleSchema(data: AnswerPageData) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: data.question,
-    description: data.shortAnswer,
-    datePublished: data.lastUpdated,
-    dateModified: data.lastUpdated,
-    author: {
-      "@type": "Organization",
-      name: "TrackMyOPT",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://www.trackmyopt.com/logo.png",
-      },
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "TrackMyOPT",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://www.trackmyopt.com/logo.png",
-      },
-    },
-    isPartOf: {
-      "@type": "WebSite",
-      name: "TrackMyOPT",
-      url: "https://www.trackmyopt.com",
-    },
-  };
-}
+export default async function AnswerPage({ params }: Props) {
+    const { slug } = await params;
+    const answer = getAnswerBySlug(slug);
+    if (!answer) notFound();
 
-function generateSpeakableSchema(data: AnswerPageData) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    speakable: {
-      "@type": "SpeakableSpecification",
-      cssSelector: [".answer-text"],
-    },
-  };
-}
+    const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: [
+            {
+                "@type": "Question",
+                name: answer.question,
+                acceptedAnswer: {
+                    "@type": "Answer",
+                    text: answer.shortAnswer,
+                },
+            },
+        ],
+    };
 
-export default function AnswerPage({ params }: { params: { slug: string } }) {
-  const answerData = answers[params.slug];
+    const speakableSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: answer.question,
+        speakable: {
+            "@type": "SpeakableSpecification",
+            cssSelector: [".quick-answer", ".key-takeaway"],
+        },
+        url: `https://www.trackmyopt.com/answers/${answer.slug}`,
+    };
 
-  if (!answerData) {
-    notFound();
-  }
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: "https://www.trackmyopt.com",
+            },
+            {
+                "@type": "ListItem",
+                position: 2,
+                name: "Answers",
+                item: "https://www.trackmyopt.com/answers",
+            },
+            {
+                "@type": "ListItem",
+                position: 3,
+                name: answer.question,
+            },
+        ],
+    };
 
-  const faqSchema = generateFAQSchema(answerData);
-  const articleSchema = generateArticleSchema(answerData);
-  const speakableSchema = generateSpeakableSchema(answerData);
+    const categoryColors: Record<string, string> = {
+        "opt-basics":
+            "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+        "work-employment":
+            "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+        "uscis-immigration":
+            "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+        "tax-finance":
+            "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+        "h1b-career":
+            "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300",
+    };
 
-  const categoryColors: Record<string, string> = {
-    "opt-basics": "bg-blue-100 text-blue-800",
-    "stem-opt": "bg-green-100 text-green-800",
-    "tax-finance": "bg-purple-100 text-purple-800",
-    health: "bg-red-100 text-red-800",
-    career: "bg-orange-100 text-orange-800",
-    h1b: "bg-indigo-100 text-indigo-800",
-  };
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(faqSchema),
+                }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(speakableSchema),
+                }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(breadcrumbSchema),
+                }}
+            />
 
-  const categoryLabel: Record<string, string> = {
-    "opt-basics": "OPT Basics",
-    "stem-opt": "STEM OPT",
-    "tax-finance": "Tax & Finance",
-    health: "Health",
-    career: "Career",
-    h1b: "H-1B",
-  };
+            <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <nav className="mb-8">
+                    <ol className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                        <li>
+                            <Link
+                                href="/"
+                                className="hover:text-blue-600 transition-colors"
+                            >
+                                Home
+                            </Link>
+                        </li>
+                        <li>/</li>
+                        <li>
+                            <Link
+                                href="/answers"
+                                className="hover:text-blue-600 transition-colors"
+                            >
+                                Answers
+                            </Link>
+                        </li>
+                        <li>/</li>
+                        <li className="text-gray-900 dark:text-white font-medium truncate max-w-xs">
+                            {answer.question}
+                        </li>
+                    </ol>
+                </nav>
 
-  return (
-    <>
-      {/* Schema Scripts */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }}
-      />
+                <div className="flex flex-wrap items-center gap-4 mb-6">
+                    <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${categoryColors[answer.category] || categoryColors["opt-basics"]}`}
+                    >
+                        {answer.categoryLabel}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                        <Clock className="w-3.5 h-3.5" />
+                        Last Updated: {answer.lastUpdated}
+                    </span>
+                </div>
 
-      {/* Breadcrumb Navigation */}
-      <nav className="mb-8 flex items-center gap-2 text-sm text-gray-600">
-        <Link href="/" className="hover:text-blue-600 transition-colors">
-          Home
-        </Link>
-        <ChevronRight className="h-4 w-4 text-gray-400" />
-        <Link href="/answers" className="hover:text-blue-600 transition-colors">
-          Answers
-        </Link>
-        <ChevronRight className="h-4 w-4 text-gray-400" />
-        <span className="text-gray-900 font-medium">{answerData.question}</span>
-      </nav>
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
+                    {answer.question}
+                </h1>
 
-      {/* Category Badge */}
-      <div className="mb-6">
-        <span
-          className={`inline-block px-4 py-1.5 rounded-full text-xs font-semibold ${categoryColors[answerData.category]}`}
-        >
-          {categoryLabel[answerData.category]}
-        </span>
-      </div>
+                <div className="quick-answer bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-8">
+                    <div className="flex items-start gap-3">
+                        <MessageCircle className="w-6 h-6 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">
+                                Quick Answer
+                            </p>
+                            <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                                {answer.shortAnswer}
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-      {/* Main Heading */}
-      <h1 className="mb-8 text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">
-        {answerData.question}
-      </h1>
+                <div className="key-takeaway bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-10">
+                    <div className="flex items-start gap-3">
+                        <Lightbulb className="w-6 h-6 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                            <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">
+                                Key Takeaway
+                            </p>
+                            <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
+                                {answer.keyTakeaway}
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-      {/* Quick Answer Box (AI-Extract Friendly) */}
-      <div className="mb-10 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 p-8 border-l-4 border-blue-500 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-wide text-blue-700 mb-3">
-          ⚡ Quick Answer
-        </p>
-        <p className="answer-text text-lg text-gray-800 leading-relaxed font-medium">
-          {answerData.shortAnswer}
-        </p>
-      </div>
+                <div className="space-y-10">
+                    {answer.sections.map((section, i) => (
+                        <section key={i}>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                                {section.heading}
+                            </h2>
+                            {section.paragraphs.map((p, j) => (
+                                <p
+                                    key={j}
+                                    className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4"
+                                >
+                                    {p}
+                                </p>
+                            ))}
+                            {section.bulletPoints && (
+                                <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300 mb-4">
+                                    {section.bulletPoints.map((bp, k) => (
+                                        <li key={k}>{bp}</li>
+                                    ))}
+                                </ul>
+                            )}
+                            {section.importantNote && (
+                                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mt-4">
+                                    <p className="text-red-800 dark:text-red-200 text-sm font-medium">
+                                        {section.importantNote}
+                                    </p>
+                                </div>
+                            )}
+                        </section>
+                    ))}
+                </div>
 
-      {/* Detailed Explanation Section */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          ℹ️ Detailed Explanation
-        </h2>
-        <p className="text-gray-700 mb-4 leading-relaxed">
-          The quick answer above is what AI models and search engines cite most frequently. Below, we provide additional context and details to help you fully understand this topic.
-        </p>
-      </div>
+                {answer.relatedLinks.length > 0 && (
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-8 mt-12 mb-10">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <BookOpen className="w-5 h-5 text-blue-600" />
+                            Related Resources
+                        </h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {answer.relatedLinks.map((link, i) => (
+                                <Link
+                                    key={i}
+                                    href={link.href}
+                                    className="flex items-center gap-2 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-700/50 transition-colors group"
+                                >
+                                    <ArrowRight className="w-4 h-4 text-blue-600 group-hover:translate-x-1 transition-transform" />
+                                    <span className="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition-colors">
+                                        {link.text}
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
-      {/* FAQ Section */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8">
-          ❓ Related Questions
-        </h2>
-        <div className="space-y-6">
-          {answerData.faqItems.map((item: FAQItem, index: number) => (
-            <details
-              key={index}
-              className="group border rounded-lg p-5 hover:border-blue-300 transition-colors"
-            >
-              <summary className="cursor-pointer font-semibold text-gray-900 hover:text-blue-600 transition-colors flex items-center justify-between">
-                <span>{item.question}</span>
-                <span className="text-gray-400 group-open:rotate-180 transition-transform">
-                  ▼
-                </span>
-              </summary>
-              <p className="mt-4 text-gray-700 leading-relaxed">
-                {item.answer}
-              </p>
-            </details>
-          ))}
-        </div>
-      </div>
+                {answer.relatedQuestions.length > 0 && (
+                    <div className="mb-10">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                            People Also Ask
+                        </h2>
+                        <div className="space-y-2">
+                            {answer.relatedQuestions.map((rq, i) => (
+                                <Link
+                                    key={i}
+                                    href={`/answers/${rq.slug}`}
+                                    className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all group"
+                                >
+                                    <MessageCircle className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
+                                    <span className="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition-colors">
+                                        {rq.question}
+                                    </span>
+                                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 ml-auto flex-shrink-0 group-hover:translate-x-1 transition-all" />
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </article>
 
-      {/* Related Content Links */}
-      {(answerData.relatedBlogPost || answerData.relatedFeaturePage) && (
-        <div className="mb-12 rounded-xl bg-gray-50 p-8 border border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900 mb-6">
-            📚 Related Resources
-          </h3>
-          <div className="space-y-3">
-            {answerData.relatedBlogPost && (
-              <Link
-                href={`/blog/${answerData.relatedBlogPost}`}
-                className="flex items-center gap-3 text-blue-600 hover:text-blue-700 font-medium group"
-              >
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-                Read our in-depth guide on this topic
-                <span className="ml-auto text-gray-400 group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
-              </Link>
-            )}
-            {answerData.relatedFeaturePage && (
-              <Link
-                href={answerData.relatedFeaturePage}
-                className="flex items-center gap-3 text-blue-600 hover:text-blue-700 font-medium group"
-              >
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-                Try our {answerData.relatedFeaturePage.split("/").pop()} tool
-                <span className="ml-auto text-gray-400 group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Updated Date */}
-      <div className="text-xs text-gray-500 mb-8">
-        Last updated: {new Date(answerData.lastUpdated).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-      </div>
-
-      {/* CTA Section */}
-      <div className="mt-16 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 p-10 text-white text-center shadow-lg hover:shadow-xl transition-shadow">
-        <h3 className="text-3xl font-bold mb-3">
-          Stop Manual OPT Tracking
-        </h3>
-        <p className="mb-8 text-blue-100 text-lg">
-          TrackMyOPT automatically calculates deadlines, unemployment days, and reminders. Join 2,500+ F-1 students already tracking their OPT status.
-        </p>
-        <div className="flex gap-4 flex-col sm:flex-row justify-center">
-          <Link
-            href="https://app.trackmyopt.com/signup"
-            className="inline-block bg-white text-blue-600 font-bold px-8 py-4 rounded-lg hover:bg-blue-50 transition-colors shadow-md hover:shadow-lg"
-          >
-            Start Your Free Account →
-          </Link>
-          <Link
-            href="/features/case-status"
-            className="inline-block border-2 border-white text-white font-bold px-8 py-4 rounded-lg hover:bg-white/10 transition-colors"
-          >
-            See Features
-          </Link>
-        </div>
-      </div>
-    </>
-  );
+            <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 py-20">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                        Track Your OPT Status Automatically
+                    </h2>
+                    <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+                        Join 2,500+ international students who use TrackMyOPT to
+                        stay compliant, track deadlines, and navigate their F-1
+                        journey with confidence.
+                    </p>
+                    <Link
+                        href="/login"
+                        className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold bg-white text-gray-900 rounded-full shadow-2xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                    >
+                        Start Free Tracking
+                        <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    <div className="mt-6 flex items-center justify-center gap-6 text-white/70 text-sm">
+                        <span className="flex items-center gap-1.5">
+                            <Shield className="w-4 h-4" />
+                            No credit card required
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                            <Clock className="w-4 h-4" />
+                            Setup in 2 minutes
+                        </span>
+                    </div>
+                </div>
+            </section>
+        </>
+    );
 }

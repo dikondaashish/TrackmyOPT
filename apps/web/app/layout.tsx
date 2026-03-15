@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { ThemeProvider } from '@/components/layout/theme-provider';
+import { CookieConsent } from '@/components/CookieConsent';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.trackmyopt.com'),
@@ -85,6 +85,7 @@ export default function RootLayout({
           {children}
           <Analytics />
           <SpeedInsights />
+          <CookieConsent />
         </ThemeProvider>
         <script
           type="application/ld+json"
@@ -106,12 +107,6 @@ export default function RootLayout({
               ]
             })
           }}
-        />
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4262248775973692"
-          crossOrigin="anonymous"
-          strategy="lazyOnload"
         />
       </body>
     </html>

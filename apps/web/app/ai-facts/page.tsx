@@ -1,548 +1,532 @@
-import { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ExternalLink, BookOpen } from "lucide-react";
-import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import {
+    GraduationCap,
+    FlaskConical,
+    Clock,
+    Briefcase,
+    FileText,
+    ArrowRightLeft,
+    DollarSign,
+    Heart,
+    Database,
+    ArrowRight,
+    BookOpen,
+    CheckCircle2,
+} from "lucide-react";
 
-export const metadata: Metadata = {
-    title: "100+ OPT, H-1B & F-1 Visa Facts | TrackMyOPT",
-    description: "Comprehensive database of verified facts about OPT, H-1B, F-1 visas, and immigration processes. Sourced from USCIS, IRS, and official regulations.",
-    keywords: [
-        "OPT facts",
-        "H-1B facts",
-        "F-1 visa facts",
-        "immigration facts",
-        "visa statistics",
-        "verified immigration data",
-    ],
-    openGraph: {
-        title: "100+ OPT, H-1B & F-1 Visa Facts | TrackMyOPT",
-        description: "Comprehensive database of verified facts about OPT, H-1B, F-1 visas, and immigration processes. Sourced from USCIS, IRS, and official regulations.",
-        url: "https://www.trackmyopt.com/ai-facts",
-        type: "website",
-        images: [
-            {
-                url: "https://www.trackmyopt.com/og-image.png",
-                width: 1200,
-                height: 630,
-                alt: "100+ OPT, H-1B & F-1 Visa Facts",
-            },
+const categories = [
+    {
+        id: "opt-basics",
+        label: "OPT Basics",
+        description: "Core facts about Optional Practical Training for F-1 students",
+        icon: GraduationCap,
+        color: "blue",
+        facts: [
+            "OPT (Optional Practical Training) allows F-1 students to work in the United States for up to 12 months after completing their degree.",
+            "OPT is authorized by USCIS and requires approval of Form I-765, Application for Employment Authorization.",
+            "F-1 students may apply for pre-completion OPT while still enrolled in school, working part-time (20 hours/week) during the academic year or full-time during breaks.",
+            "Post-completion OPT begins after the student's program end date and allows full-time employment for up to 12 months.",
+            "Pre-completion OPT time used is deducted from the 12-month post-completion OPT period at a rate of one day for every two days of part-time work.",
+            "Students must apply for OPT no earlier than 90 days before their program end date and no later than 60 days after.",
+            "OPT employment must be directly related to the student's major field of study as listed on their I-20.",
+            "An Employment Authorization Document (EAD) card is issued upon OPT approval, and students may not begin working until the EAD start date.",
+            "Students on post-completion OPT must report any changes in employment, address, or name to their DSO within 10 days.",
+            "Each higher level of education (bachelor's, master's, doctorate) qualifies for a new 12-month OPT period.",
+            "OPT is available to F-1 students who have been enrolled full-time for at least one full academic year.",
+            "Students may not accrue more than 90 days of unemployment while on post-completion OPT.",
+            "OPT authorization ends automatically if the student transfers to a new school or begins a new program of study at a higher education level.",
+            "Volunteering or unpaid internships may count as employment for OPT purposes if the work is directly related to the student's field of study.",
+            "The OPT EAD card lists the student's employer as \"Not Applicable\" because the student may work for any employer in their field of study.",
         ],
     },
-    alternates: {
-        canonical: "https://www.trackmyopt.com/ai-facts",
+    {
+        id: "stem-opt",
+        label: "STEM OPT Extension",
+        description: "Facts about the 24-month STEM OPT extension program",
+        icon: FlaskConical,
+        color: "emerald",
+        facts: [
+            "The STEM OPT extension adds 24 months of work authorization beyond the initial 12-month OPT, for a total of 36 months.",
+            "STEM OPT is available only to students who earned a degree in a STEM-designated field listed on the DHS STEM Designated Degree Program List.",
+            "To qualify for STEM OPT, the student must be employed by an employer enrolled in E-Verify.",
+            "A Form I-983, Training Plan for STEM OPT Students, must be completed and signed by both the student and the employer before filing the STEM OPT extension.",
+            "Students must apply for the STEM OPT extension before their initial 12-month OPT expires.",
+            "STEM OPT applicants are allowed a maximum of 150 days of unemployment throughout the entire 36-month OPT period (initial + extension combined).",
+            "Students on STEM OPT must report to their DSO every six months to confirm employment status, and the DSO must validate the student's SEVIS record.",
+            "A student may receive a maximum of two STEM OPT extensions in their lifetime, each based on a different qualifying STEM degree.",
+            "The employer must attest on Form I-983 that the STEM OPT student will not replace a full-time, part-time, temporary, or permanent U.S. worker.",
+            "STEM OPT students must be paid at a rate commensurate with similarly situated U.S. workers; they cannot be unpaid.",
+            "If a STEM OPT application is filed on time (before the initial OPT expires), the student receives an automatic 180-day employment authorization extension while the application is pending.",
+            "The DHS STEM Designated Degree Program List is updated periodically and includes fields such as computer science, engineering, mathematics, biological sciences, and physical sciences.",
+        ],
+    },
+    {
+        id: "timelines",
+        label: "Timelines & Deadlines",
+        description: "Critical dates, processing times, and grace periods",
+        icon: Clock,
+        color: "purple",
+        facts: [
+            "F-1 students have a 60-day grace period after their OPT end date to depart the United States, change status, or transfer to a new school.",
+            "OPT applications should be filed no earlier than 90 days before the program end date and no later than 60 days after.",
+            "USCIS processing time for Form I-765 (OPT EAD) typically ranges from 3 to 5 months, though times can vary.",
+            "Students may request expedited processing of Form I-765 if they can demonstrate severe financial loss, emergency situations, or other qualifying criteria.",
+            "The STEM OPT extension application must be received by USCIS before the expiration of the initial 12-month OPT EAD.",
+            "An F-1 student's program end date is listed on their I-20 and determines the start of OPT eligibility windows.",
+            "Students who apply for a change of status (e.g., F-1 to H-1B) before their OPT expires may remain in the US while the application is pending.",
+            "The H-1B cap-gap extension automatically extends F-1 status and OPT work authorization from April 1 through September 30 for students with pending or approved H-1B petitions.",
+            "F-1 students entering the US for the first time may arrive up to 30 days before their program start date.",
+            "A student on post-completion OPT must secure employment within 90 days of the OPT start date or the OPT end date, whichever is earlier, to avoid exceeding the unemployment limit.",
+            "DSOs must report the completion, withdrawal, or termination of a student's program in SEVIS within 21 days.",
+            "The annual H-1B registration period typically opens in early March, with petitions filed starting April 1 for an October 1 start date.",
+        ],
+    },
+    {
+        id: "employment",
+        label: "Employment Rules",
+        description: "Work authorization rules, employer requirements, and compliance",
+        icon: Briefcase,
+        color: "amber",
+        facts: [
+            "F-1 students on post-completion OPT may work for multiple employers simultaneously, as long as all employment is related to their field of study.",
+            "Self-employment is permitted on OPT if the student has proper business licenses, works in their field of study, and actively engages in the business.",
+            "F-1 students on OPT may work as independent contractors (1099) as long as the work is related to their major.",
+            "An F-1 student may not begin any employment, including OPT, until they have received their EAD card and the employment start date has been reached.",
+            "On-campus employment is permitted for F-1 students during their studies, limited to 20 hours per week while school is in session.",
+            "Curricular Practical Training (CPT) is an alternative to OPT that allows employment during the student's program, but 12 months or more of full-time CPT eliminates post-completion OPT eligibility.",
+            "Severe Economic Hardship employment authorization may be granted to F-1 students who experience unforeseen financial difficulties beyond their control.",
+            "F-1 students with pending OPT applications may not work until they receive EAD approval, except for students with a pending STEM OPT extension who receive the 180-day auto-extension.",
+            "Employment for OPT purposes includes paid employment, self-employment, contract work (including short-term gigs), employment through staffing agencies, and work for hire.",
+            "Employer changes while on OPT must be reported to the student's DSO within 10 days so the DSO can update SEVIS.",
+            "F-1 students may not work off-campus without specific USCIS or DSO authorization such as OPT, CPT, or economic hardship.",
+            "An employer is not required to sponsor an F-1 student for OPT; the student applies for OPT independently through USCIS.",
+            "Day-one CPT programs are permitted by regulation, but USCIS may scrutinize them and they can affect future immigration benefits.",
+            "STEM OPT employers must have a bona fide employer-employee relationship with the student, meaning staffing or temp agencies cannot be the direct employer.",
+            "Remote work is permitted on OPT, provided the employment is in the student's field of study and the employer is a US-based entity.",
+        ],
+    },
+    {
+        id: "uscis-forms",
+        label: "USCIS & Forms",
+        description: "Immigration forms, SEVP Portal, and USCIS procedures",
+        icon: FileText,
+        color: "cyan",
+        facts: [
+            "Form I-765 is the application used to request an Employment Authorization Document (EAD) for OPT.",
+            "Form I-20, Certificate of Eligibility for Nonimmigrant Student Status, must be updated with an OPT recommendation by the student's DSO before filing I-765.",
+            "Form I-983, Training Plan for STEM OPT Students, is required for the STEM OPT extension and must be signed by both the student and employer.",
+            "Form I-94, Arrival/Departure Record, documents a student's legal entry into the US and can be retrieved online at i94.cbp.dhs.gov.",
+            "SEVIS (Student and Exchange Visitor Information System) is the database used by DSOs and the government to track F-1 students' immigration status.",
+            "The SEVP Portal (sevp.ice.gov/opt) allows OPT students to report employment information, employer changes, and address updates directly.",
+            "Each F-1 student is assigned a unique SEVIS ID number (beginning with N) that appears on their I-20 and is used across all immigration documents.",
+            "Form I-797, Notice of Action, is sent by USCIS to confirm receipt of a petition (receipt notice) or approval/denial of a benefit.",
+            "Students must retain copies of all I-20s ever issued to them, as they may be needed for future immigration applications.",
+            "USCIS case status can be checked online at egov.uscis.gov/casestatus using the receipt number from Form I-797.",
+            "A student's DSO (Designated School Official) is the primary point of contact for all OPT-related SEVIS updates and I-20 endorsements.",
+            "Form I-539 is used to apply for a change of nonimmigrant status or extension of stay in the United States.",
+        ],
+    },
+    {
+        id: "h1b-transition",
+        label: "H-1B Transition",
+        description: "Transitioning from OPT to H-1B work visa",
+        icon: ArrowRightLeft,
+        color: "rose",
+        facts: [
+            "The H-1B visa allows US employers to temporarily employ foreign workers in specialty occupations requiring at least a bachelor's degree.",
+            "The annual H-1B regular cap is 65,000 visas, with an additional 20,000 reserved for applicants holding a US master's degree or higher.",
+            "H-1B petitions are filed by the employer on behalf of the foreign worker using Form I-129, Petition for Nonimmigrant Worker.",
+            "Since 2020, USCIS has used an electronic registration system for the H-1B lottery; selected registrants are then invited to file full petitions.",
+            "The H-1B cap-gap provision automatically extends F-1 status and OPT/STEM OPT employment authorization for students with a timely filed or approved H-1B petition until October 1.",
+            "H-1B workers are tied to their sponsoring employer; changing employers requires a new H-1B petition to be filed by the new employer.",
+            "The H-1B visa is initially granted for up to 3 years and can be extended for a total maximum of 6 years.",
+            "Cap-exempt H-1B employers include universities, nonprofit research organizations, and government research organizations, and their petitions are not subject to the annual cap.",
+            "An approved I-140 (Immigrant Petition) allows H-1B holders to extend their H-1B status beyond the 6-year maximum in one-year or three-year increments under AC21.",
+            "The H-1B prevailing wage requirement means the employer must pay at least the prevailing wage for the occupation and geographic area.",
+            "F-1 students selected in the H-1B lottery who have valid OPT or STEM OPT can continue working until the H-1B start date of October 1.",
+            "H-1B registration fees are paid by the employer and include the base filing fee, ACWIA training fee, fraud prevention fee, and potentially the asylum program fee.",
+        ],
+    },
+    {
+        id: "tax-finance",
+        label: "Tax & Finance",
+        description: "Tax obligations, FICA exemption, and financial rules for F-1 students",
+        icon: DollarSign,
+        color: "orange",
+        facts: [
+            "F-1 students are classified as nonresident aliens for tax purposes during their first 5 calendar years in the United States under the Substantial Presence Test exemption.",
+            "F-1 students who are nonresident aliens are exempt from FICA taxes (Social Security and Medicare) during their first 5 calendar years in the US.",
+            "Nonresident alien F-1 students file their federal tax return using Form 1040-NR and must also file Form 8843, Statement for Exempt Individuals.",
+            "All F-1 students — even those with no US income — must file Form 8843 each year to document their exempt status under the Substantial Presence Test.",
+            "After 5 calendar years in the US, F-1 students generally become resident aliens for tax purposes and must pay FICA taxes and file Form 1040.",
+            "F-1 students from countries with US tax treaties (such as India, China, South Korea, and Germany) may be eligible for reduced tax rates or exemptions on certain types of income.",
+            "The US-India tax treaty (Article 21) provides an exemption of up to $2,000 per year for F-1 students from India during their nonresident alien period.",
+            "The US-China tax treaty (Article 20) provides an exemption of up to $5,000 per year for F-1 students from China during their nonresident alien period.",
+            "F-1 students cannot claim the standard deduction on Form 1040-NR; nonresident aliens may only claim itemized deductions for state/local taxes, charitable contributions to US organizations, and casualty/theft losses.",
+            "F-1 students who are nonresident aliens cannot file jointly with a spouse, claim the Earned Income Tax Credit, or claim dependents in most cases.",
+            "State tax filing requirements for F-1 students vary by state; some states (like Texas, Florida, and Washington) have no state income tax.",
+            "If an employer incorrectly withholds FICA taxes from an F-1 student's paycheck during the exempt period, the student should first request a refund from the employer; if unsuccessful, they can file Form 843 and Form 8316 with the IRS.",
+        ],
+    },
+    {
+        id: "health-insurance",
+        label: "Health Insurance",
+        description: "Healthcare coverage requirements and options for F-1 students",
+        icon: Heart,
+        color: "pink",
+        facts: [
+            "Most US universities require F-1 students to maintain health insurance as a condition of enrollment, though this is a school requirement, not a federal immigration requirement.",
+            "F-1 students on OPT who are no longer enrolled in school typically lose access to university-sponsored health insurance plans and must obtain their own coverage.",
+            "F-1 students are generally not eligible for the Affordable Care Act (ACA) marketplace subsidies because they are nonresident aliens, but they may purchase full-price marketplace plans.",
+            "Nonresident alien F-1 students were exempt from the ACA individual mandate penalty (which was reduced to $0 federally starting in 2019, though some states still enforce their own mandates).",
+            "Short-term health insurance plans are available to OPT students and can provide temporary coverage, but they typically do not cover pre-existing conditions and have limited benefits.",
+            "Some employers offer health insurance benefits to OPT employees, including those on EAD-based work authorization.",
+            "F-1 students who become resident aliens for tax purposes (after 5 years) may be eligible for ACA marketplace subsidies if they meet income requirements.",
+            "Travel health insurance is recommended for F-1 students traveling outside the US, as domestic health plans may not cover medical expenses abroad.",
+            "STEM OPT students employed full-time are often eligible for employer-sponsored health insurance plans on the same terms as other employees.",
+            "University health insurance plans typically include coverage for mental health services, which is important given that international students face unique adjustment challenges.",
+            "COBRA continuation coverage may be available to OPT students who lose employer-sponsored health insurance, allowing them to maintain the same plan for up to 18 months at full cost plus a 2% administrative fee.",
+            "F-1 students transitioning from university coverage to OPT should apply for new health insurance within 60 days of losing student coverage to qualify for a Special Enrollment Period under the ACA.",
+            "Dental and vision insurance are typically not included in basic health plans and must be purchased separately by F-1 and OPT students who want comprehensive coverage.",
+        ],
+    },
+];
+
+const colorStyles: Record<
+    string,
+    { bg: string; border: string; icon: string; accent: string; badge: string; factBg: string }
+> = {
+    blue: {
+        bg: "bg-blue-50 dark:bg-blue-900/20",
+        border: "border-blue-200 dark:border-blue-800",
+        icon: "text-blue-600 dark:text-blue-400",
+        accent: "bg-blue-600 dark:bg-blue-500",
+        badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+        factBg: "bg-blue-50/50 dark:bg-blue-900/10",
+    },
+    emerald: {
+        bg: "bg-emerald-50 dark:bg-emerald-900/20",
+        border: "border-emerald-200 dark:border-emerald-800",
+        icon: "text-emerald-600 dark:text-emerald-400",
+        accent: "bg-emerald-600 dark:bg-emerald-500",
+        badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+        factBg: "bg-emerald-50/50 dark:bg-emerald-900/10",
+    },
+    purple: {
+        bg: "bg-purple-50 dark:bg-purple-900/20",
+        border: "border-purple-200 dark:border-purple-800",
+        icon: "text-purple-600 dark:text-purple-400",
+        accent: "bg-purple-600 dark:bg-purple-500",
+        badge: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+        factBg: "bg-purple-50/50 dark:bg-purple-900/10",
+    },
+    amber: {
+        bg: "bg-amber-50 dark:bg-amber-900/20",
+        border: "border-amber-200 dark:border-amber-800",
+        icon: "text-amber-600 dark:text-amber-400",
+        accent: "bg-amber-600 dark:bg-amber-500",
+        badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+        factBg: "bg-amber-50/50 dark:bg-amber-900/10",
+    },
+    cyan: {
+        bg: "bg-cyan-50 dark:bg-cyan-900/20",
+        border: "border-cyan-200 dark:border-cyan-800",
+        icon: "text-cyan-600 dark:text-cyan-400",
+        accent: "bg-cyan-600 dark:bg-cyan-500",
+        badge: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
+        factBg: "bg-cyan-50/50 dark:bg-cyan-900/10",
+    },
+    rose: {
+        bg: "bg-rose-50 dark:bg-rose-900/20",
+        border: "border-rose-200 dark:border-rose-800",
+        icon: "text-rose-600 dark:text-rose-400",
+        accent: "bg-rose-600 dark:bg-rose-500",
+        badge: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
+        factBg: "bg-rose-50/50 dark:bg-rose-900/10",
+    },
+    orange: {
+        bg: "bg-orange-50 dark:bg-orange-900/20",
+        border: "border-orange-200 dark:border-orange-800",
+        icon: "text-orange-600 dark:text-orange-400",
+        accent: "bg-orange-600 dark:bg-orange-500",
+        badge: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+        factBg: "bg-orange-50/50 dark:bg-orange-900/10",
+    },
+    pink: {
+        bg: "bg-pink-50 dark:bg-pink-900/20",
+        border: "border-pink-200 dark:border-pink-800",
+        icon: "text-pink-600 dark:text-pink-400",
+        accent: "bg-pink-600 dark:bg-pink-500",
+        badge: "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300",
+        factBg: "bg-pink-50/50 dark:bg-pink-900/10",
     },
 };
 
-interface Fact {
-    id: string;
-    fact: string;
-    source?: string;
-}
+const totalFacts = categories.reduce((sum, cat) => sum + cat.facts.length, 0);
 
-interface FactCategory {
-    title: string;
-    slug: string;
-    color: string;
-    description: string;
-    facts: Fact[];
-}
+const datasetSchema = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: "OPT & F-1 Visa Facts Database",
+    description:
+        "100+ verified facts about OPT, STEM OPT, F-1 visa, H-1B transition, taxes, and US immigration for international students.",
+    url: "https://www.trackmyopt.com/ai-facts",
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    publisher: {
+        "@type": "Organization",
+        name: "TrackMyOPT",
+        url: "https://www.trackmyopt.com",
+    },
+    dateModified: "2026-02-01",
+    keywords: [
+        "OPT",
+        "STEM OPT",
+        "F-1 visa",
+        "H-1B",
+        "immigration",
+        "international students",
+        "EAD",
+        "USCIS",
+    ],
+    variableMeasured: categories.map((cat) => ({
+        "@type": "PropertyValue",
+        name: cat.label,
+        value: `${cat.facts.length} facts`,
+    })),
+};
 
-const FACT_CATEGORIES: FactCategory[] = [
-    {
-        title: "OPT Basics",
-        slug: "opt-basics",
-        color: "blue",
-        description: "Fundamental information about Optional Practical Training",
-        facts: [
-            { id: "opt-1", fact: "Optional Practical Training (OPT) is a temporary work authorization that allows F-1 students to work in the United States for up to 12 months after graduation.", source: "USCIS 8 CFR § 214.2(f)" },
-            { id: "opt-2", fact: "OPT is not a visa; it is a work authorization benefit available to F-1 students who have been in valid status for at least one academic year.", source: "USCIS" },
-            { id: "opt-3", fact: "F-1 students must apply for OPT within 60 days of graduation or while still enrolled if they are graduating soon.", source: "USCIS" },
-            { id: "opt-4", fact: "The OPT application requires submission of Form I-765 (Application for Employment Authorization) and relevant documents to USCIS.", source: "USCIS Form I-765" },
-            { id: "opt-5", fact: "OPT work must be related to the student's major field of study and demonstrate a level of practical training in the field." },
-            { id: "opt-6", fact: "Students on OPT must maintain valid F-1 status and can have gaps in employment of up to 90 cumulative days without status violation." },
-            { id: "opt-7", fact: "An Employment Authorization Document (EAD) card is issued upon OPT approval, valid for the authorization period shown on the card." },
-            { id: "opt-8", fact: "During OPT, students must work for employers who are willing to sponsor H-1B petitions or accept international students' eligibility." },
-            { id: "opt-9", fact: "Work outside the United States on OPT generally results in automatic termination of F-1 status. Students must maintain physical presence in the US." },
-            { id: "opt-10", fact: "OPT requires DSO approval and is typically processed through the SEVIS system before formal USCIS application submission." },
-            { id: "opt-11", fact: "The OPT period starts from the Optional Practical Training start date (often graduation date) and extends for the authorized period." },
-            { id: "opt-12", fact: "Students cannot legally work before their OPT EAD arrives or before the OPT start date, regardless of employer approval." },
-            { id: "opt-13", fact: "OPT is available to students with degree levels ranging from bachelor's to doctoral degrees (with exceptions for certain programs)." },
-            { id: "opt-14", fact: "Changing employers during OPT does not reset the timeline; all employment counts toward the total 12-month allowance for non-STEM majors." },
-            { id: "opt-15", fact: "Students are personally responsible for tracking their unemployment days and understanding the specific rules of their F-1 status." },
-            { id: "opt-16", fact: "OPT is not renewable; once the 12-month authorization expires, students must transition to another visa status (like H-1B) or leave the US." },
-            { id: "opt-17", fact: "The cost of OPT application (Form I-765) is $410 plus $85 biometric fees as of 2026, though fees may change annually." },
-            { id: "opt-18", fact: "Filing OPT without adequate documentation can result in denial, requiring a new application and potentially affecting visa status." },
-            { id: "opt-19", fact: "Students can request a gap between graduation and OPT start date by working with their DSO, allowing time for job search." },
-            { id: "opt-20", fact: "OPT authorization letters issued by USCIS typically arrive 2-4 months after filing but early authorization can be granted in some cases." },
-        ],
+const speakableSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "100+ OPT & F-1 Visa Facts",
+    url: "https://www.trackmyopt.com/ai-facts",
+    speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: [".fact-item"],
     },
-    {
-        title: "OPT Extensions",
-        slug: "opt-extensions",
-        color: "purple",
-        description: "Information about STEM OPT extensions and cap-gap provisions",
-        facts: [
-            { id: "opt-ext-1", fact: "STEM OPT extension provides an additional 24 months of work authorization for F-1 students with STEM degrees (Science, Technology, Engineering, or Mathematics)." },
-            { id: "opt-ext-2", fact: "STEM OPT extension eligibility requires that the student's degree be designated as STEM on the official STEM Designated Degree Program List maintained by USCIS." },
-            { id: "opt-ext-3", fact: "Total STEM OPT authorization (initial 12 months + extension of 24 months = 36 months) is the maximum authorized work period for STEM graduates." },
-            { id: "opt-ext-4", fact: "The STEM extension can only be granted once per student for a single degree level; subsequent STEM degrees may allow separate OPT but limited extension." },
-            { id: "opt-ext-5", fact: "STEM students have 150 cumulative days of unemployment across the combined initial OPT and STEM extension periods (12 + 24 months combined)." },
-            { id: "opt-ext-6", fact: "STEM OPT extensions provide critical time for international students to transition to H-1B sponsorship and begin green card sponsorship processes." },
-            { id: "opt-ext-7", fact: "Students must apply for the STEM extension before their initial 12-month OPT expires to maintain continuous work authorization." },
-            { id: "opt-ext-8", fact: "Popular STEM majors include Computer Science, Engineering disciplines, Physics, Chemistry, Mathematics, and Computer Information Systems." },
-            { id: "opt-ext-9", fact: "Students pursuing a second STEM degree may be eligible for additional STEM OPT if the employer is an approved STEM OPT employer." },
-            { id: "opt-ext-10", fact: "The cap-gap provision provides automatic work authorization from graduation until October 1st of the same year (when the H-1B fiscal year begins)." },
-            { id: "opt-ext-11", fact: "Cap-gap allows students graduating before October 1st to remain authorized to work while employers file H-1B petitions in the lottery." },
-            { id: "opt-ext-12", fact: "Cap-gap authorization requires that the student's employer has filed or intends to file an H-1B petition before October 1st of the same year." },
-            { id: "opt-ext-13", fact: "During cap-gap, students are in a protected status that allows continuous work authorization without counting toward unemployment limits." },
-            { id: "opt-ext-14", fact: "The 90-day unemployment rule applies separately during cap-gap; students exceeding 90 days of unemployment may lose authorization." },
-            { id: "opt-ext-15", fact: "Cap-gap extends work authorization only until October 1st; if H-1B is not selected in the lottery, authorization terminates on that date." },
-        ],
-    },
-    {
-        title: "H-1B Visa",
-        slug: "h1b-visa",
-        color: "green",
-        description: "Facts about the H-1B visa for specialty occupations and employment",
-        facts: [
-            { id: "h1b-1", fact: "H-1B is a specialty occupation work visa that allows US employers to temporarily employ foreign workers in occupations requiring a bachelor's degree or higher." },
-            { id: "h1b-2", fact: "H-1B visa holders are admitted for an initial period of up to 3 years and can extend for an additional 3 years, totaling a maximum of 6 years on H-1B status." },
-            { id: "h1b-3", fact: "The H-1B program has an annual cap of 65,000 visas plus an additional 20,000 visas for applicants with a master's degree or higher from US institutions." },
-            { id: "h1b-4", fact: "When H-1B cap is reached, the USCIS holds a lottery drawing to select petitions for processing; selection is random among qualified applications." },
-            { id: "h1b-5", fact: "H-1B visa petitions must be filed during the April 1-30 filing window for most applicants, with selection notifications in May." },
-            { id: "h1b-6", fact: "The prevailing wage requirement mandates that H-1B workers receive wages at or above the prevailing wage for their occupation in their geographic area." },
-            { id: "h1b-7", fact: "Employers must prove that hiring an H-1B worker will not adversely affect working conditions and wages of similarly employed US workers." },
-            { id: "h1b-8", fact: "H-1B petitions require sponsoring employers to submit evidence of good faith recruitment efforts and proof that the position requires degree-level skills." },
-            { id: "h1b-9", fact: "H-1B work authorization is tied to specific employers; changing employers typically requires filing a new H-1B petition or using portability provisions." },
-            { id: "h1b-10", fact: "H-1B portability allows workers to change employers within the cap year under certain conditions, providing flexibility in employment transitions." },
-            { id: "h1b-11", fact: "H-1B visa holders can adjust status to permanent residency while remaining in the United States, a significant advantage over other visa categories." },
-            { id: "h1b-12", fact: "The Department of Labor requires employers to post recruitment notices and make good faith efforts to recruit US workers before filing H-1B petitions." },
-            { id: "h1b-13", fact: "H-1B visa processing typically takes 2-6 months for approval, with expedited processing available for an additional fee of $1,225 (as of 2026)." },
-            { id: "h1b-14", fact: "H-1B visa requires that the sponsoring employer establish a legitimate employer-employee relationship and have genuine work available for the employee." },
-            { id: "h1b-15", fact: "H-1B status allows visa holders to travel outside the US and re-enter as long as they maintain valid employment and visa documentation." },
-            { id: "h1b-16", fact: "Specialty occupation H-1B positions include software developers, engineers, accountants, management consultants, and many other professional roles." },
-            { id: "h1b-17", fact: "H-1B extensions can be granted in increments of 1-3 years, with 6 years being the typical maximum duration unless green card processing is underway." },
-            { id: "h1b-18", fact: "Filing fees for H-1B petitions range from $460-$2,500 depending on employer size and visa processing preference (as of 2026)." },
-            { id: "h1b-19", fact: "H-1B visa holders are required to work only for the sponsoring employer and are not authorized to work for other employers without additional petitions." },
-            { id: "h1b-20", fact: "Rejected H-1B petitions can be resubmitted in future years, and lottery selection is random, meaning multiple attempts may be necessary." },
-        ],
-    },
-    {
-        title: "H-1B to Green Card",
-        slug: "h1b-green-card",
-        color: "amber",
-        description: "Information about transitioning from H-1B to permanent residency",
-        facts: [
-            { id: "gc-1", fact: "Green card sponsorship (PERM labor certification) is the primary pathway for H-1B workers to transition to permanent residency in the United States." },
-            { id: "gc-2", fact: "PERM (Program Electronic Review Management) Labor Certification requires employers to prove that no available US workers can perform the job at the prevailing wage." },
-            { id: "gc-3", fact: "The PERM process typically takes 6-24 months and involves job posting, recruitment, and Department of Labor review." },
-            { id: "gc-4", fact: "Following PERM approval, the employer files Form I-140 (Immigrant Petition for an Alien Worker) to establish the worker's green card application." },
-            { id: "gc-5", fact: "After I-140 approval, workers typically file Form I-485 (Application to Register Permanent Residence or Adjust Status) to adjust to permanent residency." },
-            { id: "gc-6", fact: "The entire green card process from PERM to green card receipt can take 3-7 years depending on visa category priority dates and country of origin." },
-            { id: "gc-7", fact: "Countries with high demand for immigration (India, China) experience significantly longer green card processing times due to per-country visa limits." },
-            { id: "gc-8", fact: "During green card sponsorship, H-1B workers can extend their H-1B status beyond 6 years while serving as Immediate Relative or Employment-Based Green Card applicants." },
-            { id: "gc-9", fact: "EB-3 (Employment-Based Third Preference) is the most common green card category for skilled workers, requiring job availability testing and permanent position requirements." },
-            { id: "gc-10", fact: "EB-2 (Employment-Based Second Preference) is available for workers with advanced degrees or exceptional ability, with potential exemption from labor certification (EB-2 NIW)." },
-            { id: "gc-11", fact: "Immediate Relative immigrants are not subject to green card caps; H-1B workers with US Citizen or Green Card sponsors can skip the queue." },
-            { id: "gc-12", fact: "I-140 portability allows workers to change employers up to 180 days after I-140 is pending or approved, providing additional employment flexibility." },
-            { id: "gc-13", fact: "Approved green card applicants can travel outside the US during processing using an Advance Parole Document (Form I-131) pending I-485 approval." },
-            { id: "gc-14", fact: "Green card processing times vary significantly by visa category and person's country of origin; India generally faces 15+ year wait times in EB-3 category." },
-            { id: "gc-15", fact: "Once a green card is obtained, the holder has permanent residency and can work for any employer without visa sponsorship or restrictions." },
-        ],
-    },
-    {
-        title: "F-1 Student Visa",
-        slug: "f1-student-visa",
-        color: "indigo",
-        description: "Comprehensive information about F-1 student visa rules and requirements",
-        facts: [
-            { id: "f1-1", fact: "F-1 is a non-immigrant student visa that allows international students to pursue academic studies at US educational institutions." },
-            { id: "f1-2", fact: "F-1 students must maintain full-time enrollment status (typically 12 credit hours per degree level) and make satisfactory academic progress." },
-            { id: "f1-3", fact: "F-1 students are authorized to work on-campus up to 20 hours per week during school sessions and full-time during official breaks and holidays." },
-            { id: "f1-4", fact: "On-campus employment for F-1 students is limited to positions within the school or by the school itself; off-campus employment is generally not permitted initially." },
-            { id: "f1-5", fact: "F-1 students can request off-campus employment (CPT - Curricular Practical Training) through their Designated School Official (DSO) for career development." },
-            { id: "f1-6", fact: "CPT (Curricular Practical Training) allows F-1 students to work off-campus in positions related to their field of study with school approval and specific conditions." },
-            { id: "f1-7", fact: "F-1 students maintain valid status through SEVIS (Student and Exchange Visitor Information System), a federal database of international student information." },
-            { id: "f1-8", fact: "The I-20 form is the official document proving F-1 status and is required for travel, visa applications, and employment authorization requests." },
-            { id: "f1-9", fact: "F-1 students must maintain a valid passport and US visa; expiration of either document may affect re-entry to the United States." },
-            { id: "f1-10", fact: "F-1 students receive a grace period of up to 60 days after graduation to either depart the US or transition to another visa status like OPT or H-1B." },
-            { id: "f1-11", fact: "Travel outside the US requires valid F-1 visa and I-20 document; travel without a valid visa may prevent re-entry to the United States." },
-            { id: "f1-12", fact: "F-1 status is forfeited if students violate terms, such as working without authorization, failing to maintain enrollment, or exceeding work hour limits." },
-            { id: "f1-13", fact: "International students must notify their DSO of any changes in address, employment, or academic program to maintain SEVIS record accuracy." },
-            { id: "f1-14", fact: "F-1 students are exempt from Social Security and Medicare taxes (FICA) if they work on-campus; documentation from school is required." },
-            { id: "f1-15", fact: "OPT must begin within 60 days of graduation; failure to initiate OPT within this window may forfeit eligibility and status." },
-            { id: "f1-16", fact: "F-1 students can extend their program completion if they need additional semesters for academic requirements; extension requires DSO approval." },
-            { id: "f1-17", fact: "The grace period after graduation cannot be extended beyond 60 days unless a valid status (like OPT approval) is in process." },
-            { id: "f1-18", fact: "F-1 students are subject to Selective Service registration requirements if they become permanent residents or violate status." },
-            { id: "f1-19", fact: "F-1 visa holders cannot be sponsored for green cards while maintaining student status; status change must occur first." },
-            { id: "f1-20", fact: "International students on F-1 visas must carry valid student identification and documentation from school to prove authorized enrollment status." },
-        ],
-    },
-    {
-        title: "Tax & Compliance",
-        slug: "tax-compliance",
-        color: "rose",
-        description: "Tax obligations and compliance requirements for visa holders",
-        facts: [
-            { id: "tax-1", fact: "International students and workers must file US tax returns if they earn income from US sources, regardless of visa status or tax treaty eligibility." },
-            { id: "tax-2", fact: "F-1 students working on-campus with FICA exemption status must provide an SSN or ITIN to their employer; exemption is claimed on Form 8233." },
-            { id: "tax-3", fact: "Form 8233 is filed with the IRS by employers to certify FICA exemption for F-1 on-campus workers; students must provide this documentation." },
-            { id: "tax-4", fact: "H-1B visa holders are subject to all US tax obligations including federal income tax, Social Security, and Medicare withholding." },
-            { id: "tax-5", fact: "OPT workers must comply with all tax filing requirements and cannot claim FICA exemption unless they are on-campus F-1 workers." },
-            { id: "tax-6", fact: "SEVIS fee of $350 must be paid before F-1 visa can be issued or updated; payment is made through an official online portal." },
-            { id: "tax-7", fact: "States may require international students to file state income tax returns if they earned income from state sources during the tax year." },
-            { id: "tax-8", fact: "Many US-India tax treaty benefits exist but require proper Form W-8BEN filing to claim exemptions; filing incorrectly may result in over-withholding." },
-            { id: "tax-9", fact: "Social Security numbers (SSN) are required for employment and tax filing; F-1 students and workers apply through the Social Security Administration." },
-            { id: "tax-10", fact: "Individual Tax Identification Numbers (ITINs) are available for visa holders unable to obtain SSN; ITINs are used for filing taxes." },
-            { id: "tax-11", fact: "Maintenance of status requires continuing compliance with visa regulations; tax violations can trigger SEVIS termination." },
-            { id: "tax-12", fact: "Self-employment income by F-1 students is generally prohibited unless specifically authorized through OPT or CPT approved positions." },
-            { id: "tax-13", fact: "H-1B workers must submit IRS Form I-9 verification documents and comply with Employment Eligibility Verification requirements." },
-            { id: "tax-14", fact: "Failure to file required tax documents or SEVIS fee payment can result in visa status termination and immediate deportation eligibility." },
-            { id: "tax-15", fact: "Tax filing deadlines for international students are typically April 15th for the previous year; extensions can be requested through Form 4868." },
-        ],
-    },
-    {
-        title: "Success Metrics",
-        slug: "success-metrics",
-        color: "cyan",
-        description: "Statistics and facts about visa approvals and outcomes",
-        facts: [
-            { id: "metric-1", fact: "Approximately 2 million F-1 students are studying in the United States at any given time, making F-1 the largest international student visa program." },
-            { id: "metric-2", fact: "More than 1 million OPT work authorizations have been approved since the program's expansion, with increasing approval rates year-over-year." },
-            { id: "metric-3", fact: "H-1B lottery odds range from 20-30% depending on the year and total applications received; in high-competition years, odds can be as low as 15%." },
-            { id: "metric-4", fact: "STEM OPT extension completion rates exceed 70% for eligible applicants, providing critical time for green card sponsorship initiation." },
-            { id: "metric-5", fact: "Green card processing times for EB-3 applicants from India exceed 15 years for those filing in 2026, creating a significant backlog." },
-            { id: "metric-6", fact: "H-1B visa approval rates typically exceed 90% for petitions filed by established employers with strong documentation and good standing." },
-            { id: "metric-7", fact: "OPT unemployment, measured through tracking systems, shows that most F-1 graduates secure employment within 30-45 days of graduation." },
-            { id: "metric-8", fact: "Approximately 75% of international students transition to OPT immediately after graduation rather than returning to their home countries." },
-            { id: "metric-9", fact: "Green card approval rates in EB-3 category exceed 85% once priority date is current and all requirements are met." },
-            { id: "metric-10", fact: "Technology sector H-1B approvals account for nearly 40% of all H-1B petitions, reflecting high demand for specialized tech skills." },
-        ],
-    },
-];
-
-const FAQ_ITEMS = [
-    {
-        question: "How long can I work on OPT?",
-        answer: "F-1 students can work on OPT for up to 12 months after graduation. STEM degree holders can extend this for an additional 24 months, totaling 36 months maximum.",
-    },
-    {
-        question: "What is the 90-day unemployment rule for OPT?",
-        answer: "The 90-day rule limits F-1 students on initial OPT to a maximum of 90 cumulative days without employment. Exceeding this limit results in SEVIS termination. STEM OPT students have 150 days total across both periods.",
-    },
-    {
-        question: "What is the difference between H-1B and OPT?",
-        answer: "OPT is a 12-month (or 36-month for STEM) work authorization available to F-1 graduates. H-1B is an employment-based visa for specialty occupations, allowing up to 6 years of work. H-1B requires employer sponsorship and lottery selection.",
-    },
-    {
-        question: "Can I switch employers while on OPT?",
-        answer: "Yes, you can change employers during OPT without resetting your timeline. All employment counts toward your total OPT allowance. You must be continuously employed or within your unemployment days.",
-    },
-    {
-        question: "How long does H-1B visa processing take?",
-        answer: "H-1B visa processing typically takes 2-6 months from application to approval. Expedited processing is available for an additional fee of $1,225 (as of 2026) and takes 15 days.",
-    },
-    {
-        question: "What is cap-gap and when can I use it?",
-        answer: "Cap-gap is an automatic work authorization from graduation until October 1st in the same year, applicable when your employer files an H-1B petition. It allows work authorization without counting unemployment days.",
-    },
-    {
-        question: "How long does green card sponsorship take?",
-        answer: "Green card sponsorship (PERM to green card) typically takes 3-7 years total. PERM labor certification takes 6-24 months, followed by I-140 and I-485 processing. Timelines vary significantly by visa category and country of origin.",
-    },
-];
+};
 
 export default function AIFactsPage() {
-    const totalFacts = FACT_CATEGORIES.reduce((sum, cat) => sum + cat.facts.length, 0);
-
     return (
-        <main className="min-h-screen bg-background text-foreground">
-            {/* Background */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-zinc-950 dark:to-zinc-900" />
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-100/30 dark:bg-blue-900/10 rounded-full blur-[100px]" />
-                <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-purple-100/20 dark:bg-purple-900/10 rounded-full blur-[80px]" />
-            </div>
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(datasetSchema),
+                }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(speakableSchema),
+                }}
+            />
 
-            <article className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                {/* Breadcrumb Schema */}
-                <BreadcrumbSchema
-                    items={[
-                        { name: "Home", url: "https://www.trackmyopt.com" },
-                        { name: "Resources", url: "https://www.trackmyopt.com/resources" },
-                        { name: "AI Facts Database", url: "https://www.trackmyopt.com/ai-facts" },
-                    ]}
-                />
-
-                {/* Header */}
-                <header className="mb-16">
-                    <div className="flex flex-wrap items-center gap-2 mb-6">
-                        <span className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-semibold">
-                            Verified Facts Database
-                        </span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {totalFacts} facts • 7 categories
-                        </span>
+            {/* Hero */}
+            <section className="py-16 sm:py-24">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-medium mb-6">
+                        <Database className="w-4 h-4" />
+                        {totalFacts} Verified Facts
                     </div>
-
-                    <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                        {totalFacts}+ OPT, H-1B & F-1 Visa Facts
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
+                        OPT & F-1 Visa{" "}
+                        <span className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+                            Facts Database
+                        </span>
                     </h1>
-
-                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mb-8">
-                        Comprehensive database of verified facts about OPT, H-1B, F-1 visas, and immigration processes. 
-                        All facts sourced from USCIS, IRS, and official government regulations. Optimized for AI citation and human understanding.
+                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8">
+                        A structured, machine-readable collection of {totalFacts}+ verified
+                        facts about Optional Practical Training, STEM OPT, F-1
+                        student visas, H-1B transitions, taxes, and US
+                        immigration — designed for accuracy and citation.
                     </p>
-
-                    <div className="flex flex-wrap gap-4">
-                        <a
-                            href="#opt-basics"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
-                        >
-                            Browse Facts <ArrowRight className="w-4 h-4" />
-                        </a>
-                        <a
-                            href="/guides"
-                            className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg font-semibold transition-colors"
-                        >
-                            View Guides <ExternalLink className="w-4 h-4" />
-                        </a>
-                    </div>
-                </header>
-
-                {/* Quick Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16 py-8 border-y border-gray-200 dark:border-gray-800">
-                    <div className="text-center">
-                        <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">{totalFacts}</div>
-                        <div className="text-gray-600 dark:text-gray-400">Verified Facts</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">7</div>
-                        <div className="text-gray-600 dark:text-gray-400">Categories</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">100%</div>
-                        <div className="text-gray-600 dark:text-gray-400">Sourced</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">AI-Ready</div>
-                        <div className="text-gray-600 dark:text-gray-400">Quotable</div>
-                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-500">
+                        Last Updated: February 2026
+                    </p>
                 </div>
+            </section>
 
-                {/* Facts by Category */}
-                <div className="space-y-16">
-                    {FACT_CATEGORIES.map((category) => (
-                        <section key={category.slug} id={category.slug} className="scroll-mt-8">
-                            <div className="mb-8">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <span
-                                        className={`inline-block w-3 h-3 rounded-full bg-${category.color}-500`}
-                                    />
-                                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                                        {category.title}
-                                    </h2>
-                                    <span className="text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full font-semibold">
-                                        {category.facts.length} facts
+            {/* Category Navigation */}
+            <section className="pb-12">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-wrap justify-center gap-3">
+                        {categories.map((cat) => {
+                            const styles = colorStyles[cat.color];
+                            const Icon = cat.icon;
+                            return (
+                                <a
+                                    key={cat.id}
+                                    href={`#${cat.id}`}
+                                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${styles.border} ${styles.badge} hover:opacity-80`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {cat.label}
+                                    <span className="opacity-60">
+                                        ({cat.facts.length})
                                     </span>
-                                </div>
-                                <p className="text-gray-600 dark:text-gray-400 text-lg">
-                                    {category.description}
-                                </p>
-                            </div>
-
-                            {/* Facts Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {category.facts.map((fact, idx) => (
-                                    <div
-                                        key={fact.id}
-                                        className="group p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/30 backdrop-blur hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md dark:hover:shadow-xl transition-all duration-200"
-                                    >
-                                        <div className="flex gap-4">
-                                            <div className="flex-shrink-0 text-lg font-bold text-gray-400 dark:text-gray-600 pt-1">
-                                                {idx + 1}.
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-gray-900 dark:text-gray-100 text-base leading-relaxed">
-                                                    {fact.fact}
-                                                </p>
-                                                {fact.source && (
-                                                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-3 pt-3 border-t border-gray-200 dark:border-gray-800">
-                                                        <span className="font-semibold">Source:</span> {fact.source}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    ))}
+                                </a>
+                            );
+                        })}
+                    </div>
                 </div>
+            </section>
 
-                {/* FAQ Section */}
-                <section className="mt-20 pt-16 border-t border-gray-200 dark:border-gray-800">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                        Frequently Asked Questions
-                    </h2>
+            {/* Facts by Category */}
+            <section className="pb-20">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+                    {categories.map((cat) => {
+                        const styles = colorStyles[cat.color];
+                        const Icon = cat.icon;
 
-                    <dl className="space-y-6">
-                        {FAQ_ITEMS.map((item, idx) => (
-                            <div
-                                key={idx}
-                                className="rounded-lg border border-gray-200 dark:border-gray-800 p-6 bg-white/50 dark:bg-gray-900/30 backdrop-blur"
-                            >
-                                <dt className="font-semibold text-gray-900 dark:text-white text-lg mb-3">
-                                    {item.question}
-                                </dt>
-                                <dd className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                                    {item.answer}
-                                </dd>
+                        return (
+                            <div key={cat.id} id={cat.id} className="scroll-mt-28">
+                                <div className="flex items-start gap-4 mb-8">
+                                    <div
+                                        className={`p-3 rounded-2xl ${styles.bg} border ${styles.border} flex-shrink-0`}
+                                    >
+                                        <Icon
+                                            className={`w-7 h-7 ${styles.icon}`}
+                                        />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                                            {cat.label}
+                                        </h2>
+                                        <p className="text-gray-500 dark:text-gray-400 mt-1">
+                                            {cat.description} —{" "}
+                                            <span className={styles.icon}>
+                                                {cat.facts.length} facts
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-3">
+                                    {cat.facts.map((fact, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`fact-item flex items-start gap-4 p-5 rounded-xl border ${styles.border} bg-white dark:bg-gray-800/50 transition-all hover:shadow-md`}
+                                        >
+                                            <span
+                                                className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold text-white ${styles.accent} flex-shrink-0 mt-0.5`}
+                                            >
+                                                {idx + 1}
+                                            </span>
+                                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                {fact}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        ))}
-                    </dl>
-                </section>
+                        );
+                    })}
+                </div>
+            </section>
 
-                {/* Related Resources */}
-                <section className="mt-20 pt-16 border-t border-gray-200 dark:border-gray-800">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                        Related Resources
+            {/* Summary Stats */}
+            <section className="py-16 bg-gray-50 dark:bg-zinc-900 border-t border-gray-200 dark:border-gray-800">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-10">
+                        Facts at a Glance
                     </h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                        {categories.map((cat) => {
+                            const styles = colorStyles[cat.color];
+                            const Icon = cat.icon;
+                            return (
+                                <div
+                                    key={cat.id}
+                                    className={`text-center p-5 rounded-xl border ${styles.border} bg-white dark:bg-gray-800/50`}
+                                >
+                                    <Icon
+                                        className={`w-6 h-6 ${styles.icon} mx-auto mb-2`}
+                                    />
+                                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                        {cat.facts.length}
+                                    </div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                        {cat.label}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="text-center mt-8">
+                        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-semibold">
+                            <CheckCircle2 className="w-5 h-5" />
+                            {totalFacts} Total Verified Facts
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Related Resources */}
+            <section className="py-16">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-4">
+                        Explore More Resources
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-400 text-center max-w-2xl mx-auto mb-10">
+                        Dive deeper into OPT, F-1 visa, and immigration topics
+                        with our detailed answers, glossary, and guides.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <Link
-                            href="/guides"
-                            className="group p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/30 backdrop-blur hover:border-blue-400 dark:hover:border-blue-600 transition-colors"
+                            href="/answers"
+                            className="group flex flex-col p-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all hover:shadow-lg"
                         >
-                            <div className="flex items-center gap-3 mb-3">
-                                <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    Complete Guides
-                                </h3>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                In-depth guides on OPT, H-1B, and green card processes
+                            <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4" />
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                OPT & F-1 Answers
+                            </h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm flex-1">
+                                Expert answers to the most common questions
+                                about OPT, STEM OPT, H-1B, and immigration.
                             </p>
+                            <span className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 mt-4 font-medium">
+                                Browse Answers
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </span>
                         </Link>
-
+                        <Link
+                            href="/glossary"
+                            className="group flex flex-col p-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/50 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all hover:shadow-lg"
+                        >
+                            <FileText className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mb-4" />
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                Immigration Glossary
+                            </h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm flex-1">
+                                Definitions for every key immigration term —
+                                OPT, SEVIS, EAD, DSO, CPT, and more.
+                            </p>
+                            <span className="inline-flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400 mt-4 font-medium">
+                                Browse Glossary
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </span>
+                        </Link>
                         <Link
                             href="/blog"
-                            className="group p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/30 backdrop-blur hover:border-purple-400 dark:hover:border-purple-600 transition-colors"
+                            className="group flex flex-col p-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/50 hover:border-purple-300 dark:hover:border-purple-700 transition-all hover:shadow-lg"
                         >
-                            <div className="flex items-center gap-3 mb-3">
-                                <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                                <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                                    Blog Articles
-                                </h3>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Latest insights on visa policies and immigration news
+                            <GraduationCap className="w-8 h-8 text-purple-600 dark:text-purple-400 mb-4" />
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                In-Depth Guides
+                            </h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm flex-1">
+                                Comprehensive guides on OPT applications, tax
+                                filing, health insurance, and career planning.
                             </p>
-                        </Link>
-
-                        <Link
-                            href="/faq"
-                            className="group p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/30 backdrop-blur hover:border-green-400 dark:hover:border-green-600 transition-colors"
-                        >
-                            <div className="flex items-center gap-3 mb-3">
-                                <BookOpen className="w-5 h-5 text-green-600 dark:text-green-400" />
-                                <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-                                    FAQ Database
-                                </h3>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Comprehensive answers to common questions
-                            </p>
+                            <span className="inline-flex items-center gap-1 text-sm text-purple-600 dark:text-purple-400 mt-4 font-medium">
+                                Read Guides
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </span>
                         </Link>
                     </div>
-                </section>
-
-                {/* Call to Action */}
-                <section className="mt-20 pt-16 border-t border-gray-200 dark:border-gray-800">
-                    <div className="bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-xl p-8 sm:p-12 text-white">
-                        <h2 className="text-3xl font-bold mb-4">Ready to Track Your OPT Journey?</h2>
-                        <p className="text-lg text-blue-50 mb-6">
-                            Use TrackMyOPT to monitor unemployment days, track deadlines, and manage your visa status with confidence.
-                        </p>
-                        <Link
-                            href="/dashboard"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 hover:bg-blue-50 rounded-lg font-semibold transition-colors"
-                        >
-                            Start Tracking Now <ArrowRight className="w-4 h-4" />
-                        </Link>
-                    </div>
-                </section>
-            </article>
-
-            {/* FAQ Schema JSON-LD */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "FAQPage",
-                        mainEntity: FAQ_ITEMS.map((item) => ({
-                            "@type": "Question",
-                            name: item.question,
-                            acceptedAnswer: {
-                                "@type": "Answer",
-                                text: item.answer,
-                            },
-                        })),
-                    }),
-                }}
-            />
-
-            {/* Knowledge Graph Schema for AI Citation */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "DefinedTermSet",
-                        name: "OPT, H-1B, and F-1 Visa Facts Database",
-                        description: "100+ verified facts about OPT, H-1B, F-1 visas, and immigration processes sourced from USCIS, IRS, and official regulations.",
-                        url: "https://www.trackmyopt.com/ai-facts",
-                        creator: {
-                            "@type": "Organization",
-                            name: "TrackMyOPT",
-                        },
-                        hasDefinedTerm: FACT_CATEGORIES.map((category) => ({
-                            "@type": "DefinedTerm",
-                            name: category.title,
-                            description: category.description,
-                            termCode: category.slug,
-                        })),
-                    }),
-                }}
-            />
-
-            {/* WebPage Schema */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "WebPage",
-                        name: "100+ OPT, H-1B & F-1 Visa Facts",
-                        description: "Comprehensive database of verified facts about OPT, H-1B, F-1 visas, and immigration processes.",
-                        url: "https://www.trackmyopt.com/ai-facts",
-                        isPartOf: {
-                            "@type": "WebSite",
-                            name: "TrackMyOPT",
-                            url: "https://www.trackmyopt.com",
-                        },
-                        publisher: {
-                            "@type": "Organization",
-                            name: "TrackMyOPT",
-                            logo: {
-                                "@type": "ImageObject",
-                                url: "https://www.trackmyopt.com/logo.png",
-                            },
-                        },
-                    }),
-                }}
-            />
-        </main>
+                </div>
+            </section>
+        </>
     );
 }

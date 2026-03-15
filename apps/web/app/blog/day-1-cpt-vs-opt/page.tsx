@@ -37,6 +37,17 @@ export default function Day1CPTArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    Day-1 CPT programs allow F-1 students to work from the first day of enrollment in a new program, while OPT is available after program completion. Day-1 CPT is legal but faces increased USCIS scrutiny, especially for students who enroll primarily for work authorization.
+                </p>
+            </div>
+
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2"><AlertTriangle className="w-5 h-5" />Important Disclaimer</h2>
                 <p className="text-amber-800 dark:text-amber-200 font-medium">This article provides factual information about Day 1 CPT and OPT for educational purposes. <strong>Day 1 CPT is a legal gray area</strong> with significant immigration risks. Always consult a qualified immigration attorney before making decisions about work authorization.</p>

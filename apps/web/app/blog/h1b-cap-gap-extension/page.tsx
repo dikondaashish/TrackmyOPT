@@ -37,6 +37,17 @@ export default function CapGapArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    The H-1B cap-gap automatically extends your F-1 status and OPT work authorization from April 1 through September 30 if your employer files a timely H-1B cap-subject petition. This prevents any gap in your legal status between OPT expiration and H-1B start date.
+                </p>
+            </div>
+
             <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-orange-900 dark:text-orange-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
                 <p className="text-orange-800 dark:text-orange-200 font-medium">The <strong>H-1B cap-gap</strong> automatically extends your F-1 status and OPT work authorization from your OPT expiration date until <strong>October 1</strong> (the H-1B start date) — but only if your employer files a timely H-1B change-of-status petition and you're selected in the lottery.</p>

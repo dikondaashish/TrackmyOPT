@@ -32,21 +32,21 @@ export default function F1TaxFilingPillarGuide() {
                 "@type": "Article",
                 "headline": "The Ultimate F-1 Student Tax Guide (2026)",
                 "description": "The most comprehensive, step-by-step guide to US tax filing for international students on F-1 visas. Covers every form, every deadline, FICA refunds, tax treaties for 15+ countries, state taxes, software comparisons, and the mistakes that cost students thousands of dollars.",
-                "image": "https://trackmyopt.com/og-f1-tax-guide.jpg",
+                "image": "https://www.trackmyopt.com/og-f1-tax-guide.jpg",
                 "datePublished": "2026-03-12",
                 "dateModified": "2026-03-12",
                 "author": {
                     "@type": "Organization",
                     "name": "TrackMyOPT Team",
-                    "url": "https://trackmyopt.com"
+                    "url": "https://www.trackmyopt.com"
                 },
                 "publisher": {
                     "@type": "Organization",
                     "name": "TrackMyOPT",
-                    "url": "https://trackmyopt.com",
+                    "url": "https://www.trackmyopt.com",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://trackmyopt.com/logo.png"
+                        "url": "https://www.trackmyopt.com/logo.png"
                     }
                 },
                 "articleBody": "Complete guide to F-1 student tax filing, including forms, strategies, and compliance requirements."

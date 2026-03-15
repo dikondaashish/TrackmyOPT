@@ -63,6 +63,17 @@ export default function USCISCaseStatusTrackingGuide() {
                 </div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    You can track your USCIS case status online at egov.uscis.gov using your 13-character receipt number (e.g., IOE0123456789). TrackMyOPT provides automated tracking with plain-English status explanations and alerts for status changes.
+                </p>
+            </div>
+
             {/* Key Takeaway Box */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">

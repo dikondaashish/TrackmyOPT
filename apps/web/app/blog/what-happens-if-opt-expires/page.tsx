@@ -48,6 +48,17 @@ export default function OPTExpiresArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    When your OPT expires, you enter a 60-day grace period during which you cannot work but can prepare to leave the US, change status, or transfer to a new school. If you have a pending H-1B petition, the cap-gap provision may extend your work authorization.
+                </p>
+            </div>
+
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-red-900 dark:text-red-100 mb-3 flex items-center gap-2">
                     <AlertTriangle className="w-5 h-5" />

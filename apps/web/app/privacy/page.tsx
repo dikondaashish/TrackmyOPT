@@ -7,6 +7,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: 'Privacy Policy | TrackMyOPT',
   description: 'Privacy Policy for TrackMyOPT - OPT & STEM OPT Toolkit',
+  alternates: {
+    canonical: 'https://www.trackmyopt.com/privacy',
+  },
 };
 
 export default function PrivacyPage() {

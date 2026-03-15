@@ -1,5 +1,6 @@
 
 import { MetadataRoute } from 'next';
+import { getAllAnswers } from '@/lib/answers';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = 'https://www.trackmyopt.com';
@@ -11,6 +12,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { route: '/pricing', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/glossary', changeFrequency: 'weekly' as const, priority: 0.8 },
         { route: '/tools', changeFrequency: 'weekly' as const, priority: 0.8 },
+        { route: '/answers', changeFrequency: 'weekly' as const, priority: 0.8 },
+        { route: '/ai-facts', changeFrequency: 'monthly' as const, priority: 0.7 },
+        { route: '/compare', changeFrequency: 'monthly' as const, priority: 0.7 },
         { route: '/guides/f1-tax-filing', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/guides/opt-career', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/guides/opt-health-insurance', changeFrequency: 'weekly' as const, priority: 0.9 },
@@ -19,6 +23,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { route: '/partnerships', changeFrequency: 'monthly' as const, priority: 0.7 },
         { route: '/success-stories', changeFrequency: 'weekly' as const, priority: 0.7 },
     ];
+
+    // Q&A answer pages — dynamically generated from data
+    const answerPages = getAllAnswers().map((a) => `/answers/${a.slug}`);
 
     // Feature pages — high priority, updated periodically
     const featurePages = [
@@ -111,6 +118,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: now,
             changeFrequency: 'weekly' as const,
             priority: 0.9,
+        })),
+        ...answerPages.map((route) => ({
+            url: `${baseUrl}${route}`,
+            lastModified: now,
+            changeFrequency: 'monthly' as const,
+            priority: 0.7,
         })),
     ];
 }

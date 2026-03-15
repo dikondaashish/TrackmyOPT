@@ -97,21 +97,21 @@ export default function OPTHealthInsurancePillarGuide() {
                 "@type": "Article",
                 "headline": "OPT Health Insurance Guide 2026: Everything You Need to Know",
                 "description": "The definitive health insurance resource for F-1 students on OPT. From ACA marketplace enrollment to employer plans, COBRA, state-by-state options, and free resources — this guide covers every decision you need to make to stay covered and protected.",
-                "image": "https://trackmyopt.com/og-opt-health-insurance.jpg",
+                "image": "https://www.trackmyopt.com/og-opt-health-insurance.jpg",
                 "datePublished": "2026-03-12",
                 "dateModified": "2026-03-12",
                 "author": {
                     "@type": "Organization",
                     "name": "TrackMyOPT Team",
-                    "url": "https://trackmyopt.com"
+                    "url": "https://www.trackmyopt.com"
                 },
                 "publisher": {
                     "@type": "Organization",
                     "name": "TrackMyOPT",
-                    "url": "https://trackmyopt.com",
+                    "url": "https://www.trackmyopt.com",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://trackmyopt.com/logo.png"
+                        "url": "https://www.trackmyopt.com/logo.png"
                     }
                 },
                 "articleBody": "Comprehensive guide to health insurance options for F-1 students on OPT, including ACA marketplace, employer plans, COBRA, and state-specific resources."

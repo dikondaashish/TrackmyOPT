@@ -37,6 +37,17 @@ export default function F1JobsArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    F-1 students have four legal work authorization types: on-campus employment, CPT, pre-completion OPT, and post-completion OPT. To work in the US long-term after graduation, you need an employer willing to sponsor an H-1B visa.
+                </p>
+            </div>
+
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-green-900 dark:text-green-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
                 <p className="text-green-800 dark:text-green-200 font-medium">F-1 students have <strong>4 legal work authorization types</strong>: on-campus employment, CPT, pre-completion OPT, and post-completion OPT. To work long-term, you'll need an employer willing to sponsor H-1B. Start your job search <strong>3-6 months before graduation</strong>.</p>

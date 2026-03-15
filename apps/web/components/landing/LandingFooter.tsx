@@ -49,6 +49,9 @@ export function LandingFooter() {
         resources: [
             { label: "Blog", href: "/blog" },
             { label: "Glossary", href: "/glossary" },
+            { label: "Answers (Q&A)", href: "/answers" },
+            { label: "Comparisons", href: "/compare" },
+            { label: "Immigration Facts", href: "/ai-facts" },
             { label: "Help Center", href: "/dashboard/help" },
             { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors" },
             { label: "Contact", href: "/contact" },

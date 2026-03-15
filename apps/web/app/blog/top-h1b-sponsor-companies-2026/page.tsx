@@ -48,6 +48,17 @@ export default function TopH1BSponsorArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: March 12, 2026 • Data source: USCIS H-1B Employer Data Hub (FY2025)</div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    The top H-1B sponsor companies include Amazon, Infosys, TCS, Google, Meta, Microsoft, Apple, and Cognizant, based on the number of H-1B petitions filed and approved. Tech companies and consulting firms dominate the list, with approval rates varying significantly by employer.
+                </p>
+            </div>
+
             {/* Key Takeaway */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">

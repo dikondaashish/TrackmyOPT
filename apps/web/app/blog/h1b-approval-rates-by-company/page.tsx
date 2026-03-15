@@ -48,6 +48,17 @@ export default function H1BApprovalRatesArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Data source: USCIS H-1B Employer Data Hub</div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    H-1B approval rates vary significantly by employer, with top tech companies achieving 95%+ approval rates while smaller or less established sponsors may see rates below 70%. Approval rates are publicly available through USCIS data and can help you evaluate potential employers.
+                </p>
+            </div>
+
             {/* Key Stats */}
             <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-3 flex items-center gap-2">

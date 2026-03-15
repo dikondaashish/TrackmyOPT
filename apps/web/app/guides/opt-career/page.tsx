@@ -54,21 +54,21 @@ export default function OPTCareerPillarGuide() {
                 "@type": "Article",
                 "headline": "F-1 Career Guide 2026: From OPT Application to H-1B and Beyond",
                 "description": "The definitive career resource for F-1 international students. Everything you need to land a job, navigate sponsorship, negotiate your worth, and build a long-term career in the United States.",
-                "image": "https://trackmyopt.com/og-f1-career-guide.jpg",
+                "image": "https://www.trackmyopt.com/og-f1-career-guide.jpg",
                 "datePublished": "2026-03-12",
                 "dateModified": "2026-03-12",
                 "author": {
                     "@type": "Organization",
                     "name": "TrackMyOPT Team",
-                    "url": "https://trackmyopt.com"
+                    "url": "https://www.trackmyopt.com"
                 },
                 "publisher": {
                     "@type": "Organization",
                     "name": "TrackMyOPT",
-                    "url": "https://trackmyopt.com",
+                    "url": "https://www.trackmyopt.com",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://trackmyopt.com/logo.png"
+                        "url": "https://www.trackmyopt.com/logo.png"
                     }
                 },
                 "articleBody": "Complete career guide for F-1 students covering job search, OPT, H-1B sponsorship, salary negotiation, and immigration pathways."

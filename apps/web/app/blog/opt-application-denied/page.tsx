@@ -48,6 +48,17 @@ export default function OPTDeniedArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last updated: March 12, 2026 • Written by TrackMyOPT Team</div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    If your OPT application is denied, you typically have options including filing a motion to reopen or reconsider, reapplying if still within your eligibility window, or consulting an immigration attorney. Common denial reasons include missing documents, filing outside the window, or SEVIS record issues.
+                </p>
+            </div>
+
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-red-900 dark:text-red-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
                 <p className="text-red-800 dark:text-red-200 font-medium">

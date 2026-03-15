@@ -80,6 +80,17 @@ export default function CanYouTravelOnOPTArticle() {
                 </div>
             </header>
 
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <span>Last Updated: February 2026</span>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+                <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                    Yes, F-1 students can travel internationally while on approved OPT, but you need a valid passport, valid F-1 visa stamp, EAD card, and an I-20 with a travel signature from your DSO dated within the last 6 months. Traveling while your OPT application is pending carries significant risk.
+                </p>
+            </div>
+
             {/* Key Takeaway Box */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
