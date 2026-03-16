@@ -8,9 +8,11 @@ export const metadata: Metadata = {
         canonical: "https://www.trackmyopt.com/features/health-insurance",
     },
     openGraph: {
-        title: "OPT Health Insurance Finder - Plans from $0/month",
-        description: "Compare health insurance plans for F-1 students on OPT. Find affordable coverage after your university plan ends.",
+        title: "OPT Health Insurance Finder for F-1 Students — Plans from $0/month",
+        description:
+            "Compare Marketplace, short-term, and catastrophic health insurance plans for F-1 students on OPT and STEM OPT. Coverage from $0/month with subsidies.",
         url: "https://www.trackmyopt.com/features/health-insurance",
+        siteName: "TrackMyOPT",
     },
 };
 

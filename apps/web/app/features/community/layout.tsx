@@ -8,9 +8,11 @@ export const metadata: Metadata = {
         canonical: "https://www.trackmyopt.com/features/community",
     },
     openGraph: {
-        title: "TrackMyOPT Community - 5,000+ Students & Alumni",
-        description: "You don't have to navigate OPT alone. Connect with mentors, get referrals, and find your support network.",
+        title: "TrackMyOPT Community — 5,000+ F-1 Students & Alumni",
+        description:
+            "Connect with mentors, get H-1B referrals, and find OPT support from people who've navigated F-1 compliance successfully.",
         url: "https://www.trackmyopt.com/features/community",
+        siteName: "TrackMyOPT",
     },
 };
 

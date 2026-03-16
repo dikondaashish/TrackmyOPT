@@ -8,9 +8,11 @@ export const metadata: Metadata = {
         canonical: "https://www.trackmyopt.com/features/sponsors",
     },
     openGraph: {
-        title: "H-1B Sponsor Database - 25,000+ Companies",
-        description: "Stop guessing which companies sponsor. Search our verified database with approval rates, salaries, and fraud alerts.",
+        title: "H-1B Sponsor Database for F-1 OPT Students — 25,000+ Companies",
+        description:
+            "Search verified H-1B sponsors with approval rates, salary data, and fraud alerts. Find companies that actually sponsor F-1 students.",
         url: "https://www.trackmyopt.com/features/sponsors",
+        siteName: "TrackMyOPT",
     },
 };
 

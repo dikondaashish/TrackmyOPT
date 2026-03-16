@@ -8,9 +8,11 @@ export const metadata: Metadata = {
         canonical: "https://www.trackmyopt.com/features/tax-filing",
     },
     openGraph: {
-        title: "F-1 Student Tax Filing Guide - File Correctly, Avoid Penalties",
-        description: "Step-by-step tax filing guidance for international students. Form 8843, 1040-NR, FICA exemption, and more.",
+        title: "F-1 OPT Student Tax Filing Guide — Avoid Penalties | TrackMyOPT",
+        description:
+            "Step-by-step tax filing for F-1 students on OPT. Form 8843, 1040-NR, FICA exemption, and STEM OPT tax obligations explained.",
         url: "https://www.trackmyopt.com/features/tax-filing",
+        siteName: "TrackMyOPT",
     },
 };
 

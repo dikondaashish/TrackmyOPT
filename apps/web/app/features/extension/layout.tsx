@@ -8,9 +8,11 @@ export const metadata: Metadata = {
         canonical: "https://www.trackmyopt.com/features/extension",
     },
     openGraph: {
-        title: "TrackMyOPT Chrome Extension - Free Forever",
-        description: "See which companies sponsor H-1B visas right on LinkedIn. Save hours of research with instant sponsor intel.",
+        title: "TrackMyOPT Chrome Extension — H-1B Sponsor Data on LinkedIn",
+        description:
+            "See H-1B sponsorship history, E-Verify status, and fraud alerts directly on LinkedIn job listings. Free for F-1 students.",
         url: "https://www.trackmyopt.com/features/extension",
+        siteName: "TrackMyOPT",
     },
 };
 

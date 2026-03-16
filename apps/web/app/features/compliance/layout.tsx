@@ -1,16 +1,26 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "OPT Compliance Tracker | TrackMyOPT - Stay in F-1 Status",
-    description: "Track your 90-day unemployment limit, filing deadlines, and OPT compliance requirements. Automatic alerts before you approach critical dates.",
-    keywords: ["OPT compliance", "90-day rule OPT", "unemployment tracker OPT", "F-1 status compliance", "STEM OPT unemployment limit"],
+    title: "OPT & STEM OPT Compliance Tracker — Automated Alerts for F-1 Students | TrackMyOPT",
+    description:
+        "Automated OPT unemployment day tracking, USCIS deadline alerts, and STEM OPT compliance monitoring. Prevent F-1 status termination with real-time alerts at 60, 75, and 85 days.",
+    keywords: [
+        "OPT compliance tracker",
+        "90-day unemployment rule OPT",
+        "STEM OPT unemployment limit",
+        "F-1 status compliance",
+        "OPT deadline alerts",
+        "USCIS compliance tracking",
+    ],
     alternates: {
         canonical: "https://www.trackmyopt.com/features/compliance",
     },
     openGraph: {
-        title: "OPT Compliance Tracker - Never Exceed Your Limits",
-        description: "Track unemployment days, filing deadlines, and stay compliant with F-1 regulations automatically.",
+        title: "OPT & STEM OPT Compliance Tracker | TrackMyOPT",
+        description:
+            "Automated unemployment tracking with alerts at 60, 75, and 85 days. Never exceed your OPT limits.",
         url: "https://www.trackmyopt.com/features/compliance",
+        siteName: "TrackMyOPT",
     },
 };
 
