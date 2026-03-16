@@ -3,22 +3,34 @@ import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export const metadata: Metadata = {
-    title: "Features - TrackMyOPT | OPT Compliance & Job Search Tools",
-    description: "Explore all TrackMyOPT features: OPT compliance tracking, H-1B sponsor intelligence, AI resume optimization, Chrome extension, and job application tracker for international students.",
-    keywords: ["OPT features", "H-1B sponsor search", "OPT compliance tools", "international student job search", "visa tracking", "STEM OPT"],
+    title: "OPT & STEM OPT Compliance Tools for F-1 Students | TrackMyOPT Features",
+    description:
+        "Automated OPT tracking, USCIS case alerts, unemployment day monitoring, H-1B sponsor database, AI resume tools, and STEM OPT compliance — everything F-1 students need to protect their status.",
+    keywords: [
+        "OPT tracking tools",
+        "STEM OPT compliance",
+        "F-1 compliance tools",
+        "H-1B sponsor search",
+        "USCIS case tracker",
+        "OPT unemployment tracker",
+        "international student job search",
+    ],
     alternates: {
         canonical: "https://www.trackmyopt.com/features",
     },
     openGraph: {
-        title: "Features - TrackMyOPT",
-        description: "All the tools international students need to protect their OPT status and find H-1B sponsors.",
+        title: "OPT & STEM OPT Compliance Tools | TrackMyOPT",
+        description:
+            "Automated OPT compliance tracking, USCIS alerts, H-1B sponsor data, and AI career tools. Built for F-1 students who can't afford to miss a deadline.",
         type: "website",
         url: "https://www.trackmyopt.com/features",
+        siteName: "TrackMyOPT",
     },
     twitter: {
         card: "summary_large_image",
-        title: "Features - TrackMyOPT",
-        description: "All the tools international students need to protect their OPT status and find H-1B sponsors.",
+        title: "OPT & STEM OPT Compliance Tools | TrackMyOPT",
+        description:
+            "Automated tracking, USCIS alerts, and career tools. Built for F-1 students who can't afford to miss a deadline.",
     },
 };
 

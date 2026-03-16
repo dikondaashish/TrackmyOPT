@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { route: '/answers', changeFrequency: 'weekly' as const, priority: 0.8 },
         { route: '/ai-facts', changeFrequency: 'monthly' as const, priority: 0.7 },
         { route: '/compare', changeFrequency: 'monthly' as const, priority: 0.7 },
+        { route: '/premium-worth-it', changeFrequency: 'monthly' as const, priority: 0.9 },
         { route: '/guides/f1-tax-filing', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/guides/opt-career', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/guides/opt-health-insurance', changeFrequency: 'weekly' as const, priority: 0.9 },
