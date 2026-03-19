@@ -19,6 +19,7 @@ export default function ReferralStatsPage() {
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<ReferralRow[]>([]);
   const [ownerEmail, setOwnerEmail] = useState<string>("");
+  const [hasAccess, setHasAccess] = useState<boolean>(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function ReferralStatsPage() {
           throw new Error(data.error || "Failed to load referral stats");
         }
         setOwnerEmail(data.ownerEmail || "");
+        setHasAccess(!!data.hasAccess);
         setRows(data.data || []);
       } catch (err: any) {
         setError(err?.message || "Failed to load referral stats");
@@ -69,6 +71,17 @@ export default function ReferralStatsPage() {
 
   if (error) {
     return <div className="text-sm text-red-500">{error}</div>;
+  }
+
+  if (!hasAccess) {
+    return (
+      <div className="rounded-xl border bg-card p-6">
+        <h1 className="text-xl font-semibold mb-2">Referral Stats</h1>
+        <p className="text-sm text-muted-foreground">
+          You do not have an active referral code assigned to your account.
+        </p>
+      </div>
+    );
   }
 
   return (

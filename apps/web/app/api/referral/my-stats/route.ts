@@ -50,10 +50,13 @@ export async function GET(_req: NextRequest) {
       );
     }
 
+    const rows = data || [];
+
     return NextResponse.json({
       ok: true,
       ownerEmail,
-      data: data || [],
+      hasAccess: rows.length > 0,
+      data: rows,
     }, {
       headers: { "Cache-Control": "no-store" },
     });

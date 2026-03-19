@@ -178,6 +178,7 @@ export function SettingsSection() {
   const [zipExportOtpVerifying, setZipExportOtpVerifying] = useState(false);
   const [zipExportCountdown, setZipExportCountdown] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [hasReferralAccess, setHasReferralAccess] = useState(false);
 
   // Update active tab when URL param changes
   useEffect(() => {
@@ -197,7 +198,25 @@ export function SettingsSection() {
     loadRecentLogins();
     loadToolEmails();
     loadSharedNotificationEmail();
+    loadReferralAccess();
   }, []);
+
+  const loadReferralAccess = async () => {
+    try {
+      const res = await fetch("/api/referral/my-stats", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        setHasReferralAccess(false);
+        return;
+      }
+      const data = await res.json();
+      setHasReferralAccess(!!data.ok && !!data.hasAccess);
+    } catch {
+      setHasReferralAccess(false);
+    }
+  };
 
   const loadDarkModePreference = () => {
     const savedMode = localStorage.getItem('tmo_dark_mode');
@@ -1263,6 +1282,28 @@ export function SettingsSection() {
                   <Toggle enabled={darkMode} onToggle={handleDarkModeToggle} />
                 </div>
               </div>
+
+              {/* Referral Program Access (shown only for users with a referral code) */}
+              {hasReferralAccess && (
+                <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Referral Program</h3>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">Referral Stats</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        View clicks, signups, and premium conversions for your referral code.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => window.location.href = "/dashboard/referrals"}
+                      className="h-10"
+                    >
+                      View Referral Stats
+                    </Button>
+                  </div>
+                </div>
+              )}
 
 
             </div>
