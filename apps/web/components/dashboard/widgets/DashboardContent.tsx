@@ -13,6 +13,7 @@ import {
   DashboardCustomizeButton
 } from "./DashboardWidgets";
 import { Skeleton } from "@/components/ui/skeleton";
+import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/optCalculations";
 
 const WidgetSkeleton = () => (
   <div className="rounded-lg border bg-card p-6 space-y-3">
@@ -129,8 +130,26 @@ export function DashboardContent({ user }: DashboardContentProps) {
             }
           }
 
-          // Calculate unemployment days if we have the data
-          if (data.unemploymentDays !== undefined) {
+          // Compute unemployment client-side from live spans to keep Dashboard
+          // perfectly aligned with Employment History calculations.
+          if (data.optStatus?.opt_start_date && data.optStatus?.opt_ead_end_date) {
+            const spansForCalc: CalculationEmploymentSpan[] = (data.employmentSpans || []).map((s: EmploymentSpan) => ({
+              id: s.id,
+              employer_name: s.employer_name || "",
+              start_date: s.start_date,
+              end_date: s.end_date,
+              is_current: s.is_current,
+              job_title: s.job_title,
+              location: s.location,
+            }));
+            const calc = calculateUnemploymentDays(
+              data.optStatus.opt_start_date,
+              data.optStatus.opt_ead_end_date,
+              spansForCalc
+            );
+            setUnemploymentDays(calc.used);
+          } else if (data.unemploymentDays !== undefined) {
+            // Fallback for incomplete status payloads.
             setUnemploymentDays(data.unemploymentDays);
           }
           

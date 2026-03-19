@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Calendar, Clock, Briefcase, GraduationCap } from "lucide-react";
+import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/optCalculations";
 
 interface MetricCardProps {
   title: string;
@@ -93,9 +94,27 @@ export function MetricCards() {
             }
           }
 
+          let unemploymentUsed = data.unemploymentDays || 0;
+          if (data.optStatus?.opt_start_date && data.optStatus?.opt_ead_end_date) {
+            const spansForCalc: CalculationEmploymentSpan[] = (data.employmentSpans || []).map((s: any) => ({
+              id: s.id,
+              employer_name: s.employer_name || "",
+              start_date: s.start_date,
+              end_date: s.end_date,
+              is_current: !!s.is_current,
+              job_title: s.job_title,
+              location: s.location,
+            }));
+            unemploymentUsed = calculateUnemploymentDays(
+              data.optStatus.opt_start_date,
+              data.optStatus.opt_ead_end_date,
+              spansForCalc
+            ).used;
+          }
+
           setMetrics({
             filingWindowDays,
-            unemploymentUsed: data.unemploymentDays || 0,
+            unemploymentUsed,
             maxUnemployment,
             daysUntilOPTEnd,
             isStemEligible: data.profile?.is_stem_eligible || false,
