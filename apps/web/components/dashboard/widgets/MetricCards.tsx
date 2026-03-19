@@ -65,7 +65,7 @@ export function MetricCards() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const response = await fetch("/api/me", { credentials: "include" });
+        const response = await fetch("/api/me", { credentials: "include", cache: "no-store" });
         if (response.ok) {
           const data = await response.json();
           

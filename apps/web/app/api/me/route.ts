@@ -20,7 +20,41 @@ export async function OPTIONS() {
 }
 
 function toDayStart(value: string | Date): Date | null {
-  const parsed = value instanceof Date ? new Date(value) : new Date(value);
+  if (value instanceof Date) {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return null;
+    parsed.setHours(0, 0, 0, 0);
+    return parsed;
+  }
+
+  const str = String(value).trim();
+  if (!str) return null;
+
+  // MM/DD/YYYY
+  const mmddyyyy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (mmddyyyy) {
+    const month = Number(mmddyyyy[1]) - 1;
+    const day = Number(mmddyyyy[2]);
+    const year = Number(mmddyyyy[3]);
+    const parsed = new Date(year, month, day);
+    if (Number.isNaN(parsed.getTime())) return null;
+    parsed.setHours(0, 0, 0, 0);
+    return parsed;
+  }
+
+  // YYYY-MM-DD (or date-like prefix)
+  const yyyymmdd = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (yyyymmdd) {
+    const year = Number(yyyymmdd[1]);
+    const month = Number(yyyymmdd[2]) - 1;
+    const day = Number(yyyymmdd[3]);
+    const parsed = new Date(year, month, day);
+    if (Number.isNaN(parsed.getTime())) return null;
+    parsed.setHours(0, 0, 0, 0);
+    return parsed;
+  }
+
+  const parsed = new Date(str);
   if (Number.isNaN(parsed.getTime())) return null;
   parsed.setHours(0, 0, 0, 0);
   return parsed;
@@ -235,7 +269,7 @@ export async function GET(request: NextRequest) {
           optStatus: null,
           employmentSpans: employmentSpans || [],
           unemploymentDays: 0,
-        }, { headers: corsHeaders });
+        }, { headers: { ...corsHeaders, 'Cache-Control': 'no-store' } });
       }
 
       console.error('OPT status query error:', statusError);
@@ -255,7 +289,7 @@ export async function GET(request: NextRequest) {
       optStatus: status,
       employmentSpans: employmentSpans || [],
       unemploymentDays,
-    }, { headers: corsHeaders });
+    }, { headers: { ...corsHeaders, 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('API /me error:', sanitizeError(error));
     return NextResponse.json(

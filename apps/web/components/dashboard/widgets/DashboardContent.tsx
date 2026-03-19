@@ -109,7 +109,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/me", { credentials: "include" });
+        const response = await fetch("/api/me", { credentials: "include", cache: "no-store" });
         if (response.ok) {
           const data = await response.json();
 
