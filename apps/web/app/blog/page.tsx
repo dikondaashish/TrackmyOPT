@@ -216,6 +216,15 @@ const blogPosts = [
         date: "March 12, 2026",
         tags: ["OPT", "Denial", "I-765"],
     },
+    {
+        slug: "opt-stem-opt-job-offer-verification-checklist",
+        title: "OPT & STEM OPT Job Offer Verification Checklist (Before You Accept)",
+        description: "Before accepting any OPT/STEM OPT role, verify W-2, E-Verify, degree alignment, I-983 readiness, and SEVIS/I-20 details with your DSO.",
+        category: "STEM OPT",
+        readTime: "8 min read",
+        date: "February 19, 2026",
+        tags: ["OPT", "STEM OPT", "Compliance"],
+    },
 ];
 
 function CategoryBadge({ category }: { category: string }) {
