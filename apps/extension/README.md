@@ -88,6 +88,17 @@ pnpm build
 - **OPT Status Display**: View all your important dates at a glance
 - **Dashboard Link**: Quick access to your web dashboard
 - **Sync Across Devices**: Uses `chrome.storage.sync` for cross-device sync
+- **Job Tracker Capture**: Add jobs from supported job portals into TrackMyOPT
+
+## 🌍 Supported Job Portals (Capture)
+
+- LinkedIn Jobs
+- Indeed
+- Greenhouse-hosted careers
+- Lever-hosted careers
+- Ashby-hosted careers
+- Workday-hosted careers (`*.myworkdayjobs.com`)
+- SmartRecruiters
 
 ## 🔐 Authentication Flow
 
@@ -195,6 +206,12 @@ The extension works with `localhost:3000` by default. To test:
 6. Prepare promotional images and description
 7. Create a zip of the `dist/` folder
 8. Submit to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+
+### Industry-Ready Notes
+
+- Use least-privilege host permissions (only your domain + supported job portals).
+- Avoid broad patterns such as `https://*/*` unless absolutely required.
+- Keep permission descriptions in Web Store listing aligned with actual extension behavior.
 
 ### Production Checklist
 
