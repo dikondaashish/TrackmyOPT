@@ -1,58 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import { User } from "@supabase/supabase-js";
 import { MetricCards } from "./MetricCards";
 import { OnboardingCard } from "./OnboardingCard";
-import { OnboardingWizard } from "../onboarding/OnboardingWizard";
+import { ToolsGrid } from "./ToolsGrid";
+import { ChartsSection } from "./ChartsSection";
+import { UpcomingDeadlinesPanel } from "./UpcomingDeadlinesPanel";
+import { ActionableReminders } from "./ActionableReminders";
+import { NotificationBanner } from "./NotificationBanner";
+import { EmploymentHistoryLog } from "./EmploymentHistoryLog";
+import { ResourceCenter } from "./ResourceCenter";
+import { CaseStatusSummary } from "./CaseStatusSummary";
 import { QuickActions } from "./QuickActions";
-import { NotificationBanner } from "../case-status/NotificationBanner";
-import {
-  useDashboardWidgets,
-  DashboardCustomizeButton
+import { PersonalizedTips } from "./PersonalizedTips";
+import { 
+  useDashboardWidgets, 
+  DashboardWidgetsSettings, 
+  DashboardCustomizeButton 
 } from "./DashboardWidgets";
-import { Skeleton } from "@/components/ui/skeleton";
-
-const WidgetSkeleton = () => (
-  <div className="rounded-lg border bg-card p-6 space-y-3">
-    <Skeleton className="h-5 w-40" />
-    <Skeleton className="h-24 w-full" />
-  </div>
-);
-
-const ChartsSection = dynamic(
-  () => import("../case-status/ChartsSection").then((m) => ({ default: m.ChartsSection })),
-  { loading: () => <WidgetSkeleton />, ssr: false }
-);
-const CaseStatusSummary = dynamic(
-  () => import("../case-status/CaseStatusSummary").then((m) => ({ default: m.CaseStatusSummary })),
-  { loading: () => <WidgetSkeleton /> }
-);
-const UpcomingDeadlinesPanel = dynamic(
-  () => import("../opt/UpcomingDeadlinesPanel").then((m) => ({ default: m.UpcomingDeadlinesPanel })),
-  { loading: () => <WidgetSkeleton /> }
-);
-const ActionableReminders = dynamic(
-  () => import("./ActionableReminders").then((m) => ({ default: m.ActionableReminders })),
-  { loading: () => <WidgetSkeleton /> }
-);
-const ResourceCenter = dynamic(
-  () => import("./ResourceCenter").then((m) => ({ default: m.ResourceCenter })),
-  { loading: () => <WidgetSkeleton /> }
-);
-const PersonalizedTips = dynamic(
-  () => import("./PersonalizedTips").then((m) => ({ default: m.PersonalizedTips })),
-  { loading: () => <WidgetSkeleton /> }
-);
-const ToolsGrid = dynamic(
-  () => import("./ToolsGrid").then((m) => ({ default: m.ToolsGrid })),
-  { loading: () => <WidgetSkeleton /> }
-);
-const DashboardWidgetsSettings = dynamic(
-  () => import("./DashboardWidgets").then((m) => ({ default: m.DashboardWidgetsSettings })),
-  { ssr: false }
-);
 
 interface OptStatus {
   program_end_date: string;
@@ -80,20 +46,12 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ user }: DashboardContentProps) {
-  const displayName =
-    (user.user_metadata as any)?.fullName ||
-    [ (user.user_metadata as any)?.firstName, (user.user_metadata as any)?.lastName ]
-      .filter(Boolean)
-      .join(" ") ||
-    (user.email ? user.email.split("@")[0] : "");
-
   const [optStatus, setOptStatus] = useState<OptStatus | null>(null);
   const [employmentSpans, setEmploymentSpans] = useState<EmploymentSpan[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [unemploymentDays, setUnemploymentDays] = useState(0);
   const [maxUnemploymentDays, setMaxUnemploymentDays] = useState(90);
   const [showSettings, setShowSettings] = useState(false);
-  const [showWizard, setShowWizard] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const {
@@ -112,15 +70,15 @@ export function DashboardContent({ user }: DashboardContentProps) {
         const response = await fetch("/api/me", { credentials: "include" });
         if (response.ok) {
           const data = await response.json();
-
+          
           if (data.optStatus) {
             setOptStatus(data.optStatus);
           }
-
+          
           if (data.employmentSpans) {
             setEmploymentSpans(data.employmentSpans);
           }
-
+          
           if (data.profile) {
             setProfile(data.profile);
             // Set max unemployment days based on STEM status
@@ -132,10 +90,6 @@ export function DashboardContent({ user }: DashboardContentProps) {
           // Calculate unemployment days if we have the data
           if (data.unemploymentDays !== undefined) {
             setUnemploymentDays(data.unemploymentDays);
-          }
-          
-          if (!data.optStatus) {
-            setShowWizard(true);
           }
         }
       } catch (error) {
@@ -187,6 +141,16 @@ export function DashboardContent({ user }: DashboardContentProps) {
         );
       case "reminders":
         return <ActionableReminders key="reminders" />;
+      case "employment":
+        return (
+          <EmploymentHistoryLog
+            key="employment"
+            employmentSpans={employmentSpans}
+            optStartDate={optStatus?.opt_start_date}
+            optEndDate={optStatus?.opt_ead_end_date}
+            maxUnemploymentDays={maxUnemploymentDays}
+          />
+        );
       case "tools":
         return <ToolsGrid key="tools" />;
       case "charts":
@@ -210,15 +174,14 @@ export function DashboardContent({ user }: DashboardContentProps) {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
-            Welcome back{displayName ? `, ${displayName}` : ""}
+            Welcome back{user.email ? `, ${user.email.split("@")[0]}` : ""}
           </p>
         </div>
         <DashboardCustomizeButton onClick={() => setShowSettings(true)} />
       </div>
 
       {/* Show onboarding if no OPT dates */}
-      {!isLoading && !optStatus && !showWizard && <OnboardingCard />}
-      <OnboardingWizard isOpen={showWizard} onComplete={() => window.location.reload()} />
+      {!isLoading && !optStatus && <OnboardingCard />}
 
       {/* Render visible widgets */}
       {widgetsLoaded &&
@@ -226,16 +189,10 @@ export function DashboardContent({ user }: DashboardContentProps) {
 
       {/* Footer */}
       <footer className="mt-12 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-2">
+        <div className="flex items-center justify-center gap-4 mb-2">
           <a href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</a>
           <span>·</span>
-          <a href="/terms" className="hover:text-foreground transition-colors">Terms of Service</a>
-          <span>·</span>
-          <a href="/refund-policy" className="hover:text-foreground transition-colors">Refund Policy</a>
-          <span>·</span>
-          <a href="/disclaimer" className="hover:text-foreground transition-colors">Disclaimer</a>
-          <span>·</span>
-          <a href="/cookie-policy" className="hover:text-foreground transition-colors">Cookie Policy</a>
+          <a href="/terms" className="hover:text-foreground transition-colors">Terms &amp; Conditions</a>
           <span>·</span>
           <a href="/dashboard/help" className="hover:text-foreground transition-colors">Help</a>
         </div>

@@ -18,9 +18,10 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "deadlines", label: "Upcoming Deadlines", visible: true, order: 4 },
   { id: "tips", label: "Personalized Tips", visible: true, order: 5 },
   { id: "reminders", label: "Tasks & Reminders", visible: true, order: 6 },
-  { id: "tools", label: "Your Toolkit", visible: true, order: 7 },
-  { id: "charts", label: "Status Charts", visible: true, order: 8 },
-  { id: "resources", label: "Resource Center", visible: false, order: 9 },
+  { id: "employment", label: "Employment History", visible: true, order: 7 },
+  { id: "tools", label: "Your Toolkit", visible: true, order: 8 },
+  { id: "charts", label: "Status Charts", visible: true, order: 9 },
+  { id: "resources", label: "Resource Center", visible: false, order: 10 },
 ];
 
 interface DashboardWidgetsProps {
