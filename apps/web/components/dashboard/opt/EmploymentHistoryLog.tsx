@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Briefcase, Calendar, Clock, Plus, ChevronDown, ChevronUp, Building2, MapPin } from "lucide-react";
-import Link from "next/link";
+import { Briefcase, Calendar, Clock, Plus, ChevronDown, ChevronUp, Building2, MapPin, Trash2 } from "lucide-react";
 
 interface EmploymentSpan {
   id: string;
@@ -294,6 +293,45 @@ export function EmploymentHistoryLog({
     }
   };
 
+  const handleDelete = async (id: string, employerName: string) => {
+    const confirmed = window.confirm(
+      `Delete employment record for ${employerName}? This action cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setFormError(null);
+    setSaving(true);
+    try {
+      const res = await fetch("/api/employment-spans", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Failed to delete employment");
+      }
+
+      const spansRes = await fetch("/api/employment-spans", {
+        credentials: "include",
+      });
+      const spansData = await spansRes.json();
+      if (spansRes.ok && spansData.ok && Array.isArray(spansData.spans)) {
+        setSpans(spansData.spans);
+      }
+
+      if (editingId === id) {
+        handleCancelEdit();
+      }
+    } catch (err: any) {
+      setFormError(err.message || "Failed to delete employment");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
       {/* Header */}
@@ -536,6 +574,17 @@ export function EmploymentHistoryLog({
                         className="ml-auto text-[11px] text-primary hover:underline"
                       >
                         Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(span.id, span.employer_name)}
+                        disabled={saving}
+                        className="text-[11px] text-red-600 hover:underline disabled:opacity-60"
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          <Trash2 className="w-3 h-3" />
+                          Delete
+                        </span>
                       </button>
                     </div>
                     {span.job_title && (

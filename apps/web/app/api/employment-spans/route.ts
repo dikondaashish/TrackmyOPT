@@ -174,3 +174,58 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+// DELETE - Remove an employment span by id
+export async function DELETE(req: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            cookieStore.set({ name, value, ...options });
+          },
+          remove(name: string, options: CookieOptions) {
+            cookieStore.set({ name, value: '', ...options });
+          },
+        },
+      }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { id } = body as { id?: string };
+
+    if (!id) {
+      return NextResponse.json(
+        { ok: false, error: 'id is required' },
+        { status: 400 }
+      );
+    }
+
+    const { error } = await supabase
+      .from('employment_spans')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+
+    return NextResponse.json({ ok: true });
+  } catch (error: any) {
+    console.error('Employment span delete error:', error);
+    return NextResponse.json(
+      { ok: false, error: error.message || 'Failed to delete employment span' },
+      { status: 500 }
+    );
+  }
+}
