@@ -35,6 +35,10 @@ export function EmploymentHistoryLog({
   const [newEndDate, setNewEndDate] = useState("");
   const [newJobTitle, setNewJobTitle] = useState("");
   const [newLocation, setNewLocation] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editEmployer, setEditEmployer] = useState("");
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState("");
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [stats, setStats] = useState({
@@ -160,6 +164,17 @@ export function EmploymentHistoryLog({
     return `${years}y ${remainingMonths}m`;
   };
 
+  const toInputDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return "";
+    if (dateStr.includes("/")) return dateStr;
+    const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return "";
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = String(date.getFullYear());
+    return `${month}/${day}/${year}`;
+  };
+
   const sortedSpans = [...spans].sort(
     (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
   );
@@ -211,6 +226,69 @@ export function EmploymentHistoryLog({
       setNewLocation("");
     } catch (err: any) {
       setFormError(err.message || "Failed to save employment");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleStartEdit = (span: EmploymentSpan) => {
+    setFormError(null);
+    setEditingId(span.id);
+    setEditEmployer(span.employer_name || "");
+    setEditStartDate(toInputDate(span.start_date));
+    setEditEndDate(toInputDate(span.end_date));
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditEmployer("");
+    setEditStartDate("");
+    setEditEndDate("");
+    setFormError(null);
+  };
+
+  const handleSaveEdit = async () => {
+    setFormError(null);
+    if (!editingId) return;
+    if (!editEmployer.trim() || !editStartDate.trim()) {
+      setFormError("Employer name and start date are required.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/employment-spans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          spans: [
+            {
+              id: editingId,
+              employer_name: editEmployer.trim(),
+              start_date: editStartDate.trim(),
+              end_date: editEndDate.trim() || null,
+            },
+          ],
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Failed to update employment");
+      }
+
+      const spansRes = await fetch("/api/employment-spans", {
+        credentials: "include",
+      });
+      const spansData = await spansRes.json();
+      if (spansRes.ok && spansData.ok && Array.isArray(spansData.spans)) {
+        setSpans(spansData.spans);
+      }
+
+      handleCancelEdit();
+    } catch (err: any) {
+      setFormError(err.message || "Failed to update employment");
     } finally {
       setSaving(false);
     }
@@ -379,56 +457,109 @@ export function EmploymentHistoryLog({
               key={span.id}
               className="p-4 hover:bg-muted/30 transition-colors"
             >
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                  span.is_current
-                    ? "bg-emerald-100 dark:bg-emerald-900/30"
-                    : "bg-muted"
-                }`}>
-                  <Building2 className={`w-5 h-5 ${
-                    span.is_current
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-muted-foreground"
-                  }`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-sm truncate">{span.employer_name}</h3>
-                    {span.is_current && (
-                      <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">
-                        Current
-                      </span>
-                    )}
+              {editingId === span.id ? (
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-3">
+                    <div className="flex-1 min-w-[180px]">
+                      <label className="block text-xs font-medium text-muted-foreground mb-1">Employer Name</label>
+                      <input
+                        type="text"
+                        value={editEmployer}
+                        onChange={(e) => setEditEmployer(e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
+                        placeholder="Company Inc."
+                      />
+                    </div>
+                    <div className="w-36">
+                      <label className="block text-xs font-medium text-muted-foreground mb-1">Start Date (MM/DD/YYYY)</label>
+                      <input
+                        type="text"
+                        value={editStartDate}
+                        onChange={(e) => setEditStartDate(e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
+                        placeholder="08/01/2025"
+                      />
+                    </div>
+                    <div className="w-36">
+                      <label className="block text-xs font-medium text-muted-foreground mb-1">End Date (optional)</label>
+                      <input
+                        type="text"
+                        value={editEndDate}
+                        onChange={(e) => setEditEndDate(e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
+                        placeholder="MM/DD/YYYY"
+                      />
+                    </div>
                   </div>
-                  {span.job_title && (
-                    <p className="text-xs text-muted-foreground mt-0.5">{span.job_title}</p>
-                  )}
-                  <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {formatDate(span.start_date)} - {span.end_date ? formatDate(span.end_date) : "Present"}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {calculateDuration(span.start_date, span.end_date)}
-                    </span>
-                    {span.location && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {span.location}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-2">
-                    <Link
-                      href="/dashboard/opt-tools/opt-clock"
-                      className="text-[11px] text-primary hover:underline"
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md"
                     >
-                      Edit employment in OPT Clock
-                    </Link>
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveEdit}
+                      disabled={saving}
+                      className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-60"
+                    >
+                      {saving ? "Saving..." : "Save Changes"}
+                    </button>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                    span.is_current
+                      ? "bg-emerald-100 dark:bg-emerald-900/30"
+                      : "bg-muted"
+                  }`}>
+                    <Building2 className={`w-5 h-5 ${
+                      span.is_current
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-muted-foreground"
+                    }`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-sm truncate">{span.employer_name}</h3>
+                      {span.is_current && (
+                        <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">
+                          Current
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleStartEdit(span)}
+                        className="ml-auto text-[11px] text-primary hover:underline"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    {span.job_title && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{span.job_title}</p>
+                    )}
+                    <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(span.start_date)} - {span.end_date ? formatDate(span.end_date) : "Present"}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {calculateDuration(span.start_date, span.end_date)}
+                      </span>
+                      {span.location && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {span.location}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

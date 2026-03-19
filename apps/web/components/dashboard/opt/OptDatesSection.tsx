@@ -717,6 +717,16 @@ export function OptDatesSection() {
         </div>
       </Card>
 
+      {/* Show Employment History only after OPT Start Date is entered */}
+      {!!dates.opt_start_date?.trim() && (
+        <EmploymentHistoryLog
+          employmentSpans={employmentSpans}
+          optStartDate={dates.opt_start_date}
+          optEndDate={dates.opt_ead_end_date}
+          maxUnemploymentDays={dates.stem_start_date ? 150 : 90}
+        />
+      )}
+
       {/* Tool Email Notifications Section - 4 Separate Emails */}
       <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
         <div className="flex items-start gap-4 mb-6">
@@ -881,14 +891,6 @@ export function OptDatesSection() {
           </div>
         )}
       </Card>
-
-      {/* Employment History moved from dashboard to this page */}
-      <EmploymentHistoryLog
-        employmentSpans={employmentSpans}
-        optStartDate={dates.opt_start_date}
-        optEndDate={dates.opt_ead_end_date}
-        maxUnemploymentDays={dates.stem_start_date ? 150 : 90}
-      />
 
       {/* Premium Modal */}
       <PricingModal
