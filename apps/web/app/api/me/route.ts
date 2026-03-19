@@ -19,6 +19,13 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 200, headers: corsHeaders });
 }
 
+function toDayStart(value: string | Date): Date | null {
+  const parsed = value instanceof Date ? new Date(value) : new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  parsed.setHours(0, 0, 0, 0);
+  return parsed;
+}
+
 export async function GET(request: NextRequest) {
   try {
     
@@ -160,35 +167,60 @@ export async function GET(request: NextRequest) {
       .order('start_date', { ascending: false });
 
     // Calculate unemployment days if we have OPT status
+    // Uses merged employment intervals to avoid overlap/double-count issues.
     let unemploymentDays = 0;
     if (status?.opt_start_date) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const optStart = new Date(status.opt_start_date);
-      const optEnd = status.opt_ead_end_date ? new Date(status.opt_ead_end_date) : today;
-      const effectiveEnd = optEnd < today ? optEnd : today;
+      const MS_PER_DAY = 1000 * 60 * 60 * 24;
+      const today = toDayStart(new Date())!;
+      const optStart = toDayStart(status.opt_start_date);
+      const optEnd = status.opt_ead_end_date ? toDayStart(status.opt_ead_end_date) : today;
 
-      // Total OPT days so far
-      const totalDays = Math.max(0, Math.ceil((effectiveEnd.getTime() - optStart.getTime()) / (1000 * 60 * 60 * 24)));
+      if (optStart && optEnd) {
+        const effectiveEnd = optEnd < today ? optEnd : today;
+        const totalDays = Math.max(
+          0,
+          Math.ceil((effectiveEnd.getTime() - optStart.getTime()) / MS_PER_DAY)
+        );
 
-      // Calculate employed days
-      let employedDays = 0;
-      if (employmentSpans && employmentSpans.length > 0) {
-        employmentSpans.forEach((span: { start_date: string; end_date: string | null }) => {
-          const spanStart = new Date(span.start_date);
-          const spanEnd = span.end_date ? new Date(span.end_date) : today;
-          
-          // Clamp to OPT period
-          const effectiveSpanStart = spanStart > optStart ? spanStart : optStart;
-          const effectiveSpanEnd = spanEnd < effectiveEnd ? spanEnd : effectiveEnd;
-          
-          if (effectiveSpanEnd > effectiveSpanStart) {
-            employedDays += Math.ceil((effectiveSpanEnd.getTime() - effectiveSpanStart.getTime()) / (1000 * 60 * 60 * 24));
+        let employedDays = 0;
+        if (employmentSpans && employmentSpans.length > 0) {
+          const intervals: Array<[number, number]> = [];
+
+          employmentSpans.forEach((span: { start_date: string; end_date: string | null }) => {
+            const start = toDayStart(span.start_date);
+            const end = span.end_date ? toDayStart(span.end_date) : today;
+            if (!start || !end) return;
+
+            const clampedStart = start > optStart ? start : optStart;
+            const clampedEnd = end < effectiveEnd ? end : effectiveEnd;
+
+            if (clampedEnd > clampedStart) {
+              intervals.push([clampedStart.getTime(), clampedEnd.getTime()]);
+            }
+          });
+
+          if (intervals.length > 0) {
+            intervals.sort((a, b) => a[0] - b[0]);
+            const merged: Array<[number, number]> = [];
+
+            for (const [start, end] of intervals) {
+              const last = merged[merged.length - 1];
+              if (!last || start > last[1]) {
+                merged.push([start, end]);
+              } else {
+                last[1] = Math.max(last[1], end);
+              }
+            }
+
+            employedDays = merged.reduce(
+              (sum, [start, end]) => sum + Math.ceil((end - start) / MS_PER_DAY),
+              0
+            );
           }
-        });
-      }
+        }
 
-      unemploymentDays = Math.max(0, totalDays - employedDays);
+        unemploymentDays = Math.max(0, totalDays - employedDays);
+      }
     }
 
     if (statusError) {
