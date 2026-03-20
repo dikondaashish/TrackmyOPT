@@ -243,26 +243,16 @@ function LoginPageContent() {
         throw new Error('Please enter a valid email address');
       }
 
-      // Check if user exists in the profiles table
-      // This is safe to do as we're only checking existence, not exposing sensitive data
-      const { data: userProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', resetEmail.toLowerCase())
-        .maybeSingle();
-
-      // If no user found in profiles, they're not registered
-      if (!userProfile && !profileError) {
-        throw new Error('This email is not registered with TrackMyOPT. Please create an account first.');
-      }
-
-      // User exists, send the reset email
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+      // Send reset request via server API. Do not rely on profiles table existence.
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail.trim().toLowerCase() }),
       });
 
-      if (resetError) {
-        throw resetError;
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result?.error || 'Failed to send reset link');
       }
 
       // Success
