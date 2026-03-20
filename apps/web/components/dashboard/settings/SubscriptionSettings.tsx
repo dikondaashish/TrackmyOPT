@@ -349,16 +349,20 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
 
                                 <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-gray-500">Member Since</span>
+                                        <span className="text-gray-500">Current period ends</span>
                                         <span className="font-medium text-gray-900 dark:text-gray-100">
-                                            {premium.expiresAt ? new Date(premium.expiresAt).toLocaleDateString() : 'Recently'}
+                                            {premium.expiresAt ? new Date(premium.expiresAt).toLocaleDateString() : '—'}
                                         </span>
                                     </div>
                                 </div>
 
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 leading-relaxed">
+                                    To <strong className="text-gray-700 dark:text-gray-300">cancel</strong>, update your card, or get receipts, use Manage Subscription — you’ll be sent to Stripe’s billing portal (same secure checkout provider).
+                                </p>
+
                                 <Button
                                     onClick={onManage}
-                                    className="w-full mt-6 bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800"
+                                    className="w-full mt-3 bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800"
                                 >
                                     Manage Subscription
                                 </Button>

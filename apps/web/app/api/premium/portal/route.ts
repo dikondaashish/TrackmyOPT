@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
         // Determine return URL
         const origin = req.headers.get('origin') ||
             req.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
+            process.env.NEXT_PUBLIC_SITE_URL ||
             process.env.NEXT_PUBLIC_APP_URL ||
             'https://www.trackmyopt.com';
 

@@ -16,12 +16,53 @@ function PremiumSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const planId = searchParams.get('planId') || 'pro'; // Default to pro if not specified
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(8);
+  const [syncState, setSyncState] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
 
   const isDedicated = planId === 'dedicated';
 
+  // Immediately confirm checkout server-side so premium is active before dashboard
+  // (Stripe webhooks can arrive seconds later; without this, users often still see "Upgrade".)
   useEffect(() => {
-    // Redirect to dashboard after 5 seconds
+    if (!sessionId) return;
+
+    let cancelled = false;
+    const run = async (attempt: number) => {
+      setSyncState('syncing');
+      try {
+        const res = await fetch('/api/premium/confirm-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ sessionId }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!cancelled && res.ok && data.ok) {
+          setSyncState('synced');
+          return;
+        }
+        if (attempt < 5 && !cancelled) {
+          await new Promise((r) => setTimeout(r, 1200));
+          return run(attempt + 1);
+        }
+        if (!cancelled) setSyncState('error');
+      } catch {
+        if (attempt < 5 && !cancelled) {
+          await new Promise((r) => setTimeout(r, 1200));
+          return run(attempt + 1);
+        }
+        if (!cancelled) setSyncState('error');
+      }
+    };
+
+    run(1);
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
+
+  useEffect(() => {
+    // Redirect to dashboard after countdown
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -132,7 +173,24 @@ function PremiumSuccessContent() {
           </ol>
         </div>
 
-        {/* Auto-redirect message */}
+        {/* Sync + redirect */}
+        {sessionId && (
+          <p className="text-sm text-gray-600 dark:text-muted-foreground mb-2">
+            {syncState === 'syncing' && 'Activating your subscription on your account…'}
+            {syncState === 'synced' && '✓ Subscription activated. Loading your dashboard...'}
+            {syncState === 'error' && (
+              <>
+                We could not confirm your subscription automatically. If the dashboard still shows "Upgrade", wait a minute
+                and refresh, or contact{' '}
+                <a href="mailto:support@trackmyopt.com" className="text-blue-600 underline">
+                  support@trackmyopt.com
+                </a>
+                .
+              </>
+            )}
+            {syncState === 'idle' && <span className="text-gray-500">Preparing your account…</span>}
+          </p>
+        )}
         <p className="text-sm text-gray-500 dark:text-muted-foreground mb-6">
           Redirecting to your dashboard in <span className="font-bold text-blue-600">{countdown}</span> seconds...
         </p>

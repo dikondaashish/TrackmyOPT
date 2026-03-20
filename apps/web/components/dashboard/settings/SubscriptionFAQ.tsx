@@ -3,6 +3,10 @@ import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 
 const faqs = [
     {
+        question: "How do I cancel my subscription?",
+        answer: "Sign in → Settings → Subscription → Manage Subscription. That opens Stripe’s secure Customer Portal where you can cancel, update your card, or download invoices. After you cancel, Stripe confirms by email; your TrackMyOPT access stays until the end of the paid or trial period, then the app moves you to the free plan."
+    },
+    {
         question: "Is this a subscription?",
         answer: "Yes, we offer flexible monthly and annual plans. You can cancel anytime. Our annual plans come with a 20% discount."
     },

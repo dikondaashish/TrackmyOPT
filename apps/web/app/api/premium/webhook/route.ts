@@ -12,8 +12,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
-import { sendPremiumWelcomeEmail } from '@/lib/notifications/email-service';
 import { sanitizeError } from '@/lib/secure-logger';
+import { applyStripeCheckoutSession } from '@/lib/premium/applyStripeCheckoutSession';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-09-30.clover',
@@ -130,107 +130,13 @@ export async function POST(req: NextRequest) {
  * Handle successful checkout completion
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const userId = session.metadata?.supabase_user_id;
-
-  if (!userId) {
-    console.error('❌ No user ID in session metadata:', session.id);
-    return;
+  const result = await applyStripeCheckoutSession({ stripe, supabase, session });
+  if (!result.ok) {
+    console.error('❌ handleCheckoutCompleted:', result.reason);
+    throw new Error(result.reason);
   }
-
-  // Idempotency: Check if already processed
-  const { data: existingTransaction } = await supabase
-    .from('payment_transactions')
-    .select('id')
-    .eq('stripe_checkout_session_id', session.id)
-    .single();
-
-  if (existingTransaction) {
-    console.log('✅ processing skipped: Transaction already recorded for session:', session.id);
-    return;
-  }
-
-  try {
-    // Get subscription details from Stripe to get period end
-    let expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 32); // Default 1 month safety
-
-    if (session.subscription) {
-      const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-      expiresAt = new Date((subscription as any).current_period_end * 1000);
-    }
-
-    // Update user to premium
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({
-        premium_status: true,
-        premium_purchased_at: new Date().toISOString(),
-        stripe_customer_id: session.customer as string,
-        stripe_payment_intent_id: session.payment_intent as string,
-        plan_tier: session.metadata?.planId || 'pro',
-        subscription_expires_at: expiresAt.toISOString(),
-      })
-      .eq('user_id', userId);
-
-    if (profileError) {
-      console.error('❌ Error updating profile:', profileError);
-      throw profileError;
-    }
-
-
-    // Record transaction
-    const { error: transactionError } = await supabase
-      .from('payment_transactions')
-      .insert({
-        user_id: userId,
-        stripe_payment_intent_id: session.payment_intent as string,
-        stripe_customer_id: session.customer as string,
-        stripe_checkout_session_id: session.id,
-        amount: session.amount_total || 299,
-        currency: session.currency || 'usd',
-        status: 'succeeded',
-        payment_method_type: session.payment_method_types?.[0] || 'card',
-        plan_id: session.metadata?.planId || 'pro',
-        metadata: {
-          session_id: session.id,
-          customer_email: session.customer_details?.email,
-        },
-      });
-
-    if (transactionError) {
-      console.error('❌ Error recording transaction:', transactionError);
-      throw transactionError;
-    }
-
-
-
-    // Send welcome email to premium user
-    if (session.customer_details?.email) {
-      await sendPremiumWelcomeEmail(
-        userId,
-        session.customer_details.email,
-        session.customer_details.name || 'Student'
-      );
-    }
-
-    // --- Referral Conversion Tracking ---
-    // If this user was referred, increment the referrer's premium conversion counter
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('referred_by')
-      .eq('user_id', userId)
-      .single();
-
-    if (userProfile?.referred_by) {
-      await supabase.rpc('increment_referral_conversions', {
-        ref_code: userProfile.referred_by,
-      });
-    }
-
-
-  } catch (error) {
-    console.error(`❌ Error in handleCheckoutCompleted:`, sanitizeError(error));
-    throw error;
+  if (result.alreadyRecorded) {
+    console.log('✅ checkout session already synced:', session.id);
   }
 }
 
@@ -247,7 +153,8 @@ async function logPaymentFailure(session: Stripe.Checkout.Session) {
       .from('payment_transactions')
       .insert({
         user_id: userId,
-        stripe_payment_intent_id: session.payment_intent as string || `failed_${Date.now()}`,
+        stripe_payment_intent_id:
+          (session.payment_intent as string) || `failed_cs_${session.id}`,
         stripe_customer_id: session.customer as string,
         stripe_checkout_session_id: session.id,
         amount: session.amount_total || 299,
