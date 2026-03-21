@@ -38,16 +38,7 @@ export async function POST(req: NextRequest) {
     results.indexnow = `error: ${e instanceof Error ? e.message : "unknown"}`;
   }
 
-  try {
-    const sitemapUrl = `https://${SITE_HOST}/sitemap.xml`;
-    const res = await fetch(
-      `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`,
-      { method: "GET" }
-    );
-    results.google_sitemap_ping = `${res.status} ${res.statusText}`;
-  } catch (e: unknown) {
-    results.google_sitemap_ping = `error: ${e instanceof Error ? e.message : "unknown"}`;
-  }
+  results.google_note = "Google deprecated sitemap ping (2023). Use GSC URL Inspection for manual indexing.";
 
   return NextResponse.json({ ok: true, results });
 }
