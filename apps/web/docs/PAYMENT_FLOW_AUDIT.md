@@ -35,6 +35,7 @@
 
 | Status | Notes |
 |--------|--------|
+| **Working** | `/premium/checkout` and `/premium/cancelled` render inside **`PremiumDashboardShell`**: full dashboard chrome + blurred `DashboardContent` behind the foreground (pricing modal or “checkout closed” card). Unauthenticated users → `/login?redirect=…`. |
 | **Working** | `line_items: [{ price: priceId, quantity: 1 }]`, `mode: 'subscription'`, optional `discounts` from promo resolution, `metadata.supabase_user_id`, `metadata.planId`, `metadata.interval`, `metadata.checkout_promo` (reuse key), `subscription_data.metadata` for plan/interval, Pro trial via `trial_period_days: 7`. |
 | **Partial / cosmetic** | Client sometimes sent `successUrl` / `cancelUrl` in JSON; **server ignored them** (success/cancel URLs are set only in `create-checkout`). **Fixed** client payloads to stop sending dead fields; server URLs remain canonical. |
 | **Working** | Stale `stripe_customer_id` in DB: `customers.retrieve` failure clears ID and creates a new customer. |

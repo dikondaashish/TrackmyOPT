@@ -62,9 +62,9 @@ export function PremiumCancelledClient() {
     ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <main className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:py-14">
-        <div className="w-full max-w-md">
+    <div className="flex w-full max-w-md flex-col px-2 sm:px-0">
+      <main className="flex flex-col items-center justify-center">
+        <div className="w-full">
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
             <div className="mb-8 flex justify-center">
               <div
@@ -130,7 +130,7 @@ export function PremiumCancelledClient() {
         </div>
       </main>
 
-      <footer className="border-t border-border bg-muted/20 px-4 py-4">
+      <footer className="mt-4 border-t border-border bg-muted/20 px-2 py-4 sm:px-0">
         <p className="mx-auto max-w-md text-center text-[10px] text-muted-foreground">
           Questions?{" "}
           <a
