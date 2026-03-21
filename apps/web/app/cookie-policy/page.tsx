@@ -7,6 +7,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
     title: 'Cookie Policy | TrackMyOPT',
     description: 'Cookie Policy for TrackMyOPT - How we handle your data',
+    alternates: {
+        canonical: 'https://www.trackmyopt.com/cookie-policy',
+    },
 };
 
 export default function CookiePolicyPage() {

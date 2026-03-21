@@ -2374,7 +2374,7 @@ export function SettingsSection() {
                 Maybe Later
               </button>
               <a
-                href="/upgrade"
+                href="/pricing"
                 className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all font-medium text-center"
               >
                 Upgrade Now

@@ -162,7 +162,7 @@ export default function F1TaxFilingPillarGuide() {
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400">Home</Link>
                 <span>/</span>
-                <Link href="/guides" className="hover:text-blue-600 dark:hover:text-blue-400">Guides</Link>
+                <Link href="/blog" className="hover:text-blue-600 dark:hover:text-blue-400">Guides</Link>
                 <span>/</span>
                 <span className="text-gray-900 dark:text-white">F-1 Tax Filing</span>
             </nav>

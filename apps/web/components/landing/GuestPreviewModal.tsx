@@ -59,7 +59,7 @@ export function GuestPreviewModal() {
                   <p className="text-[10px] text-muted-foreground">Test the OPT Calculator</p>
                 </div>
               </div>
-              <Link href="/auth/login">
+              <Link href="/login">
                 <Button size="sm" className="rounded-full h-8 px-4 text-xs font-semibold">
                   Sign up to save
                 </Button>
@@ -149,7 +149,7 @@ export function GuestPreviewModal() {
             <div className="p-4 border-t bg-muted/30 text-center">
               <h4 className="font-bold text-base mb-2">Like what you see?</h4>
               <p className="text-xs text-muted-foreground mb-4">Unlock the full dashboard, export tools, safe document vault, and email reminders.</p>
-              <Link href="/auth/login" onClick={() => setIsOpen(false)}>
+              <Link href="/login" onClick={() => setIsOpen(false)}>
                 <Button className="rounded-full w-full sm:w-auto px-8 gap-2">
                   Create Free Account <ArrowRight className="w-4 h-4" />
                 </Button>

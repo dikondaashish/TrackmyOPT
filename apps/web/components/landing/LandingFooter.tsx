@@ -43,10 +43,11 @@ export function LandingFooter() {
         product: [
             { label: "Features", href: "/features" },
             { label: "Pricing", href: "/pricing" },
+            { label: "How It Works", href: "/how-it-works" },
             { label: "About Us", href: "/about" },
             { label: "Success Stories", href: "/success-stories" },
-            { label: "Chrome Extension", href: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm" },
-        ],
+            { label: "Chrome Extension", href: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm", external: true },
+        ] as Array<{ label: string; href: string; external?: boolean }>,
         guides: [
             { label: "90-Day Unemployment Rule", href: "/blog/90-day-unemployment-rule-opt" },
             { label: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
@@ -63,10 +64,9 @@ export function LandingFooter() {
             { label: "Answers (Q&A)", href: "/answers" },
             { label: "Comparisons", href: "/compare" },
             { label: "Immigration Facts", href: "/ai-facts" },
+            { label: "FAQ", href: "/faq" },
             { label: "Help Center", href: "/dashboard/help" },
-            { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors" },
             { label: "Contact", href: "/contact" },
-            { label: "Tax Guide", href: "/dashboard/tax-filing" },
             { label: "Report Fraud", href: "/resources/report-fraud" },
         ],
         legal: [
@@ -114,12 +114,23 @@ export function LandingFooter() {
                         <ul className="space-y-3">
                             {footerLinks.product.map((link, index) => (
                                 <li key={index}>
-                                    <a
-                                        href={link.href}
-                                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                                    >
-                                        {link.label}
-                                    </a>
+                                    {link.external ? (
+                                        <a
+                                            href={link.href}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                        >
+                                            {link.label}
+                                        </a>
+                                    ) : (
+                                        <Link
+                                            href={link.href}
+                                            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    )}
                                 </li>
                             ))}
                         </ul>
@@ -152,12 +163,12 @@ export function LandingFooter() {
                         <ul className="space-y-3">
                             {footerLinks.resources.map((link, index) => (
                                 <li key={index}>
-                                    <a
+                                    <Link
                                         href={link.href}
                                         className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                                     >
                                         {link.label}
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

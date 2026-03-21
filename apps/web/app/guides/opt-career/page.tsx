@@ -183,7 +183,7 @@ export default function OPTCareerPillarGuide() {
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
-                <Link href="/guides" className="hover:text-blue-600">Guides</Link><span>/</span>
+                <Link href="/blog" className="hover:text-blue-600">Guides</Link><span>/</span>
                 <span className="text-gray-900 dark:text-white">F-1 Career Guide</span>
             </nav>
 

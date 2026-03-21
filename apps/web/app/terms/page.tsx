@@ -7,6 +7,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: 'Terms & Conditions | TrackMyOPT',
   description: 'Terms and Conditions for TrackMyOPT - OPT & STEM OPT Toolkit',
+  alternates: {
+    canonical: 'https://www.trackmyopt.com/terms',
+  },
 };
 
 export default function TermsPage() {

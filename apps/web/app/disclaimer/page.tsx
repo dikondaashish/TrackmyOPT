@@ -7,6 +7,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
     title: 'Legal Disclaimer | TrackMyOPT',
     description: 'Legal Disclaimer and Liability Statement for TrackMyOPT',
+    alternates: {
+        canonical: 'https://www.trackmyopt.com/disclaimer',
+    },
 };
 
 export default function DisclaimerPage() {

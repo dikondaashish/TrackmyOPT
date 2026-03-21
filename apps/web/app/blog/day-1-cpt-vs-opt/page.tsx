@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: "Day 1 CPT vs OPT: Key Differences Every F-1 Student Should Know (2026)",
     description: "Day 1 CPT vs OPT comparison for F-1 students. Understand the differences in eligibility, work authorization, risks, and long-term immigration impact. Make an informed decision.",
     keywords: ["Day 1 CPT", "Day 1 CPT vs OPT", "CPT vs OPT", "Day 1 CPT risks", "what is Day 1 CPT", "is Day 1 CPT legal", "CPT OPT difference"],
-    openGraph: { title: "Day 1 CPT vs OPT: Complete Comparison | TrackMyOPT", url: "https://www.trackmyopt.com/blog/day-1-cpt-vs-opt", type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Day 1 CPT vs OPT: Key Differences Every F-1 Student Should Know (2026)" }] },
+    openGraph: { title: "Day 1 CPT vs OPT: Complete Comparison | TrackMyOPT", description: "Understand the key differences between Day 1 CPT and OPT. Eligibility, timeline, work authorization, and how each option affects your F-1 status.", url: "https://www.trackmyopt.com/blog/day-1-cpt-vs-opt", type: "article", siteName: "TrackMyOPT", images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Day 1 CPT vs OPT: Key Differences Every F-1 Student Should Know (2026)" }] },
     alternates: { canonical: "https://www.trackmyopt.com/blog/day-1-cpt-vs-opt" },
 };
 

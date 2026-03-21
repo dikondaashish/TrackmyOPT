@@ -5,6 +5,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Report Fraud & Protect Yourself | TrackMyOPT",
     description: "Resources for international students to report visa fraud, ghost jobs, and unfair employment practices.",
+    alternates: {
+        canonical: 'https://www.trackmyopt.com/resources/report-fraud',
+    },
 };
 
 export default function ReportFraudPage() {

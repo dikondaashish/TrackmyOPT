@@ -20,6 +20,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { route: '/guides/f1-tax-filing', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/guides/opt-career', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/guides/opt-health-insurance', changeFrequency: 'weekly' as const, priority: 0.9 },
+        { route: '/features', changeFrequency: 'monthly' as const, priority: 0.8 },
+        { route: '/how-it-works', changeFrequency: 'monthly' as const, priority: 0.7 },
+        { route: '/faq', changeFrequency: 'monthly' as const, priority: 0.7 },
         { route: '/about', changeFrequency: 'monthly' as const, priority: 0.8 },
         { route: '/contact', changeFrequency: 'monthly' as const, priority: 0.6 },
         { route: '/partnerships', changeFrequency: 'monthly' as const, priority: 0.7 },
@@ -44,8 +47,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // Public tools — valuable for SEO, updated with features
     const toolPages = [
-        '/faq',
-        '/how-it-works',
         '/dashboard/help',
         '/dashboard/opt-tools/opt-apply',
         '/dashboard/opt-tools/opt-clock',

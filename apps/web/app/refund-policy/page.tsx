@@ -7,6 +7,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
     title: 'Refund Policy | TrackMyOPT',
     description: 'Refund Policy for TrackMyOPT - Transparent & Fair',
+    alternates: {
+        canonical: 'https://www.trackmyopt.com/refund-policy',
+    },
 };
 
 export default function RefundPolicyPage() {

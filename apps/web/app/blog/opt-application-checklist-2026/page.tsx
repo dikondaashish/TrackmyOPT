@@ -249,20 +249,7 @@ export default function OPTChecklistArticle() {
 
             <AuthorBio />
 
-            {/* Schema */}
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "HowTo",
-                    "name": "How to Apply for OPT (Form I-765)",
-                    "description": "Step-by-step guide to filing Form I-765 for OPT employment authorization.",
-                    "step": [
-                        { "@type": "HowToStep", "name": "Pre-Filing Preparation", "text": "Confirm program end date, attend OPT info session, request DSO recommendation, receive new I-20." },
-                        { "@type": "HowToStep", "name": "Gather Documents", "text": "Collect I-765, I-20, passport copy, I-94, photos, and filing fee." },
-                        { "@type": "HowToStep", "name": "File Form I-765", "text": "Submit online at USCIS.gov with category (c)(3)(B) and all supporting documents." },
-                        { "@type": "HowToStep", "name": "Track and Wait", "text": "Save receipt number, complete biometrics if requested, and track case status." },
-                    ]
-                })
-            }} />
+            {/* JSON-LD: BlogPosting + HowTo come from <BlogPostSchema /> above — avoid duplicate HowTo scripts for rich results */}
         </article>
     );
 }

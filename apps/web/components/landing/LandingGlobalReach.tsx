@@ -48,7 +48,7 @@ export function LandingGlobalReach() {
                             </div>
                         </div>
 
-                        <Link href="/community" className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:gap-3 transition-all group">
+                        <Link href="/features/community" className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:gap-3 transition-all group">
                             Join the Community
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Link>
