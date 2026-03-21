@@ -122,7 +122,11 @@ export async function POST(req: NextRequest) {
 async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.Session) {
   const result = await applyStripeCheckoutSession({ stripe, supabase, session });
   if (!result.ok) {
-    console.error('❌ handleCheckoutCompleted:', result.reason);
+    console.error('❌ handleCheckoutCompleted:', result.reason, {
+      sessionId: session.id,
+      customer: session.customer,
+      hasMetadataUser: Boolean(session.metadata?.supabase_user_id),
+    });
     throw new Error(result.reason);
   }
   if (result.alreadyRecorded) {

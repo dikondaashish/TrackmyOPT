@@ -62,15 +62,23 @@ export async function applyStripeCheckoutSession(args: {
   let expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 32);
 
-  if (session.subscription) {
-    const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-    const periodEnd = (subscription as unknown as { current_period_end: number }).current_period_end;
-    expiresAt = new Date(periodEnd * 1000);
+  // Always use a string id — webhook/API payloads may send subscription as an expanded object.
+  const subscriptionIdForRetrieve = resolveStripeSubscriptionId(session);
+  if (subscriptionIdForRetrieve) {
+    try {
+      const subscription = await stripe.subscriptions.retrieve(subscriptionIdForRetrieve);
+      const periodEnd = (subscription as unknown as { current_period_end: number }).current_period_end;
+      if (typeof periodEnd === "number") {
+        expiresAt = new Date(periodEnd * 1000);
+      }
+    } catch (e) {
+      console.error("applyStripeCheckoutSession: subscription retrieve failed, using fallback period", e);
+    }
   }
 
   const planTier = session.metadata?.planId || "pro";
 
-  const { error: profileError } = await supabase
+  const { data: updatedProfiles, error: profileError } = await supabase
     .from("profiles")
     .update({
       premium_status: true,
@@ -80,11 +88,17 @@ export async function applyStripeCheckoutSession(args: {
       plan_tier: planTier,
       subscription_expires_at: expiresAt.toISOString(),
     })
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .select("user_id");
 
   if (profileError) {
     console.error("applyStripeCheckoutSession profile update:", profileError);
     return { ok: false, reason: profileError.message };
+  }
+
+  if (!updatedProfiles?.length) {
+    console.error("applyStripeCheckoutSession: no profile row updated for user_id", userId);
+    return { ok: false, reason: "profile_not_found_for_metadata_user" };
   }
 
   const txPayload = {
@@ -122,6 +136,32 @@ export async function applyStripeCheckoutSession(args: {
   });
 
   if (transactionError) {
+    // Webhook + /api/premium/confirm-checkout can race; unique on stripe_payment_intent_id causes 23505.
+    const code = (transactionError as { code?: string }).code;
+    const dupKey =
+      code === "23505" ||
+      transactionError.message?.toLowerCase().includes("duplicate") ||
+      transactionError.message?.toLowerCase().includes("unique");
+    if (dupKey) {
+      const { data: existingBySession } = await supabase
+        .from("payment_transactions")
+        .select("id")
+        .eq("stripe_checkout_session_id", session.id)
+        .maybeSingle();
+      if (existingBySession) {
+        console.log("applyStripeCheckoutSession: duplicate insert ignored (row exists for session)", session.id);
+        return { ok: true, alreadyRecorded: true };
+      }
+      const { data: existingByPi } = await supabase
+        .from("payment_transactions")
+        .select("id")
+        .eq("stripe_payment_intent_id", paymentIntentId)
+        .maybeSingle();
+      if (existingByPi) {
+        console.log("applyStripeCheckoutSession: duplicate insert ignored (row exists for payment ref)", paymentIntentId);
+        return { ok: true, alreadyRecorded: true };
+      }
+    }
     console.error("applyStripeCheckoutSession transaction insert:", transactionError);
     return { ok: false, reason: transactionError.message };
   }
