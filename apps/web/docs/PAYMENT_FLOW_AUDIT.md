@@ -11,7 +11,8 @@
 |-------|------------|
 | **Refunds did not revoke access** when `payment_transactions.stripe_payment_intent_id` was synthetic | Added `stripe_subscription_id` column + populate on checkout completion; `charge.refunded` now updates by PI, then `stripe_subscription_id`, then `stripe_checkout_session_id` (PI metadata / invoice metadata), then revokes `profiles.premium_status` for matched `user_id`s. |
 | **Expiry not written to DB** | `GET /api/premium/status` now updates `profiles` (`premium_status: false`, `plan_tier: null`) when `subscription_expires_at` is in the past before returning. |
-| **Duplicate Checkout Sessions (multi-tab)** | `create-checkout` reuses an **open** Stripe session if the user has a `payment_transactions` row with `status: pending` and `created_at` within 10 minutes; otherwise inserts a **pending** row (`pending_{session.id}`) after creating a session so future calls can dedupe. `applyStripeCheckoutSession` **updates** that row on success (pending→succeeded). |
+| **Duplicate Checkout Sessions (multi-tab)** | `create-checkout` reuses an **open** Stripe session if the user has a `payment_transactions` row with `status: pending` and `created_at` within 10 minutes **and** the session targets the same Stripe Price **and** the same `metadata.checkout_promo` (promo intent); otherwise creates a new session. Pending row insert dedupes multi-tab. `applyStripeCheckoutSession` **updates** that row on success (pending→succeeded). |
+| **Promo / EARLYBIRD** | POST body optional `promoCode`: omitted = auto-apply `STRIPE_PROMO_CODE_PRO` or `STRIPE_PROMO_CODE_DEDICATED` by `planId` (both intervals for that plan); `null` = no `discounts`; string = `stripe.promotionCodes.list({ code, active: true, limit: 1 })`. Hosted Checkout does **not** use `allow_promotion_codes`. UI: `PromoCodeCheckoutBar` in `PricingModal` and `SubscriptionSettings`. |
 | **Live vs test key in production** | `requireLiveStripeKeyInProduction()` in `lib/stripe/requireLiveKeyInProduction.ts` — throws if `NODE_ENV === 'production'` and `STRIPE_SECRET_KEY` does not start with `sk_live_`. Used in `create-checkout`, `confirm-checkout`, and webhook `getStripe()`. |
 
 **DB migration:** `supabase/migrations/20260219_payment_transactions_subscription_id.sql` adds `stripe_subscription_id`. Apply in Supabase before relying on subscription-based refund matching.
@@ -34,8 +35,7 @@
 
 | Status | Notes |
 |--------|--------|
-| **Working** | `line_items: [{ price: priceId, quantity: 1 }]`, `mode: 'subscription'`, `metadata.supabase_user_id`, `metadata.planId`, `metadata.interval`, `subscription_data.metadata` for plan/interval, Pro trial via `trial_period_days: 7`. |
-| **Promo UX** | Stripe forbids combining `discounts` + `allow_promotion_codes` on one Checkout Session. Default path: `allow_promotion_codes: true` + optional `STRIPE_CHECKOUT_PROMO_HINT` (or plan overrides) → same hint for **all** variants: Pro month/year + Dedicated month/year; API returns `checkoutPromoHint` with `planId` + `interval` for UI; copy dialog before redirect. Locked path: `STRIPE_LOCK_CHECKOUT_PROMO` + `STRIPE_PROMO_CODE_*` (`promo_...`). |
+| **Working** | `line_items: [{ price: priceId, quantity: 1 }]`, `mode: 'subscription'`, optional `discounts` from promo resolution, `metadata.supabase_user_id`, `metadata.planId`, `metadata.interval`, `metadata.checkout_promo` (reuse key), `subscription_data.metadata` for plan/interval, Pro trial via `trial_period_days: 7`. |
 | **Partial / cosmetic** | Client sometimes sent `successUrl` / `cancelUrl` in JSON; **server ignored them** (success/cancel URLs are set only in `create-checkout`). **Fixed** client payloads to stop sending dead fields; server URLs remain canonical. |
 | **Working** | Stale `stripe_customer_id` in DB: `customers.retrieve` failure clears ID and creates a new customer. |
 | **Resolved** | See **Duplicate Checkout Sessions** above. |
@@ -101,7 +101,7 @@
 ## Ops checklist (cannot verify in repo)
 
 - [ ] Stripe Dashboard: Webhook endpoint URL matches deployment + events enabled for all handled types.
-- [ ] All `STRIPE_PRICE_*` env vars set in production. **Promos:** Stripe allows only one of server-applied `discounts` OR customer `allow_promotion_codes` (not both). Default: `allow_promotion_codes: true`. Set `STRIPE_CHECKOUT_PROMO_HINT` (e.g. `EARLYBIRD`) so the app shows a copy dialog before redirect; optional `STRIPE_CHECKOUT_PROMO_HINT_PRO` / `STRIPE_CHECKOUT_PROMO_HINT_DEDICATED` override per plan. **Legacy locked auto-apply:** `STRIPE_LOCK_CHECKOUT_PROMO=true` + `STRIPE_PROMO_CODE_PRO` / `STRIPE_PROMO_CODE_DEDICATED` (Stripe `promo_...` ids) applies the discount server-side and **disables** the promo field on hosted Checkout.
+- [ ] All `STRIPE_PRICE_*` and optional `STRIPE_PROMO_CODE_*` env vars set in production.
 - [ ] Stripe Customer Portal configured for plan changes/cancel (used by `/api/premium/portal`).
 - [ ] Run migration `20260219_payment_transactions_subscription_id.sql` on production Supabase.
 

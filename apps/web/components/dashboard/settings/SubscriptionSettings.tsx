@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { CreditCard, Loader2, Check, Zap, Shield, Star, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
+import type { PromoCheckoutMode } from '@/lib/premium/promoCheckoutTypes';
+import { buildPromoCheckoutBody } from '@/lib/premium/checkoutPromoPayload';
 import { SubscriptionUsage } from './SubscriptionUsage';
 import { BillingHistory } from './BillingHistory';
 import { SubscriptionFAQ } from './SubscriptionFAQ';
 import { PlanComparisonModal } from './PlanComparisonModal';
 import { PricingModal } from '@/components/pricing/PricingModal';
-import { CheckoutPromoHintDialog, type CheckoutPromoHint } from '@/components/pricing/CheckoutPromoHintDialog';
 
 interface PremiumStatus {
     isPremium: boolean;
@@ -246,15 +248,16 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
     const [selectedPlan, setSelectedPlan] = useState<string>('pro');
     const [selectedInterval, setSelectedInterval] = useState<string>('month');
     const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState<string | null>(null);
-    const [pendingPromoCheckout, setPendingPromoCheckout] = useState<{
-        url: string;
-        hint: CheckoutPromoHint;
-    } | null>(null);
+    const [promoMode, setPromoMode] = useState<PromoCheckoutMode>('default');
+    const [customPromoInput, setCustomPromoInput] = useState('');
+    const [promoError, setPromoError] = useState<string | null>(null);
 
     // Direct Checkout Handler (Bypasses Modal)
     const handleDirectCheckout = async (planId: string, interval: string) => {
         setCheckoutLoadingPlan(planId);
+        setPromoError(null);
         try {
+            const promoFields = buildPromoCheckoutBody(promoMode, customPromoInput);
             const response = await fetch('/api/premium/create-checkout', {
                 method: 'POST',
                 headers: {
@@ -264,6 +267,7 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
                 body: JSON.stringify({
                     planId: planId,
                     interval: interval,
+                    ...promoFields,
                 }),
             });
 
@@ -273,26 +277,16 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
                     typeof (errBody as { error?: string }).error === 'string'
                         ? (errBody as { error: string }).error
                         : 'Failed to create checkout session';
-                throw new Error(msg);
-            }
-
-            const data = (await response.json()) as {
-                url?: string;
-                checkoutPromoHint?: CheckoutPromoHint;
-                checkoutPromoLocked?: boolean;
-            };
-            if (!data?.url || typeof data.url !== 'string') {
-                throw new Error('Invalid checkout response');
-            }
-            if (data.checkoutPromoHint?.code && !data.checkoutPromoLocked) {
-                setPendingPromoCheckout({ url: data.url, hint: data.checkoutPromoHint });
+                setPromoError(msg);
                 setCheckoutLoadingPlan(null);
                 return;
             }
-            window.location.href = data.url;
+
+            const { url } = await response.json();
+            window.location.href = url;
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Failed to start upgrade process.';
-            alert(message);
+            setPromoError(message);
             setCheckoutLoadingPlan(null);
         }
     };
@@ -319,20 +313,6 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
-            <CheckoutPromoHintDialog
-                open={!!pendingPromoCheckout}
-                onOpenChange={(next) => {
-                    if (!next) {
-                        setPendingPromoCheckout(null);
-                    }
-                }}
-                hint={pendingPromoCheckout?.hint ?? null}
-                onContinue={() => {
-                    if (pendingPromoCheckout?.url) {
-                        window.location.href = pendingPromoCheckout.url;
-                    }
-                }}
-            />
             {/* Header */}
             <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -346,6 +326,35 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
                 <p className="text-gray-500 dark:text-gray-400 mt-1">
                     Manage your plan, billing details, and invoices.
                 </p>
+            </div>
+
+            <div className="max-w-lg mx-auto mb-6">
+                <PromoCodeCheckoutBar
+                    mode={promoMode}
+                    customCode={customPromoInput}
+                    error={promoError}
+                    disabled={!!checkoutLoadingPlan}
+                    onRemoveDefault={() => {
+                        setPromoMode('none');
+                        setCustomPromoInput('');
+                        setPromoError(null);
+                    }}
+                    onCustomCodeChange={(v) => {
+                        setCustomPromoInput(v);
+                        setPromoError(null);
+                    }}
+                    onApplyCustom={() => {
+                        const t = customPromoInput.trim();
+                        if (!t) return;
+                        setPromoMode('custom');
+                        setPromoError(null);
+                    }}
+                    onClearCustom={() => {
+                        setPromoMode('none');
+                        setCustomPromoInput('');
+                        setPromoError(null);
+                    }}
+                />
             </div>
 
             {/* Always show Pricing Section for upgrades/downgrades */}

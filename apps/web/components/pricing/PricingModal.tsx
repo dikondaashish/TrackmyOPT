@@ -1,14 +1,16 @@
 "use client";
 
 import { ArrowRight, Check, Crown, Shield, Sparkles, Star, Zap, Gift } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { CheckoutPromoHintDialog, type CheckoutPromoHint } from "@/components/pricing/CheckoutPromoHintDialog";
+import { PromoCodeCheckoutBar } from "@/components/pricing/PromoCodeCheckoutBar";
+import type { PromoCheckoutMode } from "@/lib/premium/promoCheckoutTypes";
+import { buildPromoCheckoutBody } from "@/lib/premium/checkoutPromoPayload";
 
 interface PricingModalProps {
   open: boolean;
@@ -24,19 +26,28 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   // Monthly unless URL explicitly has interval=year (undefined used to default to yearly — wrong for checkout UX)
   const [isYearly, setIsYearly] = useState(initialInterval === "year");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [pendingPromoCheckout, setPendingPromoCheckout] = useState<{
-    url: string;
-    hint: CheckoutPromoHint;
-  } | null>(null);
+  const [promoMode, setPromoMode] = useState<PromoCheckoutMode>("default");
+  const [customPromoInput, setCustomPromoInput] = useState("");
+  const [promoError, setPromoError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setPromoMode("default");
+      setCustomPromoInput("");
+      setPromoError(null);
+    }
+  }, [open]);
 
   const handleUpgrade = async (selectedPlan: string, intervalOverride?: string) => {
     setIsLoading(true);
     setLoadingPlan(selectedPlan);
+    setPromoError(null);
 
     // Determine interval: override > state > default
     const currentInterval = intervalOverride || (isYearly ? 'year' : 'month');
 
     try {
+      const promoFields = buildPromoCheckoutBody(promoMode, customPromoInput);
       const response = await fetch('/api/premium/create-checkout', {
         method: 'POST',
         headers: {
@@ -46,6 +57,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         body: JSON.stringify({
           planId: selectedPlan,
           interval: currentInterval,
+          ...promoFields,
         }),
       });
 
@@ -53,27 +65,17 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         const errBody = await response.json().catch(() => ({}));
         const msg =
           typeof errBody?.error === 'string' ? errBody.error : 'Failed to create checkout session';
-        throw new Error(msg);
-      }
-
-      const data = (await response.json()) as {
-        url?: string;
-        checkoutPromoHint?: CheckoutPromoHint;
-        checkoutPromoLocked?: boolean;
-      };
-      if (!data?.url || typeof data.url !== 'string') {
-        throw new Error('Invalid checkout response');
-      }
-      if (data.checkoutPromoHint?.code && !data.checkoutPromoLocked) {
-        setPendingPromoCheckout({ url: data.url, hint: data.checkoutPromoHint });
+        setPromoError(msg);
         setIsLoading(false);
         setLoadingPlan(null);
         return;
       }
-      window.location.href = data.url;
+
+      const { url } = await response.json();
+      window.location.href = url;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to start upgrade process.';
-      alert(message);
+      setPromoError(message);
       setIsLoading(false);
       setLoadingPlan(null);
     }
@@ -158,20 +160,6 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <CheckoutPromoHintDialog
-        open={!!pendingPromoCheckout}
-        onOpenChange={(next) => {
-          if (!next) {
-            setPendingPromoCheckout(null);
-          }
-        }}
-        hint={pendingPromoCheckout?.hint ?? null}
-        onContinue={() => {
-          if (pendingPromoCheckout?.url) {
-            window.location.href = pendingPromoCheckout.url;
-          }
-        }}
-      />
       <DialogContent onClose={onClose} className="max-w-[1100px] w-[95vw] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl">
         {/* Header Section */}
         <div className="relative px-8 pt-8 pb-6 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
@@ -230,6 +218,35 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                   Save 40%
                 </span>
               </div>
+            </div>
+
+            <div className="mt-6 max-w-md mx-auto px-2">
+              <PromoCodeCheckoutBar
+                mode={promoMode}
+                customCode={customPromoInput}
+                error={promoError}
+                disabled={isLoading}
+                onRemoveDefault={() => {
+                  setPromoMode("none");
+                  setCustomPromoInput("");
+                  setPromoError(null);
+                }}
+                onCustomCodeChange={(v) => {
+                  setCustomPromoInput(v);
+                  setPromoError(null);
+                }}
+                onApplyCustom={() => {
+                  const t = customPromoInput.trim();
+                  if (!t) return;
+                  setPromoMode("custom");
+                  setPromoError(null);
+                }}
+                onClearCustom={() => {
+                  setPromoMode("none");
+                  setCustomPromoInput("");
+                  setPromoError(null);
+                }}
+              />
             </div>
           </div>
         </div>
