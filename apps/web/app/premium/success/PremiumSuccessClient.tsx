@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ComponentType, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Loader2,
@@ -72,7 +72,7 @@ function FeatureCard({
   description,
   variant,
 }: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   title: string;
   description: string;
   variant: "pro" | "dedicated";
