@@ -35,6 +35,39 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string | null
+          subject: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string | null
+          subject?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string | null
+          subject?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       case_status: {
         Row: {
           case_type: string | null
@@ -321,7 +354,7 @@ export type Database = {
           provider_message_id: string | null
           sent_at: string | null
           status: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           clicked_at?: string | null
@@ -336,7 +369,7 @@ export type Database = {
           provider_message_id?: string | null
           sent_at?: string | null
           status?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           clicked_at?: string | null
@@ -351,7 +384,7 @@ export type Database = {
           provider_message_id?: string | null
           sent_at?: string | null
           status?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

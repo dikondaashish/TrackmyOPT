@@ -8,7 +8,9 @@
  * - Apple-inspired design
  */
 
+import { createClient } from '@supabase/supabase-js';
 import { sendMailWithRetry } from './email-smtp';
+import { sendPremiumWelcomeQueuedEmail } from './transactional-emails';
 
 export interface ToolReminderDetail {
   name: string;
@@ -1703,84 +1705,33 @@ export async function sendEnrollmentEmail(
 }
 
 /**
- * Send welcome email to new premium user
+ * Send welcome email to new premium user (email_queue + SMTP; deduped per user via premium_welcome).
  */
 export async function sendPremiumWelcomeEmail(userId: string, email: string, name: string) {
   try {
-    const info = await sendMailWithRetry({
-      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
-      to: email,
-      subject: "Welcome to TrackMyOPT Premium! 🚀",
-      html: generateWelcomeEmailHTML(name),
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const result = await sendPremiumWelcomeQueuedEmail({
+      supabase,
+      userId,
+      toEmail: email,
+      firstName: name,
     });
-
-    console.log('Premium welcome email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    if (result.ok) {
+      if (result.skipped === false) {
+        console.log('Premium welcome email queued/sent:', result.queueId);
+        return { success: true, messageId: result.queueId };
+      }
+      console.log('Premium welcome skipped:', result.skipped);
+      return { success: true, messageId: 'skipped' };
+    }
+    return { success: false, error: 'error' in result ? result.error : undefined };
   } catch (error) {
     console.error('Premium welcome email service error:', error);
     return { success: false, error };
   }
-}
-
-function generateWelcomeEmailHTML(firstName: string): string {
-  const year = new Date().getFullYear();
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome to Premium</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F3F4F6;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <!-- Header -->
-          <div style="background: linear-gradient(135deg, #007AFF, #5856D6); padding: 32px 24px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">Welcome to Premium! 🎉</h1>
-          </div>
-          
-          <!-- Content -->
-          <div style="padding: 32px 24px;">
-            <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-bottom: 16px;">
-              Hi ${firstName},
-            </p>
-            <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-bottom: 24px;">
-              Thank you for upgrading to <strong>TrackMyOPT Premium</strong>! You've just unlocked mostly powerful tools to help you secure and maintain your status.
-            </p>
-            
-            <div style="background: #F3F4F6; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-              <h3 style="margin: 0 0 12px 0; color: #1F2937; font-size: 16px;">🚀 Your New Superpowers:</h3>
-              <ul style="margin: 0; padding-left: 20px; color: #4B5563; font-size: 15px; line-height: 1.6;">
-                <li>Unlimited AI Resume Scans</li>
-                <li>Advanced Job Tracker & Analytics</li>
-                <li>Priority Alerts & Reminders</li>
-                <li>Exclusive Sponsor Data Access</li>
-              </ul>
-            </div>
-
-            <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-bottom: 32px;">
-              We're excited to be part of your career journey in the US. Let's get you hired!
-            </p>
-
-            <div style="text-align: center;">
-              <a href="https://www.trackmyopt.com/dashboard" style="display: inline-block; background: #007AFF; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                Go to Dashboard
-              </a>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div style="background: #F9FAFB; padding: 24px; text-align: center; border-top: 1px solid #E5E7EB;">
-            <p style="font-size: 12px; color: #6B7280; margin: 0;">
-              © ${year} Zyene, Inc. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
 }
 
 /**

@@ -412,7 +412,7 @@ CREATE TABLE IF NOT EXISTS public.email_queue (
 COMMENT ON TABLE public.email_queue IS 'Tracks all emails sent to users for analytics and debugging';
 
 -- Column Comments
-COMMENT ON COLUMN public.email_queue.email_type IS 'Type: daily_reminder, urgent_alert, verification, case_status_change, document_expiry';
+COMMENT ON COLUMN public.email_queue.email_type IS 'Type: daily_reminder, urgent_alert, verification, case_status_change, document_expiry, stem_opt_window_open (STEM OPT 90-day filing window alert from cron), etc.';
 COMMENT ON COLUMN public.email_queue.email_data IS 'JSON data used in email (countdown info, etc)';
 COMMENT ON COLUMN public.email_queue.status IS 'Delivery status: pending, sent, failed, bounced';
 

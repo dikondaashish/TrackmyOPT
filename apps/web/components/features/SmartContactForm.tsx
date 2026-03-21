@@ -51,9 +51,13 @@ export function SmartContactForm() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, subject, message }),
             });
-            if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                setSubmitError(typeof data?.error === "string" ? data.error : "Something went wrong. Try again.");
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data?.success) {
+                setSubmitError(
+                    typeof data?.error === "string"
+                        ? data.error
+                        : "Something went wrong. Try again."
+                );
                 return;
             }
             setIsSubmitted(true);
@@ -81,9 +85,9 @@ export function SmartContactForm() {
                         >
                             <CheckCircle className="w-10 h-10" />
                         </motion.div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Message Received!</h3>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">✅ Message sent!</h3>
                         <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-sm mx-auto">
-                            We&apos;ll respond within 24–48 hours. Check your inbox for a confirmation email.
+                            Check your email for confirmation. We&apos;ll get back to you within 24–48 hours.
                         </p>
                         <div className="flex justify-center gap-4">
                             <button onClick={() => setIsSubmitted(false)} className="text-blue-600 font-medium hover:underline">

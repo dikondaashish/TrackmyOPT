@@ -21,10 +21,12 @@ import { sanitizeError } from '@/lib/secure-logger';
 import { applyStripeCheckoutSession } from '@/lib/premium/applyStripeCheckoutSession';
 import { requireLiveStripeKeyInProduction } from '@/lib/stripe/requireLiveKeyInProduction';
 import {
+  resolveUserById,
   resolveUserForStripeCustomer,
   sendPaymentFailedEmail,
   sendRefundAcknowledgmentEmail,
   sendSubscriptionEndedEmail,
+  sendTrialEndingEmail,
 } from '@/lib/notifications/transactional-emails';
 
 const supabase = createClient(
@@ -83,6 +85,7 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.async_payment_failed': {
         const session = event.data.object as Stripe.Checkout.Session;
         await logPaymentFailure(session);
+        await handleAsyncCheckoutPaymentFailed(session, event.id);
         break;
       }
 
@@ -99,6 +102,7 @@ export async function POST(req: NextRequest) {
           'failed',
           paymentIntent.last_payment_error?.message
         );
+        await handlePaymentIntentPaymentFailed(stripe, paymentIntent, event.id);
         break;
       }
 
@@ -123,6 +127,12 @@ export async function POST(req: NextRequest) {
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
         await handleSubscriptionDeleted(subscription, event.id);
+        break;
+      }
+
+      case 'customer.subscription.trial_will_end': {
+        const subscription = event.data.object as Stripe.Subscription;
+        await handleTrialWillEnd(subscription, event.id);
         break;
       }
 
@@ -173,6 +183,180 @@ async function logPaymentFailure(session: Stripe.Checkout.Session) {
     });
   } catch (error) {
     console.error('❌ Error logging payment failure:', error);
+  }
+}
+
+async function handleAsyncCheckoutPaymentFailed(session: Stripe.Checkout.Session, eventId: string) {
+  try {
+    const userId = session.metadata?.supabase_user_id;
+    if (!userId) return;
+
+    let email = session.customer_details?.email?.trim() || '';
+    let firstName: string | null =
+      session.customer_details?.name?.split(/\s+/)[0] || null;
+
+    if (!email) {
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('email, first_name')
+        .eq('user_id', userId)
+        .maybeSingle();
+      email = prof?.email?.trim() || '';
+      firstName = firstName || prof?.first_name || null;
+    }
+    if (!email) {
+      const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+      email = authUser?.user?.email?.trim() || '';
+    }
+    if (!email) {
+      console.warn('async_payment_failed: no email for user', userId);
+      return;
+    }
+
+    const planId = session.metadata?.planId || 'pro';
+    const planLabel = `TrackMyOPT Premium (${planId})`;
+    const amountCents = session.amount_total || 0;
+    const currency = session.currency || 'usd';
+
+    const r = await sendPaymentFailedEmail({
+      supabase,
+      userId,
+      toEmail: email,
+      firstName,
+      planLabel,
+      amountCents,
+      currency,
+      stripeEventId: eventId,
+      stripeInvoiceId: null,
+    });
+    if (!r.ok && 'error' in r && r.error) {
+      console.error('async_payment_failed email:', r.error);
+    }
+  } catch (error: unknown) {
+    console.error('handleAsyncCheckoutPaymentFailed:', sanitizeError(error));
+  }
+}
+
+async function handlePaymentIntentPaymentFailed(
+  stripe: Stripe,
+  paymentIntent: Stripe.PaymentIntent,
+  eventId: string
+) {
+  try {
+    const full = (await stripe.paymentIntents.retrieve(paymentIntent.id, {
+      expand: ['invoice'],
+    })) as Stripe.PaymentIntent & {
+      invoice?: string | Stripe.Invoice | null;
+    };
+
+    const invRef = full.invoice;
+    const invoiceObj =
+      typeof invRef === 'object' && invRef && 'id' in invRef
+        ? (invRef as Stripe.Invoice & {
+            subscription?: string | Stripe.Subscription | null;
+          })
+        : null;
+    const invoiceId = typeof invRef === 'string' ? invRef : invoiceObj?.id ?? null;
+
+    const meta = full.metadata || {};
+    const hasContext = Boolean(
+      invoiceId ||
+      meta.subscription_id ||
+      meta.checkout_session_id ||
+      meta.supabase_user_id
+    );
+    if (!hasContext) {
+      return;
+    }
+
+    const customerId =
+      typeof full.customer === 'string' ? full.customer : full.customer?.id ?? null;
+
+    let resolved: { userId: string; email: string; firstName: string | null } | null = null;
+
+    if (customerId) {
+      const r = await resolveUserForStripeCustomer(supabase, customerId);
+      if (r) resolved = { userId: r.userId, email: r.email, firstName: r.firstName };
+    }
+    if (!resolved && typeof meta.supabase_user_id === 'string') {
+      const r = await resolveUserById(supabase, meta.supabase_user_id);
+      if (r) resolved = r;
+    }
+
+    if (!resolved) {
+      console.warn('payment_intent.payment_failed: could not resolve user', paymentIntent.id);
+      return;
+    }
+
+    let planLabel = 'TrackMyOPT Premium';
+    const subRef = invoiceObj?.subscription;
+    const subId =
+      typeof subRef === 'string'
+        ? subRef
+        : subRef && typeof subRef === 'object' && 'id' in subRef
+          ? (subRef as Stripe.Subscription).id
+          : null;
+    if (subId) {
+      try {
+        const sub = await stripe.subscriptions.retrieve(subId);
+        const pid = sub.metadata?.planId;
+        planLabel = pid ? `TrackMyOPT Premium (${String(pid)})` : planLabel;
+      } catch (e) {
+        console.warn('PI failed: subscription retrieve failed', e);
+      }
+    } else if (typeof meta.planId === 'string') {
+      planLabel = `TrackMyOPT Premium (${meta.planId})`;
+    }
+
+    const amountCents = full.amount;
+    const currency = full.currency || 'usd';
+
+    const r = await sendPaymentFailedEmail({
+      supabase,
+      userId: resolved.userId,
+      toEmail: resolved.email,
+      firstName: resolved.firstName,
+      planLabel,
+      amountCents,
+      currency,
+      stripeEventId: eventId,
+      stripeInvoiceId: invoiceId,
+    });
+    if (!r.ok && 'error' in r && r.error) {
+      console.error('payment_intent.payment_failed email:', r.error);
+    }
+  } catch (error: unknown) {
+    console.error('handlePaymentIntentPaymentFailed:', sanitizeError(error));
+  }
+}
+
+async function handleTrialWillEnd(subscription: Stripe.Subscription, eventId: string) {
+  try {
+    const customerId = subscription.customer as string;
+    const user = await resolveUserForStripeCustomer(supabase, customerId);
+    if (!user) return;
+
+    const trialEnd = subscription.trial_end
+      ? new Date(subscription.trial_end * 1000).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        })
+      : 'soon';
+
+    const r = await sendTrialEndingEmail({
+      supabase,
+      userId: user.userId,
+      toEmail: user.email,
+      firstName: user.firstName,
+      trialEndDate: trialEnd,
+      stripeEventId: eventId,
+    });
+    if (!r.ok && 'error' in r && r.error) {
+      console.error('trial_will_end email:', r.error);
+    }
+  } catch (error: unknown) {
+    console.error('handleTrialWillEnd:', sanitizeError(error));
   }
 }
 
