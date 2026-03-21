@@ -1,3 +1,5 @@
+"use client";
+
 import { PricingModule, PricingPlan } from "@/components/pricing/pricing-module";
 import { Layers, Rocket, ShieldCheck } from "lucide-react";
 
