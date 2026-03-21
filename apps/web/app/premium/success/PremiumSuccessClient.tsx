@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, type ComponentType, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import type { LucideIcon } from "lucide-react";
 import {
   Loader2,
   Check,
@@ -15,7 +16,6 @@ import {
   Sparkles,
   AlertCircle,
   LayoutDashboard,
-  UserRound,
   BadgeCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,7 @@ function FeatureCard({
   description,
   variant,
 }: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   title: string;
   description: string;
   variant: "pro" | "dedicated";
