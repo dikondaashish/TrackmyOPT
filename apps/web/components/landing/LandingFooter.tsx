@@ -45,9 +45,20 @@ export function LandingFooter() {
             { label: "Pricing", href: "/pricing" },
             { label: "About Us", href: "/about" },
             { label: "Success Stories", href: "/success-stories" },
+            { label: "Chrome Extension", href: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm" },
+        ],
+        guides: [
+            { label: "90-Day Unemployment Rule", href: "/blog/90-day-unemployment-rule-opt" },
+            { label: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
+            { label: "OPT to H-1B Transition", href: "/blog/opt-to-h1b-transition" },
+            { label: "I-983 Training Plan Guide", href: "/blog/i-983-training-plan-guide" },
+            { label: "OPT Processing Time 2026", href: "/blog/opt-processing-time-2026" },
+            { label: "F-1 Tax Filing Guide", href: "/guides/f1-tax-filing" },
+            { label: "OPT Career Guide", href: "/guides/opt-career" },
+            { label: "Health Insurance Guide", href: "/guides/opt-health-insurance" },
         ],
         resources: [
-            { label: "Blog", href: "/blog" },
+            { label: "All Blog Posts", href: "/blog" },
             { label: "Glossary", href: "/glossary" },
             { label: "Answers (Q&A)", href: "/answers" },
             { label: "Comparisons", href: "/compare" },
@@ -67,7 +78,7 @@ export function LandingFooter() {
     return (
         <footer className="bg-gray-50 dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12">
                     {/* Brand */}
                     <div className="col-span-2 md:col-span-1">
                         <Link href="/" className="flex items-center gap-2 mb-4">
@@ -109,6 +120,25 @@ export function LandingFooter() {
                                     >
                                         {link.label}
                                     </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Guides */}
+                    <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
+                            Guides
+                        </h4>
+                        <ul className="space-y-3">
+                            {footerLinks.guides.map((link, index) => (
+                                <li key={index}>
+                                    <Link
+                                        href={link.href}
+                                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                    >
+                                        {link.label}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

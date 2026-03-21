@@ -1,6 +1,7 @@
-
 import { MetadataRoute } from 'next';
 import { getAllAnswers } from '@/lib/answers';
+
+export const revalidate = 3600;
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = 'https://www.trackmyopt.com';
@@ -87,6 +88,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog/top-h1b-sponsor-companies-2026',
         '/blog/stem-opt-employer-requirements',
         '/blog/opt-application-denied',
+        '/blog/opt-stem-opt-job-offer-verification-checklist',
+        '/blog/f1-student-tax-filing-guide-2026',
+        '/blog/opt-health-insurance-guide-2026',
+        '/blog/ats-resume-international-students-2026',
+        '/blog/can-you-travel-on-opt-complete-guide',
+        '/blog/how-to-track-uscis-case-status-guide',
     ];
 
     return [

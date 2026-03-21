@@ -90,22 +90,63 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "TrackMyOPT",
-              "url": "https://www.trackmyopt.com",
-              "logo": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png",
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "email": "support@trackmyopt.com",
-                "contactType": "customer service"
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "TrackMyOPT",
+                "alternateName": "Track My OPT",
+                "url": "https://www.trackmyopt.com",
+                "logo": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png",
+                "description": "The #1 OPT timeline tracker and H-1B sponsor finder for F-1 international students in the United States.",
+                "foundingDate": "2025",
+                "contactPoint": {
+                  "@type": "ContactPoint",
+                  "email": "support@trackmyopt.com",
+                  "contactType": "customer service",
+                  "availableLanguage": "English"
+                },
+                "sameAs": [
+                  "https://twitter.com/trackmyopt",
+                  "https://linkedin.com/company/trackmyopt",
+                  "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm"
+                ]
               },
-              "sameAs": [
-                "https://twitter.com/trackmyopt",
-                "https://linkedin.com/company/trackmyopt"
-              ]
-            })
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "TrackMyOPT",
+                "alternateName": "Track My OPT",
+                "url": "https://www.trackmyopt.com",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "https://www.trackmyopt.com/answers?q={search_term_string}"
+                  },
+                  "query-input": "required name=search_term_string"
+                }
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "TrackMyOPT",
+                "applicationCategory": "UtilitiesApplication",
+                "operatingSystem": "Web, Chrome Extension",
+                "url": "https://www.trackmyopt.com",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "USD"
+                },
+                "aggregateRating": {
+                  "@type": "AggregateRating",
+                  "ratingValue": "4.8",
+                  "ratingCount": "127",
+                  "bestRating": "5"
+                }
+              }
+            ])
           }}
         />
       </body>
