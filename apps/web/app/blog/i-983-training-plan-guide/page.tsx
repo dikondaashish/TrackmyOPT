@@ -191,16 +191,6 @@ export default function I983Article() {
 
             <script type="application/ld+json" dangerouslySetInnerHTML={{
                 __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "Article",
-                    "headline": "I-983 Training Plan for STEM OPT: Complete Guide (2026)",
-                    "author": { "@type": "Organization", "name": "TrackMyOPT" },
-                    "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } },
-                    "datePublished": "2026-03-10", "dateModified": "2026-03-10",
-                    "mainEntityOfPage": "https://www.trackmyopt.com/blog/i-983-training-plan-guide"
-                })
-            }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
                     "@context": "https://schema.org", "@type": "FAQPage",
                     "mainEntity": [
                         { "@type": "Question", "name": "What is the I-983 form?", "acceptedAnswer": { "@type": "Answer", "text": "Form I-983 is the Training Plan for STEM OPT Students, a formal agreement between you and your employer describing how your employment provides practical training in your STEM field." } },

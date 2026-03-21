@@ -173,8 +173,6 @@ export default function OPTExpiresArticle() {
                 </Link>
             </div>
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", "headline": "What Happens If Your OPT Expires?", "author": { "@type": "Organization", "name": "TrackMyOPT" }, "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } }, "datePublished": "2026-03-10", "dateModified": "2026-03-10", "mainEntityOfPage": "https://www.trackmyopt.com/blog/what-happens-if-opt-expires" }) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "What happens when my OPT expires?", "acceptedAnswer": { "@type": "Answer", "text": "Your work authorization ends immediately. You enter a 60-day grace period. You cannot work during this time." } }, { "@type": "Question", "name": "Can I stay in the US after OPT expires?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, for up to 60 days. You cannot work. Staying beyond 60 days without changing status means accruing unlawful presence." } }, { "@type": "Question", "name": "Can I extend my OPT?", "acceptedAnswer": { "@type": "Answer", "text": "STEM degree holders can apply for a 24-month STEM OPT extension before their current OPT expires." } }] }) }} />
         </article>
     );
 }

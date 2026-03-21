@@ -369,28 +369,6 @@ export default function OPTDeniedArticle() {
                 </Link>
             </div>
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "Article",
-                    "headline": "OPT Application Denied? What to Do Next (2026 Guide)",
-                    "author": { "@type": "Organization", "name": "TrackMyOPT" },
-                    "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } },
-                    "datePublished": "2026-03-12", "dateModified": "2026-03-12",
-                    "mainEntityOfPage": "https://www.trackmyopt.com/blog/opt-application-denied"
-                })
-            }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "FAQPage",
-                    "mainEntity": [
-                        { "@type": "Question", "name": "Can I appeal an OPT denial?", "acceptedAnswer": { "@type": "Answer", "text": "No. Form I-765 (EAD) denials do not have a formal appeal process. Your only option is to file a brand-new I-765 application if you are still within the eligible filing window." } },
-                        { "@type": "Question", "name": "Can I refile my OPT application after denial?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, if you are still within the filing window (90 days before to 60 days after your program end date) and your SEVIS record is still active." } },
-                        { "@type": "Question", "name": "What is the 60-day grace period after OPT denial?", "acceptedAnswer": { "@type": "Answer", "text": "After your OPT is denied and your academic program has ended, you enter a 60-day grace period. You can prepare to depart, transfer to a new school, change status, or refile OPT. You cannot work." } },
-                        { "@type": "Question", "name": "How long do I have to leave the US after OPT denial?", "acceptedAnswer": { "@type": "Answer", "text": "You must depart within 60 days of the denial or 60 days after your program end date, whichever is later." } },
-                        { "@type": "Question", "name": "Does OPT denial affect future visa applications?", "acceptedAnswer": { "@type": "Answer", "text": "An OPT denial by itself does not bar future visa applications. However, violations or overstaying the grace period can negatively impact future applications." } },
-                    ]
-                })
-            }} />
         </article>
     );
 }

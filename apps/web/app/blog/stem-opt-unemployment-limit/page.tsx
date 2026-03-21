@@ -216,27 +216,6 @@ export default function StemOPTUnemploymentArticle() {
 
             <AuthorBio />
 
-            {/* Schema */}
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "Article",
-                    "headline": "STEM OPT Unemployment Limit: The 150-Day Rule Explained",
-                    "author": { "@type": "Organization", "name": "TrackMyOPT" },
-                    "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } },
-                    "datePublished": "2026-03-10", "dateModified": "2026-03-10",
-                    "mainEntityOfPage": "https://www.trackmyopt.com/blog/stem-opt-unemployment-limit"
-                })
-            }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "FAQPage",
-                    "mainEntity": [
-                        { "@type": "Question", "name": "How many unemployment days are allowed on STEM OPT?", "acceptedAnswer": { "@type": "Answer", "text": "STEM OPT students are allowed a total of 150 cumulative days of unemployment across the entire 36-month OPT + STEM OPT period." } },
-                        { "@type": "Question", "name": "Does volunteer work count as employment on STEM OPT?", "acceptedAnswer": { "@type": "Answer", "text": "No. STEM OPT requires paid employment at an E-Verify employer. Volunteer and unpaid work does not stop the unemployment clock." } },
-                        { "@type": "Question", "name": "What happens if I exceed 150 days on STEM OPT?", "acceptedAnswer": { "@type": "Answer", "text": "Exceeding 150 days can result in SEVIS termination and loss of F-1 status." } },
-                    ]
-                })
-            }} />
         </article>
     );
 }

@@ -437,29 +437,6 @@ export default function ATSResumeArticle() {
                 </Link>
             </div>
 
-            {/* JSON-LD Schemas */}
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Article",
-                "headline": "ATS Resume for International Students: Beat the Bots & Get Interviews (2026)",
-                "author": { "@type": "Organization", "name": "TrackMyOPT" },
-                "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } },
-                "datePublished": "2026-03-12",
-                "dateModified": "2026-03-12",
-                "mainEntityOfPage": "https://www.trackmyopt.com/blog/ats-resume-international-students",
-                "description": "Learn how to create an ATS-friendly resume as an international student. Formatting rules, keyword optimization, the XYZ bullet formula, and visa status best practices."
-            }) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "FAQPage",
-                "mainEntity": [
-                    { "@type": "Question", "name": "What is ATS and how does it affect my job application?", "acceptedAnswer": { "@type": "Answer", "text": "An Applicant Tracking System (ATS) is software used by 98% of Fortune 500 companies to automatically scan, sort, and rank job applications. Resumes that don't match the system's criteria are automatically filtered out — 75%+ of resumes never reach a human reviewer." } },
-                    { "@type": "Question", "name": "Should I put my visa status on my resume?", "acceptedAnswer": { "@type": "Answer", "text": "No. Never include your visa type (F-1, OPT, H-1B) on your resume. Some ATS systems use visa-related keywords as negative filters. Address work authorization only when directly asked in application forms." } },
-                    { "@type": "Question", "name": "What format should an ATS resume be in?", "acceptedAnswer": { "@type": "Answer", "text": "Use a single-column layout with standard section headings (Experience, Education, Skills). Save as .docx for online applications or .pdf for email. Use standard fonts at 10-12pt. Avoid tables, images, and multi-column layouts." } },
-                    { "@type": "Question", "name": "How can I optimize my resume for ATS?", "acceptedAnswer": { "@type": "Answer", "text": "Mirror keywords from the job description exactly. Include both acronyms and full forms. Place a skills section with 12-18 hard skills near the top. Use the XYZ bullet formula. Run through an ATS scanner before every submission." } },
-                    { "@type": "Question", "name": "What is the XYZ bullet formula?", "acceptedAnswer": { "@type": "Answer", "text": "The XYZ formula structures bullet points as: 'Accomplished [X] as measured by [Y] by doing [Z].' Example: 'Reduced API latency by 40% by refactoring the caching layer in a Node.js architecture.' This format is specific, quantified, and action-oriented." } },
-                ]
-            }) }} />
         </article>
     );
 }

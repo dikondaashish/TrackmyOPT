@@ -519,41 +519,6 @@ export default function OPTHealthInsuranceGuide() {
                 </Link>
             </div>
 
-            {/* JSON-LD FAQ Schema */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "FAQPage",
-                        "mainEntity": [
-                            { "@type": "Question", "name": "Do F-1 students on OPT need health insurance?", "acceptedAnswer": { "@type": "Answer", "text": "While there is no federal mandate penalty since 2019, some states impose penalties. Going uninsured is financially risky — a single ER visit averages $2,200. Most advisors strongly recommend maintaining coverage throughout OPT." } },
-                            { "@type": "Question", "name": "Can OPT students get ACA marketplace plans?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. F-1 students on valid OPT are considered lawfully present and can purchase ACA marketplace plans. Resident aliens for tax purposes may qualify for premium subsidies." } },
-                            { "@type": "Question", "name": "What happens if I don't have health insurance on OPT?", "acceptedAnswer": { "@type": "Answer", "text": "Without insurance, you pay 100% of medical costs. ER visits average $2,200, hospitalization $13,000/day. In states with individual mandates (CA, MA, NJ, RI, DC), you may also face tax penalties." } },
-                            { "@type": "Question", "name": "When can I enroll in a marketplace plan?", "acceptedAnswer": { "@type": "Answer", "text": "During Open Enrollment (Nov 1 - Jan 15) or during a Special Enrollment Period triggered by a qualifying life event like losing university coverage (60-day window)." } },
-                            { "@type": "Question", "name": "Is employer health insurance available on OPT?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. If your employer offers health benefits, you are eligible regardless of F-1/OPT status. Employers typically cover 50-80% of premium costs, making this the most affordable option." } },
-                        ],
-                    })
-                }}
-            />
-
-            {/* Article Schema */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "Article",
-                        "headline": "OPT Health Insurance Guide 2026: Best Plans & How to Choose",
-                        "description": "Complete guide to health insurance options for F-1 students on OPT in 2026.",
-                        "author": { "@type": "Organization", "name": "TrackMyOPT", "url": "https://www.trackmyopt.com" },
-                        "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } },
-                        "datePublished": "2026-03-12",
-                        "dateModified": "2026-03-12",
-                        "mainEntityOfPage": "https://www.trackmyopt.com/blog/opt-health-insurance-guide",
-                    })
-                }}
-            />
         </article>
     );
 }

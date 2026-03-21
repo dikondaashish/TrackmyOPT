@@ -457,41 +457,6 @@ export default function USCISCaseStatusTrackingGuide() {
                 </Link>
             </div>
 
-            {/* JSON-LD FAQ Schema */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "FAQPage",
-                        "mainEntity": [
-                            { "@type": "Question", "name": "How do I check my USCIS case status?", "acceptedAnswer": { "@type": "Answer", "text": "Visit egov.uscis.gov/casestatus/landing.do and enter your 13-character receipt number (found on your I-797C Notice of Action). USCIS will display the most recent status update for your case. For automated daily tracking with email alerts, use TrackMyOPT's free Case Status Tracker." } },
-                            { "@type": "Question", "name": "What does 'Case Was Received' mean?", "acceptedAnswer": { "@type": "Answer", "text": "This means USCIS has accepted your application and assigned it a receipt number, but processing has not yet begun. Your application is in the queue. Depending on the form type and service center workload, it may take several weeks before the status changes to 'Case Is Being Actively Reviewed.'" } },
-                            { "@type": "Question", "name": "How long does I-765 processing take?", "acceptedAnswer": { "@type": "Answer", "text": "As of early 2026, the typical processing time for Form I-765 (Application for Employment Authorization) is 3–5 months. Processing times vary by service center and can fluctuate. Check the official USCIS processing times page at egov.uscis.gov/processing-times for the most current estimates." } },
-                            { "@type": "Question", "name": "What should I do if I get an RFE?", "acceptedAnswer": { "@type": "Answer", "text": "A Request for Evidence (RFE) means USCIS needs additional documentation to decide your case. Read the RFE letter carefully — it specifies exactly what documents they need. Respond well before the deadline (usually 87 days), include a cover letter referencing your receipt number, and send copies of the requested evidence." } },
-                            { "@type": "Question", "name": "Can I track multiple cases at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. On USCIS.gov, you can only check one case at a time. However, TrackMyOPT allows you to add multiple receipt numbers and track them all from a single dashboard. Each case gets its own status history and email notifications." } },
-                        ]
-                    })
-                }}
-            />
-
-            {/* Article Schema */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "Article",
-                        "headline": "How to Track Your USCIS Case Status Online: Complete Guide (2026)",
-                        "description": "Learn how to check your USCIS case status online using your receipt number. Understand status messages, processing times, and automated tracking for OPT applications.",
-                        "author": { "@type": "Organization", "name": "TrackMyOPT", "url": "https://www.trackmyopt.com" },
-                        "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } },
-                        "datePublished": "2026-03-12",
-                        "dateModified": "2026-03-12",
-                        "mainEntityOfPage": "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide"
-                    })
-                }}
-            />
         </article>
     );
 }

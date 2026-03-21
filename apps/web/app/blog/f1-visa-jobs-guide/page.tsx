@@ -158,8 +158,6 @@ export default function F1JobsArticle() {
                 <Link href="/features/job-tracker" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 rounded-xl font-semibold hover:bg-green-50 transition-colors">Try Job Tracker Free <ArrowRight className="w-4 h-4" /></Link>
             </div>
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", "headline": "F-1 Visa Jobs 2026: How to Find Jobs as an International Student", "author": { "@type": "Organization", "name": "TrackMyOPT" }, "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } }, "datePublished": "2026-03-10", "dateModified": "2026-03-10", "mainEntityOfPage": "https://www.trackmyopt.com/blog/f1-visa-jobs-guide" }) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "Can F-1 students work in the US?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, through on-campus employment, CPT, or OPT. Post-completion OPT provides 12-36 months of work authorization." } }, { "@type": "Question", "name": "How do I find H-1B sponsor companies?", "acceptedAnswer": { "@type": "Answer", "text": "Use USCIS H-1B Employer Data Hub, TrackMyOPT's sponsor database, or filter for visa sponsorship on LinkedIn/Glassdoor." } }] }) }} />
         </article>
     );
 }

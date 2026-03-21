@@ -38,17 +38,15 @@ export async function POST(req: NextRequest) {
     results.indexnow = `error: ${e instanceof Error ? e.message : "unknown"}`;
   }
 
-  for (const url of urls.slice(0, 5)) {
-    const full = url.startsWith("http") ? url : `https://${SITE_HOST}${url}`;
-    try {
-      const res = await fetch(
-        `https://www.google.com/ping?sitemap=${encodeURIComponent(full)}`,
-        { method: "GET" }
-      );
-      results[`google_ping_${url}`] = `${res.status}`;
-    } catch {
-      results[`google_ping_${url}`] = "error";
-    }
+  try {
+    const sitemapUrl = `https://${SITE_HOST}/sitemap.xml`;
+    const res = await fetch(
+      `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`,
+      { method: "GET" }
+    );
+    results.google_sitemap_ping = `${res.status} ${res.statusText}`;
+  } catch (e: unknown) {
+    results.google_sitemap_ping = `error: ${e instanceof Error ? e.message : "unknown"}`;
   }
 
   return NextResponse.json({ ok: true, results });

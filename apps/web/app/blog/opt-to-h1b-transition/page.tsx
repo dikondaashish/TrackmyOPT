@@ -200,26 +200,6 @@ export default function OPTtoH1BArticle() {
                 </Link>
             </div>
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "Article",
-                    "headline": "OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)",
-                    "author": { "@type": "Organization", "name": "TrackMyOPT" },
-                    "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } },
-                    "datePublished": "2026-03-10", "dateModified": "2026-03-10",
-                    "mainEntityOfPage": "https://www.trackmyopt.com/blog/opt-to-h1b-transition"
-                })
-            }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "FAQPage",
-                    "mainEntity": [
-                        { "@type": "Question", "name": "Can I transition from OPT to H-1B?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Your employer registers you for the H-1B lottery while you're on OPT. If selected, the cap-gap extension bridges your OPT to the H-1B October 1 start date." } },
-                        { "@type": "Question", "name": "What is the H-1B cap-gap extension?", "acceptedAnswer": { "@type": "Answer", "text": "The cap-gap automatically extends your F-1 status and OPT work authorization until October 1, as long as your employer filed a timely H-1B petition." } },
-                        { "@type": "Question", "name": "How many times can I enter the H-1B lottery?", "acceptedAnswer": { "@type": "Answer", "text": "There is no limit, as long as you maintain valid immigration status." } },
-                    ]
-                })
-            }} />
         </article>
     );
 }

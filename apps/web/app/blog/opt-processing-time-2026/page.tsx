@@ -226,28 +226,6 @@ export default function OPTProcessingTimeArticle() {
             </div>
 
             <AuthorBio />
-
-            {/* Schema */}
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "Article",
-                    "headline": "OPT Processing Time 2026: Current Wait Times & How to Avoid Delays",
-                    "author": { "@type": "Organization", "name": "TrackMyOPT" },
-                    "publisher": { "@type": "Organization", "name": "TrackMyOPT", "logo": { "@type": "ImageObject", "url": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png" } },
-                    "datePublished": "2026-03-10", "dateModified": "2026-03-10",
-                    "mainEntityOfPage": "https://www.trackmyopt.com/blog/opt-processing-time-2026"
-                })
-            }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org", "@type": "FAQPage",
-                    "mainEntity": [
-                        { "@type": "Question", "name": "How long does OPT processing take in 2026?", "acceptedAnswer": { "@type": "Answer", "text": "As of March 2026, USCIS processes most OPT applications (Form I-765) in 2-5 months. Online filings average 2-3 months, while paper filings take 3-5 months." } },
-                        { "@type": "Question", "name": "Can I expedite my OPT application?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, you can request an expedite if you face severe financial loss, emergency situations, or if processing exceeds normal times." } },
-                        { "@type": "Question", "name": "What is the OPT application fee in 2026?", "acceptedAnswer": { "@type": "Answer", "text": "The I-765 filing fee is $410 as of 2026. Premium processing is available for $1,685, guaranteeing a decision within 30 business days." } },
-                    ]
-                })
-            }} />
         </article>
     );
 }
