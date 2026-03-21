@@ -20,8 +20,8 @@ interface PricingModalProps {
 
 export function PricingModal({ open, onClose, userEmail, isPremium = false, initialPlan, initialInterval }: PricingModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  // Initialize state based on props or default to true (Yearly)
-  const [isYearly, setIsYearly] = useState(initialInterval === 'month' ? false : true);
+  // Monthly unless URL explicitly has interval=year (undefined used to default to yearly — wrong for checkout UX)
+  const [isYearly, setIsYearly] = useState(initialInterval === "year");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   const handleUpgrade = async (selectedPlan: string, intervalOverride?: string) => {

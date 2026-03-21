@@ -143,13 +143,30 @@ export async function POST(req: NextRequest) {
         const existingSession = await stripe.checkout.sessions.retrieve(
           recentPending.stripe_checkout_session_id
         );
-        if (existingSession.status === 'open' && existingSession.url) {
-          console.log(`Reusing open checkout session ${existingSession.id}`);
+        // Only reuse if this session is for the same Stripe Price (plan + month/year).
+        // Otherwise users who first opened yearly checkout then pick monthly would get the wrong session.
+        const lineItems = await stripe.checkout.sessions.listLineItems(
+          recentPending.stripe_checkout_session_id,
+          { limit: 1 }
+        );
+        const rawPrice = lineItems.data[0]?.price;
+        const sessionPriceId =
+          typeof rawPrice === 'string' ? rawPrice : rawPrice && typeof rawPrice === 'object' && 'id' in rawPrice
+            ? (rawPrice as Stripe.Price).id
+            : undefined;
+        const samePriceAsRequest = sessionPriceId === priceId;
+
+        if (existingSession.status === 'open' && existingSession.url && samePriceAsRequest) {
+          console.log(`Reusing open checkout session ${existingSession.id} for ${planId}/${interval}`);
           return NextResponse.json({
             sessionId: existingSession.id,
             url: existingSession.url,
           });
         }
+        console.log(
+          `Not reusing pending session ${recentPending.stripe_checkout_session_id}: ` +
+            `wanted price ${priceId}, session had ${sessionPriceId ?? 'unknown'}`
+        );
       } catch (e) {
         console.warn('Could not retrieve existing checkout session, creating a new one:', sanitizeError(e));
       }
