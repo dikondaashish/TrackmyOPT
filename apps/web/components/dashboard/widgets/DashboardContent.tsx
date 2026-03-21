@@ -106,8 +106,12 @@ export function DashboardContent({ user }: DashboardContentProps) {
     isLoaded: widgetsLoaded,
   } = useDashboardWidgets();
 
+  const onboardingDismissedKey = `trackmyopt_onboarding_dismissed_${user.id}`;
+
   // Fetch user data
   useEffect(() => {
+    const dismissKey = `trackmyopt_onboarding_dismissed_${user.id}`;
+
     const fetchData = async () => {
       try {
         const response = await fetch("/api/me", { credentials: "include", cache: "no-store" });
@@ -152,9 +156,18 @@ export function DashboardContent({ user }: DashboardContentProps) {
             // Fallback for incomplete status payloads.
             setUnemploymentDays(data.unemploymentDays);
           }
-          
+
+          // Open wizard only if no OPT row yet AND user has not dismissed it (Skip for now).
           if (!data.optStatus) {
-            setShowWizard(true);
+            let dismissed = false;
+            try {
+              dismissed = typeof window !== "undefined" && localStorage.getItem(dismissKey) === "1";
+            } catch {
+              dismissed = false;
+            }
+            if (!dismissed) {
+              setShowWizard(true);
+            }
           }
         }
       } catch (error) {
@@ -165,7 +178,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
     };
 
     fetchData();
-  }, []);
+  }, [user.id]);
 
   // Render widget based on ID
   const renderWidget = (widgetId: string) => {
@@ -237,7 +250,18 @@ export function DashboardContent({ user }: DashboardContentProps) {
 
       {/* Show onboarding if no OPT dates */}
       {!isLoading && !optStatus && !showWizard && <OnboardingCard />}
-      <OnboardingWizard isOpen={showWizard} onComplete={() => window.location.reload()} />
+      <OnboardingWizard
+        isOpen={showWizard}
+        onComplete={() => window.location.reload()}
+        onSkip={() => {
+          try {
+            localStorage.setItem(onboardingDismissedKey, "1");
+          } catch {
+            /* ignore quota / private mode */
+          }
+          setShowWizard(false);
+        }}
+      />
 
       {/* Render visible widgets */}
       {widgetsLoaded &&

@@ -15,10 +15,13 @@ type JourneyStatus = 'applying_opt' | 'on_opt' | 'stem_opt' | null;
 
 interface OnboardingWizardProps {
   isOpen: boolean;
+  /** Called after dates are saved successfully (may reload dashboard). */
   onComplete: () => void;
+  /** Called when user skips without saving — must not full-reload or wizard reopens with no opt_status. */
+  onSkip?: () => void;
 }
 
-export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) {
+export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizardProps) {
   const router = useRouter();
   const { toast } = useToast();
   
@@ -245,7 +248,7 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
                   <Button variant="ghost" onClick={() => setStep('status')}>Back</Button>
                   <button
                     type="button"
-                    onClick={onComplete}
+                    onClick={() => (onSkip ?? onComplete)()}
                     className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
                   >
                     Skip for now
