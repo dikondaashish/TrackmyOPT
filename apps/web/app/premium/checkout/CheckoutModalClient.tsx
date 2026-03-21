@@ -27,11 +27,11 @@ export function CheckoutModalClient({ user }: CheckoutModalClientProps) {
                 // Check premium status
                 const { data: profile } = await supabase
                     .from("profiles")
-                    .select("is_premium")
+                    .select("premium_status")
                     .eq("user_id", user.id)
                     .single();
 
-                setIsPremium(profile?.is_premium || false);
+                setIsPremium(profile?.premium_status === true);
             }
         };
 

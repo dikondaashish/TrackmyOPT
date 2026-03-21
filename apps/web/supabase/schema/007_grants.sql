@@ -114,6 +114,8 @@ GRANT SELECT ON public.document_expiry_overview TO service_role;
 GRANT SELECT ON public.user_activity_summary TO authenticated;
 GRANT SELECT ON public.user_activity_summary TO service_role;
 
+GRANT SELECT ON public.sponsor_intelligence_agg TO service_role;
+
 
 -- =============================================================================
 -- VERIFICATION

@@ -37,22 +37,25 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
-          successUrl: `${window.location.origin}/premium/success`,
-          cancelUrl: `${window.location.origin}/premium/checkout`,
           planId: selectedPlan,
           interval: currentInterval,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout session');
+        const errBody = await response.json().catch(() => ({}));
+        const msg =
+          typeof errBody?.error === 'string' ? errBody.error : 'Failed to create checkout session';
+        throw new Error(msg);
       }
 
       const { url } = await response.json();
       window.location.href = url;
     } catch (error) {
-      alert('Failed to start upgrade process. Please try again.');
+      const message = error instanceof Error ? error.message : 'Failed to start upgrade process.';
+      alert(message);
       setIsLoading(false);
       setLoadingPlan(null);
     }

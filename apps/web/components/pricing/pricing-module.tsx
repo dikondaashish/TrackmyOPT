@@ -8,6 +8,7 @@ import {
     CardDescription,
     CardContent,
 } from "@/components/ui/card";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Check, X, ChevronDown, Info } from "lucide-react";
@@ -50,6 +51,11 @@ export interface PricingModuleProps {
     plans: PricingPlan[];
     defaultAnnual?: boolean;
     className?: string;
+    /**
+     * When provided, each plan CTA becomes a link (e.g. login → redirect to checkout).
+     * Omit for static marketing sections that only display pricing.
+     */
+    buildPlanHref?: (args: { planId: string; interval: "month" | "year" }) => string | undefined;
 }
 
 export function PricingModule({
@@ -60,6 +66,7 @@ export function PricingModule({
     plans,
     defaultAnnual = false,
     className,
+    buildPlanHref,
 }: PricingModuleProps) {
     const [isAnnual, setIsAnnual] = React.useState(defaultAnnual);
     const [showAllFeatures, setShowAllFeatures] = React.useState(false);
@@ -137,12 +144,31 @@ export function PricingModule({
                                     )}
                                 </div>
 
-                                <Button
-                                    variant={plan.recommended ? "default" : "outline"}
-                                    className="w-full mb-8 font-semibold"
-                                >
-                                    {plan.buttonLabel || buttonLabel}
-                                </Button>
+                                {buildPlanHref ? (
+                                    <Button
+                                        asChild
+                                        variant={plan.recommended ? "default" : "outline"}
+                                        className="w-full mb-8 font-semibold"
+                                    >
+                                        <Link
+                                            href={
+                                                buildPlanHref({
+                                                    planId: plan.id,
+                                                    interval: isAnnual ? "year" : "month",
+                                                }) ?? "#"
+                                            }
+                                        >
+                                            {plan.buttonLabel || buttonLabel}
+                                        </Link>
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        variant={plan.recommended ? "default" : "outline"}
+                                        className="w-full mb-8 font-semibold"
+                                    >
+                                        {plan.buttonLabel || buttonLabel}
+                                    </Button>
+                                )}
 
                                 <div className="text-left text-sm flex-1">
                                     <div className="space-y-4">

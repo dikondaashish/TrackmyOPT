@@ -9,6 +9,7 @@ import {
     Scale, AlertTriangle, DollarSign
 } from "lucide-react";
 import { Database } from "@/types/supabase";
+import type { H1BSponsor } from "@/lib/mock/h1bSponsors";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
 import { AnalyticsDashboard } from "@/components/career/h1b/profile/analytics/AnalyticsDashboard";
 import { LCAFilingsTable } from "@/components/career/h1b/profile/LCAExplorer/LCAFilingsTable";
@@ -160,17 +161,17 @@ export default function CompanyProfilePage() {
     const scoreData = calculateSponsorScore({
         id: sponsor.id,
         name: sponsor.name,
-        industry: sponsor.industry,
-        size: sponsor.size as any,
-        location: sponsor.location,
-        website: sponsor.website,
-        approvals_2021: sponsor.approvals_2021,
-        approvals_2022: sponsor.approvals_2022,
-        approvals_2023: sponsor.approvals_2023,
-        approvals_2024: sponsor.approvals_2024,
-        approvals_2025: sponsor.approvals_2025,
-        sponsorship_strength: sponsor.sponsorship_strength as any,
-        common_roles: sponsor.common_roles as string[],
+        industry: sponsor.industry ?? "",
+        size: (sponsor.size ?? "Mid") as H1BSponsor["size"],
+        location: sponsor.location ?? "",
+        website: sponsor.website ?? "",
+        approvals_2021: sponsor.approvals_2021 ?? 0,
+        approvals_2022: sponsor.approvals_2022 ?? 0,
+        approvals_2023: sponsor.approvals_2023 ?? 0,
+        approvals_2024: sponsor.approvals_2024 ?? undefined,
+        approvals_2025: sponsor.approvals_2025 ?? undefined,
+        sponsorship_strength: (sponsor.sponsorship_strength ?? "Medium") as H1BSponsor["sponsorship_strength"],
+        common_roles: (sponsor.common_roles ?? []) as string[],
     });
     const scoreColors = getScoreColor(scoreData.score);
 
@@ -342,7 +343,7 @@ export default function CompanyProfilePage() {
                         { label: "Q1 FY2025", count: 0 },
                         { label: "Q2 FY2025", count: 0 },
                         { label: "Q3 FY2025", count: 0 },
-                        { label: "Q4 FY2025", count: sponsor.approvals_2025 },
+                        { label: "Q4 FY2025", count: sponsor.approvals_2025 ?? 0 },
                     ].map((item) => (
                         <div key={item.label} className="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
                             <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{item.label}</p>

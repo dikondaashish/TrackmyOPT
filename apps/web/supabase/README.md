@@ -10,6 +10,7 @@
 ```
 supabase/
 ├── README.md                    # This file - Start here!
+├── DATABASE_INVENTORY.md        # Audit: 28 tables + 6 views (34) vs codebase — read before dropping anything
 ├── schema/                      # Core database schema (run in order)
 │   ├── 000_extensions.sql       # PostgreSQL extensions
 │   ├── 001_tables.sql           # All table definitions

@@ -33,8 +33,9 @@ export async function GET(req: NextRequest) {
             .eq('user_id', user.id)
             .single();
 
+        // Job tracker stores rows in job_applications (see migrations/20260115_create_job_tracker.sql)
         const { count: jobCount, error: jobError } = await supabase
-            .from('job_tracker')
+            .from('job_applications')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', user.id);
 

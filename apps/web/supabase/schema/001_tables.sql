@@ -436,6 +436,7 @@ CREATE TABLE IF NOT EXISTS public.payment_transactions (
   stripe_payment_intent_id TEXT NOT NULL UNIQUE,
   stripe_customer_id TEXT,
   stripe_checkout_session_id TEXT,
+  stripe_subscription_id TEXT,
   
   -- Payment Details
   amount INTEGER NOT NULL,                    -- Amount in cents (499 = $4.99)

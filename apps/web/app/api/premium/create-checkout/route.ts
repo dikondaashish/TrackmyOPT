@@ -10,12 +10,14 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/getUserId';
 import { sanitizeError } from '@/lib/secure-logger';
+import { requireLiveStripeKeyInProduction } from '@/lib/stripe/requireLiveKeyInProduction';
 
 // Initialize Stripe
 const getStripe = () => {
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error('STRIPE_SECRET_KEY is not configured');
   }
+  requireLiveStripeKeyInProduction();
   return new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2025-09-30.clover',
   });
@@ -123,6 +125,36 @@ export async function POST(req: NextRequest) {
 
     console.log(`Using Stripe customer: ${customerId}`);
 
+    // Reuse an open Checkout Session from the last 10 minutes (avoid duplicate charges from multi-tab)
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    const { data: recentPending } = await supabase
+      .from('payment_transactions')
+      .select('stripe_checkout_session_id')
+      .eq('user_id', userId)
+      .eq('status', 'pending')
+      .gte('created_at', tenMinutesAgo)
+      .not('stripe_checkout_session_id', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (recentPending?.stripe_checkout_session_id) {
+      try {
+        const existingSession = await stripe.checkout.sessions.retrieve(
+          recentPending.stripe_checkout_session_id
+        );
+        if (existingSession.status === 'open' && existingSession.url) {
+          console.log(`Reusing open checkout session ${existingSession.id}`);
+          return NextResponse.json({
+            sessionId: existingSession.id,
+            url: existingSession.url,
+          });
+        }
+      } catch (e) {
+        console.warn('Could not retrieve existing checkout session, creating a new one:', sanitizeError(e));
+      }
+    }
+
     const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com';
 
     // Determine Promo Code (Auto-Apply)
@@ -152,7 +184,7 @@ export async function POST(req: NextRequest) {
         }
       },
       success_url: `${origin}/premium/success?session_id={CHECKOUT_SESSION_ID}&planId=${planId}`,
-      cancel_url: `${origin}/premium/checkout?canceled=true`,
+      cancel_url: `${origin}/premium/cancelled`,
       metadata: {
         supabase_user_id: userId,
         planId,
@@ -169,6 +201,22 @@ export async function POST(req: NextRequest) {
 
     console.log('Creating Stripe checkout session...');
     const session = await stripe.checkout.sessions.create(sessionConfig);
+
+    const { error: pendingInsertError } = await supabase.from('payment_transactions').insert({
+      user_id: userId,
+      stripe_payment_intent_id: `pending_${session.id}`,
+      stripe_customer_id: customerId,
+      stripe_checkout_session_id: session.id,
+      stripe_subscription_id: null,
+      amount: 0,
+      currency: 'usd',
+      status: 'pending',
+      payment_method_type: 'card',
+      metadata: { checkout_session_pending: true },
+    });
+    if (pendingInsertError) {
+      console.error('Pending checkout row insert failed (session still valid in Stripe):', pendingInsertError);
+    }
 
     console.log(`Checkout session created: ${session.id}`);
     return NextResponse.json({ sessionId: session.id, url: session.url });

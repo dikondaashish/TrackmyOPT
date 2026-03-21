@@ -255,22 +255,27 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({
-                    successUrl: `${window.location.origin}/dashboard?upgrade=success`,
-                    cancelUrl: `${window.location.origin}/dashboard?upgrade=canceled`,
                     planId: planId,
                     interval: interval,
                 }),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to create checkout session');
+                const errBody = await response.json().catch(() => ({}));
+                const msg =
+                    typeof (errBody as { error?: string }).error === 'string'
+                        ? (errBody as { error: string }).error
+                        : 'Failed to create checkout session';
+                throw new Error(msg);
             }
 
             const { url } = await response.json();
             window.location.href = url;
         } catch (error) {
-            alert('Failed to start upgrade process. Please try again.');
+            const message = error instanceof Error ? error.message : 'Failed to start upgrade process.';
+            alert(message);
             setCheckoutLoadingPlan(null);
         }
     };

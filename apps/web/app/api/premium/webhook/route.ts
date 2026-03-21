@@ -1,6 +1,6 @@
 /**
  * Stripe Webhook Handler
- * 
+ *
  * Handles Stripe webhook events for payment processing
  * Critical events:
  * - checkout.session.completed: Upgrade user to premium
@@ -14,26 +14,31 @@ import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
 import { sanitizeError } from '@/lib/secure-logger';
 import { applyStripeCheckoutSession } from '@/lib/premium/applyStripeCheckoutSession';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-09-30.clover',
-});
+import { requireLiveStripeKeyInProduction } from '@/lib/stripe/requireLiveKeyInProduction';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+function getStripe(): Stripe {
+  requireLiveStripeKeyInProduction();
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not configured');
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-09-30.clover',
+  });
+}
+
 export async function POST(req: NextRequest) {
+  const stripe = getStripe();
   const body = await req.text();
   const signature = (await headers()).get('stripe-signature');
 
   if (!signature) {
     console.error('⚠️ Webhook Error: No Stripe signature header');
-    return NextResponse.json(
-      { error: 'No signature' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'No signature' }, { status: 400 });
   }
 
   let event: Stripe.Event;
@@ -44,27 +49,23 @@ export async function POST(req: NextRequest) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err: any) {
-    console.error('⚠️ Webhook signature verification failed:', err.message);
-    return NextResponse.json(
-      { error: 'Invalid signature' },
-      { status: 400 }
-    );
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('⚠️ Webhook signature verification failed:', msg);
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
-
-  // Handle the event
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutCompleted(session);
+        await handleCheckoutCompleted(stripe, session);
         break;
       }
 
       case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutCompleted(session);
+        await handleCheckoutCompleted(stripe, session);
         break;
       }
 
@@ -92,12 +93,7 @@ export async function POST(req: NextRequest) {
 
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge;
-        if (charge.payment_intent) {
-          await updateTransactionStatus(
-            charge.payment_intent as string,
-            'refunded'
-          );
-        }
+        await handleChargeRefunded(stripe, charge);
         break;
       }
 
@@ -117,19 +113,13 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ received: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`❌ Error handling webhook event:`, sanitizeError(error));
-    return NextResponse.json(
-      { error: 'Webhook handler failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
   }
 }
 
-/**
- * Handle successful checkout completion
- */
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.Session) {
   const result = await applyStripeCheckoutSession({ stripe, supabase, session });
   if (!result.ok) {
     console.error('❌ handleCheckoutCompleted:', result.reason);
@@ -140,37 +130,28 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 }
 
-/**
- * Log payment failure
- */
 async function logPaymentFailure(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.supabase_user_id;
 
   if (!userId) return;
 
   try {
-    await supabase
-      .from('payment_transactions')
-      .insert({
-        user_id: userId,
-        stripe_payment_intent_id:
-          (session.payment_intent as string) || `failed_cs_${session.id}`,
-        stripe_customer_id: session.customer as string,
-        stripe_checkout_session_id: session.id,
-        amount: session.amount_total || 299,
-        currency: session.currency || 'usd',
-        status: 'failed',
-        failure_reason: 'Async payment failed',
-      });
-
+    await supabase.from('payment_transactions').insert({
+      user_id: userId,
+      stripe_payment_intent_id:
+        (session.payment_intent as string) || `failed_cs_${session.id}`,
+      stripe_customer_id: session.customer as string,
+      stripe_checkout_session_id: session.id,
+      amount: session.amount_total || 299,
+      currency: session.currency || 'usd',
+      status: 'failed',
+      failure_reason: 'Async payment failed',
+    });
   } catch (error) {
     console.error('❌ Error logging payment failure:', error);
   }
 }
 
-/**
- * Update transaction status
- */
 async function updateTransactionStatus(
   paymentIntentId: string,
   status: string,
@@ -188,7 +169,6 @@ async function updateTransactionStatus(
 
     if (error) {
       console.error('❌ Error updating transaction status:', error);
-    } else {
     }
   } catch (error) {
     console.error('❌ Error in updateTransactionStatus:', error);
@@ -196,47 +176,143 @@ async function updateTransactionStatus(
 }
 
 /**
- * Handle subscription updates
+ * Mark transaction refunded and revoke premium. Subscription checkouts often store
+ * synthetic stripe_payment_intent_id values, so we also match subscription id and checkout session id.
  */
+async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge) {
+  const nowIso = new Date().toISOString();
+  const piId =
+    typeof charge.payment_intent === 'string'
+      ? charge.payment_intent
+      : charge.payment_intent?.id ?? null;
+
+  /** Stripe Charge includes invoice/subscription; SDK types may lag API */
+  const ch = charge as Stripe.Charge & {
+    invoice?: string | Stripe.Invoice | null;
+    subscription?: string | Stripe.Subscription | null;
+  };
+
+  type Row = { user_id: string };
+  let rows: Row[] = [];
+
+  if (piId) {
+    const { data } = await supabase
+      .from('payment_transactions')
+      .update({ status: 'refunded', updated_at: nowIso })
+      .eq('stripe_payment_intent_id', piId)
+      .select('user_id');
+    if (data?.length) rows = data as Row[];
+  }
+
+  if (!rows.length) {
+    let subscriptionId: string | null = null;
+    if (typeof ch.subscription === 'string') {
+      subscriptionId = ch.subscription;
+    } else if (ch.subscription && typeof ch.subscription === 'object' && 'id' in ch.subscription) {
+      subscriptionId = (ch.subscription as Stripe.Subscription).id;
+    } else if (ch.invoice) {
+      const invId = typeof ch.invoice === 'string' ? ch.invoice : ch.invoice.id;
+      const invRaw = await stripe.invoices.retrieve(invId, { expand: ['subscription'] });
+      const inv = invRaw as Stripe.Invoice & {
+        subscription?: string | Stripe.Subscription | null;
+      };
+      const sub = inv.subscription ?? null;
+      subscriptionId =
+        typeof sub === 'string' ? sub : sub && typeof sub === 'object' && 'id' in sub ? sub.id : null;
+    }
+
+    if (subscriptionId) {
+      const { data } = await supabase
+        .from('payment_transactions')
+        .update({ status: 'refunded', updated_at: nowIso })
+        .eq('stripe_subscription_id', subscriptionId)
+        .select('user_id');
+      if (data?.length) rows = data as Row[];
+    }
+  }
+
+  if (!rows.length && piId) {
+    const pi = await stripe.paymentIntents.retrieve(piId);
+    const csFromMeta =
+      typeof pi.metadata?.checkout_session_id === 'string' ? pi.metadata.checkout_session_id : null;
+    if (csFromMeta) {
+      const { data } = await supabase
+        .from('payment_transactions')
+        .update({ status: 'refunded', updated_at: nowIso })
+        .eq('stripe_checkout_session_id', csFromMeta)
+        .select('user_id');
+      if (data?.length) rows = data as Row[];
+    }
+  }
+
+  if (!rows.length && ch.invoice) {
+    const invId = typeof ch.invoice === 'string' ? ch.invoice : ch.invoice.id;
+    const inv = await stripe.invoices.retrieve(invId);
+    const csFromInv =
+      typeof inv.metadata?.checkout_session_id === 'string' ? inv.metadata.checkout_session_id : null;
+    if (csFromInv) {
+      const { data } = await supabase
+        .from('payment_transactions')
+        .update({ status: 'refunded', updated_at: nowIso })
+        .eq('stripe_checkout_session_id', csFromInv)
+        .select('user_id');
+      if (data?.length) rows = data as Row[];
+    }
+  }
+
+  const userIds = [...new Set(rows.map((r) => r.user_id))];
+  for (const userId of userIds) {
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        premium_status: false,
+        plan_tier: null,
+        updated_at: nowIso,
+      })
+      .eq('user_id', userId);
+    if (error) {
+      console.error('❌ Refund: failed to revoke premium for user', userId, error);
+    } else {
+      console.log('✅ Refund: revoked premium for user', userId);
+    }
+  }
+
+  if (!rows.length) {
+    console.warn('⚠️ charge.refunded: no payment_transactions row matched for charge', charge.id);
+  }
+}
+
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
 
-  // If subscription is not active or trialing, revoke access
-  // Note: We don't revoke for 'past_due' immediately to give a grace period, 
-  // but strict implementation would revoke.
   const isActive = ['active', 'trialing'].includes(subscription.status);
 
   if (!isActive) {
     await revokePremiumAccess(customerId);
   } else {
-    // Ensure access is granted (in case it was previously revoked or data is out of sync)
-    // Create a new client instance for this operation
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    await supabaseAdmin.from('profiles')
+    await supabaseAdmin
+      .from('profiles')
       .update({
         premium_status: true,
         plan_tier: subscription.metadata?.planId || 'pro',
-        subscription_expires_at: new Date((subscription as any).current_period_end * 1000).toISOString(),
+        subscription_expires_at: new Date(
+          (subscription as unknown as { current_period_end: number }).current_period_end * 1000
+        ).toISOString(),
       })
       .eq('stripe_customer_id', customerId);
   }
 }
 
-/**
- * Handle subscription cancellation/deletion
- */
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
   await revokePremiumAccess(customerId);
 }
 
-/**
- * Revoke premium access for a customer
- */
 async function revokePremiumAccess(stripeCustomerId: string) {
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -249,7 +325,7 @@ async function revokePremiumAccess(stripeCustomerId: string) {
       .update({
         premium_status: false,
         plan_tier: null,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('stripe_customer_id', stripeCustomerId);
 
@@ -262,5 +338,3 @@ async function revokePremiumAccess(stripeCustomerId: string) {
     console.error(`❌ Error in revokePremiumAccess:`, error);
   }
 }
-
-

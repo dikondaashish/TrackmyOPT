@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
 
       try {
         const { data: optData } = await supabase
-          .from('opt_data')
+          .from('opt_status')
           .select('program_end_date, opt_start_date, opt_ead_end_date, stem_start_date')
           .eq('user_id', userId)
           .single();

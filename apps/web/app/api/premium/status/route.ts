@@ -113,20 +113,33 @@ export async function GET(req: NextRequest) {
     const now = new Date();
     const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
 
-    // If expired more than 3 days ago (grace period), revoke access
-    // We allow slight grace period for webhook delays or payment retries
+    // Expired: persist revocation so DB does not stay stale if webhooks fail
     if (expiresAt && expiresAt < now) {
-      // Optional: You could trigger a DB update here to set premium_status=false
-      // but purely reading is safer for this endpoint.
-      return NextResponse.json({
-        isPremium: false,
-        expired: true,
-        expiresAt: data.subscription_expires_at,
-        customerId: data.stripe_customer_id
-      }, {
-        status: 200,
-        headers: corsHeaders
-      });
+      const { error: revokeError } = await supabase
+        .from('profiles')
+        .update({
+          premium_status: false,
+          plan_tier: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId);
+
+      if (revokeError) {
+        console.error('GET /api/premium/status: failed to persist expiry revocation:', revokeError);
+      }
+
+      return NextResponse.json(
+        {
+          isPremium: false,
+          expired: true,
+          expiresAt: data.subscription_expires_at,
+          customerId: data.stripe_customer_id,
+        },
+        {
+          status: 200,
+          headers: corsHeaders,
+        }
+      );
     }
 
     return NextResponse.json({

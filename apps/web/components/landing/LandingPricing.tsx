@@ -123,6 +123,14 @@ export function LandingPricing() {
                 plans={plans}
                 defaultAnnual={false}
                 className="!bg-transparent !py-0" // Override internal styles
+                buildPlanHref={({ planId, interval }) => {
+                    if (planId === "free") {
+                        return `/login?redirect=${encodeURIComponent("/dashboard")}`;
+                    }
+                    return `/login?redirect=${encodeURIComponent(
+                        `/premium/checkout?planId=${planId}&interval=${interval}`
+                    )}`;
+                }}
             />
         </section>
     );

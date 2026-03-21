@@ -18,6 +18,7 @@ DROP VIEW IF EXISTS public.email_delivery_stats;
 DROP VIEW IF EXISTS public.revenue_stats;
 DROP VIEW IF EXISTS public.document_expiry_overview;
 DROP VIEW IF EXISTS public.user_activity_summary;
+DROP VIEW IF EXISTS public.sponsor_intelligence_agg;
 
 
 -- =============================================================================
@@ -161,6 +162,77 @@ COMMENT ON VIEW public.user_activity_summary IS
 
 
 -- =============================================================================
+-- VIEW: sponsor_intelligence_agg
+-- =============================================================================
+-- Purpose: Pre-aggregated sponsor intel (addresses, top law firm, entry-level %)
+--          for get_sponsor_intelligence RPC and enrich-sponsors script.
+-- Access: Primarily service_role / batch jobs (large joins on h1b_filings).
+-- -----------------------------------------------------------------------------
+CREATE VIEW public.sponsor_intelligence_agg
+WITH (security_invoker = on)
+AS
+WITH latest_filings AS (
+  SELECT DISTINCT ON (h1b_filings.sponsor_id)
+    h1b_filings.sponsor_id,
+    h1b_filings.employer_address1,
+    h1b_filings.employer_city,
+    h1b_filings.employer_state
+  FROM public.h1b_filings
+  WHERE h1b_filings.sponsor_id IS NOT NULL
+  ORDER BY h1b_filings.sponsor_id, h1b_filings.received_date DESC
+),
+law_firm_stats AS (
+  SELECT
+    h1b_filings.sponsor_id,
+    h1b_filings.lawfirm_name,
+    count(*) AS count
+  FROM public.h1b_filings
+  WHERE h1b_filings.sponsor_id IS NOT NULL
+    AND h1b_filings.lawfirm_name IS NOT NULL
+  GROUP BY h1b_filings.sponsor_id, h1b_filings.lawfirm_name
+),
+top_firms AS (
+  SELECT DISTINCT ON (law_firm_stats.sponsor_id)
+    law_firm_stats.sponsor_id,
+    law_firm_stats.lawfirm_name AS top_law_firm
+  FROM law_firm_stats
+  ORDER BY law_firm_stats.sponsor_id, law_firm_stats.count DESC
+),
+wage_stats AS (
+  SELECT
+    h1b_filings.sponsor_id,
+    count(*) AS total_filings,
+    count(*) FILTER (
+      WHERE h1b_filings.pw_wage_level ~~* '%I%'
+        AND h1b_filings.pw_wage_level !~~* '%II%'
+        AND h1b_filings.pw_wage_level !~~* '%IV%'
+    ) AS level1_count
+  FROM public.h1b_filings
+  WHERE h1b_filings.sponsor_id IS NOT NULL
+    AND h1b_filings.pw_wage_level IS NOT NULL
+  GROUP BY h1b_filings.sponsor_id
+)
+SELECT
+  s.id AS sponsor_id,
+  s.name,
+  lf.employer_address1,
+  lf.employer_city,
+  lf.employer_state,
+  tf.top_law_firm,
+  CASE
+    WHEN w.total_filings > 0 THEN w.level1_count::numeric / w.total_filings::numeric
+    ELSE 0::numeric
+  END AS entry_level_percent
+FROM public.h1b_sponsors s
+LEFT JOIN latest_filings lf ON s.id = lf.sponsor_id
+LEFT JOIN top_firms tf ON s.id = tf.sponsor_id
+LEFT JOIN wage_stats w ON s.id = w.sponsor_id;
+
+COMMENT ON VIEW public.sponsor_intelligence_agg IS
+  'Aggregated sponsor intel for LCA enrichment and get_sponsor_intelligence RPC';
+
+
+-- =============================================================================
 -- VERIFICATION
 -- =============================================================================
 DO $$
@@ -173,4 +245,5 @@ BEGIN
   RAISE NOTICE '  • revenue_stats           - Payment/revenue metrics';
   RAISE NOTICE '  • document_expiry_overview - Document expiry summary';
   RAISE NOTICE '  • user_activity_summary   - User activity overview';
+  RAISE NOTICE '  • sponsor_intelligence_agg - H-1B sponsor intel (RPC / scripts)';
 END $$;

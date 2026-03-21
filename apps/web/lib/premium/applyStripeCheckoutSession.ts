@@ -14,11 +14,24 @@ function resolvePaymentIntentId(session: Stripe.Checkout.Session): string {
   if (pi && typeof pi === "object" && "id" in pi && typeof (pi as { id: string }).id === "string") {
     return (pi as { id: string }).id;
   }
-  // Subscription Checkout often has no PaymentIntent on the Session; use stable unique IDs
+  // Subscription Checkout often has no PaymentIntent on the Session; use subscription or session id
   if (session.subscription) {
-    return `sub_${session.subscription}`;
+    const sub =
+      typeof session.subscription === "string"
+        ? session.subscription
+        : (session.subscription as { id: string }).id;
+    return sub.startsWith("sub_") ? sub : `sub_${sub}`;
   }
   return `cs_${session.id}`;
+}
+
+export function resolveStripeSubscriptionId(session: Stripe.Checkout.Session): string | null {
+  if (!session.subscription) return null;
+  if (typeof session.subscription === "string") return session.subscription;
+  if (typeof session.subscription === "object" && session.subscription && "id" in session.subscription) {
+    return (session.subscription as { id: string }).id;
+  }
+  return null;
 }
 
 export async function applyStripeCheckoutSession(args: {
@@ -44,6 +57,7 @@ export async function applyStripeCheckoutSession(args: {
     .maybeSingle();
 
   const paymentIntentId = resolvePaymentIntentId(session);
+  const stripeSubscriptionId = resolveStripeSubscriptionId(session);
 
   let expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 32);
@@ -73,24 +87,38 @@ export async function applyStripeCheckoutSession(args: {
     return { ok: false, reason: profileError.message };
   }
 
-  if (existingTx) {
-    return { ok: true, alreadyRecorded: true };
-  }
-
-  const { error: transactionError } = await supabase.from("payment_transactions").insert({
-    user_id: userId,
+  const txPayload = {
     stripe_payment_intent_id: paymentIntentId,
     stripe_customer_id: session.customer as string,
     stripe_checkout_session_id: session.id,
+    stripe_subscription_id: stripeSubscriptionId,
     amount: session.amount_total ?? 0,
     currency: session.currency || "usd",
-    status: "succeeded",
+    status: "succeeded" as const,
     payment_method_type: session.payment_method_types?.[0] || "card",
     metadata: {
       session_id: session.id,
       plan_id: planTier,
       customer_email: session.customer_details?.email,
     },
+    updated_at: new Date().toISOString(),
+  };
+
+  if (existingTx) {
+    const { error: updErr } = await supabase
+      .from("payment_transactions")
+      .update(txPayload)
+      .eq("id", existingTx.id);
+    if (updErr) {
+      console.error("applyStripeCheckoutSession transaction update (pending→succeeded):", updErr);
+      return { ok: false, reason: updErr.message };
+    }
+    return { ok: true, alreadyRecorded: true };
+  }
+
+  const { error: transactionError } = await supabase.from("payment_transactions").insert({
+    user_id: userId,
+    ...txPayload,
   });
 
   if (transactionError) {

@@ -4,13 +4,16 @@ import { createClient } from "@supabase/supabase-js";
 import { getUserId } from "@/lib/auth/getUserId";
 import { applyStripeCheckoutSession } from "@/lib/premium/applyStripeCheckoutSession";
 import { sanitizeError } from "@/lib/secure-logger";
+import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
 
 export const dynamic = "force-dynamic";
 
-const getStripe = () =>
-  new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const getStripe = () => {
+  requireLiveStripeKeyInProduction();
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-09-30.clover",
   });
+};
 
 export async function POST(req: NextRequest) {
   try {

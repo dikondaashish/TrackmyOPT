@@ -2,8 +2,18 @@ import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import Stripe from 'stripe';
+import { cancelStripeSubscriptionsForCustomer } from '@/lib/premium/cancelStripeSubscriptionsForCustomer';
 
 export const dynamic = 'force-dynamic';
+
+function getStripe(): Stripe | null {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) return null;
+  return new Stripe(key, {
+    apiVersion: '2025-09-30.clover',
+  });
+}
 
 export async function DELETE() {
   try {
@@ -50,6 +60,52 @@ export async function DELETE() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
+    // Load billing id before any row deletes (profiles row holds stripe_customer_id)
+    const { data: billingProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('stripe_customer_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    const stripeCustomerId = billingProfile?.stripe_customer_id?.trim() || null;
+
+    // Cancel active Stripe subscriptions so the user is not charged after leaving
+    if (stripeCustomerId) {
+      const stripe = getStripe();
+      if (!stripe) {
+        console.warn(
+          'Account delete: STRIPE_SECRET_KEY missing; skipping Stripe cancel (dev/local?)',
+          { stripeCustomerId }
+        );
+      } else {
+        try {
+          const { cancelledIds } = await cancelStripeSubscriptionsForCustomer(stripe, stripeCustomerId);
+          if (cancelledIds.length > 0) {
+            console.log(`Account delete: cancelled Stripe subscriptions: ${cancelledIds.join(', ')}`);
+          }
+        } catch (err: unknown) {
+          const code =
+            typeof err === 'object' && err !== null && 'code' in err
+              ? String((err as { code?: string }).code)
+              : '';
+          const message = err instanceof Error ? err.message : String(err);
+          // Customer already removed in Stripe — still delete our account
+          if (code === 'resource_missing' || message.includes('No such customer')) {
+            console.warn('Account delete: Stripe customer not found, continuing:', stripeCustomerId);
+          } else {
+            console.error('Account delete: Stripe subscription cancel failed:', err);
+            return NextResponse.json(
+              {
+                error:
+                  'We could not cancel your subscription with our payment provider. Open Settings → Subscription → Manage billing to cancel, then try deleting your account again.',
+              },
+              { status: 502 }
+            );
+          }
+        }
+      }
+    }
+
     // Add email to blocked_emails table to prevent re-registration
     if (userEmail) {
       await supabaseAdmin.from('blocked_emails').upsert({
@@ -80,23 +136,25 @@ export async function DELETE() {
     await supabaseAdmin.from('email_queue').delete().eq('user_id', userId);
     await supabaseAdmin.from('notification_settings').delete().eq('user_id', userId);
     
-    // Payment data
+    // Payment data (subscription state lives on profiles; no separate subscriptions table)
     await supabaseAdmin.from('payment_transactions').delete().eq('user_id', userId);
-    await supabaseAdmin.from('subscriptions').delete().eq('user_id', userId);
-    
+
+    // Job tracker & resume (interviews/followups CASCADE when applications deleted)
+    await supabaseAdmin.from('job_applications').delete().eq('user_id', userId);
+    await supabaseAdmin.from('job_stages').delete().eq('user_id', userId);
+    await supabaseAdmin.from('resume_generations').delete().eq('user_id', userId);
+    await supabaseAdmin.from('resumes').delete().eq('user_id', userId);
+
     // Session and OTP data
     await supabaseAdmin.from('user_sessions').delete().eq('user_id', userId);
     await supabaseAdmin.from('export_otps').delete().eq('user_id', userId);
     await supabaseAdmin.from('passcode_otps').delete().eq('user_id', userId);
     
-    // Insurance eligibility data
-    await supabaseAdmin.from('insurance_eligibility').delete().eq('user_id', userId);
+    // Insurance eligibility data (table name: insurance_eligibility_checks)
+    await supabaseAdmin.from('insurance_eligibility_checks').delete().eq('user_id', userId);
     
     // Policy consent records
     await supabaseAdmin.from('policy_consents').delete().eq('user_id', userId);
-    
-    // Legacy tables (if they exist)
-    await supabaseAdmin.from('tool_reminders').delete().eq('user_id', userId);
 
     // Finally, delete the user from auth
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
