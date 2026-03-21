@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://www.trackmyopt.com/blog/can-you-travel-on-opt",
+        canonical: "https://www.trackmyopt.com/blog/can-you-travel-on-opt-complete-guide",
     },
 };
 

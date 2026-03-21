@@ -17,7 +17,7 @@ export const metadata: Metadata = {
         images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "F-1 Student Tax Filing Guide 2026: Forms, Deadlines & Step-by-Step" }]
     },
     alternates: {
-        canonical: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide",
+        canonical: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide-2026",
     },
 };
 

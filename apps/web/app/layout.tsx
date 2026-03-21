@@ -75,6 +75,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://deknauqkqqzwuvopqott.supabase.co" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://js.stripe.com" />
+        <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
+        <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
+      </head>
       <body className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
         <ThemeProvider
           attribute="class"

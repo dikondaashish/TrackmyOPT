@@ -80,11 +80,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog/opt-ead-card-guide',
         '/blog/h1b-cap-gap-extension',
         '/blog/day-1-cpt-vs-opt',
-        '/blog/f1-student-tax-filing-guide',
-        '/blog/opt-health-insurance-guide',
+        // Old versions canonicalized to 2026 equivalents (not in sitemap)
         '/blog/uscis-case-status-tracking-guide',
-        '/blog/can-you-travel-on-opt',
-        '/blog/ats-resume-international-students',
+        // Old versions canonicalized to 2026 equivalents (not in sitemap)
         '/blog/top-h1b-sponsor-companies-2026',
         '/blog/stem-opt-employer-requirements',
         '/blog/opt-application-denied',

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
             alt: "ATS Resume for International Students: Beat the Bots & Get Interviews (2026)",
         }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/ats-resume-international-students" },
+    alternates: { canonical: "https://www.trackmyopt.com/blog/ats-resume-international-students-2026" },
 };
 
 export default function ATSResumeArticle() {
