@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState } from "react";
 import {
   Receipt,
   ChevronDown,
@@ -11,8 +11,6 @@ import {
   Gift,
   Copy,
   Check,
-  Crown,
-  Lock,
   FileText,
   Sparkles
 } from "lucide-react";
@@ -65,7 +63,6 @@ function TaxResultsContent() {
   const [exitUrl, setExitUrl] = useState("");
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState<typeof TAX_PARTNERS[0] | null>(null);
-  const [isPremium, setIsPremium] = useState(false);
   const [couponCopied, setCouponCopied] = useState(false);
   const [expandedGuide, setExpandedGuide] = useState<number | null>(null);
 
@@ -104,30 +101,6 @@ function TaxResultsContent() {
   };
 
   const filingRequirement = getFilingRequirement();
-
-  // Check user's premium status
-  useEffect(() => {
-    const checkPremiumStatus = async () => {
-      try {
-        const response = await fetch('/api/premium/status', {
-          credentials: 'include',
-          cache: 'no-store',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setIsPremium(data.isPremium || false);
-        }
-      } catch (error) {
-        console.error('Error checking premium status:', error);
-      }
-    };
-
-    checkPremiumStatus();
-  }, []);
 
   const handleApply = (partner: typeof TAX_PARTNERS[0]) => {
     setSelectedPartner(partner);
@@ -253,16 +226,10 @@ function TaxResultsContent() {
 
               <h3 className="font-bold text-slate-900 dark:text-white text-lg">{partner.name}</h3>
               <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">{partner.tagline}</p>
-              {partner.name === "Sprintax" && isPremium && (
+              {partner.name === "Sprintax" && (
                 <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
                   <Gift className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">Code: {COUPON_CODE}</span>
-                </div>
-              )}
-              {partner.name === "Sprintax" && !isPremium && (
-                <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
-                  <Lock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                  <span className="text-xs font-medium text-amber-700 dark:text-amber-300">Upgrade to Pro for exclusive code</span>
                 </div>
               )}
               <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">{partner.description}</p>
@@ -407,117 +374,58 @@ function TaxResultsContent() {
         </div>
       )}
 
-      {/* Coupon Modal */}
+      {/* Coupon Modal — Sprintax partner code available to all signed-in users */}
       {showCouponModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-card rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            {isPremium ? (
-              /* Pro Member - Show Coupon */
-              <>
-                <div className={`w-14 h-14 bg-gradient-to-br ${selectedPartner?.color || 'from-emerald-400 to-teal-500'} rounded-full flex items-center justify-center mx-auto mb-4 bg-opacity-10`}>
-                  <Gift className="w-7 h-7 text-white" />
-                </div>
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Crown className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs font-semibold text-amber-600">PRO MEMBER EXCLUSIVE</span>
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white text-center">Your Free Coupon</h3>
-                <p className="text-slate-600 dark:text-slate-300 text-sm text-center mt-2">
-                  Use this code at <span className="font-semibold text-slate-900 dark:text-white">{selectedPartner?.name}</span> for exclusive savings!
-                </p>
+            <div className={`w-14 h-14 bg-gradient-to-br ${selectedPartner?.color || 'from-emerald-400 to-teal-500'} rounded-full flex items-center justify-center mx-auto mb-4 bg-opacity-10`}>
+              <Gift className="w-7 h-7 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white text-center">Partner coupon</h3>
+            <p className="text-slate-600 dark:text-slate-300 text-sm text-center mt-2">
+              Use this code at <span className="font-semibold text-slate-900 dark:text-white">{selectedPartner?.name}</span> at checkout. Available to every TrackMyOPT user.
+            </p>
 
-                {/* Coupon Code Box */}
-                <div className={`mt-5 bg-gradient-to-r ${selectedPartner?.bgColor || 'from-emerald-50 to-teal-50'} border-2 border-dashed ${selectedPartner?.borderColor || 'border-emerald-300'} rounded-xl p-4`}>
-                  <div className="flex items-center justify-between">
-                    <code className="text-xl font-bold text-slate-900 dark:text-white tracking-wider">{COUPON_CODE}</code>
-                    <button
-                      onClick={copyCoupon}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${couponCopied
-                        ? "bg-green-500 text-white"
-                        : `bg-white dark:bg-slate-800 border ${selectedPartner?.borderColor || 'border-emerald-200'} text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700`
-                        }`}
-                    >
-                      {couponCopied ? (
-                        <>
-                          <Check className="w-4 h-4" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          Copy
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
+            <div className={`mt-5 bg-gradient-to-r ${selectedPartner?.bgColor || 'from-emerald-50 to-teal-50'} border-2 border-dashed ${selectedPartner?.borderColor || 'border-emerald-300'} rounded-xl p-4`}>
+              <div className="flex items-center justify-between">
+                <code className="text-xl font-bold text-slate-900 dark:text-white tracking-wider">{COUPON_CODE}</code>
+                <button
+                  onClick={copyCoupon}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${couponCopied
+                    ? "bg-green-500 text-white"
+                    : `bg-white dark:bg-slate-800 border ${selectedPartner?.borderColor || 'border-emerald-200'} text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700`
+                    }`}
+                >
+                  {couponCopied ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
 
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={() => setShowCouponModal(false)}
-                    className="flex-1 h-11 border border-slate-200 dark:border-slate-600 rounded-xl font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    Close
-                  </button>
-                  <button
-                    onClick={openPartnerWithCoupon}
-                    className={`flex-1 h-11 bg-gradient-to-r ${selectedPartner?.color || 'from-emerald-500 to-teal-600'} text-white rounded-xl font-medium hover:opacity-90 transition-colors flex items-center justify-center gap-1.5 shadow-lg`}
-                  >
-                    Open Website
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
-                </div>
-              </>
-            ) : (
-              /* Non-Pro Member - Show Upgrade */
-              <>
-                <div className="w-14 h-14 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Lock className="w-7 h-7 text-slate-500" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-foreground text-center">Pro Members Only</h3>
-                <p className="text-slate-600 dark:text-muted-foreground text-sm text-center mt-2">
-                  Upgrade to Pro to unlock free filing coupons and exclusive discounts on tax services!
-                </p>
-
-                {/* Benefits */}
-                <div className="mt-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-slate-700 dark:text-foreground mb-2">Pro Benefits Include:</p>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-muted-foreground">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                      Free tax filing coupons
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-muted-foreground">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                      Priority support
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-muted-foreground">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                      Advanced OPT tools
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={() => setShowCouponModal(false)}
-                    className="flex-1 h-11 border border-slate-200 dark:border-border rounded-xl font-medium text-slate-700 dark:text-foreground hover:bg-slate-50 dark:hover:bg-muted transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowCouponModal(false);
-                      router.push('/premium/checkout');
-                    }}
-                    className="flex-1 h-11 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <Crown className="w-4 h-4" />
-                    Upgrade to Pro
-                  </button>
-                </div>
-              </>
-            )}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowCouponModal(false)}
+                className="flex-1 h-11 border border-slate-200 dark:border-slate-600 rounded-xl font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={openPartnerWithCoupon}
+                className={`flex-1 h-11 bg-gradient-to-r ${selectedPartner?.color || 'from-emerald-500 to-teal-600'} text-white rounded-xl font-medium hover:opacity-90 transition-colors flex items-center justify-center gap-1.5 shadow-lg`}
+              >
+                Open Website
+                <ExternalLink className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       )}

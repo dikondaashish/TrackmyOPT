@@ -25,7 +25,7 @@ export default function RefundPolicyPage() {
             <div className="relative z-10">
                 <LandingNavbar />
 
-                <div className="max-w-4xl mx-auto pt-32 pb-20 px-4">
+                <div className="max-w-4xl mx-auto pt-8 pb-20 px-4">
                     <Link
                         href="/"
                         className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors mb-8 group"

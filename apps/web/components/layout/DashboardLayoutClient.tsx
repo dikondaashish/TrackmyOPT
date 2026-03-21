@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
+import { SprintaxPromoBanner } from "@/components/promo/SprintaxPromoBanner";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 
@@ -78,7 +79,8 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
 
     return (
         <div className="h-screen overflow-hidden bg-[#e8edf5] dark:bg-gray-950">
-            {/* Fixed Header */}
+            <SprintaxPromoBanner variant="dashboard" />
+            {/* Fixed Header — below promo banner */}
             <Header
                 userEmail={user.email}
                 userName={user.name}
@@ -101,7 +103,8 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
             {/* Main Content Area - This is the only scrollable section */}
             <main
                 className={cn(
-                    "fixed top-14 bottom-0 right-0 transition-all duration-300 overflow-hidden",
+                    "fixed bottom-0 right-0 transition-all duration-300 overflow-hidden",
+                    "top-[calc(3.5rem+var(--tmopt-dashboard-promo,0px))]",
                     // Desktop: adjust for sidebar
                     isSidebarCollapsed ? "lg:left-16" : "lg:left-[230px]",
                     // Mobile: full width

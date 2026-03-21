@@ -967,7 +967,7 @@ export function LandingHero() {
 
 
     return (
-        <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden pt-20 lg:pt-32 pb-24">
+        <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden pt-8 lg:pt-12 pb-24">
             {/* Animated Aurora Background (YC/Linear Style) */}
             <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-zinc-950 overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#27272a_1px,transparent_1px)] opacity-50"></div>

@@ -88,7 +88,7 @@ export default function HowItWorksPage() {
             <LandingNavbar />
 
             {/* Hero */}
-            <section className="pt-32 pb-16 px-4">
+            <section className="pt-8 pb-16 px-4">
                 <div className="max-w-4xl mx-auto text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}

@@ -272,8 +272,9 @@ export default function PremiumWorthItPage() {
                                     single coffee. A missed OPT deadline can
                                     cost you your legal status, your job, and
                                     your ability to remain in the United States.
-                                    The $20 Sprintax tax coupon alone nearly
-                                    covers the annual cost.
+                                    The Sprintax partner coupon is available to
+                                    all users; premium pays for automation that
+                                    protects your status every day.
                                 </p>
                             </div>
                         </div>
@@ -296,7 +297,6 @@ export default function PremiumWorthItPage() {
                                 "Unlimited job application tracking",
                                 "Full H-1B sponsor database with approval rate data",
                                 "STEM OPT I-983 training plan tracking and E-Verify verification",
-                                "Sprintax tax coupon ($20 value)",
                                 "Chrome extension priority alerts",
                                 "Priority email support",
                             ].map((item, i) => (

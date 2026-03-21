@@ -18,7 +18,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
     const router = useRouter();
 
     return (
-        <header className="fixed top-0 left-0 right-0 h-14 bg-[#0F3162] z-50 flex items-center justify-between px-4">
+        <header className="fixed left-0 right-0 top-[var(--tmopt-dashboard-promo,0px)] z-50 flex h-14 items-center justify-between bg-[#0F3162] px-4">
             {/* Logo */}
             <div className="flex items-center gap-2">
                 {/* Mobile Menu Toggle */}

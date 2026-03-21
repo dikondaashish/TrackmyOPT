@@ -121,8 +121,8 @@ const OFFERS = [
     {
         id: 5,
         title: "Sprintax Tax Filing",
-        description: "Exclusive coupon for Pro members! The #1 tax software for international students on F-1/OPT.",
-        discount: "Pro Exclusive",
+        description: "Partner coupon for all users. The #1 tax software for international students on F-1/OPT — get your code in Tax Filing.",
+        discount: "$20 value",
         category: "Tax Services",
         badge: "Tax Season",
         badgeColor: "from-emerald-500 to-teal-500",

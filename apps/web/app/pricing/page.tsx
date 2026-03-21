@@ -54,6 +54,12 @@ const comparisonFeatures = [
         ],
     },
     {
+        category: "Tax & partners",
+        features: [
+            { name: "Sprintax partner coupon ($20 value)", free: true, pro: true, dedicated: true },
+        ],
+    },
+    {
         category: "Documents & Reminders",
         features: [
             { name: "Basic Notifications", free: true, pro: true, dedicated: true },
@@ -65,7 +71,6 @@ const comparisonFeatures = [
     {
         category: "Premium Benefits",
         features: [
-            { name: "Sprintax Tax Coupon ($20 Value)", free: false, pro: true, dedicated: true },
             { name: "Chrome Extension Priority Alerts", free: false, pro: true, dedicated: true },
             { name: "1-on-1 Lawyer Session (1 hr/mo)", free: false, pro: false, dedicated: true },
             { name: "Complete Application Audit", free: false, pro: false, dedicated: true },
@@ -369,7 +374,7 @@ export default function PricingPage() {
                                         { feature: "Job Application Tracker", free: "5 jobs", premium: "Unlimited jobs" },
                                         { feature: "Document Vault", free: false, premium: "Encrypted storage + expiry reminders" },
                                         { feature: "STEM OPT Extension Planner", free: "Basic calculator", premium: "Full I-983 tracking + E-Verify check" },
-                                        { feature: "Sprintax Tax Coupon ($20)", free: false, premium: true },
+                                        { feature: "Sprintax partner coupon ($20)", free: true, premium: true },
                                         { feature: "Chrome Extension Priority Alerts", free: false, premium: true },
                                         { feature: "Priority Support", free: false, premium: true },
                                     ].map((row, i) => (

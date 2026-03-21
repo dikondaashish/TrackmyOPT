@@ -439,7 +439,7 @@ export function Sidebar({
                 className={cn(
                     "fixed bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transition-transform duration-300 ease-out",
                     // Desktop: below header, normal sizing
-                    "lg:top-14 lg:h-[calc(100vh-56px)] lg:translate-x-0",
+                    "lg:top-[calc(var(--tmopt-dashboard-promo,0px)+3.5rem)] lg:h-[calc(100vh-var(--tmopt-dashboard-promo,0px)-3.5rem)] lg:translate-x-0",
                     "lg:block",
                     isCollapsed ? "lg:w-16" : "lg:w-[230px]",
                     // Mobile: full height, slide from left

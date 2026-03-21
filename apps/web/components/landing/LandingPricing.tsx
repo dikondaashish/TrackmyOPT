@@ -37,6 +37,7 @@ export function LandingPricing() {
                 { label: "Extras", included: true, isHeader: true },
                 { label: "Health Insurance Plans (from $0/mo)", included: true },
                 { label: "Tax Filing Resources", included: true },
+                { label: "Sprintax partner coupon ($20 value)", included: true },
             ],
             recommended: false,
         },
@@ -77,7 +78,6 @@ export function LandingPricing() {
 
                 { label: "Premium Benefits", included: true, isHeader: true },
                 { label: "Priority Chrome Notifications", included: true },
-                { label: "Sprintax Tax Coupon ($20 Value)", included: true },
                 { label: "Exclusive Partner Offers", included: true, tooltip: "Save $100s with partner discounts" },
             ],
             recommended: true,

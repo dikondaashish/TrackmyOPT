@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { UserProfileMenu } from "@/components/layout/UserProfileMenu";
+import { SprintaxPromoBanner } from "@/components/promo/SprintaxPromoBanner";
 
 export function LandingNavbar() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -61,10 +62,13 @@ export function LandingNavbar() {
     ];
 
     return (
+        <>
+        <SprintaxPromoBanner variant="marketing" />
         <motion.nav
             initial={{ y: -100 }}
             animate={{ y: 0 }}
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white dark:bg-zinc-950 ${isScrolled
+            style={{ top: "var(--tmopt-marketing-promo, 0px)" }}
+            className={`fixed left-0 right-0 z-50 transition-all duration-300 bg-white dark:bg-zinc-950 ${isScrolled
                 ? "border-b border-border py-3 shadow-sm"
                 : "py-4 shadow-sm"
                 }`}
@@ -458,6 +462,12 @@ export function LandingNavbar() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </motion.nav >
+        </motion.nav>
+        {/* Reserves space for fixed banner + navbar so page content is not hidden underneath */}
+        <div
+            className="h-[calc(5rem+var(--tmopt-marketing-promo,0px))] w-full shrink-0"
+            aria-hidden
+        />
+        </>
     );
 }

@@ -81,6 +81,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         { text: 'Job Tracker (5 Jobs)', included: true, isHeader: false },
         { text: 'Resume Builder (5/mo)', included: true, isHeader: false },
         { text: 'Chrome Extension', included: true, isHeader: false },
+        { text: 'Sprintax partner coupon ($20)', included: true, isHeader: false },
       ],
     },
     {
@@ -108,7 +109,6 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         { text: 'Document Vault + Expiry Alerts', included: true, isHeader: false },
         { text: 'Unlimited Job & Resume Tools', included: true, isHeader: false },
         { text: 'ATS Scanner (Unlimited)', included: true, isHeader: false },
-        { text: 'Sprintax Tax Coupon ($20)', included: true, isHeader: false },
       ],
     },
     {

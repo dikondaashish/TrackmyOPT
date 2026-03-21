@@ -51,7 +51,7 @@ export default function FAQPage() {
                 <LandingNavbar />
 
                 {/* Hero Section */}
-                <section className="pt-32 pb-16 px-4">
+                <section className="pt-8 pb-16 px-4">
                     <div className="max-w-4xl mx-auto text-center">
                         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                             Frequently Asked Questions
