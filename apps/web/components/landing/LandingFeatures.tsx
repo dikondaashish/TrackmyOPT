@@ -20,7 +20,7 @@ export function LandingFeatures() {
         <section id="features" className="py-24 relative">
             <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center max-w-3xl mx-auto mb-16">
+                <div className="prose-longform text-center max-w-3xl mx-auto mb-16">
                     <span className="text-blue-600 dark:text-blue-400 font-semibold tracking-wider uppercase text-sm">
                         Power Features
                     </span>
@@ -35,7 +35,7 @@ export function LandingFeatures() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
                     {/* Large Featured Card 1 - Job CRM */}
                     <div className="md:col-span-2 row-span-1 md:row-span-2 group relative overflow-hidden rounded-3xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 p-8 shadow-sm hover:shadow-xl transition-all duration-300">
-                        <div className="relative z-10 h-full flex flex-col justify-between">
+                        <div className="relative z-10 h-full flex flex-col justify-between prose-longform">
                             <div>
                                 <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 mb-6">
                                     <Briefcase className="w-6 h-6" />
@@ -68,7 +68,7 @@ export function LandingFeatures() {
 
                     {/* Card 2 - Timeline (Updated for Polling) */}
                     <div className="md:col-span-1 row-span-1 group relative overflow-hidden rounded-3xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 p-8 shadow-sm hover:shadow-lg transition-all">
-                        <div className="relative z-10">
+                        <div className="relative z-10 prose-longform">
                             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 mb-4">
                                 <LayoutDashboard className="w-6 h-6" />
                             </div>
@@ -87,7 +87,7 @@ export function LandingFeatures() {
 
                     {/* Card 3 - AI Resume Doctor (High Value Gem) */}
                     <div className="md:col-span-1 row-span-1 group relative overflow-hidden rounded-3xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 p-8 shadow-sm hover:shadow-lg transition-all">
-                        <div className="relative z-10">
+                        <div className="relative z-10 prose-longform">
                             <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 mb-4">
                                 <FileText className="w-6 h-6" />
                             </div>
@@ -102,7 +102,7 @@ export function LandingFeatures() {
 
                     {/* Large Featured Card 4 - H-1B & Tools */}
                     <div className="md:col-span-3 row-span-1 group relative overflow-hidden rounded-3xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 p-8 shadow-sm hover:shadow-xl transition-all flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div className="flex-1 relative z-10">
+                        <div className="flex-1 relative z-10 prose-longform">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600">
                                     <FileSearch className="w-6 h-6" />

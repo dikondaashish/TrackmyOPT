@@ -93,7 +93,7 @@ export function LandingFAQ() {
                             </button>
                             {/* Always render in DOM for AI crawlers — CSS controls visibility */}
                             <div
-                                className={`px-6 pb-6 pt-0 transition-all duration-200 ${openIndex === index ? "block" : "hidden"}`}
+                                className={`prose-longform px-6 pb-6 pt-0 transition-all duration-200 ${openIndex === index ? "block" : "hidden"}`}
                                 itemScope
                                 itemType="https://schema.org/Answer"
                                 itemProp="acceptedAnswer"

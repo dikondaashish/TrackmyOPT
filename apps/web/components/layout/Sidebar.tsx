@@ -442,16 +442,16 @@ export function Sidebar({
                     "lg:top-[calc(var(--tmopt-dashboard-promo,0px)+3.5rem)] lg:h-[calc(100vh-var(--tmopt-dashboard-promo,0px)-3.5rem)] lg:translate-x-0",
                     "lg:block",
                     isCollapsed ? "lg:w-16" : "lg:w-[230px]",
-                    // Mobile: full height, slide from left
-                    "top-0 left-0 h-full w-[280px]",
+                    // Mobile: viewport height so inner flex scroll works reliably (dvh = mobile browser chrome)
+                    "top-0 left-0 h-[100dvh] max-h-[100dvh] w-[280px]",
                     "lg:left-0",
                     isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
                 )}
             >
-                {/* Sidebar Flex Container */}
-                <div className="flex flex-col h-full">
+                {/* Sidebar Flex Container — min-h-0 lets flex-1 nav scroll on mobile (see min-h-0 on scroll region) */}
+                <div className="flex h-full min-h-0 flex-col">
                     {/* Mobile Header with Close Button */}
-                    <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                    <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700 lg:hidden">
                         <span className="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
                         <button
                             onClick={onMobileClose}
@@ -461,8 +461,8 @@ export function Sidebar({
                             <X className="w-5 h-5" />
                         </button>
                     </div>
-                    {/* Scrollable Navigation Area */}
-                    <div className="flex-1 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+                    {/* Scrollable Navigation Area — min-h-0 required so flex child can shrink and overflow-y-auto works */}
+                    <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                         <nav className="p-3 space-y-1">
                             {filteredSidebarConfig.map((item, index) => {
                                 if (item.type === 'divider') {
@@ -504,9 +504,9 @@ export function Sidebar({
                         </nav>
                     </div>
 
-                    {/* Fixed/Sticky Bottom Area for Profile & Collapse Toggle */}
+                    {/* Fixed bottom: profile — flex-shrink-0 keeps it visible while nav scrolls above */}
                     <div className={cn(
-                        "border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-30 flex",
+                        "flex flex-shrink-0 border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 z-30",
                         effectiveCollapsed ? "flex-col items-center justify-center gap-4 py-4" : "flex-row items-center justify-between gap-2 p-3"
                     )}>
                         {/* Profile Menu */}

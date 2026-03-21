@@ -78,9 +78,9 @@ export function LandingFooter() {
     return (
         <footer className="bg-gray-50 dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12">
+                <div className="grid grid-cols-1 gap-10 md:grid-cols-5 md:gap-8 lg:gap-12">
                     {/* Brand */}
-                    <div className="col-span-2 md:col-span-1">
+                    <div className="md:col-span-1 prose-longform">
                         <Link href="/" className="flex items-center gap-2 mb-4">
                             <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
                                 <svg
@@ -101,17 +101,17 @@ export function LandingFooter() {
                                 TrackMyOPT
                             </span>
                         </Link>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 max-w-xs">
+                        <p className="max-w-xs text-base text-gray-600 dark:text-gray-400 md:text-sm">
                             The #1 OPT timeline tracker trusted by 2,500+ international students worldwide.
                         </p>
                     </div>
 
                     {/* Product */}
                     <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
+                        <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">
                             Product
                         </h4>
-                        <ul className="space-y-3">
+                        <ul className="space-y-1 md:space-y-3">
                             {footerLinks.product.map((link, index) => (
                                 <li key={index}>
                                     {link.external ? (
@@ -119,14 +119,14 @@ export function LandingFooter() {
                                             href={link.href}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                            className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
                                         >
                                             {link.label}
                                         </a>
                                     ) : (
                                         <Link
                                             href={link.href}
-                                            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                            className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
                                         >
                                             {link.label}
                                         </Link>
@@ -138,15 +138,15 @@ export function LandingFooter() {
 
                     {/* Guides */}
                     <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
+                        <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">
                             Guides
                         </h4>
-                        <ul className="space-y-3">
+                        <ul className="space-y-1 md:space-y-3">
                             {footerLinks.guides.map((link, index) => (
                                 <li key={index}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                        className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
                                     >
                                         {link.label}
                                     </Link>
@@ -157,15 +157,15 @@ export function LandingFooter() {
 
                     {/* Resources */}
                     <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
+                        <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">
                             Resources
                         </h4>
-                        <ul className="space-y-3">
+                        <ul className="space-y-1 md:space-y-3">
                             {footerLinks.resources.map((link, index) => (
                                 <li key={index}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                        className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
                                     >
                                         {link.label}
                                     </Link>
@@ -176,16 +176,16 @@ export function LandingFooter() {
 
                     {/* Legal */}
                     <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
+                        <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">
                             Legal
                         </h4>
-                        <ul className="space-y-3">
+                        <ul className="space-y-1 md:space-y-3">
 
                             {footerLinks.legal.map((link, index) => (
                                 <li key={index}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                        className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
                                     >
                                         {link.label}
                                     </Link>
@@ -194,7 +194,7 @@ export function LandingFooter() {
                             <li>
                                 <Link
                                     href="/refund-policy"
-                                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                    className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
                                 >
                                     Refund Policy
                                 </Link>
@@ -202,7 +202,7 @@ export function LandingFooter() {
                             <li>
                                 <Link
                                     href="/disclaimer"
-                                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                    className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
                                 >
                                     Disclaimer
                                 </Link>
@@ -210,7 +210,7 @@ export function LandingFooter() {
                             <li>
                                 <Link
                                     href="/cookie-policy"
-                                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                    className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
                                 >
                                     Cookie Policy
                                 </Link>

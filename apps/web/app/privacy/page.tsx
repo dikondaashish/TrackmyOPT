@@ -46,7 +46,7 @@ export default function PrivacyPage() {
               Last Updated: December 12, 2025
             </p>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none 
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none 
               prose-headings:text-gray-900 dark:prose-headings:text-white 
               prose-headings:font-bold prose-headings:tracking-tight
               prose-p:text-gray-600 dark:prose-p:text-gray-400

@@ -132,7 +132,7 @@ export default function OPTSTEMOfferChecklistPage() {
         </p>
       </div>
 
-      <div className="prose prose-lg dark:prose-invert max-w-none">
+      <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
         <section className="mb-10" id="employer-verification">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Building2 className="w-7 h-7 text-blue-600 dark:text-blue-400" />

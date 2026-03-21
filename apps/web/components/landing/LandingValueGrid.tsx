@@ -12,7 +12,7 @@ export function LandingValueGrid() {
                 {/* Card 1: Peace of Mind (Feature Tags) */}
                 <div className="relative group bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md rounded-2xl p-5 lg:p-6 overflow-hidden border border-white/20 dark:border-white/10 hover:border-blue-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1 h-full flex flex-col min-h-[300px]">
                     {/* Content */}
-                    <div className="relative z-10 flex flex-col items-center text-center mb-4">
+                    <div className="prose-longform relative z-10 flex flex-col items-center text-center mb-4">
                         <h2 className="text-xl lg:text-2xl font-bold tracking-tight text-foreground mb-2">
                             Everything You Need for<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
@@ -36,7 +36,7 @@ export function LandingValueGrid() {
                 {/* Card 2: Road to H-1B (Roadmap) */}
                 <div className="relative group bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md rounded-2xl p-5 lg:p-6 overflow-hidden border border-white/20 dark:border-white/10 hover:border-purple-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-1 h-full flex flex-col min-h-[300px]">
                     {/* Content */}
-                    <div className="relative z-10 flex flex-col items-center text-center mb-4">
+                    <div className="prose-longform relative z-10 flex flex-col items-center text-center mb-4">
                         <h2 className="text-xl lg:text-2xl font-bold tracking-tight text-foreground mb-2">
                             The Road to<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">

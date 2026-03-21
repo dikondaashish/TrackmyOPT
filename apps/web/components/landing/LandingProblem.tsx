@@ -68,7 +68,7 @@ export function LandingProblem() {
         <section className="py-24 bg-white dark:bg-zinc-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center max-w-3xl mx-auto mb-16">
+                <div className="prose-longform text-center max-w-3xl mx-auto mb-16">
                     <span className="inline-block px-4 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm font-medium rounded-full mb-4">
                         The Challenge
                     </span>
@@ -88,7 +88,7 @@ export function LandingProblem() {
                     {problems.map((problem, index) => (
                         <div
                             key={index}
-                            className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/10 dark:to-orange-900/10 rounded-xl p-6 border border-red-100 dark:border-red-900/30"
+                            className="prose-longform bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/10 dark:to-orange-900/10 rounded-xl p-6 border border-red-100 dark:border-red-900/30"
                         >
                             <div className="w-12 h-12 bg-red-100 dark:bg-red-900/40 rounded-xl flex items-center justify-center text-red-600 dark:text-red-400 mb-4">
                                 {problem.icon}

@@ -30,9 +30,11 @@ export function LandingChromeExtension() {
                             </span>
                         </h2>
 
-                        <p className="text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
-                            More than just a job tracker. Visualize your unemployment clock, get step-by-step USCIS guides, and safeguard your status without leaving the tab.
-                        </p>
+                        <div className="prose-longform max-w-xl mx-auto lg:mx-0">
+                            <p className="text-xl text-muted-foreground leading-relaxed">
+                                More than just a job tracker. Visualize your unemployment clock, get step-by-step USCIS guides, and safeguard your status without leaving the tab.
+                            </p>
+                        </div>
 
                         <div className="space-y-4 max-w-sm mx-auto lg:mx-0">
                             {[

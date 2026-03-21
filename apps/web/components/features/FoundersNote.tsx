@@ -29,7 +29,7 @@ export function FoundersNote() {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.2 }}
-                        className="prose dark:prose-invert"
+                        className="prose prose-longform dark:prose-invert"
                     >
                         <p className="text-lg text-gray-600 dark:text-gray-400">
                             In 2021, I watched my roommate pack his bags and leave the country. He had missed his OPT reporting deadline by 3 days. It wasn't because he was irresponsible—he was overwhelmed.

@@ -670,15 +670,34 @@ function LoginPageContent() {
       </div>
 
       {/* Right Side - Auth Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:p-8">
         <div className="w-full max-w-md">
-          <div className="lg:hidden text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground">TrackMyOPT</h1>
-            <p className="text-gray-600 dark:text-muted-foreground text-sm mt-1">Your OPT Timeline Companion</p>
+          {/* Mobile only: single hero (avoid duplicate TrackMyOPT + tighter visual hierarchy) */}
+          <div className="mb-6 space-y-3 text-center lg:hidden">
+            <div className="mx-auto flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-2xl bg-[#226BE7] shadow-md shadow-[#226BE7]/35 ring-1 ring-white/25 dark:bg-[#226BE7] dark:shadow-[#226BE7]/25 dark:ring-white/15">
+              <Image
+                src="/TrackMyOPT Logo/logo.gif"
+                alt="TrackMyOPT"
+                width={36}
+                height={36}
+                className="h-9 w-9 object-contain"
+                unoptimized
+              />
+            </div>
+            <h1 className="text-[1.625rem] font-bold tracking-tight text-gray-900 dark:text-foreground">
+              TrackMyOPT
+            </h1>
+            <p className="text-sm font-semibold text-[#226BE7] dark:text-blue-300">
+              Your OPT Timeline Companion
+            </p>
+            <p className="text-sm leading-relaxed text-gray-600 dark:text-zinc-400">
+              Calculate filing windows, track unemployment days, and get reminders.
+            </p>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2">
+          {/* Desktop only: unchanged copy & layout */}
+          <div className="mb-8 hidden lg:block">
+            <h2 className="mb-2 text-3xl font-bold text-gray-900 dark:text-foreground">
               TrackMyOPT
             </h2>
             <p className="text-gray-600 dark:text-muted-foreground">
@@ -781,12 +800,14 @@ function LoginPageContent() {
                 )}
               </div>
 
-              <div className="relative my-6">
+              <div className="relative my-5 lg:my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-gray-50 dark:bg-background text-gray-500 dark:text-muted-foreground">or login with</span>
+                  <span className="px-2 bg-gray-50 dark:bg-background text-gray-500 dark:text-muted-foreground">
+                    or login with
+                  </span>
                 </div>
               </div>
 

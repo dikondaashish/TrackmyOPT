@@ -53,7 +53,7 @@ export default function OPTEADArticle() {
                 <p className="text-blue-800 dark:text-blue-200 font-medium">The EAD card (Form I-766) is your <strong>Employment Authorization Document</strong> — the card that proves you can work in the US on OPT. You apply using <strong>Form I-765</strong>, the filing fee is <strong>$410</strong>, and current processing takes <strong>2-5 months</strong>. You cannot work until you have the physical card.</p>
             </div>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What Is the OPT EAD Card?</h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">The Employment Authorization Document (EAD), officially Form I-766, is a credit-card-sized document issued by USCIS that proves your authorization to work in the United States. For OPT, your EAD card shows:</p>

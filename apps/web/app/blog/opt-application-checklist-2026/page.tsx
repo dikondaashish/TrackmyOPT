@@ -85,7 +85,7 @@ export default function OPTChecklistArticle() {
                 </div>
             </div>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
                 {/* Step 1 */}
                 <section className="mb-10">

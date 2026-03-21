@@ -107,7 +107,7 @@ export default function OPTHealthInsuranceGuide() {
             </div>
 
             {/* Content */}
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
                 <section id="why-it-matters" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">

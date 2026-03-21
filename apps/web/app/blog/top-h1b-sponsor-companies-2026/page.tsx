@@ -89,7 +89,7 @@ export default function TopH1BSponsorArticle() {
                 </nav>
             </div>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
                 {/* Section 1 */}
                 <section id="what-to-know" className="mb-12">

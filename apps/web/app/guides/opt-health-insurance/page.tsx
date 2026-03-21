@@ -284,7 +284,7 @@ export default function OPTHealthInsurancePillarGuide() {
             </div>
 
             {/* Content */}
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
                 {/* Section 1: Why Health Insurance Is Critical */}
                 <section id="why-critical" className="mb-14">

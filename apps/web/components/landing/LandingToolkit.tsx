@@ -8,7 +8,7 @@ export function LandingToolkit() {
     return (
         <section className="py-24 bg-white dark:bg-black relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="mb-16 md:text-center max-w-3xl mx-auto">
+                <div className="prose-longform mb-16 md:text-center max-w-3xl mx-auto">
                     <span className="text-blue-600 dark:text-blue-400 font-semibold tracking-wider uppercase text-sm">
                         More Than Just Jobs
                     </span>
@@ -22,7 +22,7 @@ export function LandingToolkit() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Health Insurance Card */}
-                    <div className="group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-blue-500/30 hover:shadow-lg">
+                    <div className="prose-longform group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-blue-500/30 hover:shadow-lg">
                         <div className="flex items-start justify-between mb-8">
                             <div className="w-14 h-14 bg-red-100 dark:bg-red-900/20 rounded-2xl flex items-center justify-center text-red-600 dark:text-red-400">
                                 <HeartPulse className="w-8 h-8" />
@@ -43,7 +43,7 @@ export function LandingToolkit() {
                     </div>
 
                     {/* Tax Filing Card */}
-                    <div className="group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-green-500/30 hover:shadow-lg">
+                    <div className="prose-longform group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-green-500/30 hover:shadow-lg">
                         <div className="flex items-start justify-between mb-8">
                             <div className="w-14 h-14 bg-green-100 dark:bg-green-900/20 rounded-2xl flex items-center justify-center text-green-600 dark:text-green-400">
                                 <FileText className="w-8 h-8" />
@@ -64,7 +64,7 @@ export function LandingToolkit() {
                     </div>
 
                     {/* Partner Perks Card */}
-                    <div className="group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-amber-500/30 hover:shadow-lg">
+                    <div className="prose-longform group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-amber-500/30 hover:shadow-lg">
                         <div className="flex items-start justify-between mb-8">
                             <div className="w-14 h-14 bg-amber-100 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600 dark:text-amber-400">
                                 <Gift className="w-8 h-8" />
@@ -85,7 +85,7 @@ export function LandingToolkit() {
                     </div>
 
                     {/* Document Vault Card (New 4th Card) */}
-                    <div className="group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-purple-500/30 hover:shadow-lg">
+                    <div className="prose-longform group relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 transition-all hover:border-purple-500/30 hover:shadow-lg">
                         <div className="flex items-start justify-between mb-8">
                             <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400">
                                 <Shield className="w-8 h-8" />

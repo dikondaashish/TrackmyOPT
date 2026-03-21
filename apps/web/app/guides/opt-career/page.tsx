@@ -225,7 +225,7 @@ export default function OPTCareerPillarGuide() {
                 </div>
             </div>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
                 {/* Section 1 */}
                 <section id="career-landscape" className="mb-16 scroll-mt-20">

@@ -58,7 +58,7 @@ const landingPageSchemas = [
 
 export default function LandingPage() {
     return (
-        <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900/30 dark:selection:text-blue-100 relative">
+        <main className="relative min-h-screen overflow-x-hidden bg-background text-foreground selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900/30 dark:selection:text-blue-100">
 
             {/* Careerflow-inspired Vignette Background */}
             <div className="fixed inset-0 z-0 pointer-events-none">

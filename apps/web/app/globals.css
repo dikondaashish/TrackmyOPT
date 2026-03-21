@@ -123,6 +123,14 @@
   }
 }
 
+/* Long-form reading: justified paragraphs/lists on md+ (use with .prose-longform on container) */
+@media (min-width: 768px) {
+  .prose-longform :where(p, li, blockquote) {
+    text-align: justify;
+    text-justify: inter-word;
+  }
+}
+
 /* Apple-inspired Custom Scrollbar */
 @layer utilities {
   .scrollbar-thin::-webkit-scrollbar {

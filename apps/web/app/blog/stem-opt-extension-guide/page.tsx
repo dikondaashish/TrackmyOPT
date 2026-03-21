@@ -77,7 +77,7 @@ export default function STEMOPTGuideArticle() {
                 </nav>
             </div>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section id="eligibility" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Who Is Eligible for STEM OPT?</h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">You must meet ALL of these requirements:</p>

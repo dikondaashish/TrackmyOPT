@@ -103,7 +103,7 @@ export function LandingAllFeatures() {
     return (
         <section className="py-24 bg-white dark:bg-zinc-950">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center max-w-3xl mx-auto mb-20">
+                <div className="prose-longform text-center max-w-3xl mx-auto mb-20">
                     <span className="text-blue-600 dark:text-blue-400 font-semibold tracking-wider uppercase text-sm">
                         Complete Toolkit
                     </span>
@@ -129,7 +129,7 @@ export function LandingAllFeatures() {
                             transition={{ duration: 0.7, delay: sectionIndex * 0.1 }}
                         >
                             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 border-b border-gray-100 dark:border-zinc-800 pb-4">
-                                <div>
+                                <div className="prose-longform">
                                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                                         {section.category}
                                     </h3>
@@ -147,7 +147,7 @@ export function LandingAllFeatures() {
                                     <motion.div
                                         key={feature.name}
                                         whileHover={{ y: -5 }}
-                                        className="group p-6 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-white dark:hover:bg-zinc-800 border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 hover:shadow-xl transition-all duration-300"
+                                        className="prose-longform group p-6 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-white dark:hover:bg-zinc-800 border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 hover:shadow-xl transition-all duration-300"
                                     >
                                         <div className="w-10 h-10 rounded-lg bg-white dark:bg-zinc-800 shadow-sm border border-gray-100 dark:border-zinc-700 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:border-blue-600 transition-colors duration-300">
                                             <feature.icon className="w-5 h-5 text-gray-700 dark:text-gray-300 group-hover:text-white transition-colors" />

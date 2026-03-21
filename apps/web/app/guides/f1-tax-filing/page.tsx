@@ -237,7 +237,7 @@ export default function F1TaxFilingPillarGuide() {
             </div>
 
             {/* Main Content */}
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
                 {/* Section 1 */}
                 <section id="do-f1-need-to-file" className="mb-14">

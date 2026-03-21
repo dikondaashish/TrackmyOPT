@@ -54,7 +54,7 @@ export default function CapGapArticle() {
                 <p className="text-orange-700 dark:text-orange-300 text-sm mt-2">Source: <a href="https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations-and-fashion-models/extension-of-status-and-change-of-status-for-cap-gap-h-1b-beneficiaries" target="_blank" rel="noopener noreferrer" className="underline">USCIS.gov Cap-Gap</a></p>
             </div>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What Is the H-1B Cap-Gap?</h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">The cap-gap is a regulation (<strong>8 CFR 214.2(f)(5)(vi)</strong>) that fills the timing gap between:</p>

@@ -3,7 +3,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 interface UseStreamingEffectProps {
     text: string;
     isEnabled: boolean;
-    speed?: number; // ms per char
+    /** Milliseconds between ticks; each tick appends 1–3 chars (lower = faster). */
+    speed?: number;
     onComplete?: () => void;
 }
 
@@ -46,8 +47,7 @@ export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: U
 
         timerRef.current = setInterval(() => {
             if (indexRef.current < fullTextRef.current.length) {
-                // Variable chunk size for natural feel (1-4 chars)
-                // Speed is base interval (default 12ms) * randomization
+                // Variable chunk size for natural feel (1–3 chars per tick)
 
                 // Randomize chunk size slightly (1 to 3 chars)
                 // This makes it look like it's "thinking" or processing tokens

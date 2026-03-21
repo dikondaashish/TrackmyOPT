@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, FileText, Users, Star, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
@@ -12,6 +12,7 @@ import { UserProfileMenu } from "@/components/layout/UserProfileMenu";
 import { SprintaxPromoBanner } from "@/components/promo/SprintaxPromoBanner";
 
 export function LandingNavbar() {
+    const prefersReducedMotion = useReducedMotion();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
@@ -65,8 +66,9 @@ export function LandingNavbar() {
         <>
         <SprintaxPromoBanner variant="marketing" />
         <motion.nav
-            initial={{ y: -100 }}
+            initial={{ y: prefersReducedMotion ? 0 : -100 }}
             animate={{ y: 0 }}
+            transition={prefersReducedMotion ? { duration: 0 } : undefined}
             style={{ top: "var(--tmopt-marketing-promo, 0px)" }}
             className={`fixed left-0 right-0 z-50 transition-all duration-300 bg-white dark:bg-zinc-950 ${isScrolled
                 ? "border-b border-border py-3 shadow-sm"
@@ -278,8 +280,9 @@ export function LandingNavbar() {
 
                     {/* Mobile Menu Button */}
                     <button
+                        type="button"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                        className="md:hidden flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800"
                     >
                         {isMobileMenuOpen ? (
                             <X className="w-6 h-6" />
@@ -297,14 +300,15 @@ export function LandingNavbar() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 overflow-hidden"
+                        transition={prefersReducedMotion ? { duration: 0.15 } : undefined}
+                        className="flex max-h-[min(85dvh,calc(100dvh-7rem))] flex-col overflow-hidden border-b border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 md:hidden"
                     >
-                        <div className="px-4 pt-4 pb-6 space-y-4">
+                        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-4 pb-6 pt-4">
                             {/* Home */}
                             <Link
                                 href="/"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                className="flex min-h-[44px] items-center rounded-lg px-2 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-200 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                             >
                                 Home
                             </Link>
@@ -313,7 +317,7 @@ export function LandingNavbar() {
                             <Link
                                 href="/features/resume-ai"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                className="flex min-h-[44px] items-center rounded-lg px-2 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-200 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                             >
                                 AI Resume Doctor
                             </Link>
@@ -327,7 +331,7 @@ export function LandingNavbar() {
                                             key={feature.name}
                                             href={feature.href}
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="flex items-center gap-3 p-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                            className="flex min-h-[44px] items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                                         >
                                             <feature.icon className="w-4 h-4 text-primary" />
                                             {feature.name}
@@ -345,7 +349,7 @@ export function LandingNavbar() {
                                             key={link.name}
                                             href={link.href}
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="flex items-center gap-3 p-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                            className="flex min-h-[44px] items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                                         >
                                             <link.icon className="w-4 h-4 text-primary" />
                                             {link.name}
@@ -358,7 +362,7 @@ export function LandingNavbar() {
                             <Link
                                 href="/blog"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="flex items-center gap-3 p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                className="flex min-h-[44px] items-center gap-3 rounded-lg px-2 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-200 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                             >
                                 <BookOpen className="w-4 h-4 text-primary" />
                                 Blog
@@ -368,7 +372,7 @@ export function LandingNavbar() {
                             <Link
                                 href="/contact"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                className="flex min-h-[44px] items-center rounded-lg px-2 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-200 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                             >
                                 Contact Us
                             </Link>
@@ -377,7 +381,7 @@ export function LandingNavbar() {
                             <Link
                                 href="/partnerships"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="block p-2 text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                className="flex min-h-[44px] items-center rounded-lg px-2 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-200 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                             >
                                 For Orgs
                             </Link>
@@ -401,7 +405,7 @@ export function LandingNavbar() {
                                         <Link
                                             href="/dashboard"
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-md transition-all"
+                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700"
                                         >
                                             <LayoutDashboard className="w-4 h-4 mr-2" />
                                             Dashboard
@@ -411,7 +415,7 @@ export function LandingNavbar() {
                                             <Link
                                                 href="/dashboard/settings"
                                                 onClick={() => setIsMobileMenuOpen(false)}
-                                                className="flex items-center gap-3 px-2 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                                className="flex min-h-[44px] items-center gap-3 rounded-lg px-2 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                                             >
                                                 <Settings className="w-4 h-4" />
                                                 Settings
@@ -419,19 +423,20 @@ export function LandingNavbar() {
                                             <Link
                                                 href="/dashboard/help"
                                                 onClick={() => setIsMobileMenuOpen(false)}
-                                                className="flex items-center gap-3 px-2 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                                className="flex min-h-[44px] items-center gap-3 rounded-lg px-2 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                                             >
                                                 <HelpCircle className="w-4 h-4" />
                                                 Help & Support
                                             </Link>
                                             <button
+                                                type="button"
                                                 onClick={async () => {
                                                     await supabase.auth.signOut();
                                                     setIsMobileMenuOpen(false);
                                                     setUser(null);
                                                     router.refresh();
                                                 }}
-                                                className="w-full flex items-center gap-3 px-2 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                className="flex min-h-[44px] w-full items-center gap-3 rounded-lg px-2 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                                             >
                                                 <LogOut className="w-4 h-4" />
                                                 Sign out
@@ -443,14 +448,14 @@ export function LandingNavbar() {
                                         <Link
                                             href="/login"
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-zinc-800 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
+                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:bg-zinc-800 dark:text-gray-200 dark:hover:bg-zinc-700"
                                         >
                                             Log in
                                         </Link>
                                         <Link
                                             href="/login"
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-md transition-all"
+                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700"
                                         >
                                             Get Started Free
                                             <ArrowRight className="w-4 h-4 ml-2" />

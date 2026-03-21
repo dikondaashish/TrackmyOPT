@@ -12,27 +12,40 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type FeatureTone = "sky" | "amber" | "emerald" | "violet";
+type FeatureTone = "ink" | "clay" | "pine" | "plum";
 
-const TONE_CLASS: Record<
+/** Curated “paper” tiles — muted saturation, clear borders (not generic rainbow pastels). */
+const TILE: Record<
   FeatureTone,
-  { card: string; icon: string }
+  { wrap: string; iconBg: string; icon: string; title: string; body: string }
 > = {
-  sky: {
-    card: "bg-sky-100/90 dark:bg-sky-950/50 border-sky-200/60 dark:border-sky-800/50",
-    icon: "text-sky-700 dark:text-sky-300",
+  ink: {
+    wrap: "border-[#c9d7ea]/90 bg-[#eef4fc] dark:border-slate-600/50 dark:bg-slate-900/60",
+    iconBg: "bg-white/85 dark:bg-slate-800/80",
+    icon: "text-[#1e3a5f] dark:text-sky-200",
+    title: "text-[#0f172a] dark:text-stone-100",
+    body: "text-[#475569] dark:text-slate-400",
   },
-  amber: {
-    card: "bg-amber-100/90 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/50",
-    icon: "text-amber-700 dark:text-amber-300",
+  clay: {
+    wrap: "border-[#e8d5c4]/90 bg-[#fff8f3] dark:border-amber-900/40 dark:bg-amber-950/25",
+    iconBg: "bg-white/85 dark:bg-amber-950/50",
+    icon: "text-[#9a3412] dark:text-amber-200",
+    title: "text-[#0f172a] dark:text-stone-100",
+    body: "text-[#57534e] dark:text-stone-400",
   },
-  emerald: {
-    card: "bg-emerald-100/90 dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-800/50",
-    icon: "text-emerald-700 dark:text-emerald-300",
+  pine: {
+    wrap: "border-[#bfe8d4]/80 bg-[#f0fdf6] dark:border-emerald-900/45 dark:bg-emerald-950/20",
+    iconBg: "bg-white/85 dark:bg-emerald-950/40",
+    icon: "text-[#166534] dark:text-emerald-200",
+    title: "text-[#0f172a] dark:text-stone-100",
+    body: "text-[#4b5563] dark:text-slate-400",
   },
-  violet: {
-    card: "bg-violet-100/90 dark:bg-violet-950/40 border-violet-200/60 dark:border-violet-800/50",
-    icon: "text-violet-700 dark:text-violet-300",
+  plum: {
+    wrap: "border-[#ddd6fe]/90 bg-[#faf8ff] dark:border-violet-900/40 dark:bg-violet-950/20",
+    iconBg: "bg-white/85 dark:bg-violet-950/40",
+    icon: "text-[#5b21b6] dark:text-violet-200",
+    title: "text-[#0f172a] dark:text-stone-100",
+    body: "text-[#575569] dark:text-slate-400",
   },
 };
 
@@ -47,20 +60,27 @@ function FeatureTile({
   description?: string;
   tone: FeatureTone;
 }) {
-  const t = TONE_CLASS[tone];
+  const s = TILE[tone];
   return (
     <div
       className={cn(
-        "flex flex-col rounded-xl border p-3.5 text-left shadow-sm transition-shadow hover:shadow-md",
-        t.card
+        "flex flex-col rounded-xl border p-3.5 text-left shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[box-shadow,transform] hover:shadow-[0_4px_12px_rgba(15,23,42,0.07)] dark:shadow-none",
+        s.wrap
       )}
     >
-      <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-white/60 dark:bg-black/20">
-        <Icon className={cn("h-4 w-4", t.icon)} strokeWidth={2} aria-hidden />
+      <div
+        className={cn(
+          "mb-2.5 flex h-9 w-9 items-center justify-center rounded-lg shadow-sm ring-1 ring-black/[0.04] dark:ring-white/10",
+          s.iconBg
+        )}
+      >
+        <Icon className={cn("h-4 w-4", s.icon)} strokeWidth={2} aria-hidden />
       </div>
-      <p className="text-xs font-semibold text-foreground leading-snug">{title}</p>
+      <p className={cn("text-[13px] font-semibold leading-snug", s.title)}>
+        {title}
+      </p>
       {description ? (
-        <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+        <p className={cn("mt-1.5 text-[11px] leading-relaxed", s.body)}>
           {description}
         </p>
       ) : null}
@@ -81,71 +101,76 @@ export function PremiumCancelledClient() {
       icon: Clock,
       title: "Morning reminders",
       description: "9 AM ET nudges for filings and deadlines.",
-      tone: "sky",
+      tone: "ink",
     },
     {
       icon: Zap,
       title: "Urgency signals",
       description: "Surface what needs attention first.",
-      tone: "amber",
+      tone: "clay",
     },
     {
       icon: CalendarDays,
       title: "OPT & STEM",
       description: "Track windows and EAD milestones.",
-      tone: "emerald",
+      tone: "pine",
     },
     {
       icon: Tag,
       title: "Pro from $4.99/mo",
       description: "Upgrade when you’re ready—cancel anytime.",
-      tone: "violet",
+      tone: "plum",
     },
   ];
 
   return (
     <div className="flex w-full max-w-4xl flex-col px-2 sm:px-0">
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
+      <div className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-[0_8px_30px_rgb(0,0,0,0.35)]">
         <div className="grid min-h-[min(520px,85vh)] md:grid-cols-2">
-          {/* Left: status + large X watermark */}
-          <div className="relative flex flex-col justify-center border-b border-border p-8 sm:p-10 md:border-b-0 md:border-r">
+          {/* Left — warm neutral panel + soft watermark */}
+          <div
+            className={cn(
+              "relative flex flex-col justify-center border-b border-stone-200/80 p-8 sm:p-10 md:border-b-0 md:border-r md:border-stone-200/80",
+              "bg-gradient-to-br from-[#faf8f5] via-[#f5f2ed] to-[#ebe7e1] dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-950"
+            )}
+          >
             <div
               className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden"
               aria-hidden
             >
-              <span className="select-none text-[clamp(8rem,28vw,16rem)] font-extralight leading-none text-sky-200/45 dark:text-sky-500/15">
+              <span className="select-none font-serif text-[clamp(7rem,26vw,14rem)] font-extralight leading-none text-stone-300/50 dark:text-zinc-700/35">
                 ×
               </span>
             </div>
             <div className="relative z-10">
-              <div className="mb-6 flex justify-center md:justify-start">
+              <div className="mb-7 flex justify-center md:justify-start">
                 <div
                   className={cn(
-                    "flex h-14 w-14 items-center justify-center rounded-full border border-border bg-muted/80 shadow-sm",
+                    "flex h-12 w-12 items-center justify-center rounded-full border border-stone-200/90 bg-white/90 shadow-sm ring-2 ring-amber-100/80 dark:border-zinc-700 dark:bg-zinc-900/90 dark:ring-amber-900/30",
                     "animate-premium-hero-in"
                   )}
                 >
                   <X
-                    className="h-7 w-7 text-muted-foreground"
+                    className="h-6 w-6 text-stone-500 dark:text-zinc-400"
                     strokeWidth={2}
                     aria-hidden
                   />
                 </div>
               </div>
-              <h1 className="text-center text-2xl font-semibold tracking-tight text-foreground sm:text-[1.65rem] md:text-left">
+              <h1 className="text-center text-[1.35rem] font-semibold leading-snug tracking-tight text-stone-900 sm:text-[1.5rem] md:text-left dark:text-stone-50">
                 No charge — checkout closed.
               </h1>
-              <p className="mt-3 text-center text-sm leading-relaxed text-muted-foreground md:text-left">
+              <p className="mt-4 max-w-[28ch] text-center text-[0.9375rem] leading-relaxed text-stone-600 md:text-left dark:text-zinc-400">
                 You left before completing payment. Nothing was billed to your
                 card.
               </p>
             </div>
           </div>
 
-          {/* Right: what Pro includes + actions */}
-          <div className="flex flex-col justify-between gap-8 p-8 sm:p-10">
+          {/* Right — features + actions */}
+          <div className="flex flex-col justify-between gap-8 bg-[#fcfcfb] p-8 sm:p-10 dark:bg-zinc-950/80">
             <div>
-              <p className="mb-4 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground md:text-left">
+              <p className="mb-5 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500 md:text-left dark:text-zinc-500">
                 What Pro includes
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -166,8 +191,9 @@ export function PremiumCancelledClient() {
                 size="lg"
                 className={cn(
                   "h-12 flex-1 font-semibold text-white shadow-md",
-                  "bg-gradient-to-r from-sky-500 via-indigo-500 to-violet-600",
-                  "hover:from-sky-600 hover:via-indigo-600 hover:to-violet-700"
+                  "bg-gradient-to-b from-teal-700 to-teal-900",
+                  "hover:from-teal-800 hover:to-teal-950",
+                  "dark:from-teal-600 dark:to-teal-800 dark:hover:from-teal-500 dark:hover:to-teal-700"
                 )}
                 onClick={() => router.push("/premium/checkout")}
               >
@@ -176,7 +202,11 @@ export function PremiumCancelledClient() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 flex-1 border-border bg-background font-semibold"
+                className={cn(
+                  "h-12 flex-1 border-stone-300 bg-white font-semibold text-stone-800",
+                  "hover:bg-stone-50 hover:text-stone-900",
+                  "dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                )}
                 onClick={() => router.push("/dashboard")}
               >
                 Back to dashboard
@@ -187,11 +217,11 @@ export function PremiumCancelledClient() {
       </div>
 
       <footer className="mt-5 px-1 py-3">
-        <p className="text-center text-[10px] text-muted-foreground">
+        <p className="text-center text-[10px] text-stone-500 dark:text-zinc-500">
           Questions?{" "}
           <a
             href="mailto:support@trackmyopt.com"
-            className="font-medium text-foreground/80 underline-offset-2 hover:underline"
+            className="font-medium text-stone-700 underline-offset-2 hover:underline dark:text-zinc-300"
           >
             support@trackmyopt.com
           </a>

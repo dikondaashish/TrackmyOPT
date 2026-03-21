@@ -53,7 +53,7 @@ export default function OPTExtensionGuideArticle() {
                 <p className="text-blue-800 dark:text-blue-200 font-medium">There are <strong>3 ways</strong> to extend OPT work authorization: (1) the <strong>24-month STEM OPT extension</strong> for STEM degree holders, (2) the <strong>H-1B cap-gap extension</strong> if your employer files an H-1B petition, and (3) the <strong>180-day automatic extension</strong> while USCIS processes a timely-filed STEM OPT application.</p>
             </div>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">3 Ways to Extend OPT in 2026</h2>
                     <div className="space-y-6">

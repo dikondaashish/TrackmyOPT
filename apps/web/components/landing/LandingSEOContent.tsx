@@ -10,7 +10,7 @@ export function LandingSEOContent() {
                         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6">
                             What is OPT and Why Does It Matter?
                         </h2>
-                        <div className="prose prose-gray dark:prose-invert max-w-none">
+                        <div className="prose prose-gray prose-longform dark:prose-invert max-w-none">
                             <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
                                 <strong>Optional Practical Training (OPT)</strong> is a temporary employment
                                 authorization that allows F-1 students to work in the United States for up to
@@ -56,7 +56,7 @@ export function LandingSEOContent() {
                         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6">
                             Why Choose TrackMyOPT?
                         </h2>
-                        <div className="space-y-6">
+                        <div className="space-y-6 prose-longform">
                             {[
                                 {
                                     title: "Built by International Students",

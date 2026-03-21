@@ -53,7 +53,7 @@ export default function Day1CPTArticle() {
                 <p className="text-amber-800 dark:text-amber-200 font-medium">This article provides factual information about Day 1 CPT and OPT for educational purposes. <strong>Day 1 CPT is a legal gray area</strong> with significant immigration risks. Always consult a qualified immigration attorney before making decisions about work authorization.</p>
             </div>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Quick Comparison: Day 1 CPT vs OPT</h2>
                     <div className="overflow-x-auto">

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, AnimatePresence, Variants, useReducedMotion } from "framer-motion";
 import { LandingTrustedUniversities } from "./LandingTrustedUniversities";
 import { ResumeEditorMockup } from "./ResumeEditorMockup";
 import { GuestPreviewModal } from "./GuestPreviewModal";
@@ -879,6 +879,7 @@ const tooltipContent: Record<string, string> = {
 };
 
 export function LandingHero() {
+    const prefersReducedMotion = useReducedMotion();
     const [activeTab, setActiveTab] = useState<TabType>("timeline");
     const [isHovered, setIsHovered] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -891,8 +892,9 @@ export function LandingHero() {
 
     const AUTO_ROTATE_INTERVAL = 6000; // 6 seconds
 
-    // Auto-rotate tabs
+    // Auto-rotate tabs (disabled when user prefers reduced motion)
     useEffect(() => {
+        if (prefersReducedMotion) return;
         if (isHovered) {
             setProgress(0);
             return;
@@ -912,7 +914,7 @@ export function LandingHero() {
         }, 100);
 
         return () => clearInterval(progressInterval);
-    }, [activeTab, isHovered]);
+    }, [activeTab, isHovered, prefersReducedMotion]);
 
     // Show toast on tab change
     useEffect(() => {
@@ -972,35 +974,43 @@ export function LandingHero() {
             <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-zinc-950 overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#27272a_1px,transparent_1px)] opacity-50"></div>
 
-                <motion.div
-                    animate={{
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 10, 0],
-                        opacity: [0.4, 0.6, 0.4]
-                    }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-blue-200/40 dark:bg-blue-900/20 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen"
-                />
-
-                <motion.div
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        rotate: [0, -15, 0],
-                        opacity: [0.4, 0.6, 0.4]
-                    }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                    className="absolute -top-[10%] left-[20%] w-[500px] h-[500px] bg-purple-200/40 dark:bg-purple-900/20 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen"
-                />
-
-                <motion.div
-                    animate={{
-                        scale: [1, 1.3, 1],
-                        x: [0, 50, 0],
-                        opacity: [0.3, 0.5, 0.3]
-                    }}
-                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-                    className="absolute top-[10%] right-[-10%] w-[700px] h-[700px] bg-indigo-200/40 dark:bg-indigo-900/20 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen"
-                />
+                {prefersReducedMotion ? (
+                    <>
+                        <div className="absolute -top-[20%] -left-[10%] h-[600px] w-[600px] rounded-full bg-blue-200/35 mix-blend-multiply blur-[100px] dark:bg-blue-900/15 dark:mix-blend-screen" />
+                        <div className="absolute -top-[10%] left-[20%] h-[500px] w-[500px] rounded-full bg-purple-200/35 mix-blend-multiply blur-[100px] dark:bg-purple-900/15 dark:mix-blend-screen" />
+                        <div className="absolute right-[-10%] top-[10%] h-[700px] w-[700px] rounded-full bg-indigo-200/30 mix-blend-multiply blur-[100px] dark:bg-indigo-900/15 dark:mix-blend-screen" />
+                    </>
+                ) : (
+                    <>
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.1, 1],
+                                rotate: [0, 10, 0],
+                                opacity: [0.4, 0.6, 0.4],
+                            }}
+                            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute -top-[20%] -left-[10%] h-[600px] w-[600px] rounded-full bg-blue-200/40 mix-blend-multiply blur-[100px] dark:bg-blue-900/20 dark:mix-blend-screen"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                rotate: [0, -15, 0],
+                                opacity: [0.4, 0.6, 0.4],
+                            }}
+                            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                            className="absolute -top-[10%] left-[20%] h-[500px] w-[500px] rounded-full bg-purple-200/40 mix-blend-multiply blur-[100px] dark:bg-purple-900/20 dark:mix-blend-screen"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                x: [0, 50, 0],
+                                opacity: [0.3, 0.5, 0.3],
+                            }}
+                            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                            className="absolute right-[-10%] top-[10%] h-[700px] w-[700px] rounded-full bg-indigo-200/40 mix-blend-multiply blur-[100px] dark:bg-indigo-900/20 dark:mix-blend-screen"
+                        />
+                    </>
+                )}
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1016,8 +1026,10 @@ export function LandingHero() {
                         <motion.div variants={fadeInUp} className="flex justify-center lg:justify-start mb-6">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800">
                                 <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                                    {!prefersReducedMotion && (
+                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
+                                    )}
+                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500" />
                                 </span>
                                 <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
                                     #1 Platform for International Students
@@ -1033,21 +1045,54 @@ export function LandingHero() {
                             & H-1B Finder
                         </motion.h1>
 
-                        <motion.p variants={fadeInUp} className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                            Stop using spreadsheets. TrackMyOPT automates your <strong>OPT Timeline</strong>, helps you find <strong>Visa Sponsorship</strong>, and builds <strong>AI Resumes</strong> in one dashboard.
-                        </motion.p>
+                        <motion.div
+                            variants={fadeInUp}
+                            className="prose-longform mx-auto mb-10 max-w-xl lg:mx-0"
+                        >
+                            <p className="text-base leading-relaxed text-muted-foreground sm:text-lg lg:text-xl">
+                                Stop using spreadsheets. TrackMyOPT automates your <strong>OPT Timeline</strong>, helps you find <strong>Visa Sponsorship</strong>, and builds <strong>AI Resumes</strong> in one dashboard.
+                            </p>
+                        </motion.div>
 
-                        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <motion.div variants={fadeInUp} className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
                             <MagneticButton>
-                                <Link href="/login" className="inline-flex items-center justify-center px-8 py-4 text-white bg-primary rounded-xl font-semibold hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5">
+                                <Link
+                                    href="/login"
+                                    className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-600 hover:shadow-blue-500/40 sm:w-auto lg:min-h-0 lg:hover:-translate-y-0.5"
+                                >
                                     Start Free Tracking
-                                    <ArrowRight className="w-5 h-5 ml-2" />
+                                    <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                             </MagneticButton>
                             <GuestPreviewModal />
                         </motion.div>
 
-
+                        {/* Mobile-only: one clear preview card (readable type; full mockup stays on lg+) */}
+                        <motion.div variants={fadeInUp} className="mx-auto mt-10 w-full max-w-sm lg:hidden">
+                            <div className="rounded-2xl border border-border/80 bg-white/90 p-5 shadow-xl backdrop-blur-sm dark:bg-zinc-900/90">
+                                <div className="mb-4 flex items-center gap-3">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-md shadow-blue-500/20">
+                                        <Calendar className="h-6 w-6 text-white" aria-hidden />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-base font-semibold text-foreground">OPT Timeline</p>
+                                        <p className="text-sm text-muted-foreground">Deadlines & reminders</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-muted-foreground">Filing window</span>
+                                        <span className="font-medium text-green-600 dark:text-green-400">Open</span>
+                                    </div>
+                                    <div className="h-2.5 overflow-hidden rounded-full bg-muted">
+                                        <div className="h-full w-[72%] rounded-full bg-gradient-to-r from-blue-500 to-indigo-500" />
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">
+                                        One place to track OPT, STEM, and case status — same tools on desktop.
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
                     </motion.div>
 
                     {/* Right Content - Interactive Mockup with Tab Switching */}

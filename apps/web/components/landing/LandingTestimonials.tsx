@@ -95,7 +95,7 @@ const testimonials = [
 function TestimonialCard({ img, name, university, body, country }: (typeof testimonials)[number]) {
     return (
         <Card className="w-64 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 shadow-sm hover:shadow-lg transition-shadow">
-            <CardContent className="p-4">
+            <CardContent className="p-4 prose-longform">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 ring-2 ring-blue-500/20">
                         <AvatarImage src={img} alt={name} />
@@ -118,7 +118,7 @@ export function LandingTestimonials() {
     return (
         <section className="py-24 bg-gradient-to-b from-white to-gray-50 dark:from-zinc-950 dark:to-zinc-900 overflow-hidden" id="testimonials">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
+                <div className="prose-longform text-center mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
                         Trusted by International Students Nationwide
                     </h2>

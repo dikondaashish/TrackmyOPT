@@ -7,7 +7,7 @@ export function LandingSuccessStories() {
 
             <div className="container px-4 mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div className="order-2 lg:order-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
+                    <div className="prose-longform order-2 lg:order-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
                         <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80">
                             Success Stories
                         </div>

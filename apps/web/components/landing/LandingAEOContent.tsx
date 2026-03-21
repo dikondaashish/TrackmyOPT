@@ -310,7 +310,7 @@ export function LandingAEOContent() {
                                 {category.questions.map((qa, qaIndex) => (
                                     <article
                                         key={qaIndex}
-                                        className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-6 border border-gray-200 dark:border-zinc-700"
+                                        className="prose-longform bg-gray-50 dark:bg-zinc-800 rounded-xl p-6 border border-gray-200 dark:border-zinc-700"
                                         itemScope
                                         itemType="https://schema.org/Question"
                                     >

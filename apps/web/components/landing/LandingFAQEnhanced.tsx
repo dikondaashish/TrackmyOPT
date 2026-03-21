@@ -113,7 +113,7 @@ export function LandingFAQEnhanced() {
         <section id="faq" className="py-24 bg-white dark:bg-zinc-900">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header - Optimized for SEO */}
-                <header className="text-center mb-16">
+                <header className="prose-longform text-center mb-16">
                     <span className="inline-block px-4 py-1.5 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-sm font-medium rounded-full mb-4">
                         Frequently Asked Questions
                     </span>
@@ -188,7 +188,7 @@ export function LandingFAQEnhanced() {
                                 itemProp="acceptedAnswer"
                                 itemType="https://schema.org/Answer"
                             >
-                                <div className="px-6 pb-6 pt-0">
+                                <div className="prose-longform px-6 pb-6 pt-0">
                                     <p
                                         className="text-gray-600 dark:text-gray-300 leading-relaxed"
                                         itemProp="text"

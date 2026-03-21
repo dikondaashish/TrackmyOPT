@@ -70,13 +70,10 @@ export default function ResumeEditorPage() {
     // Streaming Effect
     const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
 
-    // Auto-scroll ref
-    const bottomRef = useRef<HTMLDivElement>(null);
-
     const { displayedText, isStreaming, stopStreaming } = useStreamingEffect({
         text: generatedLatex,
         isEnabled: isStreamingEnabled,
-        speed: 12, // Natural typing speed (12ms base + random chunk variance)
+        speed: 3, // ~4× faster than 12ms; interval between chunk ticks (1–3 chars each)
         onComplete: () => {
             setIsStreamingEnabled(false);
             // Sync history with the full generated text once streaming is done/stopped
@@ -84,11 +81,22 @@ export default function ResumeEditorPage() {
         }
     });
 
-    // Auto-scroll to bottom while streaming
+    // While streaming: only auto-scroll the editor if the user is already near the bottom.
+    // This lets them scroll up/down freely to read earlier LaTeX without being yanked back down.
     useEffect(() => {
-        if (isStreaming && bottomRef.current) {
-            bottomRef.current.scrollIntoView({ behavior: "smooth" });
-        }
+        if (!isStreaming) return;
+        const el = textareaRef.current;
+        if (!el) return;
+
+        const nearBottomPx = 120;
+        const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+        if (distanceFromBottom > nearBottomPx) return;
+
+        requestAnimationFrame(() => {
+            const ta = textareaRef.current;
+            if (!ta) return;
+            ta.scrollTop = ta.scrollHeight;
+        });
     }, [displayedText, isStreaming]);
 
     // Use streaming text if active, otherwise history text
@@ -636,8 +644,6 @@ export default function ResumeEditorPage() {
                                 tabSize: 2,
                             }}
                         />
-                        {/* Invisible div for auto-scrolling */}
-                        <div ref={bottomRef} />
 
                         {/* AI Generating Overlay — shown while waiting for Gemini */}
                         {isGenerating && !editorValue && <GeneratingOverlay />}

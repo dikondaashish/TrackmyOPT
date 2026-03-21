@@ -53,7 +53,7 @@ export default function F1JobsArticle() {
                 <p className="text-green-800 dark:text-green-200 font-medium">F-1 students have <strong>4 legal work authorization types</strong>: on-campus employment, CPT, pre-completion OPT, and post-completion OPT. To work long-term, you'll need an employer willing to sponsor H-1B. Start your job search <strong>3-6 months before graduation</strong>.</p>
             </div>
 
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">F-1 Student Work Authorization Types</h2>
                     <div className="overflow-x-auto">

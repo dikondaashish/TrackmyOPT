@@ -32,7 +32,7 @@ export function LandingComparison() {
             {/* Glass Background for Section */}
             <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center max-w-3xl mx-auto mb-16">
+                <div className="prose-longform text-center max-w-3xl mx-auto mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
                         OPT Tracking: Spreadsheets vs{" "}
                         <span className="text-red-500 decoration-4 underline decoration-red-200 dark:decoration-red-900/50 underline-offset-4">
@@ -56,7 +56,7 @@ export function LandingComparison() {
                             <FileSpreadsheet className="w-32 h-32 text-red-500" />
                         </div>
 
-                        <div className="relative z-10">
+                        <div className="relative z-10 prose-longform">
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="p-3 bg-red-100/50 dark:bg-red-900/30 rounded-xl">
                                     <X className="w-6 h-6 text-red-600 dark:text-red-400" />
@@ -98,7 +98,7 @@ export function LandingComparison() {
                             <Zap className="w-32 h-32 text-blue-500" />
                         </div>
 
-                        <div className="relative z-10">
+                        <div className="relative z-10 prose-longform">
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="p-3 bg-blue-100/50 dark:bg-blue-900/30 rounded-xl">
                                     <Check className="w-6 h-6 text-blue-600 dark:text-blue-400" />

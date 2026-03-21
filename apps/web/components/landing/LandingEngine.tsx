@@ -11,7 +11,7 @@ export function LandingEngine() {
             <div className="absolute top-0 inset-x-0 h-[500px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent dark:from-blue-900/20" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="text-center max-w-3xl mx-auto mb-20">
+                <div className="prose-longform text-center max-w-3xl mx-auto mb-20">
                     <span className="text-blue-600 dark:text-blue-400 font-bold tracking-widest uppercase text-xs">
                         System Architecture
                     </span>
@@ -133,7 +133,7 @@ export function LandingEngine() {
                             </div>
 
                             {/* Text Info */}
-                            <div className="md:w-1/2">
+                            <div className="md:w-1/2 prose-longform">
                                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 mb-4">
                                     <Activity className="w-6 h-6" />
                                 </div>
@@ -181,7 +181,7 @@ export function LandingEngine() {
                             >
                                 <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all" />
 
-                                <div className="relative z-10 h-full flex flex-col justify-between">
+                                <div className="relative z-10 h-full flex flex-col justify-between prose-longform">
                                     <div>
                                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Native STEM Support</h3>
                                         <p className="text-sm text-gray-600 dark:text-gray-400">

@@ -71,7 +71,7 @@ export function LandingHowItWorks() {
         <section className="py-24 bg-gradient-to-b from-gray-50 to-white dark:from-zinc-800 dark:to-zinc-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center max-w-3xl mx-auto mb-16">
+                <div className="prose-longform text-center max-w-3xl mx-auto mb-16">
                     <span className="inline-block px-4 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium rounded-full mb-4">
                         How It Works
                     </span>
@@ -95,7 +95,7 @@ export function LandingHowItWorks() {
                                 <div className="hidden md:block absolute top-16 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-gray-300 to-transparent dark:from-zinc-600" />
                             )}
 
-                            <div className="relative bg-white dark:bg-zinc-800 rounded-2xl p-8 border border-gray-200 dark:border-zinc-700 hover:shadow-lg transition-shadow">
+                            <div className="prose-longform relative bg-white dark:bg-zinc-800 rounded-2xl p-8 border border-gray-200 dark:border-zinc-700 hover:shadow-lg transition-shadow">
                                 {/* Step Number */}
                                 <div className="absolute -top-4 left-8 px-3 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-bold rounded-full">
                                     {step.number}
