@@ -8,79 +8,7 @@
  * - Apple-inspired design
  */
 
-import nodemailer from 'nodemailer';
-
-// Create SMTP transporter for Hostinger with improved timeout settings
-const createTransporter = () => nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '465'),
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  // Connection settings to prevent timeout issues
-  connectionTimeout: 30000, // 30 seconds to establish connection
-  greetingTimeout: 30000, // 30 seconds for greeting
-  socketTimeout: 60000, // 60 seconds for socket operations
-  // Pool settings for multiple emails
-  pool: true,
-  maxConnections: 3,
-  maxMessages: 10,
-  // TLS settings
-  tls: {
-    rejectUnauthorized: false, // Allow self-signed certs if needed
-  },
-});
-
-// Lazy initialization of transporter
-let transporter: nodemailer.Transporter | null = null;
-
-const getTransporter = () => {
-  if (!transporter) {
-    transporter = createTransporter();
-  }
-  return transporter;
-};
-
-/**
- * Send email with retry logic
- */
-async function sendMailWithRetry(
-  mailOptions: nodemailer.SendMailOptions,
-  maxRetries: number = 3
-): Promise<nodemailer.SentMessageInfo> {
-  let lastError: Error | null = null;
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const transport = getTransporter();
-      const info = await transport.sendMail(mailOptions);
-      return info;
-    } catch (error) {
-      lastError = error as Error;
-      console.error(`Email attempt ${attempt}/${maxRetries} failed:`, (error as Error).message);
-
-      // If it's a timeout error, close and recreate the transporter
-      if ((error as Error).message?.includes('timeout') || (error as Error).message?.includes('421')) {
-        console.log('Recreating transporter due to timeout...');
-        if (transporter) {
-          transporter.close();
-          transporter = null;
-        }
-      }
-
-      // Wait before retry (exponential backoff)
-      if (attempt < maxRetries) {
-        const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
-        console.log(`Waiting ${delay}ms before retry...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
-  }
-
-  throw lastError || new Error('Failed to send email after retries');
-}
+import { sendMailWithRetry } from './email-smtp';
 
 export interface ToolReminderDetail {
   name: string;
@@ -1261,59 +1189,8 @@ export async function sendExportOtpEmail(
   }
 }
 
-/**
- * Send verification email for email address confirmation
- */
-export async function sendVerificationEmail(
-  email: string,
-  verificationLink: string,
-  firstName: string
-) {
-  try {
-    const info = await sendMailWithRetry({
-      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
-      to: email,
-      subject: 'Verify your email for OPT reminders',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-            <div style="background: white; border-radius: 12px; padding: 32px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-              <h1 style="margin: 0 0 16px 0; color: #1F2937; font-size: 24px;">
-                Verify Your Email
-              </h1>
-              <p style="margin: 0 0 24px 0; color: #6B7280; font-size: 15px;">
-                Hi ${firstName}, click the button below to verify your email and start receiving daily OPT reminders.
-              </p>
-              <a href="${verificationLink}" 
-                 style="display: inline-block; background: #007AFF; color: white; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 15px;">
-                Verify Email Address
-              </a>
-              <p style="margin: 24px 0 0 0; color: #9CA3AF; font-size: 13px;">
-                This link expires in 24 hours.
-              </p>
-            </div>
-            <div style="text-align: center; padding: 20px; color: #9CA3AF; font-size: 12px;">
-              <p style="margin: 0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
-    });
-
-    console.log('Verification email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error('Verification email service error:', error);
-    return { success: false, error };
-  }
-}
+// removed: sendVerificationEmail — no double opt-in / notification-email verification flow implemented.
+// Re-add when wiring email_preferences confirmation with email_type: email_verified + email_queue.
 
 /**
  * Enrollment email data including timeline information

@@ -4,6 +4,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { sanitizeError } from '@/lib/secure-logger';
+import { sendFreeWelcomeEmail } from '@/lib/notifications/transactional-emails';
 
 export const dynamic = 'force-dynamic';
 
@@ -174,7 +175,20 @@ export async function GET(request: NextRequest) {
           { status: 500 }
         );
       }
-      
+
+      const { data: sessionUserData } = await supabase.auth.getUser();
+      const sessionEmail = sessionUserData.user?.email?.trim();
+      const meta = sessionUserData.user?.user_metadata as { firstName?: string; first_name?: string } | undefined;
+      const metaFirst = meta?.firstName || meta?.first_name || null;
+      if (sessionEmail) {
+        sendFreeWelcomeEmail({
+          supabase: supabaseAdmin,
+          userId,
+          toEmail: sessionEmail,
+          firstName: metaFirst,
+        }).catch((err) => console.error('sendFreeWelcomeEmail (OAuth profile):', err));
+      }
+
       profile = newProfile;
     } else if (profileError) {
       console.error('Profile query error:', profileError);

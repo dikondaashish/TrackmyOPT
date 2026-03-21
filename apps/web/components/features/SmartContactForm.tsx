@@ -22,7 +22,11 @@ const KNOWLEDGE_BASE: Suggestion[] = [
 export function SmartContactForm() {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
     const [subject, setSubject] = useState("");
+    const [message, setMessage] = useState("");
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 
     useEffect(() => {
@@ -39,11 +43,25 @@ export function SmartContactForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSubmitError(null);
         setIsLoading(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsLoading(false);
-        setIsSubmitted(true);
+        try {
+            const res = await fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, subject, message }),
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setSubmitError(typeof data?.error === "string" ? data.error : "Something went wrong. Try again.");
+                return;
+            }
+            setIsSubmitted(true);
+        } catch {
+            setSubmitError("Network error. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     if (isSubmitted) {
@@ -65,7 +83,7 @@ export function SmartContactForm() {
                         </motion.div>
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Message Received!</h3>
                         <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-sm mx-auto">
-                            Thanks for reaching out. A support agent will review your ticket and get back to you within 4 hours.
+                            We&apos;ll respond within 24–48 hours. Check your inbox for a confirmation email.
                         </p>
                         <div className="flex justify-center gap-4">
                             <button onClick={() => setIsSubmitted(false)} className="text-blue-600 font-medium hover:underline">
@@ -159,6 +177,8 @@ export function SmartContactForm() {
                                     <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Email</label>
                                     <input
                                         type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
                                         placeholder="your@email.com"
                                         required
@@ -188,6 +208,11 @@ export function SmartContactForm() {
                                 />
                             </div>
 
+                            {submitError && (
+                                <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+                                    {submitError}
+                                </p>
+                            )}
                             <button
                                 type="submit"
                                 disabled={isLoading}

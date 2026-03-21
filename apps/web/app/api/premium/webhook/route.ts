@@ -6,6 +6,11 @@
  * - checkout.session.completed: Upgrade user to premium
  * - payment_intent.succeeded: Log successful payment
  * - payment_intent.payment_failed: Log failed payment
+ * - invoice.payment_failed: Notify user (email_queue)
+ * - customer.subscription.updated/deleted: Sync access + transactional email
+ * - charge.refunded: Revoke premium + refund acknowledgment email
+ *
+ * Handlers must not throw — Stripe expects 200; errors are logged only.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -15,6 +20,12 @@ import { headers } from 'next/headers';
 import { sanitizeError } from '@/lib/secure-logger';
 import { applyStripeCheckoutSession } from '@/lib/premium/applyStripeCheckoutSession';
 import { requireLiveStripeKeyInProduction } from '@/lib/stripe/requireLiveKeyInProduction';
+import {
+  resolveUserForStripeCustomer,
+  sendPaymentFailedEmail,
+  sendRefundAcknowledgmentEmail,
+  sendSubscriptionEndedEmail,
+} from '@/lib/notifications/transactional-emails';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -91,46 +102,55 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice;
+        await handleInvoicePaymentFailed(stripe, invoice, event.id);
+        break;
+      }
+
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge;
-        await handleChargeRefunded(stripe, charge);
+        await handleChargeRefunded(stripe, charge, event.id);
         break;
       }
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionUpdated(subscription);
+        await handleSubscriptionUpdated(stripe, subscription, event.id);
         break;
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionDeleted(subscription);
+        await handleSubscriptionDeleted(subscription, event.id);
         break;
       }
 
       default:
     }
-
-    return NextResponse.json({ received: true });
   } catch (error: unknown) {
-    console.error(`❌ Error handling webhook event:`, sanitizeError(error));
-    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
+    console.error(`❌ Error handling webhook event ${event.type}:`, sanitizeError(error));
   }
+
+  return NextResponse.json({ received: true });
 }
 
 async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.Session) {
-  const result = await applyStripeCheckoutSession({ stripe, supabase, session });
-  if (!result.ok) {
-    console.error('❌ handleCheckoutCompleted:', result.reason, {
-      sessionId: session.id,
-      customer: session.customer,
-      hasMetadataUser: Boolean(session.metadata?.supabase_user_id),
-    });
-    throw new Error(result.reason);
-  }
-  if (result.alreadyRecorded) {
-    console.log('✅ checkout session already synced:', session.id);
+  try {
+    const result = await applyStripeCheckoutSession({ stripe, supabase, session });
+    if (!result.ok) {
+      console.error('❌ handleCheckoutCompleted:', result.reason, {
+        sessionId: session.id,
+        customer: session.customer,
+        hasMetadataUser: Boolean(session.metadata?.supabase_user_id),
+      });
+      return;
+    }
+    if (result.alreadyRecorded) {
+      console.log('✅ checkout session already synced:', session.id);
+    }
+  } catch (error: unknown) {
+    console.error('❌ handleCheckoutCompleted exception:', sanitizeError(error));
   }
 }
 
@@ -179,11 +199,114 @@ async function updateTransactionStatus(
   }
 }
 
+async function handleInvoicePaymentFailed(
+  stripe: Stripe,
+  invoice: Stripe.Invoice,
+  eventId: string
+) {
+  try {
+    const inv = invoice as Stripe.Invoice & {
+      subscription?: string | Stripe.Subscription | null;
+    };
+    const cust = inv.customer;
+    const customerId = typeof cust === 'string' ? cust : cust?.id;
+    if (!customerId) return;
+
+    const user = await resolveUserForStripeCustomer(supabase, customerId);
+    if (!user) {
+      console.warn('invoice.payment_failed: no profile for customer', customerId);
+      return;
+    }
+
+    let planLabel = 'TrackMyOPT Premium';
+    const subRef = inv.subscription;
+    const subId = typeof subRef === 'string' ? subRef : subRef && typeof subRef === 'object' && 'id' in subRef ? subRef.id : null;
+    if (subId) {
+      try {
+        const sub = await stripe.subscriptions.retrieve(subId);
+        const pid = sub.metadata?.planId;
+        planLabel = pid ? `TrackMyOPT Premium (${String(pid)})` : planLabel;
+      } catch (e) {
+        console.warn('invoice.payment_failed: subscription retrieve failed', e);
+      }
+    }
+
+    const amountCents = inv.amount_due || inv.total || 0;
+    const currency = inv.currency || 'usd';
+
+    const r = await sendPaymentFailedEmail({
+      supabase,
+      userId: user.userId,
+      toEmail: user.email,
+      firstName: user.firstName,
+      planLabel,
+      amountCents,
+      currency,
+      stripeEventId: eventId,
+      stripeInvoiceId: inv.id,
+    });
+    if (!r.ok && r.error) {
+      console.error('invoice.payment_failed email:', r.error);
+    }
+  } catch (error: unknown) {
+    console.error('handleInvoicePaymentFailed:', sanitizeError(error));
+  }
+}
+
+async function safeSendPaymentFailedForSubscription(
+  stripe: Stripe,
+  subscription: Stripe.Subscription,
+  eventId: string
+) {
+  try {
+    const customerId = subscription.customer as string;
+    const user = await resolveUserForStripeCustomer(supabase, customerId);
+    if (!user) return;
+
+    let amountCents = 0;
+    let currency = 'usd';
+    let invoiceId: string | null = null;
+    const li = subscription.latest_invoice;
+    if (li) {
+      const invId = typeof li === 'string' ? li : li.id;
+      invoiceId = invId;
+      const inv = await stripe.invoices.retrieve(invId);
+      amountCents = inv.amount_due || inv.total || 0;
+      currency = inv.currency || 'usd';
+    } else {
+      const item = subscription.items.data[0];
+      const p = item?.price;
+      amountCents = (p?.unit_amount || 0) * (item?.quantity || 1);
+      currency = p?.currency || 'usd';
+    }
+
+    const metaPlan = subscription.metadata?.planId;
+    const planLabel = metaPlan ? `TrackMyOPT Premium (${String(metaPlan)})` : 'TrackMyOPT Premium';
+
+    const r = await sendPaymentFailedEmail({
+      supabase,
+      userId: user.userId,
+      toEmail: user.email,
+      firstName: user.firstName,
+      planLabel,
+      amountCents,
+      currency,
+      stripeEventId: eventId,
+      stripeInvoiceId: invoiceId,
+    });
+    if (!r.ok && r.error) {
+      console.error('subscription payment_failed email:', r.error);
+    }
+  } catch (error: unknown) {
+    console.error('safeSendPaymentFailedForSubscription:', sanitizeError(error));
+  }
+}
+
 /**
  * Mark transaction refunded and revoke premium. Subscription checkouts often store
  * synthetic stripe_payment_intent_id values, so we also match subscription id and checkout session id.
  */
-async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge) {
+async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, eventId: string) {
   const nowIso = new Date().toISOString();
   const piId =
     typeof charge.payment_intent === 'string'
@@ -265,6 +388,9 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge) {
   }
 
   const userIds = [...new Set(rows.map((r) => r.user_id))];
+  const amountCents = charge.amount_refunded ?? charge.amount ?? 0;
+  const currency = charge.currency || 'usd';
+
   for (const userId of userIds) {
     const { error } = await supabase
       .from('profiles')
@@ -279,6 +405,36 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge) {
     } else {
       console.log('✅ Refund: revoked premium for user', userId);
     }
+
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email, first_name')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      let email = profile?.email?.trim() || '';
+      if (!email) {
+        const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+        email = authUser?.user?.email?.trim() || '';
+      }
+      if (email) {
+        const r = await sendRefundAcknowledgmentEmail({
+          supabase,
+          userId,
+          toEmail: email,
+          firstName: profile?.first_name ?? null,
+          amountCents,
+          currency,
+          stripeEventId: eventId,
+        });
+        if (!r.ok && 'error' in r && r.error) {
+          console.error('refund acknowledgment email:', r.error);
+        }
+      }
+    } catch (e: unknown) {
+      console.error('charge.refunded email:', sanitizeError(e));
+    }
   }
 
   if (!rows.length) {
@@ -286,44 +442,111 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge) {
   }
 }
 
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const customerId = subscription.customer as string;
+async function handleSubscriptionUpdated(
+  stripe: Stripe,
+  subscription: Stripe.Subscription,
+  eventId: string
+) {
+  try {
+    const customerId = subscription.customer as string;
 
-  const isActive = ['active', 'trialing'].includes(subscription.status);
+    if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
+      await safeSendPaymentFailedForSubscription(stripe, subscription, eventId);
+    }
 
-  if (!isActive) {
-    await revokePremiumAccess(customerId);
-  } else {
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const isActive = ['active', 'trialing'].includes(subscription.status);
 
-    await supabaseAdmin
-      .from('profiles')
-      .update({
-        premium_status: true,
-        plan_tier: subscription.metadata?.planId || 'pro',
-        subscription_expires_at: new Date(
-          (subscription as unknown as { current_period_end: number }).current_period_end * 1000
-        ).toISOString(),
-      })
-      .eq('stripe_customer_id', customerId);
+    if (!isActive) {
+      await revokePremiumAccess(customerId);
+    } else {
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+
+      await supabaseAdmin
+        .from('profiles')
+        .update({
+          premium_status: true,
+          plan_tier: subscription.metadata?.planId || 'pro',
+          subscription_expires_at: new Date(
+            (subscription as unknown as { current_period_end: number }).current_period_end * 1000
+          ).toISOString(),
+        })
+        .eq('stripe_customer_id', customerId);
+    }
+  } catch (error: unknown) {
+    console.error('handleSubscriptionUpdated:', sanitizeError(error));
   }
 }
 
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const customerId = subscription.customer as string;
-  await revokePremiumAccess(customerId);
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription, eventId: string) {
+  try {
+    const customerId = subscription.customer as string;
+    const revoked = await revokePremiumAccess(customerId);
+    if (!revoked) return;
+
+    const periodEnd = (subscription as unknown as { current_period_end?: number }).current_period_end;
+    const accessEndedDate = periodEnd
+      ? new Date(periodEnd * 1000).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        })
+      : new Date().toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
+
+    const r = await sendSubscriptionEndedEmail({
+      supabase,
+      userId: revoked.userId,
+      toEmail: revoked.email,
+      firstName: revoked.firstName,
+      accessEndedDate,
+      stripeEventId: eventId,
+    });
+    if (!r.ok && r.error) {
+      console.error('subscription_ended email:', r.error);
+    }
+  } catch (error: unknown) {
+    console.error('handleSubscriptionDeleted:', sanitizeError(error));
+  }
 }
 
-async function revokePremiumAccess(stripeCustomerId: string) {
+async function revokePremiumAccess(stripeCustomerId: string): Promise<{
+  userId: string;
+  email: string;
+  firstName: string | null;
+} | null> {
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
   try {
+    const { data: prof, error: fetchErr } = await supabaseAdmin
+      .from('profiles')
+      .select('user_id, email, first_name')
+      .eq('stripe_customer_id', stripeCustomerId)
+      .maybeSingle();
+
+    if (fetchErr) {
+      console.error('revokePremiumAccess fetch:', fetchErr);
+      return null;
+    }
+    if (!prof?.user_id) {
+      console.warn(`revokePremiumAccess: no profile for customer ${stripeCustomerId}`);
+      return null;
+    }
+
+    let email = prof.email?.trim() || '';
+    if (!email) {
+      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(prof.user_id);
+      email = authUser?.user?.email?.trim() || '';
+    }
+
     const { error } = await supabaseAdmin
       .from('profiles')
       .update({
@@ -335,10 +558,18 @@ async function revokePremiumAccess(stripeCustomerId: string) {
 
     if (error) {
       console.error(`❌ Error revoking premium access for customer ${stripeCustomerId}:`, error);
-    } else {
-      console.log(`✅ Revoked premium access for customer ${stripeCustomerId}`);
+      return null;
     }
+    console.log(`✅ Revoked premium access for customer ${stripeCustomerId}`);
+
+    if (!email) {
+      console.warn('revokePremiumAccess: no email for subscription email', prof.user_id);
+      return null;
+    }
+
+    return { userId: prof.user_id, email, firstName: prof.first_name };
   } catch (error) {
     console.error(`❌ Error in revokePremiumAccess:`, error);
+    return null;
   }
 }

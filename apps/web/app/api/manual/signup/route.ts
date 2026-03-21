@@ -19,6 +19,7 @@ import {
 } from "@/lib/auth/api-rate-limit";
 import { z } from "zod";
 import { validateRequest, emailSchema, passwordSchema, sanitizeString } from "@/lib/validation";
+import { sendFreeWelcomeEmail } from "@/lib/notifications/transactional-emails";
 
 // SECURITY: Custom signup schema with all required fields
 const signupRequestSchema = z.object({
@@ -132,6 +133,13 @@ export async function POST(req: NextRequest) {
 
   // Create OPT status
   await supabase.from("opt_status").upsert(payload);
+
+  sendFreeWelcomeEmail({
+    supabase,
+    userId: uid,
+    toEmail: email,
+    firstName: firstName,
+  }).catch((err) => console.error("sendFreeWelcomeEmail:", err));
 
   // Success - add rate limit headers
   const response = NextResponse.json({ ok: true });

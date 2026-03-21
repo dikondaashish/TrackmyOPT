@@ -3,6 +3,8 @@
 **Scope:** Plan selection → Checkout Session → Payment → Success/failure → Webhooks → DB/session sync.  
 **Code refs:** `app/api/premium/create-checkout`, `confirm-checkout`, `webhook`, `lib/premium/applyStripeCheckoutSession`, UI: `PricingModal`, `CheckoutModalClient`, `premium/success`, `components/pricing/pricing-module`.
 
+**Related:** [EMAIL_ROADMAP.md](./EMAIL_ROADMAP.md) — transactional email gaps, Stripe → mail mapping, phased plan.
+
 ---
 
 ## Post-audit fixes (resolved)

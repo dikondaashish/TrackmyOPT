@@ -345,8 +345,8 @@ export default function ResumeEditorPage() {
             setAtsAnalysis(data);
 
             toast({
-                title: "Deep Analysis Complete",
-                description: "Gemini 2.5 Pro has analyzed your resume against the job description.",
+                title: "Analysis complete",
+                description: "Your resume was compared to the job description for keywords, gaps, and fit.",
             });
 
         } catch (error: unknown) {
@@ -740,7 +740,7 @@ export default function ResumeEditorPage() {
                                         ) : (
                                             <>
                                                 <Sparkles className="w-4 h-4 mr-2" />
-                                                Run Deep ATS Scan (Gemini 2.5)
+                                                Run full ATS analysis
                                             </>
                                         )}
                                     </Button>
