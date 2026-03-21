@@ -6,6 +6,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Json } from "@/types/supabase";
 import { sendMailWithRetry } from "./email-smtp";
+import { EMAIL } from "./email-brand";
 
 export function getAppBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://www.trackmyopt.com").replace(/\/$/, "");
@@ -307,14 +308,14 @@ export async function sendPaymentFailedEmail(args: {
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:linear-gradient(135deg,#DC2626,#B91C1C);padding:28px 24px;text-align:center;">
+      <div style="background:${EMAIL.headerGradientDanger};padding:28px 24px;text-align:center;">
         <h1 style="color:#fff;margin:0;font-size:22px;">Payment didn’t go through</h1>
       </div>
       <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
         <p style="margin:0 0 16px 0;">${greeting}</p>
         <p style="margin:0 0 16px 0;">We couldn’t charge your card for <strong>${escapeHtml(planLabel)}</strong> (${amountStr}). Stripe will automatically retry the payment. To avoid losing Premium access, please update your payment method.</p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${settingsUrl}" style="display:inline-block;background:#007AFF;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Open billing settings</a>
+          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Open billing settings</a>
         </div>
         <p style="margin:0;color:#6B7280;font-size:13px;">From Settings → Subscription, use <strong>Manage billing</strong> to open the Stripe Customer Portal and update your card.</p>
       </div>
@@ -378,7 +379,7 @@ export async function sendSubscriptionEndedEmail(args: {
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:linear-gradient(135deg,#007AFF,#5856D6);padding:28px 24px;text-align:center;">
+      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
         <h1 style="color:#fff;margin:0;font-size:22px;">Your Premium access has ended</h1>
       </div>
       <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
@@ -391,7 +392,7 @@ export async function sendSubscriptionEndedEmail(args: {
           <li>Premium-only tracker and analytics features</li>
         </ul>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${checkoutUrl}" style="display:inline-block;background:#007AFF;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Resubscribe to Premium</a>
+          <a href="${checkoutUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Resubscribe to Premium</a>
         </div>
       </div>
       <div style="background:#F9FAFB;padding:20px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
@@ -441,7 +442,7 @@ export async function sendFreeWelcomeEmail(args: {
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:linear-gradient(135deg,#007AFF,#5856D6);padding:28px 24px;text-align:center;">
+      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
         <h1 style="color:#fff;margin:0;font-size:22px;">Welcome to TrackMyOPT</h1>
       </div>
       <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
@@ -454,7 +455,7 @@ export async function sendFreeWelcomeEmail(args: {
           <li style="margin-bottom:8px;">Enable reminders in Settings</li>
         </ol>
         <div style="text-align:center;">
-          <a href="${dashUrl}" style="display:inline-block;background:#007AFF;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Go to dashboard</a>
+          <a href="${dashUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Go to dashboard</a>
         </div>
       </div>
       <div style="background:#F9FAFB;padding:20px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
@@ -511,14 +512,14 @@ export async function sendRefundAcknowledgmentEmail(args: {
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:linear-gradient(135deg,#059669,#047857);padding:28px 24px;text-align:center;">
+      <div style="background:${EMAIL.headerGradientSuccess};padding:28px 24px;text-align:center;">
         <h1 style="color:#fff;margin:0;font-size:22px;">Refund processed</h1>
       </div>
       <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
         <p style="margin:0 0 16px 0;">${greeting}</p>
         <p style="margin:0 0 16px 0;">We’ve received your refund of <strong>${amountStr}</strong>. Your Premium access has ended.</p>
         <p style="margin:0 0 16px 0;">Refunds typically post to your original payment method in <strong>5–10 business days</strong> (your bank may take longer).</p>
-        <p style="margin:0;color:#6B7280;font-size:14px;">Questions? Reply to this email or write to <a href="mailto:support@trackmyopt.com" style="color:#007AFF;">support@trackmyopt.com</a>.</p>
+        <p style="margin:0;color:#6B7280;font-size:14px;">Questions? Reply to this email or write to <a href="mailto:support@trackmyopt.com" style="color:${EMAIL.link};">support@trackmyopt.com</a>.</p>
       </div>
       <div style="background:#F9FAFB;padding:20px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
         <p style="margin:0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
@@ -564,7 +565,7 @@ function premiumWelcomeHtml(firstName: string): string {
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F3F4F6;">
       <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <div style="background: linear-gradient(135deg, #007AFF, #5856D6); padding: 32px 24px; text-align: center;">
+          <div style="background:${EMAIL.headerGradient};padding:32px 24px;text-align:center;">
             <h1 style="color: white; margin: 0; font-size: 24px;">Welcome to Premium! 🎉</h1>
           </div>
           <div style="padding: 32px 24px;">
@@ -587,7 +588,7 @@ function premiumWelcomeHtml(firstName: string): string {
               We&apos;re excited to be part of your career journey in the US.
             </p>
             <div style="text-align: center;">
-              <a href="${dashUrl}" style="display: inline-block; background: #007AFF; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+              <a href="${dashUrl}" style="display:inline-block;background:${EMAIL.cta};color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;">
                 Go to Dashboard
               </a>
             </div>
@@ -661,7 +662,7 @@ export async function sendTrialEndingEmail(args: {
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:linear-gradient(135deg,#5856D6,#007AFF);padding:28px 24px;text-align:center;">
+      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
         <h1 style="color:#fff;margin:0;font-size:22px;">Your trial is ending soon</h1>
       </div>
       <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
@@ -669,7 +670,7 @@ export async function sendTrialEndingEmail(args: {
         <p style="margin:0 0 16px 0;">Your TrackMyOPT Premium trial ends on <strong>${escapeHtml(trialEndDate)}</strong>. After that, your subscription will continue per your plan unless you cancel.</p>
         <p style="margin:0 0 24px 0;color:#6B7280;font-size:14px;">Review billing or cancel anytime from Settings.</p>
         <div style="text-align:center;">
-          <a href="${settingsUrl}" style="display:inline-block;background:#007AFF;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Open billing settings</a>
+          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Open billing settings</a>
         </div>
       </div>
       <div style="background:#F9FAFB;padding:20px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
@@ -722,13 +723,13 @@ export async function sendContactReceivedEmail(args: {
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:linear-gradient(135deg,#007AFF,#5856D6);padding:24px 24px;text-align:center;">
+      <div style="background:${EMAIL.headerGradient};padding:24px 24px;text-align:center;">
         <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">TrackMyOPT Support</p>
       </div>
       <div style="padding:28px 24px;">
         <p style="margin:0 0 16px 0;color:#374151;font-size:15px;line-height:1.6;">${greeting}</p>
         <p style="margin:0 0 16px 0;color:#374151;font-size:15px;line-height:1.6;">Thanks for reaching out. We&apos;ve received your message and will get back to you within <strong>24–48 hours</strong>.</p>
-        <p style="margin:0 0 24px 0;color:#374151;font-size:15px;line-height:1.6;">In the meantime, check your <a href="${dashUrl}" style="color:#007AFF;font-weight:600;">dashboard</a> for any updates.</p>
+        <p style="margin:0 0 24px 0;color:#374151;font-size:15px;line-height:1.6;">In the meantime, check your <a href="${dashUrl}" style="color:${EMAIL.link};font-weight:600;">dashboard</a> for any updates.</p>
         <p style="margin:0;color:#6B7280;font-size:14px;">— TrackMyOPT Team</p>
       </div>
       <div style="background:#F9FAFB;padding:16px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
@@ -808,7 +809,7 @@ export async function sendStemOptWindowEmail(args: {
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;color:#374151;">
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:linear-gradient(135deg,#007AFF,#5856D6);padding:24px;text-align:center;">
+      <div style="background:${EMAIL.headerGradient};padding:24px;text-align:center;">
         <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">TrackMyOPT</p>
         <p style="margin:8px 0 0 0;color:rgba(255,255,255,0.95);font-size:14px;">STEM OPT extension</p>
       </div>
@@ -825,9 +826,9 @@ export async function sendStemOptWindowEmail(args: {
         </ol>
         <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;">Track your STEM OPT application timeline in your TrackMyOPT dashboard.</p>
         <div style="text-align:center;margin:0 0 28px 0;">
-          <a href="${escapeHtml(dashUrl)}" style="display:inline-block;background:linear-gradient(135deg,#007AFF,#5856D6);color:#fff !important;text-decoration:none;font-weight:600;font-size:16px;padding:14px 28px;border-radius:10px;">Open My Dashboard →</a>
+          <a href="${escapeHtml(dashUrl)}" style="display:inline-block;background:${EMAIL.cta};color:#fff !important;text-decoration:none;font-weight:600;font-size:16px;padding:14px 28px;border-radius:10px;">Open My Dashboard →</a>
         </div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#6B7280;">Questions? Reply to this email or contact <a href="mailto:support@trackmyopt.com" style="color:#007AFF;">support@trackmyopt.com</a></p>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:#6B7280;">Questions? Reply to this email or contact <a href="mailto:support@trackmyopt.com" style="color:${EMAIL.link};">support@trackmyopt.com</a></p>
       </div>
       <div style="background:#F9FAFB;padding:16px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
         <p style="margin:0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
@@ -918,7 +919,7 @@ export async function sendInternalContactFormNotification(args: {
     <p style="margin:0 0 16px 0;"><strong>Subject:</strong> ${escapeHtml(args.subject)}</p>
     <p style="margin:0 0 8px 0;font-weight:600;">Message</p>
     <div style="background:#F9FAFB;border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;">${safeMsg}</div>
-    ${rowLink ? `<p style="margin-top:20px;"><a href="${escapeHtml(rowLink)}" style="color:#007AFF;">Open row in Supabase Table Editor</a></p>` : ""}
+    ${rowLink ? `<p style="margin-top:20px;"><a href="${escapeHtml(rowLink)}" style="color:${EMAIL.link};">Open row in Supabase Table Editor</a></p>` : ""}
   </div>
 </body>
 </html>`;

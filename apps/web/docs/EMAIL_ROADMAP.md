@@ -1,8 +1,8 @@
 # Email roadmap & enterprise parity
 
-This document tracks **what we send today**, **gaps vs. top-tier SaaS**, and a **phased plan** to close them. **Transactional billing/onboarding** helpers live in `lib/notifications/transactional-emails.ts` (queue + SMTP); legacy templates remain in `lib/notifications/email-service.ts` and `lib/notifications/email-smtp.ts` (shared transporter + `sendMailWithRetry`).
+This document tracks **what we send today**, **gaps vs. top-tier SaaS**, and a **phased plan** to close them. **Brand colors & shared layout** for app-owned HTML mail live in `lib/notifications/email-brand.ts` (primary blue `#2563EB`, navy–indigo header gradient, tool accent map). **Transactional billing/onboarding** helpers live in `lib/notifications/transactional-emails.ts` (queue + SMTP); other templates live in `lib/notifications/email-service.ts` and `lib/notifications/email-smtp.ts` (shared transporter + `sendMailWithRetry`).
 
-**Related:** [PAYMENT_FLOW_AUDIT.md](./PAYMENT_FLOW_AUDIT.md) (Stripe checkout & webhooks).
+**Related:** [PAYMENT_FLOW_AUDIT.md](./PAYMENT_FLOW_AUDIT.md) (Stripe checkout & webhooks) · **[EMAIL_TEMPLATES.md](./EMAIL_TEMPLATES.md)** (every subject line & template).
 
 ---
 

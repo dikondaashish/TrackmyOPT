@@ -11,6 +11,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { sendMailWithRetry } from './email-smtp';
 import { sendPremiumWelcomeQueuedEmail } from './transactional-emails';
+import { EMAIL, emailBrandHeader, emailFooter, emailOuterClose, emailOuterOpen } from './email-brand';
 
 export interface ToolReminderDetail {
   name: string;
@@ -60,13 +61,13 @@ function getDynamicSubject(tools: EmailReminderData['tools']): string {
   const minDays = Math.min(...tools.map(t => t.daysLeft));
 
   if (minDays <= 7) {
-    return `🚨 URGENT: ${minDays} ${minDays === 1 ? 'day' : 'days'} left - Action required!`;
+    return `TrackMyOPT: ${minDays} ${minDays === 1 ? 'day' : 'days'} left — action needed`;
   } else if (minDays <= 14) {
-    return `⚠️ ${minDays} days remaining - Don't delay!`;
+    return `TrackMyOPT: ${minDays} days remaining`;
   } else if (minDays <= 30) {
-    return `📅 ${minDays} days left - Time to prepare`;
+    return `TrackMyOPT: ${minDays} days left on your timeline`;
   } else {
-    return `✅ OPT Daily Update - ${minDays} days remaining`;
+    return `TrackMyOPT daily update — ${minDays} days remaining`;
   }
 }
 
@@ -85,87 +86,35 @@ function generateEmailHTML(data: EmailReminderData): string {
   const toolSectionsHTML = data.tools.map(tool => generateToolSection(tool)).join('');
 
   return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>OPT Daily Reminder</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F3F4F6;">
-      <div style="max-width: 640px; margin: 0 auto; padding: 20px;">
-        
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 16px 16px 0 0; padding: 32px 24px; text-align: center;">
-          <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 800;">
-            OPT<span style="color: #FFD60A;">Clock</span>Tracker
-          </h1>
-          <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
-            Your <strong>OPT</strong> Timeline Assistant
-          </p>
+    ${emailOuterOpen()}
+      <div style="background:${EMAIL.bgCard};border-radius:12px;overflow:hidden;border:1px solid ${EMAIL.border};box-shadow:0 1px 3px rgba(15,23,42,0.08);">
+        ${emailBrandHeader({
+          title: "Daily OPT summary",
+          subtitle: "Your timeline and tool reminders",
+          accentBottom: EMAIL.accent.optApply,
+        })}
+        <div style="padding:24px 24px 8px 24px;border-bottom:1px solid ${EMAIL.border};">
+          <p style="margin:0 0 4px 0;color:${EMAIL.textMuted};font-size:13px;">${currentDate}</p>
+          <h2 style="margin:0;color:${EMAIL.text};font-size:20px;font-weight:700;">Hi ${data.firstName}</h2>
         </div>
-
-        <!-- Main Content Container -->
-        <div style="background: white; border-radius: 0 0 16px 16px; padding: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-          
-          <!-- Greeting Section -->
-          <div style="padding: 28px 28px 20px 28px; border-bottom: 1px solid #E5E7EB;">
-            <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 14px;">
-              ${currentDate}
-            </p>
-            <h2 style="margin: 0; color: #1F2937; font-size: 22px; font-weight: 700;">
-              Hi ${data.firstName}! 👋
-            </h2>
-          </div>
-
-          <!-- Tool Sections -->
+        <div style="background:${EMAIL.bgCard};padding:0;">
           ${toolSectionsHTML}
-
-          <!-- Daily Reminder Note -->
-          <div style="padding: 20px 28px; background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border-top: 1px solid #C7D2FE;">
-            <div style="display: flex; align-items: flex-start;">
-              <span style="font-size: 20px; margin-right: 12px;">📬</span>
-              <div>
-                <p style="margin: 0 0 4px 0; color: #4338CA; font-size: 14px; font-weight: 600;">
-                  Daily Reminders Active
-                </p>
-                <p style="margin: 0; color: #6366F1; font-size: 13px; line-height: 1.5;">
-                  We'll send you daily updates at 9:00 AM ET to help you stay on track. Best of luck with your OPT application and job search! 🍀
-                </p>
-              </div>
-            </div>
+          <div style="padding:16px 24px;background:${EMAIL.infoBg};border-top:1px solid ${EMAIL.infoBorder};">
+            <p style="margin:0 0 4px 0;color:${EMAIL.infoText};font-size:13px;font-weight:600;">Daily reminders</p>
+            <p style="margin:0;color:${EMAIL.textSecondary};font-size:13px;line-height:1.5;">
+              We send these updates at 9:00 AM ET when your tools are active. Adjust alerts in Settings if needed.
+            </p>
           </div>
-
-          <!-- CTA Button -->
-          <div style="padding: 24px 28px; text-align: center; border-top: 1px solid #E5E7EB;">
-            <a href="https://www.trackmyopt.com/dashboard/opt-tools/opt-apply" 
-               style="display: inline-block; background: linear-gradient(135deg, #007AFF, #5856D6); color: white; text-decoration: none; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);">
-              Update OPT Portal →
+          <div style="padding:20px 24px;text-align:center;border-top:1px solid ${EMAIL.border};">
+            <a href="https://www.trackmyopt.com/dashboard/opt-tools/opt-apply"
+               style="display:inline-block;background:${EMAIL.cta};color:${EMAIL.ctaText}!important;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:600;font-size:14px;">
+              Open dashboard
             </a>
           </div>
-
         </div>
-
-        <!-- Footer -->
-        <div style="padding: 24px; text-align: center;">
-          <p style="margin: 0 0 12px 0; color: #6B7280; font-size: 12px;">
-            Want to stop these emails? 
-            <a href="https://www.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #007AFF; text-decoration: none; font-weight: 500;">
-              Manage Email Preferences
-            </a>
-          </p>
-          <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 11px;">
-            Best regards,<br/>
-            <strong>OPT Clock Tracker Team</strong>
-          </p>
-          <p style="margin: 0; color: #D1D5DB; font-size: 10px;">
-            © ${new Date().getFullYear()} Zyene, Inc. | support@trackmyopt.com
-          </p>
-        </div>
-
+        ${emailFooter()}
       </div>
-    </body>
-    </html>
+    ${emailOuterClose()}
   `;
 }
 
@@ -1147,39 +1096,32 @@ export async function sendExportOtpEmail(
     const info = await sendMailWithRetry({
       from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: email,
-      subject: 'Your Data Export Verification Code - OPT Clock Tracker',
+      subject: 'Your TrackMyOPT data export verification code',
       html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-            <div style="background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%); padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
-              <h1 style="color: white; margin: 0; font-size: 28px;">OPT<span style="color: #FFD60A;">Clock</span>Tracker</h1>
-            </div>
-            <div style="background: white; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-              <h2 style="margin: 0 0 16px 0; color: #1F2937; font-size: 20px;">
-                Data Export Verification
+        ${emailOuterOpen()}
+        <div style="background:${EMAIL.bgCard};border-radius:12px;overflow:hidden;border:1px solid ${EMAIL.border};box-shadow:0 1px 3px rgba(15,23,42,0.08);">
+          ${emailBrandHeader({
+            title: 'Data export verification',
+            subtitle: 'Use the code below to finish your export',
+            accentBottom: EMAIL.primary,
+          })}
+          <div style="padding:28px 24px;">
+              <h2 style="margin: 0 0 16px 0; color: ${EMAIL.text}; font-size: 18px; font-weight: 700;">
+                Verification code
               </h2>
-              <p style="margin: 0 0 24px 0; color: #6B7280; font-size: 15px;">
-                ${firstName ? `Hi ${firstName}, ` : ''}You requested to export your data. Use this code to verify your identity:
+              <p style="margin: 0 0 24px 0; color: ${EMAIL.textMuted}; font-size: 15px;">
+                ${firstName ? `Hi ${firstName}, ` : ''}You requested an export of your data. Enter this code to continue:
               </p>
-              <div style="background: #F9FAFB; border: 2px solid #E5E7EB; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0;">
-                <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #1F2937; font-family: monospace;">${otp}</span>
+              <div style="background: ${EMAIL.borderLight}; border: 1px solid ${EMAIL.border}; border-radius: 10px; padding: 24px; text-align: center; margin: 24px 0;">
+                <span style="font-size: 32px; font-weight: 700; letter-spacing: 10px; color: ${EMAIL.text}; font-family: ui-monospace, monospace;">${otp}</span>
               </div>
-              <p style="margin: 24px 0 0 0; color: #9CA3AF; font-size: 13px; text-align: center;">
-                This code expires in 10 minutes. If you didn't request this, please ignore this email.
+              <p style="margin: 24px 0 0 0; color: ${EMAIL.textSubtle}; font-size: 13px; text-align: center;">
+                Expires in 10 minutes. If you didn&apos;t request this, you can ignore this email.
               </p>
-            </div>
-            <div style="text-align: center; padding: 20px; color: #9CA3AF; font-size: 12px;">
-              <p style="margin: 0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
-            </div>
           </div>
-        </body>
-        </html>
+          ${emailFooter()}
+        </div>
+        ${emailOuterClose()}
       `,
     });
 
@@ -1212,7 +1154,8 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
   title: string;
   subtitle: string;
   icon: string;
-  gradient: string;
+  /** Accent for header underline & CTA (tool family color) */
+  accent: string;
   timelineHtml: string;
   preparationHtml: string;
   tipsHtml: string;
@@ -1229,7 +1172,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         title: 'OPT Apply Dates',
         subtitle: 'Your Daily OPT Application Reminder',
         icon: '📋',
-        gradient: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+        accent: EMAIL.accent.optApply,
         timelineHtml: data?.startDate && data?.endDate ? `
           <div style="background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="margin: 0 0 16px 0; color: #0369A1; font-size: 16px; font-weight: 600;">📅 Your OPT Filing Window</h3>
@@ -1292,7 +1235,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         title: 'OPT Unemployment Clock',
         subtitle: 'Track Your 90-Day Unemployment Limit',
         icon: '⏰',
-        gradient: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+        accent: EMAIL.accent.optClock,
         timelineHtml: data?.startDate ? `
           <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="margin: 0 0 16px 0; color: #92400E; font-size: 16px; font-weight: 600;">⏱️ Your Unemployment Clock</h3>
@@ -1346,7 +1289,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         title: 'STEM OPT Extension',
         subtitle: 'Your 24-Month Extension Application Reminder',
         icon: '🔬',
-        gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+        accent: EMAIL.accent.stemApply,
         timelineHtml: data?.startDate && data?.endDate ? `
           <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">📅 Your STEM OPT Filing Window</h3>
@@ -1404,7 +1347,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         title: 'STEM Unemployment Clock',
         subtitle: 'Track Your 60-Day STEM Unemployment Limit',
         icon: '⏱️',
-        gradient: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+        accent: EMAIL.accent.stemClock,
         timelineHtml: data?.startDate ? `
           <div style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">⏱️ Your STEM Unemployment Clock</h3>
@@ -1458,7 +1401,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         title: 'Document Expiry Reminders',
         subtitle: 'Never Miss an Important Deadline',
         icon: '📄',
-        gradient: 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
+        accent: EMAIL.accent.documents,
         timelineHtml: '',
         preparationHtml: `
           <div style="background: #FDF2F8; border: 1px solid #FBCFE8; border-radius: 12px; padding: 20px; margin: 20px 0;">
@@ -1497,7 +1440,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         title: 'Case Status Tracker',
         subtitle: 'Track Your USCIS Case Status Automatically',
         icon: '🔔',
-        gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+        accent: EMAIL.accent.caseStatus,
         timelineHtml: `
           <div style="background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 16px; font-weight: 600;">🎉 You're All Set!</h3>
@@ -1545,7 +1488,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         title: 'OPT Daily Reminders',
         subtitle: 'Your OPT Timeline Assistant',
         icon: '📧',
-        gradient: 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)',
+        accent: EMAIL.accent.default,
         timelineHtml: '',
         preparationHtml: '',
         tipsHtml: '',
@@ -1576,47 +1519,26 @@ export async function sendEnrollmentEmail(
     const info = await sendMailWithRetry({
       from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
       to: email,
-      subject: `✅ Welcome to ${content.title} - You're All Set!`,
+      subject: `Welcome to ${content.title} — TrackMyOPT`,
       html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F3F4F6;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            
-            <!-- Header with Branding -->
-            <div style="background: ${content.gradient}; border-radius: 16px 16px 0 0; padding: 32px; text-align: center;">
-              <h1 style="margin: 0 0 8px 0; color: white; font-size: 28px; font-weight: 700;">
-                OPT<span style="color: #FFD60A;">Clock</span>Tracker
-              </h1>
-              <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 14px;">${content.subtitle}</p>
+        ${emailOuterOpen()}
+        <div style="background:${EMAIL.bgCard};border-radius:12px;overflow:hidden;border:1px solid ${EMAIL.border};box-shadow:0 1px 3px rgba(15,23,42,0.08);">
+            ${emailBrandHeader({ title: content.title, subtitle: content.subtitle, accentBottom: content.accent })}
+
+            <div style="background:${EMAIL.bgCard};border-left:4px solid ${content.accent};padding:14px 20px;margin:0;">
+              <p style="margin:0;color:${EMAIL.textSecondary};font-size:14px;line-height:1.5;">
+                <strong style="color:${EMAIL.text};">Enrollment confirmed</strong> — ${content.title}
+              </p>
             </div>
 
-            <!-- Success Banner -->
-            <div style="background: #ECFDF5; border-left: 4px solid #10B981; padding: 16px 20px; margin: 0;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 28px;">${content.icon}</span>
-                <div>
-                  <h2 style="margin: 0; color: #065F46; font-size: 20px; font-weight: 600;">You're All Set!</h2>
-                  <p style="margin: 4px 0 0 0; color: #047857; font-size: 14px;">Successfully enrolled in ${content.title}</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Main Content Card -->
-            <div style="background: white; padding: 32px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <div style="background: white; padding: 28px 24px;">
               
-              <!-- Greeting -->
-              <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+              <p style="margin: 0 0 16px 0; color: ${EMAIL.textSecondary}; font-size: 15px; line-height: 1.6;">
                 Hi <strong>${firstName || 'there'}</strong>,
               </p>
               
-              <p style="margin: 0 0 24px 0; color: #374151; font-size: 16px; line-height: 1.6;">
-                Congratulations! 🎉 You've successfully enrolled in <strong>${content.title}</strong>. 
-                We'll help you stay on track with timely reminders and expert guidance throughout your journey.
+              <p style="margin: 0 0 24px 0; color: ${EMAIL.textSecondary}; font-size: 15px; line-height: 1.6;">
+                You&apos;re enrolled in <strong>${content.title}</strong>. We&apos;ll use this channel to send reminders and updates you&apos;ve opted into for this tool.
               </p>
 
               <!-- Timeline Info (if available) -->
@@ -1629,70 +1551,34 @@ export async function sendEnrollmentEmail(
               ${content.tipsHtml}
 
               <!-- What to Expect -->
-              <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; margin: 20px 0;">
-                <h3 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
-                  📬 What to Expect
-                </h3>
+              <div style="background:${EMAIL.borderLight};border-radius:8px;border:1px solid ${EMAIL.border};padding:18px 18px;margin:20px 0;">
+                <h3 style="margin:0 0 12px 0;color:${EMAIL.text};font-size:15px;font-weight:600;">What to expect</h3>
                 ${content.whatToExpectHtml}
               </div>
 
-              <!-- CTA Button -->
-              <div style="text-align: center; margin: 32px 0 24px 0;">
-                <a href="https://www.trackmyopt.com/dashboard/${toolName === 'case-status' ? 'case-status' : 'opt-tools/' + toolName}" 
-                   style="display: inline-block; background: ${content.gradient}; color: white; text-decoration: none; padding: 14px 32px; border-radius: 10px; font-weight: 600; font-size: 15px;">
-                  Go to ${content.title} →
+              <div style="text-align:center;margin:28px 0 20px 0;">
+                <a href="https://www.trackmyopt.com/dashboard/${toolName === 'case-status' ? 'case-status' : 'opt-tools/' + toolName}"
+                   style="display:inline-block;background:${content.accent};color:#fff!important;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px;">
+                  Open ${content.title}
                 </a>
               </div>
 
-              <!-- Settings Link -->
-              <div style="text-align: center; padding: 20px; border-top: 1px solid #E5E7EB; margin-top: 24px;">
-                <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 14px;">
-                  <strong>Got a job or completed your application?</strong>
-                </p>
-                <p style="margin: 0; color: #6B7280; font-size: 14px;">
-                  Visit your <a href="https://www.trackmyopt.com/dashboard/settings?tab=notifications" style="color: #3B82F6; text-decoration: none; font-weight: 500;">Settings → Notifications</a> to manage your email preferences.
+              <div style="padding:18px 0 0 0;border-top:1px solid ${EMAIL.border};margin-top:8px;">
+                <p style="margin:0 0 6px 0;color:${EMAIL.textMuted};font-size:13px;">
+                  Manage email preferences anytime in
+                  <a href="https://www.trackmyopt.com/dashboard/settings?tab=notifications" style="color:${EMAIL.link};text-decoration:none;font-weight:600;">Settings → Notifications</a>.
                 </p>
               </div>
             </div>
 
-            <!-- Rating Section -->
-            <div style="background: white; border-radius: 16px; padding: 24px; margin-top: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-              <h3 style="margin: 0 0 8px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
-                ⭐ Loving OPT Clock Tracker?
-              </h3>
-              <p style="margin: 0 0 16px 0; color: #6B7280; font-size: 14px;">
-                Help other international students by leaving a review!
-              </p>
-              <a href="${chromeExtensionUrl}" style="text-decoration: none;">
-                <div style="display: inline-block;">
-                  <span style="font-size: 32px; letter-spacing: 4px;">⭐⭐⭐⭐⭐</span>
-                </div>
-              </a>
-              <p style="margin: 12px 0 0 0;">
-                <a href="${chromeExtensionUrl}" 
-                   style="color: #3B82F6; text-decoration: none; font-size: 14px; font-weight: 500;">
-                  Rate on Chrome Web Store →
-                </a>
-              </p>
+            <div style="background:${EMAIL.borderLight};padding:20px 24px;text-align:center;border-top:1px solid ${EMAIL.border};">
+              <p style="margin:0 0 10px 0;color:${EMAIL.textMuted};font-size:13px;">Find TrackMyOPT useful? Leave a review on the Chrome Web Store.</p>
+              <a href="${chromeExtensionUrl}" style="color:${EMAIL.link};text-decoration:none;font-size:13px;font-weight:600;">Rate TrackMyOPT →</a>
             </div>
 
-            <!-- Footer -->
-            <div style="text-align: center; padding: 24px 20px;">
-              <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 13px;">
-                Best regards,<br>
-                <strong>The OPT Clock Tracker Team</strong>
-              </p>
-              <p style="margin: 16px 0 0 0; color: #9CA3AF; font-size: 12px;">
-                © ${new Date().getFullYear()} Zyene, Inc. All rights reserved.
-              </p>
-              <p style="margin: 8px 0 0 0; color: #9CA3AF; font-size: 12px;">
-                <a href="mailto:support@trackmyopt.com" style="color: #9CA3AF; text-decoration: none;">support@trackmyopt.com</a>
-              </p>
-            </div>
-
-          </div>
-        </body>
-        </html>
+            ${emailFooter()}
+        </div>
+        ${emailOuterClose()}
       `,
     });
 
@@ -1700,6 +1586,70 @@ export async function sendEnrollmentEmail(
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('Enrollment email service error:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Short confirmation when the user saves their shared notification email from
+ * Settings (no toolType) — does not imply Document Vault / tool enrollment.
+ */
+export async function sendNotificationPreferencesSavedEmail(email: string, firstName: string) {
+  try {
+    const esc = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const dashSettings =
+      (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://www.trackmyopt.com').replace(
+        /\/$/,
+        ''
+      ) + '/dashboard/settings?tab=notifications';
+    const greeting = esc(firstName && firstName.trim() ? firstName.trim() : 'there');
+    const safeEmail = esc(email.trim());
+    const info = await sendMailWithRetry({
+      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+      to: email,
+      subject: 'Your TrackMyOPT notification email is saved',
+      text: `Hi ${firstName && firstName.trim() ? firstName.trim() : 'there'},
+
+We saved this address for TrackMyOPT notifications: ${email.trim()}
+
+You'll receive important updates, case and document reminders (when enabled), and other messages you opt into at this address.
+
+Manage preferences anytime:
+${dashSettings}
+
+— TrackMyOPT
+support@trackmyopt.com`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+        <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;color:#374151;">
+          <div style="max-width:560px;margin:0 auto;padding:24px 16px;">
+            <div style="background:#fff;border-radius:12px;padding:28px 24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+              <p style="margin:0 0 8px 0;font-size:18px;font-weight:700;color:#111827;">TrackMyOPT</p>
+              <p style="margin:0 0 20px 0;font-size:15px;line-height:1.6;">Hi <strong>${greeting}</strong>,</p>
+              <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;">
+                We saved this address for your <strong>notification email</strong>:
+              </p>
+              <p style="margin:0 0 20px 0;font-size:15px;font-weight:600;color:#1D4ED8;word-break:break-all;">${safeEmail}</p>
+              <p style="margin:0 0 20px 0;font-size:15px;line-height:1.6;color:#4B5563;">
+                You may receive case updates, document reminders (when you use those features), and other messages you opt into at this address.
+              </p>
+              <div style="text-align:center;margin:24px 0 8px 0;">
+                <a href="${dashSettings}" style="display:inline-block;background:#2563EB;color:#fff !important;text-decoration:none;font-weight:600;font-size:14px;padding:12px 22px;border-radius:8px;">Notification settings</a>
+              </div>
+              <p style="margin:20px 0 0 0;font-size:13px;color:#9CA3AF;">Questions? <a href="mailto:support@trackmyopt.com" style="color:#2563EB;">support@trackmyopt.com</a></p>
+            </div>
+            <p style="text-align:center;margin:16px 0 0 0;font-size:12px;color:#9CA3AF;">© ${new Date().getFullYear()} Zyene, Inc.</p>
+          </div>
+        </body>
+        </html>`,
+    });
+    console.log('Notification preferences confirmation sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('sendNotificationPreferencesSavedEmail error:', error);
     return { success: false, error };
   }
 }

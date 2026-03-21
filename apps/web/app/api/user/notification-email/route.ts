@@ -1,14 +1,17 @@
 /**
  * User Notification Email API
  * 
- * Handles storing and retrieving the user's preferred email
- * for document expiry notifications
+ * Handles storing and retrieving the user's preferred notification email
+ * (Case Status, Document Vault, STEM/cron routing, etc.)
  */
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { sendEnrollmentEmail } from '@/lib/notifications/email-service';
+import {
+  sendEnrollmentEmail,
+  sendNotificationPreferencesSavedEmail,
+} from '@/lib/notifications/email-service';
 import { sanitizeError } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
@@ -139,6 +142,11 @@ export async function POST(request: Request) {
 
     const previousEmail = existingProfile?.notification_email;
     const isNewEnrollment = email && (!previousEmail || previousEmail !== email);
+    /** First time ever setting notification email (not an address change). */
+    const isFirstTimeSettingNotificationEmail = Boolean(email && !previousEmail);
+    /** Tool-specific welcome (case-status, documents, …) — omit on generic Settings save */
+    const explicitToolType =
+      typeof toolType === 'string' && toolType.trim().length > 0 ? toolType.trim() : null;
 
     // Use upsert to handle both create and update cases
     const { error: upsertError } = await supabase
@@ -167,35 +175,51 @@ export async function POST(request: Request) {
       );
     }
 
-    // Send enrollment confirmation email if this is a new enrollment
-    // Use toolType from request, default to 'documents' for backward compatibility
-    const emailToolType = toolType || 'documents';
-    console.log(`📧 Notification email save - Email: ${email}, PreviousEmail: ${previousEmail}, IsNewEnrollment: ${isNewEnrollment}, ToolType: ${emailToolType}`);
+    console.log(
+      `📧 Notification email save - Email: ${email}, PreviousEmail: ${previousEmail}, IsNewEnrollment: ${isNewEnrollment}, explicitToolType: ${explicitToolType ?? '(none)'}`
+    );
 
-    if (isNewEnrollment) {
-      const firstName = existingProfile?.first_name || 'there';
+    const firstName = existingProfile?.first_name || 'there';
 
-      console.log(`📤 Sending ${emailToolType} enrollment email to ${email}`);
-
-      // Send enrollment email and wait for result
+    if (isNewEnrollment && explicitToolType) {
+      console.log(`📤 Sending ${explicitToolType} enrollment email to ${email}`);
       try {
-        const result = await sendEnrollmentEmail(email, firstName, emailToolType);
+        const result = await sendEnrollmentEmail(email, firstName, explicitToolType);
         if (result.success) {
-          console.log(`✅ ${emailToolType} enrollment email sent successfully to ${email}`);
+          console.log(`✅ ${explicitToolType} enrollment email sent successfully to ${email}`);
         } else {
-          console.error(`❌ Failed to send ${emailToolType} enrollment email:`, result.error);
+          console.error(`❌ Failed to send ${explicitToolType} enrollment email:`, result.error);
         }
       } catch (err) {
-        console.error(`❌ ${emailToolType} enrollment email error:`, err);
+        console.error(`❌ ${explicitToolType} enrollment email error:`, err);
+      }
+    } else if (isFirstTimeSettingNotificationEmail && !explicitToolType) {
+      // Settings → Notifications: confirm address without implying Document Vault enrollment
+      try {
+        const result = await sendNotificationPreferencesSavedEmail(email, firstName);
+        if (result.success) {
+          console.log(`✅ Notification preferences confirmation sent to ${email}`);
+        } else {
+          console.error('❌ Failed to send notification preferences confirmation:', result.error);
+        }
+      } catch (err) {
+        console.error('❌ Notification preferences confirmation error:', err);
       }
     } else {
-      console.log(`ℹ️ Skipping enrollment email - not a new enrollment for ${emailToolType}`);
+      console.log(
+        `ℹ️ Skipping welcome email (tool enrollment or generic) — explicitToolType: ${explicitToolType ?? 'none'}, firstTime: ${isFirstTimeSettingNotificationEmail}`
+      );
     }
 
     return NextResponse.json({
       success: true,
       email,
-      enrollmentEmailSent: isNewEnrollment,
+      /** Tool-specific welcome (case-status, documents, …) */
+      enrollmentEmailSent: Boolean(isNewEnrollment && explicitToolType),
+      /** First-time save from Settings without tool context */
+      notificationPreferencesConfirmationSent: Boolean(
+        isFirstTimeSettingNotificationEmail && !explicitToolType
+      ),
     });
 
   } catch (error) {

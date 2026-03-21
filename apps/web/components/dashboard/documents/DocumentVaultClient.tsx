@@ -146,7 +146,7 @@ export function DocumentVaultClient() {
       const res = await fetch('/api/user/notification-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: notificationEmail.trim() }),
+        body: JSON.stringify({ email: notificationEmail.trim(), toolType: 'documents' }),
       });
 
       const data = await res.json();
