@@ -66,7 +66,7 @@ function TaxResultsContent() {
   const [couponCopied, setCouponCopied] = useState(false);
   const [expandedGuide, setExpandedGuide] = useState<number | null>(null);
 
-  const COUPON_CODE = "F25UCLA1000";
+  const COUPON_CODE = "F25CU800";
 
   // Get params from URL
   const years = searchParams.get("years") || "";
