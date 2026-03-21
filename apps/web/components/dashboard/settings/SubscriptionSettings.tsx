@@ -6,6 +6,7 @@ import { BillingHistory } from './BillingHistory';
 import { SubscriptionFAQ } from './SubscriptionFAQ';
 import { PlanComparisonModal } from './PlanComparisonModal';
 import { PricingModal } from '@/components/pricing/PricingModal';
+import { CheckoutPromoHintDialog, type CheckoutPromoHint } from '@/components/pricing/CheckoutPromoHintDialog';
 
 interface PremiumStatus {
     isPremium: boolean;
@@ -245,6 +246,10 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
     const [selectedPlan, setSelectedPlan] = useState<string>('pro');
     const [selectedInterval, setSelectedInterval] = useState<string>('month');
     const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState<string | null>(null);
+    const [pendingPromoCheckout, setPendingPromoCheckout] = useState<{
+        url: string;
+        hint: CheckoutPromoHint;
+    } | null>(null);
 
     // Direct Checkout Handler (Bypasses Modal)
     const handleDirectCheckout = async (planId: string, interval: string) => {
@@ -271,8 +276,20 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
                 throw new Error(msg);
             }
 
-            const { url } = await response.json();
-            window.location.href = url;
+            const data = (await response.json()) as {
+                url?: string;
+                checkoutPromoHint?: CheckoutPromoHint;
+                checkoutPromoLocked?: boolean;
+            };
+            if (!data?.url || typeof data.url !== 'string') {
+                throw new Error('Invalid checkout response');
+            }
+            if (data.checkoutPromoHint?.code && !data.checkoutPromoLocked) {
+                setPendingPromoCheckout({ url: data.url, hint: data.checkoutPromoHint });
+                setCheckoutLoadingPlan(null);
+                return;
+            }
+            window.location.href = data.url;
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Failed to start upgrade process.';
             alert(message);
@@ -302,6 +319,20 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
+            <CheckoutPromoHintDialog
+                open={!!pendingPromoCheckout}
+                onOpenChange={(next) => {
+                    if (!next) {
+                        setPendingPromoCheckout(null);
+                    }
+                }}
+                hint={pendingPromoCheckout?.hint ?? null}
+                onContinue={() => {
+                    if (pendingPromoCheckout?.url) {
+                        window.location.href = pendingPromoCheckout.url;
+                    }
+                }}
+            />
             {/* Header */}
             <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">

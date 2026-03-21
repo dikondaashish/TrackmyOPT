@@ -35,6 +35,7 @@
 | Status | Notes |
 |--------|--------|
 | **Working** | `line_items: [{ price: priceId, quantity: 1 }]`, `mode: 'subscription'`, `metadata.supabase_user_id`, `metadata.planId`, `metadata.interval`, `subscription_data.metadata` for plan/interval, Pro trial via `trial_period_days: 7`. |
+| **Promo UX** | Stripe forbids combining `discounts` + `allow_promotion_codes` on one Checkout Session. Default path: `allow_promotion_codes: true` + optional `STRIPE_CHECKOUT_PROMO_HINT` (or plan overrides) → same hint for **all** variants: Pro month/year + Dedicated month/year; API returns `checkoutPromoHint` with `planId` + `interval` for UI; copy dialog before redirect. Locked path: `STRIPE_LOCK_CHECKOUT_PROMO` + `STRIPE_PROMO_CODE_*` (`promo_...`). |
 | **Partial / cosmetic** | Client sometimes sent `successUrl` / `cancelUrl` in JSON; **server ignored them** (success/cancel URLs are set only in `create-checkout`). **Fixed** client payloads to stop sending dead fields; server URLs remain canonical. |
 | **Working** | Stale `stripe_customer_id` in DB: `customers.retrieve` failure clears ID and creates a new customer. |
 | **Resolved** | See **Duplicate Checkout Sessions** above. |
@@ -100,7 +101,7 @@
 ## Ops checklist (cannot verify in repo)
 
 - [ ] Stripe Dashboard: Webhook endpoint URL matches deployment + events enabled for all handled types.
-- [ ] All `STRIPE_PRICE_*` and optional `STRIPE_PROMO_CODE_*` env vars set in production.
+- [ ] All `STRIPE_PRICE_*` env vars set in production. **Promos:** Stripe allows only one of server-applied `discounts` OR customer `allow_promotion_codes` (not both). Default: `allow_promotion_codes: true`. Set `STRIPE_CHECKOUT_PROMO_HINT` (e.g. `EARLYBIRD`) so the app shows a copy dialog before redirect; optional `STRIPE_CHECKOUT_PROMO_HINT_PRO` / `STRIPE_CHECKOUT_PROMO_HINT_DEDICATED` override per plan. **Legacy locked auto-apply:** `STRIPE_LOCK_CHECKOUT_PROMO=true` + `STRIPE_PROMO_CODE_PRO` / `STRIPE_PROMO_CODE_DEDICATED` (Stripe `promo_...` ids) applies the discount server-side and **disables** the promo field on hosted Checkout.
 - [ ] Stripe Customer Portal configured for plan changes/cancel (used by `/api/premium/portal`).
 - [ ] Run migration `20260219_payment_transactions_subscription_id.sql` on production Supabase.
 

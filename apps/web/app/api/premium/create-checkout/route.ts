@@ -47,6 +47,40 @@ const getPrices = () => ({
   }
 });
 
+/**
+ * Customer-facing promo string for UI (e.g. EARLYBIRD). Not the Stripe promotion_code id (promo_...).
+ *
+ * Same hint applies to **all** paid checkout variants when using `STRIPE_CHECKOUT_PROMO_HINT` alone:
+ * Pro monthly, Pro yearly, Dedicated monthly, Dedicated yearly (all four `STRIPE_PRICE_*` paths).
+ * Optional `STRIPE_CHECKOUT_PROMO_HINT_PRO` / `STRIPE_CHECKOUT_PROMO_HINT_DEDICATED` override per plan only;
+ * billing interval (month vs year) never selects a different code.
+ */
+function getCheckoutPromoHintCode(planId: 'pro' | 'dedicated'): string | undefined {
+  const t = (s: string | undefined) => (s && s.trim()) || undefined;
+  if (planId === 'pro') {
+    return t(process.env.STRIPE_CHECKOUT_PROMO_HINT_PRO) || t(process.env.STRIPE_CHECKOUT_PROMO_HINT);
+  }
+  return t(process.env.STRIPE_CHECKOUT_PROMO_HINT_DEDICATED) || t(process.env.STRIPE_CHECKOUT_PROMO_HINT);
+}
+
+function buildCheckoutPromoHintResponse(
+  planId: 'pro' | 'dedicated',
+  interval: 'month' | 'year',
+  lockCheckoutPromo: boolean,
+  promotionCode: string | undefined,
+  promoHintCode: string | undefined
+):
+  | { code: string; planId: 'pro' | 'dedicated'; interval: 'month' | 'year' }
+  | undefined {
+  if (lockCheckoutPromo && promotionCode) {
+    return undefined;
+  }
+  if (!promoHintCode) {
+    return undefined;
+  }
+  return { code: promoHintCode, planId, interval };
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Validate environment variables
@@ -125,6 +159,19 @@ export async function POST(req: NextRequest) {
 
     console.log(`Using Stripe customer: ${customerId}`);
 
+    /**
+     * Promotion codes — computed early so session reuse returns the same `checkoutPromoHint` shape.
+     * @see block below sessionConfig for Stripe API notes.
+     */
+    let promotionCode: string | undefined;
+    if (planId === 'pro') {
+      promotionCode = process.env.STRIPE_PROMO_CODE_PRO;
+    } else if (planId === 'dedicated') {
+      promotionCode = process.env.STRIPE_PROMO_CODE_DEDICATED;
+    }
+    const lockCheckoutPromo = process.env.STRIPE_LOCK_CHECKOUT_PROMO === 'true';
+    const promoHintCode = getCheckoutPromoHintCode(planId);
+
     // Reuse an open Checkout Session from the last 10 minutes (avoid duplicate charges from multi-tab)
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
     const { data: recentPending } = await supabase
@@ -158,9 +205,18 @@ export async function POST(req: NextRequest) {
 
         if (existingSession.status === 'open' && existingSession.url && samePriceAsRequest) {
           console.log(`Reusing open checkout session ${existingSession.id} for ${planId}/${interval}`);
+          const checkoutPromoHint = buildCheckoutPromoHintResponse(
+            planId as 'pro' | 'dedicated',
+            interval as 'month' | 'year',
+            lockCheckoutPromo,
+            promotionCode,
+            promoHintCode
+          );
           return NextResponse.json({
             sessionId: existingSession.id,
             url: existingSession.url,
+            checkoutPromoHint,
+            checkoutPromoLocked: !!(lockCheckoutPromo && promotionCode),
           });
         }
         console.log(
@@ -174,13 +230,11 @@ export async function POST(req: NextRequest) {
 
     const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com';
 
-    // Determine Promo Code (Auto-Apply)
-    let promotionCode: string | undefined;
-    if (planId === 'pro') {
-      promotionCode = process.env.STRIPE_PROMO_CODE_PRO;
-    } else if (planId === 'dedicated') {
-      promotionCode = process.env.STRIPE_PROMO_CODE_DEDICATED;
-    }
+    /**
+     * Stripe Checkout Session: only ONE of `discounts` OR `allow_promotion_codes` (not both).
+     * Default: `allow_promotion_codes: true`. Optional hint envs surface EARLYBIRD in-app before redirect.
+     * Lock path: STRIPE_LOCK_CHECKOUT_PROMO + STRIPE_PROMO_CODE_* → `discounts` only (no customer promo field).
+     */
 
     // Create Subscription Session
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
@@ -210,8 +264,7 @@ export async function POST(req: NextRequest) {
       allow_promotion_codes: true,
     };
 
-    // Only apply promo if it exists
-    if (promotionCode) {
+    if (lockCheckoutPromo && promotionCode) {
       sessionConfig.discounts = [{ promotion_code: promotionCode }];
       sessionConfig.allow_promotion_codes = undefined;
     }
@@ -235,8 +288,21 @@ export async function POST(req: NextRequest) {
       console.error('Pending checkout row insert failed (session still valid in Stripe):', pendingInsertError);
     }
 
+    const checkoutPromoHint = buildCheckoutPromoHintResponse(
+      planId as 'pro' | 'dedicated',
+      interval as 'month' | 'year',
+      lockCheckoutPromo,
+      promotionCode,
+      promoHintCode
+    );
+
     console.log(`Checkout session created: ${session.id}`);
-    return NextResponse.json({ sessionId: session.id, url: session.url });
+    return NextResponse.json({
+      sessionId: session.id,
+      url: session.url,
+      checkoutPromoHint,
+      checkoutPromoLocked: !!(lockCheckoutPromo && promotionCode),
+    });
 
   } catch (error: any) {
     console.error('Stripe checkout error:', sanitizeError(error));

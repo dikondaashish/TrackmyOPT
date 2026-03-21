@@ -66,8 +66,27 @@ const config: Config = {
         "border-spin": "borderSpin 3s linear infinite",
         "spin-slow": "spin 8s linear infinite",
         "scroll": "scroll 40s linear infinite",
+        "premium-hero-in": "premiumHeroIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "premium-check-draw": "premiumCheckDraw 0.45s ease-out 0.2s both",
+        "premium-confetti": "premiumConfetti 2.4s ease-out forwards",
       },
       keyframes: {
+        premiumHeroIn: {
+          from: { opacity: "0", transform: "scale(0.92)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        premiumCheckDraw: {
+          from: { opacity: "0", transform: "scale(0.6)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        premiumConfetti: {
+          "0%": { opacity: "0", transform: "translate(0,0) rotate(0deg)" },
+          "15%": { opacity: "1" },
+          "100%": {
+            opacity: "0",
+            transform: "translate(var(--tx), var(--ty)) rotate(var(--rot))",
+          },
+        },
         aurora: {
           from: {
             backgroundPosition: "50% 50%, 50% 50%",

@@ -8,6 +8,7 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { CheckoutPromoHintDialog, type CheckoutPromoHint } from "@/components/pricing/CheckoutPromoHintDialog";
 
 interface PricingModalProps {
   open: boolean;
@@ -23,6 +24,10 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   // Monthly unless URL explicitly has interval=year (undefined used to default to yearly — wrong for checkout UX)
   const [isYearly, setIsYearly] = useState(initialInterval === "year");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [pendingPromoCheckout, setPendingPromoCheckout] = useState<{
+    url: string;
+    hint: CheckoutPromoHint;
+  } | null>(null);
 
   const handleUpgrade = async (selectedPlan: string, intervalOverride?: string) => {
     setIsLoading(true);
@@ -51,8 +56,21 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         throw new Error(msg);
       }
 
-      const { url } = await response.json();
-      window.location.href = url;
+      const data = (await response.json()) as {
+        url?: string;
+        checkoutPromoHint?: CheckoutPromoHint;
+        checkoutPromoLocked?: boolean;
+      };
+      if (!data?.url || typeof data.url !== 'string') {
+        throw new Error('Invalid checkout response');
+      }
+      if (data.checkoutPromoHint?.code && !data.checkoutPromoLocked) {
+        setPendingPromoCheckout({ url: data.url, hint: data.checkoutPromoHint });
+        setIsLoading(false);
+        setLoadingPlan(null);
+        return;
+      }
+      window.location.href = data.url;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to start upgrade process.';
       alert(message);
@@ -140,6 +158,20 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
+      <CheckoutPromoHintDialog
+        open={!!pendingPromoCheckout}
+        onOpenChange={(next) => {
+          if (!next) {
+            setPendingPromoCheckout(null);
+          }
+        }}
+        hint={pendingPromoCheckout?.hint ?? null}
+        onContinue={() => {
+          if (pendingPromoCheckout?.url) {
+            window.location.href = pendingPromoCheckout.url;
+          }
+        }}
+      />
       <DialogContent onClose={onClose} className="max-w-[1100px] w-[95vw] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl">
         {/* Header Section */}
         <div className="relative px-8 pt-8 pb-6 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
