@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "submit:indexnow": "node ../scripts/submit-to-indexnow.js"
+    "submit:indexnow": "node ../scripts/submit-to-indexnow.js",
+    "admin:delete-user": "node scripts/admin-delete-user.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.937.0",
