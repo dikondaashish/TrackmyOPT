@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { Building2, GraduationCap, Megaphone, Users, Clock, Shield, BarChart3, Headphones, FileCheck, Check, ArrowRight, Quote, ChevronDown, Send, CheckCircle } from "lucide-react";
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
@@ -384,26 +383,30 @@ function ContactPartnership() {
         setError(null);
 
         const formData = new FormData(e.currentTarget);
-        
-        const { error: insertError } = await supabase
-            .from("partnership_inquiries")
-            .insert({
-                name: formData.get("name"),
-                email: formData.get("email"),
-                university: formData.get("university"),
-                role: formData.get("role"),
-                message: formData.get("message"),
+        const data = {
+            name: formData.get("name"),
+            email: formData.get("email"),
+            university: formData.get("university"),
+            role: formData.get("role"),
+            message: formData.get("message"),
+        };
+
+        try {
+            // Send data to the Next.js API Route we just discussed!
+            const res = await fetch("/api/partnerships", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
             });
 
-        setIsSubmitting(false);
-
-        if (insertError) {
-            console.error("Failed to submit:", insertError);
+            if (!res.ok) throw new Error("Failed to submit inquiry");
+            
+            setIsSubmitted(true);
+        } catch (err) {
             setError("Something went wrong. Please try again.");
-            return;
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setIsSubmitted(true);
     };
 
     if (isSubmitted) {
