@@ -188,9 +188,6 @@ export function OfferDetailsSection({
                 <ArrowRight className="w-4 h-4 mr-2" />
                 Convert to Employment Record
             </Button>
-            <p className="text-[11px] text-gray-500 dark:text-gray-400 text-center mt-2">
-                Coming soon: Auto-link to work authorization tracker
-            </p>
         </div>
     );
 }

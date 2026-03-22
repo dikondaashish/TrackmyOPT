@@ -918,7 +918,7 @@ function generateStemClockSection(tool: ToolReminderDetail): string {
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li>Apply to <strong>10-15 quality jobs daily</strong> - focus on STEM roles matching your degree</li>
           <li>Target <strong>E-Verify employers</strong> (required for STEM OPT)</li>
-          <li>Leverage your STEM skills for contract and consulting opportunities</li>
+          <li>Unlock high-paying STEM roles for contract and consulting opportunities</li>
           <li>Network with professionals in your field on LinkedIn</li>
           <li>Consider <strong>H-1B sponsoring companies</strong> for long-term opportunities</li>
         </ul>

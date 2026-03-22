@@ -491,7 +491,7 @@ export default function PartnershipsPage() {
             {/* Hero */}
             <FeatureHero
                 badge="University Partnerships"
-                headline="Empower Your International Students to Succeed"
+                headline="Equip Your International Students for Career Success"
                 subheadline="Partner with TrackMyOPT to provide your F-1 students with the tools they need to stay compliant, find jobs, and build successful careers in the US."
                 ctaText="Schedule a Demo"
                 ctaHref="#contact"

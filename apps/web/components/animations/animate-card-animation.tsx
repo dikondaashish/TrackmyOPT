@@ -14,17 +14,17 @@ const cardData = {
     1: {
         title: "Landed Amazon Offer",
         description: "Used the H-1B sponsor filter to find verified roles.",
-        image: "https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop", // Group of happy students/people
+        gradient: "from-blue-500 via-indigo-500 to-purple-600",
     },
     2: {
         title: "Never Missed a Deadline",
         description: "Automated standard alerts saved my STEM OPT status.",
-        image: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=2072&auto=format&fit=crop", // Calendar/Planning
+        gradient: "from-emerald-400 via-teal-500 to-cyan-600",
     },
     3: {
         title: "Resume ATS 95/100",
         description: "Optimized my resume specifically for OPT hiring.",
-        image: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=2070&auto=format&fit=crop", // Writing/Resume
+        gradient: "from-amber-400 via-orange-500 to-rose-500",
     },
 }
 
@@ -56,14 +56,11 @@ function CardContent({ contentType }: { contentType: 1 | 2 | 3 }) {
 
     return (
         <div className="flex h-full w-full flex-col gap-4">
-            <div className="-outline-offset-1 flex h-[200px] w-full items-center justify-center overflow-hidden rounded-xl outline outline-black/10 dark:outline-white/10 bg-muted relative">
-                <Image
-                    src={data.image}
-                    alt={data.title}
-                    fill
-                    className="select-none object-cover transition-transform duration-500 hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
+            <div className={`-outline-offset-1 flex h-[200px] w-full items-center justify-center overflow-hidden rounded-xl outline outline-black/10 dark:outline-white/10 bg-gradient-to-br ${data.gradient} relative shadow-inner`}>
+                {/* Premium Gradient Overlays */}
+                <div className="absolute inset-0 bg-white/10 dark:bg-black/10 backdrop-blur-[2px]" />
+                <div className="absolute inset-0 opacity-50 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/40 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
             <div className="flex w-full items-center justify-between gap-2 px-3 pb-6">
                 <div className="flex min-w-0 flex-1 flex-col text-left">

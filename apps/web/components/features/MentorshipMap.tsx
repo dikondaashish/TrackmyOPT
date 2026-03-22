@@ -73,7 +73,7 @@ export function MentorshipMap() {
             <MentorNode
                 x="20%" y="20%"
                 role="SWE @ Google"
-                img="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                initials="JD"
                 delay={0.5}
                 color="blue"
             />
@@ -82,7 +82,7 @@ export function MentorshipMap() {
             <MentorNode
                 x="80%" y="30%"
                 role="Product @ Netflix"
-                img="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka"
+                initials="SA"
                 delay={1}
                 color="red"
             />
@@ -91,7 +91,7 @@ export function MentorshipMap() {
             <MentorNode
                 x="50%" y="80%"
                 role="Design @ Stripe"
-                img="https://api.dicebear.com/7.x/avataaars/svg?seed=John"
+                initials="MK"
                 delay={1.5}
                 color="indigo"
             />
@@ -100,7 +100,7 @@ export function MentorshipMap() {
     );
 }
 
-function MentorNode({ x, y, role, img, delay, color }: any) {
+function MentorNode({ x, y, role, initials, delay, color }: any) {
     return (
         <motion.div
             className="absolute z-20"
@@ -110,8 +110,8 @@ function MentorNode({ x, y, role, img, delay, color }: any) {
             transition={{ type: "spring", delay }}
         >
             <div className="relative -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
-                <div className={`w-12 h-12 rounded-full border-2 border-${color}-500 bg-white dark:bg-zinc-800 p-0.5 shadow-lg group-hover:scale-110 transition-transform`}>
-                    <Image src={img} alt="" width={48} height={48} className="w-full h-full rounded-full bg-gray-100 object-cover" />
+                <div className={`w-12 h-12 rounded-full border-2 border-${color}-500 bg-gradient-to-br from-gray-100 to-gray-300 dark:from-zinc-700 dark:to-zinc-800 p-0.5 shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <span className="text-gray-700 dark:text-gray-200 font-semibold text-sm">{initials}</span>
                 </div>
 
                 {/* Badge */}
