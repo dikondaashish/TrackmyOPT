@@ -54,9 +54,9 @@ export default function DisclaimerPage() {
                                 <div className="flex items-start gap-4">
                                     <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-1" />
                                     <div>
-                                        <h3 className="text-lg font-bold text-yellow-900 dark:text-yellow-200 mt-0">Crucial Warning</h3>
+                                        <h3 id="is-trackmyopt-legal-advice" className="text-lg font-bold text-yellow-900 dark:text-yellow-200 mt-0 direct-answer">Is TrackMyOPT Legal Advice?</h3>
                                         <p className="text-yellow-800 dark:text-yellow-300 mb-0">
-                                            We are NOT attorneys, and this is NOT legal advice.
+                                            <strong>Direct Answer: No.</strong> We are a technology company and software tool, NOT attorneys. TrackMyOPT does not provide legal advice, nor is it affiliated with USCIS or any government agency. Always consult your DSO or a licensed immigration attorney for your specific case.
                                         </p>
                                     </div>
                                 </div>

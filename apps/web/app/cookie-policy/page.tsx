@@ -92,9 +92,20 @@ export default function CookiePolicyPage() {
                                 <li>Advertising or retargeting cookies</li>
                             </ul>
 
-                            <h2>4. Managing Cookies</h2>
+                            <h2>4. Managing Cookies & Withdrawing Consent (GDPR)</h2>
                             <p>
-                                Most web browsers allow you to control cookies through their settings preferences. However, if you limit the ability of websites to set cookies, you may worsen your overall user experience, since it will no longer be personalized to you. It may also stop you from saving customized settings like login information.
+                                Under European Data Protection laws (GDPR) and the ePrivacy Directive, you have the right to withdraw your consent to non-essential cookies at any time.
+                            </p>
+                            <div className="bg-blue-50 dark:bg-blue-900/10 border-l-4 border-blue-500 p-6 rounded-xl my-6">
+                                <strong>How to clear your cookies:</strong>
+                                <ul className="mt-2 mb-0">
+                                    <li><strong>Google Chrome:</strong> Settings &gt; Privacy and security &gt; Clear browsing data.</li>
+                                    <li><strong>Safari:</strong> Preferences &gt; Privacy &gt; Manage Website Data.</li>
+                                    <li><strong>Firefox:</strong> Options &gt; Privacy & Security &gt; Cookies and Site Data.</li>
+                                </ul>
+                            </div>
+                            <p>
+                                Please note: Since TrackMyOPT only uses <strong>Strictly Necessary</strong> cookies for authentication and CSRF security, disabling all cookies in your browser settings will break your ability to log in and use your dashboard dashboard securely.
                             </p>
 
                             <h2>5. Updates to This Policy</h2>

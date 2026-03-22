@@ -245,20 +245,20 @@ export default function TermsPage() {
                 Your continued use of TrackMyOPT after changes constitutes acceptance of the new Terms.
               </p>
 
-              <h2>13. Governing Law and Dispute Resolution</h2>
+              <h2 id="dispute-resolution" className="direct-answer">13. Governing Law and Dispute Resolution</h2>
 
               <h3>13.1 Governing Law</h3>
               <p>
                 These Terms are governed by the laws of the United States and the State of Delaware, without regard to conflict of law principles.
               </p>
 
-              <h3>13.2 Dispute Resolution</h3>
+              <h3>13.2 Binding Arbitration</h3>
               <p>
-                Any disputes arising from these Terms or your use of TrackMyOPT shall be resolved through:
+                Any disputes arising from these Terms or your use of TrackMyOPT shall be resolved exclusively through:
               </p>
               <ol>
-                <li><strong>Informal Negotiation</strong>: Contact us at <a href="mailto:support@trackmyopt.com">support@trackmyopt.com</a> to resolve disputes informally</li>
-                <li><strong>Arbitration</strong>: If informal resolution fails, disputes will be resolved through binding arbitration in accordance with the American Arbitration Association rules</li>
+                <li><strong>Informal Negotiation</strong>: Contact us at <a href="mailto:support@trackmyopt.com">support@trackmyopt.com</a> to resolve disputes informally within 30 days.</li>
+                <li><strong>Binding Arbitration</strong>: If informal resolution fails, all disputes will be resolved through final and binding arbitration in accordance with the American Arbitration Association (AAA) rules. The arbitration shall take place exclusively in <strong>San Francisco County, California</strong>.</li>
               </ol>
 
               <h2>14. Severability</h2>

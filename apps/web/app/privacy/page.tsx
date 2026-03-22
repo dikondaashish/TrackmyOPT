@@ -55,12 +55,12 @@ export default function PrivacyPage() {
               prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
               prose-hr:border-gray-200 dark:prose-hr:border-white/10">
 
-              <h2>Introduction</h2>
+              <h2>1. Introduction</h2>
               <p>
-                TrackMyOPT is a product of <strong>Zyene, Inc.</strong>, a company incorporated in the State of Delaware, with headquarters located in San Francisco, California. TrackMyOPT ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Chrome extension and web application.
+                TrackMyOPT is a product of <strong>Zyene, Inc.</strong>, a company incorporated in the State of Delaware, with headquarters located in San Francisco, California. TrackMyOPT ("we," "our," or "us") is committed to protecting your privacy in full compliance with global regulations including the California Consumer Privacy Act (CCPA) and the General Data Protection Regulation (GDPR). This Privacy Policy explains how we collect, use, disclose, and safeguard your information.
               </p>
 
-              <h2>Information We Collect</h2>
+              <h2 id="what-data-do-we-collect" className="direct-answer">2. What Information Do We Collect?</h2>
 
               <h3>Personal Information</h3>
               <p>When you create an account or sign in, we collect:</p>
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
                 <li>Authentication timestamps</li>
               </ul>
 
-              <h2>How We Use Your Information</h2>
+              <h2 id="how-do-we-use-your-data" className="direct-answer">3. How Do We Use Your Information?</h2>
               <p>We use your information to:</p>
               <ul>
                 <li>Provide and maintain our service</li>
@@ -238,19 +238,39 @@ export default function PrivacyPage() {
                 Your data is stored in the United States. By using TrackMyOPT, you consent to the transfer of your information to the U.S.
               </p>
 
-              <h2>California Privacy Rights (CCPA)</h2>
+              <h2 id="ccpa-rights" className="direct-answer">9. California Privacy Rights (CCPA / CPRA)</h2>
               <p>
-                If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA):
+                If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA) and the California Privacy Rights Act (CPRA):
               </p>
               <ul>
-                <li><strong>Right to Know</strong>: You may request information about the categories and specific pieces of personal information we have collected about you</li>
-                <li><strong>Right to Delete</strong>: You may request deletion of your personal information</li>
-                <li><strong>Right to Opt-Out</strong>: You have the right to opt-out of the sale of personal information. Note: We do NOT sell personal information</li>
-                <li><strong>Right to Non-Discrimination</strong>: We will not discriminate against you for exercising your privacy rights</li>
+                <li><strong>Right to Know</strong>: You may request information about the categories and specific pieces of personal information we have collected about you in the past 12 months.</li>
+                <li><strong>Right to Delete</strong>: You may request deletion of your personal information.</li>
+                <li><strong>Right to Correct</strong>: You have the right to request correction of inaccurate personal information.</li>
+                <li><strong>Right to Opt-Out</strong>: You have the right to opt-out of the sale or sharing of personal information. Note: <strong>We do NOT sell your personal information.</strong></li>
+                <li><strong>Right to Non-Discrimination</strong>: We will not discriminate against you for exercising your privacy rights.</li>
               </ul>
               <p>
-                To exercise your CCPA rights, please contact us at <a href="mailto:support@trackmyopt.com">support@trackmyopt.com</a>. We will respond to verified requests within 45 days.
+                To exercise your CCPA data rights, please email <strong>privacy@trackmyopt.com</strong>.
               </p>
+
+              <h2 id="gdpr-rights" className="direct-answer">10. European Economic Area (EEA) and UK Rights (GDPR)</h2>
+              <div className="bg-blue-50 dark:bg-blue-900/10 border-l-4 border-blue-500 p-6 rounded-xl my-6">
+                <p>
+                  If you are located in the EEA or the UK, we process your personal data under the following <strong>Lawful Bases (Article 6, GDPR)</strong>:
+                </p>
+                <ul>
+                  <li><strong>Consent</strong>: When you voluntarily create an account or opt-in to emails.</li>
+                  <li><strong>Contractual Necessity</strong>: To provide you with the core TrackMyOPT timeline tracking and USCIS dashboard services.</li>
+                  <li><strong>Legitimate Interests</strong>: For security monitoring and preventing fraud.</li>
+                </ul>
+                <p className="mt-4 font-bold">Your GDPR Rights Include:</p>
+                <ul>
+                  <li><strong>Right to be Forgotten (Erasure)</strong>: You can instantly delete your entire account and all associated PII via your Dashboard settings.</li>
+                  <li><strong>Right to Restrict Processing</strong>: You can ask us to temporarily halt processing of your data.</li>
+                  <li><strong>Right to Data Portability</strong>: You can request an export of your timeline and profile data in a structured JSON/CSV format.</li>
+                  <li><strong>Right to Object</strong>: You may object to data processing for direct marketing purposes at any time.</li>
+                </ul>
+              </div>
 
               <h2>Changes to This Privacy Policy</h2>
               <p>
