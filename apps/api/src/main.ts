@@ -30,7 +30,7 @@ async function bootstrap() {
 
   // CORS: Allow origins dynamically from environment, fallback to defaults
   const envCors = process.env.CORS_ORIGINS;
-  const allowedOrigins = envCors 
+  const allowedOrigins = envCors
     ? envCors.split(',').map((o) => o.trim())
     : [
         'https://trackmyopt.com',

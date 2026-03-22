@@ -371,7 +371,10 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
                 </div>
                 <div className="flex items-center gap-2 self-end md:self-auto">
                     <ViewSwitcher currentView={currentView} onViewChange={handleViewChange} />
-                    <AddApplicationModal onAdd={handleAdd} />
+                    <AddApplicationModal 
+                        onAdd={handleAdd} 
+                        isPrimaryEmptyState={applications.length === 0}
+                    />
                 </div>
             </div>
 

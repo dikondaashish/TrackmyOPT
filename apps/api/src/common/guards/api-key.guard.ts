@@ -36,15 +36,21 @@ export class ApiKeyGuard implements CanActivate {
     const validApiKey = this.configService.get<string>('API_SECRET_KEY');
 
     if (!validApiKey) {
-      const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'local';
+      const isDev =
+        process.env.NODE_ENV === 'development' ||
+        process.env.NODE_ENV === 'local';
       const logger = new Logger('ApiKeyGuard');
       if (isDev) {
         // If no API key is configured, log a warning but allow for local dev ONLY
-        logger.warn('⚠️ API_SECRET_KEY not configured in development mode - API is unprotected!');
+        logger.warn(
+          '⚠️ API_SECRET_KEY not configured in development mode - API is unprotected!',
+        );
         return true;
       } else {
         // In production, failure to load the secret key MUST fail securely
-        logger.error('CRITICAL: API_SECRET_KEY is missing in production environment');
+        logger.error(
+          'CRITICAL: API_SECRET_KEY is missing in production environment',
+        );
         throw new UnauthorizedException('API key configuration error');
       }
     }

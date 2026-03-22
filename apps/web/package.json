@@ -36,8 +36,6 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.25",
     "jose": "^5.2.0",
-    "jspdf": "^4.2.0",
-    "jspdf-autotable": "^5.0.7",
     "jszip": "^3.10.1",
     "lucide-react": "^0.545.0",
     "next": "^16.1.6",
@@ -55,6 +53,9 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/bcryptjs": "^3.0.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^20.11.0",
@@ -62,13 +63,16 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.17",
     "dotenv": "^17.2.3",
     "eslint": "^9.18.0",
     "eslint-config-next": "^16.1.6",
+    "jsdom": "^29.0.1",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^4.1.0"
   },
   "browserslist": [
     "> 1%",

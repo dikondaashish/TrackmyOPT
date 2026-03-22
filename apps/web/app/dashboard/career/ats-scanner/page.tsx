@@ -42,10 +42,9 @@ export default function ATSScannerPage() {
                             <Lightbulb className="w-6 h-6 text-emerald-500" />
                         </div>
                     </div>
-                    <h2 className="text-xl font-semibold mb-2">Coming Soon</h2>
+                    <h2 className="text-xl font-semibold mb-2">We're perfecting our algorithm</h2>
                     <p className="text-muted-foreground max-w-md mx-auto">
-                        Get your ATS compatibility score, identify missing keywords,
-                        and receive actionable improvement suggestions.
+                        The ATS Scanner is currently in deep beta. Soon, you'll be able to get exact compatibility scores and identify missing keywords before hitting submit.
                     </p>
                 </div>
             </div>

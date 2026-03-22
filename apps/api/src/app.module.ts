@@ -18,7 +18,9 @@ import * as Joi from 'joi';
       isGlobal: true,
       validationSchema: Joi.object({
         PORT: Joi.number().default(3000),
-        NODE_ENV: Joi.string().valid('development', 'production', 'test', 'local').default('development'),
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test', 'local')
+          .default('development'),
         API_SECRET_KEY: Joi.string().required(),
         CORS_ORIGINS: Joi.string().optional(),
         REDIS_URL: Joi.string().optional(),

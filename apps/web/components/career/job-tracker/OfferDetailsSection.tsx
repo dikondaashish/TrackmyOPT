@@ -77,10 +77,9 @@ export function OfferDetailsSection({
     };
 
     const handleConvert = () => {
-        // For now, show coming soon message
         toast({
-            title: "Coming Soon",
-            description: "Employment conversion will automatically create your employment record and link to work authorization tracking.",
+            title: "Feature in development",
+            description: "Soon you'll be able to instantly convert this offer into an active employment record.",
         });
     };
 

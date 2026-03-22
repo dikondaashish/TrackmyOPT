@@ -6,15 +6,20 @@ import path from 'path';
 import { buildGeneratePrompt } from '@/lib/ai/prompts/generate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 import { z } from 'zod';
-import rateLimit from '@/lib/auth/rate-limit';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-// Rate Limiter: 10 requests per minute per IP
-const limiter = rateLimit({
-    interval: 60 * 1000,
-});
+// Rate Limiter: 10 requests per minute per IP using Upstash
+const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN 
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(10, '1 m'),
+      analytics: true,
+    }) 
+  : null;
 
 // Input Validation Schema
 const GenerateSchema = z.object({
@@ -72,13 +77,14 @@ export async function POST(req: NextRequest) {
 
         // 2. Rate Limiting
         const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-        const { isRateLimited } = limiter.check(req, 10, ip);
-
-        if (isRateLimited) {
-            return NextResponse.json(
-                { error: 'Too many requests. Please try again later.' },
-                { status: 429, headers: corsHeaders }
-            );
+        if (ratelimit) {
+            const { success } = await ratelimit.limit(ip);
+            if (!success) {
+                return NextResponse.json(
+                    { error: 'Too many requests. Please try again later.' },
+                    { status: 429, headers: corsHeaders }
+                );
+            }
         }
 
         const body = await req.json();

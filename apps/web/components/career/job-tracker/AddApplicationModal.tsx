@@ -9,12 +9,14 @@ import { Plus } from "lucide-react";
 import { JobApplication, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES } from "@/lib/career/job-tracker/constants";
 import { createApplication } from "@/app/dashboard/career/job-tracker/actions";
+import { cn } from "@/lib/utils";
 
 interface AddApplicationModalProps {
     onAdd?: (app: JobApplication) => void;
+    isPrimaryEmptyState?: boolean;
 }
 
-export function AddApplicationModal({ onAdd }: AddApplicationModalProps) {
+export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicationModalProps) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -64,7 +66,13 @@ export function AddApplicationModal({ onAdd }: AddApplicationModalProps) {
 
     return (
         <>
-            <Button onClick={() => setOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
+            <Button 
+                onClick={() => setOpen(true)} 
+                className={cn(
+                    "bg-emerald-600 hover:bg-emerald-700 text-white gap-2 transition-all duration-500",
+                    isPrimaryEmptyState && "animate-pulse ring-4 ring-emerald-500/40 ring-offset-2 ring-offset-background shadow-lg shadow-emerald-500/20"
+                )}
+            >
                 <Plus className="w-4 h-4" />
                 Add Application
             </Button>
