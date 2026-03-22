@@ -60,7 +60,8 @@ export async function GET(_req: NextRequest) {
     }, {
       headers: { "Cache-Control": "no-store" },
     });
-  } catch {
+  } catch (error) {
+    console.error('[referral/my-stats] Error:', error);
     return NextResponse.json(
       { ok: false, error: "Internal error" },
       { status: 500 }

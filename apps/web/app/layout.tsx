@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/layout/theme-provider';
 import { CookieConsent } from '@/components/CookieConsent';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.trackmyopt.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com'),
   title: {
     default: 'OPT Tracker & H-1B Finder for F-1 Students | TrackMyOPT',
     template: '%s | TrackMyOPT',

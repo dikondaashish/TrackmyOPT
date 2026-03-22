@@ -7,7 +7,6 @@ import rateLimit from '@/lib/auth/rate-limit';
 // Rate Limiter: 20 requests per minute per IP (higher limit for debugging cycle)
 const limiter = rateLimit({
     interval: 60 * 1000,
-    uniqueTokenPerInterval: 500,
 });
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
@@ -42,7 +41,8 @@ export async function POST(req: NextRequest) {
                 model: 'gemini-3.1-pro-preview',
                 contents: prompt,
             });
-        } catch {
+        } catch (err) {
+            console.warn('[fix-latex] Primary model failed, falling back to gemini-2.5-pro:', err);
             response = await ai.models.generateContent({
                 model: 'gemini-2.5-pro',
                 contents: prompt,

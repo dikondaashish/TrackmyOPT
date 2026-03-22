@@ -14,7 +14,6 @@ import { cookies } from 'next/headers';
 // Rate Limiter: 10 requests per minute per IP
 const limiter = rateLimit({
     interval: 60 * 1000,
-    uniqueTokenPerInterval: 500,
 });
 
 // Input Validation Schema
@@ -138,7 +137,8 @@ export async function POST(req: NextRequest) {
                 model: 'gemini-3.1-pro-preview',
                 contents: prompt,
             });
-        } catch {
+        } catch (err) {
+            console.warn('[generate] Primary model failed, falling back to gemini-2.5-pro:', err);
             response = await ai.models.generateContent({
                 model: 'gemini-2.5-pro',
                 contents: prompt,

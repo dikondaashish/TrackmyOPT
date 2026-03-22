@@ -11,6 +11,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { verifyPasscode, isValidPasscode } from '@/lib/auth/passcode';
 import nodemailer from 'nodemailer';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+// Create a rate limiter that allows 3 requests per 10 minutes per IP
+const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN 
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(3, '10 m'),
+      analytics: true,
+    }) 
+  : null;
 
 // Create SMTP transporter
 const transporter = nodemailer.createTransport({
@@ -35,6 +46,26 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // IP-based Rate Limiting for OTPs
+    if (ratelimit) {
+      const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
+      const { success, limit, remaining, reset } = await ratelimit.limit(`ratelimit_otp_${ip}`);
+      
+      if (!success) {
+        return NextResponse.json(
+          { error: 'Too many OTP requests. Please try again after 10 minutes.' },
+          { 
+            status: 429, 
+            headers: { 
+              'X-RateLimit-Limit': limit.toString(), 
+              'X-RateLimit-Remaining': remaining.toString(), 
+              'X-RateLimit-Reset': reset.toString() 
+            } 
+          }
+        );
+      }
     }
 
     const body = await request.json();

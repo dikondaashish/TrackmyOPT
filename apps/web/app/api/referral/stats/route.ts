@@ -68,7 +68,8 @@ export async function GET(req: NextRequest) {
         }
 
         return NextResponse.json({ ok: true, data }, { headers: corsHeaders });
-    } catch {
+    } catch (error) {
+        console.error('[referral/stats] Error:', error);
         return NextResponse.json(
             { ok: false, error: "Internal error" },
             { status: 500, headers: corsHeaders }

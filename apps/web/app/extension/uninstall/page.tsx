@@ -188,7 +188,8 @@ export default function ExtensionUninstallPage() {
                 }),
             });
             setIsSubmitted(true);
-        } catch {
+        } catch (error) {
+            console.error('[extension/uninstall] Error submitting feedback:', error);
             setIsSubmitted(true);
         } finally {
             setIsSubmitting(false);

@@ -41,7 +41,8 @@ export async function POST(req: NextRequest) {
                 model: 'gemini-3.1-pro-preview',
                 contents: prompt,
             });
-        } catch {
+        } catch (err) {
+            console.warn('[scan] Primary model failed, falling back to gemini-2.5-pro:', err);
             response = await ai.models.generateContent({
                 model: 'gemini-2.5-pro',
                 contents: prompt,

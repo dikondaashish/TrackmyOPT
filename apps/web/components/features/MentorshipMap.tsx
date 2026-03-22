@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { User, Briefcase, GraduationCap } from "lucide-react";
+import Image from "next/image";
 
 export function MentorshipMap() {
     return (
@@ -110,8 +111,7 @@ function MentorNode({ x, y, role, img, delay, color }: any) {
         >
             <div className="relative -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
                 <div className={`w-12 h-12 rounded-full border-2 border-${color}-500 bg-white dark:bg-zinc-800 p-0.5 shadow-lg group-hover:scale-110 transition-transform`}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img} alt="" className="w-full h-full rounded-full bg-gray-100" />
+                    <Image src={img} alt="" width={48} height={48} className="w-full h-full rounded-full bg-gray-100 object-cover" />
                 </div>
 
                 {/* Badge */}

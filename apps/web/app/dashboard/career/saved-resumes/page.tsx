@@ -137,7 +137,7 @@ export default function HistoryPage() {
 
             if (!response.ok) {
                 // Fallback to basic content if detailed fetch fails
-                console.warn("Could not fetch full resume details, using basic content");
+                // Could not fetch full resume details, using basic content
                 setResumeText(resume.content, resume.filename);
                 router.push("/dashboard/career/resume-generator");
                 return;

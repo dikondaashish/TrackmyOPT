@@ -10,10 +10,21 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
 
+import * as Joi from 'joi';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: Joi.object({
+        PORT: Joi.number().default(3000),
+        NODE_ENV: Joi.string().valid('development', 'production', 'test', 'local').default('development'),
+        API_SECRET_KEY: Joi.string().required(),
+        CORS_ORIGINS: Joi.string().optional(),
+        REDIS_URL: Joi.string().optional(),
+        REDIS_HOST: Joi.string().default('localhost'),
+        REDIS_PORT: Joi.number().default(6379),
+      }),
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],

@@ -70,7 +70,10 @@ export async function submitToIndexNowBatch(urls: string[]): Promise<{
  * @returns Full URL (e.g., "https://trackmyopt.com/blog/article-slug")
  */
 export function getFullUrl(path: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://trackmyopt.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!baseUrl) {
+    throw new Error('NEXT_PUBLIC_SITE_URL environment variable is required for IndexNow');
+  }
   return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
 }
 

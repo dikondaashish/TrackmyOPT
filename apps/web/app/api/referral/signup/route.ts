@@ -85,7 +85,8 @@ export async function POST(req: NextRequest) {
         await supabase.rpc("increment_referral_signups", { ref_code: code });
 
         return NextResponse.json({ ok: true }, { headers: corsHeaders });
-    } catch {
+    } catch (error) {
+        console.error('[referral/signup] Error:', error);
         return NextResponse.json(
             { ok: false, error: "Internal error" },
             { status: 500, headers: corsHeaders }

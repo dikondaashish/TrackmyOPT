@@ -32,6 +32,7 @@ export async function scanFileForViruses(
 
   // Check if virus scanning is enabled
   if (process.env.ENABLE_VIRUS_SCAN !== 'true') {
+    console.warn('[VirusScan] ⚠️ Virus scanning is DISABLED. File accepted without scan:', filename);
     return {
       safe: true,
       scanner: 'disabled',

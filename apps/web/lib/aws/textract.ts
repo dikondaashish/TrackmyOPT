@@ -39,18 +39,9 @@ class TextractService {
     }
 
     isAvailable(): boolean {
-        const available = this.client !== null &&
+        return this.client !== null &&
             this.bucket !== '' &&
             process.env.OCR_TEXTRACT_ENABLED === 'true';
-
-        console.info('[TextractService] Availability check:', {
-            hasClient: this.client !== null,
-            hasBucket: this.bucket !== '',
-            enabled: process.env.OCR_TEXTRACT_ENABLED === 'true',
-            available
-        });
-
-        return available;
     }
 
     /**

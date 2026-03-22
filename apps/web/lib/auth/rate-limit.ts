@@ -1,13 +1,11 @@
 import { NextRequest } from 'next/server';
 
 type Options = {
-  uniqueTokenPerInterval?: number;
   interval?: number;
 };
 
 export default function rateLimit(options?: Options) {
   const interval = options?.interval || 60000;
-  const uniqueTokenPerInterval = options?.uniqueTokenPerInterval || 500;
 
   const tokenCache = new Map<string, number[]>();
   let lastCleanup = Date.now();
@@ -45,7 +43,7 @@ export default function rateLimit(options?: Options) {
 
 // --- Document upload rate limiting (DB-backed, 20 uploads/day) ---
 
-const DAILY_UPLOAD_LIMIT = 20;
+const DAILY_UPLOAD_LIMIT = parseInt(process.env.DAILY_UPLOAD_LIMIT || '20', 10);
 
 /** Returns the start-of-day (midnight UTC) reset timestamp for today */
 function getResetAt(): Date {

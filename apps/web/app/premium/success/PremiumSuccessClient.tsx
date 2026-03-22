@@ -49,7 +49,7 @@ function SuccessHeroMark({ variant }: { variant: "pro" | "dedicated" }) {
               "--ty": c.ty,
               "--rot": c.rot,
               animationDelay: c.delay,
-            } as CSSProperties
+            } as any
           }
         />
       ))}
@@ -167,7 +167,8 @@ export function PremiumSuccessClient() {
           return run(attempt + 1);
         }
         if (!cancelled) setSyncState("error");
-      } catch {
+      } catch (error) {
+        console.error('[premium/success] Error confirming checkout:', error);
         if (attempt < 5 && !cancelled) {
           await new Promise((r) => setTimeout(r, 1200));
           return run(attempt + 1);

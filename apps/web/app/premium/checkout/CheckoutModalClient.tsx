@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PricingModal } from "@/components/pricing/PricingModal";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 
 interface CheckoutModalClientProps {
@@ -20,7 +20,6 @@ export function CheckoutModalClient({ user }: CheckoutModalClientProps) {
     const interval = searchParams.get("interval") || undefined;
 
     useEffect(() => {
-        const supabase = createClientComponentClient();
 
         const checkPremiumStatus = async () => {
             if (user) {

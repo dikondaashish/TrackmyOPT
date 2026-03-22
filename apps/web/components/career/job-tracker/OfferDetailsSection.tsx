@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getRelativeDate } from "@/lib/career/job-tracker/filtering";
+import { useToast } from "@/hooks/use-toast";
 
 interface OfferDetailsSectionProps {
     offerSalary?: number | null;
@@ -28,6 +29,7 @@ export function OfferDetailsSection({
     const [startDate, setStartDate] = useState(offerStartDate || "");
     const [deadline, setDeadline] = useState(offerDeadline || "");
     const [h1bSponsorship, setH1bSponsorship] = useState<boolean | null>(sponsorH1B ?? null);
+    const { toast } = useToast();
 
     // Calculate deadline countdown
     const deadlineInfo = deadline ? (() => {
@@ -76,7 +78,10 @@ export function OfferDetailsSection({
 
     const handleConvert = () => {
         // For now, show coming soon message
-        alert("🚀 Employment conversion coming soon! This feature will automatically create your employment record and link to work authorization tracking.");
+        toast({
+            title: "Coming Soon",
+            description: "Employment conversion will automatically create your employment record and link to work authorization tracking.",
+        });
     };
 
     return (

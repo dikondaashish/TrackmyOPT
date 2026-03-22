@@ -86,7 +86,7 @@ export function CaseStatusSection() {
           filter: `receipt_number=eq.${caseStatus.receipt_number}`,
         },
         (payload) => {
-          console.log('[Realtime] Case status updated:', payload.new);
+          // Realtime Case status updated
           // Merge the Realtime payload directly into state for instant UI refresh
           setCaseStatus((prev) =>
             prev ? { ...prev, ...(payload.new as Partial<CaseStatus>) } : prev
