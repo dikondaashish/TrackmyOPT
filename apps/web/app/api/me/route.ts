@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import { verifyToken } from '@/lib/auth/jwt';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
@@ -181,12 +181,19 @@ export async function GET(request: NextRequest) {
       const meta = sessionUserData.user?.user_metadata as { firstName?: string; first_name?: string } | undefined;
       const metaFirst = meta?.firstName || meta?.first_name || null;
       if (sessionEmail) {
-        sendFreeWelcomeEmail({
-          supabase: supabaseAdmin,
-          userId,
-          toEmail: sessionEmail,
-          firstName: metaFirst,
-        }).catch((err) => console.error('sendFreeWelcomeEmail (OAuth profile):', err));
+        // Keep runtime alive until SMTP + email_queue update complete (Vercel / serverless)
+        after(async () => {
+          try {
+            await sendFreeWelcomeEmail({
+              supabase: supabaseAdmin,
+              userId,
+              toEmail: sessionEmail,
+              firstName: metaFirst,
+            });
+          } catch (err) {
+            console.error('sendFreeWelcomeEmail (OAuth profile):', err);
+          }
+        });
       }
 
       profile = newProfile;

@@ -342,6 +342,8 @@ export type Database = {
       }
       email_queue: {
         Row: {
+          body_html: string | null
+          body_text: string | null
           clicked_at: string | null
           created_at: string | null
           email_address: string
@@ -352,11 +354,14 @@ export type Database = {
           id: string
           opened_at: string | null
           provider_message_id: string | null
+          retry_count: number
           sent_at: string | null
           status: string | null
           user_id: string | null
         }
         Insert: {
+          body_html?: string | null
+          body_text?: string | null
           clicked_at?: string | null
           created_at?: string | null
           email_address: string
@@ -367,11 +372,14 @@ export type Database = {
           id?: string
           opened_at?: string | null
           provider_message_id?: string | null
+          retry_count?: number
           sent_at?: string | null
           status?: string | null
           user_id?: string | null
         }
         Update: {
+          body_html?: string | null
+          body_text?: string | null
           clicked_at?: string | null
           created_at?: string | null
           email_address?: string
@@ -382,6 +390,7 @@ export type Database = {
           id?: string
           opened_at?: string | null
           provider_message_id?: string | null
+          retry_count?: number
           sent_at?: string | null
           status?: string | null
           user_id?: string | null

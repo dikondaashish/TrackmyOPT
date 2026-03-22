@@ -8,7 +8,7 @@
  * - No sensitive data in error messages
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { mmddyyyyToISO } from "@/lib/date";
 import {
@@ -134,12 +134,18 @@ export async function POST(req: NextRequest) {
   // Create OPT status
   await supabase.from("opt_status").upsert(payload);
 
-  sendFreeWelcomeEmail({
-    supabase,
-    userId: uid,
-    toEmail: email,
-    firstName: firstName,
-  }).catch((err) => console.error("sendFreeWelcomeEmail:", err));
+  after(async () => {
+    try {
+      await sendFreeWelcomeEmail({
+        supabase,
+        userId: uid,
+        toEmail: email,
+        firstName: firstName,
+      });
+    } catch (err) {
+      console.error("sendFreeWelcomeEmail:", err);
+    }
+  });
 
   // Success - add rate limit headers
   const response = NextResponse.json({ ok: true });

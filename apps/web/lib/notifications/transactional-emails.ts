@@ -13,6 +13,11 @@ export function getAppBaseUrl(): string {
 }
 
 function getFromHeader(): string {
+  return getTransactionalEmailFromHeader();
+}
+
+/** From header for SMTP — exported for retry cron + tests */
+export function getTransactionalEmailFromHeader(): string {
   return `${process.env.EMAIL_FROM_NAME || "Zyene Inc"} <${process.env.SMTP_USER || "no-reply@trackmyopt.com"}>`;
 }
 
@@ -202,6 +207,9 @@ export async function queueTransactionalEmailSend(args: {
       email_subject: subject,
       email_data: dataWithEvent as Json,
       status: "pending",
+      retry_count: 0,
+      body_html: html,
+      body_text: text,
     })
     .select("id")
     .single();
@@ -424,13 +432,12 @@ Resubscribe: ${checkoutUrl}
   });
 }
 
-export async function sendFreeWelcomeEmail(args: {
-  supabase: SupabaseClient;
-  userId: string;
-  toEmail: string;
-  firstName: string | null;
-}): Promise<QueueTransactionalResult> {
-  const { supabase, userId, toEmail, firstName } = args;
+/** HTML + text + subject for free welcome — used by retry cron when body columns were empty */
+export function buildWelcomeFreeEmailBodies(firstName: string | null): {
+  subject: string;
+  html: string;
+  text: string;
+} {
   const base = getAppBaseUrl();
   const dashUrl = `${base}/dashboard`;
   const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
@@ -479,12 +486,28 @@ Open your dashboard: ${dashUrl}
 
 © ${new Date().getFullYear()} Zyene, Inc.`;
 
+  return {
+    subject: "Welcome to TrackMyOPT — here’s how to get started",
+    html,
+    text,
+  };
+}
+
+export async function sendFreeWelcomeEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName } = args;
+  const { subject, html, text } = buildWelcomeFreeEmailBodies(firstName);
+
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
     emailType: "welcome_free",
-    subject: "Welcome to TrackMyOPT — here’s how to get started",
+    subject,
     html,
     text,
     emailData: {},
