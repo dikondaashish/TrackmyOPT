@@ -42,6 +42,22 @@ const publicRoutes = [
 const authRoutes = ['/login'];
 
 export async function middleware(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  const hostname = request.headers.get('host') || '';
+
+  // Enforce canonical domain (Permanent 301 Redirect)
+  // Prevents duplicate indexing from zyenereviews or non-www hits
+  if (
+    hostname === 'zyene.com' || 
+    hostname === 'www.zyene.com' || 
+    hostname === 'trackmyopt.com'
+  ) {
+    url.hostname = 'www.trackmyopt.com';
+    url.port = ''; // Ensure no port is attached
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
+  }
+
   const { pathname } = request.nextUrl;
 
   // Check if current path is a public route (exceptions)

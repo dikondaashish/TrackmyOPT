@@ -60,9 +60,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  alternates: {
-    canonical: 'https://www.trackmyopt.com',
-  },
   other: {
     'google-adsense-account': 'ca-pub-4262248775973692',
   },
