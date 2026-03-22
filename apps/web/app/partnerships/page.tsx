@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { Building2, GraduationCap, Megaphone, Users, Clock, Shield, BarChart3, Headphones, FileCheck, Check, ArrowRight, Quote, ChevronDown, Send, CheckCircle } from "lucide-react";
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
@@ -374,6 +375,36 @@ function PartnershipFAQ() {
 // Contact Form
 function ContactPartnership() {
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setError(null);
+
+        const formData = new FormData(e.currentTarget);
+        
+        const { error: insertError } = await supabase
+            .from("partnership_inquiries")
+            .insert({
+                name: formData.get("name"),
+                email: formData.get("email"),
+                university: formData.get("university"),
+                role: formData.get("role"),
+                message: formData.get("message"),
+            });
+
+        setIsSubmitting(false);
+
+        if (insertError) {
+            console.error("Failed to submit:", insertError);
+            setError("Something went wrong. Please try again.");
+            return;
+        }
+
+        setIsSubmitted(true);
+    };
 
     if (isSubmitted) {
         return (
@@ -416,7 +447,7 @@ function ContactPartnership() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    onSubmit={(e) => { e.preventDefault(); setIsSubmitted(true); }}
+                    onSubmit={handleSubmit}
                     className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 lg:p-8"
                 >
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
@@ -424,6 +455,7 @@ function ContactPartnership() {
                             <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Name</label>
                             <input
                                 type="text"
+                                name="name"
                                 className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Your name"
                                 required
@@ -433,6 +465,7 @@ function ContactPartnership() {
                             <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Email</label>
                             <input
                                 type="email"
+                                name="email"
                                 className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="your@university.edu"
                                 required
@@ -445,6 +478,7 @@ function ContactPartnership() {
                             <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">University</label>
                             <input
                                 type="text"
+                                name="university"
                                 className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="University name"
                                 required
@@ -454,6 +488,7 @@ function ContactPartnership() {
                             <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Role</label>
                             <input
                                 type="text"
+                                name="role"
                                 className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="e.g., DSO, Student, Advisor"
                                 required
@@ -465,17 +500,29 @@ function ContactPartnership() {
                         <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Message</label>
                         <textarea
                             rows={4}
+                            name="message"
                             className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                             placeholder="Tell us more about your needs..."
                         />
                     </div>
 
+                    {error && (
+                        <div className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 p-3 rounded-lg">
+                            {error}
+                        </div>
+                    )}
+
                     <button
                         type="submit"
-                        className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all"
+                        disabled={isSubmitting}
+                        className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <Send className="w-5 h-5" />
-                        Submit Inquiry
+                        {isSubmitting ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <Send className="w-5 h-5" />
+                        )}
+                        {isSubmitting ? "Submitting..." : "Submit Inquiry"}
                     </button>
                 </motion.form>
             </div>
