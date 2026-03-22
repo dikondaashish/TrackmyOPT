@@ -35,6 +35,40 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/blog/opt-processing-time',
+        destination: '/blog/opt-processing-time-2026',
+        permanent: true,
+      },
+      {
+        source: '/blog/opt-application-checklist',
+        destination: '/blog/opt-application-checklist-2026',
+        permanent: true,
+      },
+      {
+        source: '/blog/f1-student-tax-filing-guide',
+        destination: '/blog/f1-student-tax-filing-guide-2026',
+        permanent: true,
+      },
+      {
+        source: '/blog/opt-health-insurance-guide',
+        destination: '/blog/opt-health-insurance-guide-2026',
+        permanent: true,
+      },
+      {
+        source: '/blog/ats-resume-international-students',
+        destination: '/blog/ats-resume-international-students-2026',
+        permanent: true,
+      },
+      {
+        source: '/blog/top-h1b-sponsor-companies',
+        destination: '/blog/top-h1b-sponsor-companies-2026',
+        permanent: true,
+      }
+    ];
+  },
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,

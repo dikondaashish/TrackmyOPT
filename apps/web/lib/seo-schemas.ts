@@ -38,14 +38,6 @@ export const websiteSchema = {
     publisher: {
         "@id": "https://www.trackmyopt.com/#organization",
     },
-    potentialAction: {
-        "@type": "SearchAction",
-        target: {
-            "@type": "EntryPoint",
-            urlTemplate: "https://www.trackmyopt.com/search?q={search_term_string}",
-        },
-        "query-input": "required name=search_term_string",
-    },
 };
 
 export const softwareApplicationSchema = {
