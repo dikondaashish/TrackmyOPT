@@ -9,12 +9,12 @@ export function UscisProcessingTimes() {
   const metrics = [
     {
       type: "Standard OPT (c)(3)(B)",
-      time: "2 - 4 Weeks",
+      time: "2 - 4 Months",
       percentage: 85,
     },
     {
       type: "STEM OPT (c)(3)(C)",
-      time: "3 - 5 Weeks",
+      time: "3 - 5 Months",
       percentage: 70,
     },
     {
