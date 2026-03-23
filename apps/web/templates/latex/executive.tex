@@ -18,6 +18,7 @@
 \usepackage{fancyhdr}
 \usepackage[english]{babel}
 \usepackage{tabularx}
+\usepackage{lmodern}
 \input{glyphtounicode}
 
 \pagestyle{fancy}
@@ -34,6 +35,20 @@
 \addtolength{\textheight}{1.0in}
 
 \urlstyle{same}
+
+% FIXED: Task 3 - Defined namefmt for bolding
+\newcommand{\namefmt}[1]{{\bfseries #1}}
+
+% CONTACT INFORMATION
+\def\name{First Last}
+\def\phone{123-456-7890}
+\def\email{x@x.com}
+\def\LinkedIn{firstlast}
+\def\github{firstlast}
+\def\role{Executive Leader}
+\def\location{Location}
+
+\definecolor{highlight}{RGB}{61, 90, 128}
 
 \raggedbottom
 % \raggedright % Commented out to enable justification
@@ -89,13 +104,19 @@
 
 \begin{document}
 
-%----------HEADING----------
 \begin{center}
-    \textbf{\Huge \scshape First Last} \\ \vspace{5pt}
-    \small 123-456-7890 $|$ \href{mailto:x@x.com}{x@x.com} $|$ 
-    \href{https://linkedin.com/in/...}{linkedin.com/in/...} $|$
-    \href{https://github.com/...}{github.com/...}
+    {\Huge\namefmt{\name}} \\[4pt]
+    {\large\color{highlight}\role} \\[4pt]
+    \small
+    \phone \quad$|$\quad
+    \location \quad$|$\quad
+    \href{mailto:\email}{\email} \quad$|$\quad
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn} \quad$|$\quad
+    \href{https://github.com/\github}{github.com/\github}
 \end{center}
+\vspace{-8pt}
+{\color{highlight}\hrule height 1.5pt}
+\vspace{6pt}
 
 
 %-----------EDUCATION-----------
@@ -103,7 +124,7 @@
   \resumeSubHeadingListStart
     \resumeSubheading
       {University Name}{Location}
-      {Bachelor of Arts in Computer Science}{Aug. 2018 -- May 2022}
+      {Bachelor of Arts in Computer Science}{Aug. 2018 – May. 2022}
   \resumeSubHeadingListEnd
 
 

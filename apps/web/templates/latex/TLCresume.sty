@@ -11,6 +11,12 @@
 \usepackage{anyfontsize}
 \RequirePackage{csquotes}
 
+\usepackage{iftex}
+\ifPDFTeX
+    \input{glyphtounicode}
+    \pdfgentounicode=1
+\fi
+
 % MARGINS AND SPACING
 \RequirePackage[margin=.5in, top=.5in, bottom=1in]{geometry} % Set Margins
 % \raggedright % Commented out to enable justification
@@ -20,9 +26,8 @@
 \RequirePackage{xcolor}
 \definecolor{highlight}{RGB}{61, 90, 128} % CHANGE THIS TO YOUR FAV COLOR https://g.co/kgs/aoqdi7
 
-% LINKS
-\RequirePackage{hyperref}
-\hypersetup{colorlinks=true,urlcolor=highlight}
+% FIXED: Task 7 - Use hidelinks for cleaner visual and better ATS parsing
+\RequirePackage[hidelinks]{hyperref}
 
 % BULLET POINTS
 \RequirePackage[inline]{enumitem}
@@ -37,7 +42,7 @@
 \titleformat{\subsection}{\bfseries}{}{0em}{}[]
 
 % BOLD COMMAND
-\newcommand{\skills}[1]{ {\bfseries #1}}
+\newcommand{\namefmt}[1]{{\bfseries #1}}
 
 % SUBTEXT
 \newcommand{\subtext}[1]{\textit{#1}\par\vspace{-.5em}}

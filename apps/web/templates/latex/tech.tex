@@ -12,13 +12,10 @@
 ]{geometry}
 \usepackage{titlesec}
 \usepackage{enumitem}
-\usepackage{fontawesome}
-\usepackage[
-    pdftitle={John Doe - AI Agent Engineer Resume},
-    pdfauthor={John Doe},
-    colorlinks=true,
-    urlcolor=black
-]{hyperref}
+% FIXED: Task 5 - Remove FontAwesome to prevent ATS glyph corruption
+% \usepackage{fontawesome5}
+% FIXED: Task 7 - Use hidelinks for cleaner visual and better ATS parsing
+\usepackage[hidelinks]{hyperref}
 \usepackage[pscoord]{eso-pic}
 \usepackage{calc}
 \usepackage{bookmark}
@@ -36,6 +33,17 @@
 \fi
 \usepackage{charter}
 
+% CONTACT INFORMATION
+\def\name{John Doe}
+\def\phone{555-123-4567}
+\def\email{johndoe@example.com}
+\def\LinkedIn{john-doe}
+\def\github{john-doe}
+\def\role{AI Solutions Engineer}
+\def\location{Boston, Massachusetts}
+
+\definecolor{highlight}{RGB}{61, 90, 128}
+
 % --- Custom Environments ---
 % \raggedright % Commented out to enable justification
 \AtBeginEnvironment{adjustwidth}{\partopsep0pt}
@@ -44,6 +52,9 @@
 \setlength{\parindent}{0pt}
 \setlength{\topskip}{0pt}
 \pagenumbering{gobble}
+
+% BOLD COMMAND
+\newcommand{\namefmt}[1]{{\bfseries #1}}
 
 \titleformat{\section}{\needspace{4\baselineskip}\bfseries\large}{}{0pt}{}[\vspace{1pt}\titlerule]
 \titlespacing{\section}{0pt}{0.2cm}{0.1cm}
@@ -66,29 +77,23 @@
     \noindent \textbf{#2} \hfill #1 \par
 }
 
-\newenvironment{header}{
-    \setlength{\topsep}{0pt}\par\kern\topsep\centering\linespread{1.25}
-}{
-    \par\kern\topsep
-}
 
 % --- Resume Content ---
 \begin{document}
 
-\begin{header}
-    \fontsize{25 pt}{25 pt}\selectfont John Doe
-
-    \vspace{5 pt}
-
-    \normalsize
-    \mbox\faEnvelope\space{\href{mailto:johndoe@example.com}{johndoe@example.com}}%
-    \kern 5pt$|$\kern 5pt
-    \mbox\faMapMarker\space Boston, Massachusetts%
-    \kern 5pt$|$\kern 5pt
-    \mbox\faPhoneSquare\space{\href{tel:+1-555-123-4567}{555-123-4567}}%
-    \kern 5pt$|$\kern 5pt
-    \mbox\faLinkedinSquare\space{\href{https://linkedin.com/in/john-doe}{linkedin.com/in/john-doe}}%
-\end{header}
+\begin{center}
+    {\Huge\namefmt{\name}} \\[4pt]
+    {\large\color{highlight}\role} \\[4pt]
+    \small
+    \phone \quad$|$\quad
+    \location \quad$|$\quad
+    \href{mailto:\email}{\email} \quad$|$\quad
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn} \quad$|$\quad
+    \href{https://github.com/\github}{github.com/\github}
+\end{center}
+\vspace{-8pt}
+{\color{highlight}\hrule height 1.5pt}
+\vspace{6pt}
 
 % --- Professional Summary ---
 \section{Professional Summary}
@@ -98,12 +103,12 @@ Results-driven \textbf{AI Solutions Engineer} with hands-on experience building 
 
 % --- Education ---
 \section{Education}
-\resumeEntry{Aug 2022 – May 2024}{Example University — Master’s in Computer Science}
+\resumeEntry{Aug. 2022 – May. 2024}{Example University — Master’s in Computer Science}
 \begin{onecolentry}
 Focus: Artificial Intelligence, Distributed Systems, Cloud Computing
 \end{onecolentry}
 
-\resumeEntry{Aug 2018 – Jul 2022}{Sample Institute of Technology — Bachelor of Computer Applications}
+\resumeEntry{Aug. 2018 – Jul. 2022}{Sample Institute of Technology — Bachelor of Computer Applications}
 \begin{onecolentry}
 Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 \end{onecolentry}
@@ -121,7 +126,7 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 
 % --- Experience ---
 \section{Experience}
-\resumeEntry{Jan 2024 – Present}{AI Solutions Engineer — Example AI Labs (Remote)}
+\resumeEntry{Jan. 2024 – Present}{AI Solutions Engineer — Example AI Labs (Remote)}
 \begin{onecolentry}
 \begin{highlights}
     \item Designed and deployed AI-powered workflows for enterprise SaaS customers.
@@ -132,7 +137,7 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 \end{highlights}
 \end{onecolentry}
 
-\resumeEntry{Jun 2023 – Dec 2023}{Integration Engineer — SampleCloud Technologies (Remote)}
+\resumeEntry{Jun. 2023 – Dec. 2023}{Integration Engineer — SampleCloud Technologies (Remote)}
 \begin{onecolentry}
 \begin{highlights}
     \item Built data integration pipelines across multi-cloud environments.
@@ -142,7 +147,7 @@ Focus: Software Engineering, Databases, Web Technologies, Operating Systems
 \end{highlights}
 \end{onecolentry}
 
-\resumeEntry{Aug 2021 – May 2023}{Software Engineer — DemoSoft Solutions (Hybrid)}
+\resumeEntry{Aug. 2021 – May 2023}{Software Engineer — DemoSoft Solutions (Hybrid)}
 \begin{onecolentry}
 \begin{highlights}
     \item Developed scalable backend services supporting high-volume user traffic.

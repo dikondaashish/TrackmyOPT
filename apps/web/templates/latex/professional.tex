@@ -13,15 +13,14 @@
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{verbatim}
 \usepackage{enumitem}
+% FIXED: Task 7 - Use hidelinks for cleaner visual and better ATS parsing
 \usepackage[hidelinks]{hyperref}
 \usepackage{fancyhdr}
-\usepackage[english]{babel}
-\usepackage{tabularx}
-% only for pdflatex
-% \input{glyphtounicode}
+\input{glyphtounicode}
+\pdfgentounicode=1
 
-% fontawesome
-\usepackage{fontawesome5}
+% FIXED: Task 5 - Remove FontAwesome to prevent ATS glyph corruption
+% \usepackage{fontawesome5}
 
 % fixed width
 \usepackage[scale=0.90,lf]{FiraMono}
@@ -66,6 +65,17 @@
 \addtolength{\textheight}{1.0in}
 
 \urlstyle{same}
+
+% CONTACT INFORMATION
+\def\name{Harshibar}
+\def\phone{555.555.5555}
+\def\email{hello@email.com}
+\def\LinkedIn{harshibar}
+\def\github{harshibar}
+\def\role{Software Engineer}
+\def\location{San Francisco, CA}
+
+\definecolor{highlight}{RGB}{61, 90, 128}
 
 \raggedbottom
 % \raggedright % Commented out to enable justification
@@ -129,22 +139,26 @@
 
 \begin{document}
 
-%----------HEADING----------
 \begin{center}
-    \textbf{\Huge Harshibar} \\ \vspace{5pt}
-    \small \faPhone* \texttt{555.555.5555} \hspace{1pt} $|$
-    \hspace{1pt} \faEnvelope \hspace{2pt} \texttt{hello@email.com} \hspace{1pt} $|$ 
-    \hspace{1pt} \faYoutube \hspace{2pt} \texttt{harshibar} \hspace{1pt} $|$
-    \hspace{1pt} \faMapMarker* \hspace{2pt}\texttt{U.S. Citizen}
-    \\ \vspace{-3pt}
+    {\Huge\namefmt{\name}} \\[4pt]
+    {\large\color{highlight}\role} \\[4pt]
+    \small
+    \phone \quad$|$\quad
+    \location \quad$|$\quad
+    \href{mailto:\email}{\email} \quad$|$\quad
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn} \quad$|$\quad
+    \href{https://github.com/\github}{github.com/\github}
 \end{center}
+\vspace{-8pt}
+{\color{highlight}\hrule height 1.5pt}
+\vspace{6pt}
 
 %-----------EXPERIENCE-----------
 \section{EXPERIENCE}
   \resumeSubHeadingListStart
 
     \resumeSubheading
-      {YouTube}{Aug. 2019 -- Present}
+      {YouTube}{Aug. 2019 – Present}
       {Creator (\href{https://www.youtube.com/c/harshibar}{\myuline {@harshibar}})}{San Francisco, CA}
       \resumeItemListStart
         \resumeItem{Grew channel to \textbf{60k subscribers in 1.5 years}; created 80+ videos on tech and productivity}
@@ -157,7 +171,7 @@
       \resumeItemListEnd
 
     \resumeSubheading
-      {Google Verily}{Aug. 2018 -- Sept. 2019}
+      {Google Verily}{Aug. 2018 – Sep. 2019}
       {Software Engineer}{San Francisco, CA}
       \resumeItemListStart
         \resumeItem{\textbf{Led front-end development} of a dashboard to process 50k blood samples and detect early-stage cancer}
@@ -167,7 +181,7 @@
     \resumeItemListEnd
 
     \resumeSubheading
-      {Amazon}{May 2017 -- Aug. 2017}
+      {Amazon}{May 2017 – Aug. 2017}
       {Software Engineering Intern}{Seattle, WA}
       \resumeItemListStart
         \resumeItem{Worked on the Search Customer Experience Team; \textbf{received a return offer} for a full-time position}
@@ -183,21 +197,21 @@
 \section{PROJECTS}
     \resumeSubHeadingListStart
       \resumeProjectHeading
-          {\textbf{Hyku Consulting}} {Sept. 2019 -- Mar. 2021}
+          {\textbf{Hyku Consulting}} {Sep. 2019 – Mar. 2021}
           \resumeItemListStart
             \resumeItem{Mentored 15 students towards acceptance at top US boarding schools; achieved \textbf{100\% success rate}}
             \resumeItem{Designed a \textbf{collaborative learning ecosystem} for students and parents with Trello, Miro, and Google Suite}
           \resumeItemListEnd
           
         \resumeProjectHeading
-          {\textbf{Minimal Icon Pack}}{Sept. 2020 -- Nov. 2020}
+          {\textbf{Minimal Icon Pack}}{Sep. 2020 – Nov. 2020}
           \resumeItemListStart
             \resumeItem{Designed and released 100+ minimal iOS and Android icons from scratch using Procreate and Figma}
             \resumeItem{Marketed the product and design process on {\href{https://www.youtube.com/watch?v=Ju32r7QJCzk}{\myuline {YouTube}}}; accumulated over \textbf{\$250 in sales} on {\href{https://gumroad.com/l/icons-by-harshibar}{\myuline {Gumroad}}}}
           \resumeItemListEnd
           
       \resumeProjectHeading
-         {\textbf{CommonIntern}}{Sept. 2019 -- May 2020}
+         {\textbf{CommonIntern}}{Sep. 2019 – May 2020}
           \resumeItemListStart
             \resumeItem{Built a Python script to automatically apply to jobs on Glassdoor using BeautifulSoup and Selenium}
             \resumeItem{\textbf{500 stars on \href{https://github.com/harshibar/common-intern}{\myuline {GitHub}}}; featured on {\href{https://hackaday.com/2020/05/30/job-application-script-automates-the-boring-stuff-with-python}{\myuline {Hackaday}}}; made the front page of {\href {https://www.reddit.com/r/Python/comments/gpaegj/i_was_tired_of_opening_100s_of_tabs_for/?utm_source=share}{\myuline {r/python}}} and {\href {https://www.reddit.com/r/programming/comments/dcmbzx/i_was_tired_of_opening_100s_of_tabs_for/}{\myuline {r/programming}}}}
@@ -211,12 +225,11 @@
 \section {EDUCATION}
   \resumeSubHeadingListStart
     \resumeSubheading
-      {Wellesley College}{Aug. 2014 -- May 2018}
+      {Wellesley College}{Aug. 2014 – May 2018}
       {Bachelor of Arts in Computer Science and Pre-Med}{Wellesley, MA}
       	\resumeItemListStart
-    	\resumeItem {\textbf{Coursework}: Data Structures, Algorithms, Databases, Computer Systems, Machine Learning}
-        \resumeItem 
-            {\textbf{Research}: MIT Graybiel Lab (published author), MIT Media Lab (analyzed urban microbe spread)}
+    	\resumeItem {Completed advanced coursework in Data Structures, Algorithms, Databases, Computer Systems, and Machine Learning.}
+        \resumeItem {Conducted research at the MIT Graybiel Lab as a published author and analyzed urban microbe spread at the MIT Media Lab.}
         \resumeItemListEnd
   \resumeSubHeadingListEnd
 

@@ -14,8 +14,16 @@
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{verbatim}
 \usepackage{enumitem}
-\usepackage[pdftex]{hyperref}
+% FIXED: Task 7 - Use hidelinks for cleaner visual and better ATS parsing
+\usepackage[hidelinks]{hyperref}
 \usepackage{fancyhdr}
+
+\input{glyphtounicode}
+\pdfgentounicode=1
+\usepackage{lmodern}
+
+% FIXED: Task 3 - Defined namefmt for bolding
+\newcommand{\namefmt}[1]{{\bfseries #1}}
 
 
 \pagestyle{fancy}
@@ -33,6 +41,17 @@
 
 \urlstyle{same}
 
+% CONTACT INFORMATION
+\def\name{Sourabh Bajaj}
+\def\phone{+1-123-456-7890}
+\def\email{mail@website.com}
+\def\LinkedIn{sourabhbajaj}
+\def\github{sourabhbajaj}
+\def\role{Software Engineer}
+\def\location{Mountain View, CA}
+
+\definecolor{highlight}{RGB}{61, 90, 128}
+
 \raggedbottom
 % \raggedright % Commented out to enable justification
 \setlength{\tabcolsep}{0in}
@@ -44,10 +63,8 @@
 
 %-------------------------
 % Custom commands
-\newcommand{\resumeItem}[2]{
-  \item\small{
-    \textbf{#1}{: #2 \vspace{-2pt}}
-  }
+\newcommand{\resumeItem}[1]{
+  \item\small{#1\vspace{-1pt}}
 }
 
 \newcommand{\resumeSubheading}[4]{
@@ -72,13 +89,19 @@
 
 \begin{document}
 
-%----------HEADING-----------------
 \begin{center}
-    \textbf{\href{http://sourabhbajaj.com/}{\Large Sourabh Bajaj}} \\ \vspace{2pt}
-    Email : \href{mailto:sourabh@sourabhbajaj.com}{mail@website.com} $|$
-    Mobile : +1-123-456-7890 \\
-    \href{http://sourabhbajaj.com/}{http://www.sourabhbajaj.com}
+    {\Huge\namefmt{\name}} \\[4pt]
+    {\large\color{highlight}\role} \\[4pt]
+    \small
+    \phone \quad$|$\quad
+    \location \quad$|$\quad
+    \href{mailto:\email}{\email} \quad$|$\quad
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn} \quad$|$\quad
+    \href{https://github.com/\github}{github.com/\github}
 \end{center}
+\vspace{-8pt}
+{\color{highlight}\hrule height 1.5pt}
+\vspace{6pt}
 
 
 %-----------EDUCATION-----------------
@@ -86,10 +109,10 @@
   \resumeSubHeadingListStart
     \resumeSubheading
       {Georgia Institute of Technology}{Atlanta, GA}
-      {Master of Science in Computer Science;  GPA: 4.00}{Aug. 2012 -- Dec. 2013}
+      {Master of Science in Computer Science;  GPA: 4.00}{Aug. 2012 – Dec. 2013}
     \resumeSubheading
       {Birla Institute of Technology and Science}{Pilani, India}
-      {Bachelor of Engineering in Electrical and Electronics;  GPA: 3.66 (9.15/10.0)}{Aug. 2008 -- July. 2012}
+      {Bachelor of Engineering in Electrical and Electronics;  GPA: 3.66 (9.15/10.0)}{Aug. 2008 – Jul. 2012}
   \resumeSubHeadingListEnd
 
 
@@ -99,46 +122,33 @@
 
     \resumeSubheading
       {Google}{Mountain View, CA}
-      {Software Engineer}{Oct 2016 - Present}
+      {Software Engineer}{Oct. 2016 – Present}
       \resumeItemListStart
-        \resumeItem{Tensorflow}
-          {TensorFlow is an open source software library for numerical computation using data flow graphs; primarily used for training deep learning models.}
-        \resumeItem{Apache Beam}
-          {Apache Beam is a unified model for defining both batch and streaming data-parallel processing pipelines, as well as a set of language-specific SDKs for constructing pipelines and runners.}
+        \resumeItem{Developed TensorFlow, an open source software library for numerical computation using data flow graphs, primarily used for training deep learning models.}
+        \resumeItem{Built Apache Beam, a unified model for defining both batch and streaming data-parallel processing pipelines, along with language-specific SDKs.}
       \resumeItemListEnd
 
     \resumeSubheading
       {Coursera}{Mountain View, CA}
-      {Senior Software Engineer}{Jan 2014 - Oct 2016}
+      {Senior Software Engineer}{Jan. 2014 – Oct. 2016}
       \resumeItemListStart
-        \resumeItem{Notifications}
-          {Service for sending email, push and in-app notifications. Involved in features such as delivery time optimization, tracking, queuing and A/B testing. Built an internal app to run batch campaigns for marketing etc.}
-        \resumeItem{Nostos}
-          {Bulk data processing and injection service from Hadoop to Cassandra and provides a thin REST layer on top for serving offline computed data online.}
-        \resumeItem{Workflows}
-          {Dataduct an open source workflow framework to create and manage data pipelines leveraging reusables patterns to expedite developer productivity.}
-        \resumeItem{Data Collection}
-          {Designed the internal survey and crowd sourcing platfowm which allowed for creating various tasks for crowd sourding or embedding surveys across the Coursera platform.}
-        \resumeItem{Dev Environment}
-          {Analytics environment based on docker and AWS, standardized the python and R dependencies. Wrote the core libraries that are shared by all data scientists.}
-        \resumeItem{Data Warehousing}
-          {Setup, schema design and management of Amazon Redshift. Built an internal app for access to the data using a web interface. Dataduct integration for daily ETL injection into Redshift.}
-        \resumeItem{Recommendations}
-          {Core service for all recommendation systems at Coursesa, currently used on the homepage and throughout the content discovery process. Worked on both offline training and online serving.}
-        \resumeItem{Content Discovery}
-          {Improved content discovery by building a new onboarding experience on coursera. Using this to personalize the search and browse experience. Also worked on ranking and indexing improvements.}
-        \resumeItem{Course Dashboards}
-          {Instructor dashboards and learner surveying tools, which helped instructors run their class better by providing data on Assignments and Learner Activity.}
+        \resumeItem{Developed a notification service for sending email, push, and in-app notifications, optimizing delivery times and implementing tracking and A/B testing.}
+        \resumeItem{Built Nostos, a bulk data processing and injection service from Hadoop to Cassandra with a REST layer for online serving.}
+        \resumeItem{Created Dataduct, an open source workflow framework to manage data pipelines leveraging reusable patterns to expedite developer productivity.}
+        \resumeItem{Designed an internal survey and crowdsourcing platform which allowed for creating various tasks and embedding surveys across Coursera.}
+        \resumeItem{Standardized the analytics environment based on Docker and AWS, managing Python and R dependencies and writing core shared libraries.}
+        \resumeItem{Managed the setup and schema design of Amazon Redshift and built an internal web interface for daily ETL injection via Dataduct.}
+        \resumeItem{Developed the core recommendation service used on the homepage and throughout content discovery, focusing on both offline training and online serving.}
+        \resumeItem{Improved content discovery by building a personalized onboarding experience and implementing ranking and indexing enhancements.}
+        \resumeItem{Created instructor dashboards and learner surveying tools to provide data on assignments and learner activity.}
       \resumeItemListEnd
 
     \resumeSubheading
       {Lucena Research}{Atlanta, GA}
-      {Data Scientist}{Summer 2012 and 2013}
+      {Data Scientist}{Jun. 2012 – Aug. 2013}
       \resumeItemListStart
-        \resumeItem{Portfolio Management}
-          {Created models for portfolio hedging,  portfolio optimization and price forecasting. Also creating a strategy backtesting engine used for simulating and backtesting strategies.}
-        \resumeItem{QuantDesk}
-          {Python backend for a web application used by hedge fund managers for portfolio management.}
+        \resumeItem{Created models for portfolio hedging, portfolio optimization, and price forecasting, and built a strategy backtesting engine.}
+        \resumeItem{Developed a Python backend for a web application used by hedge fund managers for portfolio management.}
       \resumeItemListEnd
 
   \resumeSubHeadingListEnd

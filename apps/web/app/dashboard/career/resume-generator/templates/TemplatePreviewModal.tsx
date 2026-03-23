@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronRight, Phone, Mail, MapPin, Youtube, Globe, Linkedin, Github, ZoomIn, ZoomOut, Maximize, TrendingUp, CheckCircle, Ruler, Palette, PenTool, FileText } from "lucide-react";
+import { Check, ChevronRight, ZoomIn, ZoomOut, Maximize, TrendingUp, CheckCircle, HelpCircle, AlertCircle, FileText } from "lucide-react";
 import Image from "next/image";
 import { Template, TemplateColor } from "@/lib/documents/templates";
 
@@ -49,22 +49,21 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                     >
                         <div className="p-10 text-gray-900 h-full flex flex-col">
                             {/* Modern Header */}
-                            <div className="border-b-[3px] border-[#3D5A80] pb-2 mb-6">
-                                <div className="grid grid-cols-3 items-end">
-                                    <div className="text-left text-sm space-y-0.5 leading-snug">
-                                        <div>(555) 123-4567</div>
-                                        <div>San Francisco, CA</div>
-                                        <div className="text-[#3D5A80] font-medium">alex.chen@email.com</div>
-                                    </div>
-                                    <div className="text-center">
-                                        <h1 className="text-5xl font-['Montserrat'] font-bold uppercase tracking-tighter text-gray-900 mb-1">Alex Chen</h1>
-                                        <div className="text-[#3D5A80] text-xl font-semibold tracking-wide uppercase">Senior AI Engineer</div>
-                                    </div>
-                                    <div className="text-right text-sm space-y-0.5 leading-snug">
-                                        <div>Portfolio: <span className="text-[#3D5A80] font-medium">alexchen.ai</span></div>
-                                        <div className="text-[#3D5A80] font-medium">github.com/alexc</div>
-                                        <div className="text-[#3D5A80] font-medium">linkedin.com/in/alexchen</div>
-                                    </div>
+                            <div className="border-b-[3px] border-[#3D5A80] pb-2 mb-6 text-center">
+                                <h1 className="text-5xl font-['Montserrat'] font-bold uppercase tracking-tighter text-gray-900 mb-1">Alex Chen</h1>
+                                <div className="text-[#3D5A80] text-xl font-semibold tracking-wide uppercase mb-3">Senior AI Engineer</div>
+                                <div className="flex flex-wrap justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
+                                    <span>(555) 123-4567</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>San Francisco, CA</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-[#3D5A80]">alex.chen@email.com</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-[#3D5A80]">linkedin.com/in/alexchen</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-[#3D5A80]">github.com/alexc</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-[#3D5A80]">alexchen.ai</span>
                                 </div>
                             </div>
 
@@ -85,7 +84,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Technical Experience</h2>
                                     <div className="space-y-4">
                                         <div className="text-sm">
-                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Member of Technical Staff</h3><span className="text-gray-600 font-medium">Jan 2023 - Present</span></div>
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Member of Technical Staff</h3><span className="text-gray-600 font-medium">Jan. 2023 – Present</span></div>
                                             <div className="italic text-gray-700 mb-1">OpenAI, San Francisco, CA</div>
                                             <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500">
                                                 <li>Contributed to the training and fine-tuning of GPT-4, improving reasoning capabilities by 15% on benchmark tasks.</li>
@@ -94,7 +93,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </ul>
                                         </div>
                                         <div className="text-sm">
-                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Senior Data Scientist</h3><span className="text-gray-600 font-medium">Jun 2020 - Dec 2022</span></div>
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Senior Data Scientist</h3><span className="text-gray-600 font-medium">Jun. 2020 – Dec. 2022</span></div>
                                             <div className="italic text-gray-700 mb-1">Netflix, Los Gatos, CA</div>
                                             <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500">
                                                 <li>Led the "Watch Next" algorithm overhaul, utilizing graph neural networks to increase user retention by 5%.</li>
@@ -103,7 +102,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </ul>
                                         </div>
                                         <div className="text-sm">
-                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Data Scientist II</h3><span className="text-gray-600 font-medium">Aug 2018 - May 2020</span></div>
+                                            <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Data Scientist II</h3><span className="text-gray-600 font-medium">Aug. 2018 – May 2020</span></div>
                                             <div className="italic text-gray-700 mb-1">Uber, San Francisco, CA</div>
                                             <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-500">
                                                 <li>Developed dynamic pricing models using XGBoost, resulting in a $50M annual revenue increase in key markets.</li>
@@ -183,14 +182,18 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                             {/* Professional Header */}
                             <div className="text-center mb-6">
                                 <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Harshibar</h1>
-                                <div className="flex justify-center items-center gap-3 text-sm text-gray-800">
-                                    <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> 555.555.5555</span>
+                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
+                                    <span>555.555.5555</span>
                                     <span className="text-gray-400">|</span>
-                                    <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> hello@email.com</span>
+                                    <span>San Francisco, CA</span>
                                     <span className="text-gray-400">|</span>
-                                    <span className="flex items-center gap-1"><Youtube className="w-3 h-3" /> harshibar</span>
+                                    <span>hello@email.com</span>
                                     <span className="text-gray-400">|</span>
-                                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> U.S. Citizen</span>
+                                    <span>linkedin.com/in/harshibar</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>github.com/harshibar</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>harshibar.com</span>
                                 </div>
                             </div>
 
@@ -203,7 +206,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>YouTube</span>
-                                                <span>Aug. 2019 -- Present</span>
+                                                <span>Jan. 2021 – Present</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-1">
                                                 <span>Creator (@harshibar)</span>
@@ -220,7 +223,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Google Verily</span>
-                                                <span>Aug. 2018 -- Sept. 2019</span>
+                                                <span>Aug. 2018 – Sept. 2019</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-1">
                                                 <span>Software Engineer</span>
@@ -235,14 +238,14 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Amazon</span>
-                                                <span>May 2017 -- Aug. 2017</span>
+                                                <span>May 2017 – Aug. 2017</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-1">
                                                 <span>Software Engineering Intern</span>
                                                 <span>Seattle, WA</span>
                                             </div>
                                             <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
-                                                <li>Worked on the Search Customer Experience Team; <strong>received a return offer</strong> for a full-time position</li>
+                                                <li><strong>Worked on the Search Customer Experience Team</strong>; <strong>received a return offer</strong> for a full-time position</li>
                                                 <li><strong>Shipped a new feature to 2M+ users</strong> to improve the search experience for movie series-related queries</li>
                                                 <li>Built a back-end database service in Java and implemented a front-end UI to support future changes</li>
                                             </ul>
@@ -309,7 +312,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div className="text-sm">
                                         <div className="flex justify-between font-bold text-gray-900">
                                             <span>Wellesley College</span>
-                                            <span>Aug. 2014 -- May 2018</span>
+                                            <span>Aug. 2014 – May 2018</span>
                                         </div>
                                         <div className="flex justify-between italic text-gray-700 mb-1">
                                             <span>Bachelor of Arts in Computer Science and Pre-Med</span>
@@ -357,15 +360,21 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         style={{ minHeight: `${pageHeight}px`, fontFamily: '"Georgia", "Times New Roman", serif' }}
                     >
                         <div className="p-10 text-gray-900 h-full flex flex-col">
-                            {/* Creative Header - 2 Columns */}
-                            <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-blue-800 mb-1">Sarah Jenkins</h1>
-                                    <a href="#" className="text-blue-600 text-sm block hover:underline">sarahjenkins.design</a>
-                                </div>
-                                <div className="text-right text-sm">
-                                    <div>Email : <a href="#" className="text-blue-600 hover:underline">hello@sarah.design</a></div>
-                                    <div>Mobile : +1-555-019-2834</div>
+                            {/* Creative Header */}
+                            <div className="text-center mb-6">
+                                <h1 className="text-3xl font-bold text-blue-800 mb-2">Sarah Jenkins</h1>
+                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
+                                    <span>+1-555-019-2834</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>San Francisco, CA</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-blue-600">hello@sarah.design</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-blue-600">linkedin.com/in/sarahj</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-blue-600">github.com/sarahj</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-blue-600">sarahjenkins.design</span>
                                 </div>
                             </div>
 
@@ -379,7 +388,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Rhode Island School of Design (RISD)</span>
-                                                <span>Aug. 2013 -- May 2017</span>
+                                                <span>Aug. 2013 – May 2017</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700">
                                                 <span>Bachelor of Fine Arts in Graphic Design; GPA: 3.9</span>
@@ -396,7 +405,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Airbnb</span>
-                                                <span>Jan 2021 - Present</span>
+                                                <span>Jan. 2021 – Present</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
                                                 <span>Senior Product Designer</span>
@@ -411,7 +420,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Spotify</span>
-                                                <span>Jun 2018 - Dec 2020</span>
+                                                <span>Jun. 2018 – Dec. 2020</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
                                                 <span>Product Designer</span>
@@ -425,7 +434,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>IDEO</span>
-                                                <span>Jun 2017 - May 2018</span>
+                                                <span>Jun. 2017 – May 2018</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
                                                 <span>Interaction Design Intern</span>
@@ -515,13 +524,20 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                     >
                         <div className="p-10 text-gray-900 h-full flex flex-col">
                             {/* Academic Header */}
-                            <div className="flex justify-between items-start mb-6 border-b-0">
-                                <div>
-                                    <h1 className="text-2xl font-bold text-gray-900 mb-1">Dr. Elena Rodriguez</h1>
-                                </div>
-                                <div className="text-right text-sm">
-                                    <div>Email : <a href="#" className="text-blue-600 hover:underline">elena.rodriguez@mit.edu</a></div>
-                                    <div>Website : elenarodriguez.research</div>
+                            <div className="text-center mb-6">
+                                <h1 className="text-2xl font-bold text-gray-900 mb-2">Dr. Elena Rodriguez</h1>
+                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
+                                    <span>+1-555-010-9988</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>Stanford, CA</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-blue-600">elena.rodriguez@mit.edu</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-blue-600">linkedin.com/in/erodriguez</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-blue-600">github.com/erodriguez</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span className="text-blue-600">elenarodriguez.research</span>
                                 </div>
                             </div>
 
@@ -548,7 +564,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
                                                 <span>Postdoctoral Researcher</span>
-                                                <span>Sep 2023 - Present</span>
+                                                <span>Sep. 2023 – Present</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-2 text-gray-800">
                                                 <li><span className="font-bold">Quantum Algorithms: </span>Developing novel algorithms for quantum simulation of chemical systems, aiming to reduce gate count by 20%.</li>
@@ -563,7 +579,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
                                                 <span>Research Intern</span>
-                                                <span>Summer 2022</span>
+                                                <span>Jun. 2022 – Aug. 2022</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-2 text-gray-800">
                                                 <li><span className="font-bold">Distributed Systems: </span>Investigated consistency models in geo-replicated databases, proposing a new hybrid clock synchronization protocol.</li>
@@ -577,7 +593,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
                                                 <span>Graduate Research Assistant</span>
-                                                <span>Sep 2018 - Jun 2023</span>
+                                                <span>Sep. 2018 – Jun. 2023</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-2 text-gray-800">
                                                 <li><span className="font-bold">Thesis: </span>"Optimizing Quantum Gates for Trapped-Ion Systems"</li>
@@ -614,21 +630,21 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Stanford University</span>
-                                                <span>Sep 2018 - Jun 2023</span>
+                                                <span>Stanford, CA</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700">
-                                                <span>Ph.D. in Computer Science</span>
-                                                <span>Stanford, CA</span>
+                                                <span>PhD in Computer Science; GPA: 4.0</span>
+                                                <span>Sep. 2018 – Jun. 2023</span>
                                             </div>
                                         </div>
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Massachusetts Institute of Technology (MIT)</span>
-                                                <span>Sep 2014 - Jun 2018</span>
+                                                <span>Cambridge, MA</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700">
                                                 <span>B.S. in Mathematics and Physics</span>
-                                                <span>Cambridge, MA</span>
+                                                <span>Sep. 2014 – Jun. 2018</span>
                                             </div>
                                         </div>
                                     </div>
@@ -685,13 +701,18 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                     >
                         <div className="p-12 text-gray-900 h-full flex flex-col">
                             {/* Executive Header */}
-                            <div className="text-center mb-8">
-                                <h1 className="text-4xl font-light tracking-widest text-gray-900 uppercase mb-3 text-gray-900">James Sterling</h1>
-                                <div className="flex justify-center items-center gap-4 text-sm text-gray-600">
-                                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> San Francisco, CA</span>
-                                    <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> +1-555-010-9988</span>
-                                    <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> james@sterling.tech</span>
-                                    <span className="flex items-center gap-1"><Linkedin className="w-3.5 h-3.5" /> linkedin.com/in/jsterling</span>
+                            <div className="text-center mb-6">
+                                <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-2">Katherine Winslow</h1>
+                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
+                                    <span>(555) 123-4567</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>New York, NY</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>k.winslow@exec.com</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>linkedin.com/in/kwinslow</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>github.com/kwinslow</span>
                                 </div>
                             </div>
 
@@ -717,7 +738,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
                                                 <span>VP of Engineering, Payments Platform</span>
-                                                <span>Mar 2020 -- Present</span>
+                                                <span>Mar. 2020 – Present</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
                                                 <li>Lead a global engineering organization of 300+ engineers, product managers, and data scientists.</li>
@@ -732,7 +753,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
                                                 <span>Senior Director of Engineering, Infrastructure</span>
-                                                <span>Jun 2016 -- Feb 2020</span>
+                                                <span>Jun. 2016 – Feb. 2020</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
                                                 <li>Managed the core infrastructure teams (Compute, Storage, Network) supporting thousands of microservices.</li>
@@ -746,7 +767,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-2">
                                                 <span>Director of Engineering, Google Cloud</span>
-                                                <span>Aug 2012 -- May 2016</span>
+                                                <span>Aug. 2012 – May. 2016</span>
                                             </div>
                                             <ul className="list-disc ml-5 space-y-1.5 text-gray-800 leading-relaxed">
                                                 <li>Founded and led the Kubernetes Engine (GKE) team from inception to general availability.</li>
@@ -759,8 +780,8 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 <div>
                                     <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Board Memberships & Advisory</h2>
                                     <div className="space-y-2 text-sm text-gray-800">
-                                        <div><span className="font-bold">Board Member: </span>TechStart Ups (Series B Fintech), 2021 - Present</div>
-                                        <div><span className="font-bold">Technical Advisor: </span>AI Ventures (Seed Stage VC Fund), 2022 - Present</div>
+                                        <div><span className="font-bold">Board Member: </span>TechStart Ups (Series B Fintech), 2021 – Present</div>
+                                        <div><span className="font-bold">Technical Advisor: </span>AI Ventures (Seed Stage VC Fund), 2022 – Present</div>
                                     </div>
                                 </div>
 
@@ -776,21 +797,25 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 <div>
                                     <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Education</h2>
                                     <div className="text-sm">
-                                        <div className="flex justify-between font-bold text-gray-900 text-base">
-                                            <span>Stanford University</span>
-                                            <span>Stanford, CA</span>
+                                        <div className="mb-4 last:mb-0">
+                                            <div className="flex justify-between font-bold text-gray-900 text-base">
+                                                <span>Harvard Business School</span>
+                                                <span>Cambridge, MA</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700">
+                                                <span>Master of Business Administration (MBA)</span>
+                                                <span>Sep. 2008 – May. 2010</span>
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-1">
-                                            <span>Master of Science in Computer Science (Systems)</span>
-                                            <span>2010 -- 2012</span>
-                                        </div>
-                                        <div className="flex justify-between font-bold text-gray-900 text-base mt-2">
-                                            <span>University of California, Berkeley</span>
-                                            <span>Berkeley, CA</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700 mb-1">
-                                            <span>Bachelor of Science in Electrical Engineering & Computer Science</span>
-                                            <span>2006 -- 2010</span>
+                                        <div className="mb-4 last:mb-0">
+                                            <div className="flex justify-between font-bold text-gray-900 text-base">
+                                                <span>Yale University</span>
+                                                <span>New Haven, CT</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700">
+                                                <span>Bachelor of Arts in Economics</span>
+                                                <span>Sep. 2004 – May. 2008</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -847,15 +872,19 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         <div className="p-10 text-gray-900 h-full flex flex-col">
                             {/* Tech Header */}
                             <div className="text-center mb-6">
-                                <h1 className="text-3xl font-bold text-gray-900 mb-2">Michael Chang</h1>
-                                <div className="flex justify-center items-center gap-3 text-sm text-gray-800">
-                                    <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> m.chang@devops.io</span>
+                                <h1 className="text-3xl font-black tracking-tight text-gray-900 mb-2">Alex Rivest</h1>
+                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
+                                    <span>(555) 987-6543</span>
                                     <span className="text-gray-400">|</span>
-                                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Seattle, WA</span>
+                                    <span>Seattle, WA</span>
                                     <span className="text-gray-400">|</span>
-                                    <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> +1-206-555-0199</span>
+                                    <span>alex.rivest@tech.com</span>
                                     <span className="text-gray-400">|</span>
-                                    <span className="flex items-center gap-1"><Github className="w-3.5 h-3.5" /> github.com/mchang-ops</span>
+                                    <span>linkedin.com/in/arivest</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>github.com/arivest</span>
+                                    <span className="text-gray-400">|</span>
+                                    <span>alexrivest.dev</span>
                                 </div>
                             </div>
 
@@ -888,7 +917,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Senior DevOps Engineer — Amazon Web Services (AWS)</span>
-                                                <span>Jul 2021 – Present</span>
+                                                <span>Jul. 2021 – Present</span>
                                             </div>
                                             <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
                                                 <li>Architected a multi-region Kubernetes cluster handling 1M+ requests per second for high-traffic retail services.</li>
@@ -900,7 +929,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Integration Engineer — SampleCloud Technologies (Remote)</span>
-                                                <span>Jun 2023 – Dec 2023</span>
+                                                <span>Jun. 2023 – Dec. 2023</span>
                                             </div>
                                             <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
                                                 <li>Built data integration pipelines across multi-cloud environments.</li>
@@ -912,7 +941,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>DevOps Engineer — Oracle Cloud Infrastructure</span>
-                                                <span>Jun 2018 – Jun 2021</span>
+                                                <span>Jun. 2018 – Jun. 2021</span>
                                             </div>
                                             <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
                                                 <li>Built and maintained CI/CD pipelines for 50+ microservices using Jenkins and Docker.</li>
@@ -947,21 +976,25 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 <div>
                                     <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Education</h2>
                                     <div className="space-y-2 text-sm text-gray-800">
-                                        <div className="flex justify-between font-bold text-gray-900">
-                                            <span>University of Washington</span>
-                                            <span>Seattle, WA</span>
+                                        <div className="mb-3">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>University of Washington</span>
+                                                <span>Seattle, WA</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700">
+                                                <span>M.S. in Computer Science</span>
+                                                <span>Sep. 2014 – May. 2016</span>
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between italic text-gray-700">
-                                            <span>M.S. in Computer Science</span>
-                                            <span>2014 -- 2016</span>
-                                        </div>
-                                        <div className="flex justify-between font-bold text-gray-900 mt-2">
-                                            <span>Purdue University</span>
-                                            <span>West Lafayette, IN</span>
-                                        </div>
-                                        <div className="flex justify-between italic text-gray-700">
-                                            <span>B.S. in Electrical and Computer Engineering</span>
-                                            <span>2010 -- 2014</span>
+                                        <div className="mb-3">
+                                            <div className="flex justify-between font-bold text-gray-900">
+                                                <span>Purdue University</span>
+                                                <span>West Lafayette, IN</span>
+                                            </div>
+                                            <div className="flex justify-between italic text-gray-700">
+                                                <span>B.S. in Electrical and Computer Engineering</span>
+                                                <span>Sep. 2010 – May. 2014</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -986,7 +1019,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Systems Administrator — IBM</span>
-                                                <span>Aug 2016 – May 2018</span>
+                                                <span>Aug. 2016 – May. 2018</span>
                                             </div>
                                             <ul className="list-disc ml-5 mt-1 space-y-1 text-gray-800">
                                                 <li>Managed 500+ Linux servers, ensuring 99.9% uptime and security compliance.</li>
