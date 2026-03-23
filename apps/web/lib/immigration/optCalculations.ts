@@ -134,49 +134,55 @@ export function calculateUnemploymentDays(
     const effectiveEnd = end.getTime() < today.getTime() ? end : today;
 
     const max = 90;
+
+    // Total elapsed days within OPT window up to today.
+    const totalDays = Math.max(
+        0,
+        Math.ceil((effectiveEnd.getTime() - start.getTime()) / MS_PER_DAY)
+    );
+
     if (!employmentSpans || employmentSpans.length === 0) {
-        const used = Math.max(0, Math.ceil((effectiveEnd.getTime() - start.getTime()) / MS_PER_DAY));
-        return { used, max };
+        return { used: totalDays, max };
     }
 
-    const spansSorted = [...employmentSpans]
-        .map((s) => ({
-            ...s,
-            start: toUTCDate(s.start_date),
-            end: s.end_date ? toUTCDate(s.end_date) : null,
-        }))
-        .sort((a, b) => a.start.getTime() - b.start.getTime());
+    // Clamp each span to the OPT window, then merge overlapping intervals.
+    const intervals: Array<[number, number]> = [];
 
-    // We consider "employment" days as days within [employmentStart, employmentEnd] (inclusive).
-    // Unemployment days are the gaps between employment blocks within [optStart, effectiveEnd].
-    let used = 0;
-    let cursor = start;
+    for (const span of employmentSpans) {
+        const spanStart = toUTCDate(span.start_date);
+        const spanEnd = span.end_date ? toUTCDate(span.end_date) : today;
 
-    for (const span of spansSorted) {
-        const spanStart = span.start;
-        if (spanStart.getTime() > effectiveEnd.getTime()) break;
+        const clampedStart = spanStart.getTime() > start.getTime() ? spanStart : start;
+        const clampedEnd = spanEnd.getTime() < effectiveEnd.getTime() ? spanEnd : effectiveEnd;
 
-        // If employment starts after the cursor, everything from cursor to (spanStart - 1 day) is unemployment.
-        if (spanStart.getTime() > cursor.getTime()) {
-            const gapEnd = new Date(spanStart.getTime() - MS_PER_DAY);
-            if (gapEnd.getTime() >= cursor.getTime()) {
-                used += Math.ceil((gapEnd.getTime() - cursor.getTime()) / MS_PER_DAY) + 1;
+        if (clampedEnd.getTime() >= clampedStart.getTime()) {
+            intervals.push([clampedStart.getTime(), clampedEnd.getTime()]);
+        }
+    }
+
+    let employedDays = 0;
+
+    if (intervals.length > 0) {
+        intervals.sort((a, b) => a[0] - b[0]);
+        const merged: Array<[number, number]> = [];
+
+        for (const [s, e] of intervals) {
+            const last = merged[merged.length - 1];
+            // Merge if overlapping or adjacent (within 1 day).
+            if (!last || s > last[1] + MS_PER_DAY) {
+                merged.push([s, e]);
+            } else {
+                last[1] = Math.max(last[1], e);
             }
         }
 
-        // Move cursor forward past this employment block.
-        const rawEnd = span.end ? span.end : effectiveEnd;
-        const spanEndInclusive = rawEnd.getTime() < effectiveEnd.getTime() ? rawEnd : effectiveEnd;
-        // cursor becomes the day after employment ends.
-        cursor = new Date(spanEndInclusive.getTime() + MS_PER_DAY);
+        employedDays = merged.reduce(
+            (sum, [s, e]) => sum + Math.ceil((e - s) / MS_PER_DAY),
+            0
+        );
     }
 
-    // Tail unemployment gap after last employment until effectiveEnd.
-    if (cursor.getTime() <= effectiveEnd.getTime()) {
-        used += Math.ceil((effectiveEnd.getTime() - cursor.getTime()) / MS_PER_DAY) + 1;
-    }
-
-    used = Math.max(0, used);
+    const used = Math.max(0, totalDays - employedDays);
     return { used, max };
 }
 

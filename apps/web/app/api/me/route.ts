@@ -249,7 +249,7 @@ export async function GET(request: NextRequest) {
             const clampedStart = start > optStart ? start : optStart;
             const clampedEnd = end < effectiveEnd ? end : effectiveEnd;
 
-            if (clampedEnd > clampedStart) {
+            if (clampedEnd >= clampedStart) {
               intervals.push([clampedStart.getTime(), clampedEnd.getTime()]);
             }
           });
@@ -260,7 +260,8 @@ export async function GET(request: NextRequest) {
 
             for (const [start, end] of intervals) {
               const last = merged[merged.length - 1];
-              if (!last || start > last[1]) {
+              // Merge overlapping or adjacent (within 1 day) intervals.
+              if (!last || start > last[1] + MS_PER_DAY) {
                 merged.push([start, end]);
               } else {
                 last[1] = Math.max(last[1], end);
