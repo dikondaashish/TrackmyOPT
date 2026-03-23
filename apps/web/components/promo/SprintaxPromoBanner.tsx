@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { ChevronRight, X } from "lucide-react";
 
 const MARKETING_KEY = "trackmyopt_promo_sprintax_marketing_v1";
@@ -18,6 +18,7 @@ interface SprintaxPromoBannerProps {
 export function SprintaxPromoBanner({ variant }: SprintaxPromoBannerProps) {
   const storageKey = variant === "marketing" ? MARKETING_KEY : DASHBOARD_KEY;
   const cssVar = variant === "marketing" ? VAR_MARKETING : VAR_DASHBOARD;
+  const bannerRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -31,11 +32,30 @@ export function SprintaxPromoBanner({ variant }: SprintaxPromoBannerProps) {
   }, [storageKey]);
 
   useEffect(() => {
-    const h = visible ? "2.5rem" : "0px";
-    if (typeof document !== "undefined") {
-      document.documentElement.style.setProperty(cssVar, h);
+    if (!visible) {
+      if (typeof document !== "undefined") {
+        document.documentElement.style.setProperty(cssVar, "0px");
+      }
+      return;
     }
+
+    if (!bannerRef.current) return;
+
+    const updateHeight = () => {
+      if (bannerRef.current) {
+        const height = bannerRef.current.getBoundingClientRect().height;
+        document.documentElement.style.setProperty(cssVar, `${height}px`);
+      }
+    };
+
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(bannerRef.current);
+
+    // Initial measure
+    updateHeight();
+
     return () => {
+      observer.disconnect();
       if (typeof document !== "undefined") {
         document.documentElement.style.removeProperty(cssVar);
       }
@@ -58,6 +78,7 @@ export function SprintaxPromoBanner({ variant }: SprintaxPromoBannerProps) {
 
   return (
     <div
+      ref={bannerRef}
       className="fixed top-0 left-0 right-0 z-[60] flex min-h-10 w-full items-center justify-center gap-2 border-b border-white/10 px-3 py-2 sm:gap-4 sm:px-4"
       style={{
         background: "linear-gradient(90deg, #3b0764 0%, #5b21b6 35%, #92400e 100%)",
