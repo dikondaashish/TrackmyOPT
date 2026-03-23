@@ -110,6 +110,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [resumeUsage, setResumeUsage] = useState(0);
 
   const {
     widgets,
@@ -171,7 +172,6 @@ export function DashboardContent({ user }: DashboardContentProps) {
             setUnemploymentDays(data.unemploymentDays);
           }
 
-          // Open wizard only if no OPT row yet AND user has not dismissed it (Skip for now).
           if (!data.optStatus) {
             let dismissed = false;
             try {
@@ -182,6 +182,13 @@ export function DashboardContent({ user }: DashboardContentProps) {
             if (!dismissed) {
               setShowWizard(true);
             }
+          }
+
+          // Fetch Resume Usage for Profile Completion
+          const usageResponse = await fetch("/api/user/usage");
+          if (usageResponse.ok) {
+            const usageData = await usageResponse.json();
+            setResumeUsage(usageData.resumeUsage || 0);
           }
         }
       } catch (error) {
@@ -204,6 +211,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
             optStatus={optStatus} 
             employmentSpans={employmentSpans} 
             profile={profile} 
+            resumeUsage={resumeUsage}
           />
         );
       case "notifications":

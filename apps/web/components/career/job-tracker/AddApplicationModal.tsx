@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
+import { Plus, CheckCircle2, FileText, ArrowRight } from "lucide-react";
 import { JobApplication, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES } from "@/lib/career/job-tracker/constants";
 import { createApplication } from "@/app/dashboard/career/job-tracker/actions";
@@ -19,6 +19,7 @@ interface AddApplicationModalProps {
 export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicationModalProps) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [formData, setFormData] = useState({
         company_name: "",
         role_title: "",
@@ -56,6 +57,8 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
             if (onAdd && newApp) {
                 onAdd(newApp);
             }
+
+            setIsSuccess(true);
         } catch (err) {
             console.error(err);
             alert("Failed to create application");
@@ -80,10 +83,49 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-lg bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800" onClose={() => setOpen(false)}>
                     <DialogHeader>
-                        <DialogTitle>Add Job Application</DialogTitle>
+                        <DialogTitle>{isSuccess ? "Application Added!" : "Add Job Application"}</DialogTitle>
                     </DialogHeader>
 
-                    <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+                    {isSuccess ? (
+                        <div className="py-8 flex flex-col items-center text-center space-y-6">
+                            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center">
+                                <CheckCircle2 className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">What's Next?</h3>
+                                <p className="text-sm text-muted-foreground max-w-[300px]">
+                                    We've added <span className="font-semibold text-foreground">{formData.company_name}</span> to your tracker. Now, let's make sure your resume is perfect for this role.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col w-full gap-3 pt-4">
+                                <Button 
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 py-6 text-base shadow-lg shadow-blue-500/20"
+                                    onClick={() => {
+                                        window.location.href = `/dashboard/career/resume-generator?company=${encodeURIComponent(formData.company_name)}&role=${encodeURIComponent(formData.role_title)}`;
+                                    }}
+                                >
+                                    <FileText className="w-5 h-5" />
+                                    Tailor Resume with AI
+                                    <ArrowRight className="w-5 h-5 ml-1" />
+                                </Button>
+                                
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full text-muted-foreground hover:text-foreground"
+                                    onClick={() => {
+                                        setOpen(false);
+                                        // Reset success state after closing
+                                        setTimeout(() => setIsSuccess(false), 300);
+                                    }}
+                                >
+                                    I'll do it later
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Company Name *</Label>
@@ -158,6 +200,7 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                             </Button>
                         </div>
                     </form>
+                    )}
                 </DialogContent>
             </Dialog>
         </>

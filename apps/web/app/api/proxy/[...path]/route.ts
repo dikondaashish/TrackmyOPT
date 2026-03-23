@@ -73,18 +73,35 @@ async function handleProxyRequest(req: NextRequest, pathArray: string[]) {
 
     const response = await fetch(targetUrl, fetchOptions);
 
+    // Clean up response headers to avoid mismatches
     const responseHeaders = new Headers(response.headers);
-    // You might want to strip or modify headers before returning to client (e.g. CORS)
+    responseHeaders.delete('content-encoding');
+    responseHeaders.delete('transfer-encoding');
+    responseHeaders.delete('content-length');
     
-    return new Response(response.body, {
+    // Add CORS headers if missing
+    if (!responseHeaders.has('Access-Control-Allow-Origin')) {
+      responseHeaders.set('Access-Control-Allow-Origin', '*');
+    }
+
+    const data = await response.arrayBuffer();
+    
+    return new Response(data, {
       status: response.status,
       statusText: response.statusText,
       headers: responseHeaders
     });
     
-  } catch (error) {
-    console.error('Proxy Error:', error);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), { 
+  } catch (error: any) {
+    console.error('Proxy Error:', {
+      message: error.message,
+      stack: error.stack,
+      url: req.url
+    });
+    return new Response(JSON.stringify({ 
+      error: 'Internal Server Error',
+      details: error.message 
+    }), { 
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

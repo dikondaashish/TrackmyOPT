@@ -71,22 +71,45 @@ export default function HistoryPage() {
 
     const fetchResumes = async () => {
         setIsLoading(true);
+        setError("");
+        
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            
+            if (authError || !user) {
                 setError("Please log in to view saved resumes.");
                 return;
             }
 
-            const response = await fetch(`/api/proxy/resume/list?userId=${user.id}`);
+            // Set a timeout for the fetch request
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
 
-            if (!response.ok) throw new Error("Failed to fetch resumes");
+            const response = await fetch(`/api/proxy/resume/list?userId=${user.id}`, {
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.details || `Server responded with ${response.status}`);
+            }
 
             const data = await response.json();
+            
+            if (!Array.isArray(data)) {
+                throw new Error("Invalid response format from server");
+            }
+            
             setResumes(data);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Fetch error:", error);
-            setError("Could not load your saved resumes.");
+            if (error.name === 'AbortError') {
+                setError("Request timed out. Please check your connection and try again.");
+            } else {
+                setError(error.message || "Could not load your saved resumes.");
+            }
         } finally {
             setIsLoading(false);
         }

@@ -38,22 +38,22 @@ export async function checkResumeLimit(userId: string) {
     // Legacy/Manual override check
     if (profile?.premium_status && limit < 500) limit = 500;
 
-    // 2. Count Usage for Current Month
+    // 2. Count Usage for Current Month (SUM credit_cost)
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-    const { count, error: countError } = await supabase
+    const { data: usageData, error: usageError } = await supabase
         .from('resume_generations')
-        .select('*', { count: 'exact', head: true })
+        .select('credit_cost')
         .eq('user_id', userId)
         .gte('created_at', startOfMonth);
 
-    if (countError) {
-        console.error('Error counting resume generations:', countError);
+    if (usageError) {
+        console.error('Error fetching resume usage:', usageError);
         throw new Error('Failed to check usage limits');
     }
 
-    const usage = count || 0;
+    const usage = usageData?.reduce((acc, row) => acc + Number(row.credit_cost || 0), 0) || 0;
     const allowed = usage < limit;
 
     return { allowed, limit, usage, tier };
@@ -73,11 +73,14 @@ export async function trackResumeGeneration(userId: string, type: 'generate' | '
         }
     );
 
+    const creditCost = type === 'regenerate' ? 0.5 : 1.0;
+
     const { error } = await supabase
         .from('resume_generations')
         .insert({
             user_id: userId,
-            generation_type: type
+            generation_type: type,
+            credit_cost: creditCost
         });
 
     if (error) {

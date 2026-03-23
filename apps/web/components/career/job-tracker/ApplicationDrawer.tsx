@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { JobApplication, JobFollowup, JobInterview, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES } from "@/lib/career/job-tracker/constants";
-import { X, Calendar, MapPin, ExternalLink, Trash2, CheckCircle, Clock, Archive } from "lucide-react";
+import { X, Calendar, MapPin, ExternalLink, Trash2, CheckCircle, Clock, Archive, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -201,6 +201,17 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                                     View Job Post
                                 </a>
                             )}
+                            <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400 gap-2 h-9"
+                                onClick={() => {
+                                    window.location.href = `/dashboard/career/resume-generator?company=${encodeURIComponent(application.company_name)}&role=${encodeURIComponent(application.role_title)}`;
+                                }}
+                            >
+                                <FileText className="w-4 h-4" />
+                                Tailor Resume with AI
+                            </Button>
                         </div>
                     </div>
 

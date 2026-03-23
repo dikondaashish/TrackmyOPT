@@ -8,9 +8,10 @@ interface ProfileCompletionWidgetProps {
   optStatus: any;
   employmentSpans: any[];
   profile: any;
+  resumeUsage?: number;
 }
 
-export function ProfileCompletionWidget({ optStatus, employmentSpans, profile }: ProfileCompletionWidgetProps) {
+export function ProfileCompletionWidget({ optStatus, employmentSpans, profile, resumeUsage = 0 }: ProfileCompletionWidgetProps) {
   const [percentage, setPercentage] = useState(0);
   const [nextAction, setNextAction] = useState<{ title: string; href: string; icon: React.ReactNode; description: string } | null>(null);
 
@@ -21,10 +22,12 @@ export function ProfileCompletionWidget({ optStatus, employmentSpans, profile }:
     const hasOptStatus = !!optStatus?.opt_start_date;
     const hasEmployment = employmentSpans && employmentSpans.length > 0;
     const hasEducation = !!(profile?.degree_level && profile?.major_name);
+    const hasResume = resumeUsage > 0;
 
-    if (hasOptStatus) score += 30;
-    if (hasEmployment) score += 30;
-    if (hasEducation) score += 30;
+    if (hasOptStatus) score += 25;
+    if (hasEmployment) score += 25;
+    if (hasEducation) score += 20;
+    if (hasResume) score += 20;
 
     // Determine the next best action priority
     if (!hasOptStatus) {
@@ -47,6 +50,13 @@ export function ProfileCompletionWidget({ optStatus, employmentSpans, profile }:
         description: "Stop your unemployment clock by adding an employer.",
         href: "/dashboard/opt-dates",
         icon: <Briefcase className="w-5 h-5" />
+      };
+    } else if (!hasResume) {
+      action = {
+        title: "Generate AI Resume",
+        description: "Create an ATS-optimized resume for your job search.",
+        href: "/dashboard/career/resume-generator",
+        icon: <Briefcase className="w-5 h-5" /> // Reusing icon or finding better
       };
     }
 

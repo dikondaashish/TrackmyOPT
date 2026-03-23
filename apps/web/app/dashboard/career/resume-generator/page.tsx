@@ -24,7 +24,7 @@ import {
     Save,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useResumeStore } from "@/store/resume-store";
 import { useToast } from "@/hooks/use-toast";
@@ -98,6 +98,28 @@ export default function ResumeGeneratorPage() {
         }
         fetchUsage();
     }, []);
+    
+    const searchParams = useSearchParams();
+    const companyParam = searchParams.get("company");
+    const roleParam = searchParams.get("role");
+
+    // Handle pre-filled job via query params
+    useEffect(() => {
+        if (companyParam || roleParam) {
+            const title = roleParam 
+                ? (companyParam ? `${roleParam} at ${companyParam}` : roleParam)
+                : (companyParam || "");
+                
+            const content = [
+                companyParam ? `Company: ${companyParam}` : null,
+                roleParam ? `Role: ${roleParam}` : null
+            ].filter(Boolean).join("\n");
+
+            if (content && (!jobDescription || jobDescription.length < 5)) {
+                setJobDescription(content, title);
+            }
+        }
+    }, [companyParam, roleParam, setJobDescription, jobDescription]);
 
     // Auto-fill last resume
     useEffect(() => {
@@ -106,22 +128,24 @@ export default function ResumeGeneratorPage() {
             if (resumeText) return;
 
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) return;
+                const { data: { user }, error: authError } = await supabase.auth.getUser();
+                if (authError || !user) return;
 
-                const response = await fetch(`/api/proxy/resume/list`, {
-                    headers: {
-                        "user-id": user.id // Pass user ID if needed by API
-                    }
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+                const response = await fetch(`/api/proxy/resume/list?userId=${user.id}`, {
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
 
                 if (response.ok) {
                     const data = await response.json();
-                    const resumes = data.resumes || [];
+                    // Backend returns array directly, not { resumes: [] }
+                    const resumes = Array.isArray(data) ? data : (data.resumes || []);
+                    
                     if (resumes.length > 0) {
-                        // Assuming list is sorted by date desc, or we sort it
-                        // The API usually returns latest first, but let's be safe if we can't see the API code
-                        // Actually, let's just take the first one for now as per "last saved"
                         const lastResume = resumes[0];
                         if (lastResume && lastResume.content) {
                             setResumeText(lastResume.content, lastResume.filename);

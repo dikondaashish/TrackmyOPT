@@ -38,6 +38,7 @@ interface SavedResume {
     content: string;
     created_at: string;
     file_path?: string;
+    structuredData?: any;
 }
 
 export default function HistoryPage() {
@@ -59,33 +60,51 @@ export default function HistoryPage() {
     // Effect to auto-select/preview the most recent resume if available
     useEffect(() => {
         if (!isLoading && resumes.length > 0 && !loadingId) {
-            // Optional: If we wanted to auto-load into editor immediately, we'd call handleLoadResume(resumes[0])
-            // But usually "history" implies a list view. 
-            // However, user said: "when user open this papge we needed last geneated latex code reusme"
-            // This might mean they want to see the PREVIEW of the last resume or have it pre-selected.
-            // I will add a "Latest" badge or visual cue, but won't auto-redirect to editor to avoid annoyance if they just want to see the list.
-            // Wait, the request said: "if they click on view it need to open latex code".
+            // Logic for visual cues can go here
         }
     }, [isLoading, resumes]);
 
     const fetchResumes = async () => {
         setIsLoading(true);
+        setError("");
+        
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            
+            if (authError || !user) {
                 setError("Please log in to view saved resumes.");
                 return;
             }
 
-            const response = await fetch(`/api/proxy/resume/list?userId=${user.id}`);
+            // Set a timeout for the fetch request
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
 
-            if (!response.ok) throw new Error("Failed to fetch resumes");
+            const response = await fetch(`/api/proxy/resume/list?userId=${user.id}`, {
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.details || `Server responded with ${response.status}`);
+            }
 
             const data = await response.json();
+            
+            if (!Array.isArray(data)) {
+                throw new Error("Invalid response format from server");
+            }
+            
             setResumes(data);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Fetch error:", error);
-            setError("Could not load your saved resumes.");
+            if (error.name === 'AbortError') {
+                setError("Request timed out. Please check your connection and try again.");
+            } else {
+                setError(error.message || "Could not load your saved resumes.");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -307,6 +326,13 @@ export default function HistoryPage() {
                                             <span>✓</span>
                                             <span>Parsed</span>
                                         </div>
+                                        {/* Generated Badge */}
+                                        {(resume.structuredData?.latexCode || resume.structuredData?.generatedLatex) && (
+                                            <div className="ml-2 flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
+                                                <span>⚡</span>
+                                                <span>Generated</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -337,7 +363,7 @@ export default function HistoryPage() {
                                                     Loading...
                                                 </>
                                             ) : (
-                                                "Use Resume"
+                                                (resume.structuredData?.latexCode || resume.structuredData?.generatedLatex) ? "Edit Resume" : "Use Resume"
                                             )}
                                         </Button>
 
