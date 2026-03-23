@@ -72,7 +72,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <p>Results-oriented Senior AI Engineer with 6+ years of experience in developing scalable machine learning systems and large language models. Proven track record at OpenAI and Netflix in optimizing algorithms for performance and user engagement. Passionate about ethical AI and democratizing access to advanced technology.</p>
                                 </div>
                                 <div>
-                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-2 flex items-center">Skills</h2>
+                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] mb-2 flex items-center">Skills</h2>
                                     <div className="text-sm grid grid-cols-[100px_1fr] gap-y-1 gap-x-4">
                                         <span className="font-bold">Languages</span><span>Python, C++, SQL, TypeScript, Go</span>
                                         <span className="font-bold">ML/AI</span><span>PyTorch, TensorFlow, JAX, Hugging Face, LangChain, CUDA</span>
@@ -80,7 +80,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </div>
                                 </div>
                                 <div>
-                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Technical Experience</h2>
+                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] mb-3 flex items-center">Technical Experience</h2>
                                     <div className="space-y-4">
                                         <div className="text-sm">
                                             <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Member of Technical Staff</h3><span className="text-gray-600 font-medium">Jan. 2023 – Present</span></div>
@@ -111,7 +111,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </div>
                                 </div>
                                 <div>
-                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Education</h2>
+                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] mb-3 flex items-center">Education</h2>
                                     <div className="text-sm space-y-3">
                                         <div>
                                             <div className="flex justify-between items-baseline mb-0.5"><h3 className="font-bold text-base">Master of Science in Computer Science (AI Specialization)</h3><span className="text-gray-600 font-medium">May 2018</span></div>
@@ -124,7 +124,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </div>
                                 </div>
                                 <div>
-                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b border-gray-300 mb-3 flex items-center">Selected Projects</h2>
+                                    <h2 className="text-[#3D5A80] text-lg font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] mb-3 flex items-center">Selected Projects</h2>
                                     <div className="space-y-3 text-sm">
                                         <div>
                                             <div className="font-bold text-gray-900">Generative Art Tool (Personal)</div>
@@ -200,7 +200,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                             <div className="space-y-6">
                                 {/* Experience */}
                                 <div>
-                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">EXPERIENCE</h2>
+                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-900 pb-1 mb-3">EXPERIENCE</h2>
                                     <div className="space-y-4">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
@@ -253,7 +253,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 </div>
                                 {/* Projects Part 1 */}
                                 <div>
-                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">PROJECTS</h2>
+                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-900 pb-1 mb-3">PROJECTS</h2>
                                     <div className="space-y-3 text-sm">
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900 mb-1">
@@ -307,7 +307,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Education */}
                                 <div>
-                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">EDUCATION</h2>
+                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-900 pb-1 mb-3">EDUCATION</h2>
                                     <div className="text-sm">
                                         <div className="flex justify-between font-bold text-gray-900">
                                             <span>Wellesley College</span>
@@ -326,7 +326,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Skills */}
                                 <div>
-                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-300 pb-1 mb-3">SKILLS</h2>
+                                    <h2 className="text-base font-bold text-gray-900 border-b-2 border-gray-900 pb-1 mb-3">SKILLS</h2>
                                     <div className="text-sm text-gray-800 space-y-1">
                                         <div><span className="font-bold">Languages:</span> Python, JavaScript (React.js), HTML/CSS, SQL (PostgreSQL, MySQL)</div>
                                         <div><span className="font-bold">Tools:</span> Figma, Notion, Jira, Trello, Miro, Google Analytics, GitHub, DaVinci Resolve, OBS</div>
@@ -382,7 +382,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Education */}
                                 <div>
-                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Education</h2>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] pb-1 mb-3 text-gray-900">Education</h2>
                                     <div className="space-y-4">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
@@ -399,7 +399,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Experience (Part 1) */}
                                 <div>
-                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Experience</h2>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] pb-1 mb-3 text-gray-900">Experience</h2>
                                     <div className="space-y-5">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
@@ -448,7 +448,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 </div>
                                 {/* Projects */}
                                 <div>
-                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Projects</h2>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] pb-1 mb-3 text-gray-900">Projects</h2>
                                     <div className="space-y-4 text-sm">
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900">
@@ -464,7 +464,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Skills */}
                                 <div>
-                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Skills</h2>
+                                    <h2 className="text-lg font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] pb-1 mb-3 text-gray-900">Skills</h2>
                                     <div className="text-sm text-gray-800 space-y-1">
                                         <div><span className="font-bold">Design:</span> UI/UX, Interaction Design, Visual Design, Prototyping, Wireframing</div>
                                         <div><span className="font-bold">Tools:</span> Figma, Protopie, Adobe CC (Ps, Ai, Ae), Sketch, Principle</div>
@@ -545,7 +545,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Professional Summary */}
                                 <div>
-                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Research Interests</h2>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] pb-1 mb-3 text-gray-900">Research Interests</h2>
                                     <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
                                         <li>Quantum Computing, Distributed Systems, Cryptography, Algorithm Design.</li>
                                         <li>Focus on developing error-correction protocols for noisy intermediate-scale quantum (NISQ) devices.</li>
@@ -554,7 +554,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Research Experience */}
                                 <div>
-                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Research Experience</h2>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] pb-1 mb-3 text-gray-900">Research Experience</h2>
                                     <div className="space-y-5">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
@@ -604,7 +604,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Publications */}
                                 <div>
-                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Selected Publications</h2>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] pb-1 mb-3 text-gray-900">Selected Publications</h2>
                                     <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
                                         <li><span className="font-bold">E. Rodriguez</span>, A. Smith, B. Jones. "Scalable Error Correction for NISQ Devices." <span className="italic">Nature Physics</span>, 2023.</li>
                                         <li><span className="font-bold">E. Rodriguez</span>, C. Lee. "Hybrid Clock Synchronization for Geo-Replicated Databases." <span className="italic">OSDI</span>, 2023.</li>
@@ -614,7 +614,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Technical Skills */}
                                 <div>
-                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Technical Skills</h2>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] pb-1 mb-3 text-gray-900">Technical Skills</h2>
                                     <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
                                         <li><span className="font-bold">Languages</span>: C++, Python, MATLAB, Julia, Haskell</li>
                                         <li><span className="font-bold">Quantum Tools</span>: Qiskit, Cirq, PennyLane, QuTiP</li>
@@ -624,7 +624,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Education */}
                                 <div>
-                                    <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Education</h2>
+                                    <h2 className="text-base font-bold uppercase tracking-wide border-b-[1.5px] border-[#3D5A80] pb-1 mb-3 text-gray-900">Education</h2>
                                     <div className="space-y-4">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
@@ -730,7 +730,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Professional Experience */}
                                 <div>
-                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Professional Experience</h2>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b-[1.5px] border-[#3D5A80] pb-1 mb-4 text-gray-900">Professional Experience</h2>
                                     <div className="space-y-6">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900 text-base">
@@ -779,7 +779,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 </div>
                                 {/* Board Memberships & Advisory */}
                                 <div>
-                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Board Memberships & Advisory</h2>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b-[1.5px] border-[#3D5A80] pb-1 mb-4 text-gray-900">Board Memberships & Advisory</h2>
                                     <div className="space-y-2 text-sm text-gray-800">
                                         <div><span className="font-bold">Board Member: </span>TechStart Ups (Series B Fintech), 2021 – Present</div>
                                         <div><span className="font-bold">Technical Advisor: </span>AI Ventures (Seed Stage VC Fund), 2022 – Present</div>
@@ -788,7 +788,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
 
                                 {/* Strategic & Technical Skills */}
                                 <div>
-                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Strategic & Technical Skills</h2>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b-[1.5px] border-[#3D5A80] pb-1 mb-4 text-gray-900">Strategic & Technical Skills</h2>
                                     <div className="text-sm text-gray-800 space-y-1">
                                         <div><span className="font-bold">Leadership:</span> Organizational Design, Strategic Planning, M&A Technical Due Diligence, Executive Hiring</div>
                                         <div><span className="font-bold">Technical:</span> Distributed Systems, Cloud Native Architecture (Kubernetes), AI/ML Platforms, Fintech/Payments</div>
@@ -796,7 +796,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                 </div>
                                 {/* Education */}
                                 <div>
-                                    <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Education</h2>
+                                    <h2 className="text-xl font-light uppercase tracking-widest border-b-[1.5px] border-[#3D5A80] pb-1 mb-4 text-gray-900">Education</h2>
                                     <div className="text-sm">
                                         <div className="mb-4 last:mb-0">
                                             <div className="flex justify-between font-bold text-gray-900 text-base">
@@ -870,44 +870,62 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         className="w-full max-w-[800px] bg-white dark:bg-white shadow-2xl overflow-hidden relative"
                         style={{ minHeight: `${pageHeight}px`, fontFamily: '"Charter", "Bitstream Charter", "Georgia", serif' }}
                     >
-                        <div className="p-10 text-gray-900 h-full flex flex-col">
+                        <div className="p-12 text-gray-900 h-full flex flex-col">
                             {/* Tech Header */}
-                            <div className="text-center mb-6">
-                                <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-1">Alex Rivest</h1>
-                                <p className="text-blue-600 font-medium text-lg mb-3">Senior DevOps Engineer</p>
-                                <div className="flex justify-center flex-wrap items-center gap-x-4 text-xs text-gray-700 font-mono">
-                                    <span>(555) 987-6543</span>
+                            <div className="text-center mb-4">
+                                <h1 className="text-5xl font-bold tracking-tight text-gray-900 mb-2">John Doe</h1>
+                                <p className="text-[#3D5A80] font-medium text-xl mb-3">AI Solutions Engineer</p>
+                                <div className="flex justify-center flex-wrap items-center gap-x-4 text-[0.85rem] text-gray-800">
+                                    <span>555-123-4567</span>
                                     <span className="text-gray-300">|</span>
-                                    <span>Seattle, WA</span>
+                                    <span>Boston, Massachusetts</span>
                                     <span className="text-gray-300">|</span>
-                                    <span>alex.rivest@tech.com</span>
+                                    <span>johndoe@example.com</span>
                                     <span className="text-gray-300">|</span>
-                                    <span>linkedin.com/in/arivest</span>
+                                    <span>linkedin.com/in/john-doe</span>
                                     <span className="text-gray-300">|</span>
-                                    <span>github.com/arivest</span>
+                                    <span>github.com/john-doe</span>
                                 </div>
-                                <div className="h-[2px] w-full bg-blue-600 mt-4" />
+                                <div className="h-[2px] w-full bg-[#3D5A80] mt-4" />
                             </div>
 
                             {/* Tech Content Page 1 */}
-                            <div className="space-y-5">
+                            <div className="space-y-4">
                                 {/* Professional Summary */}
                                 <div>
                                     <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Professional Summary</h2>
-                                    <p className="text-sm text-gray-800 leading-relaxed">
-                                        Senior DevOps Engineer and Cloud Architect with 8+ years of experience designing and managing scalable infrastructure on AWS and Kubernetes. Expert in CI/CD automation, Infrastructure as Code (Terraform), and Site Reliability Engineering. Proven track record of improving system uptime to 99.99% and reducing deployment times by 70%.
+                                    <p className="text-[0.9rem] text-gray-800 leading-snug">
+                                        Results-driven <span className="font-bold">AI Solutions Engineer</span> with hands-on experience building production-grade AI systems, cloud integrations, and automation workflows. Adept at translating business requirements into scalable technical solutions across SaaS, fintech, and enterprise platforms. Strong background in Python, API development, and cross-team collaboration within fast-paced startup environments.
                                     </p>
+                                </div>
+
+                                {/* Education */}
+                                <div>
+                                    <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Education</h2>
+                                    <div className="space-y-2 text-[0.9rem]">
+                                        <div className="flex justify-between font-bold text-gray-900">
+                                            <span>Example University — Master’s in Computer Science</span>
+                                            <span>Aug. 2022 – May. 2024</span>
+                                        </div>
+                                        <p className="text-gray-800">Focus: Artificial Intelligence, Distributed Systems, Cloud Computing</p>
+
+                                        <div className="flex justify-between font-bold text-gray-900 mt-2">
+                                            <span>Sample Institute of Technology — Bachelor of Computer Applications</span>
+                                            <span>Aug. 2018 – Jul. 2022</span>
+                                        </div>
+                                        <p className="text-gray-800">Focus: Software Engineering, Databases, Web Technologies, Operating Systems</p>
+                                    </div>
                                 </div>
 
                                 {/* Technical Skills */}
                                 <div>
                                     <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Technical Skills</h2>
-                                    <div className="text-sm text-gray-800 space-y-1">
-                                        <div><span className="font-bold">Cloud & Infrastructure:</span> AWS (EKS, Lambda, RDS), GCP, Azure, Terraform, Ansible</div>
-                                        <div><span className="font-bold">Containerization:</span> Docker, Kubernetes, Helm, Istio</div>
-                                        <div><span className="font-bold">CI/CD:</span> Jenkins, GitHub Actions, GitLab CI, ArgoCD</div>
-                                        <div><span className="font-bold">Monitoring & Logging:</span> Prometheus, Grafana, ELK Stack, Datadog</div>
-                                        <div><span className="font-bold">Scripting:</span> Python, Go, Bash, TypeScript</div>
+                                    <div className="text-[0.9rem] text-gray-800 space-y-1">
+                                        <p><strong>Languages:</strong> Python, JavaScript, Java, SQL, Go</p>
+                                        <p><strong>AI/ML:</strong> LangChain, OpenAI API, TensorFlow, Scikit-learn</p>
+                                        <p><strong>Cloud Platforms:</strong> AWS, GCP, Azure, Docker, Kubernetes</p>
+                                        <p><strong>Integration:</strong> REST APIs, GraphQL, Webhooks, ETL Pipelines</p>
+                                        <p><strong>Tools:</strong> GitHub, Jira, Confluence, Postman, Figma</p>
                                     </div>
                                 </div>
 
