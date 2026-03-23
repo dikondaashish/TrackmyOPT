@@ -19,19 +19,18 @@ export interface Template {
 
 export const RESUME_TEMPLATES: Template[] = [
     {
-        id: "modern",
-        name: "Modern Minimalist",
-        description: "Clean, ATS-friendly design focusing on readability. Perfect for tech and corporate roles.",
-        previewImage: "/templates/modern-preview.png",
-        previewGradient: "from-blue-500 to-cyan-500",
-        latexFile: "modern.tex",
-        tags: ["ATS-Friendly", "Tech", "Corporate"],
-        category: "General",
-        isPremium: false,
+        id: "tech",
+        name: "Tech Focused",
+        description: "Highlights technical skills and projects. Optimized for software engineering roles.",
+        previewImage: "/templates/tech-preview.png",
+        previewGradient: "from-indigo-500 to-violet-500",
+        latexFile: "tech.tex",
+        tags: ["Engineering", "Developer", "Startups"],
+        category: "Technical",
+        isPremium: true,
         colors: [
-            { name: "Slate", class: "bg-slate-900", ring: "ring-slate-900" },
-            { name: "Blue", class: "bg-blue-600", ring: "ring-blue-600" },
-            { name: "Emerald", class: "bg-emerald-600", ring: "ring-emerald-600" },
+            { name: "Dark", class: "bg-neutral-900", ring: "ring-neutral-900" },
+            { name: "Cyan", class: "bg-cyan-600", ring: "ring-cyan-600" }
         ]
     },
     {
@@ -51,19 +50,19 @@ export const RESUME_TEMPLATES: Template[] = [
         ]
     },
     {
-        id: "creative",
-        name: "Creative Portfolio",
-        description: "Two-column layout designed to showcase skills and experience with flair.",
-        previewImage: "/templates/creative-preview.png",
-        previewGradient: "from-purple-500 to-pink-500",
-        latexFile: "creative.tex",
-        tags: ["Creative", "Design", "Marketing"],
-        category: "Creative",
-        isPremium: true,
+        id: "modern",
+        name: "Modern Minimalist",
+        description: "Clean, ATS-friendly design focusing on readability. Perfect for tech and corporate roles.",
+        previewImage: "/templates/modern-preview.png",
+        previewGradient: "from-blue-500 to-cyan-500",
+        latexFile: "modern.tex",
+        tags: ["ATS-Friendly", "Tech", "Corporate"],
+        category: "General",
+        isPremium: false,
         colors: [
-            { name: "Black", class: "bg-black", ring: "ring-black" },
-            { name: "Purple", class: "bg-purple-600", ring: "ring-purple-600" },
-            { name: "Teal", class: "bg-teal-600", ring: "ring-teal-600" },
+            { name: "Slate", class: "bg-slate-900", ring: "ring-slate-900" },
+            { name: "Blue", class: "bg-blue-600", ring: "ring-blue-600" },
+            { name: "Emerald", class: "bg-emerald-600", ring: "ring-emerald-600" },
         ]
     },
     {
@@ -81,21 +80,6 @@ export const RESUME_TEMPLATES: Template[] = [
         ]
     },
     {
-        id: "tech",
-        name: "Tech Focused",
-        description: "Highlights technical skills and projects. Optimized for software engineering roles.",
-        previewImage: "/templates/tech-preview.png",
-        previewGradient: "from-indigo-500 to-violet-500",
-        latexFile: "tech.tex",
-        tags: ["Engineering", "Developer", "Startups"],
-        category: "Technical",
-        isPremium: true,
-        colors: [
-            { name: "Dark", class: "bg-neutral-900", ring: "ring-neutral-900" },
-            { name: "Cyan", class: "bg-cyan-600", ring: "ring-cyan-600" }
-        ]
-    },
-    {
         id: "executive",
         name: "Executive Brief",
         description: "Concise and impactful. Designed for leadership positions requiring quick scanning.",
@@ -108,6 +92,22 @@ export const RESUME_TEMPLATES: Template[] = [
         colors: [
             { name: "Royal", class: "bg-blue-800", ring: "ring-blue-800" },
             { name: "Gold", class: "bg-yellow-600", ring: "ring-yellow-600" }
+        ]
+    },
+    {
+        id: "creative",
+        name: "Creative Portfolio",
+        description: "Two-column layout designed to showcase skills and experience with flair.",
+        previewImage: "/templates/creative-preview.png",
+        previewGradient: "from-purple-500 to-pink-500",
+        latexFile: "creative.tex",
+        tags: ["Creative", "Design", "Marketing"],
+        category: "Creative",
+        isPremium: true,
+        colors: [
+            { name: "Black", class: "bg-black", ring: "ring-black" },
+            { name: "Purple", class: "bg-purple-600", ring: "ring-purple-600" },
+            { name: "Teal", class: "bg-teal-600", ring: "ring-teal-600" },
         ]
     }
 ];
