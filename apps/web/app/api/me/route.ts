@@ -214,12 +214,15 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId)
       .single();
 
-    // Query employment spans
-    const { data: employmentSpans } = await supabase
+    const { data: employmentSpans, error: spansError } = await supabase
       .from('employment_spans')
-      .select('id, employer_name, start_date, end_date, is_current, job_title, location')
+      .select('id, employer_name, start_date, end_date')
       .eq('user_id', userId)
       .order('start_date', { ascending: false });
+
+    if (spansError) {
+      console.error('Employment spans query error:', spansError);
+    }
 
     // Calculate unemployment days if we have OPT status
     // Uses merged employment intervals to avoid overlap/double-count issues.
