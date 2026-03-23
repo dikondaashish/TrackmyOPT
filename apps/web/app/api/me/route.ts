@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
     // Query user profile
     let { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('timezone, is_stem_eligible')
+      .select('timezone, is_stem_eligible, degree_level, major_name')
       .eq('user_id', userId)
       .single();
 
@@ -165,7 +165,7 @@ export async function GET(request: NextRequest) {
           timezone: 'America/New_York',
           is_stem_eligible: false,
         })
-        .select('timezone, is_stem_eligible')
+        .select('timezone, is_stem_eligible, degree_level, major_name')
         .single();
       
       if (insertError) {

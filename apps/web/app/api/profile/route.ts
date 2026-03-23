@@ -42,7 +42,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { full_name, timezone } = body;
+    const { full_name, timezone, degree_level, major_name, is_stem_eligible } = body;
 
     // Use service role key to bypass RLS
     const supabaseAdmin = createClient(
@@ -62,21 +62,26 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    // Update profile (timezone) in profiles table
-    if (timezone !== undefined) {
+    // Update profile in profiles table
+    const profileUpdate: any = { user_id: user.id };
+    let hasProfileUpdate = false;
+
+    if (timezone !== undefined) { profileUpdate.timezone = timezone; hasProfileUpdate = true; }
+    if (degree_level !== undefined) { profileUpdate.degree_level = degree_level; hasProfileUpdate = true; }
+    if (major_name !== undefined) { profileUpdate.major_name = major_name; hasProfileUpdate = true; }
+    if (is_stem_eligible !== undefined) { profileUpdate.is_stem_eligible = is_stem_eligible; hasProfileUpdate = true; }
+
+    if (hasProfileUpdate) {
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
-        .upsert({
-          user_id: user.id,
-          timezone,
-        }, {
+        .upsert(profileUpdate, {
           onConflict: 'user_id',
         });
 
       if (profileError) {
         console.error('Error updating profile:', profileError);
         return NextResponse.json(
-          { error: 'Failed to update timezone' },
+          { error: 'Failed to update profile data' },
           { status: 500 }
         );
       }
@@ -135,7 +140,7 @@ export async function GET() {
     // Fetch profile from profiles table
     const { data: profile } = await supabase
       .from('profiles')
-      .select('timezone, is_stem_eligible')
+      .select('timezone, is_stem_eligible, degree_level, major_name')
       .eq('user_id', user.id)
       .single();
 
@@ -148,6 +153,8 @@ export async function GET() {
       profile: {
         timezone: profile?.timezone || 'America/New_York',
         is_stem_eligible: profile?.is_stem_eligible || false,
+        degree_level: profile?.degree_level || null,
+        major_name: profile?.major_name || null,
       },
     });
 

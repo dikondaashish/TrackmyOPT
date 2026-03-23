@@ -16,6 +16,8 @@ export async function POST(req: NextRequest) {
     const {
       timezone,
       is_stem_eligible,
+      degree_level,
+      major_name,
       program_end_date,
       dso_recommendation_date,
       opt_ead_end_date,
@@ -58,11 +60,20 @@ export async function POST(req: NextRequest) {
 
     const userId = session.user.id;
 
+    // First fetch existing profile to merge non-provided fields
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('degree_level, major_name')
+      .eq('user_id', userId)
+      .single();
+
     // Upsert profile
     await supabase.from('profiles').upsert({
       user_id: userId,
       timezone: timezone || 'America/New_York',
-      is_stem_eligible: is_stem_eligible || false,
+      is_stem_eligible: is_stem_eligible !== undefined ? is_stem_eligible : false,
+      degree_level: degree_level !== undefined ? degree_level : existingProfile?.degree_level,
+      major_name: major_name !== undefined ? major_name : existingProfile?.major_name,
     });
 
     // Upsert opt_status

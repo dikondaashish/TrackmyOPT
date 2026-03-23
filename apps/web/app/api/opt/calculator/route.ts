@@ -107,6 +107,9 @@ export async function POST(req: NextRequest) {
       opt_ead_end_date,
       stem_start_date,
       _lastModifiedField, // Special field from dashboard to indicate which date user modified
+      degree_level,
+      major_name,
+      is_stem_eligible,
     } = body;
 
 
@@ -206,6 +209,23 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error('❌ Error upserting opt_status:', error);
       return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
+    }
+
+    // Update profiles table if course info was provided
+    if (degree_level !== undefined || major_name !== undefined || is_stem_eligible !== undefined) {
+      const profileUpdate: any = {};
+      if (degree_level !== undefined) profileUpdate.degree_level = degree_level;
+      if (major_name !== undefined) profileUpdate.major_name = major_name;
+      if (is_stem_eligible !== undefined) profileUpdate.is_stem_eligible = is_stem_eligible;
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update(profileUpdate)
+        .eq('user_id', userId);
+        
+      if (profileError) {
+        console.error('❌ Error updating profiles:', profileError);
+      }
     }
 
 

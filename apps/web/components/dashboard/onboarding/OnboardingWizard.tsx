@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Briefcase, Calendar, ChevronRight, ArrowRight, Loader2 } from "lucide-react";
+import { GraduationCap, Briefcase, Calendar, ChevronRight, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DateInput } from "../opt-tools/DateInput";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 
-type WizardStep = 'welcome' | 'status' | 'dates' | 'finishing';
+type WizardStep = 'welcome' | 'course' | 'status' | 'dates' | 'finishing';
+
+const STEM_KEYWORDS = ['computer', 'software', 'engineering', 'math', 'science', 'technology', 'cyber', 'data', 'information', 'analytics', 'statistics', 'physics', 'chemistry', 'biology', 'robotics', 'artificial intelligence'];
 
 type JourneyStatus = 'applying_opt' | 'on_opt' | 'stem_opt' | null;
 
@@ -29,14 +31,37 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   const [status, setStatus] = useState<JourneyStatus>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Education state
+  const [degreeLevel, setDegreeLevel] = useState<string>("Master's");
+  const [majorName, setMajorName] = useState<string>("");
+  const [isStemEligible, setIsStemEligible] = useState<boolean>(false);
+
   // Date states
   const [programEndDate, setProgramEndDate] = useState("");
   const [optStartDate, setOptStartDate] = useState("");
   const [optEndDate, setOptEndDate] = useState("");
   const [stemStartDate, setStemStartDate] = useState("");
 
+  const checkStemEligibility = (major: string) => {
+    if (!major) return false;
+    const lowerMajor = major.toLowerCase();
+    return STEM_KEYWORDS.some(keyword => lowerMajor.includes(keyword));
+  };
+
+  const handleMajorChange = (val: string) => {
+    setMajorName(val);
+    setIsStemEligible(checkStemEligibility(val));
+  };
+
   const handleNext = () => {
-    if (step === 'welcome') setStep('status');
+    if (step === 'welcome') setStep('course');
+    else if (step === 'course') {
+      if (!majorName.trim()) {
+        toast({ title: "Please enter your major", variant: "destructive" });
+        return;
+      }
+      setStep('status');
+    }
     else if (step === 'status') {
       if (!status) {
         toast({ title: "Please select an option", variant: "destructive" });
@@ -87,6 +112,9 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       setStep('finishing');
 
       const payload = {
+        degree_level: degreeLevel,
+        major_name: majorName.trim(),
+        is_stem_eligible: isStemEligible,
         program_end_date: programEndDate || null,
         opt_start_date: optStartDate || null,
         opt_ead_end_date: optEndDate || null,
@@ -129,9 +157,10 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         {/* Header Progress */}
         <div className="h-1.5 w-full bg-muted flex">
           <div className={`h-full bg-blue-600 transition-all duration-500 ${
-            step === 'welcome' ? 'w-1/4' : 
-            step === 'status' ? 'w-2/4' : 
-            step === 'dates' ? 'w-3/4' : 'w-full'
+            step === 'welcome' ? 'w-1/5' : 
+            step === 'course' ? 'w-2/5' : 
+            step === 'status' ? 'w-3/5' : 
+            step === 'dates' ? 'w-4/5' : 'w-full'
           }`} />
         </div>
 
@@ -148,6 +177,78 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
               <div className="pt-8">
                 <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-lg rounded-full" onClick={handleNext}>
                   Get Started <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 'course' && (
+            <div className="animate-in fade-in slide-in-from-right-4 flex-1 flex flex-col">
+              <h2 className="text-2xl font-bold tracking-tight mb-2">What did you study?</h2>
+              <p className="text-muted-foreground mb-8">This helps us determine if you are eligible for the 24-month STEM OPT extension.</p>
+              
+              <div className="space-y-6 flex-1">
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Degree Level</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {['Associate', "Bachelor's", "Master's", 'Doctorate'].map((level) => (
+                      <button
+                        key={level}
+                        onClick={() => setDegreeLevel(level)}
+                        className={`p-3 rounded-lg border text-sm font-medium transition-colors ${
+                          degreeLevel === level
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-card hover:bg-muted border-border'
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Major / Course Name</label>
+                  <input
+                    type="text"
+                    value={majorName}
+                    onChange={(e) => handleMajorChange(e.target.value)}
+                    placeholder="e.g. Computer Science, Mechanical Engineering..."
+                    className="w-full p-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-blue-600 outline-none"
+                  />
+                  
+                  {majorName.length > 2 && (
+                    <div className={`p-4 rounded-lg flex items-start gap-3 transition-opacity duration-300 ${isStemEligible ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-100 dark:border-emerald-800' : 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-100 dark:border-amber-800'}`}>
+                      {isStemEligible ? (
+                        <>
+                          <div className="p-1.5 bg-emerald-100 rounded-full text-emerald-600 dark:bg-emerald-800 dark:text-emerald-300 mt-0.5">
+                            <CheckCircle2 className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm">STEM Eligible!</p>
+                            <p className="text-xs opacity-90 mt-0.5">This major qualifies for the 24-month OPT extension.</p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="p-1.5 bg-amber-100 rounded-full text-amber-600 dark:bg-amber-800 dark:text-amber-300 mt-0.5">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm">Non-STEM / Undetermined</p>
+                            <p className="text-xs opacity-90 mt-0.5">We didn't detect STEM keywords. If this is an error, you can force-change it in settings later.</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="pt-6 flex justify-between mt-auto">
+                <Button variant="ghost" onClick={() => setStep('welcome')}>Back</Button>
+                <Button onClick={handleNext} disabled={!majorName.trim()} className="px-8">
+                  Continue <ChevronRight className="ml-2 w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -185,7 +286,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
               </div>
               
               <div className="pt-6 flex justify-between mt-auto">
-                <Button variant="ghost" onClick={() => setStep('welcome')}>Back</Button>
+                <Button variant="ghost" onClick={() => setStep('course')}>Back</Button>
                 <Button onClick={handleNext} disabled={!status} className="px-8">
                   Continue <ChevronRight className="ml-2 w-4 h-4" />
                 </Button>

@@ -36,10 +36,13 @@ import {
   CreditCard,
   ChevronDown,
   ChevronUp,
-  HelpCircle
+  HelpCircle,
+  GraduationCap,
+  CheckCircle2
 } from "lucide-react";
 import { SubscriptionSettings } from "./SubscriptionSettings";
 
+const STEM_KEYWORDS = ['computer', 'software', 'engineering', 'math', 'science', 'technology', 'cyber', 'data', 'information', 'analytics', 'statistics', 'physics', 'chemistry', 'biology', 'robotics', 'artificial intelligence'];
 
 // Tab types
 type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'subscription';
@@ -50,6 +53,9 @@ interface UserProfile {
   timezone: string;
   notificationEmail: string;
   authProvider?: string;
+  degreeLevel: string | null;
+  majorName: string | null;
+  isStemEligible: boolean;
 }
 
 interface PremiumStatus {
@@ -99,7 +105,16 @@ export function SettingsSection() {
     timezone: "America/New_York",
     notificationEmail: "",
     authProvider: "email",
+    degreeLevel: null,
+    majorName: null,
+    isStemEligible: false,
   });
+
+  const checkStemEligibility = (major: string | null) => {
+    if (!major) return false;
+    const lowerMajor = major.toLowerCase();
+    return STEM_KEYWORDS.some(keyword => lowerMajor.includes(keyword));
+  };
 
   // Premium status
   const [premium, setPremium] = useState<PremiumStatus>({ isPremium: false });
@@ -551,6 +566,9 @@ export function SettingsSection() {
           fullName: metaFullName || constructedName || fallbackFromEmail,
           timezone: meData.profile?.timezone || "America/New_York",
           notificationEmail: "",
+          degreeLevel: meData.profile?.degree_level || null,
+          majorName: meData.profile?.major_name || null,
+          isStemEligible: meData.profile?.is_stem_eligible || false,
         });
       }
 
@@ -591,6 +609,9 @@ export function SettingsSection() {
         body: JSON.stringify({
           full_name: profile.fullName,
           timezone: profile.timezone,
+          degree_level: profile.degreeLevel,
+          major_name: profile.majorName,
+          is_stem_eligible: profile.isStemEligible,
         }),
       });
 
@@ -1247,6 +1268,95 @@ export function SettingsSection() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Education Profile</h3>
+                
+                <div className="space-y-6">
+                  {/* Degree Level */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4" />
+                        Degree Level
+                      </div>
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {['Associate', "Bachelor's", "Master's", 'Doctorate'].map((level) => (
+                        <button
+                          key={level}
+                          onClick={() => setProfile({ ...profile, degreeLevel: level })}
+                          className={`p-2 rounded-lg border text-sm font-medium transition-colors ${
+                            profile.degreeLevel === level
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Major */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Major / Course Name
+                    </label>
+                    <Input
+                      type="text"
+                      value={profile.majorName || ''}
+                      onChange={(e) => {
+                        const newMajor = e.target.value;
+                        setProfile({
+                          ...profile,
+                          majorName: newMajor,
+                          isStemEligible: checkStemEligibility(newMajor)
+                        });
+                      }}
+                      placeholder="e.g. Computer Science"
+                      className="h-11"
+                    />
+
+                    {/* STEM Status indicator */}
+                    {(profile.majorName || '').length > 2 && (
+                      <div className="mt-3">
+                        <div className={`p-3 rounded-lg flex items-center justify-between transition-colors ${
+                          profile.isStemEligible 
+                            ? 'bg-emerald-50 border border-emerald-200 text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-800/50 dark:text-emerald-300' 
+                            : 'bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800/50 dark:text-amber-300'
+                        }`}>
+                          <div className="flex items-center gap-2">
+                            {profile.isStemEligible ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                            )}
+                            <span className="text-sm font-medium">
+                              {profile.isStemEligible ? 'STEM Extension Eligible' : 'Non-STEM Program'}
+                            </span>
+                          </div>
+                          
+                          {/* Force toggle toggle */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs opacity-70">Force override:</span>
+                            <button 
+                              onClick={() => setProfile({...profile, isStemEligible: !profile.isStemEligible})}
+                              className={`text-xs px-2 py-1 rounded transition-colors ${
+                                profile.isStemEligible 
+                                  ? 'bg-emerald-200 text-emerald-900 hover:bg-emerald-300 dark:bg-emerald-800 dark:text-emerald-100'
+                                  : 'bg-amber-200 text-amber-900 hover:bg-amber-300 dark:bg-amber-800 dark:text-amber-100'
+                              }`}
+                            >
+                              {profile.isStemEligible ? 'Disable' : 'Enable'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="pt-4">
