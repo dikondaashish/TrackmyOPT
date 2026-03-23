@@ -11,7 +11,13 @@ import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 
 type WizardStep = 'welcome' | 'course' | 'status' | 'dates' | 'finishing';
 
-const STEM_KEYWORDS = ['computer', 'software', 'engineering', 'math', 'science', 'technology', 'cyber', 'data', 'information', 'analytics', 'statistics', 'physics', 'chemistry', 'biology', 'robotics', 'artificial intelligence'];
+const STEM_KEYWORDS = [
+  'computer', 'software', 'engineering', 'math', 'science', 'technology', 
+  'cyber', 'data', 'information', 'analytics', 'statistics', 'physics', 
+  'chemistry', 'biology', 'robotics', 'artificial intelligence', 'ai', 
+  'quantitative', 'quant', 'actuarial', 'biomedical', 'bioengineering', 
+  'mechatronics', 'automation', 'econometrics', 'informatics'
+];
 
 type JourneyStatus = 'applying_opt' | 'on_opt' | 'stem_opt' | null;
 
@@ -185,8 +191,13 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
           {step === 'course' && (
             <div className="animate-in fade-in slide-in-from-right-4 flex-1 flex flex-col">
               <h2 className="text-2xl font-bold tracking-tight mb-2">What did you study?</h2>
-              <p className="text-muted-foreground mb-8">This helps us determine if you are eligible for the 24-month STEM OPT extension.</p>
+              <p className="text-muted-foreground mb-4">This helps us determine if you are eligible for the 24-month STEM OPT extension.</p>
               
+              <div className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-lg p-3 flex gap-3 text-sm text-blue-800 dark:text-blue-300 mb-6">
+                <div className="mt-0.5"><GraduationCap className="h-4 w-4" /></div>
+                <div><span className="font-semibold">Tip:</span> Your official STEM eligibility is based on the <strong>CIP Code</strong> printed on your Form I-20 under "Program of Study".</div>
+              </div>
+
               <div className="space-y-6 flex-1">
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Degree Level</label>
@@ -236,7 +247,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                           </div>
                           <div>
                             <p className="font-semibold text-sm">Non-STEM / Undetermined</p>
-                            <p className="text-xs opacity-90 mt-0.5">We didn't detect STEM keywords. If this is an error, you can force-change it in settings later.</p>
+                            <p className="text-xs opacity-90 mt-0.5">We didn't detect STEM keywords. If your CIP code is on the DHS list, you can force-change this in settings later.</p>
                           </div>
                         </>
                       )}

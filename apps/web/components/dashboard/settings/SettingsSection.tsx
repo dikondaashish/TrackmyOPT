@@ -42,7 +42,13 @@ import {
 } from "lucide-react";
 import { SubscriptionSettings } from "./SubscriptionSettings";
 
-const STEM_KEYWORDS = ['computer', 'software', 'engineering', 'math', 'science', 'technology', 'cyber', 'data', 'information', 'analytics', 'statistics', 'physics', 'chemistry', 'biology', 'robotics', 'artificial intelligence'];
+const STEM_KEYWORDS = [
+  'computer', 'software', 'engineering', 'math', 'science', 'technology', 
+  'cyber', 'data', 'information', 'analytics', 'statistics', 'physics', 
+  'chemistry', 'biology', 'robotics', 'artificial intelligence', 'ai', 
+  'quantitative', 'quant', 'actuarial', 'biomedical', 'bioengineering', 
+  'mechatronics', 'automation', 'econometrics', 'informatics'
+];
 
 // Tab types
 type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'subscription';
@@ -1271,8 +1277,9 @@ export function SettingsSection() {
               </div>
 
               <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Education Profile</h3>
-                
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">Education Profile</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Please check the <strong>CIP Code</strong> on your Form I-20 to confirm official STEM OPT eligibility with DHS.</p>
+
                 <div className="space-y-6">
                   {/* Degree Level */}
                   <div>
