@@ -86,6 +86,8 @@ interface EmploymentSpan {
 
 interface Profile {
   is_stem_eligible: boolean;
+  degree_level?: string | null;
+  major_name?: string | null;
 }
 
 interface DashboardContentProps {
@@ -275,6 +277,11 @@ export function DashboardContent({ user }: DashboardContentProps) {
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
             Welcome back{displayName ? `, ${displayName}` : ""}
+            {profile?.major_name && profile?.degree_level && (
+              <span className="hidden sm:inline opacity-80">
+                {" "}({profile.degree_level} in {profile.major_name})
+              </span>
+            )}
           </p>
         </div>
         <DashboardCustomizeButton onClick={() => setShowSettings(true)} />

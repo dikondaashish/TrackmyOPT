@@ -9,7 +9,8 @@ import {
   Upload, 
   Bell,
   Calculator,
-  Shield
+  Shield,
+  GraduationCap
 } from "lucide-react";
 
 interface QuickAction {
@@ -69,6 +70,14 @@ const QUICK_ACTIONS: QuickAction[] = [
     href: "/dashboard/settings#notifications",
     icon: <Bell className="w-5 h-5" />,
     color: "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
+  },
+  {
+    id: "education",
+    label: "Education",
+    description: "Update degree & major",
+    href: "/dashboard/settings",
+    icon: <GraduationCap className="w-5 h-5" />,
+    color: "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400",
   },
 ];
 
