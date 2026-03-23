@@ -11,16 +11,19 @@ export interface WidgetConfig {
 }
 
 const DEFAULT_WIDGETS: WidgetConfig[] = [
-  { id: "notifications", label: "Notifications", visible: true, order: 0 },
-  { id: "metrics", label: "Key Metrics", visible: true, order: 1 },
-  { id: "quickactions", label: "Quick Actions", visible: true, order: 2 },
+  { id: "profile-completion", label: "Profile Completion", visible: true, order: 0 },
+  { id: "notifications", label: "Notifications", visible: true, order: 1 },
+  { id: "metrics", label: "Key Metrics", visible: true, order: 2 },
   { id: "casestatus", label: "Case Status", visible: true, order: 3 },
   { id: "deadlines", label: "Upcoming Deadlines", visible: true, order: 4 },
-  { id: "tips", label: "Personalized Tips", visible: true, order: 5 },
-  { id: "reminders", label: "Tasks & Reminders", visible: true, order: 6 },
-  { id: "tools", label: "Your Toolkit", visible: true, order: 7 },
-  { id: "charts", label: "Status Charts", visible: true, order: 8 },
-  { id: "resources", label: "Resource Center", visible: false, order: 9 },
+  { id: "uscis", label: "USCIS Processing Times", visible: true, order: 5 },
+  { id: "tips", label: "Personalized Tips", visible: true, order: 6 },
+  { id: "reminders", label: "Tasks & Reminders", visible: true, order: 7 },
+  { id: "recent-activity", label: "Recent Activity Log", visible: true, order: 8 },
+  { id: "quickactions", label: "Quick Actions", visible: true, order: 9 },
+  { id: "tools", label: "Your Toolkit", visible: true, order: 10 },
+  { id: "charts", label: "Status Charts", visible: true, order: 11 },
+  { id: "resources", label: "Resource Center", visible: false, order: 12 },
 ];
 
 interface DashboardWidgetsProps {

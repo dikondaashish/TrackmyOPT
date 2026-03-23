@@ -54,6 +54,18 @@ const DashboardWidgetsSettings = dynamic(
   () => import("./DashboardWidgets").then((m) => ({ default: m.DashboardWidgetsSettings })),
   { ssr: false }
 );
+const ProfileCompletionWidget = dynamic(
+  () => import("./ProfileCompletionWidget").then((m) => ({ default: m.ProfileCompletionWidget })),
+  { loading: () => <WidgetSkeleton /> }
+);
+const RecentActivityLog = dynamic(
+  () => import("./RecentActivityLog").then((m) => ({ default: m.RecentActivityLog })),
+  { loading: () => <WidgetSkeleton /> }
+);
+const UscisProcessingTimes = dynamic(
+  () => import("./UscisProcessingTimes").then((m) => ({ default: m.UscisProcessingTimes })),
+  { loading: () => <WidgetSkeleton /> }
+);
 
 interface OptStatus {
   program_end_date: string;
@@ -183,6 +195,15 @@ export function DashboardContent({ user }: DashboardContentProps) {
   // Render widget based on ID
   const renderWidget = (widgetId: string) => {
     switch (widgetId) {
+      case "profile-completion":
+        return (
+          <ProfileCompletionWidget 
+            key="profile-completion" 
+            optStatus={optStatus} 
+            employmentSpans={employmentSpans} 
+            profile={profile} 
+          />
+        );
       case "notifications":
         return (
           <NotificationBanner
@@ -219,10 +240,21 @@ export function DashboardContent({ user }: DashboardContentProps) {
         );
       case "reminders":
         return <ActionableReminders key="reminders" />;
+      case "recent-activity":
+        return (
+          <RecentActivityLog 
+            key="recent-activity" 
+            user={user} 
+            optStatus={optStatus} 
+            employmentSpans={employmentSpans} 
+          />
+        );
       case "tools":
         return <ToolsGrid key="tools" />;
       case "charts":
         return <ChartsSection key="charts" />;
+      case "uscis":
+        return <UscisProcessingTimes key="uscis" />;
       case "resources":
         return <ResourceCenter key="resources" />;
       default:
