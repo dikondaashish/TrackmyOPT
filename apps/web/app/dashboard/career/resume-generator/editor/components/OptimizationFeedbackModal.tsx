@@ -14,6 +14,7 @@ interface OptimizationFeedbackModalProps {
 
 const SUGGESTIONS = [
     { label: "Make it more concise (1 page)", icon: "✂️" },
+    { label: "95% ATS score optimization", icon: "🚀" },
     { label: "Stronger action verbs & metrics", icon: "📊" },
     { label: "Emphasize technical skills", icon: "⚙️" },
     { label: "Make the summary more punchy", icon: "🎯" },
