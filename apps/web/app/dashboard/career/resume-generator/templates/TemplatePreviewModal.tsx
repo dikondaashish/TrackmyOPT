@@ -49,22 +49,21 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                     >
                         <div className="p-10 text-gray-900 h-full flex flex-col">
                             {/* Modern Header */}
-                            <div className="border-b-[3px] border-[#3D5A80] pb-2 mb-6 text-center">
-                                <h1 className="text-5xl font-['Montserrat'] font-bold uppercase tracking-tighter text-gray-900 mb-1">Alex Chen</h1>
-                                <div className="text-[#3D5A80] text-xl font-semibold tracking-wide uppercase mb-3">Senior AI Engineer</div>
-                                <div className="flex flex-wrap justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
+                            <div className="text-center mb-6">
+                                <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-1">Alex Chen</h1>
+                                <p className="text-[#3D5A80] font-medium text-lg mb-3">Senior AI Engineer</p>
+                                <div className="flex justify-center flex-wrap items-center gap-x-4 text-xs text-gray-700">
                                     <span>(555) 123-4567</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>San Francisco, CA</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span className="text-[#3D5A80]">alex.chen@email.com</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span className="text-[#3D5A80]">linkedin.com/in/alexchen</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span className="text-[#3D5A80]">github.com/alexc</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span className="text-[#3D5A80]">alexchen.ai</span>
                                 </div>
+                                <div className="h-[2px] w-full bg-[#3D5A80] mt-4" />
                             </div>
 
                             {/* Modern Content Page 1 */}
@@ -181,20 +180,20 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         <div className="p-12 text-gray-900 h-full flex flex-col">
                             {/* Professional Header */}
                             <div className="text-center mb-6">
-                                <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Harshibar</h1>
-                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
+                                <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-1">Harshibar</h1>
+                                <p className="text-blue-600 font-medium text-lg mb-3">Software Engineer</p>
+                                <div className="flex justify-center flex-wrap items-center gap-x-4 text-xs text-gray-700 font-sans">
                                     <span>555.555.5555</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>San Francisco, CA</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>hello@email.com</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>linkedin.com/in/harshibar</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>github.com/harshibar</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span>harshibar.com</span>
                                 </div>
+                                <div className="h-[2px] w-full bg-blue-600 mt-4" />
                             </div>
 
                             {/* Professional Content */}
@@ -205,11 +204,11 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div className="space-y-4">
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
-                                                <span>YouTube</span>
+                                                <span>YouTube Creator</span>
                                                 <span>Jan. 2021 – Present</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-1">
-                                                <span>Creator (@harshibar)</span>
+                                                <span>@harshibar</span>
                                                 <span>San Francisco, CA</span>
                                             </div>
                                             <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
@@ -223,7 +222,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div className="text-sm">
                                             <div className="flex justify-between font-bold text-gray-900">
                                                 <span>Google Verily</span>
-                                                <span>Aug. 2018 – Sept. 2019</span>
+                                                <span>Aug. 2018 – Sep. 2019</span>
                                             </div>
                                             <div className="flex justify-between italic text-gray-700 mb-1">
                                                 <span>Software Engineer</span>
@@ -259,7 +258,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900 mb-1">
                                                 <span>Hyku Consulting</span>
-                                                <span>Sept. 2019 -- Mar. 2021</span>
+                                                <span>Sep. 2019 – Mar. 2021</span>
                                             </div>
                                             <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
                                                 <li>Mentored 15 students towards acceptance at top US boarding schools; achieved <strong>100% success rate</strong></li>
@@ -269,7 +268,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div>
                                             <div className="flex justify-between font-bold text-gray-900 mb-1">
                                                 <span>Minimal Icon Pack</span>
-                                                <span>Sept. 2020 -- Nov. 2020</span>
+                                                <span>Sep. 2020 – Nov. 2020</span>
                                             </div>
                                             <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
                                                 <li>Designed and released 100+ minimal iOS and Android icons from scratch using Procreate and Figma</li>
@@ -297,7 +296,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     <div>
                                         <div className="flex justify-between font-bold text-gray-900 mb-1">
                                             <span>CommonIntern</span>
-                                            <span>Sept. 2019 -- May 2020</span>
+                                            <span>Sep. 2019 – May 2020</span>
                                         </div>
                                         <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-gray-900 text-[0.9rem] leading-snug">
                                             <li>Built a Python script to automatically apply to jobs on Glassdoor using BeautifulSoup and Selenium</li>
@@ -362,20 +361,20 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         <div className="p-10 text-gray-900 h-full flex flex-col">
                             {/* Creative Header */}
                             <div className="text-center mb-6">
-                                <h1 className="text-3xl font-bold text-blue-800 mb-2">Sarah Jenkins</h1>
-                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
-                                    <span>+1-555-019-2834</span>
-                                    <span className="text-gray-400">|</span>
+                                <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-1">Harshibar</h1>
+                                <p className="text-blue-600 font-medium text-lg mb-3">Software Engineer</p>
+                                <div className="flex justify-center flex-wrap items-center gap-x-4 text-xs text-gray-700">
+                                    <span>(555) 123-4567</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>San Francisco, CA</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span className="text-blue-600">hello@sarah.design</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span className="text-blue-600">linkedin.com/in/sarahj</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span className="text-blue-600">github.com/sarahj</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span className="text-blue-600">sarahjenkins.design</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>hello@email.com</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>linkedin.com/in/harshibar</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>github.com/harshibar</span>
                                 </div>
+                                <div className="h-[2px] w-full bg-blue-600 mt-4" />
                             </div>
 
                             {/* Creative Content Page 1 */}
@@ -447,7 +446,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
-                                {/* Projects (Moved from Page 2) */}
+                                {/* Projects */}
                                 <div>
                                     <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Projects</h2>
                                     <div className="space-y-4 text-sm">
@@ -463,7 +462,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </div>
                                 </div>
 
-                                {/* Skills (Moved from Page 2) */}
+                                {/* Skills */}
                                 <div>
                                     <h2 className="text-lg font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Skills</h2>
                                     <div className="text-sm text-gray-800 space-y-1">
@@ -525,20 +524,20 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         <div className="p-10 text-gray-900 h-full flex flex-col">
                             {/* Academic Header */}
                             <div className="text-center mb-6">
-                                <h1 className="text-2xl font-bold text-gray-900 mb-2">Dr. Elena Rodriguez</h1>
-                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
-                                    <span>+1-555-010-9988</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span>Stanford, CA</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span className="text-blue-600">elena.rodriguez@mit.edu</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span className="text-blue-600">linkedin.com/in/erodriguez</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span className="text-blue-600">github.com/erodriguez</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span className="text-blue-600">elenarodriguez.research</span>
+                                <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-1" style={{ fontFamily: '"Charter", serif' }}>Vidushi Wahal</h1>
+                                <p className="text-blue-600 font-medium text-lg mb-3">Senior QA Engineer</p>
+                                <div className="flex justify-center flex-wrap items-center gap-x-4 text-xs text-gray-700">
+                                    <span>+91-9811405837</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>Gurgaon, Haryana</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>vidushi22@gmail.com</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>linkedin.com/in/vidushi-wahal</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>github.com/vidushi-wahal</span>
                                 </div>
+                                <div className="h-[2px] w-full bg-blue-600 mt-4" />
                             </div>
 
                             {/* Academic Content Page 1 */}
@@ -553,7 +552,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </ul>
                                 </div>
 
-                                {/* Experience (Part 1) */}
+                                {/* Research Experience */}
                                 <div>
                                     <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Research Experience</h2>
                                     <div className="space-y-5">
@@ -603,7 +602,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </div>
                                 </div>
 
-                                {/* Publications (Moved from Page 2) */}
+                                {/* Publications */}
                                 <div>
                                     <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Selected Publications</h2>
                                     <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
@@ -613,7 +612,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </ul>
                                 </div>
 
-                                {/* Programming Skills (Moved from Page 2) */}
+                                {/* Technical Skills */}
                                 <div>
                                     <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Technical Skills</h2>
                                     <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
@@ -623,7 +622,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </ul>
                                 </div>
 
-                                {/* Education (Moved from Page 2) */}
+                                {/* Education */}
                                 <div>
                                     <h2 className="text-base font-bold uppercase tracking-wide border-b border-gray-900 pb-1 mb-3 text-gray-900">Education</h2>
                                     <div className="space-y-4">
@@ -702,18 +701,20 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         <div className="p-12 text-gray-900 h-full flex flex-col">
                             {/* Executive Header */}
                             <div className="text-center mb-6">
-                                <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-2">Katherine Winslow</h1>
-                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
-                                    <span>(555) 123-4567</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span>New York, NY</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span>k.winslow@exec.com</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span>linkedin.com/in/kwinslow</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span>github.com/kwinslow</span>
+                                <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-1">First Last</h1>
+                                <p className="text-blue-600 font-medium text-lg mb-3">Executive Leader</p>
+                                <div className="flex justify-center flex-wrap items-center gap-x-4 text-xs text-gray-700">
+                                    <span>123-456-7890</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>Location</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>x@x.com</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>linkedin.com/in/firstlast</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span>github.com/firstlast</span>
                                 </div>
+                                <div className="h-[2px] w-full bg-blue-600 mt-4" />
                             </div>
 
                             {/* Executive Content Page 1 */}
@@ -727,7 +728,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </p>
                                 </div>
 
-                                {/* Experience (Part 1) */}
+                                {/* Professional Experience */}
                                 <div>
                                     <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Professional Experience</h2>
                                     <div className="space-y-6">
@@ -776,7 +777,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         </div>
                                     </div>
                                 </div>
-                                {/* Board Memberships (Moved from Page 2) */}
+                                {/* Board Memberships & Advisory */}
                                 <div>
                                     <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Board Memberships & Advisory</h2>
                                     <div className="space-y-2 text-sm text-gray-800">
@@ -785,7 +786,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </div>
                                 </div>
 
-                                {/* Skills (Moved from Page 2) */}
+                                {/* Strategic & Technical Skills */}
                                 <div>
                                     <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Strategic & Technical Skills</h2>
                                     <div className="text-sm text-gray-800 space-y-1">
@@ -793,7 +794,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                         <div><span className="font-bold">Technical:</span> Distributed Systems, Cloud Native Architecture (Kubernetes), AI/ML Platforms, Fintech/Payments</div>
                                     </div>
                                 </div>
-                                {/* Education (Moved from Page 2) */}
+                                {/* Education */}
                                 <div>
                                     <h2 className="text-xl font-light uppercase tracking-widest border-b border-gray-900 pb-1 mb-4 text-gray-900">Education</h2>
                                     <div className="text-sm">
@@ -804,7 +805,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </div>
                                             <div className="flex justify-between italic text-gray-700">
                                                 <span>Master of Business Administration (MBA)</span>
-                                                <span>Sep. 2008 – May. 2010</span>
+                                                <span>Sep. 2008 – May 2010</span>
                                             </div>
                                         </div>
                                         <div className="mb-4 last:mb-0">
@@ -814,7 +815,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                             </div>
                                             <div className="flex justify-between italic text-gray-700">
                                                 <span>Bachelor of Arts in Economics</span>
-                                                <span>Sep. 2004 – May. 2008</span>
+                                                <span>Sep. 2004 – May 2008</span>
                                             </div>
                                         </div>
                                     </div>
@@ -872,20 +873,20 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                         <div className="p-10 text-gray-900 h-full flex flex-col">
                             {/* Tech Header */}
                             <div className="text-center mb-6">
-                                <h1 className="text-3xl font-black tracking-tight text-gray-900 mb-2">Alex Rivest</h1>
-                                <div className="flex justify-center items-center gap-x-2 text-sm text-gray-800 font-mono">
+                                <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-1">Alex Rivest</h1>
+                                <p className="text-blue-600 font-medium text-lg mb-3">Senior DevOps Engineer</p>
+                                <div className="flex justify-center flex-wrap items-center gap-x-4 text-xs text-gray-700 font-mono">
                                     <span>(555) 987-6543</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>Seattle, WA</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>alex.rivest@tech.com</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>linkedin.com/in/arivest</span>
-                                    <span className="text-gray-400">|</span>
+                                    <span className="text-gray-300">|</span>
                                     <span>github.com/arivest</span>
-                                    <span className="text-gray-400">|</span>
-                                    <span>alexrivest.dev</span>
                                 </div>
+                                <div className="h-[2px] w-full bg-blue-600 mt-4" />
                             </div>
 
                             {/* Tech Content Page 1 */}
@@ -910,7 +911,7 @@ export function TemplatePreviewModal({ isOpen, onClose, template, onSelect }: Te
                                     </div>
                                 </div>
 
-                                {/* Experience (Part 1) */}
+                                {/* Experience */}
                                 <div>
                                     <h2 className="text-lg font-bold border-b border-gray-900 pb-1 mb-2 text-gray-900">Experience</h2>
                                     <div className="space-y-4 text-sm">
