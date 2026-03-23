@@ -50,6 +50,19 @@ const STEM_KEYWORDS = [
   'mechatronics', 'automation', 'econometrics', 'informatics'
 ];
 
+const COMMON_MAJORS = [
+  "Computer Science", "Software Engineering", "Computer Engineering", 
+  "Information Technology", "Information Systems", "Data Science", 
+  "Data Analytics", "Business Analytics", "Cybersecurity", 
+  "Artificial Intelligence", "Machine Learning", "Electrical Engineering", 
+  "Mechanical Engineering", "Civil Engineering", "Industrial Engineering", 
+  "Biomedical Engineering", "Aerospace Engineering", "Chemical Engineering", 
+  "Mathematics", "Applied Mathematics", "Statistics", "Physics", 
+  "Chemistry", "Biology", "Biotechnology", "Business Administration", 
+  "Finance", "Accounting", "Marketing", "Economics", "Psychology", 
+  "Nursing", "Communications", "Graphic Design", "Architecture"
+];
+
 // Tab types
 type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'subscription';
 
@@ -115,6 +128,11 @@ export function SettingsSection() {
     majorName: null,
     isStemEligible: false,
   });
+
+  const [showMajorDropdown, setShowMajorDropdown] = useState(false);
+  const filteredMajors = profile.majorName 
+    ? COMMON_MAJORS.filter(m => m.toLowerCase().includes(profile.majorName!.toLowerCase()))
+    : COMMON_MAJORS;
 
   const checkStemEligibility = (major: string | null) => {
     if (!major) return false;
@@ -1307,7 +1325,7 @@ export function SettingsSection() {
                   </div>
 
                   {/* Major */}
-                  <div>
+                  <div className="relative">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Major / Course Name
                     </label>
@@ -1321,10 +1339,35 @@ export function SettingsSection() {
                           majorName: newMajor,
                           isStemEligible: checkStemEligibility(newMajor)
                         });
+                        setShowMajorDropdown(true);
                       }}
+                      onFocus={() => setShowMajorDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowMajorDropdown(false), 200)}
                       placeholder="e.g. Computer Science"
                       className="h-11"
                     />
+
+                    {showMajorDropdown && filteredMajors.length > 0 && (
+                      <ul className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {filteredMajors.map((major) => (
+                          <li 
+                            key={major}
+                            className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-900 dark:text-gray-100 transition-colors"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                              setProfile({
+                                ...profile,
+                                majorName: major,
+                                isStemEligible: checkStemEligibility(major)
+                              });
+                              setShowMajorDropdown(false);
+                            }}
+                          >
+                            {major}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
 
                     {/* STEM Status indicator */}
                     {(profile.majorName || '').length > 2 && (

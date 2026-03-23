@@ -19,6 +19,19 @@ const STEM_KEYWORDS = [
   'mechatronics', 'automation', 'econometrics', 'informatics'
 ];
 
+const COMMON_MAJORS = [
+  "Computer Science", "Software Engineering", "Computer Engineering", 
+  "Information Technology", "Information Systems", "Data Science", 
+  "Data Analytics", "Business Analytics", "Cybersecurity", 
+  "Artificial Intelligence", "Machine Learning", "Electrical Engineering", 
+  "Mechanical Engineering", "Civil Engineering", "Industrial Engineering", 
+  "Biomedical Engineering", "Aerospace Engineering", "Chemical Engineering", 
+  "Mathematics", "Applied Mathematics", "Statistics", "Physics", 
+  "Chemistry", "Biology", "Biotechnology", "Business Administration", 
+  "Finance", "Accounting", "Marketing", "Economics", "Psychology", 
+  "Nursing", "Communications", "Graphic Design", "Architecture"
+];
+
 type JourneyStatus = 'applying_opt' | 'on_opt' | 'stem_opt' | null;
 
 interface OnboardingWizardProps {
@@ -47,6 +60,11 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   const [optStartDate, setOptStartDate] = useState("");
   const [optEndDate, setOptEndDate] = useState("");
   const [stemStartDate, setStemStartDate] = useState("");
+
+  const [showDropdown, setShowDropdown] = useState(false);
+  const filteredMajors = majorName 
+    ? COMMON_MAJORS.filter(m => m.toLowerCase().includes(majorName.toLowerCase()))
+    : COMMON_MAJORS;
 
   const checkStemEligibility = (major: string) => {
     if (!major) return false;
@@ -218,15 +236,38 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 relative">
                   <label className="text-sm font-medium">Major / Course Name</label>
                   <input
                     type="text"
                     value={majorName}
-                    onChange={(e) => handleMajorChange(e.target.value)}
+                    onChange={(e) => {
+                      handleMajorChange(e.target.value);
+                      setShowDropdown(true);
+                    }}
+                    onFocus={() => setShowDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                     placeholder="e.g. Computer Science, Mechanical Engineering..."
                     className="w-full p-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-blue-600 outline-none"
                   />
+                  
+                  {showDropdown && filteredMajors.length > 0 && (
+                    <ul className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      {filteredMajors.map((major) => (
+                        <li 
+                          key={major}
+                          className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm text-foreground transition-colors"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            handleMajorChange(major);
+                            setShowDropdown(false);
+                          }}
+                        >
+                          {major}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   
                   {majorName.length > 2 && (
                     <div className={`p-4 rounded-lg flex items-start gap-3 transition-opacity duration-300 ${isStemEligible ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-100 dark:border-emerald-800' : 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-100 dark:border-amber-800'}`}>
