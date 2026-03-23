@@ -2,7 +2,6 @@
 import { SYSTEM_PROMPT } from './generate';
 
 export function buildRegeneratePrompt(
-    resumeText: string,
     jobDescription: string,
     templateTex: string,
     previousLatex: string,
@@ -66,9 +65,6 @@ ${previousLatex}
 
 --- USER FEEDBACK ---
 ${userFeedback || "No specific feedback. Focus on maximizing ATS score by adding missing keywords, strengthening bullets with metrics, and improving the summary."}
-
---- CANDIDATE RESUME ---
-${resumeText}
 
 --- TARGET JOB DESCRIPTION ---
 ${jobDescription}

@@ -124,7 +124,6 @@ export async function POST(req: NextRequest) {
 
         // 5. Build Prompt
         const prompt = buildRegeneratePrompt(
-            resumeText,
             jobDescription,
             templateTex,
             previousLatex,
