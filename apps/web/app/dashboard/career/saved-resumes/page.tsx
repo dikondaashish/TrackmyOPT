@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useResumeStore } from "@/store/resume-store";
 import { useResumeHistoryStore } from "@/store/resume-history-store";
 import { Input } from "@/components/ui/input";
-import { useDebounce } from "@/hooks/use-debounce"; // Assuming this exists or I'll implement a simple one
+import { useDebounce } from "../../../../hooks/use-debounce";
 
 import {
     AlertDialog,

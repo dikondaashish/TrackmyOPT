@@ -14,33 +14,33 @@ import {
 
 // ── Local Brand tokens (Standardized to project hex codes) ────────────────────
 const BRAND = {
-  applBlue:      '#007AFF',
+  applBlue: '#007AFF',
   premiumPurple: '#8B5CF6',
-  purpleDeep:    '#5B21B6',
-  purpleDark:    '#4C1D95',
-  purpleLight:   '#F5F3FF',
-  purpleBorder:  '#DDD6FE',
-  purpleAccent:  '#FAF5FF',
-  purpleText:    '#6D28D9',
+  purpleDeep: '#5B21B6',
+  purpleDark: '#4C1D95',
+  purpleLight: '#F5F3FF',
+  purpleBorder: '#DDD6FE',
+  purpleAccent: '#FAF5FF',
+  purpleText: '#6D28D9',
 
-  optBlue:       '#2563EB',
+  optBlue: '#2563EB',
   optClockAmber: '#B45309',
-  stemGreen:     '#047857',
-  
-  textPrimary:   '#111827',
-  textBody:      '#374151',
-  textMuted:     '#6B7280',
-  textFaint:     '#9CA3AF',
+  stemGreen: '#047857',
 
-  bgWhite:       '#FFFFFF',
-  bgSurface:     '#F9FAFB',
-  bgDark:        '#111827',
-  border:        '#E5E7EB',
+  textPrimary: '#111827',
+  textBody: '#374151',
+  textMuted: '#6B7280',
+  textFaint: '#9CA3AF',
 
-  amberBg:       '#FFFBEB',
-  amberBorder:   '#B45309',
-  amberText:     '#92400E',
-  amberStrong:   '#78350F',
+  bgWhite: '#FFFFFF',
+  bgSurface: '#F9FAFB',
+  bgDark: '#111827',
+  border: '#E5E7EB',
+
+  amberBg: '#FFFBEB',
+  amberBorder: '#B45309',
+  amberText: '#92400E',
+  amberStrong: '#78350F',
 } as const;
 
 const font = `-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif`;
@@ -61,14 +61,24 @@ export function generatePremiumReengagementEmail(firstName: string): string {
     ${emailOuterOpen()}
     <div style="background:${BRAND.bgWhite};border-radius:16px;overflow:hidden;border:1px solid ${BRAND.border};">
 
-      <!-- ═══ HEADER (Robust background for all clients) ═══ -->
+      <!-- ═══ HEADER (Side-by-side logo + text) ═══ -->
       <div style="background:${BRAND.bgDark};padding:32px 28px;text-align:center;">
-        <img
-          src="${logoUrl}"
-          alt="TrackMyOPT"
-          height="36"
-          style="height:36px;margin-bottom:20px;"
-        />
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto 20px auto;">
+          <tr>
+            <td style="vertical-align:middle;padding-right:12px;">
+              <img
+                src="${logoUrl}"
+                alt=""
+                width="44"
+                height="44"
+                style="display:block;width:44px;height:44px;border-radius:12px;"
+              />
+            </td>
+            <td style="vertical-align:middle;font-family:${font};font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.03em;">
+              TrackMyOPT
+            </td>
+          </tr>
+        </table>
         <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:600;line-height:1.4;">
           Most OPT students apply to companies<br/>
           that will <span style="color:${BRAND.premiumPurple};">never</span> sponsor them.
