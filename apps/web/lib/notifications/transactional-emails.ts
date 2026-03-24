@@ -18,7 +18,7 @@ function getFromHeader(): string {
 
 /** From header for SMTP — exported for retry cron + tests */
 export function getTransactionalEmailFromHeader(): string {
-  return `${process.env.EMAIL_FROM_NAME || "Zyene Inc"} <${process.env.SMTP_USER || "no-reply@trackmyopt.com"}>`;
+  return `${process.env.EMAIL_FROM_NAME || "TrackMyOPT"} <${process.env.SMTP_FROM_EMAIL || "no-reply@trackmyopt.com"}>`;
 }
 
 type EmailDataRow = { id: string; email_data: Json | null; created_at: string | null };

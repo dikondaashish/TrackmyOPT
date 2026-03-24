@@ -40,7 +40,7 @@ export interface EmailReminderData {
 export async function sendDailyReminder(data: EmailReminderData) {
   try {
     const info = await sendMailWithRetry({
-      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_FROM_EMAIL || 'no-reply@trackmyopt.com'}>`,
       to: data.userEmail,
       subject: getDynamicSubject(data.tools),
       html: generateEmailHTML(data),
