@@ -70,14 +70,24 @@ export class ResumeService {
     return result;
   }
 
-  async getResumes(userId: string) {
-    const { data, error } = await this.supabase
+  async getResumes(userId: string, options?: { limit?: number; offset?: number; search?: string }) {
+    let query = this.supabase
       .from('resumes')
-      // Exclude structured_data (heavy JSON) to improve list performance
-      // content is truncated for the preview to save bandwidth
-      .select('id, filename, content, created_at, file_path')
+      .select('id, filename, content, created_at, file_path, is_parsed', { count: 'exact' })
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
+
+    if (options?.search) {
+      query = query.ilike('filename', `%${options.search}%`);
+    }
+
+    if (options?.limit) {
+      const from = options.offset || 0;
+      const to = from + options.limit - 1;
+      query = query.range(from, to);
+    }
+
+    const { data, error, count } = await query;
 
     if (error) throw new Error(error.message);
 
@@ -87,7 +97,10 @@ export class ResumeService {
       content: resume.content ? (resume.content.substring(0, 500) + (resume.content.length > 500 ? '...' : '')) : ''
     }));
 
-    return truncatedData;
+    return {
+      data: truncatedData,
+      total: count || 0
+    };
   }
 
   async getResumeById(id: string) {

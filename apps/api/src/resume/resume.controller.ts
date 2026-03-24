@@ -53,11 +53,20 @@ export class ResumeController {
   }
 
   @Get('list')
-  async listResumes(@Query('userId') userId: string) {
+  async listResumes(
+    @Query('userId') userId: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+    @Query('search') search?: string,
+  ) {
     if (!userId)
       throw new HttpException('userId is required', HttpStatus.BAD_REQUEST);
     try {
-      return await this.resumeService.getResumes(userId);
+      return await this.resumeService.getResumes(userId, {
+        limit: limit ? Number(limit) : undefined,
+        offset: offset ? Number(offset) : undefined,
+        search,
+      });
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';

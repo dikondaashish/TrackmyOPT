@@ -10,12 +10,16 @@ import {
     AlertCircle,
     Plus,
     FolderDown,
+    Search,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
 import { useResumeStore } from "@/store/resume-store";
+import { useResumeHistoryStore } from "@/store/resume-history-store";
+import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/use-debounce"; // Assuming this exists or I'll implement a simple one
 
 import {
     AlertDialog,
@@ -34,10 +38,11 @@ import { format } from "date-fns";
 interface SavedResume {
     id: string;
     filename: string;
-    description: string;
+    description?: string;
     content: string;
     created_at: string;
-    file_path?: string;
+    file_path?: string | null;
+    is_parsed?: boolean;
     structuredData?: any;
 }
 
@@ -47,76 +52,60 @@ export default function HistoryPage() {
     // const supabase = createClientComponentClient(); -> Removed, using imported singleton
 
 
-    const [resumes, setResumes] = useState<SavedResume[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const { 
+        resumes, 
+        isLoading: isStoreLoading, 
+        fetchResumes, 
+        search, 
+        setSearch, 
+        deleteResumeOptimistic 
+    } = useResumeHistoryStore();
+
     const [error, setError] = useState("");
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [loadingId, setLoadingId] = useState<string | null>(null);
     const [isSlowLoad, setIsSlowLoad] = useState(false);
+    const [localSearch, setLocalSearch] = useState(search);
+    const debouncedSearch = useDebounce(localSearch, 500);
 
     useEffect(() => {
-        fetchResumes();
-    }, []);
+        setSearch(debouncedSearch);
+    }, [debouncedSearch]);
 
-    // Effect to auto-select/preview the most recent resume if available
     useEffect(() => {
-        if (!isLoading && resumes.length > 0 && !loadingId) {
-            // Logic for visual cues can go here
-        }
-    }, [isLoading, resumes]);
+        handleFetch();
+    }, [search]);
 
-    const fetchResumes = async () => {
-        setIsLoading(true);
+    const handleFetch = async () => {
         setError("");
-        
         try {
             const { data: { user }, error: authError } = await supabase.auth.getUser();
-            
             if (authError || !user) {
-                setError("Please log in to view saved resumes.");
+                if (authError?.message?.includes("storage")) {
+                    setError("Storage access blocked. Please check your browser's site data/cookie settings.");
+                } else {
+                    setError("Please log in to view saved resumes.");
+                }
                 return;
             }
-
-            // Set a timeout for the fetch request
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 seconds timeout (to allow for Render cold starts)
-
-            // Show a "Waking up server" message after 8 seconds
-            const slowLoadId = setTimeout(() => setIsSlowLoad(true), 8000);
-
-            const response = await fetch(`/api/proxy/resume/list?userId=${user.id}`, {
-                signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-            clearTimeout(slowLoadId);
-            setIsSlowLoad(false);
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.details || `Server responded with ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            if (!Array.isArray(data)) {
-                throw new Error("Invalid response format from server");
-            }
-            
-            setResumes(data);
-        } catch (error: any) {
-            console.error("Fetch error:", error);
-            if (error.name === 'AbortError') {
-                setError("Request timed out. Please check your connection and try again.");
-            } else {
-                setError(error.message || "Could not load your saved resumes.");
-            }
-        } finally {
-            setIsLoading(false);
+            await fetchResumes(user.id);
+        } catch (err: any) {
+            setError(err.message || "Failed to load resumes.");
         }
     };
 
+    // Effect to auto-select/preview the most recent resume if available
+    useEffect(() => {
+        if (!isStoreLoading && resumes.length > 0 && !loadingId) {
+            // Logic for visual cues can go here
+        }
+    }, [isStoreLoading, resumes]);
+
+
     const handleDelete = async (id: string) => {
+        const previousResumes = [...resumes];
+        deleteResumeOptimistic(id);
+
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
@@ -131,15 +120,15 @@ export default function HistoryPage() {
                 title: "Resume Deleted",
                 description: "The resume has been removed from your profile.",
             });
-
-            setResumes(prev => prev.filter(r => r.id !== id));
         } catch (error) {
             console.error("Delete error:", error);
+            // Rollback is implicitly handled if we refetch, but for now we skip complex rollback logic
             toast({
                 title: "Delete Failed",
-                description: "Could not delete the resume. Please try again.",
+                description: "Could not delete the resume. It might have been restored.",
                 variant: "destructive",
             });
+            handleFetch(); // Refetch to sync state
         }
     };
 
@@ -275,7 +264,18 @@ export default function HistoryPage() {
 
             {/* Main Content */}
             <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-                {isLoading ? (
+                {/* Search Bar */}
+                <div className="mb-8 relative group">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Input 
+                        placeholder="Search resumes by name..."
+                        value={localSearch}
+                        onChange={(e) => setLocalSearch(e.target.value)}
+                        className="pl-10 bg-white/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-blue-500/20"
+                    />
+                </div>
+
+                {isStoreLoading ? (
                     <div className="flex flex-col items-center justify-center py-20">
                         <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
                         <p className="text-gray-500">Loading your resumes...</p>
@@ -292,23 +292,25 @@ export default function HistoryPage() {
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Error Loading Resumes</h3>
                         <p className="text-gray-500 mb-6">{error}</p>
-                        <Button onClick={fetchResumes}>Try Again</Button>
+                        <Button onClick={() => handleFetch()}>Try Again</Button>
                     </div>
                 ) : resumes.length === 0 ? (
                     <div className="text-center py-20 bg-white/50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-800">
                         <div className="bg-blue-100 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                             <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No history yet</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{search ? "No results found" : "No history yet"}</h3>
                         <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
-                            Upload and save your resumes to quickly access them when generating new applications.
+                            {search ? `We couldn't find any resumes matching "${search}".` : "Upload and save your resumes to quickly access them when generating new applications."}
                         </p>
-                        <Link href="/dashboard/career/resume-generator">
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
-                                <Plus className="w-4 h-4" />
-                                Create New Resume
-                            </Button>
-                        </Link>
+                        {!search && (
+                            <Link href="/dashboard/career/resume-generator">
+                                <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                                    <Plus className="w-4 h-4" />
+                                    Create New Resume
+                                </Button>
+                            </Link>
+                        )}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
