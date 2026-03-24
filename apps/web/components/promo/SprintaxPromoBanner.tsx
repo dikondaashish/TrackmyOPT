@@ -9,6 +9,12 @@ const DASHBOARD_KEY = "trackmyopt_promo_sprintax_dashboard_v1";
 const VAR_MARKETING = "--tmopt-marketing-promo";
 const VAR_DASHBOARD = "--tmopt-dashboard-promo";
 
+// Default heights to prevent CLS before ResizeObserver kicks in
+const DEFAULT_HEIGHTS = {
+  marketing: "52px", // Approx height including padding
+  dashboard: "52px",
+};
+
 type Variant = "marketing" | "dashboard";
 
 interface SprintaxPromoBannerProps {
@@ -23,13 +29,17 @@ export function SprintaxPromoBanner({ variant }: SprintaxPromoBannerProps) {
 
   useEffect(() => {
     try {
+      // Set initial default height to minimize CLS
+      document.documentElement.style.setProperty(cssVar, DEFAULT_HEIGHTS[variant]);
+
       if (typeof window !== "undefined" && localStorage.getItem(storageKey) === "1") {
         setVisible(false);
+        document.documentElement.style.setProperty(cssVar, "0px");
       }
     } catch {
       /* ignore */
     }
-  }, [storageKey]);
+  }, [storageKey, cssVar, variant]);
 
   useEffect(() => {
     if (!visible) {

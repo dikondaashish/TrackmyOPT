@@ -16,9 +16,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/optCalculations";
 
 const WidgetSkeleton = () => (
-  <div className="rounded-lg border bg-card p-6 space-y-3">
-    <Skeleton className="h-5 w-40" />
-    <Skeleton className="h-24 w-full" />
+  <div className="rounded-lg border bg-card p-6 space-y-4 min-h-[180px]">
+    <div className="flex items-center gap-2">
+      <Skeleton className="h-5 w-40" />
+      <Skeleton className="h-5 w-5 rounded-full" />
+    </div>
+    <Skeleton className="h-28 w-full" />
+    <div className="flex gap-2">
+      <Skeleton className="h-8 w-1/3" />
+      <Skeleton className="h-8 w-1/3" />
+    </div>
   </div>
 );
 
@@ -311,8 +318,9 @@ export function DashboardContent({ user }: DashboardContentProps) {
       />
 
       {/* Render visible widgets */}
-      {widgetsLoaded &&
-        visibleWidgets.map((widget) => renderWidget(widget.id))}
+      <div className="grid gap-6">
+        {visibleWidgets.map((widget) => renderWidget(widget.id))}
+      </div>
 
       {/* Footer */}
       <footer className="mt-12 pt-6 border-t border-border text-center text-xs text-muted-foreground">
