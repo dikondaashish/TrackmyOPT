@@ -52,6 +52,7 @@ export default function HistoryPage() {
     const [error, setError] = useState("");
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [loadingId, setLoadingId] = useState<string | null>(null);
+    const [isSlowLoad, setIsSlowLoad] = useState(false);
 
     useEffect(() => {
         fetchResumes();
@@ -78,13 +79,18 @@ export default function HistoryPage() {
 
             // Set a timeout for the fetch request
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
+            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 seconds timeout (to allow for Render cold starts)
+
+            // Show a "Waking up server" message after 8 seconds
+            const slowLoadId = setTimeout(() => setIsSlowLoad(true), 8000);
 
             const response = await fetch(`/api/proxy/resume/list?userId=${user.id}`, {
                 signal: controller.signal
             });
 
             clearTimeout(timeoutId);
+            clearTimeout(slowLoadId);
+            setIsSlowLoad(false);
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
@@ -273,6 +279,11 @@ export default function HistoryPage() {
                     <div className="flex flex-col items-center justify-center py-20">
                         <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
                         <p className="text-gray-500">Loading your resumes...</p>
+                        {isSlowLoad && (
+                            <p className="text-xs text-blue-500 mt-4 animate-pulse italic">
+                                Wait a moment while we wake up the server...
+                            </p>
+                        )}
                     </div>
                 ) : error ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center">

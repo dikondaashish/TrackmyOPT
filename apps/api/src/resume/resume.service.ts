@@ -74,13 +74,20 @@ export class ResumeService {
     const { data, error } = await this.supabase
       .from('resumes')
       // Exclude structured_data (heavy JSON) to improve list performance
-      // content is kept for the preview and 'Use Resume' feature, assuming it's reasonably small text
+      // content is truncated for the preview to save bandwidth
       .select('id, filename, content, created_at, file_path')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
-    return data as Array<Record<string, unknown>>;
+
+    // Truncate content for list view to reduce payload size
+    const truncatedData = (data as any[]).map(resume => ({
+      ...resume,
+      content: resume.content ? (resume.content.substring(0, 500) + (resume.content.length > 500 ? '...' : '')) : ''
+    }));
+
+    return truncatedData;
   }
 
   async getResumeById(id: string) {
