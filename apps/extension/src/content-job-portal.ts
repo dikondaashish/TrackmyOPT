@@ -19,6 +19,72 @@ interface JobInfo {
   location?: string;
 }
 
+/** Host hints for major boards + common ATS (broad job-assistant style coverage). */
+const KNOWN_JOB_HOST_RE =
+  /linkedin|indeed|glassdoor|greenhouse|lever|ashby|workday|myworkdayjobs|smartrecruiters|icims|bamboohr|jobvite|workable|monster|ziprecruiter|taleo|successfactors|dayforce|ultipro|eightfold|applytojob|recruitcrm|pinpoint|comeet|teamtailor|jobadder|rippling|personio|beamery|avature|snagajob|careerbuilder|dice|wellfound|angel|breezy|freshteam|recruitee|paylocity|paycom|gusto|zoho|crelate|jobdiva|fieldglass|brassring|jobscore|jobtarget|directemployers|talroo|hiringthing|jazzhr|namely|justworks|deel|remoteok|weworkremotely|levels\.fyi|notion\.jobs|atlassian|oraclecloud|hrworkways|ashbyhq|greenhouse\.io|lever\.co/i;
+
+const JOB_PATH_PATTERN =
+  /\/(job|jobs|career|careers|position|positions|opening|openings|apply|application|requisition|vacancy|vacancies|posting|listings?|req|talent|recruit|hiring|sourcing|candidate|opportunit)/i;
+
+function isHttpDocument(): boolean {
+  return location.protocol === 'http:' || location.protocol === 'https:';
+}
+
+function hasJobPostingJsonLdSnippet(): boolean {
+  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+  for (let i = 0; i < scripts.length; i++) {
+    const t = scripts[i].textContent || '';
+    if (/JobPosting/i.test(t) && /hiringOrganization|title/i.test(t)) return true;
+  }
+  return false;
+}
+
+function isDefinitelyNotJobSite(): boolean {
+  const h = location.hostname.toLowerCase();
+  const path = location.pathname;
+  const notJob = [
+    'youtube.com',
+    'youtu.be',
+    'facebook.com',
+    'twitter.com',
+    'x.com',
+    'instagram.com',
+    'tiktok.com',
+    'reddit.com',
+    'twitch.tv',
+    'netflix.com',
+    'spotify.com',
+    'mail.google.com',
+    'docs.google.com',
+    'drive.google.com',
+    'calendar.google.com',
+    'meet.google.com',
+    'outlook.live.com',
+    'outlook.office.com',
+    'mail.yahoo.com',
+  ];
+  for (let i = 0; i < notJob.length; i++) {
+    if (h === notJob[i] || h.endsWith('.' + notJob[i])) return true;
+  }
+  if (h === 'google.com' || h === 'www.google.com') {
+    if (path.startsWith('/search') || path.startsWith('/maps') || path.startsWith('/mail')) return true;
+  }
+  return false;
+}
+
+function shouldUseFullJobAssistMode(): boolean {
+  if (!isHttpDocument() || isDefinitelyNotJobSite()) return false;
+  if (KNOWN_JOB_HOST_RE.test(location.hostname)) return true;
+  if (hasJobPostingJsonLdSnippet()) return true;
+  const pathAndSearch = location.pathname + (location.search || '');
+  if (JOB_PATH_PATTERN.test(pathAndSearch)) return true;
+  const title = document.title || '';
+  if (/\b(job|career|careers|apply|hiring|position|vacancy|requisition|opening|internship|fellowship)\b/i.test(title)) {
+    return true;
+  }
+  return false;
+}
+
 // Phrases that indicate "application submitted" success (case-insensitive)
 const APPLICATION_SUCCESS_PATTERNS = [
   /congratulat/i,
@@ -105,6 +171,61 @@ function tryAutoAddWithJob(job: JobInfo) {
 
 // --- Generic parser: works on any career page ---
 
+function collectJsonLdObjects(data: unknown, out: Record<string, unknown>[]): void {
+  if (!data || typeof data !== 'object') return;
+  const obj = data as Record<string, unknown>;
+  if (Array.isArray(data)) {
+    for (let i = 0; i < data.length; i++) collectJsonLdObjects(data[i], out);
+    return;
+  }
+  out.push(obj);
+  if (obj['@graph'] && Array.isArray(obj['@graph'])) {
+    for (let i = 0; i < obj['@graph'].length; i++) collectJsonLdObjects(obj['@graph'][i], out);
+  }
+}
+
+function typesIncludeJobPosting(types: unknown): boolean {
+  if (types === 'JobPosting') return true;
+  if (Array.isArray(types)) {
+    return types.some((t) => t === 'JobPosting' || (typeof t === 'string' && /JobPosting/i.test(t)));
+  }
+  return typeof types === 'string' && /JobPosting/i.test(types);
+}
+
+function jobPostingFromLdObject(obj: Record<string, unknown>): JobInfo | null {
+  const types = obj['@type'];
+  if (!typesIncludeJobPosting(types)) return null;
+  const title = (obj.title as string)?.trim();
+  const hiringOrg = obj.hiringOrganization as Record<string, unknown> | string | undefined;
+  let company = '';
+  if (typeof hiringOrg === 'string') company = hiringOrg.trim();
+  else if (hiringOrg && typeof hiringOrg === 'object') {
+    company = ((hiringOrg.name as string) || (hiringOrg.legalName as string) || '').trim();
+  }
+  const jobLoc = obj.jobLocation as Record<string, unknown> | Record<string, unknown>[] | undefined;
+  let location = '';
+  if (Array.isArray(jobLoc) && jobLoc.length > 0) {
+    const first = jobLoc[0] as Record<string, unknown>;
+    location =
+      ((first.address as Record<string, unknown>)?.addressLocality as string) ||
+      (first.name as string) ||
+      '';
+  } else if (jobLoc && typeof jobLoc === 'object' && !Array.isArray(jobLoc)) {
+    const addr = (jobLoc as Record<string, unknown>).address as Record<string, unknown> | undefined;
+    location =
+      (addr?.addressLocality as string) || ((jobLoc as Record<string, unknown>).name as string) || '';
+  }
+  if (title && company) {
+    return {
+      company_name: company,
+      role_title: title,
+      job_url: window.location.href,
+      location: location?.trim() || undefined,
+    };
+  }
+  return null;
+}
+
 function getJsonLdJobPosting(): JobInfo | null {
   try {
     const scripts = document.querySelectorAll('script[type="application/ld+json"]');
@@ -118,32 +239,11 @@ function getJsonLdJobPosting(): JobInfo | null {
       } catch {
         continue;
       }
-      const items: unknown[] = Array.isArray(data) ? data : [data];
-      for (let j = 0; j < items.length; j++) {
-        const item = items[j];
-        const obj = item as Record<string, unknown>;
-        const type = (obj['@type'] as string) || (Array.isArray(obj['@type']) ? (obj['@type'] as string[])[0] : '');
-        if (type !== 'JobPosting') continue;
-        const title = (obj.title as string)?.trim();
-        const hiringOrg = obj.hiringOrganization as Record<string, unknown> | undefined;
-        const company = (hiringOrg?.name as string)?.trim();
-        const jobLoc = obj.jobLocation as Record<string, unknown> | Record<string, unknown>[] | undefined;
-        let location = '';
-        if (Array.isArray(jobLoc) && jobLoc.length > 0) {
-          const first = jobLoc[0] as Record<string, unknown>;
-          location = (first.address as Record<string, unknown>)?.addressLocality as string || (first.name as string) || '';
-        } else if (jobLoc && typeof jobLoc === 'object' && !Array.isArray(jobLoc)) {
-          const addr = (jobLoc as Record<string, unknown>).address as Record<string, unknown> | undefined;
-          location = (addr?.addressLocality as string) || ((jobLoc as Record<string, unknown>).name as string) || '';
-        }
-        if (title && company) {
-          return {
-            company_name: company,
-            role_title: title,
-            job_url: window.location.href,
-            location: location?.trim() || undefined,
-          };
-        }
+      const flat: Record<string, unknown>[] = [];
+      collectJsonLdObjects(data, flat);
+      for (let j = 0; j < flat.length; j++) {
+        const parsed = jobPostingFromLdObject(flat[j]);
+        if (parsed) return parsed;
       }
     }
   } catch {
@@ -222,8 +322,11 @@ function getMetaAndTitleJob(): JobInfo | null {
 
 function getDomFallbackJob(): JobInfo | null {
   const url = window.location.href;
-  const h1 = document.querySelector('h1');
-  const role_title = h1?.textContent?.trim();
+  const heading =
+    document.querySelector('h1') ||
+    document.querySelector('[class*="job-title"]') ||
+    document.querySelector('h2[class*="title"]');
+  const role_title = heading?.textContent?.trim();
   if (!role_title || role_title.length < 2) return null;
   const companyFromDomain = getCompanyFromDomain(window.location.hostname);
   if (!companyFromDomain) return null;
@@ -237,33 +340,118 @@ function getDomFallbackJob(): JobInfo | null {
 
 // --- Site-specific parsers (higher accuracy when available) ---
 
+function isLinkedInJobSurface(): boolean {
+  const path = window.location.pathname;
+  const q = window.location.search || '';
+  if (/^\/jobs(\/|$)/i.test(path)) return true;
+  if (/currentJobId=/i.test(q)) return true;
+  if (/^\/job\//i.test(path)) return true;
+  return false;
+}
+
 function getLinkedInJobInfo(): JobInfo | null {
   const url = window.location.href;
-  if (!url.includes('linkedin.com/jobs')) return null;
-  const titleEl =
-    document.querySelector('.job-details-jobs-unified-top-card__job-title') ||
-    document.querySelector('h1.t-24') ||
-    document.querySelector('h1[class*="job-title"]') ||
-    document.querySelector('.jobs-unified-top-card__job-title');
-  const companyEl =
-    document.querySelector('.job-details-jobs-unified-top-card__company-name') ||
-    document.querySelector('a[data-tracking-control-name="public_jobs_topcard-org-name"]') ||
-    document.querySelector('.jobs-unified-top-card__company-name') ||
-    document.querySelector('a[href*="/company/"]');
-  const locationEl =
-    document.querySelector('.job-details-jobs-unified-top-card__bullet') ||
-    document.querySelector('.jobs-unified-top-card__bullet') ||
-    document.querySelector('[class*="bullet"]');
+  if (!url.includes('linkedin.com') || !isLinkedInJobSurface()) return null;
+
+  const tryOgMeta = (): JobInfo | null => {
+    const og = document.querySelector('meta[property="og:title"]')?.getAttribute('content')?.trim();
+    if (!og) return null;
+    const parsed = parseTitleAndCompany(og);
+    if (parsed && parsed.role_title.length >= 2 && parsed.company_name.length >= 1) {
+      return {
+        company_name: parsed.company_name,
+        role_title: parsed.role_title,
+        job_url: url,
+        location: undefined,
+      };
+    }
+    return null;
+  };
+
+  const titleSelectors = [
+    '.job-details-jobs-unified-top-card__job-title',
+    '.jobs-details-top-card__job-title',
+    '.jobs-details-top-card__title',
+    '.jobs-unified-top-card__job-title',
+    'h1[class*="job-details-jobs-unified-top-card"]',
+    'h1[class*="jobs-unified-top-card"]',
+    'h1[class*="job-title"]',
+    'div[class*="job-details-jobs-unified-top-card"] h1',
+    'div[class*="jobs-unified-top-card"] h1',
+    '.jobs-search__job-details--container h1',
+    'article[data-job-id] h1',
+    'main h1',
+    'h1.t-24',
+    'h1[class*="t-24"]',
+    'h1',
+  ];
+
+  const companySelectors = [
+    '.job-details-jobs-unified-top-card__company-name a',
+    '.job-details-jobs-unified-top-card__company-name',
+    '.jobs-unified-top-card__company-name a',
+    '.jobs-unified-top-card__company-name',
+    '.jobs-details-top-card__company-name',
+    'a[data-tracking-control-name="public_jobs_topcard-org-name"]',
+    'a[href*="linkedin.com/company/"]',
+    'div[class*="top-card"] a[href*="/company/"]',
+  ];
+
+  const locationSelectors = [
+    '.job-details-jobs-unified-top-card__bullet',
+    '.jobs-unified-top-card__bullet',
+    '.jobs-details-top-card__primary-description-container',
+    'span[class*="bullet"]',
+  ];
+
+  let titleEl: Element | null = null;
+  for (let i = 0; i < titleSelectors.length; i++) {
+    const el = document.querySelector(titleSelectors[i]);
+    const t = el?.textContent?.trim();
+    if (t && t.length > 1 && t.length < 500) {
+      titleEl = el;
+      break;
+    }
+  }
+
+  let companyEl: Element | null = null;
+  for (let i = 0; i < companySelectors.length; i++) {
+    const el = document.querySelector(companySelectors[i]);
+    const t = el?.textContent?.trim();
+    if (t && t.length > 1 && t.length < 200) {
+      companyEl = el;
+      break;
+    }
+  }
+
+  let locationEl: Element | null = null;
+  for (let i = 0; i < locationSelectors.length; i++) {
+    const el = document.querySelector(locationSelectors[i]);
+    if (el?.textContent?.trim()) {
+      locationEl = el;
+      break;
+    }
+  }
+
   const role_title = titleEl?.textContent?.trim();
   const company_name = companyEl?.textContent?.trim();
   const location = locationEl?.textContent?.trim();
-  if (!role_title || !company_name) return null;
-  return { company_name, role_title, job_url: url, location: location || undefined };
+  if (role_title && company_name) {
+    return { company_name, role_title, job_url: url, location: location || undefined };
+  }
+
+  return tryOgMeta() || getJsonLdJobPosting() || null;
 }
 
 function getIndeedJobInfo(): JobInfo | null {
   const url = window.location.href;
-  if (!url.includes('indeed.com') || (!url.includes('viewjob') && !url.includes('jk='))) return null;
+  const looksLikeJob =
+    url.includes('viewjob') ||
+    url.includes('jk=') ||
+    url.includes('vjk=') ||
+    /\/jobs\/view\//i.test(url) ||
+    /\/rc\/clk/i.test(url);
+  if (!url.includes('indeed.com') || !looksLikeJob) return null;
   const titleEl =
     document.querySelector('h1.jobsearch-JobInfoHeader-title') ||
     document.querySelector('[data-testid="jobsearch-JobInfoHeader-title"]') ||
@@ -342,11 +530,30 @@ function showMessage(message: string, isError: boolean) {
   setTimeout(() => el.remove(), 3000);
 }
 
-function injectButton() {
+let lastUrl = location.href;
+let injectDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+const INJECT_DEBOUNCE_MS = 400;
+
+function injectOrRefreshButton() {
+  if (!document.body) return;
+
+  const host = window.location.hostname;
+  if (host.includes('linkedin.com') && !isLinkedInJobSurface()) {
+    const existing = document.getElementById('tmo-add-to-tracker-btn');
+    if (existing) existing.remove();
+    return;
+  }
+
   const job = getJobInfo();
   if (job) saveJobContext(job);
-  if (document.getElementById('tmo-add-to-tracker-btn')) return;
-  if (!job) return;
+
+  const existing = document.getElementById('tmo-add-to-tracker-btn');
+  if (!job) {
+    if (existing) existing.remove();
+    return;
+  }
+  if (existing) return;
+
   const btn = createAddButton();
   btn.id = 'tmo-add-to-tracker-btn';
   btn.addEventListener('click', () => {
@@ -374,21 +581,22 @@ function injectButton() {
   document.body.appendChild(btn);
 }
 
+function scheduleInject() {
+  if (injectDebounceTimer) clearTimeout(injectDebounceTimer);
+  injectDebounceTimer = setTimeout(() => {
+    injectDebounceTimer = null;
+    injectOrRefreshButton();
+  }, INJECT_DEBOUNCE_MS);
+}
+
 function tryInject() {
   if (document.body) {
-    injectButton();
+    injectOrRefreshButton();
   } else {
     setTimeout(tryInject, 500);
   }
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', tryInject);
-} else {
-  tryInject();
-}
-
-let lastUrl = location.href;
 let successCheckTimeout: ReturnType<typeof setTimeout> | null = null;
 const SUCCESS_CHECK_DEBOUNCE_MS = 800;
 
@@ -400,20 +608,38 @@ function runSuccessCheckDebounced() {
   }, SUCCESS_CHECK_DEBOUNCE_MS);
 }
 
-function setupUrlObserver() {
+function setupSpaObservers() {
   if (!document.body) return;
   const observer = new MutationObserver(() => {
     if (location.href !== lastUrl) {
       lastUrl = location.href;
       const existing = document.getElementById('tmo-add-to-tracker-btn');
       if (existing) existing.remove();
-      setTimeout(tryInject, 1000);
+      scheduleInject();
       runSuccessCheckDebounced();
     } else {
+      scheduleInject();
       runSuccessCheckDebounced();
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
+}
+
+function startEarlyRetryLoop() {
+  let n = 0;
+  const max = 45;
+  const id = window.setInterval(() => {
+    n += 1;
+    if (n > max) {
+      window.clearInterval(id);
+      return;
+    }
+    if (document.getElementById('tmo-add-to-tracker-btn')) {
+      window.clearInterval(id);
+      return;
+    }
+    injectOrRefreshButton();
+  }, 600);
 }
 
 function startSuccessDetection() {
@@ -423,12 +649,33 @@ function startSuccessDetection() {
   setTimeout(tryAutoAddOnSuccess, 8000);
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    setupUrlObserver();
-    startSuccessDetection();
-  });
-} else {
-  setupUrlObserver();
+/** Sparse retries on unknown sites (JSON-LD / title-only) without a full DOM observer. */
+function initLightScanMode() {
+  const delays = [0, 900, 2200, 4500, 8000, 14000];
+  for (let i = 0; i < delays.length; i++) {
+    window.setTimeout(() => tryInject(), delays[i]);
+  }
   startSuccessDetection();
+}
+
+function initFullJobAssistMode() {
+  const boot = () => {
+    tryInject();
+    setupSpaObservers();
+    startEarlyRetryLoop();
+    startSuccessDetection();
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+}
+
+if (!isHttpDocument() || isDefinitelyNotJobSite()) {
+  // Skip video, mail, maps search, etc.
+} else if (shouldUseFullJobAssistMode()) {
+  initFullJobAssistMode();
+} else {
+  initLightScanMode();
 }

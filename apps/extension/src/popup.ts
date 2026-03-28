@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from './config.js';
 import { renderHome } from './home.js';
 import { renderLocked } from './locked.js';
 import { renderOptApply } from './pages/opt-apply.js';
@@ -11,14 +12,27 @@ import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navi
  */
 async function isSignedIn(): Promise<boolean> {
   try {
-    const response = await fetch('https://www.trackmyopt.com/api/me', {
+    const response = await fetch(API_ENDPOINTS.ME, {
       method: 'GET',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
     });
-    
+
     if (response.ok) {
       await chrome.storage.sync.set({ signedIn: true });
+      try {
+        const tokenRes = await fetch(API_ENDPOINTS.EXTENSION_TOKEN, {
+          credentials: 'include',
+        });
+        if (tokenRes.ok) {
+          const body = (await tokenRes.json()) as { token?: string };
+          if (typeof body.token === 'string' && body.token.length > 0) {
+            await chrome.storage.sync.set({ idToken: body.token });
+          }
+        }
+      } catch {
+        // Background will mint on demand for job save
+      }
       return true;
     } else {
       await chrome.storage.sync.set({ signedIn: false });

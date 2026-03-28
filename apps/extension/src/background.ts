@@ -1,5 +1,30 @@
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
 
+async function getExtensionBearerToken(forceRefresh = false): Promise<string | null> {
+  if (!forceRefresh) {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    if (typeof idToken === 'string' && idToken.length > 0) {
+      return idToken;
+    }
+  } else {
+    await chrome.storage.sync.remove('idToken');
+  }
+  try {
+    const res = await fetch(API_ENDPOINTS.EXTENSION_TOKEN, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { token?: string };
+    if (!data.token) return null;
+    await chrome.storage.sync.set({ idToken: data.token });
+    return data.token;
+  } catch {
+    return null;
+  }
+}
+
 chrome.runtime.setUninstallURL(`${WEBSITE_URL}/extension/uninstall`);
 
 // Internal message listener (from popup and content scripts)
@@ -78,8 +103,8 @@ async function handleAddJobToTracker(
   job: { company_name: string; role_title: string; job_url?: string; location?: string },
   autoAdd: boolean = false
 ) {
-  const { idToken } = await chrome.storage.sync.get('idToken');
-  if (!idToken) {
+  let token = await getExtensionBearerToken();
+  if (!token) {
     const err = new Error('Sign in to TrackMyOPT in the extension to add jobs.');
     if (chrome.notifications) {
       chrome.notifications.create({
@@ -91,20 +116,31 @@ async function handleAddJobToTracker(
     }
     throw err;
   }
-  const res = await fetch(`${WEBSITE_URL}/api/extension/job-application`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${idToken}`,
-    },
-    body: JSON.stringify({
-      company_name: job.company_name,
-      role_title: job.role_title,
-      job_url: job.job_url || null,
-      location: job.location || null,
-      status: 'Applied',
-    }),
-  });
+
+  const postJob = (bearer: string) =>
+    fetch(`${WEBSITE_URL}/api/extension/job-application`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${bearer}`,
+      },
+      body: JSON.stringify({
+        company_name: job.company_name,
+        role_title: job.role_title,
+        job_url: job.job_url || null,
+        location: job.location || null,
+        status: 'Applied',
+      }),
+    });
+
+  let res = await postJob(token);
+  if (res.status === 401) {
+    const refreshed = await getExtensionBearerToken(true);
+    if (refreshed) {
+      res = await postJob(refreshed);
+    }
+  }
+
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const msg = (data as { error?: string }).error || 'Failed to add job to tracker';

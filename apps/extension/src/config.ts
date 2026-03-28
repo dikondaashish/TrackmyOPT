@@ -13,6 +13,7 @@ export const WEBSITE_URL = process.env.NODE_ENV === 'production'
 export const API_ENDPOINTS = {
   ME: `${WEBSITE_URL}/api/me`,
   STATUS: `${WEBSITE_URL}/api/premium/status`,
+  EXTENSION_TOKEN: `${WEBSITE_URL}/api/extension/token`,
   AUTH: process.env.NODE_ENV === 'production'
     ? 'https://www.trackmyopt.com/login'
     : 'https://www.trackmyopt.com/login',

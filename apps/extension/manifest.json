@@ -1,19 +1,13 @@
 {
   "manifest_version": 3,
   "name": "TrackMyOPT",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Track your OPT timeline with precision",
   "permissions": ["storage", "tabs", "notifications", "scripting"],
   "host_permissions": [
     "https://www.trackmyopt.com/*",
     "https://trackmyopt.com/*",
-    "https://www.linkedin.com/jobs/*",
-    "https://www.indeed.com/*",
-    "https://*.greenhouse.io/*",
-    "https://*.lever.co/*",
-    "https://*.ashbyhq.com/*",
-    "https://*.myworkdayjobs.com/*",
-    "https://jobs.smartrecruiters.com/*"
+    "<all_urls>"
   ],
   "externally_connectable": {
     "matches": ["https://www.trackmyopt.com/*", "https://trackmyopt.com/*"]
@@ -41,14 +35,13 @@
       "run_at": "document_idle"
     },
     {
-      "matches": [
-        "https://www.linkedin.com/jobs/*",
-        "https://www.indeed.com/*",
-        "https://*.greenhouse.io/*",
-        "https://*.lever.co/*",
-        "https://*.ashbyhq.com/*",
-        "https://*.myworkdayjobs.com/*",
-        "https://jobs.smartrecruiters.com/*"
+      "matches": ["<all_urls>"],
+      "exclude_matches": [
+        "chrome://*/*",
+        "chrome-extension://*/*",
+        "devtools://*/*",
+        "https://chrome.google.com/*",
+        "https://chromewebstore.google.com/*"
       ],
       "js": ["content-job-portal.js"],
       "run_at": "document_idle"
