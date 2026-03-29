@@ -279,6 +279,15 @@ const blogPosts = [
         date: "March 29, 2026",
         tags: ["Resume", "ATS", "Job Search"],
     },
+    {
+        slug: "f1-opt-stem-opt-tax-filing-mistakes",
+        title: "Tax Filing Mistakes to Avoid on F-1 OPT/STEM OPT (2026)",
+        description: "Avoid common F-1 OPT/STEM OPT tax filing mistakes including wrong forms, FICA errors, and treaty claim pitfalls.",
+        category: "Tax & Finance",
+        readTime: "10 min read",
+        date: "March 29, 2026",
+        tags: ["Taxes", "OPT", "STEM OPT"],
+    },
 ];
 
 function CategoryBadge({ category }: { category: string }) {

@@ -94,6 +94,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog/can-you-travel-on-opt-complete-guide',
         '/blog/how-to-track-uscis-case-status-guide',
         '/blog/leverage-job-search-trackmyopt-resume-generator',
+        '/blog/f1-opt-stem-opt-tax-filing-mistakes',
     ];
 
     return [
