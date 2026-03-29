@@ -93,6 +93,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog/ats-resume-international-students-2026',
         '/blog/can-you-travel-on-opt-complete-guide',
         '/blog/how-to-track-uscis-case-status-guide',
+        '/blog/leverage-job-search-trackmyopt-resume-generator',
     ];
 
     return [

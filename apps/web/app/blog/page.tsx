@@ -270,6 +270,15 @@ const blogPosts = [
         date: "February 19, 2026",
         tags: ["OPT", "STEM OPT", "Compliance"],
     },
+    {
+        slug: "leverage-job-search-trackmyopt-resume-generator",
+        title: "Leverage Your Job Search with TrackMyOPT Resume Generator (2026)",
+        description: "A practical guide for F-1 students to use TrackMyOPT Resume Generator for ATS-ready resumes, faster role tailoring, and better interview conversion.",
+        category: "Careers",
+        readTime: "9 min read",
+        date: "March 29, 2026",
+        tags: ["Resume", "ATS", "Job Search"],
+    },
 ];
 
 function CategoryBadge({ category }: { category: string }) {
