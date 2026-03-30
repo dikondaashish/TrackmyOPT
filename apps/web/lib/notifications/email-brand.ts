@@ -47,9 +47,42 @@ export const EMAIL = {
 export function emailOuterOpen(): string {
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;font-family:${EMAIL.fontStack};background-color:${EMAIL.bgPage};color:${EMAIL.textSecondary};">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">`;
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <style>
+    :root { color-scheme: light; supported-color-schemes: light; }
+    body { margin:0; padding:0; background:${EMAIL.bgPage}; color:${EMAIL.textSecondary}; }
+    /* Prevent iOS Mail auto-link recoloring in dark mode */
+    a[x-apple-data-detectors] {
+      color: inherit !important;
+      text-decoration: inherit !important;
+      font-size: inherit !important;
+      font-family: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+    }
+    @media (prefers-color-scheme: dark) {
+      .tmo-force-page { background:${EMAIL.bgPage} !important; color:${EMAIL.textSecondary} !important; }
+      .tmo-force-card { background:${EMAIL.bgCard} !important; border-color:${EMAIL.border} !important; }
+      .tmo-force-dark { background:#111827 !important; }
+      .tmo-force-dark-text { color:#FFFFFF !important; }
+      .tmo-force-light-text { color:${EMAIL.textSecondary} !important; }
+      .tmo-force-link { color:${EMAIL.link} !important; }
+    }
+    [data-ogsc] .tmo-force-page { background:${EMAIL.bgPage} !important; color:${EMAIL.textSecondary} !important; }
+    [data-ogsc] .tmo-force-card { background:${EMAIL.bgCard} !important; border-color:${EMAIL.border} !important; }
+    [data-ogsc] .tmo-force-dark { background:#111827 !important; }
+    [data-ogsc] .tmo-force-dark-text { color:#FFFFFF !important; }
+    [data-ogsc] .tmo-force-light-text { color:${EMAIL.textSecondary} !important; }
+    [data-ogsc] .tmo-force-link { color:${EMAIL.link} !important; }
+  </style>
+</head>
+<body class="tmo-force-page" style="margin:0;padding:0;font-family:${EMAIL.fontStack};background-color:${EMAIL.bgPage};color:${EMAIL.textSecondary};">
+  <div class="tmo-force-page" style="max-width:600px;margin:0 auto;padding:24px 16px;">`;
 }
 
 export function emailOuterClose(): string {
