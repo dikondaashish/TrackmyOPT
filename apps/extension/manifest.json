@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TrackMyOPT",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Track your OPT timeline with precision",
   "permissions": ["storage", "tabs", "notifications", "scripting"],
   "host_permissions": [
@@ -37,9 +37,6 @@
     {
       "matches": ["<all_urls>"],
       "exclude_matches": [
-        "chrome://*/*",
-        "chrome-extension://*/*",
-        "devtools://*/*",
         "https://chrome.google.com/*",
         "https://chromewebstore.google.com/*"
       ],
