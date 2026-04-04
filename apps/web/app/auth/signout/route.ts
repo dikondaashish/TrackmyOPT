@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { getPostHogClient } from '@/lib/posthog-server';
 
 async function signOut(request: Request) {
   const cookieStore = await cookies();
@@ -31,6 +32,14 @@ async function signOut(request: Request) {
       },
     }
   );
+
+  // Capture sign-out event before ending the session
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const posthog = getPostHogClient();
+    posthog.capture({ distinctId: user.id, event: 'user_signed_out' });
+    await posthog.shutdown();
+  }
 
   // Sign out from Supabase
   await supabase.auth.signOut();

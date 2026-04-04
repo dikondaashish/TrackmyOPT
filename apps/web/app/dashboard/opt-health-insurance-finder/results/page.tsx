@@ -5,6 +5,7 @@ import { Suspense, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, Baby, AlertTriangle, Lightbulb, CheckCircle2, CirclePause } from "lucide-react";
 import { calculateEligibility, type EligibilityStatus } from "@/lib/immigration/state-eligibility";
+import posthog from "posthog-js";
 
 // Age-based pricing for insurance partners
 function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {
@@ -66,7 +67,13 @@ function ResultsContent() {
   const isNYEssentialPlan = state === "NY" && showEligibleCard;
   const kimberPriceForNY = isNYEssentialPlan ? 0 : pricing.kimberPrice;
 
-  const handleApply = (url: string) => {
+  const handleApply = (url: string, partnerName: string) => {
+    posthog.capture('insurance_plan_clicked', {
+      partner: partnerName,
+      state,
+      visa_type: visa,
+      destination_url: url,
+    });
     setExitUrl(url);
     setShowExitModal(true);
   };
@@ -145,7 +152,7 @@ function ResultsContent() {
                 </div>
 
                 <button
-                  onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : eligibility.stateConfig.programLink)}
+                  onClick={() => handleApply(isNYEssentialPlan ? "https://www.kimberhealth.com/" : eligibility.stateConfig.programLink, eligibility.stateConfig.programName)}
                   className="w-full mt-5 h-11 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
                 >
                   Apply Now
@@ -186,7 +193,7 @@ function ResultsContent() {
                 </div>
 
                 <button
-                  onClick={() => handleApply(eligibility.stateConfig.programLink)}
+                  onClick={() => handleApply(eligibility.stateConfig.programLink, eligibility.stateConfig.programName)}
                   className="w-full mt-5 h-11 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30"
                 >
                   Try Applying
@@ -223,7 +230,7 @@ function ResultsContent() {
               </div>
 
               <button
-                onClick={() => handleApply(eligibility.stateConfig.programLink)}
+                onClick={() => handleApply(eligibility.stateConfig.programLink, eligibility.stateConfig.programName)}
                 className="w-full mt-4 h-11 border-2 border-amber-400 text-amber-700 dark:text-amber-400 font-semibold text-sm rounded-xl transition-all hover:bg-amber-50 dark:hover:bg-amber-900/30 flex items-center justify-center gap-2"
               >
                 Join Waitlist
@@ -340,7 +347,7 @@ function ResultsContent() {
               </div>
 
               <button
-                onClick={() => handleApply("https://www.isoa.org/?ref=trackmyopt")}
+                onClick={() => handleApply("https://www.isoa.org/?ref=trackmyopt", "ISO")}
                 className="w-full mt-5 h-11 bg-gradient-to-r from-[#8B1538] to-[#a91d45] hover:from-[#6d1029] hover:to-[#8B1538] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 hover:shadow-rose-500/30 hover:-translate-y-0.5"
               >
                 View Plans
@@ -401,7 +408,7 @@ function ResultsContent() {
               </div>
 
               <button
-                onClick={() => handleApply("https://www.internationalstudentinsurance.com/?Trackmyopt")}
+                onClick={() => handleApply("https://www.internationalstudentinsurance.com/?Trackmyopt", "ISI")}
                 className="w-full mt-5 h-11 bg-gradient-to-r from-[#3D4F8F] to-[#5563a8] hover:from-[#2d3a6b] hover:to-[#3D4F8F] text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:-translate-y-0.5"
               >
                 View Plans
@@ -462,7 +469,7 @@ function ResultsContent() {
               </div>
 
               <button
-                onClick={() => handleApply("https://www.kimberhealth.com/")}
+                onClick={() => handleApply("https://www.kimberhealth.com/", "Kimber Health")}
                 className="w-full mt-5 h-11 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/40 hover:-translate-y-0.5"
               >
                 View Plans

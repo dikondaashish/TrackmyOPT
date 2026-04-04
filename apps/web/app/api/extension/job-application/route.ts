@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/auth/jwt';
+import { getPostHogClient } from '@/lib/posthog-server';
 
 export const dynamic = 'force-dynamic';
 
@@ -86,6 +87,20 @@ export async function POST(req: NextRequest) {
         { status: 500, headers: corsHeaders }
       );
     }
+
+    const posthog = getPostHogClient();
+    posthog.capture({
+      distinctId: userId as string,
+      event: 'extension_job_added',
+      properties: {
+        company_name: String(company_name).trim(),
+        role_title: String(role_title).trim(),
+        status: status === 'Applied' ? 'Applied' : 'Wishlist',
+        source: 'chrome_extension',
+        has_job_url: !!job_url,
+      },
+    });
+    await posthog.shutdown();
 
     return NextResponse.json(
       { ok: true, id: data.id, message: 'Job added to tracker' },

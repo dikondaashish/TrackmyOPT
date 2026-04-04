@@ -10,6 +10,7 @@ import {
   addRateLimitHeaders
 } from '@/lib/auth/api-rate-limit';
 import { caseStatusRequestSchema, validateRequest } from '@/lib/validation';
+import { getPostHogClient } from '@/lib/posthog-server';
 
 export const dynamic = 'force-dynamic';
 
@@ -148,6 +149,18 @@ export async function POST(req: NextRequest) {
     // Check if this is a new case enrollment (first time saving)
     // If caseStatus was just created (no previous current_status), send enrollment email
     const isNewEnrollment = notifications_enabled && !caseStatus?.current_status;
+
+    const posthog = getPostHogClient();
+    posthog.capture({
+      distinctId: userId,
+      event: 'case_status_enrolled',
+      properties: {
+        receipt_prefix: receipt_number.substring(0, 3),
+        notifications_enabled,
+        is_new_enrollment: isNewEnrollment,
+      },
+    });
+    await posthog.shutdown();
 
     if (isNewEnrollment) {
       console.log(`[case-status] New enrollment: ${receipt_number}`);

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Shield, ChevronDown, ChevronRight, Sparkles, CreditCard, Clock, CheckCircle2 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
+import posthog from "posthog-js";
 
 // US States
 const US_STATES = [
@@ -115,6 +116,13 @@ export default function HealthInsuranceFinderPage() {
     } catch (error) {
       console.error("Error saving:", error);
     }
+
+    posthog.capture('insurance_eligibility_checked', {
+      state,
+      visa_type: visaType,
+      monthly_income: monthlyIncome ? parseFloat(monthlyIncome) : 0,
+      is_pregnant: isPregnant,
+    });
 
     // Navigate to results page with query params
     const params = new URLSearchParams({
