@@ -10,7 +10,8 @@ import { DeleteStageModal } from "./DeleteStageModal";
 import {
     DndContext,
     DragOverlay,
-    closestCorners,
+    pointerWithin,
+    rectIntersection,
     KeyboardSensor,
     PointerSensor,
     useSensor,
@@ -20,6 +21,8 @@ import {
     DragEndEvent,
     defaultDropAnimationSideEffects,
     DropAnimation,
+    CollisionDetection,
+    UniqueIdentifier,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { CustomStage, JobApplication, JobStage } from "@/lib/career/job-tracker/types";
@@ -270,44 +273,93 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
 
     // Drag Handlers
     const handleDragStart = (event: DragStartEvent) => {
-        setActiveId(event.active.id as string);
+        const id = event.active.id as string;
+        setActiveId(id);
+        // Save original status for revert on failed drop
+        const app = applications.find(a => a.id === id);
+        if (app) {
+            setPreDragStatus(prev => ({ ...prev, [id]: app.status }));
+        }
     };
 
     const handleDragOver = (event: DragOverEvent) => {
-        // Visual feedback handled by DndContext
-    };
-
-    const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
-        setActiveId(null);
-
         if (!over) return;
 
         const activeAppId = active.id as string;
         const activeApp = applications.find(a => a.id === activeAppId);
-
         if (!activeApp) return;
 
-        let newStatus: string | null = null; // Changed from JobStage to string
-
-        // Check if over.id matches any of our columns (default or custom)
+        // Determine the target column
+        let targetColumn: string | null = null;
         const isColumn = allColumns.some(col => col.id === over.id);
 
-        // Case 1: Dropped on a Column
         if (isColumn) {
-            newStatus = over.id as string;
-        }
-        // Case 2: Dropped on another Card
-        else {
+            targetColumn = over.id as string;
+        } else {
             const overApp = applications.find(a => a.id === over.id);
             if (overApp) {
-                newStatus = overApp.status;
+                targetColumn = overApp.status;
             }
         }
 
-        if (newStatus && newStatus !== activeApp.status) {
-            await handleStageChange(activeAppId, newStatus);
+        // Optimistically move card to new column during drag for visual feedback
+        if (targetColumn && targetColumn !== activeApp.status) {
+            setApplications(prev => prev.map(a =>
+                a.id === activeAppId ? { ...a, status: targetColumn! } : a
+            ));
         }
+    };
+
+    // Track the original status before drag started for revert on failure
+    const [preDragStatus, setPreDragStatus] = useState<Record<string, string>>({});
+
+    // Custom collision detection: prioritize droppable columns over sortable cards
+    const customCollisionDetection: CollisionDetection = useCallback((args) => {
+        // First try pointerWithin (most precise)
+        const pointerCollisions = pointerWithin(args);
+
+        if (pointerCollisions.length > 0) {
+            // Prioritize column droppables over card sortables
+            const columnCollision = pointerCollisions.find(c =>
+                allColumns.some(col => col.id === c.id)
+            );
+            if (columnCollision) return [columnCollision];
+            return pointerCollisions;
+        }
+
+        // Fallback to rect intersection
+        return rectIntersection(args);
+    }, [allColumns]);
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active } = event;
+        setActiveId(null);
+
+        const activeAppId = active.id as string;
+        const activeApp = applications.find(a => a.id === activeAppId);
+        if (!activeApp) return;
+
+        const originalStatus = preDragStatus[activeAppId];
+
+        // If status changed during drag (via handleDragOver), persist to DB
+        if (originalStatus && activeApp.status !== originalStatus) {
+            try {
+                await updateApplicationStatus(activeAppId, activeApp.status as JobStage);
+            } catch (err) {
+                // Revert on failure
+                setApplications(prev => prev.map(a =>
+                    a.id === activeAppId ? { ...a, status: originalStatus } : a
+                ));
+            }
+        }
+
+        // Clean up
+        setPreDragStatus(prev => {
+            const next = { ...prev };
+            delete next[activeAppId];
+            return next;
+        });
     };
 
     // ... rest of component
@@ -400,7 +452,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
             {currentView === "board" && (
                 <DndContext
                     sensors={sensors}
-                    collisionDetection={closestCorners}
+                    collisionDetection={customCollisionDetection}
                     onDragStart={handleDragStart}
                     onDragOver={handleDragOver}
                     onDragEnd={handleDragEnd}
