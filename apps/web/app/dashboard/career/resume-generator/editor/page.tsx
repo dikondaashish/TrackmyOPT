@@ -694,11 +694,18 @@ export default function ResumeEditorPage() {
 
                         <TabsContent value="preview" className="flex-1 overflow-hidden flex justify-center bg-gray-200/50 dark:bg-gray-900/50 p-4 m-0 data-[state=inactive]:hidden">
                             {compiledPdfUrl ? (
-                                <iframe
-                                    src={`${compiledPdfUrl}#toolbar=0&view=FitH`}
+                                <object
+                                    data={`${compiledPdfUrl}#toolbar=0&view=FitH`}
+                                    type="application/pdf"
                                     className="w-full h-full max-w-[8.5in] bg-white shadow-2xl rounded-lg"
-                                    title="Resume Preview"
-                                />
+                                >
+                                    {/* Fallback: iframe for browsers that don't support object */}
+                                    <iframe
+                                        src={`${compiledPdfUrl}#toolbar=0&view=FitH`}
+                                        className="w-full h-full max-w-[8.5in] bg-white shadow-2xl rounded-lg"
+                                        title="Resume Preview"
+                                    />
+                                </object>
                             ) : (
                                 <div className="flex flex-col items-center justify-center p-8 text-gray-500 w-full h-full">
                                     {isGenerating ? (

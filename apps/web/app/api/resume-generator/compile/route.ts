@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
             headers: {
                 ...corsHeaders,
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': 'attachment; filename="resume.pdf"',
+                'Content-Disposition': 'inline; filename="resume.pdf"',
             },
         });
 
