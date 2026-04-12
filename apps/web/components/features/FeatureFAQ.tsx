@@ -136,7 +136,7 @@ export function FeatureFAQ({
                 >
                     <p className="text-gray-600 dark:text-gray-400">
                         Still have questions?{" "}
-                        <a href="/help" className={`font-semibold ${colors.icon} hover:underline`}>
+                        <a href="mailto:support@trackmyopt.com" className={`font-semibold ${colors.icon} hover:underline`}>
                             Contact our support team
                         </a>
                     </p>
