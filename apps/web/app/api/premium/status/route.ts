@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/auth/jwt';
+import Stripe from 'stripe';
 
 export const dynamic = 'force-dynamic';
 
@@ -113,8 +114,57 @@ export async function GET(req: NextRequest) {
     const now = new Date();
     const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
 
-    // Expired: persist revocation so DB does not stay stale if webhooks fail
+    // subscription_expires_at is in the past — check Stripe before revoking.
+    // This self-heals cases where the renewal webhook fired but didn't update
+    // subscription_expires_at (e.g. missing customer.subscription.updated listener).
     if (expiresAt && expiresAt < now) {
+      let stripeConfirmsActive = false;
+      let newExpiresAt: string | null = null;
+
+      if (data.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
+        try {
+          const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+            apiVersion: '2025-03-31.basil',
+          });
+          const subs = await stripe.subscriptions.list({
+            customer: data.stripe_customer_id,
+            status: 'active',
+            limit: 1,
+          });
+          if (subs.data.length > 0) {
+            stripeConfirmsActive = true;
+            const periodEnd = subs.data[0].current_period_end;
+            newExpiresAt = new Date(periodEnd * 1000).toISOString();
+          }
+        } catch (stripeErr) {
+          console.error('GET /api/premium/status: Stripe check failed, trusting DB expiry:', stripeErr);
+        }
+      }
+
+      if (stripeConfirmsActive && newExpiresAt) {
+        // Subscription is still active in Stripe — heal the stale expiry date in DB
+        await supabase
+          .from('profiles')
+          .update({
+            premium_status: true,
+            subscription_expires_at: newExpiresAt,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', userId);
+
+        return NextResponse.json(
+          {
+            isPremium: true,
+            planName: data.plan_tier || 'pro',
+            expiresAt: newExpiresAt,
+            purchasedAt: data.premium_purchased_at,
+            customerId: data.stripe_customer_id,
+          },
+          { status: 200, headers: corsHeaders }
+        );
+      }
+
+      // Stripe confirms subscription is not active — safely revoke
       const { error: revokeError } = await supabase
         .from('profiles')
         .update({
@@ -135,10 +185,7 @@ export async function GET(req: NextRequest) {
           expiresAt: data.subscription_expires_at,
           customerId: data.stripe_customer_id,
         },
-        {
-          status: 200,
-          headers: corsHeaders,
-        }
+        { status: 200, headers: corsHeaders }
       );
     }
 

@@ -35,6 +35,7 @@ interface Document {
 export function DocumentVaultClient() {
   // State
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [premiumCheckError, setPremiumCheckError] = useState(false);
   const [hasPasscode, setHasPasscode] = useState<boolean | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
 
@@ -168,10 +169,17 @@ export function DocumentVaultClient() {
   async function checkPremiumStatus() {
     try {
       const res = await fetch('/api/premium/status');
+      if (!res.ok) {
+        // Server-side error — don't falsely show the upsell; show retry instead
+        setPremiumCheckError(true);
+        return;
+      }
       const data = await res.json();
-      setIsPremium(data.isPremium || false);
-    } catch (error) {
-      setIsPremium(false);
+      setPremiumCheckError(false);
+      setIsPremium(data.isPremium === true);
+    } catch {
+      // Network error — keep isPremium as null and show a retry state
+      setPremiumCheckError(true);
     }
   }
 
@@ -238,6 +246,28 @@ export function DocumentVaultClient() {
 
   function handleDocumentDelete(documentId: string) {
     setDocuments(docs => docs.filter(d => d.id !== documentId));
+  }
+
+  // Network / server error while checking premium — show retry, not upsell
+  if (premiumCheckError) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center space-y-4">
+          <p className="text-gray-600 dark:text-muted-foreground text-sm">
+            Unable to verify your account. Please try again.
+          </p>
+          <button
+            onClick={() => {
+              setPremiumCheckError(false);
+              checkPremiumStatus();
+            }}
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // Show an upsell / preview for non-premium users instead of hard redirect
