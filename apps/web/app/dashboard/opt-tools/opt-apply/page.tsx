@@ -30,6 +30,8 @@ export const metadata: Metadata = {
     "F-1 work authorization application",
     "OPT I-20 requirements",
   ],
+  // Public tool page — override the dashboard layout's noindex
+  robots: { index: true, follow: true },
   openGraph: {
     title: "How to Apply for OPT | Complete I-765 Application Guide",
     description:

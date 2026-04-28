@@ -44,6 +44,8 @@ export const metadata: Metadata = {
     "OPT employer requirements",
     "OPT reporting requirements",
   ],
+  // Public help page — override the dashboard layout's noindex
+  robots: { index: true, follow: true },
   openGraph: {
     title: "OPT Help Center | F-1 Visa FAQ",
     description:

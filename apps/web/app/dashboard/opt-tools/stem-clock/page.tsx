@@ -29,6 +29,8 @@ export const metadata: Metadata = {
     "STEM OPT 90 plus 60 days",
     "STEM OPT work authorization gap",
   ],
+  // Public tool page — override the dashboard layout's noindex
+  robots: { index: true, follow: true },
   openGraph: {
     title: "STEM OPT Unemployment Calculator | 90 + 60 Day Unlimited Tracker",
     description:

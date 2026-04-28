@@ -45,10 +45,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/features/health-insurance',
     ];
 
-    // Dashboard tool pages intentionally removed from sitemap.
-    // They are auth-gated, redirect to /login (which has noindex), causing
-    // "Excluded by noindex" and "Crawled - currently not indexed" in Search Console.
-    const toolPages: string[] = [];
+    // Public dashboard tool pages — accessible without login (middleware.ts publicRoutes).
+    // Each page exports robots:{index:true} to override the dashboard layout's noindex.
+    const toolPages = [
+        '/dashboard/help',
+        '/dashboard/opt-tools/opt-apply',
+        '/dashboard/opt-tools/opt-clock',
+        '/dashboard/opt-tools/stem-apply',
+        '/dashboard/opt-tools/stem-clock',
+    ];
 
     // Legal pages — low priority, rarely change
     const legalPages = [

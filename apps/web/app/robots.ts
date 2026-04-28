@@ -104,12 +104,20 @@ export default function robots(): MetadataRoute.Robots {
             // ============================================
             {
                 userAgent: "*",
-                allow: ["/"],
+                allow: [
+                    "/",
+                    // Public dashboard tool pages (no login required per middleware.ts)
+                    "/dashboard/help",
+                    "/dashboard/opt-tools/opt-apply",
+                    "/dashboard/opt-tools/opt-clock",
+                    "/dashboard/opt-tools/stem-apply",
+                    "/dashboard/opt-tools/stem-clock",
+                ],
                 disallow: [
-                    "/dashboard/",  // Auth-gated; always redirects to /login (noindex)
+                    "/dashboard/",  // All other dashboard routes are auth-gated
                     "/api/",        // Block API routes
                     "/auth/",       // Block auth routes
-                    "/login",       // Login page has noindex — no need to crawl
+                    "/login",       // Has noindex, no value in crawling
                 ],
             },
         ],

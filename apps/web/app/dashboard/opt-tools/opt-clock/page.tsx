@@ -30,6 +30,8 @@ export const metadata: Metadata = {
     "how to calculate OPT unemployment days",
     "OPT grace period calculator",
   ],
+  // Public tool page — override the dashboard layout's noindex
+  robots: { index: true, follow: true },
   openGraph: {
     title: "OPT Unemployment Days Calculator | 90-Day Rule Tracker",
     description:

@@ -31,6 +31,8 @@ export const metadata: Metadata = {
     "STEM OPT self-evaluation",
     "STEM OPT work hours requirement",
   ],
+  // Public tool page — override the dashboard layout's noindex
+  robots: { index: true, follow: true },
   openGraph: {
     title: "How to Apply for STEM OPT Extension | 24-Month Guide",
     description:
