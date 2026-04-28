@@ -37,6 +37,19 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // ── Canonical: non-www → www ────────────────────────────────────────────
+      // Fixes "Redirect error" in Search Console for trackmyopt.com (no www).
+      // Note: HTTP → HTTPS is handled by Vercel at the edge; this covers HTTPS
+      // non-www only (Vercel routes this through the Next.js app).
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'trackmyopt.com' }],
+        destination: 'https://www.trackmyopt.com/:path*',
+        permanent: true,
+      },
+
+      // ── Stale indexed URLs (404 / old slugs) ────────────────────────────────
+      // These were indexed by Google before pages were renamed; 301 to correct slug.
       {
         source: '/blog/opt-processing-time',
         destination: '/blog/opt-processing-time-2026',
@@ -66,7 +79,16 @@ const nextConfig = {
         source: '/blog/top-h1b-sponsor-companies',
         destination: '/blog/top-h1b-sponsor-companies-2026',
         permanent: true,
-      }
+      },
+
+      // ── Old search URL → answers ─────────────────────────────────────────────
+      // /search was indexed by Google from an old schema.org SearchAction.
+      // The site uses /answers, so redirect the 404 /search path.
+      {
+        source: '/search',
+        destination: '/answers',
+        permanent: true,
+      },
     ];
   },
   env: {

@@ -45,14 +45,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/features/health-insurance',
     ];
 
-    // Public tools — valuable for SEO, updated with features
-    const toolPages = [
-        '/dashboard/help',
-        '/dashboard/opt-tools/opt-apply',
-        '/dashboard/opt-tools/opt-clock',
-        '/dashboard/opt-tools/stem-apply',
-        '/dashboard/opt-tools/stem-clock',
-    ];
+    // Dashboard tool pages intentionally removed from sitemap.
+    // They are auth-gated, redirect to /login (which has noindex), causing
+    // "Excluded by noindex" and "Crawled - currently not indexed" in Search Console.
+    const toolPages: string[] = [];
 
     // Legal pages — low priority, rarely change
     const legalPages = [
@@ -95,11 +91,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog/how-to-track-uscis-case-status-guide',
         '/blog/leverage-job-search-trackmyopt-resume-generator',
         '/blog/f1-opt-stem-opt-tax-filing-mistakes',
-        // Original (non-2026) versions — also valid indexed pages
-        '/blog/f1-student-tax-filing-guide',
-        '/blog/opt-health-insurance-guide',
+        // /blog/can-you-travel-on-opt is a real page (no redirect), safe to include
         '/blog/can-you-travel-on-opt',
-        '/blog/ats-resume-international-students',
+        // NOTE: f1-student-tax-filing-guide, opt-health-insurance-guide,
+        // ats-resume-international-students are permanent 301 redirects in
+        // next.config.js → their 2026 versions are already in the sitemap above.
+        // Including redirect sources causes "Page with redirect" in Search Console.
     ];
 
     return [
