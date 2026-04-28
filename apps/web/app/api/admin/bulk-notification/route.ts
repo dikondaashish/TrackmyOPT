@@ -79,6 +79,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'No users to notify', sent: 0 });
     }
 
+    // Fetch opted-out user IDs from email_preferences.
+    // policy_change, ownership_transfer, data_breach are mandatory (legal/safety), so
+    // opt-out is only respected for service_announcement type.
+    let optedOutUserIds = new Set<string>();
+    if (type === 'service_announcement') {
+      const { data: optOuts } = await supabaseAdmin
+        .from('email_preferences')
+        .select('user_id')
+        .eq('marketing_emails', false);
+      optedOutUserIds = new Set((optOuts || []).map((r: { user_id: string }) => r.user_id));
+    }
+
+    const eligibleUsers = type === 'service_announcement'
+      ? users.filter(u => !optedOutUserIds.has(u.user_id))
+      : users;
+
     // Send emails in batches
     const transporter = createTransporter();
     const batchSize = 50;
@@ -86,8 +102,8 @@ export async function POST(request: NextRequest) {
     let failed = 0;
     const errors: string[] = [];
 
-    for (let i = 0; i < users.length; i += batchSize) {
-      const batch = users.slice(i, i + batchSize);
+    for (let i = 0; i < eligibleUsers.length; i += batchSize) {
+      const batch = eligibleUsers.slice(i, i + batchSize);
 
       // Simple HTML escape function to prevent XSS
       const escapeHtml = (unsafe: string) => {
@@ -141,7 +157,7 @@ export async function POST(request: NextRequest) {
       }));
 
       // Small delay between batches to avoid rate limiting
-      if (i + batchSize < users.length) {
+      if (i + batchSize < eligibleUsers.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
@@ -155,9 +171,11 @@ export async function POST(request: NextRequest) {
       success: true,
       type,
       totalUsers: users.length,
+      eligible: eligibleUsers.length,
+      skippedOptOut: users.length - eligibleUsers.length,
       sent,
       failed,
-      errors: errors.length > 0 ? errors.slice(0, 10) : undefined, // Limit errors in response
+      errors: errors.length > 0 ? errors.slice(0, 10) : undefined,
       requiresConsent,
     });
 

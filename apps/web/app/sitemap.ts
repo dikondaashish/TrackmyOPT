@@ -95,6 +95,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog/how-to-track-uscis-case-status-guide',
         '/blog/leverage-job-search-trackmyopt-resume-generator',
         '/blog/f1-opt-stem-opt-tax-filing-mistakes',
+        // Original (non-2026) versions — also valid indexed pages
+        '/blog/f1-student-tax-filing-guide',
+        '/blog/opt-health-insurance-guide',
+        '/blog/can-you-travel-on-opt',
+        '/blog/ats-resume-international-students',
     ];
 
     return [

@@ -7,6 +7,10 @@ import {
   sendContactReceivedEmail,
   sendInternalContactFormNotification,
 } from "@/lib/notifications/transactional-emails";
+import rateLimit from "@/lib/auth/rate-limit";
+
+// 5 contact submissions per hour per IP
+const contactLimiter = rateLimit({ interval: 3_600_000 });
 
 const bodySchema = z.object({
   name: z.string().min(1).max(120),
@@ -17,6 +21,16 @@ const bodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit: 5 submissions per hour per IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const { isRateLimited } = contactLimiter.check(req, 5, `contact:${ip}`);
+    if (isRateLimited) {
+      return NextResponse.json(
+        { success: false, error: 'Too many submissions. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     let json: unknown;
     try {
       json = await req.json();

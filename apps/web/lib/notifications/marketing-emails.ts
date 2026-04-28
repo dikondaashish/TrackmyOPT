@@ -50,6 +50,8 @@ const LIVE_LOGO_URL =
   'https://www.trackmyopt.com/TrackMyOPT%20Logo/logo.gif';
 
 // ── Template ──────────────────────────────────────────────────────────────────
+const UNSUBSCRIBE_URL = 'https://www.trackmyopt.com/unsubscribe';
+
 export function generatePremiumReengagementEmail(firstName: string): string {
   const totalSponsors = '24,682';
   const couponCode = 'EARLYBIRD';
@@ -236,7 +238,7 @@ export function generatePremiumReengagementEmail(firstName: string): string {
           Used by students at Harvard, Stanford, NYU, and 500+ universities
         </p>
         <p style="margin:0;font-size:11px;color:${BRAND.textFaint};">
-          <a href="{{unsubscribe_url}}" style="color:${BRAND.textFaint};text-decoration:none;">Unsubscribe</a>
+          <a href="${UNSUBSCRIBE_URL}" style="color:${BRAND.textFaint};text-decoration:none;">Unsubscribe</a>
           &nbsp;&middot;&nbsp;
           <a href="https://www.trackmyopt.com/privacy" style="color:${BRAND.textFaint};text-decoration:none;">Privacy Policy</a>
           &nbsp;&middot;&nbsp;
@@ -435,7 +437,7 @@ export function generateUscisTrackerEmail(firstName: string): string {
       <div style="padding:20px 28px;background:${BRAND.bgSurface};border-top:1px solid ${BRAND.border};text-align:center;">
         <p style="margin:0 0 8px 0;font-size:12px;color:${BRAND.textBody};font-weight:600;">Used by students at Harvard, Stanford, NYU, and 500+ universities</p>
         <p style="margin:0;font-size:11px;color:${BRAND.textFaint};">
-          <a href="{{unsubscribe_url}}" style="color:${BRAND.textFaint};text-decoration:none;">Unsubscribe</a>
+          <a href="${UNSUBSCRIBE_URL}" style="color:${BRAND.textFaint};text-decoration:none;">Unsubscribe</a>
           &nbsp;&middot;&nbsp;
           <a href="https://www.trackmyopt.com/privacy" style="color:${BRAND.textFaint};text-decoration:none;">Privacy Policy</a>
           &nbsp;&middot;&nbsp;

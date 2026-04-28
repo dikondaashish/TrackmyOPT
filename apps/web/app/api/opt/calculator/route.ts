@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/getUserId';
 
+// UUID v4 pattern for safe userId validation before use in DB queries
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export const dynamic = 'force-dynamic';
 
 // CORS headers for Chrome extension + cache control
@@ -26,16 +29,17 @@ export async function OPTIONS() {
 export async function GET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
-    if (!userId) {
+    if (!userId || !UUID_RE.test(userId)) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
-    // Use service role client to bypass RLS
+    // Service role is required here because this route supports both cookie-based (web)
+    // and JWT-based (Chrome extension) auth via getUserId(). The user's identity is
+    // verified above; every query below is scoped to userId via .eq('user_id', userId).
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
-
 
     // Fetch opt_status data - include stem_start_date and last_updated_field
     const { data, error } = await supabase
@@ -89,11 +93,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
-    if (!userId) {
+    if (!userId || !UUID_RE.test(userId)) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
-    // Use service role client to bypass RLS
+    // See comment in GET handler — service role required for dual auth support.
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!

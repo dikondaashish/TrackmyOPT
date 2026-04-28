@@ -59,10 +59,14 @@ export async function applyStripeCheckoutSession(args: {
   const paymentIntentId = resolvePaymentIntentId(session);
   const stripeSubscriptionId = resolveStripeSubscriptionId(session);
 
+  // Fallback expiry: derive from plan metadata if set, otherwise default to 32 days
+  // (monthly safety net). Annual plans detected via planId metadata get 366 days.
+  const planId = (session.metadata?.planId || "").toLowerCase();
+  const isAnnual = planId.includes("annual") || planId.includes("yearly") || planId.includes("year");
   let expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 32);
+  expiresAt.setDate(expiresAt.getDate() + (isAnnual ? 366 : 32));
 
-  // Always use a string id — webhook/API payloads may send subscription as an expanded object.
+  // Prefer the real Stripe period_end over the fallback — override when available.
   const subscriptionIdForRetrieve = resolveStripeSubscriptionId(session);
   if (subscriptionIdForRetrieve) {
     try {

@@ -7,7 +7,6 @@
 import {
   isCareerPage,
   isKnownJobBoardOrAts,
-  hasJobApplicationForm,
   CAREER_PATH_RE,
 } from './career-sites';
 
@@ -575,8 +574,17 @@ function runSuccessCheckDebounced() {
   }, SUCCESS_CHECK_DEBOUNCE_MS);
 }
 
+// Module-level references so both observer and interval can be cleaned up on unload.
+let _spaObserver: MutationObserver | null = null;
+let _earlyRetryId: number | null = null;
+
 function setupSpaObservers() {
   if (!document.body) return;
+  // Disconnect any previous observer before creating a new one.
+  if (_spaObserver) {
+    _spaObserver.disconnect();
+    _spaObserver = null;
+  }
   const observer = new MutationObserver(() => {
     if (location.href !== lastUrl) {
       lastUrl = location.href;
@@ -590,24 +598,41 @@ function setupSpaObservers() {
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
+  _spaObserver = observer;
 }
 
 function startEarlyRetryLoop() {
+  // Clear any previously running retry loop before starting a new one.
+  if (_earlyRetryId !== null) {
+    window.clearInterval(_earlyRetryId);
+    _earlyRetryId = null;
+  }
   let n = 0;
   const max = 45;
-  const id = window.setInterval(() => {
+  const id: number = window.setInterval(() => {
     n += 1;
     if (n > max) {
       window.clearInterval(id);
+      if (_earlyRetryId === id) _earlyRetryId = null;
       return;
     }
     if (document.getElementById('tmo-add-to-tracker-btn')) {
       window.clearInterval(id);
+      if (_earlyRetryId === id) _earlyRetryId = null;
       return;
     }
     injectOrRefreshButton();
   }, 600);
+  _earlyRetryId = id;
 }
+
+// Cleanup on page unload (navigation away in non-SPA contexts).
+window.addEventListener('pagehide', () => {
+  if (_spaObserver) { _spaObserver.disconnect(); _spaObserver = null; }
+  if (_earlyRetryId !== null) { window.clearInterval(_earlyRetryId); _earlyRetryId = null; }
+  if (injectDebounceTimer) { clearTimeout(injectDebounceTimer); injectDebounceTimer = null; }
+  if (successCheckTimeout) { clearTimeout(successCheckTimeout); successCheckTimeout = null; }
+}, { once: true });
 
 function startSuccessDetection() {
   tryAutoAddOnSuccess();

@@ -8,7 +8,25 @@ import { renderStemClock } from './pages/stem-clock.js';
 import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
 
 /**
- * Check if user is signed in by calling /api/me
+ * Returns true if a JWT string has more than 60 seconds of validity remaining.
+ * Decodes only the payload (no signature verification — server verifies on use).
+ */
+function isTokenStillValid(token: string): boolean {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+    const payload = JSON.parse(atob(parts[1])) as { exp?: number };
+    if (typeof payload.exp !== 'number') return false;
+    // Refresh if fewer than 60 seconds remain
+    return payload.exp * 1000 > Date.now() + 60_000;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if user is signed in by calling /api/me.
+ * Prefetches a fresh extension token only when the stored one is missing or expiring.
  */
 async function isSignedIn(): Promise<boolean> {
   try {
@@ -21,13 +39,18 @@ async function isSignedIn(): Promise<boolean> {
     if (response.ok) {
       await chrome.storage.sync.set({ signedIn: true });
       try {
-        const tokenRes = await fetch(API_ENDPOINTS.EXTENSION_TOKEN, {
-          credentials: 'include',
-        });
-        if (tokenRes.ok) {
-          const body = (await tokenRes.json()) as { token?: string };
-          if (typeof body.token === 'string' && body.token.length > 0) {
-            await chrome.storage.sync.set({ idToken: body.token });
+        // Only fetch a new token if the stored one is absent or about to expire.
+        const { idToken } = await chrome.storage.sync.get('idToken');
+        const needsRefresh = typeof idToken !== 'string' || !isTokenStillValid(idToken);
+        if (needsRefresh) {
+          const tokenRes = await fetch(API_ENDPOINTS.EXTENSION_TOKEN, {
+            credentials: 'include',
+          });
+          if (tokenRes.ok) {
+            const body = (await tokenRes.json()) as { token?: string };
+            if (typeof body.token === 'string' && body.token.length > 0) {
+              await chrome.storage.sync.set({ idToken: body.token });
+            }
           }
         }
       } catch {

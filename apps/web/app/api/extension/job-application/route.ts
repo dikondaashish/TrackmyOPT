@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/auth/jwt';
 import { getPostHogClient } from '@/lib/posthog-server';
+import rateLimit from '@/lib/auth/rate-limit';
 
 export const dynamic = 'force-dynamic';
+
+// 20 job saves per minute per user token
+const jobAddLimiter = rateLimit({ interval: 60_000 });
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -46,6 +50,14 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = decoded.userId || decoded.sub;
+
+    const { isRateLimited } = jobAddLimiter.check(req, 20, `job-add:${userId}`);
+    if (isRateLimited) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait a moment before adding more jobs.' },
+        { status: 429, headers: corsHeaders }
+      );
+    }
     const body = await req.json();
 
     const {
