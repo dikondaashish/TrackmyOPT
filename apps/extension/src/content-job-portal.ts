@@ -640,17 +640,24 @@ function initFullJobAssistMode() {
 }
 
 // Guard: only run on actual career / job pages.
-// isCareerPage() covers blocklist + known boards + ATS + career subdomains +
-// path patterns + page title / meta + JSON-LD + application forms.
+// isCareerPage() covers blocklist → known boards → ATS → career subdomains →
+// path patterns → page title / meta → JSON-LD → application forms.
 if (!isHttpDocument()) {
-  // Non-HTTP document (extension pages, data URIs, etc.) — do nothing.
-} else if (!isCareerPage()) {
-  // Not a career page — skip entirely to avoid any impact on unrelated sites.
-} else if (shouldUseFullJobAssistMode()) {
-  // Well-known job board or ATS: full SPA observer + retry loop.
-  initFullJobAssistMode();
+  // Non-HTTP document — do nothing.
 } else {
-  // Generic company career page: lightweight timed retries.
-  initLightScanMode();
+  const careerReason = isCareerPage();
+  if (!careerReason) {
+    // Not a career page — fully inert, zero DOM work.
+  } else {
+    // Log why we activated (shows in DevTools → Console on career pages).
+    console.log(`[TrackMyOPT] Career page detected: ${careerReason}`);
+    if (shouldUseFullJobAssistMode()) {
+      // Well-known job board or ATS: full SPA observer + retry loop.
+      initFullJobAssistMode();
+    } else {
+      // Generic company career page: lightweight timed retries.
+      initLightScanMode();
+    }
+  }
 }
 

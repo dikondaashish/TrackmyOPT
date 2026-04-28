@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TrackMyOPT",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Track your OPT timeline with precision",
   "permissions": ["storage", "tabs", "notifications", "scripting"],
   "host_permissions": [
@@ -35,115 +35,750 @@
     },
     {
       "matches": [
+
         "*://www.linkedin.com/jobs/*",
         "*://linkedin.com/jobs/*",
+
         "*://www.indeed.com/*",
         "*://indeed.com/*",
+
         "*://www.glassdoor.com/*",
         "*://glassdoor.com/*",
+
         "*://www.monster.com/*",
         "*://monster.com/*",
+
         "*://www.ziprecruiter.com/*",
         "*://ziprecruiter.com/*",
+
         "*://www.simplyhired.com/*",
         "*://simplyhired.com/*",
+
         "*://www.careerbuilder.com/*",
         "*://careerbuilder.com/*",
+
         "*://www.dice.com/*",
         "*://dice.com/*",
-        "*://www.naukri.com/*",
-        "*://naukri.com/*",
-        "*://www.shine.com/*",
-        "*://shine.com/*",
-        "*://www.foundit.in/*",
-        "*://foundit.in/*",
-        "*://www.instahyre.com/*",
-        "*://instahyre.com/*",
-        "*://apna.co/*",
-        "*://www.apna.co/*",
+
+        "*://www.hired.com/*",
+        "*://hired.com/*",
+
         "*://wellfound.com/*",
         "*://www.wellfound.com/*",
+
+        "*://angel.co/*",
+        "*://www.angel.co/*",
+
         "*://weworkremotely.com/*",
         "*://www.weworkremotely.com/*",
+
         "*://remote.co/*",
         "*://www.remote.co/*",
+
         "*://www.flexjobs.com/*",
         "*://flexjobs.com/*",
-        "*://hired.com/*",
-        "*://www.hired.com/*",
+
         "*://joinhandshake.com/*",
         "*://app.joinhandshake.com/*",
-        "*://internshala.com/*",
-        "*://www.internshala.com/*",
-        "*://www.freshersworld.com/*",
-        "*://freshersworld.com/*",
-        "*://www.timesjobs.com/*",
-        "*://timesjobs.com/*",
-        "*://www.iimjobs.com/*",
-        "*://iimjobs.com/*",
-        "*://cutshort.io/*",
-        "*://www.cutshort.io/*",
-        "*://otta.com/*",
-        "*://www.otta.com/*",
+
+        "*://www.snagajob.com/*",
+        "*://snagajob.com/*",
+
+        "*://www.usajobs.gov/*",
+        "*://usajobs.gov/*",
+
+        "*://www.idealist.org/*",
+        "*://idealist.org/*",
+
         "*://builtin.com/*",
         "*://www.builtin.com/*",
+
+        "*://otta.com/*",
+        "*://www.otta.com/*",
+
+        "*://levels.fyi/*",
+        "*://www.levels.fyi/*",
+
+        "*://www.wayup.com/*",
+        "*://wayup.com/*",
+
+        "*://www.collegegrad.com/*",
+        "*://collegegrad.com/*",
+
+        "*://www.aftercollege.com/*",
+        "*://aftercollege.com/*",
+
+        "*://www.vault.com/*",
+        "*://vault.com/*",
+
+        "*://www.theladders.com/*",
+        "*://theladders.com/*",
+
+        "*://www.salary.com/*",
+        "*://salary.com/*",
+
         "*://getwork.org/*",
         "*://www.getwork.org/*",
-        "*://www.naukrigulf.com/*",
-        "*://naukrigulf.com/*",
+
+        "*://www.joblist.com/*",
+        "*://joblist.com/*",
+
+        "*://www.lensa.com/*",
+        "*://lensa.com/*",
+
+        "*://www.talent.com/*",
+        "*://talent.com/*",
+
+        "*://www.jooble.org/*",
+        "*://jooble.org/*",
+
+        "*://www.jobcase.com/*",
+        "*://jobcase.com/*",
+
+        "*://www.careerjet.com/*",
+        "*://careerjet.com/*",
+
+        "*://www.nexxt.com/*",
+        "*://nexxt.com/*",
+
+        "*://www.mediabistro.com/*",
+        "*://mediabistro.com/*",
+
+        "*://www.journalismjobs.com/*",
+        "*://journalismjobs.com/*",
+
+        "*://www.poachedjobs.com/*",
+        "*://poachedjobs.com/*",
+
+        "*://www.entertainmentcareers.net/*",
+        "*://entertainmentcareers.net/*",
+
+        "*://www.productionhub.com/*",
+        "*://productionhub.com/*",
+
+        "*://www.mandy.com/*",
+        "*://mandy.com/*",
+
+        "*://www.staff.com/*",
+        "*://staff.com/*",
+
+        "*://gun.io/*",
+        "*://www.gun.io/*",
+
+        "*://www.authenticjobs.com/*",
+        "*://authenticjobs.com/*",
+
+        "*://www.smashingmagazine.com/jobs*",
+
+        "*://www.techjobsforgood.com/*",
+        "*://techjobsforgood.com/*",
+
+        "*://www.diversityjobs.com/*",
+        "*://diversityjobs.com/*",
+
+        "*://www.disabledperson.com/*",
+        "*://disabledperson.com/*",
+
+        "*://www.ihireveterans.com/*",
+        "*://ihireveterans.com/*",
+
+        "*://www.workopolis.com/*",
+        "*://workopolis.com/*",
+
+        "*://www.jobbank.gc.ca/*",
+        "*://jobbank.gc.ca/*",
+
+        "*://www.reed.co.uk/*",
+        "*://reed.co.uk/*",
+
+        "*://www.totaljobs.com/*",
+        "*://totaljobs.com/*",
+
+        "*://www.cv-library.co.uk/*",
+        "*://cv-library.co.uk/*",
+
+        "*://www.fish4.co.uk/*",
+        "*://fish4.co.uk/*",
+
+        "*://jobs.ac.uk/*",
+        "*://www.jobs.ac.uk/*",
+
+        "*://www.cwjobs.co.uk/*",
+        "*://cwjobs.co.uk/*",
+
+        "*://www.jobsite.co.uk/*",
+        "*://jobsite.co.uk/*",
+
+        "*://jobs.nhs.uk/*",
+
+        "*://www.s1jobs.com/*",
+        "*://s1jobs.com/*",
+
+        "*://www.jobsgopublic.com/*",
+        "*://jobsgopublic.com/*",
+
+        "*://www.charityjob.co.uk/*",
+        "*://charityjob.co.uk/*",
+
+        "*://www.thirdsector.co.uk/*",
+        "*://thirdsector.co.uk/*",
+
+        "*://www.milkround.com/*",
+        "*://milkround.com/*",
+
+        "*://www.gradcracker.com/*",
+        "*://gradcracker.com/*",
+
+        "*://www.naukri.com/*",
+        "*://naukri.com/*",
+
+        "*://www.shine.com/*",
+        "*://shine.com/*",
+
+        "*://www.foundit.in/*",
+        "*://foundit.in/*",
+
+        "*://www.instahyre.com/*",
+        "*://instahyre.com/*",
+
+        "*://apna.co/*",
+        "*://www.apna.co/*",
+
+        "*://internshala.com/*",
+        "*://www.internshala.com/*",
+
+        "*://www.freshersworld.com/*",
+        "*://freshersworld.com/*",
+
+        "*://www.timesjobs.com/*",
+        "*://timesjobs.com/*",
+
+        "*://www.iimjobs.com/*",
+        "*://iimjobs.com/*",
+
+        "*://cutshort.io/*",
+        "*://www.cutshort.io/*",
+
+        "*://www.hirist.com/*",
+        "*://hirist.com/*",
+
+        "*://www.monsterindia.com/*",
+        "*://monsterindia.com/*",
+
+        "*://www.placementindia.com/*",
+        "*://placementindia.com/*",
+
+        "*://www.updazz.com/*",
+        "*://updazz.com/*",
+
+        "*://workindia.in/*",
+        "*://www.workindia.in/*",
+
+        "*://jobhai.com/*",
+        "*://www.jobhai.com/*",
+
+        "*://www.naukrihub.com/*",
+        "*://naukrihub.com/*",
+
+        "*://www.careesma.in/*",
+        "*://careesma.in/*",
+
+        "*://www.hirect.in/*",
+        "*://hirect.in/*",
+
         "*://www.bayt.com/*",
         "*://bayt.com/*",
+
         "*://www.gulftalent.com/*",
         "*://gulftalent.com/*",
+
+        "*://www.naukrigulf.com/*",
+        "*://naukrigulf.com/*",
+
+        "*://www.dubizzle.com/jobs*",
+        "*://dubizzle.com/jobs*",
+
+        "*://www.monstergulf.com/*",
+        "*://monstergulf.com/*",
+
+        "*://www.laimoon.com/*",
+        "*://laimoon.com/*",
+
+        "*://drjobs.ae/*",
+        "*://www.drjobs.ae/*",
+
+        "*://tanqeeb.com/*",
+        "*://www.tanqeeb.com/*",
+
+        "*://akhtaboot.com/*",
+        "*://www.akhtaboot.com/*",
+
+        "*://mihnati.com/*",
+        "*://www.mihnati.com/*",
+
+        "*://wuzzuf.net/*",
+        "*://www.wuzzuf.net/*",
+
+        "*://www.xing.com/*",
+        "*://xing.com/*",
+
+        "*://www.stepstone.de/*",
+        "*://stepstone.de/*",
+
+        "*://www.stepstone.com/*",
+        "*://stepstone.com/*",
+
+        "*://www.karriere.at/*",
+        "*://karriere.at/*",
+
+        "*://www.jobs.ch/*",
+        "*://jobs.ch/*",
+
+        "*://www.jobup.ch/*",
+        "*://jobup.ch/*",
+
+        "*://www.monster.de/*",
+        "*://monster.de/*",
+
+        "*://www.monster.fr/*",
+        "*://monster.fr/*",
+
+        "*://www.cadremploi.fr/*",
+        "*://cadremploi.fr/*",
+
+        "*://www.apec.fr/*",
+        "*://apec.fr/*",
+
+        "*://www.pole-emploi.fr/*",
+        "*://pole-emploi.fr/*",
+
+        "*://www.infojobs.net/*",
+        "*://infojobs.net/*",
+
+        "*://www.tecnoempleo.com/*",
+        "*://tecnoempleo.com/*",
+
+        "*://www.trabajos.com/*",
+        "*://trabajos.com/*",
+
+        "*://www.michaelpage.com/*",
+        "*://michaelpage.com/*",
+
+        "*://www.hays.com/*",
+        "*://hays.com/*",
+
+        "*://www.robertwalters.com/*",
+        "*://robertwalters.com/*",
+
+        "*://www.manpower.com/*",
+        "*://manpower.com/*",
+
+        "*://www.adecco.com/*",
+        "*://adecco.com/*",
+
+        "*://www.randstad.com/*",
+        "*://randstad.com/*",
+
+        "*://www.eurobrussels.com/*",
+        "*://eurobrussels.com/*",
+
+        "*://www.euractiv.com/jobs*",
+        "*://euractiv.com/jobs*",
+
+        "*://www.jobted.it/*",
+        "*://jobted.it/*",
+
+        "*://jobs.ie/*",
+        "*://www.jobs.ie/*",
+
+        "*://www.irishjobs.ie/*",
+        "*://irishjobs.ie/*",
+
+        "*://www.nijobs.com/*",
+        "*://nijobs.com/*",
+
+        "*://www.jobat.be/*",
+        "*://jobat.be/*",
+
+        "*://www.stepstone.be/*",
+        "*://stepstone.be/*",
+
+        "*://www.jobsdb.com/*",
+        "*://jobsdb.com/*",
+
+        "*://www.jobstreet.com/*",
+        "*://jobstreet.com/*",
+
+        "*://www.seek.com.au/*",
+        "*://seek.com.au/*",
+
+        "*://www.seek.co.nz/*",
+        "*://seek.co.nz/*",
+
+        "*://www.mycareer.com.au/*",
+        "*://mycareer.com.au/*",
+
+        "*://www.careerone.com.au/*",
+        "*://careerone.com.au/*",
+
+        "*://www.rikunabi.com/*",
+        "*://rikunabi.com/*",
+
+        "*://next.rikunabi.com/*",
+
+        "*://www.mynavi.jp/*",
+        "*://mynavi.jp/*",
+
+        "*://tenshoku.mynavi.jp/*",
+
+        "*://doda.jp/*",
+        "*://www.doda.jp/*",
+
+        "*://www.saramin.co.kr/*",
+        "*://saramin.co.kr/*",
+
+        "*://www.jobkorea.co.kr/*",
+        "*://jobkorea.co.kr/*",
+
+        "*://www.104.com.tw/*",
+        "*://104.com.tw/*",
+
+        "*://jobs.com.hk/*",
+        "*://www.jobs.com.hk/*",
+
+        "*://www.cpjobs.com/*",
+        "*://cpjobs.com/*",
+
+        "*://www.zhaopin.com/*",
+        "*://zhaopin.com/*",
+
+        "*://www.liepin.com/*",
+        "*://liepin.com/*",
+
+        "*://www.51job.com/*",
+        "*://51job.com/*",
+
+        "*://bossjob.com/*",
+        "*://www.bossjob.com/*",
+
+        "*://kalibrr.com/*",
+        "*://www.kalibrr.com/*",
+
+        "*://www.computrabajo.com/*",
+        "*://computrabajo.com/*",
+
+        "*://www.bumeran.com/*",
+        "*://bumeran.com/*",
+
+        "*://www.konzerta.com/*",
+        "*://konzerta.com/*",
+
+        "*://www.vagas.com.br/*",
+        "*://vagas.com.br/*",
+
+        "*://www.catho.com.br/*",
+        "*://catho.com.br/*",
+
+        "*://www.emprego.net.br/*",
+        "*://emprego.net.br/*",
+
+        "*://www.occ.com.mx/*",
+        "*://occ.com.mx/*",
+
+        "*://www.jobberman.com/*",
+        "*://jobberman.com/*",
+
+        "*://www.myjobmag.com/*",
+        "*://myjobmag.com/*",
+
+        "*://www.brightermonday.com/*",
+        "*://brightermonday.com/*",
+
+        "*://www.jobwebkenya.com/*",
+        "*://jobwebkenya.com/*",
+
+        "*://www.careers24.com/*",
+        "*://careers24.com/*",
+
+        "*://www.pnet.co.za/*",
+        "*://pnet.co.za/*",
+
+        "*://upwork.com/*",
+        "*://www.upwork.com/*",
+
+        "*://www.freelancer.com/*",
+        "*://freelancer.com/*",
+
+        "*://www.fiverr.com/*",
+        "*://fiverr.com/*",
+
+        "*://www.toptal.com/*",
+        "*://toptal.com/*",
+
+        "*://www.guru.com/*",
+        "*://guru.com/*",
+
+        "*://www.peopleperhour.com/*",
+        "*://peopleperhour.com/*",
+
+        "*://99designs.com/*",
+        "*://www.99designs.com/*",
+
+        "*://www.designcrowd.com/*",
+        "*://designcrowd.com/*",
+
+        "*://twine.net/*",
+        "*://www.twine.net/*",
+
+        "*://www.truelancer.com/*",
+        "*://truelancer.com/*",
+
+        "*://www.workana.com/*",
+        "*://workana.com/*",
+
+        "*://www.solidgigs.com/*",
+        "*://solidgigs.com/*",
+
+        "*://www.bark.com/*",
+        "*://bark.com/*",
+
+        "*://www.thumbtack.com/*",
+        "*://thumbtack.com/*",
+
+        "*://www.airtasker.com/*",
+        "*://airtasker.com/*",
+
+        "*://www.outsourcely.com/*",
+        "*://outsourcely.com/*",
+
+        "*://contra.com/*",
+        "*://www.contra.com/*",
+
+        "*://arc.dev/*",
+        "*://www.arc.dev/*",
+
+        "*://remoteok.com/*",
+        "*://www.remoteok.com/*",
+
+        "*://remote.com/*",
+        "*://www.remote.com/*",
+
+        "*://www.remotive.com/*",
+        "*://remotive.com/*",
+
+        "*://justremote.co/*",
+        "*://www.justremote.co/*",
+
+        "*://remoteleaf.com/*",
+        "*://www.remoteleaf.com/*",
+
+        "*://nodesk.co/*",
+        "*://www.nodesk.co/*",
+
+        "*://remotehub.com/*",
+        "*://www.remotehub.com/*",
+
+        "*://www.virtualvocations.com/*",
+        "*://virtualvocations.com/*",
+
+        "*://pangian.com/*",
+        "*://www.pangian.com/*",
+
+        "*://jobspresso.co/*",
+        "*://www.jobspresso.co/*",
+
+        "*://www.workingnomads.com/*",
+        "*://workingnomads.com/*",
+
+        "*://himalayas.app/*",
+        "*://www.himalayas.app/*",
+
+        "*://4dayweek.io/*",
+        "*://www.4dayweek.io/*",
+
+        "*://freshremote.work/*",
+        "*://www.freshremote.work/*",
+
+        "*://tryremotely.com/*",
+        "*://www.tryremotely.com/*",
+
         "*://*.myworkdayjobs.com/*",
+        "*://*.myworkday.com/*",
+
         "*://*.greenhouse.io/*",
+
         "*://jobs.lever.co/*",
+        "*://*.lever.co/*",
+
         "*://*.icims.com/*",
+
         "*://*.taleo.net/*",
+
         "*://*.brassring.com/*",
+
         "*://*.successfactors.com/*",
+
         "*://*.smartrecruiters.com/*",
+
         "*://*.jazzhr.com/*",
+
         "*://*.bamboohr.com/*",
+
         "*://*.recruitee.com/*",
+
         "*://*.ashbyhq.com/*",
+
         "*://*.jobvite.com/*",
+
         "*://*.comeet.com/*",
+
         "*://dover.com/*",
         "*://www.dover.com/*",
+        "*://*.dover.com/*",
+
         "*://*.workable.com/*",
+
         "*://*.teamtailor.com/*",
+
         "*://www.rippling.com/jobs*",
         "*://rippling.com/jobs*",
+
         "*://*.pinpointhq.com/*",
+
         "*://*.applytojob.com/*",
+
+        "*://*.eightfold.ai/*",
+
+        "*://*.beamery.com/*",
+
+        "*://*.avature.net/*",
+
         "*://*.breezyhr.com/*",
+
         "*://*.freshteam.com/*",
+
+        "*://*.recruitcrm.io/*",
+
+        "*://*.jobadder.com/*",
+
+        "*://*.personio.de/*",
+        "*://*.personio.com/*",
+
         "*://*.oraclecloud.com/*",
+
+        "*://*.jobsoid.com/*",
+
+        "*://*.hirevue.com/*",
+
+        "*://*.paradox.ai/*",
+
+        "*://*.loxo.co/*",
+
+        "*://*.crelate.com/*",
+
+        "*://*.bullhorn.com/*",
+
+        "*://*.ceipal.com/*",
+
+        "*://*.cornerstone.com/*",
+
+        "*://*.paycom.com/*",
+
+        "*://*.paylocity.com/*",
+
+        "*://*.adp.com/*",
+
+        "*://*.ceridian.com/*",
+
+        "*://*.namely.com/*",
+
+        "*://*.jobscore.com/*",
+
+        "*://*.jobdiva.com/*",
+
+        "*://*.careerplug.com/*",
+
+        "*://*.clearcompany.com/*",
+
+        "*://*.talentreef.com/*",
+
+        "*://*.phenom.com/*",
+
+        "*://*.manatal.com/*",
+
+        "*://*.darwinbox.com/*",
+
+        "*://*.keka.com/*",
+
+        "*://*.zohorecruit.com/*",
+
+        "*://www.sap.com/careers*",
+        "*://sap.com/careers*",
+
+        "*://www.oracle.com/taleo*",
+        "*://oracle.com/taleo*",
+
+        "*://www.zoho.com/recruit*",
+        "*://zoho.com/recruit*",
+
+        "*://www.theguardian.com/jobs*",
+        "*://theguardian.com/jobs*",
+
+        "*://www.undp.org/jobs*",
+        "*://undp.org/jobs*",
+
+        "*://www.quikr.com/jobs*",
+        "*://quikr.com/jobs*",
+
+        "*://www.smashingmagazine.com/jobs*",
+        "*://smashingmagazine.com/jobs*",
+
         "*://*/careers",
         "*://*/careers/*",
-        "*://*/job",
-        "*://*/job/*",
-        "*://*/jobs",
-        "*://*/jobs/*",
         "*://*/career",
         "*://*/career/*",
+        "*://*/jobs",
+        "*://*/jobs/*",
+        "*://*/job",
+        "*://*/job/*",
         "*://*/join",
         "*://*/join/*",
         "*://*/join-us",
         "*://*/join-us/*",
+        "*://*/join-our-team",
+        "*://*/join-our-team/*",
         "*://*/work-with-us",
         "*://*/work-with-us/*",
+        "*://*/work-here",
+        "*://*/work-here/*",
         "*://*/openings",
         "*://*/openings/*",
         "*://*/vacancies",
         "*://*/vacancies/*",
-        "*://*/opportunities",
-        "*://*/opportunities/*",
+        "*://*/vacancy",
+        "*://*/vacancy/*",
         "*://*/hiring",
         "*://*/hiring/*",
         "*://*/apply",
-        "*://*/apply/*"
+        "*://*/apply/*",
+        "*://*/opportunities",
+        "*://*/opportunities/*",
+        "*://*/talent",
+        "*://*/talent/*",
+        "*://*/positions",
+        "*://*/positions/*",
+        "*://*/job-openings",
+        "*://*/job-openings/*",
+        "*://*/job-listings",
+        "*://*/job-listings/*",
+        "*://*/current-openings",
+        "*://*/current-openings/*",
+        "*://*/employment",
+        "*://*/employment/*",
+        "*://*/recruitment",
+        "*://*/recruitment/*",
+        "*://*/jobpostings",
+        "*://*/jobpostings/*"
       ],
       "exclude_matches": [
         "https://chrome.google.com/*",
