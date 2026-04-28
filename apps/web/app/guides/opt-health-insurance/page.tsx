@@ -176,53 +176,6 @@ export default function OPTHealthInsurancePillarGuide() {
                 ]
             })}} />
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "FAQPage",
-                "mainEntity": [
-                    {
-                        "@type": "Question",
-                        "name": "Are F-1 students on OPT required to have health insurance?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "There is no federal law requiring health insurance (the individual mandate penalty has been $0 since 2019). However, some states — California, Massachusetts, New Jersey, Rhode Island, and DC — impose their own penalties for being uninsured. Beyond legality, going without insurance is an extreme financial risk."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "Can I enroll in ACA marketplace plans on OPT?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Yes. F-1 students on valid OPT are considered 'lawfully present' and can purchase plans through HealthCare.gov or their state marketplace. Those classified as resident aliens for tax purposes may qualify for premium subsidies that can reduce costs to $0/month."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "What is the Special Enrollment Period and how do I qualify?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "A Special Enrollment Period (SEP) is a 60-day window that lets you enroll in marketplace plans outside of annual open enrollment. Losing your university health plan is a qualifying life event. Your 60-day window starts from the date your university coverage ends."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "How much does health insurance cost on OPT?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Costs vary widely: ACA marketplace plans range from $0–$500/month (depending on subsidies), employer plans cost $50–$250/month (employee share), short-term plans run $50–$150/month, and catastrophic plans cost $100–$250/month."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "What should I do during my employer's insurance waiting period?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Most employers have a 30–90 day waiting period before benefits start. During this gap, enroll in a short-term health plan ($50–$150/month), use your Special Enrollment Period for a marketplace plan, or extend university coverage via COBRA if available."
-                        }
-                    }
-                ]
-            })}} />
-
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Home</Link>

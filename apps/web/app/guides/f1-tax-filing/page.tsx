@@ -111,53 +111,6 @@ export default function F1TaxFilingPillarGuide() {
                 ]
             })}} />
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "FAQPage",
-                "mainEntity": [
-                    {
-                        "@type": "Question",
-                        "name": "Do F-1 students have to file US taxes?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Yes. Every F-1 student physically present in the US must file at least Form 8843, even with zero income. This is required regardless of whether you earned any money. If you had US-source income, you must also file Form 1040-NR."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "What is the difference between resident and non-resident aliens?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Non-resident aliens (NRA) pay tax on US-source income only and are exempt from FICA taxes for the first 5 calendar years. Resident aliens pay tax on worldwide income and must pay full FICA taxes. F-1 students are typically NRAs for their first 5 years using the Substantial Presence Test."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "Which tax forms do F-1 students need?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Key forms are: Form 8843 (required for all F-1 students), Form 1040-NR (if you have US-source income), W-2 (from employers), 1042-S (from scholarship/fellowship payers), Form 843 (to claim FICA refund if incorrectly withheld), and Form 8233 (to claim tax treaty exemption)."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "How do I claim FICA tax exemption as an F-1 student?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "First, ensure your employer witholds correctly by giving them your I-20 and visa documentation. If FICA was incorrectly withheld, file Form 843 (Claim for Refund) with copies of your W-2, I-20, visa stamp, and a written explanation within 3 years of the original tax deadline."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "What tax treaty benefits can F-1 students claim?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Tax treaty benefits vary by your country of citizenship. Over 50+ US tax treaties provide exemptions for students and teachers. For example, India, China, Canada, and many others have favorable student tax rates. File Form 8233 before your first paycheck to claim exemption at source rather than filing for a refund later."
-                        }
-                    }
-                ]
-            })}} />
-
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400">Home</Link>
