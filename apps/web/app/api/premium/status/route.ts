@@ -133,8 +133,14 @@ export async function GET(req: NextRequest) {
           });
           if (subs.data.length > 0) {
             stripeConfirmsActive = true;
-            const periodEnd = (subs.data[0] as unknown as { current_period_end: number }).current_period_end;
-            newExpiresAt = new Date(periodEnd * 1000).toISOString();
+            const periodEnd = (subs.data[0] as any)?.current_period_end as number | undefined;
+            if (typeof periodEnd === 'number') {
+              newExpiresAt = new Date(periodEnd * 1000).toISOString();
+            } else {
+              console.error(
+                'GET /api/premium/status: Stripe subscription missing current_period_end, trusting DB expiry'
+              );
+            }
           }
         } catch (stripeErr) {
           console.error('GET /api/premium/status: Stripe check failed, trusting DB expiry:', stripeErr);
