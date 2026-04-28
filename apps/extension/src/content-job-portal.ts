@@ -4,6 +4,13 @@
  * Auto-adds job to TrackMyOPT when user sees "application submitted" / "congratulations" success messages.
  */
 
+import {
+  isCareerPage,
+  isKnownJobBoardOrAts,
+  hasJobApplicationForm,
+  CAREER_PATH_RE,
+} from './career-sites';
+
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
   LAST_AUTO_ADDED: 'tmo_last_auto_added',
@@ -19,13 +26,6 @@ interface JobInfo {
   location?: string;
 }
 
-/** Host hints for major boards + common ATS (broad job-assistant style coverage). */
-const KNOWN_JOB_HOST_RE =
-  /linkedin|indeed|glassdoor|greenhouse|lever|ashby|workday|myworkdayjobs|smartrecruiters|icims|bamboohr|jobvite|workable|monster|ziprecruiter|taleo|successfactors|dayforce|ultipro|eightfold|applytojob|recruitcrm|pinpoint|comeet|teamtailor|jobadder|rippling|personio|beamery|avature|snagajob|careerbuilder|dice|wellfound|angel|breezy|freshteam|recruitee|paylocity|paycom|gusto|zoho|crelate|jobdiva|fieldglass|brassring|jobscore|jobtarget|directemployers|talroo|hiringthing|jazzhr|namely|justworks|deel|remoteok|weworkremotely|levels\.fyi|notion\.jobs|atlassian|oraclecloud|hrworkways|ashbyhq|greenhouse\.io|lever\.co/i;
-
-const JOB_PATH_PATTERN =
-  /\/(job|jobs|career|careers|position|positions|opening|openings|apply|application|requisition|vacancy|vacancies|posting|listings?|req|talent|recruit|hiring|sourcing|candidate|opportunit)/i;
-
 function isHttpDocument(): boolean {
   return location.protocol === 'http:' || location.protocol === 'https:';
 }
@@ -39,49 +39,16 @@ function hasJobPostingJsonLdSnippet(): boolean {
   return false;
 }
 
-function isDefinitelyNotJobSite(): boolean {
-  const h = location.hostname.toLowerCase();
-  const path = location.pathname;
-  const notJob = [
-    'youtube.com',
-    'youtu.be',
-    'facebook.com',
-    'twitter.com',
-    'x.com',
-    'instagram.com',
-    'tiktok.com',
-    'reddit.com',
-    'twitch.tv',
-    'netflix.com',
-    'spotify.com',
-    'mail.google.com',
-    'docs.google.com',
-    'drive.google.com',
-    'calendar.google.com',
-    'meet.google.com',
-    'outlook.live.com',
-    'outlook.office.com',
-    'mail.yahoo.com',
-  ];
-  for (let i = 0; i < notJob.length; i++) {
-    if (h === notJob[i] || h.endsWith('.' + notJob[i])) return true;
-  }
-  if (h === 'google.com' || h === 'www.google.com') {
-    if (path.startsWith('/search') || path.startsWith('/maps') || path.startsWith('/mail')) return true;
-  }
-  return false;
-}
-
+/**
+ * Known job boards and ATS portals render jobs via SPAs, so they get the full
+ * MutationObserver + retry loop. Generic career pages (company /careers paths,
+ * career subdomains) use a lighter timed-retry approach.
+ */
 function shouldUseFullJobAssistMode(): boolean {
-  if (!isHttpDocument() || isDefinitelyNotJobSite()) return false;
-  if (KNOWN_JOB_HOST_RE.test(location.hostname)) return true;
+  if (isKnownJobBoardOrAts()) return true;
   if (hasJobPostingJsonLdSnippet()) return true;
   const pathAndSearch = location.pathname + (location.search || '');
-  if (JOB_PATH_PATTERN.test(pathAndSearch)) return true;
-  const title = document.title || '';
-  if (/\b(job|career|careers|apply|hiring|position|vacancy|requisition|opening|internship|fellowship)\b/i.test(title)) {
-    return true;
-  }
+  if (CAREER_PATH_RE.test(pathAndSearch)) return true;
   return false;
 }
 
@@ -672,10 +639,18 @@ function initFullJobAssistMode() {
   }
 }
 
-if (!isHttpDocument() || isDefinitelyNotJobSite()) {
-  // Skip video, mail, maps search, etc.
+// Guard: only run on actual career / job pages.
+// isCareerPage() covers blocklist + known boards + ATS + career subdomains +
+// path patterns + page title / meta + JSON-LD + application forms.
+if (!isHttpDocument()) {
+  // Non-HTTP document (extension pages, data URIs, etc.) — do nothing.
+} else if (!isCareerPage()) {
+  // Not a career page — skip entirely to avoid any impact on unrelated sites.
 } else if (shouldUseFullJobAssistMode()) {
+  // Well-known job board or ATS: full SPA observer + retry loop.
   initFullJobAssistMode();
 } else {
+  // Generic company career page: lightweight timed retries.
   initLightScanMode();
 }
+
