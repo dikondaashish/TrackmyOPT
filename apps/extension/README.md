@@ -90,15 +90,9 @@ pnpm build
 - **Sync Across Devices**: Uses `chrome.storage.sync` for cross-device sync
 - **Job Tracker Capture**: Add jobs from supported job portals into TrackMyOPT
 
-## 🌍 Supported Job Portals (Capture)
+## 🌍 Job Capture Compatibility
 
-- LinkedIn Jobs
-- Indeed
-- Greenhouse-hosted careers
-- Lever-hosted careers
-- Ashby-hosted careers
-- Workday-hosted careers (`*.myworkdayjobs.com`)
-- SmartRecruiters
+Job capture works on common job boards and many company career pages. Avoid listing long keyword-style inventories in public-facing metadata (Chrome Web Store description) to stay compliant with Chrome Web Store policies.
 
 ## 🔐 Authentication Flow
 
