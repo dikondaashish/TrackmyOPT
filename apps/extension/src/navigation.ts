@@ -2,6 +2,8 @@
  * Navigation state management for extension popup
  */
 
+import { performExtensionSignOut } from './signOut';
+
 type Page = 'home' | 'opt-apply' | 'stem-apply' | 'clock' | 'opt-countdown' | 'stem-countdown' | 'clock-tracker' | 'stem-clock' | 'stem-clock-tracker';
 
 let currentPage: Page = 'home';
@@ -139,18 +141,11 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
   const logoutBtn = document.getElementById('logout-btn-page');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
-      if (confirm('Are you sure you want to sign out?')) {
-        try {
-          await fetch('https://www.trackmyopt.com/auth/signout', {
-            method: 'POST',
-            credentials: 'include',
-          });
-        } catch {
-          // Continue with local cleanup
-        }
-        
-        await chrome.storage.sync.clear();
-        await chrome.storage.session.clear();
+      if (!confirm('Are you sure you want to sign out?')) return;
+      (logoutBtn as HTMLButtonElement).disabled = true;
+      try {
+        await performExtensionSignOut();
+      } finally {
         window.location.reload();
       }
     });

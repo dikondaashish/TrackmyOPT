@@ -154,13 +154,17 @@ export async function deleteApplication(id: string) {
         throw new Error("Failed to delete application");
     }
 
-    const posthog = getPostHogClient();
-    posthog.capture({
-        distinctId: user.id,
-        event: 'job_application_deleted',
-        properties: { application_id: id },
-    });
-    await posthog.shutdown();
+    try {
+        const posthog = getPostHogClient();
+        posthog.capture({
+            distinctId: user.id,
+            event: 'job_application_deleted',
+            properties: { application_id: id },
+        });
+        await posthog.shutdown();
+    } catch (e) {
+        console.warn("PostHog capture after delete failed:", e);
+    }
 
     revalidatePath(APP_PATH);
 }

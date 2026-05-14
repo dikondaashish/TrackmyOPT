@@ -1,6 +1,7 @@
 /**
  * Content script for job / career pages (any company career site, LinkedIn, Indeed, etc.)
- * Parses job listing using JSON-LD, meta tags, and DOM. Shows "Add to TrackMyOPT" when job detected.
+ * Parses job listing using JSON-LD, meta tags, and DOM. Shows a floating pill widget
+ * (close, logo, drag handle) to add the job to TrackMyOPT when a listing is detected.
  * Auto-adds job to TrackMyOPT when user sees "application submitted" / "congratulations" success messages.
  */
 
@@ -14,6 +15,10 @@ const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
   LAST_AUTO_ADDED: 'tmo_last_auto_added',
 } as const;
+
+const WIDGET_ROOT_ID = 'tmo-job-tracker-widget';
+const WIDGET_DISMISSED_URL_KEY = 'tmo_job_widget_dismissed_url';
+const WIDGET_POS_KEY = 'tmo_job_widget_pos';
 
 const AUTO_ADD_DEBOUNCE_MS = 15000; // don't auto-add same job twice within 15 min
 const JOB_CONTEXT_MAX_AGE_MS = 30 * 60 * 1000; // use stored context up to 30 min old
@@ -444,36 +449,318 @@ function getJobInfo(): JobInfo | null {
   return getJsonLdJobPosting() || getMetaAndTitleJob() || getDomFallbackJob();
 }
 
-function createAddButton(): HTMLButtonElement {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.textContent = 'Add to TrackMyOPT';
-  btn.style.cssText = `
+function readWidgetDismissedUrl(): string | null {
+  try {
+    return sessionStorage.getItem(WIDGET_DISMISSED_URL_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function setWidgetDismissedUrl(url: string) {
+  try {
+    sessionStorage.setItem(WIDGET_DISMISSED_URL_KEY, url);
+  } catch {
+    /* ignore */
+  }
+}
+
+function clearWidgetDismissedUrl() {
+  try {
+    sessionStorage.removeItem(WIDGET_DISMISSED_URL_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function readWidgetPosition(): { top: number; left: number } | null {
+  try {
+    const raw = sessionStorage.getItem(WIDGET_POS_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as { top?: number; left?: number };
+    if (typeof p.top !== 'number' || typeof p.left !== 'number') return null;
+    return { top: p.top, left: p.left };
+  } catch {
+    return null;
+  }
+}
+
+function saveWidgetPosition(top: number, left: number) {
+  try {
+    sessionStorage.setItem(WIDGET_POS_KEY, JSON.stringify({ top, left }));
+  } catch {
+    /* ignore */
+  }
+}
+
+function attachDragBehavior(root: HTMLElement, dragHandle: HTMLElement) {
+  let dragging = false;
+  let startClientX = 0;
+  let startClientY = 0;
+  let startLeft = 0;
+  let startTop = 0;
+
+  const onMove = (ev: MouseEvent) => {
+    if (!dragging) return;
+    const dx = ev.clientX - startClientX;
+    const dy = ev.clientY - startClientY;
+    let nextLeft = startLeft + dx;
+    let nextTop = startTop + dy;
+    const pad = 8;
+    const rect = root.getBoundingClientRect();
+    const maxLeft = window.innerWidth - rect.width - pad;
+    const maxTop = window.innerHeight - rect.height - pad;
+    nextLeft = Math.min(Math.max(pad, nextLeft), maxLeft);
+    nextTop = Math.min(Math.max(pad, nextTop), maxTop);
+    root.style.left = `${nextLeft}px`;
+    root.style.top = `${nextTop}px`;
+    root.style.right = 'auto';
+    root.style.bottom = 'auto';
+  };
+
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    document.removeEventListener('mousemove', onMove, true);
+    document.removeEventListener('mouseup', onUp, true);
+    const left = parseFloat(root.style.left) || 0;
+    const top = parseFloat(root.style.top) || 0;
+    saveWidgetPosition(top, left);
+  };
+
+  dragHandle.addEventListener('mousedown', (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    dragging = true;
+    const r = root.getBoundingClientRect();
+    startClientX = ev.clientX;
+    startClientY = ev.clientY;
+    startLeft = r.left;
+    startTop = r.top;
+    root.style.left = `${startLeft}px`;
+    root.style.top = `${startTop}px`;
+    root.style.right = 'auto';
+    root.style.bottom = 'auto';
+    document.addEventListener('mousemove', onMove, true);
+    document.addEventListener('mouseup', onUp, true);
+  });
+}
+
+/**
+ * Floating pill widget (close, logo, drag strip) — matches in-product job assistant style.
+ */
+function createJobTrackerWidget(job: JobInfo): HTMLElement {
+  const root = document.createElement('div');
+  root.id = WIDGET_ROOT_ID;
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-label', 'TrackMyOPT — add job to tracker');
+
+  const pos = readWidgetPosition();
+  root.style.cssText = `
     position: fixed;
-    bottom: 24px;
-    right: 24px;
     z-index: 2147483646;
-    padding: 10px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    transition: transform 0.15s, box-shadow 0.15s;
+    filter: drop-shadow(0 6px 18px rgba(15, 23, 42, 0.18));
   `;
-  btn.addEventListener('mouseenter', () => {
-    btn.style.transform = 'scale(1.05)';
-    btn.style.boxShadow = '0 6px 20px rgba(37, 99, 235, 0.5)';
+  if (pos) {
+    root.style.top = `${pos.top}px`;
+    root.style.left = `${pos.left}px`;
+  } else {
+    root.style.bottom = '24px';
+    root.style.right = '24px';
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.setAttribute('aria-label', 'Close');
+  closeBtn.textContent = '×';
+  closeBtn.style.cssText = `
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    z-index: 3;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 50%;
+    background: #fff;
+    color: #0f172a;
+    font-size: 20px;
+    line-height: 24px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+
+  const shell = document.createElement('div');
+  shell.style.cssText = `
+    display: flex;
+    align-items: stretch;
+    border-radius: 9999px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.1);
+    transition: transform 0.15s ease;
+  `;
+  shell.addEventListener('mouseenter', () => {
+    shell.style.transform = 'scale(1.02)';
   });
-  btn.addEventListener('mouseleave', () => {
-    btn.style.transform = 'scale(1)';
-    btn.style.boxShadow = '0 4px 14px rgba(37, 99, 235, 0.4)';
+  shell.addEventListener('mouseleave', () => {
+    shell.style.transform = 'scale(1)';
   });
-  return btn;
+
+  const addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.title = `Add “${job.role_title}” at ${job.company_name} to your TrackMyOPT job board`;
+  addBtn.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 10px 14px 10px 16px;
+    border: none;
+    cursor: pointer;
+    background: #fff;
+    outline: none;
+    font: inherit;
+  `;
+
+  const logoRing = document.createElement('div');
+  logoRing.style.cssText = `
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #bbf7d0 0%, #86efac 55%, #4ade80 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(22, 101, 52, 0.25);
+  `;
+
+  const extIcon = chrome.runtime.getURL('icons/icon48.png');
+  const logoImg = document.createElement('img');
+  logoImg.src = extIcon;
+  logoImg.alt = '';
+  logoImg.width = 28;
+  logoImg.height = 28;
+  logoImg.style.objectFit = 'contain';
+  logoImg.style.borderRadius = '4px';
+  logoImg.addEventListener('error', () => {
+    logoImg.replaceWith(logoSvgFallback());
+  });
+  logoRing.appendChild(logoImg);
+
+  const hint = document.createElement('span');
+  hint.textContent = 'Add to board';
+  hint.style.cssText = `
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+  `;
+
+  addBtn.appendChild(logoRing);
+  addBtn.appendChild(hint);
+
+  const dragStrip = document.createElement('div');
+  dragStrip.setAttribute('aria-hidden', 'true');
+  dragStrip.title = 'Drag to move';
+  dragStrip.style.cssText = `
+    width: 34px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #99f6e4 0%, #5eead4 45%, #2dd4bf 100%);
+    border: none;
+    border-left: 1px solid rgba(20, 184, 166, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+  `;
+
+  const dots = document.createElement('div');
+  dots.style.cssText = `
+    display: grid;
+    grid-template-columns: repeat(2, 4px);
+    grid-template-rows: repeat(3, 4px);
+    gap: 3px;
+    opacity: 0.55;
+  `;
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('span');
+    d.style.cssText = 'width:4px;height:4px;border-radius:50%;background:#0f766e;';
+    dots.appendChild(d);
+  }
+  dragStrip.appendChild(dots);
+
+  shell.appendChild(addBtn);
+  shell.appendChild(dragStrip);
+
+  root.appendChild(closeBtn);
+  root.appendChild(shell);
+
+  attachDragBehavior(root, dragStrip);
+
+  closeBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+    setWidgetDismissedUrl(job.job_url);
+    root.remove();
+  });
+
+  addBtn.addEventListener('click', () => {
+    if (addBtn.disabled) return;
+    addBtn.disabled = true;
+    const prevHint = hint.textContent;
+    hint.textContent = 'Adding…';
+    chrome.runtime.sendMessage(
+      { type: 'ADD_JOB_TO_TRACKER', job },
+      (response: { ok?: boolean; error?: string } | undefined) => {
+        addBtn.disabled = false;
+        hint.textContent = prevHint || 'Add to board';
+        if (chrome.runtime.lastError) {
+          showMessage('TrackMyOPT: Sign in in the extension to add jobs.', true);
+          return;
+        }
+        if (response?.ok) {
+          showMessage('Added to Job Tracker!', false);
+          hint.textContent = 'Added ✓';
+          setTimeout(() => {
+            hint.textContent = 'Add to board';
+          }, 2000);
+        } else {
+          showMessage(response?.error || 'Failed to add job', true);
+        }
+      }
+    );
+  });
+
+  return root;
+}
+
+function logoSvgFallback(): SVGSVGElement {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width', '28');
+  svg.setAttribute('height', '28');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  const path = document.createElementNS(ns, 'path');
+  path.setAttribute(
+    'd',
+    'M4 14c2.5-1 5-4 6-7 1 3 3.5 6 6 7-2 1.5-4 2.5-6 2.5S6 15.5 4 14z'
+  );
+  path.setAttribute('fill', '#14532d');
+  path.setAttribute('opacity', '0.9');
+  svg.appendChild(path);
+  return svg;
 }
 
 function showMessage(message: string, isError: boolean) {
@@ -481,7 +768,7 @@ function showMessage(message: string, isError: boolean) {
   el.textContent = message;
   el.style.cssText = `
     position: fixed;
-    bottom: 24px;
+    bottom: 110px;
     right: 24px;
     z-index: 2147483647;
     padding: 12px 20px;
@@ -505,7 +792,7 @@ function injectOrRefreshButton() {
 
   const host = window.location.hostname;
   if (host.includes('linkedin.com') && !isLinkedInJobSurface()) {
-    const existing = document.getElementById('tmo-add-to-tracker-btn');
+    const existing = document.getElementById(WIDGET_ROOT_ID);
     if (existing) existing.remove();
     return;
   }
@@ -513,38 +800,21 @@ function injectOrRefreshButton() {
   const job = getJobInfo();
   if (job) saveJobContext(job);
 
-  const existing = document.getElementById('tmo-add-to-tracker-btn');
+  const existing = document.getElementById(WIDGET_ROOT_ID);
   if (!job) {
     if (existing) existing.remove();
     return;
   }
+
+  const dismissed = readWidgetDismissedUrl();
+  if (dismissed && dismissed === job.job_url) {
+    return;
+  }
+
   if (existing) return;
 
-  const btn = createAddButton();
-  btn.id = 'tmo-add-to-tracker-btn';
-  btn.addEventListener('click', () => {
-    btn.disabled = true;
-    btn.textContent = 'Adding…';
-    chrome.runtime.sendMessage(
-      { type: 'ADD_JOB_TO_TRACKER', job },
-      (response: { ok?: boolean; error?: string } | undefined) => {
-        btn.disabled = false;
-        btn.textContent = 'Add to TrackMyOPT';
-        if (chrome.runtime.lastError) {
-          showMessage('TrackMyOPT: Sign in in the extension to add jobs.', true);
-          return;
-        }
-        if (response?.ok) {
-          showMessage('Added to Job Tracker!', false);
-          btn.textContent = 'Added ✓';
-          setTimeout(() => (btn.textContent = 'Add to TrackMyOPT'), 2000);
-        } else {
-          showMessage(response?.error || 'Failed to add job', true);
-        }
-      }
-    );
-  });
-  document.body.appendChild(btn);
+  const widget = createJobTrackerWidget(job);
+  document.body.appendChild(widget);
 }
 
 function scheduleInject() {
@@ -588,7 +858,8 @@ function setupSpaObservers() {
   const observer = new MutationObserver(() => {
     if (location.href !== lastUrl) {
       lastUrl = location.href;
-      const existing = document.getElementById('tmo-add-to-tracker-btn');
+      clearWidgetDismissedUrl();
+      const existing = document.getElementById(WIDGET_ROOT_ID);
       if (existing) existing.remove();
       scheduleInject();
       runSuccessCheckDebounced();
@@ -616,7 +887,7 @@ function startEarlyRetryLoop() {
       if (_earlyRetryId === id) _earlyRetryId = null;
       return;
     }
-    if (document.getElementById('tmo-add-to-tracker-btn')) {
+    if (document.getElementById(WIDGET_ROOT_ID)) {
       window.clearInterval(id);
       if (_earlyRetryId === id) _earlyRetryId = null;
       return;

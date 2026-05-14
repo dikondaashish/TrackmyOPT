@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "TrackMyOPT",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Track your OPT timeline with precision",
-  "permissions": ["storage", "tabs", "notifications", "scripting"],
+  "permissions": ["storage", "tabs", "notifications", "scripting", "cookies"],
   "host_permissions": [
     "https://www.trackmyopt.com/*",
     "https://trackmyopt.com/*"

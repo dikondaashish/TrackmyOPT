@@ -65,7 +65,7 @@ export function PricingModule({
     annualBillingLabel = "Annual billing",
     buttonLabel = "Get started",
     plans,
-    defaultAnnual = false,
+    defaultAnnual = true,
     className,
     buildPlanHref,
 }: PricingModuleProps) {

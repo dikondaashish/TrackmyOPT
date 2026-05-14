@@ -39,7 +39,13 @@ import { JobTrackerTableView } from "./JobTrackerTableView";
 import { JobTrackerCalendarView } from "./JobTrackerCalendarView";
 import { InsightsPanel } from "./InsightsPanel";
 import { JobTrackerUsageBar } from "./JobTrackerUsageBar";
-import { updateApplicationStatus, clearApplicationFollowup, clearAllFollowups, deleteJobStage } from "@/app/dashboard/career/job-tracker/actions";
+import {
+    updateApplicationStatus,
+    clearApplicationFollowup,
+    clearAllFollowups,
+    deleteJobStage,
+    deleteApplication,
+} from "@/app/dashboard/career/job-tracker/actions";
 import {
     searchApplications,
     filterApplications,
@@ -147,10 +153,16 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
         router.refresh();
     };
 
-    const handleDelete = (id: string) => {
-        setApplications(prev => prev.filter(a => a.id !== id));
-        setSelectedApp(null);
-        router.refresh();
+    const handleDelete = async (id: string) => {
+        try {
+            await deleteApplication(id);
+            setApplications((prev) => prev.filter((a) => a.id !== id));
+            setSelectedApp(null);
+            router.refresh();
+        } catch (err) {
+            console.error(err);
+            router.refresh();
+        }
     };
 
     const handleUpdate = (updatedApp: JobApplication) => {

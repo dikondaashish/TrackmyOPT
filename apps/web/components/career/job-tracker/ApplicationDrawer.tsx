@@ -27,7 +27,7 @@ interface ApplicationDrawerProps {
     onClose: () => void;
     interviews?: JobInterview[];
     followups?: JobFollowup[];
-    onDelete?: (id: string) => void;
+    onDelete?: (id: string) => void | Promise<void>;
     onUpdate?: (app: JobApplication) => void;
     onArchive?: (id: string) => void;
 }
@@ -81,12 +81,22 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
     };
 
     const handleDelete = async () => {
-        if (confirm(`Are you sure you want to delete ${application.company_name} - ${application.role_title}? This action cannot be undone.`)) {
-            await deleteApplication(application.id);
+        if (
+            !confirm(
+                `Are you sure you want to delete ${application.company_name} - ${application.role_title}? This action cannot be undone.`
+            )
+        ) {
+            return;
+        }
+        try {
             if (onDelete) {
-                onDelete(application.id);
+                await Promise.resolve(onDelete(application.id));
+            } else {
+                await deleteApplication(application.id);
             }
             onClose();
+        } catch (e) {
+            console.error(e);
         }
     };
 
@@ -378,9 +388,10 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                             Archive
                         </Button>
                         <Button
+                            type="button"
                             variant="destructive"
                             onClick={handleDelete}
-                            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            className="bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600 dark:bg-red-700 dark:text-white dark:hover:bg-red-600"
                         >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete

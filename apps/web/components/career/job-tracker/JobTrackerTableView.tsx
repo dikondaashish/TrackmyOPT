@@ -21,7 +21,7 @@ interface JobTrackerTableViewProps {
     applications: JobApplication[];
     onCardClick: (app: JobApplication) => void;
     onStageChange?: (appId: string, newStage: JobStage) => void;
-    onDelete?: (appId: string) => void;
+    onDelete?: (appId: string) => void | Promise<void>;
 }
 
 type SortField = "company" | "role" | "stage" | "location" | "applied" | "followup" | "interviews";
@@ -297,9 +297,13 @@ export function JobTrackerTableView({
                                             </button>
                                             {onDelete && (
                                                 <button
-                                                    onClick={() => {
-                                                        if (confirm("Delete this application?")) {
-                                                            onDelete(app.id);
+                                                    type="button"
+                                                    onClick={async () => {
+                                                        if (!confirm("Delete this application?")) return;
+                                                        try {
+                                                            await onDelete?.(app.id);
+                                                        } catch (e) {
+                                                            console.error(e);
                                                         }
                                                     }}
                                                     className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"

@@ -94,10 +94,15 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('Extension job-application insert error:', error);
-      return NextResponse.json(
-        { error: 'Failed to add job to tracker' },
-        { status: 500, headers: corsHeaders }
-      );
+      let message = 'Failed to add job to tracker';
+      if (error.code === '23505') {
+        message = 'This job is already in your tracker.';
+      } else if (error.code === '23503') {
+        message = 'Your session is out of date. Sign out and sign in again in the extension.';
+      } else if (error.code === '22P02') {
+        message = 'Could not save this job. Sign out and sign in again in the extension.';
+      }
+      return NextResponse.json({ error: message }, { status: 500, headers: corsHeaders });
     }
 
     const posthog = getPostHogClient();

@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from './config';
+import { performExtensionSignOut } from './signOut';
 
 /**
  * Renders the signed-in home screen with tool tiles
@@ -171,18 +172,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
-      if (confirm('Are you sure you want to sign out?')) {
-        try {
-          await fetch('https://www.trackmyopt.com/auth/signout', {
-            method: 'POST',
-            credentials: 'include',
-          });
-        } catch {
-          // Continue with local cleanup even if server signout fails
-        }
-
-        await chrome.storage.sync.clear();
-        await chrome.storage.session.clear();
+      if (!confirm('Are you sure you want to sign out?')) return;
+      (logoutBtn as HTMLButtonElement).disabled = true;
+      try {
+        await performExtensionSignOut();
+      } finally {
         window.location.reload();
       }
     });

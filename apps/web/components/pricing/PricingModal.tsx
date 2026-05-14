@@ -22,10 +22,14 @@ interface PricingModalProps {
   initialInterval?: string;
 }
 
+function isYearlyBillingDefault(interval: string | undefined): boolean {
+  return interval !== "month";
+}
+
 export function PricingModal({ open, onClose, userEmail, isPremium = false, initialPlan, initialInterval }: PricingModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  // Monthly unless URL explicitly has interval=year (undefined used to default to yearly — wrong for checkout UX)
-  const [isYearly, setIsYearly] = useState(initialInterval === "year");
+  /** Annual on by default; only `initialInterval === "month"` forces monthly (user can toggle anytime). */
+  const [isYearly, setIsYearly] = useState(() => isYearlyBillingDefault(initialInterval));
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [promoMode, setPromoMode] = useState<PromoCheckoutMode>("default");
   const [customPromoInput, setCustomPromoInput] = useState("");
@@ -56,6 +60,11 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
       cancelled = true;
     };
   }, [open, isPremium]);
+
+  useEffect(() => {
+    if (!open) return;
+    setIsYearly(isYearlyBillingDefault(initialInterval));
+  }, [open, initialInterval]);
 
   useEffect(() => {
     if (open) {

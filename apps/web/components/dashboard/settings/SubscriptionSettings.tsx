@@ -36,7 +36,7 @@ interface PricingSectionProps {
 }
 
 function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, userEmail, premium, onUpgrade, isCheckoutLoading }: PricingSectionProps) {
-    const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+    const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
     const [proFreeTrialEligible, setProFreeTrialEligible] = useState<boolean | null>(null);
 
     useEffect(() => {
@@ -318,7 +318,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
 export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }: SubscriptionSettingsProps) {
     const [showPricingModal, setShowPricingModal] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState<string>('pro');
-    const [selectedInterval, setSelectedInterval] = useState<string>('month');
+    const [selectedInterval, setSelectedInterval] = useState<string>('year');
     const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState<string | null>(null);
     const [promoMode, setPromoMode] = useState<PromoCheckoutMode>('default');
     const [customPromoInput, setCustomPromoInput] = useState('');
@@ -442,7 +442,7 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
             />
 
             <div className="flex justify-center -mt-4 mb-8">
-                <PlanComparisonModal onUpgrade={() => handleOpenPricing('pro', 'month')} />
+                <PlanComparisonModal onUpgrade={() => handleOpenPricing('pro', 'year')} />
             </div>
 
             {premium.isPremium && (

@@ -123,7 +123,6 @@ export function LandingPricing() {
                 annualBillingLabel="Annual Billing"
                 buttonLabel="Start 7-Day Free Trial"
                 plans={plans}
-                defaultAnnual={false}
                 className="!bg-transparent !py-0" // Override internal styles
                 buildPlanHref={({ planId, interval }) => {
                     if (planId === "free") {
