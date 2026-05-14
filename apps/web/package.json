@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "check:lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "submit:indexnow": "node ../scripts/submit-to-indexnow.js"
   },
   "dependencies": {

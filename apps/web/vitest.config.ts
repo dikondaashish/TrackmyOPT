@@ -8,6 +8,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     globals: true,
+    // Vitest runs unit tests only; Playwright e2e tests live in e2e/ and are
+    // executed via `playwright test` separately.
+    exclude: ['**/node_modules/**', '**/.next/**', '**/dist/**', 'e2e/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

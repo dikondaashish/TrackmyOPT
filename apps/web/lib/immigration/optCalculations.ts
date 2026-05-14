@@ -124,38 +124,134 @@ export function calculateOPTDates(optDates: OPTDates): CalculatedOPTDates {
 }
 
 /**
+ * Hard caps from 8 CFR § 214.2(f)(10)(ii).
+ * - Initial post-completion OPT: 90 cumulative unemployment days.
+ * - STEM OPT extension: +60 additional days, for a CUMULATIVE 150 across the
+ *   entire OPT + STEM OPT period. STEM does NOT reset the counter.
+ */
+export const INITIAL_OPT_CAP = 90 as const;
+export const CUMULATIVE_STEM_CAP = 150 as const;
+
+export type OptPhase = "initial" | "stem" | "post";
+
+export interface UnemploymentBreakdown {
+    /**
+     * The compliance number: cumulative unemployment days across the entire
+     * OPT + STEM OPT window up to today (or window end, whichever is earlier).
+     */
+    used: number;
+    /**
+     * Authoritative cap for the user's CURRENT phase:
+     *  - 90  → no STEM, or STEM is approved but has not started yet.
+     *  - 150 → STEM has started (or already ended; cap stays at 150).
+     */
+    max: 90 | 150;
+    /** Alias of `max` — convenience for UI code reading "currentCap". */
+    currentCap: 90 | 150;
+    initialOptCap: typeof INITIAL_OPT_CAP;
+    cumulativeStemCap: typeof CUMULATIVE_STEM_CAP;
+    /** Phase the user is in right now. */
+    phase: OptPhase;
+    /** Cumulative days remaining before hitting `max` (clamped to 0). */
+    remaining: number;
+    /** Whether STEM OPT is currently active (today between stemStart and stemEnd). */
+    stemActive: boolean;
+    /** Unemployment days incurred during the initial OPT phase ONLY. */
+    initialOptUnemploymentDays: number;
+    /** Unemployment days incurred during the STEM OPT phase only (0 if STEM not started). */
+    stemUnemploymentDays: number;
+    /**
+     * True if the user accumulated more than 90 unemployment days during the
+     * initial OPT phase. This stays true even after STEM starts so the
+     * earlier compliance violation is never hidden by the higher 150 cap.
+     */
+    exceededInitialOptCap: boolean;
+    /** True if cumulative usage already exceeds the 150-day cumulative cap. */
+    exceededCumulativeCap: boolean;
+    /** Human-readable critical/caution warnings. */
+    warnings: string[];
+}
+
+/**
+ * Compute unemployed days within `[windowStart, windowEnd]` using a
+ * merge-and-subtract approach against employment spans.
+ *
+ * Definition: total elapsed days in window minus the union of employed
+ * intervals clipped to that window.
+ */
+function computeUnemployedInWindow(
+    windowStart: Date,
+    windowEnd: Date,
+    spans: EmploymentSpan[],
+    todayRef: Date,
+): number {
+    if (windowEnd.getTime() <= windowStart.getTime()) return 0;
+
+    const totalDays = Math.max(
+        0,
+        Math.ceil((windowEnd.getTime() - windowStart.getTime()) / MS_PER_DAY),
+    );
+
+    if (!spans || spans.length === 0) return totalDays;
+
+    const intervals: Array<[number, number]> = [];
+    for (const span of spans) {
+        const spanStart = toUTCDate(span.start_date);
+        const spanEnd = span.end_date ? toUTCDate(span.end_date) : todayRef;
+
+        const clampedStart = spanStart.getTime() > windowStart.getTime() ? spanStart : windowStart;
+        const clampedEnd = spanEnd.getTime() < windowEnd.getTime() ? spanEnd : windowEnd;
+
+        if (clampedEnd.getTime() >= clampedStart.getTime()) {
+            intervals.push([clampedStart.getTime(), clampedEnd.getTime()]);
+        }
+    }
+
+    if (intervals.length === 0) return totalDays;
+
+    intervals.sort((a, b) => a[0] - b[0]);
+    const merged: Array<[number, number]> = [];
+    for (const [s, e] of intervals) {
+        const last = merged[merged.length - 1];
+        if (!last || s > last[1] + MS_PER_DAY) {
+            merged.push([s, e]);
+        } else {
+            last[1] = Math.max(last[1], e);
+        }
+    }
+
+    const employedDays = merged.reduce(
+        (sum, [s, e]) => sum + Math.ceil((e - s) / MS_PER_DAY),
+        0,
+    );
+
+    return Math.max(0, totalDays - employedDays);
+}
+
+/**
  * Phase-aware OPT/STEM OPT unemployment calculation.
  *
- * USCIS rules (8 CFR § 214.2(f)(10)):
- *  - Initial post-completion OPT: hard cap of 90 cumulative unemployment days.
- *  - STEM OPT extension: an ADDITIONAL 60 days, for a cumulative 150 days
- *    across the entire OPT + STEM OPT period.
+ * Returns a structured breakdown so the UI can show:
+ *  - Cumulative compliance number ("X / 150" once STEM starts)
+ *  - The initial-OPT portion separately
+ *  - The STEM-period portion separately
+ *  - Critical flags when the initial-90 was breached BEFORE STEM started
+ *    (STEM approval does NOT erase that compliance event)
  *
- * Behavior:
- *  - When `stem_start_date` is absent or in the future, returns the 90-day model.
- *  - When STEM has started (or already passed), max becomes 150 and the unemployment
- *    count spans the entire OPT + STEM window (the regulation is cumulative).
- *  - Merging of overlapping/adjacent employment intervals is preserved.
+ * Backward-compatible: `used`, `max`, `phase`, `remaining`, `stemActive` are
+ * preserved with the same semantics as before.
  *
- * NOTE: USCIS counts cumulatively across the FULL OPT authorization period.
- * We compute "unemployment used so far" as (elapsed days in window) − (employed days in window).
+ * USCIS rule references:
+ *  - 8 CFR § 214.2(f)(10)(ii)(C): 90 days initial OPT.
+ *  - 8 CFR § 214.2(f)(10)(ii)(E)(8): cumulative 150 across OPT + STEM OPT.
  */
 export function calculateUnemploymentDays(
     optStartDate: string,
     optEadEndDate: string,
     employmentSpans: EmploymentSpan[],
     stemStartDate?: string | null,
-    stemEndDate?: string | null
-): {
-    used: number;
-    max: number;
-    /** Indicates which phase the user is currently in or 'post' if window has ended. */
-    phase: "initial" | "stem" | "post";
-    /** Days remaining before the user hits their cap (clamped to 0). */
-    remaining: number;
-    /** Whether STEM OPT is currently active. */
-    stemActive: boolean;
-} {
+    stemEndDate?: string | null,
+): UnemploymentBreakdown {
     const today = toUTCDate(new Date());
     const start = toUTCDate(optStartDate);
     const initialEnd = toUTCDate(optEadEndDate);
@@ -166,17 +262,40 @@ export function calculateUnemploymentDays(
     const stemEnd = stemEndDate
         ? toUTCDate(stemEndDate)
         : stemStart
-            ? toUTCDate(new Date(Date.UTC(stemStart.getUTCFullYear() + 2, stemStart.getUTCMonth(), stemStart.getUTCDate())))
+            ? toUTCDate(
+                new Date(
+                    Date.UTC(
+                        stemStart.getUTCFullYear() + 2,
+                        stemStart.getUTCMonth(),
+                        stemStart.getUTCDate(),
+                    ),
+                ),
+            )
             : null; // STEM is 24 months by default
 
-    // The "window end" for cumulative counting is whichever phase end is active.
-    const stemActive = !!(stemStart && today.getTime() >= stemStart.getTime() && stemEnd && today.getTime() <= stemEnd.getTime());
-    const windowEnd = stemEnd ?? initialEnd;
-    const effectiveEnd = windowEnd.getTime() < today.getTime() ? windowEnd : today;
+    const stemHasStarted = !!(stemStart && today.getTime() >= stemStart.getTime());
+    const stemActive = !!(
+        stemStart &&
+        today.getTime() >= stemStart.getTime() &&
+        stemEnd &&
+        today.getTime() <= stemEnd.getTime()
+    );
+
+    // Cumulative-counting window. Uses STEM end if STEM started, else OPT EAD end.
+    const cumulativeWindowEnd = stemHasStarted ? (stemEnd ?? initialEnd) : initialEnd;
+    const cumulativeEffectiveEnd =
+        cumulativeWindowEnd.getTime() < today.getTime() ? cumulativeWindowEnd : today;
+
+    // Initial-phase end: STEM start − 1 day if STEM exists, else OPT EAD end.
+    // For "how much initial-phase unemployment has the user actually incurred so far"
+    // we also clamp by today (they can't have unemployment days in the future).
+    const initialPhaseEnd = stemStart
+        ? new Date(Math.min(stemStart.getTime() - MS_PER_DAY, today.getTime()))
+        : new Date(Math.min(initialEnd.getTime(), today.getTime()));
 
     // Phase the user is in right now
-    let phase: "initial" | "stem" | "post";
-    if (today.getTime() > windowEnd.getTime()) {
+    let phase: OptPhase;
+    if (today.getTime() > cumulativeWindowEnd.getTime()) {
         phase = "post";
     } else if (stemActive) {
         phase = "stem";
@@ -184,61 +303,70 @@ export function calculateUnemploymentDays(
         phase = "initial";
     }
 
-    // Cap: 90 during initial, 150 cumulative once STEM has started (per regulation).
-    // If user is approved for STEM but hasn't started yet, we still show 90 until STEM begins
-    // — the +60 allowance only attaches with STEM approval/start.
-    const max = stemStart && today.getTime() >= stemStart.getTime() ? 150 : 90;
+    // Cap rule:
+    //  - If STEM has NOT started (no STEM at all OR STEM is in the future), cap = 90.
+    //  - Once STEM has started (or already ended), cap = 150 cumulative.
+    const max: 90 | 150 = stemHasStarted ? 150 : 90;
 
-    // Total elapsed days within OPT/STEM window up to today.
-    const totalDays = Math.max(
-        0,
-        Math.ceil((effectiveEnd.getTime() - start.getTime()) / MS_PER_DAY)
+    // Cumulative usage: from OPT start to whichever phase end is "current".
+    const cumulativeUsed = computeUnemployedInWindow(
+        start,
+        cumulativeEffectiveEnd,
+        employmentSpans,
+        today,
     );
 
-    if (!employmentSpans || employmentSpans.length === 0) {
-        const used = totalDays;
-        return { used, max, phase, remaining: Math.max(0, max - used), stemActive };
+    // Initial-OPT-only usage: from OPT start to initialPhaseEnd.
+    // We always compute this so the UI can show "Initial OPT: A / 90" even
+    // when the user is currently in the STEM phase, and so the
+    // exceededInitialOptCap flag is correct even if STEM has since started.
+    const initialOptUnemploymentDays = computeUnemployedInWindow(
+        start,
+        initialPhaseEnd,
+        employmentSpans,
+        today,
+    );
+
+    // STEM-period usage = cumulative − initial. Guard against negative due to
+    // rounding edge cases.
+    const stemUnemploymentDays = Math.max(0, cumulativeUsed - initialOptUnemploymentDays);
+
+    const exceededInitialOptCap = initialOptUnemploymentDays > INITIAL_OPT_CAP;
+    const exceededCumulativeCap = cumulativeUsed > CUMULATIVE_STEM_CAP;
+
+    const warnings: string[] = [];
+    if (exceededInitialOptCap) {
+        warnings.push(
+            `Initial OPT unemployment exceeded 90 days (used ${initialOptUnemploymentDays}). This is an F-1 status violation regardless of whether STEM was later approved.`,
+        );
     }
-
-    // Clamp each span to the OPT/STEM window, then merge overlapping intervals.
-    const intervals: Array<[number, number]> = [];
-
-    for (const span of employmentSpans) {
-        const spanStart = toUTCDate(span.start_date);
-        const spanEnd = span.end_date ? toUTCDate(span.end_date) : today;
-
-        const clampedStart = spanStart.getTime() > start.getTime() ? spanStart : start;
-        const clampedEnd = spanEnd.getTime() < effectiveEnd.getTime() ? spanEnd : effectiveEnd;
-
-        if (clampedEnd.getTime() >= clampedStart.getTime()) {
-            intervals.push([clampedStart.getTime(), clampedEnd.getTime()]);
-        }
+    if (exceededCumulativeCap) {
+        warnings.push(
+            `Cumulative OPT/STEM unemployment exceeded 150 days (used ${cumulativeUsed}). Risk of SEVIS termination — contact your DSO immediately.`,
+        );
     }
-
-    let employedDays = 0;
-
-    if (intervals.length > 0) {
-        intervals.sort((a, b) => a[0] - b[0]);
-        const merged: Array<[number, number]> = [];
-
-        for (const [s, e] of intervals) {
-            const last = merged[merged.length - 1];
-            // Merge if overlapping or adjacent (within 1 day).
-            if (!last || s > last[1] + MS_PER_DAY) {
-                merged.push([s, e]);
-            } else {
-                last[1] = Math.max(last[1], e);
-            }
-        }
-
-        employedDays = merged.reduce(
-            (sum, [s, e]) => sum + Math.ceil((e - s) / MS_PER_DAY),
-            0
+    // Soft caution: within 25% of the current cap
+    if (!exceededCumulativeCap && cumulativeUsed >= Math.floor(max * 0.75)) {
+        warnings.push(
+            `You have used ${cumulativeUsed} of ${max} unemployment days. Find qualifying employment soon to avoid risk.`,
         );
     }
 
-    const used = Math.max(0, totalDays - employedDays);
-    return { used, max, phase, remaining: Math.max(0, max - used), stemActive };
+    return {
+        used: cumulativeUsed,
+        max,
+        currentCap: max,
+        initialOptCap: INITIAL_OPT_CAP,
+        cumulativeStemCap: CUMULATIVE_STEM_CAP,
+        phase,
+        remaining: Math.max(0, max - cumulativeUsed),
+        stemActive,
+        initialOptUnemploymentDays,
+        stemUnemploymentDays,
+        exceededInitialOptCap,
+        exceededCumulativeCap,
+        warnings,
+    };
 }
 
 export function getUnemploymentStatus(used: number, max: number): UnemploymentStatus {

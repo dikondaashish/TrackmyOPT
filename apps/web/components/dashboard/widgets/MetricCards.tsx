@@ -69,10 +69,16 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     filingWindowDays: null as number | null,
     filingDeadlineDays: null as number | null, // days until 60-day-post-program-end deadline
     unemploymentUsed: 0,
-    maxUnemployment: 90,
+    maxUnemployment: 90 as 90 | 150,
     daysUntilOPTEnd: null as number | null,
     isStemEligible: false,
     hasStemStarted: false,
+    // Phase-aware unemployment breakdown (ISS-001)
+    initialOptUnemploymentDays: 0,
+    stemUnemploymentDays: 0,
+    phase: "initial" as "initial" | "stem" | "post",
+    exceededInitialOptCap: false,
+    exceededCumulativeCap: false,
   });
   const [isLoading, setIsLoading] = useState(!apiData);
 
@@ -108,7 +114,7 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     let filingWindowDays = null;
     let filingDeadlineDays: number | null = null;
     let daysUntilOPTEnd = null;
-    let maxUnemployment = 90;
+    let maxUnemployment: 90 | 150 = 90;
 
     if (data.optStatus) {
       const programEnd = new Date(data.optStatus.program_end_date);
@@ -130,6 +136,11 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     }
 
     let unemploymentUsed = data.unemploymentDays || 0;
+    let initialOptUnemploymentDays = 0;
+    let stemUnemploymentDays = 0;
+    let phase: "initial" | "stem" | "post" = "initial";
+    let exceededInitialOptCap = false;
+    let exceededCumulativeCap = false;
     if (data.optStatus?.opt_start_date && data.optStatus?.opt_ead_end_date) {
       const spansForCalc: CalculationEmploymentSpan[] = (data.employmentSpans || []).map((s: any) => ({
         id: s.id,
@@ -148,8 +159,13 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
         data.optStatus.stem_end_date
       );
       unemploymentUsed = calc.used;
-      // Authoritative max from phase-aware engine — keeps numerator/denominator aligned.
+      // Authoritative cap from phase-aware engine — guarantees numerator/denominator align.
       maxUnemployment = calc.max;
+      initialOptUnemploymentDays = calc.initialOptUnemploymentDays;
+      stemUnemploymentDays = calc.stemUnemploymentDays;
+      phase = calc.phase;
+      exceededInitialOptCap = calc.exceededInitialOptCap;
+      exceededCumulativeCap = calc.exceededCumulativeCap;
     }
 
     setMetrics({
@@ -160,6 +176,11 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
       daysUntilOPTEnd,
       isStemEligible: data.profile?.is_stem_eligible || false,
       hasStemStarted: !!data.optStatus?.stem_start_date,
+      initialOptUnemploymentDays,
+      stemUnemploymentDays,
+      phase,
+      exceededInitialOptCap,
+      exceededCumulativeCap,
     });
   }
 
@@ -176,7 +197,11 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
   };
 
   const getUnemploymentStatus = () => {
-    const percentage = metrics.unemploymentUsed / metrics.maxUnemployment;
+    // Hard-critical: either cap was breached at any point in the user's OPT/STEM journey.
+    if (metrics.exceededCumulativeCap || metrics.exceededInitialOptCap) return "critical";
+    const percentage = metrics.maxUnemployment > 0
+      ? metrics.unemploymentUsed / metrics.maxUnemployment
+      : 0;
     if (percentage >= 0.9) return "critical";
     if (percentage >= 0.75) return "warning";
     return "good";
@@ -204,6 +229,8 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
         : "Window Closed"
       : `${metrics.filingWindowDays} days`;
 
+  // Always shows the CURRENT-phase compliance number (X / 90 in initial, X / 150 after STEM).
+  // STEM never resets — the cumulative number carries over.
   const unemploymentValue = `${metrics.unemploymentUsed}/${metrics.maxUnemployment}`;
   
   const optEndValue = metrics.daysUntilOPTEnd === null 
@@ -231,11 +258,17 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
         ? "Opening Soon"
         : undefined;
 
-  const unemploymentSubtitle = getUnemploymentStatus() === "critical" 
-    ? "Critical" 
-    : getUnemploymentStatus() === "warning" 
-      ? "Caution" 
-      : "On Track";
+  // Phase-aware subtitle so the card never looks identical between initial OPT
+  // and STEM OPT, and so it never suggests STEM "resets" the counter.
+  const unemploymentSubtitle = (() => {
+    if (metrics.exceededInitialOptCap && metrics.phase !== "initial") {
+      return "Initial 90 exceeded";
+    }
+    if (metrics.exceededCumulativeCap) return "Limit Exceeded";
+    if (getUnemploymentStatus() === "critical") return "Critical";
+    if (getUnemploymentStatus() === "warning") return "Caution";
+    return metrics.phase === "stem" ? "Cumulative (OPT + STEM)" : "Initial OPT";
+  })();
 
   if (isLoading) {
     return (
@@ -251,36 +284,80 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     );
   }
 
+  // Phase-aware breakdown shown UNDER the unemployment card when the user is
+  // in (or past) the STEM phase. Makes it crystal clear that STEM does NOT
+  // reset the counter and that the initial-90 portion is still tracked.
+  const showBreakdown = metrics.phase !== "initial" && metrics.hasStemStarted;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <MetricCard
-        title="Filing Window"
-        value={filingValue}
-        icon={<Calendar className="w-5 h-5" />}
-        status={getFilingStatus()}
-        subtitle={filingSubtitle}
-      />
-      <MetricCard
-        title="Unemployment Days"
-        value={unemploymentValue}
-        icon={<Clock className="w-5 h-5" />}
-        status={getUnemploymentStatus()}
-        subtitle={unemploymentSubtitle}
-      />
-      <MetricCard
-        title="Until OPT Expires"
-        value={optEndValue}
-        icon={<Briefcase className="w-5 h-5" />}
-        status={getOPTEndStatus()}
-        subtitle={metrics.daysUntilOPTEnd !== null && metrics.daysUntilOPTEnd <= 90 ? "Plan Ahead" : undefined}
-      />
-      <MetricCard
-        title="STEM Extension"
-        value={stemValue}
-        icon={<GraduationCap className="w-5 h-5" />}
-        status={getStemStatus()}
-        subtitle={metrics.hasStemStarted ? "24-Month" : undefined}
-      />
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard
+          title="Filing Window"
+          value={filingValue}
+          icon={<Calendar className="w-5 h-5" />}
+          status={getFilingStatus()}
+          subtitle={filingSubtitle}
+        />
+        <MetricCard
+          title="Unemployment Days"
+          value={unemploymentValue}
+          icon={<Clock className="w-5 h-5" />}
+          status={getUnemploymentStatus()}
+          subtitle={unemploymentSubtitle}
+        />
+        <MetricCard
+          title="Until OPT Expires"
+          value={optEndValue}
+          icon={<Briefcase className="w-5 h-5" />}
+          status={getOPTEndStatus()}
+          subtitle={metrics.daysUntilOPTEnd !== null && metrics.daysUntilOPTEnd <= 90 ? "Plan Ahead" : undefined}
+        />
+        <MetricCard
+          title="STEM Extension"
+          value={stemValue}
+          icon={<GraduationCap className="w-5 h-5" />}
+          status={getStemStatus()}
+          subtitle={metrics.hasStemStarted ? "24-Month" : undefined}
+        />
+      </div>
+
+      {showBreakdown && (
+        <div
+          className="rounded-xl border border-border bg-card/50 p-4 text-sm space-y-2"
+          role="region"
+          aria-label="OPT and STEM unemployment breakdown"
+        >
+          <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+            <div>
+              <span className="text-muted-foreground">Cumulative OPT + STEM:</span>{" "}
+              <strong className={metrics.exceededCumulativeCap ? "text-red-600 dark:text-red-400" : "text-foreground"}>
+                {metrics.unemploymentUsed} / 150 days
+              </strong>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Initial OPT portion:</span>{" "}
+              <strong className={metrics.exceededInitialOptCap ? "text-red-600 dark:text-red-400" : "text-foreground"}>
+                {metrics.initialOptUnemploymentDays} / 90 days
+              </strong>
+            </div>
+            <div>
+              <span className="text-muted-foreground">STEM-period portion:</span>{" "}
+              <strong className="text-foreground">{metrics.stemUnemploymentDays} days</strong>
+            </div>
+          </div>
+          {metrics.exceededInitialOptCap && (
+            <p className="text-xs text-red-700 dark:text-red-400" role="alert">
+              ⚠️ Initial OPT unemployment exceeded 90 days. STEM approval does not erase this — contact your DSO.
+            </p>
+          )}
+          {!metrics.exceededInitialOptCap && (
+            <p className="text-xs text-muted-foreground">
+              STEM OPT extends your cumulative allowance to 150 days total. It does <em>not</em> reset the counter.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
