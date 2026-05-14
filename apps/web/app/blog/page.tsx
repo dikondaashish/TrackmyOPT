@@ -288,6 +288,25 @@ const blogPosts = [
         date: "March 29, 2026",
         tags: ["Taxes", "OPT", "STEM OPT"],
     },
+    {
+        slug: "indian-bank-account-nro-opt-students",
+        title: "Indian Students on OPT/STEM OPT: Is Your Indian Bank Account Illegal Under FEMA? (2026 Guide)",
+        description: "If you've spent 182+ days in the US on OPT or STEM OPT, your Indian savings account is a FEMA violation. Learn how to convert to NRO without flying back to India.",
+        category: "Finance & Compliance",
+        readTime: "9 min read",
+        date: "May 14, 2026",
+        tags: ["Finance", "NRO", "FEMA", "Indian Students"],
+    },
+    {
+        slug: "hsi-opt-fraud-crackdown-legitimate-students-guide",
+        title: "HSI Is Cracking Down on OPT Fraud: What Every Legitimate OPT/STEM OPT Student Must Know (2026)",
+        description: "DHS has identified 10,000+ students connected to suspected fraudulent OPT employers across 8 states. Here's how legitimate students verify their employer and protect their F-1 status.",
+        category: "Important",
+        readTime: "11 min read",
+        date: "May 14, 2026",
+        featured: true,
+        tags: ["OPT Fraud", "HSI", "Compliance", "STEM OPT"],
+    },
 ];
 
 function CategoryBadge({ category }: { category: string }) {
@@ -300,6 +319,7 @@ function CategoryBadge({ category }: { category: string }) {
         "Important": "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300",
         "Tax & Finance": "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300",
         "Health": "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300",
+        "Finance & Compliance": "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300",
     };
     return (
         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${colors[category] || "bg-gray-100 text-gray-700"}`}>
