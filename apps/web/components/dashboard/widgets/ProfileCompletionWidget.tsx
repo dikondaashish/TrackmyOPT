@@ -67,7 +67,7 @@ export function ProfileCompletionWidget({ optStatus, employmentSpans, profile, r
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [optStatus, employmentSpans, profile]);
+  }, [optStatus, employmentSpans, profile, resumeUsage]);
 
   if (percentage === 100) return null; // Hide if fully complete to save space
 
