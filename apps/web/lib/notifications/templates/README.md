@@ -4,7 +4,13 @@ Email HTML templates extracted out of the monolithic `email-service.ts`.
 
 ## Status
 
-Migration in progress. The legacy file `lib/notifications/email-service.ts` (1,716 LOC) still contains every template inline. We are moving them here one at a time so each can be unit-tested in isolation and previewed independently.
+**Daily reminder (OPT tools) — migrated.** The HTML for `sendDailyReminder` now lives under `templates/`:
+
+- `daily-reminder-html.ts` — subject helper `getDailyReminderSubject` + wrapper `renderDailyReminderEmailHtml`
+- `partials/tool-section.ts` — dispatches by `toolType`
+- `partials/opt-apply.ts`, `opt-clock.ts`, `stem-apply.ts`, `stem-clock.ts` — per-tool bodies (with Vitest smoke tests in `__tests__/daily-reminder-html.test.ts`)
+
+`email-service.ts` still owns SMTP orchestration, types (`EmailReminderData`, `ToolReminderDetail`), and other transactional templates.
 
 ## Target shape
 
@@ -44,11 +50,11 @@ await transporter.sendMail({ to, subject, html });
 
 | Function in `email-service.ts` | New file | Owner |
 |---|---|---|
-| `generateEmailHTML` (daily reminder wrapper) | `daily-reminder.ts` | open |
-| `generateToolSection` | `partials/tool-section.ts` | open |
-| `generateOptApplySection` | `partials/opt-apply.ts` | open |
-| `generateOptClockSection` | `partials/opt-clock.ts` | open |
-| `generateStemApplySection` | `partials/stem-apply.ts` | open |
-| `generateStemClockSection` | `partials/stem-clock.ts` | open |
+| `generateEmailHTML` (daily reminder wrapper) | `daily-reminder-html.ts` | done |
+| `generateToolSection` | `partials/tool-section.ts` | done |
+| `generateOptApplySection` | `partials/opt-apply.ts` | done |
+| `generateOptClockSection` | `partials/opt-clock.ts` | done |
+| `generateStemApplySection` | `partials/stem-apply.ts` | done |
+| `generateStemClockSection` | `partials/stem-clock.ts` | done |
 
 Other transactional templates inside `transactional-emails.ts` (payment failed, refund acknowledged, subscription ended, trial ending) should follow the same pattern in a second PR.
