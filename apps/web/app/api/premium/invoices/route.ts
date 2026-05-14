@@ -3,8 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { getUserId } from '@/lib/auth/getUserId';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -19,23 +18,10 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
     try {
-        // 1. Authenticate User
-        const cookieStore = await cookies();
-        const supabaseAuth = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    get(name: string) {
-                        return cookieStore.get(name)?.value;
-                    },
-                },
-            }
-        );
+        // Supports both JWT (extension) and session-cookie (web) auth
+        const userId = await getUserId(req);
 
-        const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
-
-        if (authError || !user) {
+        if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -43,7 +29,7 @@ export async function GET(req: NextRequest) {
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('stripe_customer_id')
-            .eq('user_id', user.id)
+            .eq('user_id', userId)
             .single();
 
         if (profileError || !profile?.stripe_customer_id) {

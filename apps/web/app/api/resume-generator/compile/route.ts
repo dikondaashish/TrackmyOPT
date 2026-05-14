@@ -1,11 +1,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getPostHogClient } from '@/lib/posthog-server';
+import { getUserId } from '@/lib/auth/getUserId';
 
-// CORS headers
+// CORS headers (restricted to same-origin; extension uses Bearer auth)
 const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
@@ -14,6 +15,11 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
+    const userId = await getUserId(req);
+    if (!userId) {
+        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await req.json();
         const { latexCode } = body;

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "OPT Health Insurance Guide 2026 | TrackMyOPT",
         description: "How to find and choose the best health insurance plan on OPT. ACA marketplace, employer plans, COBRA, and more.",
-        url: "https://www.trackmyopt.com/blog/opt-health-insurance-guide",
+        url: "https://www.trackmyopt.com/blog/opt-health-insurance-guide-2026",
         type: "article",
         images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Health Insurance Guide 2026: Best Plans & How to Choose" }],
     },

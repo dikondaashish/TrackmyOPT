@@ -3,8 +3,9 @@ import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { buildFixSyntaxPrompt } from '@/lib/ai/prompts/fix-syntax';
 import rateLimit from '@/lib/auth/rate-limit';
+import { getUserId } from '@/lib/auth/getUserId';
 
-// Rate Limiter: 20 requests per minute per IP (higher limit for debugging cycle)
+// Rate Limiter: 10 requests per minute per user
 const limiter = rateLimit({
     interval: 60 * 1000,
 });
@@ -12,10 +13,16 @@ const limiter = rateLimit({
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
+    // Auth check first — rate limiter only catches distributed abuse, not anon access
+    const userId = await getUserId(req);
+    if (!userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-        // 1. Rate Limiting
-        const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-        const { isRateLimited } = limiter.check(req, 20, ip);
+        // Per-user rate limiting (keyed by user id, not IP)
+        const limitKey = userId;
+        const { isRateLimited } = limiter.check(req, 10, limitKey);
 
         if (isRateLimited) {
             return NextResponse.json(

@@ -53,19 +53,23 @@ interface CaseStatus {
 export function CaseStatusSection() {
   const [receiptNumber, setReceiptNumber] = useState("");
   const [caseStatus, setCaseStatus] = useState<CaseStatus | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // isInitialLoad guards the full-page spinner on first mount only.
+  // Subsequent reloads (polling, refresh) use isRefreshing so the UI doesn't collapse.
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
+  // null = still loading, true/false = resolved — prevents free-tier flash for Pro users
+  const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [notificationEmail, setNotificationEmail] = useState("");
   const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [emailSaving, setEmailSaving] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
 
   useEffect(() => {
-    loadCaseStatus();
+    loadCaseStatus(true);
     checkPremiumStatus();
     loadUserEmail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,10 +112,13 @@ export function CaseStatusSection() {
       });
       if (response.ok) {
         const data = await response.json();
-        setIsPremium(data.isPremium || false);
+        setIsPremium(data.isPremium === true);
+      } else {
+        // Treat fetch errors as unknown, not as "free" — avoids false upsell on transient failures
+        setIsPremium(false);
       }
     } catch {
-      // Premium check failed silently
+      setIsPremium(false);
     }
   };
 
@@ -129,9 +136,8 @@ export function CaseStatusSection() {
     }
   };
 
-  const loadCaseStatus = async () => {
+  const loadCaseStatus = async (isInitial = false) => {
     try {
-      setIsLoading(true);
       const response = await fetch('/api/case-status', {
         credentials: 'include',
         cache: 'no-store',
@@ -149,7 +155,7 @@ export function CaseStatusSection() {
     } catch {
       return null;
     } finally {
-      setIsLoading(false);
+      if (isInitial) setIsInitialLoad(false);
     }
   };
 
@@ -374,7 +380,7 @@ export function CaseStatusSection() {
   };
 
   const handleEmailSave = async () => {
-    if (!isPremium) {
+    if (isPremium === false) {
       setShowPremiumModal(true);
       return;
     }
@@ -385,6 +391,7 @@ export function CaseStatusSection() {
       return;
     }
 
+    setEmailSaving(true);
     try {
       const response = await fetch('/api/user/notification-email', {
         method: 'POST',
@@ -405,10 +412,12 @@ export function CaseStatusSection() {
       }
     } catch {
       setError('An error occurred while saving email.');
+    } finally {
+      setEmailSaving(false);
     }
   };
 
-  if (isLoading) {
+  if (isInitialLoad) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
@@ -542,7 +551,7 @@ export function CaseStatusSection() {
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Last checked: {formatDate(caseStatus.last_checked_at)}
                   </p>
-                  {isPremium ? (
+                  {isPremium === null ? null : isPremium ? (
                     <p className="text-xs text-gray-600 dark:text-gray-400">
                       {calculateNextCheck(caseStatus.last_checked_at)} &middot; Automatic daily checks
                     </p>
@@ -607,10 +616,15 @@ export function CaseStatusSection() {
                           aria-label="Notification email address"
                         />
                         <div className="flex gap-2">
-                          <Button onClick={handleEmailSave} size="sm" className="bg-purple-600 hover:bg-purple-700">
-                            Save
+                          <Button
+                            onClick={handleEmailSave}
+                            size="sm"
+                            disabled={emailSaving}
+                            className="bg-purple-600 hover:bg-purple-700"
+                          >
+                            {emailSaving ? 'Saving...' : 'Save'}
                           </Button>
-                          <Button onClick={() => setIsEditingEmail(false)} variant="outline" size="sm">
+                          <Button onClick={() => setIsEditingEmail(false)} variant="outline" size="sm" disabled={emailSaving}>
                             Cancel
                           </Button>
                         </div>

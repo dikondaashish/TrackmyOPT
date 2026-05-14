@@ -112,6 +112,13 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case 'invoice.paid':
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice;
+        await handleInvoicePaid(stripe, invoice);
+        break;
+      }
+
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge;
         await handleChargeRefunded(stripe, charge, event.id);
@@ -137,9 +144,16 @@ export async function POST(req: NextRequest) {
       }
 
       default:
+        // Unknown event type — log for observability so we can add handlers as needed.
+        console.log(`ℹ️ Unhandled Stripe event type: ${event.type}`);
     }
   } catch (error: unknown) {
-    console.error(`❌ Error handling webhook event ${event.type}:`, sanitizeError(error));
+    // Return 5xx so Stripe retries the event instead of silently dropping it.
+    console.error(`❌ Fatal error handling webhook event ${event.type} (${event.id}):`, sanitizeError(error));
+    return NextResponse.json(
+      { error: 'Webhook handler error' },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ received: true });
@@ -575,13 +589,23 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
   const amountCents = charge.amount_refunded ?? charge.amount ?? 0;
   const currency = charge.currency || 'usd';
 
+  // Only revoke premium for a full refund. Partial refunds (e.g. a credit adjustment)
+  // should not strip access — the subscription is still active in that case.
+  const isFullRefund =
+    typeof charge.amount_refunded === 'number' &&
+    typeof charge.amount === 'number' &&
+    charge.amount_refunded >= charge.amount;
+
   for (const userId of userIds) {
+    if (!isFullRefund) {
+      console.log(`ℹ️ charge.refunded: partial refund for user ${userId} — not revoking premium`);
+      // Still send refund acknowledgment email for partial refunds (fall through).
+    } else {
     const { error } = await supabase
       .from('profiles')
       .update({
         premium_status: false,
         plan_tier: null,
-        updated_at: nowIso,
       })
       .eq('user_id', userId);
     if (error) {
@@ -589,6 +613,7 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
     } else {
       console.log('✅ Refund: revoked premium for user', userId);
     }
+    } // end isFullRefund
 
     try {
       const { data: profile } = await supabase
@@ -626,6 +651,54 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
   }
 }
 
+/**
+ * Handles successful invoice payments (subscription renewals).
+ * Refreshes subscription_expires_at from the associated subscription so the DB
+ * stays in sync even if customer.subscription.updated is delayed or misconfigured.
+ */
+async function handleInvoicePaid(stripe: Stripe, invoice: Stripe.Invoice) {
+  try {
+    const inv = invoice as Stripe.Invoice & {
+      subscription?: string | Stripe.Subscription | null;
+    };
+    const customerId = typeof inv.customer === 'string' ? inv.customer : (inv.customer as any)?.id;
+    if (!customerId) return;
+
+    const subRef = inv.subscription;
+    const subId = typeof subRef === 'string' ? subRef : (subRef as any)?.id ?? null;
+    if (!subId) return;
+
+    const subscription = await stripe.subscriptions.retrieve(subId);
+    if (!['active', 'trialing'].includes(subscription.status)) return;
+
+    const sub = subscription as unknown as { current_period_end: number };
+    const newExpiry = new Date(sub.current_period_end * 1000).toISOString();
+    const planTier = subscription.metadata?.planId || 'pro';
+
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    const { error } = await supabaseAdmin
+      .from('profiles')
+      .update({
+        premium_status: true,
+        plan_tier: planTier,
+        subscription_expires_at: newExpiry,
+      })
+      .eq('stripe_customer_id', customerId);
+
+    if (error) {
+      console.error('❌ handleInvoicePaid: DB update failed:', error);
+    } else {
+      console.log(`✅ handleInvoicePaid: renewed expiry for customer ${customerId} → ${newExpiry}`);
+    }
+  } catch (error: unknown) {
+    console.error('handleInvoicePaid:', sanitizeError(error));
+  }
+}
+
 async function handleSubscriptionUpdated(
   stripe: Stripe,
   subscription: Stripe.Subscription,
@@ -634,31 +707,36 @@ async function handleSubscriptionUpdated(
   try {
     const customerId = subscription.customer as string;
 
+    // Notify user of payment failure during dunning — but do NOT revoke access yet.
     if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
       await safeSendPaymentFailedForSubscription(stripe, subscription, eventId);
     }
 
-    const isActive = ['active', 'trialing'].includes(subscription.status);
+    // Only revoke on genuinely terminal states where Stripe has given up entirely.
+    // Keep access during past_due (dunning retries) and unpaid (brief limbo before
+    // cancellation), which is standard SaaS practice and prevents cutting off users
+    // during temporary payment failures.
+    const isTerminal = ['canceled', 'incomplete_expired'].includes(subscription.status);
 
-    if (!isActive) {
+    if (isTerminal) {
       await revokePremiumAccess(customerId);
-    } else {
+    } else if (['active', 'trialing', 'past_due', 'unpaid'].includes(subscription.status)) {
       const supabaseAdmin = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
       );
 
+      const sub = subscription as unknown as { current_period_end: number };
       await supabaseAdmin
         .from('profiles')
         .update({
           premium_status: true,
           plan_tier: subscription.metadata?.planId || 'pro',
-          subscription_expires_at: new Date(
-            (subscription as unknown as { current_period_end: number }).current_period_end * 1000
-          ).toISOString(),
+          subscription_expires_at: new Date(sub.current_period_end * 1000).toISOString(),
         })
         .eq('stripe_customer_id', customerId);
     }
+    // Other statuses (incomplete, paused) → no change to DB; let next event decide.
   } catch (error: unknown) {
     console.error('handleSubscriptionUpdated:', sanitizeError(error));
   }
@@ -736,7 +814,6 @@ async function revokePremiumAccess(stripeCustomerId: string): Promise<{
       .update({
         premium_status: false,
         plan_tier: null,
-        updated_at: new Date().toISOString(),
       })
       .eq('stripe_customer_id', stripeCustomerId);
 

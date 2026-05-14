@@ -6,8 +6,13 @@ const INDEXNOW_KEY = "trackmyopt2026indexnow";
 const SITE_HOST = "www.trackmyopt.com";
 
 export async function POST(req: NextRequest) {
+  const configuredSecret = process.env.SEO_PING_SECRET;
+  if (!configuredSecret) {
+    console.error("SEO_PING_SECRET env var is not set — rejecting request");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const secret = req.headers.get("x-seo-secret");
-  if (secret !== (process.env.SEO_PING_SECRET || "trackmyopt-seo-ping")) {
+  if (secret !== configuredSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

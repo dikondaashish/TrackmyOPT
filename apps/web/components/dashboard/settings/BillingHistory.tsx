@@ -61,7 +61,7 @@ export function BillingHistory() {
                     Billing History
                 </h3>
                 {invoices.length > 0 && (
-                    <span className="text-xs text-gray-500">Last 3 Invoices</span>
+                    <span className="text-xs text-gray-500">Recent Invoices</span>
                 )}
             </div>
 

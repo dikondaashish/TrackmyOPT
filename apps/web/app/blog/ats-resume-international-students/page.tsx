@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "ATS Resume for International Students 2026 | TrackMyOPT",
         description: "Beat applicant tracking systems with an optimized resume. Formatting rules, keyword strategy, and visa status advice for F-1 students.",
-        url: "https://www.trackmyopt.com/blog/ats-resume-international-students",
+        url: "https://www.trackmyopt.com/blog/ats-resume-international-students-2026",
         type: "article",
         images: [{
             url: "https://www.trackmyopt.com/og-image.png",

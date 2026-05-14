@@ -104,34 +104,32 @@ export async function GET(req: NextRequest) {
     }
 
     // premium_status is false in DB but a stripe_customer_id exists — the DB may have
-    // been incorrectly revoked (e.g. by a bug where current_period_end was missing).
-    // Check Stripe directly to self-heal before returning false.
+    // been incorrectly revoked. Check Stripe directly to self-heal before returning false.
     if (!data.premium_status && data.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
       try {
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-09-30.clover' });
-        const subs = await stripe.subscriptions.list({
-          customer: data.stripe_customer_id,
-          status: 'active',
-          limit: 1,
-        });
-        if (subs.data.length > 0) {
-          const sub = subs.data[0] as any;
-          const periodEnd: number | undefined =
-            (typeof sub?.current_period_end === 'number' ? sub.current_period_end : undefined) ??
-            (typeof sub?.items?.data?.[0]?.current_period_end === 'number'
-              ? sub.items.data[0].current_period_end
-              : undefined);
+        // Query both active and trialing — status:'active' is exact and excludes trials.
+        const [activeSubs, trialSubs] = await Promise.all([
+          stripe.subscriptions.list({ customer: data.stripe_customer_id, status: 'active', limit: 1 }),
+          stripe.subscriptions.list({ customer: data.stripe_customer_id, status: 'trialing', limit: 1 }),
+        ]);
+        const foundSub = activeSubs.data[0] ?? trialSubs.data[0] ?? null;
+        if (foundSub) {
+          // Cast needed: current_period_end is on the Subscription object but not
+          // reflected in the Stripe SDK types for this API version.
+          const sub = foundSub as Stripe.Subscription & { current_period_end?: number };
+          const periodEnd: number | undefined = sub.current_period_end;
           const healedExpiry = typeof periodEnd === 'number'
             ? new Date(periodEnd * 1000).toISOString()
             : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+          const healedPlanTier = (sub.metadata?.planId as string | undefined) || data.plan_tier || 'pro';
 
-          // Restore premium in DB
           await supabase
             .from('profiles')
             .update({
               premium_status: true,
+              plan_tier: healedPlanTier,
               subscription_expires_at: healedExpiry,
-              updated_at: new Date().toISOString(),
             })
             .eq('user_id', userId);
 
@@ -140,7 +138,7 @@ export async function GET(req: NextRequest) {
           return NextResponse.json(
             {
               isPremium: true,
-              planName: data.plan_tier || 'pro',
+              planName: healedPlanTier,
               expiresAt: healedExpiry,
               purchasedAt: data.premium_purchased_at,
               customerId: data.stripe_customer_id,
@@ -171,35 +169,30 @@ export async function GET(req: NextRequest) {
     if (expiresAt && expiresAt < now) {
       let stripeConfirmsActive = false;
       let newExpiresAt: string | null = null;
+      let newPlanTier: string | null = null;
 
       if (data.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
         try {
           const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
             apiVersion: '2025-09-30.clover',
           });
-          const subs = await stripe.subscriptions.list({
-            customer: data.stripe_customer_id,
-            status: 'active',
-            limit: 1,
-          });
-          if (subs.data.length > 0) {
+          // Query both active and trialing — status:'active' is exact and excludes trials.
+          const [activeSubs, trialSubs] = await Promise.all([
+            stripe.subscriptions.list({ customer: data.stripe_customer_id, status: 'active', limit: 1 }),
+            stripe.subscriptions.list({ customer: data.stripe_customer_id, status: 'trialing', limit: 1 }),
+          ]);
+          const foundSub = (activeSubs.data[0] ?? trialSubs.data[0] ?? null) as
+            | (Stripe.Subscription & { current_period_end?: number })
+            | null;
+          if (foundSub) {
             stripeConfirmsActive = true;
-            const sub = subs.data[0] as any;
-            // current_period_end location varies across Stripe API versions
-            const periodEnd: number | undefined =
-              (typeof sub?.current_period_end === 'number' ? sub.current_period_end : undefined) ??
-              (typeof sub?.items?.data?.[0]?.current_period_end === 'number'
-                ? sub.items.data[0].current_period_end
-                : undefined);
+            newPlanTier = (foundSub.metadata?.planId as string | undefined) || data.plan_tier || 'pro';
+            const periodEnd: number | undefined = foundSub.current_period_end;
             if (typeof periodEnd === 'number') {
               newExpiresAt = new Date(periodEnd * 1000).toISOString();
             } else {
-              // Stripe confirmed active but period end is unavailable in this API version.
-              // Fall back to extending 30 days from now so the DB cache stays fresh.
               newExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-              console.warn(
-                'GET /api/premium/status: current_period_end not found on Stripe subscription; using 30-day fallback expiry'
-              );
+              console.warn('GET /api/premium/status: current_period_end not found; using 30-day fallback expiry');
             }
           }
         } catch (stripeErr) {
@@ -208,22 +201,21 @@ export async function GET(req: NextRequest) {
       }
 
       if (stripeConfirmsActive) {
-        // Stripe confirms the subscription is active — heal the DB and grant access.
-        // newExpiresAt is always set when stripeConfirmsActive is true (real or fallback).
         const healedExpiry = newExpiresAt ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        const healedPlan = newPlanTier ?? data.plan_tier ?? 'pro';
         await supabase
           .from('profiles')
           .update({
             premium_status: true,
+            plan_tier: healedPlan,
             subscription_expires_at: healedExpiry,
-            updated_at: new Date().toISOString(),
           })
           .eq('user_id', userId);
 
         return NextResponse.json(
           {
             isPremium: true,
-            planName: data.plan_tier || 'pro',
+            planName: healedPlan,
             expiresAt: healedExpiry,
             purchasedAt: data.premium_purchased_at,
             customerId: data.stripe_customer_id,
@@ -238,7 +230,6 @@ export async function GET(req: NextRequest) {
         .update({
           premium_status: false,
           plan_tier: null,
-          updated_at: new Date().toISOString(),
         })
         .eq('user_id', userId);
 
@@ -267,14 +258,12 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: corsHeaders
     });
-  } catch (error: any) {
-    console.error('GET /api/premium/status error:', error?.message || 'Unknown error');
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    console.error('GET /api/premium/status error:', msg);
     return NextResponse.json(
-      { isPremium: false },
-      {
-        status: 200,
-        headers: corsHeaders
-      }
+      { isPremium: false, error: 'internal_error' },
+      { status: 500, headers: corsHeaders }
     );
   }
 }

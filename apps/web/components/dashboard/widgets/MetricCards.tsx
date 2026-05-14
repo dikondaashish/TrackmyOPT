@@ -52,7 +52,19 @@ function MetricCard({ title, value, icon, status, subtitle }: MetricCardProps) {
   );
 }
 
-export function MetricCards() {
+interface MetricCardsApiData {
+  optStatus?: Record<string, any> | null;
+  employmentSpans?: any[];
+  profile?: Record<string, any> | null;
+  unemploymentDays?: number;
+}
+
+interface MetricCardsProps {
+  /** Pass already-fetched /api/me data to avoid a duplicate network request. */
+  apiData?: MetricCardsApiData | null;
+}
+
+export function MetricCards({ apiData }: MetricCardsProps = {}) {
   const [metrics, setMetrics] = useState({
     filingWindowDays: null as number | null,
     unemploymentUsed: 0,
@@ -61,65 +73,21 @@ export function MetricCards() {
     isStemEligible: false,
     hasStemStarted: false,
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!apiData);
 
   useEffect(() => {
+    // If parent already fetched /api/me data, skip the duplicate request.
+    if (apiData !== undefined) {
+      if (apiData) processData(apiData);
+      setIsLoading(false);
+      return;
+    }
+
     const fetchMetrics = async () => {
       try {
         const response = await fetch("/api/me", { credentials: "include", cache: "no-store" });
         if (response.ok) {
-          const data = await response.json();
-          
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          
-          let filingWindowDays = null;
-          let daysUntilOPTEnd = null;
-          let maxUnemployment = 90;
-
-          if (data.optStatus) {
-            // Calculate filing window days
-            const programEnd = new Date(data.optStatus.program_end_date);
-            const earliestFileDate = new Date(programEnd);
-            earliestFileDate.setDate(earliestFileDate.getDate() - 90);
-            filingWindowDays = Math.ceil((earliestFileDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-            // Calculate days until OPT end
-            const optEnd = new Date(data.optStatus.opt_ead_end_date);
-            daysUntilOPTEnd = Math.ceil((optEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-            // Check if on STEM OPT
-            if (data.optStatus.stem_start_date) {
-              maxUnemployment = 150;
-            }
-          }
-
-          let unemploymentUsed = data.unemploymentDays || 0;
-          if (data.optStatus?.opt_start_date && data.optStatus?.opt_ead_end_date) {
-            const spansForCalc: CalculationEmploymentSpan[] = (data.employmentSpans || []).map((s: any) => ({
-              id: s.id,
-              employer_name: s.employer_name || "",
-              start_date: s.start_date,
-              end_date: s.end_date,
-              is_current: !!s.is_current,
-              job_title: s.job_title,
-              location: s.location,
-            }));
-            unemploymentUsed = calculateUnemploymentDays(
-              data.optStatus.opt_start_date,
-              data.optStatus.opt_ead_end_date,
-              spansForCalc
-            ).used;
-          }
-
-          setMetrics({
-            filingWindowDays,
-            unemploymentUsed,
-            maxUnemployment,
-            daysUntilOPTEnd,
-            isStemEligible: data.profile?.is_stem_eligible || false,
-            hasStemStarted: !!data.optStatus?.stem_start_date,
-          });
+          processData(await response.json());
         }
       } catch (error) {
         console.error("Failed to fetch metrics:", error);
@@ -129,7 +97,58 @@ export function MetricCards() {
     };
 
     fetchMetrics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function processData(data: MetricCardsApiData) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let filingWindowDays = null;
+    let daysUntilOPTEnd = null;
+    let maxUnemployment = 90;
+
+    if (data.optStatus) {
+      const programEnd = new Date(data.optStatus.program_end_date);
+      const earliestFileDate = new Date(programEnd);
+      earliestFileDate.setDate(earliestFileDate.getDate() - 90);
+      filingWindowDays = Math.ceil((earliestFileDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      const optEnd = new Date(data.optStatus.opt_ead_end_date);
+      daysUntilOPTEnd = Math.ceil((optEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      if (data.optStatus.stem_start_date) {
+        maxUnemployment = 150;
+      }
+    }
+
+    let unemploymentUsed = data.unemploymentDays || 0;
+    if (data.optStatus?.opt_start_date && data.optStatus?.opt_ead_end_date) {
+      const spansForCalc: CalculationEmploymentSpan[] = (data.employmentSpans || []).map((s: any) => ({
+        id: s.id,
+        employer_name: s.employer_name || "",
+        start_date: s.start_date,
+        end_date: s.end_date,
+        is_current: !!s.is_current,
+        job_title: s.job_title,
+        location: s.location,
+      }));
+      unemploymentUsed = calculateUnemploymentDays(
+        data.optStatus.opt_start_date,
+        data.optStatus.opt_ead_end_date,
+        spansForCalc
+      ).used;
+    }
+
+    setMetrics({
+      filingWindowDays,
+      unemploymentUsed,
+      maxUnemployment,
+      daysUntilOPTEnd,
+      isStemEligible: data.profile?.is_stem_eligible || false,
+      hasStemStarted: !!data.optStatus?.stem_start_date,
+    });
+  }
 
   // Determine status for each metric
   const getFilingStatus = () => {

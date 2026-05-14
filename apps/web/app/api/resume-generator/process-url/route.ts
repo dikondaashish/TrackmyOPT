@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getUserId } from '@/lib/auth/getUserId';
+import dns from 'dns/promises';
 
 // CORS headers
 const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
@@ -12,10 +14,37 @@ export async function OPTIONS() {
 }
 
 /**
+ * Check if an IP address is a private/reserved range (SSRF protection).
+ * Blocks localhost, RFC-1918 privates, link-local (cloud metadata), and loopback.
+ */
+function isPrivateIp(ip: string): boolean {
+    // IPv6 loopback
+    if (ip === '::1' || ip === '::') return true;
+    // Strip IPv6-mapped IPv4 prefix
+    const addr = ip.replace(/^::ffff:/, '');
+    const parts = addr.split('.').map(Number);
+    if (parts.length !== 4 || parts.some((n) => isNaN(n))) return false;
+    const [a, b] = parts;
+    return (
+        a === 127 ||                          // 127.0.0.0/8  loopback
+        a === 10 ||                           // 10.0.0.0/8   RFC-1918
+        (a === 172 && b >= 16 && b <= 31) || // 172.16.0.0/12 RFC-1918
+        (a === 192 && b === 168) ||           // 192.168.0.0/16 RFC-1918
+        (a === 169 && b === 254) ||           // 169.254.0.0/16 link-local (AWS metadata)
+        a === 0                               // 0.0.0.0/8  invalid
+    );
+}
+
+/**
  * POST /api/resume-generator/process-url
  * Extract content from a URL (job posting, cloud resume link)
  */
 export async function POST(req: NextRequest) {
+    const userId = await getUserId(req);
+    if (!userId) {
+        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await req.json();
         const { url, type } = body;
@@ -27,12 +56,36 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Validate URL format
+        // Validate URL format and enforce HTTPS
+        let parsedUrl: URL;
         try {
-            new URL(url);
+            parsedUrl = new URL(url);
         } catch {
             return NextResponse.json(
                 { success: false, error: 'Invalid URL format' },
+                { status: 400, headers: corsHeaders }
+            );
+        }
+
+        if (parsedUrl.protocol !== 'https:') {
+            return NextResponse.json(
+                { success: false, error: 'Only HTTPS URLs are supported.' },
+                { status: 400, headers: corsHeaders }
+            );
+        }
+
+        // SSRF protection: resolve hostname and reject private/internal IPs
+        try {
+            const resolved = await dns.lookup(parsedUrl.hostname);
+            if (isPrivateIp(resolved.address)) {
+                return NextResponse.json(
+                    { success: false, error: 'URL resolves to a private or reserved address.' },
+                    { status: 400, headers: corsHeaders }
+                );
+            }
+        } catch {
+            return NextResponse.json(
+                { success: false, error: 'Could not resolve URL hostname.' },
                 { status: 400, headers: corsHeaders }
             );
         }

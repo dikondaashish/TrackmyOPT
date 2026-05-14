@@ -346,7 +346,9 @@ export function OptDatesSection() {
 
   // Load all data in parallel on mount
   useEffect(() => {
-    Promise.all([loadDates(), checkPremiumStatus(), loadToolEmails(), loadEmploymentSpans()]);
+    void (async () => {
+      await Promise.all([loadDates(), checkPremiumStatus(), loadToolEmails(), loadEmploymentSpans()]);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

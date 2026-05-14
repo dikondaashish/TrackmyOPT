@@ -41,14 +41,13 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Determine return URL
-        const origin = req.headers.get('origin') ||
-            req.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
+        // Determine return URL — use env-configured site URL only to prevent open redirect.
+        const allowedOrigin =
             process.env.NEXT_PUBLIC_SITE_URL ||
             process.env.NEXT_PUBLIC_APP_URL ||
             'https://www.trackmyopt.com';
 
-        const returnUrl = `${origin}/dashboard/settings?tab=subscription`;
+        const returnUrl = `${allowedOrigin}/dashboard/settings?tab=subscription`;
 
         // Create Portal Session
         const session = await stripe.billingPortal.sessions.create({

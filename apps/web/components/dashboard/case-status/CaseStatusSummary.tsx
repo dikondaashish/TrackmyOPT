@@ -23,8 +23,9 @@ export function CaseStatusSummary() {
       const response = await fetch("/api/case-status", { credentials: "include" });
       if (response.ok) {
         const data = await response.json();
-        if (data.caseStatus) {
-          setCaseStatus(data.caseStatus);
+        // API returns { ok: true, data: caseStatus }
+        if (data.ok && data.data) {
+          setCaseStatus(data.data);
         }
       }
     } catch {
