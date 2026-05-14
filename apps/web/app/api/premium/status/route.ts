@@ -133,12 +133,21 @@ export async function GET(req: NextRequest) {
           });
           if (subs.data.length > 0) {
             stripeConfirmsActive = true;
-            const periodEnd = (subs.data[0] as any)?.current_period_end as number | undefined;
+            const sub = subs.data[0] as any;
+            // current_period_end location varies across Stripe API versions
+            const periodEnd: number | undefined =
+              (typeof sub?.current_period_end === 'number' ? sub.current_period_end : undefined) ??
+              (typeof sub?.items?.data?.[0]?.current_period_end === 'number'
+                ? sub.items.data[0].current_period_end
+                : undefined);
             if (typeof periodEnd === 'number') {
               newExpiresAt = new Date(periodEnd * 1000).toISOString();
             } else {
-              console.error(
-                'GET /api/premium/status: Stripe subscription missing current_period_end, trusting DB expiry'
+              // Stripe confirmed active but period end is unavailable in this API version.
+              // Fall back to extending 30 days from now so the DB cache stays fresh.
+              newExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+              console.warn(
+                'GET /api/premium/status: current_period_end not found on Stripe subscription; using 30-day fallback expiry'
               );
             }
           }
@@ -147,13 +156,15 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      if (stripeConfirmsActive && newExpiresAt) {
-        // Subscription is still active in Stripe — heal the stale expiry date in DB
+      if (stripeConfirmsActive) {
+        // Stripe confirms the subscription is active — heal the DB and grant access.
+        // newExpiresAt is always set when stripeConfirmsActive is true (real or fallback).
+        const healedExpiry = newExpiresAt ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
         await supabase
           .from('profiles')
           .update({
             premium_status: true,
-            subscription_expires_at: newExpiresAt,
+            subscription_expires_at: healedExpiry,
             updated_at: new Date().toISOString(),
           })
           .eq('user_id', userId);
@@ -162,7 +173,7 @@ export async function GET(req: NextRequest) {
           {
             isPremium: true,
             planName: data.plan_tier || 'pro',
-            expiresAt: newExpiresAt,
+            expiresAt: healedExpiry,
             purchasedAt: data.premium_purchased_at,
             customerId: data.stripe_customer_id,
           },
@@ -170,7 +181,7 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      // Stripe confirms subscription is not active — safely revoke
+      // Stripe confirmed no active subscription — safely revoke.
       const { error: revokeError } = await supabase
         .from('profiles')
         .update({
