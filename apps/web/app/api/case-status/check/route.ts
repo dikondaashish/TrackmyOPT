@@ -96,10 +96,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ISS-011: explicit flag instead of NODE_ENV gate. Mock is only on when
-    // USCIS_MOCK=true is explicitly set. Front-end will show a banner so devs/QA
-    // never mistake fake data for live USCIS responses.
-    const useMock = process.env.USCIS_MOCK === 'true';
+    // Mock is OFF by default. We require BOTH conditions to enable mock:
+    //  1) USCIS_MOCK === 'true' explicitly set, AND
+    //  2) NOT running in production (extra safety so a stray env var
+    //     cannot accidentally show fake data to real users).
+    const useMock =
+      process.env.USCIS_MOCK === 'true' &&
+      process.env.VERCEL_ENV !== 'production' &&
+      process.env.NODE_ENV !== 'production';
+
+    // Loud, single warning if USCIS_MOCK was set in prod — we ignored it.
+    if (process.env.USCIS_MOCK === 'true' && !useMock) {
+      console.warn('[USCIS] USCIS_MOCK=true was set but ignored in production environment.');
+    }
 
     if (useMock) {
       const mockStatus = mockUSCISStatus(receipt_number);

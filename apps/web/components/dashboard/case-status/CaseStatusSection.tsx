@@ -578,8 +578,10 @@ export function CaseStatusSection() {
             </Card>
           )}
 
-          {/* ISS-011: explicit mock banner */}
-          {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' && (
+          {/* Mock banner — never shown in production builds (defense-in-depth) */}
+          {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' &&
+            process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' &&
+            process.env.NODE_ENV !== 'production' && (
             <Card className="p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800" role="status">
               <div className="flex items-start gap-3">
                 <Info className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
