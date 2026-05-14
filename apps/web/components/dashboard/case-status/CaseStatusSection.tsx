@@ -67,6 +67,7 @@ export function CaseStatusSection() {
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [emailSaving, setEmailSaving] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
     loadCaseStatus(true);
@@ -255,7 +256,7 @@ export function CaseStatusSection() {
     }
 
     try {
-      setIsLoading(true);
+      setIsRemoving(true);
       const response = await fetch('/api/case-status', {
         method: 'DELETE',
         credentials: 'include',
@@ -273,7 +274,7 @@ export function CaseStatusSection() {
     } catch {
       setError('An error occurred while removing the case.');
     } finally {
-      setIsLoading(false);
+      setIsRemoving(false);
     }
   };
 
@@ -535,10 +536,11 @@ export function CaseStatusSection() {
             <Button
               variant="outline"
               onClick={handleRemove}
+              disabled={isRemoving}
               className="flex items-center justify-center gap-2 w-full sm:w-auto text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-200 dark:border-red-900"
             >
               <Trash2 className="w-4 h-4" />
-              Remove
+              {isRemoving ? 'Removing...' : 'Remove'}
             </Button>
           </div>
 
