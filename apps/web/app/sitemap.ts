@@ -102,6 +102,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
         // ats-resume-international-students are permanent 301 redirects in
         // next.config.js → their 2026 versions are already in the sitemap above.
         // Including redirect sources causes "Page with redirect" in Search Console.
+
+        // ── New posts added May 2026 ──
+        '/blog/indian-bank-account-nro-opt-students',
+        '/blog/hsi-opt-fraud-crackdown-legitimate-students-guide',
+        '/blog/is-opt-ending-dhs-rule-2026',
+        '/blog/spring-graduates-opt-application-timing-2026',
+        '/blog/opt-ead-pending-processing-delays-2026',
     ];
 
     return [

@@ -307,6 +307,34 @@ const blogPosts = [
         featured: true,
         tags: ["OPT Fraud", "HSI", "Compliance", "STEM OPT"],
     },
+    {
+        slug: "is-opt-ending-dhs-rule-2026",
+        title: "Is OPT Really Ending in 2026? What the DHS Review and Policy Threats Actually Mean for F-1 Students",
+        description: "DHS confirmed it is re-evaluating OPT and STEM OPT, and Trump's USCIS nominee wants to eliminate post-completion work authorization. Here is what is real vs. rumor — and what to do now.",
+        category: "Important",
+        readTime: "10 min read",
+        date: "May 14, 2026",
+        featured: true,
+        tags: ["OPT Policy", "DHS Rule", "STEM OPT", "2026"],
+    },
+    {
+        slug: "spring-graduates-opt-application-timing-2026",
+        title: "Spring 2026 Graduates: How to Time Your OPT Application to Avoid a Work Gap",
+        description: "Graduating in May or June 2026? With USCIS processing delays at record highs, the timing of your I-765 filing directly determines whether you can start work on day one.",
+        category: "OPT Basics",
+        readTime: "8 min read",
+        date: "May 14, 2026",
+        tags: ["OPT Application", "Spring 2026", "I-765", "Timing"],
+    },
+    {
+        slug: "opt-ead-pending-processing-delays-2026",
+        title: "OPT EAD Still Pending After 3, 6, or 12 Months? Here's Exactly What to Do (2026)",
+        description: "USCIS OPT processing delays are at record highs in 2026, with some cases pending over a year. Here is a stage-by-stage action guide including service requests, congressional inquiries, and escalation tools.",
+        category: "USCIS",
+        readTime: "9 min read",
+        date: "May 14, 2026",
+        tags: ["OPT Delays", "I-765 Pending", "USCIS", "Processing Times"],
+    },
 ];
 
 function CategoryBadge({ category }: { category: string }) {
