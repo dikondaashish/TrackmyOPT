@@ -17,7 +17,6 @@ import { DocumentUploadModal } from './DocumentUploadModal';
 import { DocumentGrid } from './DocumentGrid';
 import { DocumentStats } from './DocumentStats';
 import { DocumentFilters } from './DocumentFilters';
-import { PremiumUpsellModal } from '../widgets/PremiumUpsellModal';
 
 interface Document {
   id: string;
@@ -45,7 +44,6 @@ export function DocumentVaultClient() {
   const [showPasscodeSetup, setShowPasscodeSetup] = useState(false);
   const [showPasscodeVerify, setShowPasscodeVerify] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showUpsellModal, setShowUpsellModal] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');

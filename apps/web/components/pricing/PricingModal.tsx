@@ -160,29 +160,32 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent onClose={onClose} className="max-w-[1100px] w-[95vw] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl">
+      <DialogContent
+        onClose={onClose}
+        className="max-w-[1100px] w-[95vw] max-h-[min(92vh,880px)] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col"
+      >
         {/* Header Section */}
-        <div className="relative px-8 pt-8 pb-6 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
+        <div className="relative shrink-0 px-5 sm:px-6 pt-5 pb-3 sm:pb-4 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.08),transparent_50%)]" />
 
           <div className="relative z-10">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 text-xs font-semibold mb-4 border border-violet-500/20">
-              <Sparkles className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 text-[11px] font-semibold mb-2 border border-violet-500/20">
+              <Sparkles className="w-3 h-3" />
               Upgrade Your OPT Journey
             </div>
 
             {/* Title */}
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-2">
+            <h2 className="text-xl sm:text-2xl md:text-[1.65rem] font-bold tracking-tight text-foreground mb-1">
               Choose Your Plan
             </h2>
-            <p className="text-muted-foreground text-sm max-w-lg mx-auto">
+            <p className="text-muted-foreground text-xs sm:text-sm max-w-lg mx-auto leading-snug">
               Join 2,500+ international students who trust TrackMyOPT to navigate their F-1 visa journey
             </p>
 
             {/* Billing Toggle */}
-            <div className="flex items-center justify-center gap-4 mt-6">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 mt-3 sm:mt-4">
               <span className={cn(
                 "text-sm font-medium transition-all duration-200",
                 !isYearly ? "text-foreground" : "text-muted-foreground"
@@ -220,7 +223,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
               </div>
             </div>
 
-            <div className="mt-6 max-w-md mx-auto px-2">
+            <div className="mt-3 max-w-md mx-auto px-1">
               <PromoCodeCheckoutBar
                 mode={promoMode}
                 customCode={customPromoInput}
@@ -251,9 +254,10 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
           </div>
         </div>
 
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
         {/* Plans Grid */}
-        <div className="p-6 md:p-8">
-          <div className="grid md:grid-cols-3 gap-5">
+        <div className="p-4 sm:p-5 md:p-6">
+          <div className="grid md:grid-cols-3 gap-3 sm:gap-4">
             {plans.map((plan) => {
               const Icon = plan.icon;
               const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
@@ -272,70 +276,70 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 >
                   {/* Popular Badge */}
                   {plan.popular && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                      <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[11px] font-bold uppercase tracking-wide shadow-lg shadow-violet-500/30">
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
+                      <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-violet-500/30">
                         <Star className="w-3 h-3 fill-current" />
                         Most Popular
                       </div>
                     </div>
                   )}
 
-                  <div className="p-6 flex flex-col h-full">
+                  <div className="p-4 sm:p-5 flex flex-col h-full">
                     {/* Plan Header */}
-                    <div className="mb-5">
-                      <div className="flex items-center gap-3 mb-3">
+                    <div className="mb-3">
+                      <div className="flex items-center gap-2.5 mb-2">
                         <div className={cn(
-                          "p-2.5 rounded-xl shadow-sm",
+                          "p-2 rounded-lg shadow-sm",
                           plan.iconBg
                         )}>
-                          <Icon className={cn("w-5 h-5", plan.iconColor)} />
+                          <Icon className={cn("w-[18px] h-[18px]", plan.iconColor)} />
                         </div>
                         <div>
-                          <h3 className="font-bold text-lg text-foreground">{plan.name}</h3>
-                          <p className="text-muted-foreground text-xs">{plan.tagline}</p>
+                          <h3 className="font-bold text-base text-foreground">{plan.name}</h3>
+                          <p className="text-muted-foreground text-[11px] leading-tight">{plan.tagline}</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Price Section */}
-                    <div className="mb-5 pb-5 border-b border-border/50">
+                    <div className="mb-3 pb-3 border-b border-border/50">
                       <div className="flex items-baseline gap-2">
-                        <span className="text-4xl font-bold tracking-tight text-foreground">
+                        <span className="text-3xl font-bold tracking-tight text-foreground">
                           ${price}
                         </span>
                         {originalPrice && originalPrice > price && (
-                          <span className="text-base text-muted-foreground/70 line-through">
+                          <span className="text-sm text-muted-foreground/70 line-through">
                             ${originalPrice}
                           </span>
                         )}
                       </div>
-                      <p className="text-muted-foreground text-sm mt-1">
+                      <p className="text-muted-foreground text-xs mt-0.5">
                         {plan.id === 'free' ? 'Forever free' : `per ${isYearly ? 'year' : 'month'}`}
                       </p>
                       {plan.trial && (
-                        <p className="text-violet-600 dark:text-violet-400 text-sm font-medium mt-2 flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5" />
+                        <p className="text-violet-600 dark:text-violet-400 text-xs font-medium mt-1.5 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
                           {plan.trial}
                         </p>
                       )}
                     </div>
 
                     {/* CTA Button */}
-                    <div className="mb-5">
+                    <div className="mb-3">
                       {plan.current ? (
                         <Button
                           disabled
                           variant="outline"
-                          className="w-full h-11 text-sm font-medium"
+                          className="w-full h-9 text-xs font-medium"
                         >
-                          <Check className="w-4 h-4 mr-2" />
+                          <Check className="w-3.5 h-3.5 mr-1.5" />
                           Current Plan
                         </Button>
                       ) : plan.id === 'free' ? (
                         <Button
                           disabled
                           variant="outline"
-                          className="w-full h-11 text-sm font-medium opacity-60"
+                          className="w-full h-9 text-xs font-medium opacity-60"
                         >
                           Free Forever
                         </Button>
@@ -344,7 +348,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                           onClick={() => handleUpgrade(plan.id)}
                           disabled={isLoading}
                           className={cn(
-                            "w-full h-11 text-sm font-semibold transition-all duration-300",
+                            "w-full h-9 text-xs font-semibold transition-all duration-300",
                             plan.popular
                               ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-[1.02]"
                               : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 hover:scale-[1.02]"
@@ -352,13 +356,13 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                         >
                           {loadingPlan === plan.id ? (
                             <span className="flex items-center gap-2">
-                              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                               Processing...
                             </span>
                           ) : (
-                            <span className="flex items-center gap-2">
+                            <span className="flex items-center gap-1.5">
                               {plan.popular ? 'Start 7-Day Free Trial' : 'Upgrade to Dedicated'}
-                              <ArrowRight className="w-4 h-4" />
+                              <ArrowRight className="w-3.5 h-3.5" />
                             </span>
                           )}
                         </Button>
@@ -367,13 +371,13 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
                     {/* Features List */}
                     <div className="flex-1">
-                      <ul className="space-y-2.5">
+                      <ul className="space-y-1.5">
                         {plan.features.map((feature, idx) => (
                           <li
                             key={idx}
                             className={cn(
-                              "flex items-start gap-2.5",
-                              feature.isHeader && "pt-1"
+                              "flex items-start gap-2",
+                              feature.isHeader && "pt-0.5"
                             )}
                           >
                             <div className={cn(
@@ -385,7 +389,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                                   : "bg-muted"
                             )}>
                               <Check className={cn(
-                                "w-3 h-3",
+                                "w-2.5 h-2.5",
                                 plan.popular
                                   ? "text-violet-600 dark:text-violet-400"
                                   : plan.id === 'dedicated'
@@ -394,7 +398,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                               )} />
                             </div>
                             <span className={cn(
-                              "text-sm leading-relaxed",
+                              "text-xs leading-snug",
                               feature.isHeader
                                 ? "font-semibold text-foreground"
                                 : "text-muted-foreground"
@@ -410,23 +414,24 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
               );
             })}
           </div>
+        </div>
 
           {/* Footer Trust Section */}
-          <div className="mt-8 pt-6 border-t border-border/40">
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Shield className="w-4 h-4 text-green-600" />
+          <div className="px-4 sm:px-5 pb-4 pt-3 border-t border-border/40 bg-background/95">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Shield className="w-3.5 h-3.5 text-green-600" />
                 <span>Secure Payment</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Sparkles className="w-4 h-4 text-violet-600" />
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Sparkles className="w-3.5 h-3.5 text-violet-600" />
                 <span>7-Day Free Trial</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Zap className="w-4 h-4 text-amber-600" />
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Zap className="w-3.5 h-3.5 text-amber-600" />
                 <span>Cancel Anytime</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-1.5 text-xs">
                 <span className="text-muted-foreground/60">Powered by</span>
                 <span className="font-semibold text-foreground/80">Stripe</span>
               </div>

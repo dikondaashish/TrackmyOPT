@@ -24,7 +24,7 @@ We follow an atomic design approach for basic UI elements (Buttons, Inputs, Moda
 ### Feature Subdirectories
 Components related to a specific feature (e.g., the Document Vault) are grouped into their own subdirectories within `components/dashboard/`.
 - **Pattern**: `DashboardContent.tsx` acts as the orchestrator for the main dashboard view, importing specialized "widgets" from the `widgets/` folder.
-- **Reusability**: Shared feature components (like the `PremiumUpsellModal`) are kept in `widgets/` so they can be imported by different feature pages.
+- **Reusability**: Shared feature components (like `PricingModal` for upgrades) live under `components/pricing/` or `widgets/` so feature pages can reuse them.
 
 ---
 

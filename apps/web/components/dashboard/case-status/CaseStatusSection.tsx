@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Collapsible } from "@/components/ui/collapsible";
-import { PremiumUpsellModal } from "@/components/dashboard/widgets/PremiumUpsellModal";
+import { PricingModal } from "@/components/pricing/PricingModal";
 import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
 import {
@@ -67,7 +67,7 @@ export function CaseStatusSection() {
   const [success, setSuccess] = useState(false);
   // null = still loading, true/false = resolved — prevents free-tier flash for Pro users
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
   const [notificationEmail, setNotificationEmail] = useState("");
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [emailSaving, setEmailSaving] = useState(false);
@@ -397,7 +397,7 @@ export function CaseStatusSection() {
 
   const handleEmailSave = async () => {
     if (isPremium === false) {
-      setShowPremiumModal(true);
+      setShowPricingModal(true);
       return;
     }
 
@@ -612,7 +612,7 @@ export function CaseStatusSection() {
                     <p className="text-xs text-gray-500 dark:text-gray-500">
                       Manual refresh only &middot;{' '}
                       <button
-                        onClick={() => setShowPremiumModal(true)}
+                        onClick={() => setShowPricingModal(true)}
                         className="text-purple-600 dark:text-purple-400 hover:underline"
                       >
                         Upgrade for auto-checks
@@ -716,7 +716,7 @@ export function CaseStatusSection() {
                       </li>
                     </ul>
                     <Button
-                      onClick={() => setShowPremiumModal(true)}
+                      onClick={() => setShowPricingModal(true)}
                       className="bg-purple-600 hover:bg-purple-700 text-white"
                     >
                       <Crown className="w-4 h-4 mr-2" />
@@ -938,10 +938,10 @@ export function CaseStatusSection() {
         </Card>
       )}
 
-      <PremiumUpsellModal
-        open={showPremiumModal}
-        onClose={() => setShowPremiumModal(false)}
-        feature="Case Status Notifications"
+      <PricingModal
+        open={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
+        isPremium={isPremium ?? false}
       />
     </div>
   );
