@@ -407,7 +407,21 @@ function LoginPageContent() {
       setCanResend(false);
       setLoading(false);
     } catch (err: any) {
-      setError(err.message || 'Sign up failed. Please try again.');
+      // ISS-008: map common Supabase signup errors to friendly copy
+      const raw = String(err?.message || '').toLowerCase();
+      let friendly = err?.message || 'Sign up failed. Please try again.';
+      if (raw.includes('already registered') || raw.includes('user already exists') || raw.includes('email already')) {
+        friendly = 'An account already exists with this email. Try signing in instead, or use "Forgot password" to reset it.';
+      } else if (raw.includes('weak password') || raw.includes('password should be')) {
+        friendly = 'Password is too weak. Use at least 8 characters with a mix of letters and numbers.';
+      } else if (raw.includes('rate limit') || raw.includes('too many')) {
+        friendly = 'Too many signup attempts. Please wait a few minutes and try again.';
+      } else if (raw.includes('invalid email')) {
+        friendly = 'That email address looks invalid. Double-check it and try again.';
+      } else if (raw.includes('network') || raw.includes('fetch')) {
+        friendly = 'Connection issue. Check your internet and try again.';
+      }
+      setError(friendly);
       setLoading(false);
     }
   };
@@ -746,6 +760,8 @@ function LoginPageContent() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground"
                   >
                     {showPassword ? (
@@ -927,6 +943,8 @@ function LoginPageContent() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground"
                   >
                     {showPassword ? (

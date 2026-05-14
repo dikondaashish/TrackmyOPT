@@ -67,6 +67,7 @@ interface MetricCardsProps {
 export function MetricCards({ apiData }: MetricCardsProps = {}) {
   const [metrics, setMetrics] = useState({
     filingWindowDays: null as number | null,
+    filingDeadlineDays: null as number | null, // days until 60-day-post-program-end deadline
     unemploymentUsed: 0,
     maxUnemployment: 90,
     daysUntilOPTEnd: null as number | null,
@@ -105,6 +106,7 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     today.setHours(0, 0, 0, 0);
 
     let filingWindowDays = null;
+    let filingDeadlineDays: number | null = null;
     let daysUntilOPTEnd = null;
     let maxUnemployment = 90;
 
@@ -113,6 +115,11 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
       const earliestFileDate = new Date(programEnd);
       earliestFileDate.setDate(earliestFileDate.getDate() - 90);
       filingWindowDays = Math.ceil((earliestFileDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      // 60-day-after-program-end hard deadline (ISS-004)
+      const filingHardDeadline = new Date(programEnd);
+      filingHardDeadline.setDate(filingHardDeadline.getDate() + 60);
+      filingDeadlineDays = Math.ceil((filingHardDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
       const optEnd = new Date(data.optStatus.opt_ead_end_date);
       daysUntilOPTEnd = Math.ceil((optEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -133,15 +140,21 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
         job_title: s.job_title,
         location: s.location,
       }));
-      unemploymentUsed = calculateUnemploymentDays(
+      const calc = calculateUnemploymentDays(
         data.optStatus.opt_start_date,
         data.optStatus.opt_ead_end_date,
-        spansForCalc
-      ).used;
+        spansForCalc,
+        data.optStatus.stem_start_date,
+        data.optStatus.stem_end_date
+      );
+      unemploymentUsed = calc.used;
+      // Authoritative max from phase-aware engine — keeps numerator/denominator aligned.
+      maxUnemployment = calc.max;
     }
 
     setMetrics({
       filingWindowDays,
+      filingDeadlineDays,
       unemploymentUsed,
       maxUnemployment,
       daysUntilOPTEnd,
@@ -153,9 +166,13 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
   // Determine status for each metric
   const getFilingStatus = () => {
     if (metrics.filingWindowDays === null) return "neutral";
-    if (metrics.filingWindowDays <= 0) return "good";
-    if (metrics.filingWindowDays <= 30) return "warning";
-    return "neutral";
+    if (metrics.filingWindowDays > 30) return "neutral";
+    if (metrics.filingWindowDays > 0) return "warning";
+    // Window is open — escalate as deadline approaches
+    if (metrics.filingDeadlineDays === null || metrics.filingDeadlineDays < 0) return "neutral";
+    if (metrics.filingDeadlineDays <= 14) return "critical";
+    if (metrics.filingDeadlineDays <= 30) return "warning";
+    return "good";
   };
 
   const getUnemploymentStatus = () => {
@@ -178,11 +195,13 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     return "neutral";
   };
 
-  // Format values
-  const filingValue = metrics.filingWindowDays === null 
-    ? "—" 
-    : metrics.filingWindowDays <= 0 
-      ? "Open Now" 
+  // Format values — window-open state shows the closing deadline countdown (ISS-004)
+  const filingValue = metrics.filingWindowDays === null
+    ? "—"
+    : metrics.filingWindowDays <= 0
+      ? metrics.filingDeadlineDays !== null && metrics.filingDeadlineDays >= 0
+        ? `${metrics.filingDeadlineDays} days left`
+        : "Window Closed"
       : `${metrics.filingWindowDays} days`;
 
   const unemploymentValue = `${metrics.unemploymentUsed}/${metrics.maxUnemployment}`;
@@ -199,13 +218,17 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
       ? "Eligible" 
       : "Not Eligible";
 
-  // Status labels
-  const filingSubtitle = metrics.filingWindowDays === null 
-    ? undefined 
-    : metrics.filingWindowDays <= 0 
-      ? "Apply Now" 
-      : metrics.filingWindowDays <= 30 
-        ? "Opening Soon" 
+  // Status labels — within window, escalate based on deadline proximity (ISS-004)
+  const filingSubtitle = metrics.filingWindowDays === null
+    ? undefined
+    : metrics.filingWindowDays <= 0
+      ? metrics.filingDeadlineDays !== null && metrics.filingDeadlineDays <= 14
+        ? "File ASAP"
+        : metrics.filingDeadlineDays !== null && metrics.filingDeadlineDays <= 30
+          ? "Closing Soon"
+          : "Window Open"
+      : metrics.filingWindowDays <= 30
+        ? "Opening Soon"
         : undefined;
 
   const unemploymentSubtitle = getUnemploymentStatus() === "critical" 

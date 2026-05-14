@@ -18,6 +18,8 @@ const corsHeaders = {
  * 3. Initial save (immediate check)
  */
 export async function POST(req: NextRequest) {
+  const checkStartedAt = Date.now();
+  let receiptNumberForLog: string | null = null;
   try {
     // Verify internal request or cron authorization
     const authHeader = req.headers.get('authorization');
@@ -34,6 +36,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { receipt_number } = body;
+    receiptNumberForLog = receipt_number || null;
 
     if (!receipt_number) {
       return NextResponse.json(
@@ -93,12 +96,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Fetch USCIS status
-    // Note: Use mockUSCISStatus for development, checkUSCISStatus for production
-    const isDevelopment = process.env.NODE_ENV === 'development';
+    // ISS-011: explicit flag instead of NODE_ENV gate. Mock is only on when
+    // USCIS_MOCK=true is explicitly set. Front-end will show a banner so devs/QA
+    // never mistake fake data for live USCIS responses.
+    const useMock = process.env.USCIS_MOCK === 'true';
 
-    // In development, use mock data
-    if (isDevelopment) {
+    if (useMock) {
       const mockStatus = mockUSCISStatus(receipt_number);
       // Mock always succeeds - use the mock data directly
       const statusHistory = mockStatus.histCaseStatus.map((item: { completedText: string; date: string }) => ({
@@ -162,9 +165,46 @@ export async function POST(req: NextRequest) {
     // Production: Call USCIS API
     const uscisResult = await checkUSCISStatus(receipt_number);
 
-    // Handle USCIS API errors
+    // Handle USCIS API errors (ISS-012: persist failure + observability log)
     if (!uscisResult.success) {
-      console.error(`[case-status] USCIS API error for ${receipt_number}: ${uscisResult.error.code}`);
+      const errorCode = String(uscisResult.error.code);
+      const errorMessage = uscisResult.error.userMessage || 'USCIS check failed';
+      console.error(`[case-status] USCIS API error for ${receipt_number}: ${errorCode}`);
+
+      // Persist failure state so the UI can show "last refresh failed" and
+      // cron can apply exponential backoff via consecutive_failures.
+      try {
+        const { data: row } = await supabase
+          .from('case_status')
+          .select('consecutive_failures')
+          .eq('receipt_number', receipt_number)
+          .single();
+        const prevFails = row?.consecutive_failures || 0;
+        await supabase
+          .from('case_status')
+          .update({
+            last_check_failed_at: new Date().toISOString(),
+            last_check_error_code: errorCode,
+            last_check_error_message: errorMessage.slice(0, 500),
+            consecutive_failures: prevFails + 1,
+          })
+          .eq('receipt_number', receipt_number);
+      } catch (e) {
+        console.error('Failed to persist USCIS failure state:', e);
+      }
+
+      // Append to uscis_check_log for ops observability
+      try {
+        await supabase.from('uscis_check_log').insert({
+          receipt_number,
+          success: false,
+          source: isManualRefresh ? 'manual' : 'cron',
+          duration_ms: Date.now() - checkStartedAt,
+          error_code: errorCode,
+          error_message: errorMessage.slice(0, 500),
+        });
+      } catch { /* ignore log failures */ }
+
       return NextResponse.json(
         {
           ok: false,
@@ -219,7 +259,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Update database
+    // Update database — reset failure counters on success (ISS-012)
     const { error: updateError } = await supabase
       .from('case_status')
       .update({
@@ -233,8 +273,22 @@ export async function POST(req: NextRequest) {
         status_history: statusHistory,
         change_log: existingChangelog,
         updated_at: new Date().toISOString(),
+        last_check_failed_at: null,
+        last_check_error_code: null,
+        last_check_error_message: null,
+        consecutive_failures: 0,
       })
       .eq('receipt_number', receipt_number);
+
+    // Log successful check (ISS-015 observability)
+    try {
+      await supabase.from('uscis_check_log').insert({
+        receipt_number,
+        success: true,
+        source: isManualRefresh ? 'manual' : 'cron',
+        duration_ms: Date.now() - checkStartedAt,
+      });
+    } catch { /* ignore */ }
 
     if (updateError) {
       console.error('Error updating case status:', updateError);

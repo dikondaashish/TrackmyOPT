@@ -130,6 +130,15 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       toast({ title: "OPT Start Date is required", variant: "destructive" });
       return;
     }
+    // ISS-005: STEM users must provide STEM start date
+    if (status === 'stem_opt' && !stemStartDate) {
+      toast({
+        title: "STEM Start Date is required",
+        description: "Your STEM clock and reminders won't work without it. Add the date from your STEM OPT EAD.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       setIsSaving(true);
@@ -155,6 +164,28 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       const result = await response.json();
 
       if (response.ok && result.ok) {
+        // ISS-006: persist server-side onboarding completion
+        try {
+          await fetch('/api/profile/flags', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ onboarding_completed: true }),
+          });
+        } catch { /* non-blocking */ }
+
+        // ISS-038: capture onboarding_completed for funnel analytics
+        try {
+          if (typeof window !== 'undefined') {
+            const posthogClient = (window as unknown as { posthog?: { capture: (e: string, p?: Record<string, unknown>) => void } }).posthog;
+            posthogClient?.capture('onboarding_completed', {
+              status,
+              is_stem_eligible: isStemEligible,
+              degree_level: degreeLevel,
+            });
+          }
+        } catch { /* posthog optional */ }
+
         toast({
           title: "Profile Configured! 🎉",
           description: "Your dashboard is now customized for your journey.",
@@ -172,12 +203,36 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     }
   };
 
+  // ISS-006: explicit "skip with checklist" — mark onboarding dismissed server-side so the
+  // wizard doesn't reappear, but DO NOT mark as completed. Dashboard will show a checklist
+  // nudge instead.
+  const handleSkip = async () => {
+    try {
+      await fetch('/api/profile/flags', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ onboarding_completed: true }),
+      });
+    } catch { /* non-blocking; fall back to localStorage dismiss in parent */ }
+    (onSkip ?? onComplete)();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
-      // Prevent closing by clicking outside
-      if (!open) return;
+      // ISS-007: keyboard-accessible dismiss path. Closing the dialog
+      // (Escape, outside click) routes through handleSkip so users are never
+      // trapped — wizard returns to checklist nudge instead.
+      if (!open) {
+        handleSkip();
+      }
     }}>
-      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden bg-background border-none shadow-2xl [&>button]:hidden">
+      <DialogContent
+        className="sm:max-w-[600px] p-0 overflow-hidden bg-background border-none shadow-2xl [&>button]:hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="onboarding-wizard-title"
+      >
         {/* Header Progress */}
         <div className="h-1.5 w-full bg-muted flex">
           <div className={`h-full bg-blue-600 transition-all duration-500 ${
@@ -194,7 +249,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
               <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/40 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <GraduationCap className="w-10 h-10" />
               </div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome to TrackMyOPT</h2>
+              <h2 id="onboarding-wizard-title" className="text-3xl font-bold tracking-tight text-foreground">Welcome to TrackMyOPT</h2>
               <p className="text-lg text-muted-foreground max-w-sm mx-auto">
                 Let's set up your profile so we can track your legal deadlines, countdowns, and unemployment days accurately.
               </p>
@@ -401,8 +456,9 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                   <Button variant="ghost" onClick={() => setStep('status')}>Back</Button>
                   <button
                     type="button"
-                    onClick={() => (onSkip ?? onComplete)()}
-                    className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                    onClick={handleSkip}
+                    aria-label="Skip onboarding and continue to dashboard"
+                    className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:outline-offset-2"
                   >
                     Skip for now
                   </button>

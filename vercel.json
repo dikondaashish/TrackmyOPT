@@ -6,6 +6,22 @@
         {
             "path": "/api/cron/check-case-status",
             "schedule": "0 14 * * *"
+        },
+        {
+            "path": "/api/cron/send-document-reminders",
+            "schedule": "0 13 * * *"
+        },
+        {
+            "path": "/api/cron/send-daily-reminders",
+            "schedule": "0 14 * * *"
+        },
+        {
+            "path": "/api/cron/stem-opt-window-alert",
+            "schedule": "0 15 * * *"
+        },
+        {
+            "path": "/api/cron/retry-pending-emails",
+            "schedule": "*/30 * * * *"
         }
     ]
 }

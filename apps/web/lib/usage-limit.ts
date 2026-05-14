@@ -59,7 +59,18 @@ export async function checkResumeLimit(userId: string) {
     return { allowed, limit, usage, tier };
 }
 
-export async function trackResumeGeneration(userId: string, type: 'generate' | 'regenerate') {
+/**
+ * Logs a resume generation. Returns `{ ok: boolean }` so callers can choose to
+ * fail-closed (block the generation) when accounting fails — ISS-023.
+ *
+ * The original "non-blocking" behavior leaked quota when Supabase insert errors
+ * occurred. Now callers should check the result and reject the response when
+ * `ok === false`.
+ */
+export async function trackResumeGeneration(
+    userId: string,
+    type: 'generate' | 'regenerate',
+): Promise<{ ok: boolean; error?: string }> {
     const cookieStore = await cookies();
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -85,6 +96,7 @@ export async function trackResumeGeneration(userId: string, type: 'generate' | '
 
     if (error) {
         console.error('Failed to log resume generation:', error);
-        // Non-blocking error logging
+        return { ok: false, error: error.message };
     }
+    return { ok: true };
 }

@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateSignedUrl, deleteFromS3 } from '@/lib/aws/s3';
+import { generateRemindersForDocument } from '@/lib/notifications/reminders';
 
 type RouteContext = {
   params: Promise<{
@@ -116,6 +117,20 @@ export async function PATCH(
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
+    // ISS-016: when user adds/changes an expiry date, schedule reminders so
+    // documents that AI failed to parse still get the 60/45/30/.../1-day alerts.
+    if (expiryDate) {
+      try {
+        await generateRemindersForDocument(
+          user.id,
+          document.id,
+          document.filename || document.file_name || 'document',
+          expiryDate,
+        );
+      } catch (remErr) {
+        console.error('Failed to (re)generate reminders for document', document.id, remErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,

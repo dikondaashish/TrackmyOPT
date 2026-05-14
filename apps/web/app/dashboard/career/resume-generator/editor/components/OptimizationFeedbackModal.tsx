@@ -75,7 +75,7 @@ export function OptimizationFeedbackModal({
                                     Optimize Resume
                                 </DialogTitle>
                                 <DialogDescription className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                    Tell the AI what to improve
+                                    Tell the AI what to improve · Uses 0.5 credit (half of a new generation)
                                 </DialogDescription>
                             </div>
                         </div>

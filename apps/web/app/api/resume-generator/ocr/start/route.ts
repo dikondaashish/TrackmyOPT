@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { textractService } from '@/lib/aws/textract';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getUserId } from '@/lib/auth/getUserId';
+import { createClient } from '@supabase/supabase-js';
 
-// CORS headers
+// CORS headers — restrict to first-party origin; in-app users post via cookie auth
 const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
@@ -13,22 +15,21 @@ export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
-// In-memory store for OCR jobs (in production, use a database)
-const ocrJobs = new Map<string, {
-    status: 'queued' | 'running' | 'succeeded' | 'failed';
-    textractJobId?: string;
-    extractedText?: string;
-    error?: string;
-    filename?: string;
-    s3Key?: string;
-    createdAt: Date;
-}>();
-
 /**
  * POST /api/resume-generator/ocr/start
- * Start OCR processing for a scanned PDF
+ * Start OCR processing for a scanned PDF.
+ *
+ * ISS-024: persists job state in Supabase (table: ocr_jobs) so cold-start
+ * serverless instances don't lose the in-memory Map. The previous version
+ * declared a Map at module scope that never survived between calls.
  */
 export async function POST(req: NextRequest) {
+    // Auth (ISS-024 + general hardening — was unauthenticated before)
+    const userId = await getUserId(req);
+    if (!userId) {
+        return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+    }
+
     try {
         const body = await req.json();
         const { fileBuffer, filename } = body;
@@ -73,8 +74,7 @@ export async function POST(req: NextRequest) {
 
             const buffer = Buffer.from(fileBuffer, 'base64');
             const timestamp = Date.now();
-            const jobId = `ocr_${timestamp}_${Math.random().toString(36).substring(7)}`;
-            const s3Key = `ocr-documents/${timestamp}_${filename || 'document.pdf'}`;
+            const s3Key = `ocr-documents/${userId}/${timestamp}_${filename || 'document.pdf'}`;
 
             const uploadCommand = new PutObjectCommand({
                 Bucket: process.env.AWS_S3_BUCKET,
@@ -96,18 +96,26 @@ export async function POST(req: NextRequest) {
                 );
             }
 
-            // Store job info
-            ocrJobs.set(jobId, {
-                status: 'running',
-                textractJobId,
-                filename,
-                s3Key,
-                createdAt: new Date(),
-            });
+            // ISS-024: persist job in Supabase so it survives cold starts
+            try {
+                const admin = createClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+                );
+                await admin.from('ocr_jobs').insert({
+                    user_id: userId,
+                    textract_job_id: textractJobId,
+                    status: 'IN_PROGRESS',
+                    s3_key: s3Key,
+                    file_name: filename || null,
+                });
+            } catch (persistErr) {
+                console.error('[OCR] Failed to persist job (non-fatal):', persistErr);
+            }
 
             console.info('[OCR] Job started:', { textractJobId });
 
-            // Return the textractJobId - client will poll using this
+            // Return the textractJobId — client polls Textract via /ocr/status
             return NextResponse.json(
                 { ok: true, jobId: textractJobId, textractJobId },
                 { status: 202, headers: corsHeaders }

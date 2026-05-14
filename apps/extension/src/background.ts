@@ -1,13 +1,46 @@
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
 
+// ISS-039: cap the cached token TTL at 5 minutes and refresh on tab focus.
+// The web side issues 10-minute JWTs, so this gives us a quick check window
+// without re-hitting the token endpoint on every API call.
+const TOKEN_TTL_MS = 5 * 60 * 1000;
+
+interface CachedTokenEntry {
+  token: string;
+  issuedAt: number;
+  userId?: string;
+}
+
+async function readCachedToken(): Promise<CachedTokenEntry | null> {
+  const { idToken, idTokenIssuedAt, idTokenUserId } = await chrome.storage.sync.get([
+    'idToken',
+    'idTokenIssuedAt',
+    'idTokenUserId',
+  ]);
+  if (typeof idToken !== 'string' || !idToken) return null;
+  return {
+    token: idToken,
+    issuedAt: typeof idTokenIssuedAt === 'number' ? idTokenIssuedAt : 0,
+    userId: typeof idTokenUserId === 'string' ? idTokenUserId : undefined,
+  };
+}
+
+async function writeCachedToken(token: string, userId?: string) {
+  await chrome.storage.sync.set({
+    idToken: token,
+    idTokenIssuedAt: Date.now(),
+    idTokenUserId: userId || null,
+  });
+}
+
 async function getExtensionBearerToken(forceRefresh = false): Promise<string | null> {
   if (!forceRefresh) {
-    const { idToken } = await chrome.storage.sync.get('idToken');
-    if (typeof idToken === 'string' && idToken.length > 0) {
-      return idToken;
+    const cached = await readCachedToken();
+    if (cached && Date.now() - cached.issuedAt < TOKEN_TTL_MS) {
+      return cached.token;
     }
   } else {
-    await chrome.storage.sync.remove('idToken');
+    await chrome.storage.sync.remove(['idToken', 'idTokenIssuedAt', 'idTokenUserId']);
   }
   try {
     const res = await fetch(API_ENDPOINTS.EXTENSION_TOKEN, {
@@ -16,14 +49,22 @@ async function getExtensionBearerToken(forceRefresh = false): Promise<string | n
       headers: { 'Content-Type': 'application/json' },
     });
     if (!res.ok) return null;
-    const data = (await res.json()) as { token?: string };
+    const data = (await res.json()) as { token?: string; userId?: string };
     if (!data.token) return null;
-    await chrome.storage.sync.set({ idToken: data.token });
+    await writeCachedToken(data.token, data.userId);
     return data.token;
   } catch {
     return null;
   }
 }
+
+// ISS-039: refresh token whenever the user focuses the browser/extension —
+// this guarantees that after a logout/switch on the web side, the extension
+// picks up the new identity within seconds rather than up to 10 minutes.
+chrome.windows?.onFocusChanged.addListener(async (windowId) => {
+  if (windowId === chrome.windows.WINDOW_ID_NONE) return;
+  await getExtensionBearerToken(true);
+});
 
 chrome.runtime.setUninstallURL(`${WEBSITE_URL}/extension/uninstall`);
 

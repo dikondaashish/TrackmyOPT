@@ -50,21 +50,27 @@ export async function generateRemindersForDocument(
 }
 
 /**
- * Calculate reminder dates
- * Returns array of dates when reminders should be sent
- * Schedule: 60, 45, 30, 20, 15, 10, 5, 3, 2, 1 days before expiry
+ * Calculate reminder dates.
+ *
+ * ISS-019: normalizes both the expiry and "today" to UTC midnight before
+ * comparing so DST shifts and local-timezone edge cases don't drop or duplicate
+ * reminders firing at day boundaries.
  */
 export function calculateReminderDates(expiryDate: string): Date[] {
-  const expiry = new Date(expiryDate);
-  const reminderOffsets = [60, 45, 30, 20, 15, 10, 5, 3, 2, 1]; // days before expiry
+  // Parse as YYYY-MM-DD into UTC midnight
+  const [y, m, d] = expiryDate.slice(0, 10).split('-').map((s) => parseInt(s, 10));
+  if (!y || !m || !d) return [];
+  const expiry = new Date(Date.UTC(y, m - 1, d));
+
+  // "Today" at UTC midnight — same coordinate system as expiry
+  const now = new Date();
+  const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+  const reminderOffsets = [60, 45, 30, 20, 15, 10, 5, 3, 2, 1];
 
   return reminderOffsets
-    .map((days) => {
-      const reminderDate = new Date(expiry);
-      reminderDate.setDate(reminderDate.getDate() - days);
-      return reminderDate;
-    })
-    .filter((date) => date >= new Date()); // Only future dates
+    .map((days) => new Date(expiry.getTime() - days * 24 * 60 * 60 * 1000))
+    .filter((date) => date.getTime() >= todayUtc.getTime());
 }
 
 /**

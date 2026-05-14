@@ -9,10 +9,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { verifyPasscode, isValidPasscode } from '@/lib/auth/passcode';
+import { verifyPasscode, isValidPasscode, hashPasscode } from '@/lib/auth/passcode';
 import nodemailer from 'nodemailer';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import bcrypt from 'bcryptjs';
 
 // Create a rate limiter that allows 3 requests per 10 minutes per IP
 const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN 
@@ -107,16 +108,22 @@ export async function POST(request: NextRequest) {
     // Generate OTP
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    // ISS-033: hash the OTP and the proposed new passcode at issuance.
+    // Plaintext OTPs in the DB were vulnerable to read-only DB compromise.
+    const otpHash = await bcrypt.hash(otp, 10);
+    const newPasscodeHash = await hashPasscode(newPasscode);
 
-    // Store OTP in database (create or update)
     const { error: otpError } = await supabase
       .from('passcode_otps')
       .upsert({
         user_id: user.id,
-        otp_hash: otp, // In production, hash this
-        new_passcode_hash: newPasscode, // Store temporarily, will be hashed on verification
+        otp_hash: otpHash,
+        new_passcode_hash: newPasscodeHash,
         expires_at: expiresAt.toISOString(),
         verified: false,
+        attempts: 0,
+        locked_until: null,
+        purpose: 'change',
       }, {
         onConflict: 'user_id'
       });

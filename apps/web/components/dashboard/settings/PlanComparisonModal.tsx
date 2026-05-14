@@ -49,8 +49,8 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
                         </p>
                     </DialogHeader>
 
-                    <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
-                        <table className="w-full text-sm text-left">
+                    <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
+                        <table className="w-full min-w-[480px] text-sm text-left">
                             <thead className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold">
                                 <tr>
                                     <th className="py-4 px-6 w-1/3">Feature</th>

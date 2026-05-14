@@ -118,6 +118,9 @@ export function DashboardContent({ user }: DashboardContentProps) {
   const [showWizard, setShowWizard] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [resumeUsage, setResumeUsage] = useState(0);
+  // ISS-029: explicit error state instead of silent console.error
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [fetchRetryNonce, setFetchRetryNonce] = useState(0);
 
   const {
     widgets,
@@ -171,9 +174,13 @@ export function DashboardContent({ user }: DashboardContentProps) {
             const calc = calculateUnemploymentDays(
               data.optStatus.opt_start_date,
               data.optStatus.opt_ead_end_date,
-              spansForCalc
+              spansForCalc,
+              data.optStatus.stem_start_date,
+              data.optStatus.stem_end_date
             );
             setUnemploymentDays(calc.used);
+            // Trust the calculator's phase-aware max so denominator matches numerator.
+            setMaxUnemploymentDays(calc.max);
           } else if (data.unemploymentDays !== undefined) {
             // Fallback for incomplete status payloads.
             setUnemploymentDays(data.unemploymentDays);
@@ -200,13 +207,19 @@ export function DashboardContent({ user }: DashboardContentProps) {
         }
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
+        // ISS-029: surface error to user with retry CTA
+        setFetchError(
+          error instanceof Error ? error.message : 'Could not load your dashboard data.'
+        );
       } finally {
         setIsLoading(false);
       }
     };
 
+    setFetchError(null);
     fetchData();
-  }, [user.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.id, fetchRetryNonce]);
 
   // Render widget based on ID
   const renderWidget = (widgetId: string) => {
@@ -302,6 +315,26 @@ export function DashboardContent({ user }: DashboardContentProps) {
         <DashboardCustomizeButton onClick={() => setShowSettings(true)} />
       </div>
 
+      {/* ISS-029: explicit error + retry instead of silent failure */}
+      {fetchError && (
+        <div
+          role="alert"
+          className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        >
+          <div className="text-sm text-amber-900 dark:text-amber-100">
+            <strong>Couldn&apos;t load your dashboard data.</strong>{' '}
+            <span className="opacity-90">{fetchError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFetchRetryNonce((n) => n + 1)}
+            className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
       {/* Show onboarding if no OPT dates */}
       {!isLoading && !optStatus && !showWizard && <OnboardingCard />}
       <OnboardingWizard
@@ -337,7 +370,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
           <span>·</span>
           <a href="/dashboard/help" className="hover:text-foreground transition-colors">Help</a>
         </div>
-        <p>© 2025 TrackMyOPT by Zyene, Inc. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} TrackMyOPT by Zyene, Inc. All rights reserved.</p>
       </footer>
 
       {/* Settings Modal */}

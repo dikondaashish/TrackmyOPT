@@ -6,32 +6,44 @@ import { Sidebar } from "./Sidebar";
 import { SprintaxPromoBanner } from "@/components/promo/SprintaxPromoBanner";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
+import { PremiumStatusProvider, usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 
 interface DashboardLayoutClientProps {
     children: React.ReactNode;
 }
 
-export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) {
+export function DashboardLayoutClient(props: DashboardLayoutClientProps) {
+    // ISS-014 + ISS-002: wrap the whole dashboard in the premium-status provider
+    // so the shell, sidebar, and feature pages all read from ONE source that
+    // self-heals via Stripe (instead of reading profile.premium_status directly).
+    return (
+        <PremiumStatusProvider>
+            <DashboardLayoutInner {...props} />
+        </PremiumStatusProvider>
+    );
+}
+
+function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<{
         email?: string;
         name?: string;
-        isPremium?: boolean;
     }>({});
+    const premium = usePremiumStatus();
 
-    // Fetch user data
+    // Fetch user identity (email/name). Premium comes from PremiumStatusProvider so
+    // it stays in sync with /api/premium/status self-heal logic.
     useEffect(() => {
         const fetchUser = async () => {
             try {
                 const { data: { user: authUser } } = await supabase.auth.getUser();
 
                 if (authUser) {
-                    // Get profile for premium status
                     const { data: profile } = await supabase
                         .from("profiles")
-                        .select("premium_status, first_name, last_name")
+                        .select("first_name, last_name")
                         .eq("user_id", authUser.id)
                         .single();
 
@@ -42,7 +54,6 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                     setUser({
                         email: authUser.email,
                         name: fullName,
-                        isPremium: profile?.premium_status || false,
                     });
                 }
             } catch (error) {
@@ -84,7 +95,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
             <Header
                 userEmail={user.email}
                 userName={user.name}
-                isPremium={user.isPremium}
+                isPremium={premium.isPremium === true}
                 onMenuToggle={handleMobileMenuToggle}
             />
 
@@ -96,8 +107,8 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
                 onMobileClose={handleMobileMenuClose}
                 userEmail={user.email}
                 userName={user.name}
-                isPremium={user.isPremium}
-                isLoading={isLoading}
+                isPremium={premium.isPremium === true}
+                isLoading={isLoading || premium.isLoading}
             />
 
             {/* Main Content Area - This is the only scrollable section */}

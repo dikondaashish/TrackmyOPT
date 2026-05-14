@@ -26,6 +26,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/notifications/email-service';
 import { sanitizeError } from '@/lib/secure-logger';
+import {
+  calculateUnemploymentDays,
+  getFilingWindow,
+  daysBetween,
+  type EmploymentSpan,
+} from '@/lib/immigration/optCalculations';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max execution time
@@ -117,12 +123,28 @@ export async function GET(req: NextRequest) {
     // Process each user
     for (const profile of usersWithEmails) {
       try {
-        // Get user's OPT data
-        const { data: optData } = await supabase
-          .from('opt_status')
-          .select('*')
-          .eq('user_id', profile.user_id)
-          .single();
+        // Get user's OPT data + employment spans in parallel
+        const [optRes, spansRes] = await Promise.all([
+          supabase
+            .from('opt_status')
+            .select('*')
+            .eq('user_id', profile.user_id)
+            .single(),
+          supabase
+            .from('employment_spans')
+            .select('id, employer_name, start_date, end_date, is_current, job_title, location')
+            .eq('user_id', profile.user_id),
+        ]);
+        const optData = optRes.data;
+        const employmentSpans: EmploymentSpan[] = (spansRes.data || []).map((s: any) => ({
+          id: s.id,
+          employer_name: s.employer_name || '',
+          start_date: s.start_date,
+          end_date: s.end_date,
+          is_current: !!s.is_current,
+          job_title: s.job_title,
+          location: s.location,
+        }));
 
         if (!optData) {
           console.log(`ℹ️ No OPT data for user ${profile.user_id}`);
@@ -139,8 +161,8 @@ export async function GET(req: NextRequest) {
           stem_clock_email: profile.stem_clock_email,
         };
 
-        // Calculate active tools and reminders
-        const tools = calculateActiveTools(optData, toolPrefs);
+        // Calculate active tools and reminders (uses shared engine identical to dashboard)
+        const tools = calculateActiveTools(optData, toolPrefs, employmentSpans);
 
         if (tools.length === 0) {
           console.log(`ℹ️ No active tools for user ${profile.user_id}`);
@@ -211,42 +233,35 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * Calculate active tools and their reminder messages based on dates
- * Only includes tools where user has set an email address
+ * Calculate active tools and their reminder messages.
+ * Uses the SHARED calculator from lib/immigration/optCalculations.ts so emails
+ * always agree with the in-app dashboard numbers (ISS-002, ISS-003).
  */
-function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails): EmailReminderData['tools'] {
+function calculateActiveTools(
+  optData: UserOptData,
+  toolEmails: UserToolEmails,
+  employmentSpans: EmploymentSpan[],
+): EmailReminderData['tools'] {
   const tools: EmailReminderData['tools'] = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayIso = new Date().toISOString().slice(0, 10);
 
-  // ========================================
-  // 1. OPT APPLY - Filing Window Reminders
-  // ========================================
-  // Earliest: 90 days before program end
-  // Deadline: 60 days after program end
-  // Only if user has opt_apply_email set
+  const formatDate = (input: string | Date) => {
+    const d = typeof input === 'string' ? new Date(input) : input;
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  };
+
+  // 1) OPT APPLY — filing window (shared definition with dashboard)
   if (optData.program_end_date && toolEmails.opt_apply_email) {
     const programEnd = new Date(optData.program_end_date);
-    
-    // Earliest filing date: 90 days before program end
-    const earliestFiling = new Date(programEnd);
-    earliestFiling.setDate(earliestFiling.getDate() - 90);
-    
-    // Filing deadline: 60 days after program end
-    const filingDeadline = new Date(programEnd);
-    filingDeadline.setDate(filingDeadline.getDate() + 60);
-    
-    // Only send reminders within the filing window
+    const { earliestFile, hardDeadline } = getFilingWindow(optData.program_end_date);
+    const earliestFiling = new Date(earliestFile);
+    const filingDeadline = new Date(hardDeadline);
+
+    const today = new Date(todayIso);
     if (today >= earliestFiling && today <= filingDeadline) {
-      const daysLeft = Math.ceil((filingDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      const totalWindow = 150; // 90 + 60 days total window
-      
-      const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      });
-      
+      const daysLeft = daysBetween(todayIso, hardDeadline);
+      const totalWindow = 150; // 90 days early + 60 days post = 150 total window
+
       tools.push({
         name: 'OPT Application',
         toolType: 'opt-apply',
@@ -262,63 +277,44 @@ function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails):
     }
   }
 
-  // ========================================
-  // 2. OPT CLOCK - Unemployment Days Tracker
-  // ========================================
-  // 90 days total during initial OPT
-  if (optData.opt_start_date && toolEmails.opt_clock_email) {
+  // 2) OPT CLOCK — unemployment tracker (phase-aware shared calculator)
+  if (optData.opt_start_date && optData.opt_ead_end_date && toolEmails.opt_clock_email) {
     const optStart = new Date(optData.opt_start_date);
-    const optEnd = optData.opt_ead_end_date ? new Date(optData.opt_ead_end_date) : null;
-    
-    // Only track during active OPT period
-    if (today >= optStart && (!optEnd || today <= optEnd)) {
-      // Calculate used days (simplified - in reality would need employment spans)
-      const daysSinceStart = Math.ceil((today.getTime() - optStart.getTime()) / (1000 * 60 * 60 * 24));
-      const daysLeft = Math.max(0, 90 - daysSinceStart);
-      
-      if (daysLeft > 0 && daysLeft <= 90) {
-        const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric',
-        });
-        
+    const optEnd = new Date(optData.opt_ead_end_date);
+    const today = new Date(todayIso);
+
+    if (today >= optStart && today <= optEnd) {
+      const calc = calculateUnemploymentDays(
+        optData.opt_start_date,
+        optData.opt_ead_end_date,
+        employmentSpans,
+        optData.stem_start_date,
+      );
+      // Only emit while NOT in STEM phase (STEM gets its own card below).
+      if (calc.phase !== 'stem' && calc.remaining > 0) {
         tools.push({
           name: 'OPT Unemployment Days',
           toolType: 'opt-clock',
-          daysLeft,
-          totalDays: 90,
+          daysLeft: calc.remaining,
+          totalDays: calc.max,
           startDate: formatDate(optStart),
-          endDate: optEnd ? formatDate(optEnd) : 'Max 90 days',
-          urgency: getUrgency(daysLeft, 90),
-          message: getUnemploymentMessage(daysLeft, 90, 'OPT'),
+          endDate: formatDate(optEnd),
+          urgency: getUrgency(calc.remaining, calc.max),
+          message: getUnemploymentMessage(calc.remaining, calc.max, 'OPT'),
         });
       }
     }
   }
 
-  // ========================================
-  // 3. STEM APPLY - Extension Filing Window
-  // ========================================
-  // Can file up to 90 days before OPT EAD expires
-  // Must file before OPT EAD expires
+  // 3) STEM APPLY — extension filing window
   if (optData.opt_ead_end_date && toolEmails.stem_apply_email) {
     const optEadEnd = new Date(optData.opt_ead_end_date);
-    
-    // Earliest STEM filing: 90 days before OPT EAD expires
     const earliestStemFiling = new Date(optEadEnd);
     earliestStemFiling.setDate(earliestStemFiling.getDate() - 90);
-    
-    // Only send reminders within STEM filing window (and not yet on STEM)
+    const today = new Date(todayIso);
+
     if (!optData.stem_start_date && today >= earliestStemFiling && today <= optEadEnd) {
-      const daysLeft = Math.ceil((optEadEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      
-      const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      });
-      
+      const daysLeft = daysBetween(todayIso, optData.opt_ead_end_date);
       tools.push({
         name: 'STEM OPT Extension',
         toolType: 'stem-apply',
@@ -332,40 +328,35 @@ function calculateActiveTools(optData: UserOptData, toolEmails: UserToolEmails):
     }
   }
 
-  // ========================================
-  // 4. STEM CLOCK - STEM Unemployment Tracker
-  // ========================================
-  // 60 days additional unemployment during STEM OPT (separate from 90 days during initial OPT)
-  if (optData.stem_start_date && toolEmails.stem_clock_email) {
-    const stemStart = new Date(optData.stem_start_date);
-    
-    // Calculate STEM period end (24 months from STEM start)
-    const stemEnd = new Date(stemStart);
-    stemEnd.setMonth(stemEnd.getMonth() + 24);
-    
-    if (today >= stemStart && today <= stemEnd) {
-      // During STEM, track 60 additional unemployment days
-      const daysSinceStemStart = Math.ceil((today.getTime() - stemStart.getTime()) / (1000 * 60 * 60 * 24));
-      const stemDaysRemaining = Math.max(0, 60 - Math.min(60, daysSinceStemStart));
-      
-      if (stemDaysRemaining > 0) {
-        const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric',
-        });
-        
-        tools.push({
-          name: 'STEM Unemployment Days',
-          toolType: 'stem-clock',
-          daysLeft: stemDaysRemaining,
-          totalDays: 60,
-          startDate: formatDate(stemStart),
-          endDate: formatDate(stemEnd),
-          urgency: getUrgency(stemDaysRemaining, 60),
-          message: getUnemploymentMessage(stemDaysRemaining, 60, 'STEM'),
-        });
-      }
+  // 4) STEM CLOCK — cumulative 150-day tracker during STEM phase
+  if (
+    optData.stem_start_date &&
+    optData.opt_start_date &&
+    optData.opt_ead_end_date &&
+    toolEmails.stem_clock_email
+  ) {
+    const calc = calculateUnemploymentDays(
+      optData.opt_start_date,
+      optData.opt_ead_end_date,
+      employmentSpans,
+      optData.stem_start_date,
+    );
+
+    if (calc.stemActive && calc.remaining > 0) {
+      const stemStart = new Date(optData.stem_start_date);
+      const stemEnd = new Date(stemStart);
+      stemEnd.setMonth(stemEnd.getMonth() + 24);
+
+      tools.push({
+        name: 'STEM Unemployment Days',
+        toolType: 'stem-clock',
+        daysLeft: calc.remaining,
+        totalDays: calc.max, // 150 cumulative during STEM
+        startDate: formatDate(stemStart),
+        endDate: formatDate(stemEnd),
+        urgency: getUrgency(calc.remaining, calc.max),
+        message: getUnemploymentMessage(calc.remaining, calc.max, 'STEM'),
+      });
     }
   }
 

@@ -35,6 +35,66 @@ export type Database = {
         }
         Relationships: []
       }
+      case_status: {
+        Row: {
+          case_type: string | null
+          change_log: Json | null
+          consecutive_failures: number
+          created_at: string | null
+          current_status: string | null
+          id: string
+          last_check_error_code: string | null
+          last_check_error_message: string | null
+          last_check_failed_at: string | null
+          last_checked_at: string | null
+          last_status_change_at: string | null
+          notifications_enabled: boolean | null
+          receipt_number: string
+          received_date: string | null
+          status_history: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          case_type?: string | null
+          change_log?: Json | null
+          consecutive_failures?: number
+          created_at?: string | null
+          current_status?: string | null
+          id?: string
+          last_check_error_code?: string | null
+          last_check_error_message?: string | null
+          last_check_failed_at?: string | null
+          last_checked_at?: string | null
+          last_status_change_at?: string | null
+          notifications_enabled?: boolean | null
+          receipt_number: string
+          received_date?: string | null
+          status_history?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          case_type?: string | null
+          change_log?: Json | null
+          consecutive_failures?: number
+          created_at?: string | null
+          current_status?: string | null
+          id?: string
+          last_check_error_code?: string | null
+          last_check_error_message?: string | null
+          last_check_failed_at?: string | null
+          last_checked_at?: string | null
+          last_status_change_at?: string | null
+          notifications_enabled?: boolean | null
+          receipt_number?: string
+          received_date?: string | null
+          status_history?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string | null
@@ -65,54 +125,6 @@ export type Database = {
           status?: string | null
           subject?: string | null
           user_id?: string | null
-        }
-        Relationships: []
-      }
-      case_status: {
-        Row: {
-          case_type: string | null
-          change_log: Json | null
-          created_at: string | null
-          current_status: string | null
-          id: string
-          last_checked_at: string | null
-          last_status_change_at: string | null
-          notifications_enabled: boolean | null
-          receipt_number: string
-          received_date: string | null
-          status_history: Json | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          case_type?: string | null
-          change_log?: Json | null
-          created_at?: string | null
-          current_status?: string | null
-          id?: string
-          last_checked_at?: string | null
-          last_status_change_at?: string | null
-          notifications_enabled?: boolean | null
-          receipt_number: string
-          received_date?: string | null
-          status_history?: Json | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          case_type?: string | null
-          change_log?: Json | null
-          created_at?: string | null
-          current_status?: string | null
-          id?: string
-          last_checked_at?: string | null
-          last_status_change_at?: string | null
-          notifications_enabled?: boolean | null
-          receipt_number?: string
-          received_date?: string | null
-          status_history?: Json | null
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -426,23 +438,29 @@ export type Database = {
       }
       export_otps: {
         Row: {
+          attempts: number
           created_at: string
           expires_at: string
           id: string
+          locked_until: string | null
           otp_hash: string
           user_id: string
         }
         Insert: {
+          attempts?: number
           created_at?: string
           expires_at: string
           id?: string
+          locked_until?: string | null
           otp_hash: string
           user_id: string
         }
         Update: {
+          attempts?: number
           created_at?: string
           expires_at?: string
           id?: string
+          locked_until?: string | null
           otp_hash?: string
           user_id?: string
         }
@@ -1112,6 +1130,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ocr_jobs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          extracted_text: string | null
+          file_name: string | null
+          id: string
+          s3_key: string
+          status: string
+          textract_job_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          extracted_text?: string | null
+          file_name?: string | null
+          id?: string
+          s3_key: string
+          status?: string
+          textract_job_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          extracted_text?: string | null
+          file_name?: string | null
+          id?: string
+          s3_key?: string
+          status?: string
+          textract_job_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       opt_status: {
         Row: {
           created_at: string | null
@@ -1151,33 +1208,75 @@ export type Database = {
         }
         Relationships: []
       }
+      partnership_inquiries: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          message: string | null
+          name: string
+          role: string
+          status: string | null
+          university: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          role: string
+          status?: string | null
+          university: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          role?: string
+          status?: string | null
+          university?: string
+        }
+        Relationships: []
+      }
       passcode_otps: {
         Row: {
+          attempts: number
           created_at: string | null
           expires_at: string
           id: string
+          locked_until: string | null
           new_passcode_hash: string
           otp_hash: string
+          purpose: string
           updated_at: string | null
           user_id: string
           verified: boolean | null
         }
         Insert: {
+          attempts?: number
           created_at?: string | null
           expires_at: string
           id?: string
+          locked_until?: string | null
           new_passcode_hash: string
           otp_hash: string
+          purpose?: string
           updated_at?: string | null
           user_id: string
           verified?: boolean | null
         }
         Update: {
+          attempts?: number
           created_at?: string | null
           expires_at?: string
           id?: string
+          locked_until?: string | null
           new_passcode_hash?: string
           otp_hash?: string
+          purpose?: string
           updated_at?: string | null
           user_id?: string
           verified?: boolean | null
@@ -1310,11 +1409,14 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string | null
+          degree_level: string | null
           email: string | null
           first_name: string | null
           is_stem_eligible: boolean | null
           last_name: string | null
+          major_name: string | null
           notification_email: string | null
+          onboarding_completed: boolean
           opt_apply_email: string | null
           opt_clock_email: string | null
           plan_tier: string | null
@@ -1331,11 +1433,14 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          degree_level?: string | null
           email?: string | null
           first_name?: string | null
           is_stem_eligible?: boolean | null
           last_name?: string | null
+          major_name?: string | null
           notification_email?: string | null
+          onboarding_completed?: boolean
           opt_apply_email?: string | null
           opt_clock_email?: string | null
           plan_tier?: string | null
@@ -1352,11 +1457,14 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          degree_level?: string | null
           email?: string | null
           first_name?: string | null
           is_stem_eligible?: boolean | null
           last_name?: string | null
+          major_name?: string | null
           notification_email?: string | null
+          onboarding_completed?: boolean
           opt_apply_email?: string | null
           opt_clock_email?: string | null
           plan_tier?: string | null
@@ -1409,21 +1517,54 @@ export type Database = {
         }
         Relationships: []
       }
+      resume_drafts: {
+        Row: {
+          created_at: string
+          draft_key: string
+          id: string
+          payload: Json
+          step: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          draft_key: string
+          id?: string
+          payload: Json
+          step?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          draft_key?: string
+          id?: string
+          payload?: Json
+          step?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       resume_generations: {
         Row: {
           created_at: string
+          credit_cost: number | null
           generation_type: string
           id: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          credit_cost?: number | null
           generation_type: string
           id?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          credit_cost?: number | null
           generation_type?: string
           id?: string
           user_id?: string
@@ -1466,6 +1607,39 @@ export type Database = {
           structured_data?: Json | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      uscis_check_log: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          error_code: string | null
+          error_message: string | null
+          id: number
+          receipt_number: string
+          source: string
+          success: boolean
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          error_code?: string | null
+          error_message?: string | null
+          id?: number
+          receipt_number: string
+          source: string
+          success: boolean
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          error_code?: string | null
+          error_message?: string | null
+          id?: number
+          receipt_number?: string
+          source?: string
+          success?: boolean
         }
         Relationships: []
       }

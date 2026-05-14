@@ -11,11 +11,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { 
-  uploadToS3, 
-  isValidDocumentType, 
+import {
+  uploadToS3,
+  deleteFromS3,
+  isValidDocumentType,
   getFileExtension,
-  generateS3Key 
+  generateS3Key
 } from '@/lib/aws/s3';
 import { analyzeDocument, normalizeText } from '@/lib/ai/gemini-ai';
 import { generateRemindersForDocument } from '@/lib/notifications/reminders';
@@ -167,6 +168,12 @@ export async function POST(request: NextRequest) {
 
     if (dbError) {
       console.error('❌ Database error:', dbError);
+      // ISS-017: compensating S3 delete so we don't accumulate orphaned PII.
+      try {
+        await deleteFromS3(s3Key);
+      } catch (cleanupErr) {
+        console.error('❌ S3 cleanup after DB error failed (orphan possible):', cleanupErr);
+      }
       throw dbError;
     }
 
@@ -197,8 +204,14 @@ export async function POST(request: NextRequest) {
     });
     await posthog.shutdown();
 
+    // ISS-016: signal when AI couldn't detect an expiry so client can prompt
+    // the user to enter one manually. Otherwise reminders never schedule.
+    const needsManualExpiry =
+      !analysis.expiryDate || (typeof analysis.confidence === 'number' && analysis.confidence < 0.5);
+
     return NextResponse.json({
       success: true,
+      needsManualExpiry,
       document: {
         id: document.id,
         filename: document.filename || document.file_name || file.name,

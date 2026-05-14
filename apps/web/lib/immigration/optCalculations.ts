@@ -123,29 +123,84 @@ export function calculateOPTDates(optDates: OPTDates): CalculatedOPTDates {
     };
 }
 
+/**
+ * Phase-aware OPT/STEM OPT unemployment calculation.
+ *
+ * USCIS rules (8 CFR § 214.2(f)(10)):
+ *  - Initial post-completion OPT: hard cap of 90 cumulative unemployment days.
+ *  - STEM OPT extension: an ADDITIONAL 60 days, for a cumulative 150 days
+ *    across the entire OPT + STEM OPT period.
+ *
+ * Behavior:
+ *  - When `stem_start_date` is absent or in the future, returns the 90-day model.
+ *  - When STEM has started (or already passed), max becomes 150 and the unemployment
+ *    count spans the entire OPT + STEM window (the regulation is cumulative).
+ *  - Merging of overlapping/adjacent employment intervals is preserved.
+ *
+ * NOTE: USCIS counts cumulatively across the FULL OPT authorization period.
+ * We compute "unemployment used so far" as (elapsed days in window) − (employed days in window).
+ */
 export function calculateUnemploymentDays(
     optStartDate: string,
     optEadEndDate: string,
-    employmentSpans: EmploymentSpan[]
-): { used: number; max: number } {
+    employmentSpans: EmploymentSpan[],
+    stemStartDate?: string | null,
+    stemEndDate?: string | null
+): {
+    used: number;
+    max: number;
+    /** Indicates which phase the user is currently in or 'post' if window has ended. */
+    phase: "initial" | "stem" | "post";
+    /** Days remaining before the user hits their cap (clamped to 0). */
+    remaining: number;
+    /** Whether STEM OPT is currently active. */
+    stemActive: boolean;
+} {
     const today = toUTCDate(new Date());
     const start = toUTCDate(optStartDate);
-    const end = toUTCDate(optEadEndDate);
-    const effectiveEnd = end.getTime() < today.getTime() ? end : today;
+    const initialEnd = toUTCDate(optEadEndDate);
 
-    const max = 90;
+    // STEM extends the cumulative window. If no STEM, window ends at OPT EAD end.
+    const hasStem = !!stemStartDate;
+    const stemStart = hasStem ? toUTCDate(stemStartDate!) : null;
+    const stemEnd = stemEndDate
+        ? toUTCDate(stemEndDate)
+        : stemStart
+            ? toUTCDate(new Date(Date.UTC(stemStart.getUTCFullYear() + 2, stemStart.getUTCMonth(), stemStart.getUTCDate())))
+            : null; // STEM is 24 months by default
 
-    // Total elapsed days within OPT window up to today.
+    // The "window end" for cumulative counting is whichever phase end is active.
+    const stemActive = !!(stemStart && today.getTime() >= stemStart.getTime() && stemEnd && today.getTime() <= stemEnd.getTime());
+    const windowEnd = stemEnd ?? initialEnd;
+    const effectiveEnd = windowEnd.getTime() < today.getTime() ? windowEnd : today;
+
+    // Phase the user is in right now
+    let phase: "initial" | "stem" | "post";
+    if (today.getTime() > windowEnd.getTime()) {
+        phase = "post";
+    } else if (stemActive) {
+        phase = "stem";
+    } else {
+        phase = "initial";
+    }
+
+    // Cap: 90 during initial, 150 cumulative once STEM has started (per regulation).
+    // If user is approved for STEM but hasn't started yet, we still show 90 until STEM begins
+    // — the +60 allowance only attaches with STEM approval/start.
+    const max = stemStart && today.getTime() >= stemStart.getTime() ? 150 : 90;
+
+    // Total elapsed days within OPT/STEM window up to today.
     const totalDays = Math.max(
         0,
         Math.ceil((effectiveEnd.getTime() - start.getTime()) / MS_PER_DAY)
     );
 
     if (!employmentSpans || employmentSpans.length === 0) {
-        return { used: totalDays, max };
+        const used = totalDays;
+        return { used, max, phase, remaining: Math.max(0, max - used), stemActive };
     }
 
-    // Clamp each span to the OPT window, then merge overlapping intervals.
+    // Clamp each span to the OPT/STEM window, then merge overlapping intervals.
     const intervals: Array<[number, number]> = [];
 
     for (const span of employmentSpans) {
@@ -183,7 +238,7 @@ export function calculateUnemploymentDays(
     }
 
     const used = Math.max(0, totalDays - employedDays);
-    return { used, max };
+    return { used, max, phase, remaining: Math.max(0, max - used), stemActive };
 }
 
 export function getUnemploymentStatus(used: number, max: number): UnemploymentStatus {
@@ -204,5 +259,32 @@ export function getUnemploymentStatus(used: number, max: number): UnemploymentSt
         level: "ok",
         label: "Within unemployment limit",
     };
+}
+
+/**
+ * Single source of truth for OPT filing window edges.
+ * Earliest: 90 days before program end.
+ * Hard deadline: 60 days after program end (USCIS must receive within 60 days
+ * of the DSO recommendation, which is typically within 30 days of program end).
+ */
+export function getFilingWindow(programEndDate: string): {
+    earliestFile: string;
+    recommendedTarget: string;
+    hardDeadline: string;
+} {
+    return {
+        earliestFile: addDays(programEndDate, -90),
+        recommendedTarget: addDays(programEndDate, -60),
+        hardDeadline: addDays(programEndDate, 60),
+    };
+}
+
+/**
+ * Day-difference helper using UTC-normalized dates to avoid DST/timezone bugs.
+ */
+export function daysBetween(a: string | Date, b: string | Date): number {
+    const da = toUTCDate(a).getTime();
+    const db = toUTCDate(b).getTime();
+    return Math.ceil((db - da) / MS_PER_DAY);
 }
 

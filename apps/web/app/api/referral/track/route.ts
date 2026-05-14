@@ -49,10 +49,14 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Rate limit: one click per IP per code per 24 hours
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-            || req.headers.get("x-real-ip")
-            || "unknown";
+        // ISS-036: prefer Vercel-set headers (signed/trusted) over arbitrary
+        // x-forwarded-for which clients can spoof. Fall back to xff only if
+        // Vercel-specific headers are absent (e.g. local dev).
+        const ip = req.headers.get('x-vercel-forwarded-for')
+            || req.headers.get('cf-connecting-ip')
+            || req.headers.get('x-real-ip')
+            || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+            || 'unknown';
         const cacheKey = `${ip}:${code}`;
         const lastClick = clickCache.get(cacheKey);
 

@@ -48,6 +48,11 @@ interface CaseStatus {
   notifications_enabled: boolean;
   created_at: string;
   updated_at: string;
+  // ISS-012: failure-state surfaces
+  last_check_failed_at?: string | null;
+  last_check_error_code?: string | null;
+  last_check_error_message?: string | null;
+  consecutive_failures?: number;
 }
 
 export function CaseStatusSection() {
@@ -68,6 +73,8 @@ export function CaseStatusSection() {
   const [emailSaving, setEmailSaving] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  // ISS-030: explicit load error so UI can distinguish "no case" vs "couldn't load"
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     loadCaseStatus(true);
@@ -149,11 +156,19 @@ export function CaseStatusSection() {
         if (result.ok && result.data) {
           setCaseStatus(result.data);
           setReceiptNumber(result.data.receipt_number);
+          setLoadError(null);
           return result.data;
         }
+        // Successful response but no data — user just has no case tracked yet
+        setCaseStatus(null);
+        setLoadError(null);
+        return null;
       }
+      // ISS-030: differentiate "no case" from "couldn't load"
+      setLoadError('Could not load your case status.');
       return null;
-    } catch {
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : 'Network error while loading case status.');
       return null;
     } finally {
       if (isInitial) setIsInitialLoad(false);
@@ -435,7 +450,8 @@ export function CaseStatusSection() {
           <h1 className="text-2xl sm:text-3xl font-bold">USCIS Case Status Tracker</h1>
         </div>
         <p className="text-muted-foreground">
-          Track your USCIS case status automatically. We check daily and notify you when it changes.
+          Free: track and refresh your case status in-app.{' '}
+          <span className="font-medium text-foreground">Pro:</span> automatic daily checks + email alerts the moment your status changes.
         </p>
       </div>
 
@@ -543,6 +559,39 @@ export function CaseStatusSection() {
               {isRemoving ? 'Removing...' : 'Remove'}
             </Button>
           </div>
+
+          {/* ISS-012: USCIS check failure banner */}
+          {caseStatus.last_check_failed_at && (caseStatus.consecutive_failures ?? 0) > 0 && (
+            <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" role="alert">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                    Last refresh failed: {formatDate(caseStatus.last_check_failed_at)}
+                  </p>
+                  <p className="text-xs text-amber-800 dark:text-amber-200 mt-1">
+                    USCIS may be temporarily unreachable. We'll keep retrying. The status above is from your most recent successful check.
+                    {caseStatus.last_check_error_message ? ` Reason: ${caseStatus.last_check_error_message}` : ''}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* ISS-011: explicit mock banner */}
+          {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' && (
+            <Card className="p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800" role="status">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-purple-900 dark:text-purple-100">USCIS Mock Mode Active</p>
+                  <p className="text-xs text-purple-800 dark:text-purple-200 mt-1">
+                    The values you see are simulated for testing. Set USCIS_MOCK=false in production env.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
 
           {/* Last Check Indicator */}
           <Card className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200 dark:border-blue-800">
@@ -840,8 +889,30 @@ export function CaseStatusSection() {
           </Card>
         )}
 
-      {/* Help Text */}
-      {!caseStatus && (
+      {/* ISS-030: explicit "couldn't load" state with retry */}
+      {!caseStatus && loadError && (
+        <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" role="alert">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="text-sm text-amber-900 dark:text-amber-100">
+              <strong>Couldn&apos;t load your case status.</strong>{' '}
+              <span className="opacity-90">{loadError}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setLoadError(null);
+                void loadCaseStatus(true);
+              }}
+            >
+              Try again
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Help Text — show only when we know there's genuinely no case (not on error) */}
+      {!caseStatus && !loadError && (
         <Card className="p-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
           <h3 className="font-semibold mb-2">How it works</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">

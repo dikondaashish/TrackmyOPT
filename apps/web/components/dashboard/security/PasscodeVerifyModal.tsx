@@ -186,6 +186,16 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
             </div>
           )}
 
+          {/* ISS-020: forgot passcode link */}
+          <div className="text-center">
+            <a
+              href="/dashboard/documents/forgot-passcode"
+              className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            >
+              Forgot your passcode?
+            </a>
+          </div>
+
           {/* Action Buttons */}
           <div className="flex gap-3">
             <button
