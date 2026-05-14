@@ -168,7 +168,10 @@ export function DocumentVaultClient() {
 
   async function checkPremiumStatus() {
     try {
-      const res = await fetch('/api/premium/status');
+      const res = await fetch('/api/premium/status', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
       if (!res.ok) {
         // Server-side error — don't falsely show the upsell; show retry instead
         setPremiumCheckError(true);
