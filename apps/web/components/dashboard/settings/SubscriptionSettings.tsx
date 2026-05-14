@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CreditCard, Loader2, Check, Zap, Shield, Star, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
 import type { PromoCheckoutMode } from '@/lib/premium/promoCheckoutTypes';
 import { buildPromoCheckoutBody } from '@/lib/premium/checkoutPromoPayload';
+import { formatMonthlyEquivalentFromYearly } from '@/lib/premium/formatMonthlyEquivalentFromYearly';
 import { SubscriptionUsage } from './SubscriptionUsage';
 import { BillingHistory } from './BillingHistory';
 import { SubscriptionFAQ } from './SubscriptionFAQ';
@@ -36,6 +37,26 @@ interface PricingSectionProps {
 
 function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, userEmail, premium, onUpgrade, isCheckoutLoading }: PricingSectionProps) {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+    const [proFreeTrialEligible, setProFreeTrialEligible] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const r = await fetch('/api/premium/status', { credentials: 'include' });
+                const j = (await r.json()) as { proFreeTrialEligible?: boolean };
+                if (cancelled) return;
+                if (typeof j.proFreeTrialEligible === 'boolean') {
+                    setProFreeTrialEligible(j.proFreeTrialEligible);
+                } else {
+                    setProFreeTrialEligible(true);
+                }
+            } catch {
+                if (!cancelled) setProFreeTrialEligible(true);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, []);
 
     const handleDowngrade = (planName: string) => {
         if (currentPlan === 'dedicated') {
@@ -168,6 +189,15 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                         }
                     }
 
+                    if (
+                        plan.id === 'pro' &&
+                        !isCurrentPlan &&
+                        currentPlan === 'free' &&
+                        proFreeTrialEligible === false
+                    ) {
+                        buttonText = 'Subscribe to Pro';
+                    }
+
                     return (
                         <div
                             key={i}
@@ -188,20 +218,62 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                             </div>
 
                             <div className="mb-6">
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-4xl font-bold text-gray-900 dark:text-white">
-                                        ${plan.price[billingCycle]}
-                                    </span>
-                                    <span className="text-sm text-gray-500">/{billingCycle === 'monthly' ? 'month' : 'year'}</span>
-                                </div>
-                                {plan.originalPrice[billingCycle] && (
-                                    <div className="text-sm text-gray-400 line-through mt-1">
-                                        ${plan.originalPrice[billingCycle]}
-                                    </div>
+                                {plan.price[billingCycle] === 0 ? (
+                                    <>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-4xl font-bold text-gray-900 dark:text-white">$0</span>
+                                            <span className="text-sm text-gray-500">/mo</span>
+                                        </div>
+                                        <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-2">
+                                            Forever Free — No Trial
+                                        </div>
+                                    </>
+                                ) : billingCycle === 'yearly' ? (
+                                    <>
+                                        {plan.originalPrice.yearly != null &&
+                                            plan.originalPrice.yearly > plan.price.yearly && (
+                                                <div className="text-sm text-gray-400 line-through mb-1 tabular-nums">
+                                                    ${formatMonthlyEquivalentFromYearly(plan.originalPrice.yearly)}/mo
+                                                </div>
+                                            )}
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-4xl font-bold text-gray-900 dark:text-white tabular-nums">
+                                                ${formatMonthlyEquivalentFromYearly(plan.price.yearly)}
+                                            </span>
+                                            <span className="text-sm text-gray-500">/mo</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">billed yearly</p>
+                                        <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-2">
+                                            {plan.id === 'pro'
+                                                ? proFreeTrialEligible === false
+                                                    ? 'No trial — your account already used the one-time Pro trial'
+                                                    : '7-Day Free Trial'
+                                                : '1-Hr Lawyer Session Included'}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        {plan.originalPrice.monthly != null &&
+                                            plan.originalPrice.monthly > plan.price.monthly && (
+                                                <div className="text-sm text-gray-400 line-through mb-1 tabular-nums">
+                                                    ${plan.originalPrice.monthly}
+                                                </div>
+                                            )}
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-4xl font-bold text-gray-900 dark:text-white tabular-nums">
+                                                ${plan.price.monthly}
+                                            </span>
+                                            <span className="text-sm text-gray-500">/mo</span>
+                                        </div>
+                                        <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-2">
+                                            {plan.id === 'pro'
+                                                ? proFreeTrialEligible === false
+                                                    ? 'No trial — your account already used the one-time Pro trial'
+                                                    : '7-Day Free Trial'
+                                                : '1-Hr Lawyer Session Included'}
+                                        </div>
+                                    </>
                                 )}
-                                <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-2">
-                                    {plan.price[billingCycle] === 0 ? "Forever Free — No Trial" : plan.id === 'pro' ? "7-Day Free Trial" : "1-Hr Lawyer Session Included"}
-                                </div>
                             </div>
 
                             <div className="flex-1 mb-8">

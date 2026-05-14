@@ -52,7 +52,7 @@ const faqSchema = {
             name: "How much does TrackMyOPT Premium cost?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "TrackMyOPT Pro costs $4.99/month or $49.99/year (saving 40%). The Dedicated plan with 1-on-1 lawyer sessions is $14.99/month or $149.99/year. Both include a 7-day free trial with no credit card required.",
+                text: "TrackMyOPT Pro is $4.99/month, or about $4.17/mo when billed yearly (save vs paying monthly). Dedicated with 1-on-1 lawyer sessions is $14.99/month, or about $12.50/mo when billed yearly. Each account may use one 7-day Pro trial, one time only; after that, new Pro checkouts bill without an additional trial. Dedicated does not include a free trial.",
             },
         },
     ],

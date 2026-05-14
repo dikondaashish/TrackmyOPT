@@ -16,7 +16,7 @@ const faqs = [
     },
     {
         question: "Can I get a refund?",
-        answer: "We offer a 7-day free trial so you can test all features risk-free. You won't be charged if you cancel before the trial ends."
+        answer: "Pro includes one 7-day free trial per account, ever. If you still have that trial available, you will not be charged if you cancel before it ends. After the trial has been used once on your account, new Pro subscriptions bill on Stripe’s schedule with no extra trial period."
     },
     {
         question: "What happens to my data if I cancel?",

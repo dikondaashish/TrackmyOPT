@@ -30,6 +30,7 @@ import { useResumeStore } from "@/store/resume-store";
 import { useToast } from "@/hooks/use-toast";
 
 import { ResumeUsageStats } from "@/components/dashboard/resume/ResumeUsageStats";
+import { PricingModal } from "@/components/pricing/PricingModal";
 
 interface OcrStatus {
     show: boolean;
@@ -74,6 +75,8 @@ export default function ResumeGeneratorPage() {
     // Usage limit state
     const [usageLimit, setUsageLimit] = useState<{ resumeUsage: number; resumeLimit: number } | null>(null);
     const [usageLoading, setUsageLoading] = useState(true);
+    const [showPricingModal, setShowPricingModal] = useState(false);
+    const [isPremium, setIsPremium] = useState<boolean | null>(null);
 
     // OCR state
     const [resumeOcr, setResumeOcr] = useState<OcrStatus>({ show: false, running: false });
@@ -97,6 +100,30 @@ export default function ResumeGeneratorPage() {
             }
         }
         fetchUsage();
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const response = await fetch("/api/premium/status", {
+                    credentials: "include",
+                    cache: "no-store",
+                });
+                if (cancelled) return;
+                if (response.ok) {
+                    const data = (await response.json()) as { isPremium?: boolean };
+                    setIsPremium(data.isPremium === true);
+                } else {
+                    setIsPremium(false);
+                }
+            } catch {
+                if (!cancelled) setIsPremium(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
     }, []);
     
     const searchParams = useSearchParams();
@@ -415,6 +442,7 @@ export default function ResumeGeneratorPage() {
         !!usageLimit && usageLimit.resumeUsage >= usageLimit.resumeLimit;
 
     return (
+        <>
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50">
@@ -948,14 +976,13 @@ export default function ResumeGeneratorPage() {
                 <div className="mt-8 flex justify-center">
                     {isLimitReached ? (
                         <Button
-                            asChild
+                            type="button"
+                            onClick={() => setShowPricingModal(true)}
                             className="px-8 py-6 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
                         >
-                            <Link href="/dashboard/settings/billing">
-                                <Sparkles className="w-5 h-5 mr-2" />
-                                Upgrade to Premium
-                                <ChevronRight className="w-5 h-5 ml-2" />
-                            </Link>
+                            <Sparkles className="w-5 h-5 mr-2" />
+                            Upgrade to Premium
+                            <ChevronRight className="w-5 h-5 ml-2" />
                         </Button>
                     ) : (
                         <Button
@@ -1000,5 +1027,11 @@ export default function ResumeGeneratorPage() {
                 </div>
             </div>
         </div>
+        <PricingModal
+            open={showPricingModal}
+            onClose={() => setShowPricingModal(false)}
+            isPremium={isPremium ?? false}
+        />
+        </>
     );
 }

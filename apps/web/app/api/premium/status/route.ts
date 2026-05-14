@@ -7,6 +7,14 @@ import Stripe from 'stripe';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { logIdPrefix, sanitizeError, secureLog } from '@/lib/secure-logger';
 
+function trialPayload(proFreeTrialConsumed: boolean | null | undefined) {
+  const consumed = proFreeTrialConsumed === true;
+  return {
+    proFreeTrialConsumed: consumed,
+    proFreeTrialEligible: !consumed,
+  };
+}
+
 export const dynamic = 'force-dynamic';
 
 export async function OPTIONS(req: NextRequest) {
@@ -66,7 +74,8 @@ export async function GET(req: NextRequest) {
     if (!userId) {
       return NextResponse.json({
         isPremium: false,
-        error: 'Not authenticated'
+        error: 'Not authenticated',
+        ...trialPayload(false),
       }, {
         status: 200,
         headers: cors
@@ -81,7 +90,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('premium_status, plan_tier, subscription_expires_at, premium_purchased_at, stripe_customer_id')
+      .select('premium_status, plan_tier, subscription_expires_at, premium_purchased_at, stripe_customer_id, pro_free_trial_consumed')
       .eq('user_id', userId)
       .single();
 
@@ -89,7 +98,8 @@ export async function GET(req: NextRequest) {
       console.error('Error checking premium status:', sanitizeError(error));
       return NextResponse.json({
         isPremium: false,
-        error: error.message
+        error: error.message,
+        ...trialPayload(false),
       }, {
         status: 200,
         headers: cors
@@ -98,7 +108,10 @@ export async function GET(req: NextRequest) {
 
     // If no profile found — nothing to check
     if (!data) {
-      return NextResponse.json({ isPremium: false, purchasedAt: null }, { status: 200, headers: cors });
+      return NextResponse.json(
+        { isPremium: false, purchasedAt: null, ...trialPayload(false) },
+        { status: 200, headers: cors },
+      );
     }
 
     // premium_status is false in DB but a stripe_customer_id exists — the DB may have
@@ -128,6 +141,7 @@ export async function GET(req: NextRequest) {
               premium_status: true,
               plan_tier: healedPlanTier,
               subscription_expires_at: healedExpiry,
+              ...(String(healedPlanTier).toLowerCase() === 'pro' ? { pro_free_trial_consumed: true } : {}),
             })
             .eq('user_id', userId);
 
@@ -142,6 +156,9 @@ export async function GET(req: NextRequest) {
               expiresAt: healedExpiry,
               purchasedAt: data.premium_purchased_at,
               customerId: data.stripe_customer_id,
+              ...trialPayload(
+                String(healedPlanTier).toLowerCase() === 'pro' ? true : data.pro_free_trial_consumed,
+              ),
             },
             { status: 200, headers: cors }
           );
@@ -153,12 +170,26 @@ export async function GET(req: NextRequest) {
         );
       }
       // Stripe confirmed no active sub — correctly return false
-      return NextResponse.json({ isPremium: false, purchasedAt: null }, { status: 200, headers: cors });
+      return NextResponse.json(
+        {
+          isPremium: false,
+          purchasedAt: null,
+          ...trialPayload(data.pro_free_trial_consumed),
+        },
+        { status: 200, headers: cors },
+      );
     }
 
     // No stripe_customer_id or premium_status is definitively false
     if (!data.premium_status) {
-      return NextResponse.json({ isPremium: false, purchasedAt: null }, { status: 200, headers: cors });
+      return NextResponse.json(
+        {
+          isPremium: false,
+          purchasedAt: null,
+          ...trialPayload(data.pro_free_trial_consumed),
+        },
+        { status: 200, headers: cors },
+      );
     }
 
     // User has premium (active subscription)
@@ -217,6 +248,7 @@ export async function GET(req: NextRequest) {
             premium_status: true,
             plan_tier: healedPlan,
             subscription_expires_at: healedExpiry,
+            ...(String(healedPlan).toLowerCase() === 'pro' ? { pro_free_trial_consumed: true } : {}),
           })
           .eq('user_id', userId);
 
@@ -227,6 +259,9 @@ export async function GET(req: NextRequest) {
             expiresAt: healedExpiry,
             purchasedAt: data.premium_purchased_at,
             customerId: data.stripe_customer_id,
+            ...trialPayload(
+              String(healedPlan).toLowerCase() === 'pro' ? true : data.pro_free_trial_consumed,
+            ),
           },
           { status: 200, headers: cors }
         );
@@ -254,6 +289,7 @@ export async function GET(req: NextRequest) {
           expired: true,
           expiresAt: data.subscription_expires_at,
           customerId: data.stripe_customer_id,
+          ...trialPayload(data.pro_free_trial_consumed),
         },
         { status: 200, headers: cors }
       );
@@ -264,7 +300,8 @@ export async function GET(req: NextRequest) {
       planName: data.plan_tier || 'pro',
       expiresAt: data.subscription_expires_at,
       purchasedAt: data.premium_purchased_at,
-      customerId: data.stripe_customer_id
+      customerId: data.stripe_customer_id,
+      ...trialPayload(data.pro_free_trial_consumed),
     }, {
       status: 200,
       headers: cors
@@ -272,7 +309,7 @@ export async function GET(req: NextRequest) {
   } catch (error: unknown) {
     secureLog.error('GET /api/premium/status error:', sanitizeError(error));
     return NextResponse.json(
-      { isPremium: false, error: 'internal_error' },
+      { isPremium: false, error: 'internal_error', ...trialPayload(false) },
       { status: 500, headers: cors }
     );
   }

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Check, X, ChevronDown, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatMonthlyEquivalentFromYearly } from "@/lib/premium/formatMonthlyEquivalentFromYearly";
 import {
     Tooltip,
     TooltipContent,
@@ -123,24 +124,61 @@ export function PricingModule({
 
                             <CardContent className="text-center flex-1 flex flex-col">
                                 <div className="mb-6">
-                                    {/* Discount logic display */}
-                                    {(isAnnual ? plan.priceYearlyOriginal : plan.priceMonthlyOriginal) && (
-                                        <div className="text-muted-foreground/60 line-through text-sm font-medium mb-1">
-                                            ${isAnnual ? plan.priceYearlyOriginal : plan.priceMonthlyOriginal}
-                                        </div>
-                                    )}
-                                    <div className="flex items-baseline justify-center gap-1">
-                                        <span className="text-4xl font-extrabold tracking-tight">
-                                            ${isAnnual ? plan.priceYearly : plan.priceMonthly}
-                                        </span>
-                                        <span className="text-muted-foreground font-medium">
-                                            /{isAnnual ? "year" : "month"}
-                                        </span>
-                                    </div>
-                                    {plan.users && (
-                                        <p className="text-sm font-bold text-muted-foreground mt-2">
-                                            {plan.users}
-                                        </p>
+                                    {plan.priceMonthly === 0 && plan.priceYearly === 0 ? (
+                                        <>
+                                            <div className="flex items-baseline justify-center gap-1">
+                                                <span className="text-4xl font-extrabold tracking-tight tabular-nums">
+                                                    $0
+                                                </span>
+                                                <span className="text-muted-foreground font-medium">/mo</span>
+                                            </div>
+                                            {plan.users && (
+                                                <p className="text-sm font-bold text-muted-foreground mt-2">
+                                                    {plan.users}
+                                                </p>
+                                            )}
+                                        </>
+                                    ) : isAnnual ? (
+                                        <>
+                                            {plan.priceYearlyOriginal != null &&
+                                                plan.priceYearlyOriginal > plan.priceYearly && (
+                                                    <div className="text-muted-foreground/60 line-through text-sm font-medium mb-1 tabular-nums">
+                                                        ${formatMonthlyEquivalentFromYearly(plan.priceYearlyOriginal)}/mo
+                                                    </div>
+                                                )}
+                                            <div className="flex items-baseline justify-center gap-1">
+                                                <span className="text-4xl font-extrabold tracking-tight tabular-nums">
+                                                    ${formatMonthlyEquivalentFromYearly(plan.priceYearly)}
+                                                </span>
+                                                <span className="text-muted-foreground font-medium">/mo</span>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground mt-1">billed yearly</p>
+                                            {plan.users && (
+                                                <p className="text-sm font-bold text-muted-foreground mt-2">
+                                                    {plan.users}
+                                                </p>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {plan.priceMonthlyOriginal != null &&
+                                                plan.priceMonthlyOriginal > plan.priceMonthly && (
+                                                    <div className="text-muted-foreground/60 line-through text-sm font-medium mb-1 tabular-nums">
+                                                        ${plan.priceMonthlyOriginal}
+                                                    </div>
+                                                )}
+                                            <div className="flex items-baseline justify-center gap-1">
+                                                <span className="text-4xl font-extrabold tracking-tight tabular-nums">
+                                                    ${plan.priceMonthly}
+                                                </span>
+                                                <span className="text-muted-foreground font-medium">/mo</span>
+                                            </div>
+                                            {plan.users && (
+                                                <p className="text-sm font-bold text-muted-foreground mt-2">
+                                                    {plan.users}
+                                                </p>
+                                            )}
+                                        </>
                                     )}
                                 </div>
 

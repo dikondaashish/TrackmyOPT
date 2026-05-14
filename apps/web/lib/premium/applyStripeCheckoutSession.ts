@@ -81,6 +81,7 @@ export async function applyStripeCheckoutSession(args: {
   }
 
   const planTier = session.metadata?.planId || "pro";
+  const isProCheckout = String(planTier).toLowerCase() === "pro";
 
   const { data: updatedProfiles, error: profileError } = await supabase
     .from("profiles")
@@ -91,6 +92,7 @@ export async function applyStripeCheckoutSession(args: {
       stripe_payment_intent_id: paymentIntentId,
       plan_tier: planTier,
       subscription_expires_at: expiresAt.toISOString(),
+      ...(isProCheckout ? { pro_free_trial_consumed: true } : {}),
     })
     .eq("user_id", userId)
     .select("user_id");

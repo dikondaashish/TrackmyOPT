@@ -11,6 +11,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getUserId } from "@/lib/auth/getUserId";
 import { sanitizeError } from "@/lib/secure-logger";
 import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
+import { syncProFreeTrialConsumedFromStripe } from "@/lib/premium/proFreeTrialFromStripe";
 
 // Initialize Stripe
 const getStripe = () => {
@@ -182,6 +183,24 @@ export async function POST(req: NextRequest) {
 
     console.log(`Using Stripe customer: ${customerId}`);
 
+    const profileRow = profile as typeof profile & { pro_free_trial_consumed?: boolean | null };
+    let proFreeTrialConsumed = profileRow.pro_free_trial_consumed === true;
+    if (!proFreeTrialConsumed && customerId) {
+      try {
+        const synced = await syncProFreeTrialConsumedFromStripe({
+          stripe,
+          supabase,
+          userId,
+          customerId,
+        });
+        if (synced) proFreeTrialConsumed = true;
+      } catch (e) {
+        console.warn("pro_free_trial Stripe history sync failed (continuing with DB flag):", sanitizeError(e));
+      }
+    }
+
+    const includeProTrial = planId === "pro" && !proFreeTrialConsumed;
+
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
     const { data: recentPending } = await supabase
       .from("payment_transactions")
@@ -248,7 +267,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       subscription_data: {
-        trial_period_days: planId === "pro" ? 7 : undefined,
+        trial_period_days: includeProTrial ? 7 : undefined,
         metadata: {
           planId,
           interval,

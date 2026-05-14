@@ -90,7 +90,7 @@ export const pricingFaqs = [
     },
     {
         q: "Can I try Pro before paying?",
-        a: "Absolutely. Pro comes with a 7-day free trial with full access to all premium features. Cancel anytime before the trial ends without being charged.",
+        a: "Pro includes one 7-day free trial per account, ever: the first time you complete Pro checkout you can start with a trial (full access). After that, Pro checkout starts billing on Stripe’s schedule with no additional trial period. Cancel anytime before the trial ends and you will not be charged.",
     },
     {
         q: "What payment methods do you accept?",
@@ -102,7 +102,7 @@ export const pricingFaqs = [
     },
     {
         q: "Do you offer annual billing?",
-        a: "Yes. Annual billing saves you up to 40% compared to monthly. Pro annual is $49.99/year (vs $59.88 monthly) and Dedicated annual is $149.99/year (vs $179.88 monthly).",
+        a: "Yes. Annual billing saves you up to 40% compared to paying monthly. In the app we show the monthly equivalent for annual plans (about $4.17/mo for Pro and $12.50/mo for Dedicated) with a clear \"billed yearly\" label; you are charged the full annual amount at checkout.",
     },
     {
         q: "Is my payment information secure?",

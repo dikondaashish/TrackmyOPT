@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, Check, Crown, Shield, Sparkles, Star, Zap, Gift } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { PromoCodeCheckoutBar } from "@/components/pricing/PromoCodeCheckoutBar";
 import type { PromoCheckoutMode } from "@/lib/premium/promoCheckoutTypes";
 import { buildPromoCheckoutBody } from "@/lib/premium/checkoutPromoPayload";
+import { formatMonthlyEquivalentFromYearly } from "@/lib/premium/formatMonthlyEquivalentFromYearly";
 
 interface PricingModalProps {
   open: boolean;
@@ -29,6 +30,32 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   const [promoMode, setPromoMode] = useState<PromoCheckoutMode>("default");
   const [customPromoInput, setCustomPromoInput] = useState("");
   const [promoError, setPromoError] = useState<string | null>(null);
+  /** null = still loading / unknown; server omits trial when false */
+  const [proFreeTrialEligible, setProFreeTrialEligible] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!open || isPremium) {
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/premium/status", { credentials: "include" });
+        const j = (await r.json()) as { proFreeTrialEligible?: boolean };
+        if (cancelled) return;
+        if (typeof j.proFreeTrialEligible === "boolean") {
+          setProFreeTrialEligible(j.proFreeTrialEligible);
+        } else {
+          setProFreeTrialEligible(true);
+        }
+      } catch {
+        if (!cancelled) setProFreeTrialEligible(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, isPremium]);
 
   useEffect(() => {
     if (open) {
@@ -83,7 +110,26 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
 
 
-  const plans = [
+  const plans = useMemo((): Array<{
+    id: string;
+    name: string;
+    icon: typeof Zap;
+    tagline: string;
+    monthlyPrice: number;
+    yearlyPrice: number;
+    originalMonthly?: number;
+    originalYearly?: number;
+    popular: boolean;
+    current: boolean;
+    trial?: string;
+    iconBg: string;
+    iconColor: string;
+    borderColor: string;
+    ringColor?: string;
+    features: Array<{ text: string; included: boolean; isHeader: boolean }>;
+  }> => {
+    const showProTrial = !isPremium && proFreeTrialEligible !== false;
+    return [
     {
       id: 'free',
       name: 'Free',
@@ -118,7 +164,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
       originalYearly: 79.99,
       popular: true,
       current: isPremium,
-      trial: '7-day free trial',
+      ...(showProTrial ? { trial: '7-day free trial' as const } : {}),
       iconBg: 'bg-gradient-to-br from-violet-500 to-indigo-600',
       iconColor: 'text-white',
       borderColor: 'border-violet-500/50',
@@ -157,6 +203,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
       ],
     },
   ];
+  }, [isPremium, proFreeTrialEligible]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -260,8 +307,10 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
           <div className="grid md:grid-cols-3 gap-3 sm:gap-4">
             {plans.map((plan) => {
               const Icon = plan.icon;
-              const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-              const originalPrice = isYearly ? plan.originalYearly : plan.originalMonthly;
+              const monthlyDisplay = plan.monthlyPrice;
+              const yearlyTotal = plan.yearlyPrice;
+              const originalMonthly = plan.originalMonthly;
+              const originalYearly = plan.originalYearly;
 
               return (
                 <div
@@ -303,19 +352,48 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
                     {/* Price Section */}
                     <div className="mb-3 pb-3 border-b border-border/50">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-bold tracking-tight text-foreground">
-                          ${price}
-                        </span>
-                        {originalPrice && originalPrice > price && (
-                          <span className="text-sm text-muted-foreground/70 line-through">
-                            ${originalPrice}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-muted-foreground text-xs mt-0.5">
-                        {plan.id === 'free' ? 'Forever free' : `per ${isYearly ? 'year' : 'month'}`}
-                      </p>
+                      {plan.id === "free" ? (
+                        <>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-3xl font-bold tracking-tight text-foreground">$0</span>
+                          </div>
+                          <p className="text-muted-foreground text-xs mt-0.5">Forever free</p>
+                        </>
+                      ) : isYearly ? (
+                        <>
+                          <div className="flex items-baseline gap-1 flex-wrap">
+                            <span className="text-3xl font-bold tracking-tight text-foreground tabular-nums">
+                              ${formatMonthlyEquivalentFromYearly(yearlyTotal)}
+                            </span>
+                            <span className="text-sm font-medium text-muted-foreground">/mo</span>
+                          </div>
+                          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                            {originalYearly != null &&
+                              yearlyTotal > 0 &&
+                              originalYearly > yearlyTotal && (
+                                <span className="line-through decoration-muted-foreground/50 text-muted-foreground/80 tabular-nums">
+                                  ${formatMonthlyEquivalentFromYearly(originalYearly)}/mo
+                                </span>
+                              )}
+                            <span className="text-muted-foreground/90">billed yearly</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            <span className="text-3xl font-bold tracking-tight text-foreground tabular-nums">
+                              ${monthlyDisplay}
+                            </span>
+                            {originalMonthly != null &&
+                              originalMonthly > monthlyDisplay && (
+                                <span className="text-sm text-muted-foreground/70 line-through tabular-nums">
+                                  ${originalMonthly}
+                                </span>
+                              )}
+                          </div>
+                          <p className="text-muted-foreground text-xs mt-0.5">per month</p>
+                        </>
+                      )}
                       {plan.trial && (
                         <p className="text-violet-600 dark:text-violet-400 text-xs font-medium mt-1.5 flex items-center gap-1">
                           <Sparkles className="w-3 h-3" />
@@ -361,7 +439,11 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                             </span>
                           ) : (
                             <span className="flex items-center gap-1.5">
-                              {plan.popular ? 'Start 7-Day Free Trial' : 'Upgrade to Dedicated'}
+                              {plan.popular
+                                ? proFreeTrialEligible === false
+                                  ? "Subscribe to Pro"
+                                  : "Start 7-Day Free Trial"
+                                : "Upgrade to Dedicated"}
                               <ArrowRight className="w-3.5 h-3.5" />
                             </span>
                           )}
@@ -423,10 +505,12 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 <Shield className="w-3.5 h-3.5 text-green-600" />
                 <span>Secure Payment</span>
               </div>
+              {!isPremium && proFreeTrialEligible !== false && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Sparkles className="w-3.5 h-3.5 text-violet-600" />
                 <span>7-Day Free Trial</span>
               </div>
+              )}
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Zap className="w-3.5 h-3.5 text-amber-600" />
                 <span>Cancel Anytime</span>
