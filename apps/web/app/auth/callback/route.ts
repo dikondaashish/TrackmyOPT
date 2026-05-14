@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { getPostHogClient } from '@/lib/posthog-server';
+import { safeInternalRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,9 +21,7 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
 
     const code = url.searchParams.get('code');
-    const next = url.searchParams.get('next') || '/dashboard';
-    const error = url.searchParams.get('error');
-    const errorDescription = url.searchParams.get('error_description');
+    const nextRaw = url.searchParams.get('next');
 
 
     if (!code) {
@@ -185,8 +184,8 @@ export async function GET(req: NextRequest) {
 
     await posthog.shutdown();
 
-    // Redirect to the dashboard or specified next page
-    const redirectUrl = new URL(next, req.url);
+    // Redirect to the dashboard or specified next page (never external origins)
+    const redirectUrl = safeInternalRedirectTarget(nextRaw, req.url);
 
     // Add a small delay to ensure cookies are set before redirect
     // Redirect to the dashboard or specified URL

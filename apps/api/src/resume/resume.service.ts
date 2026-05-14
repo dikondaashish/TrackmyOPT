@@ -4,6 +4,56 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
+/** Row shape returned by getResumes list query (truncated content applied after map). */
+interface ResumeListRow {
+  id: string;
+  filename: string;
+  content: string | null;
+  created_at: string;
+  file_path: string | null;
+  is_parsed: boolean | null;
+}
+
+function unknownToString(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  if (typeof value === 'boolean') return String(value);
+  return '';
+}
+
+function mapUnknownToResumeListRow(item: unknown): ResumeListRow {
+  if (typeof item !== 'object' || item === null) {
+    throw new Error('Invalid resume list row');
+  }
+  const record = item as Record<string, unknown>;
+  const id = unknownToString(record.id);
+  const filename = unknownToString(record.filename);
+  const contentRaw = record.content;
+  const content =
+    contentRaw === null || contentRaw === undefined
+      ? null
+      : unknownToString(contentRaw);
+  const created_at = unknownToString(record.created_at);
+  const fp = record.file_path;
+  const file_path =
+    fp === null || fp === undefined ? null : unknownToString(fp);
+  const is_parsed =
+    typeof record.is_parsed === 'boolean'
+      ? record.is_parsed
+      : record.is_parsed === null || record.is_parsed === undefined
+        ? null
+        : null;
+
+  return {
+    id,
+    filename,
+    content: content === '' ? null : content,
+    created_at,
+    file_path: file_path === '' ? null : file_path,
+    is_parsed,
+  };
+}
+
 @Injectable()
 export class ResumeService {
   private readonly logger = new Logger(ResumeService.name);
@@ -70,10 +120,15 @@ export class ResumeService {
     return result;
   }
 
-  async getResumes(userId: string, options?: { limit?: number; offset?: number; search?: string }) {
+  async getResumes(
+    userId: string,
+    options?: { limit?: number; offset?: number; search?: string },
+  ) {
     let query = this.supabase
       .from('resumes')
-      .select('id, filename, content, created_at, file_path, is_parsed', { count: 'exact' })
+      .select('id, filename, content, created_at, file_path, is_parsed', {
+        count: 'exact',
+      })
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -91,15 +146,22 @@ export class ResumeService {
 
     if (error) throw new Error(error.message);
 
+    const rows: ResumeListRow[] = Array.isArray(data)
+      ? data.map((item) => mapUnknownToResumeListRow(item))
+      : [];
+
     // Truncate content for list view to reduce payload size
-    const truncatedData = (data as any[]).map(resume => ({
+    const truncatedData = rows.map((resume) => ({
       ...resume,
-      content: resume.content ? (resume.content.substring(0, 500) + (resume.content.length > 500 ? '...' : '')) : ''
+      content: resume.content
+        ? resume.content.substring(0, 500) +
+          (resume.content.length > 500 ? '...' : '')
+        : '',
     }));
 
     return {
       data: truncatedData,
-      total: count || 0
+      total: count || 0,
     };
   }
 
