@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendStemOptWindowEmail } from "@/lib/notifications/transactional-emails";
-import { sanitizeError } from "@/lib/secure-logger";
+import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
   const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
 
   if (authHeader !== expectedAuth) {
-    console.error("⚠️ Unauthorized stem-opt-window-alert cron attempt");
+    secureLog.warn("Unauthorized stem-opt-window-alert cron attempt");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -68,13 +68,13 @@ export async function GET(req: NextRequest) {
       .lte("opt_ead_end_date", maxEad);
 
     if (optErr) {
-      console.error("❌ Error fetching opt_status:", optErr);
+      secureLog.error("Error fetching opt_status (stem-opt-window):", sanitizeError(optErr));
       return NextResponse.json({ error: optErr.message }, { status: 500 });
     }
 
     const rawCount = optRows?.length ?? 0;
-    console.log(
-      `📊 STEM OPT window query: ${rawCount} row(s) with opt_ead_end_date between ${minEad} and ${maxEad} (UTC), stem_start_date IS NULL`
+    secureLog.info(
+      `STEM OPT window query: ${rawCount} row(s) opt_ead_end_date ${minEad}–${maxEad} (UTC), stem_start_date IS NULL`,
     );
 
     if (rawCount === 0) {
@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
       .in("user_id", userIds);
 
     if (profErr) {
-      console.error("❌ Error fetching profiles:", profErr);
+      secureLog.error("Error fetching profiles (stem-opt-window):", sanitizeError(profErr));
       return NextResponse.json({ error: profErr.message }, { status: 500 });
     }
 
@@ -114,12 +114,12 @@ export async function GET(req: NextRequest) {
     for (const row of optRows || []) {
       const prof = profileByUser.get(row.user_id);
       if (!prof) {
-        console.log(`ℹ️ No profile for user ${row.user_id}, skipping`);
+        secureLog.info(`No profile for user ${logIdPrefix(row.user_id)}, skipping`);
         continue;
       }
       const toEmail = resolveStemOptTargetEmail(prof);
       if (!toEmail) {
-        console.log(`ℹ️ No sendable email for user ${row.user_id}, skipping`);
+        secureLog.info(`No sendable email for user ${logIdPrefix(row.user_id)}, skipping`);
         continue;
       }
       candidates.push({
@@ -131,7 +131,7 @@ export async function GET(req: NextRequest) {
     }
 
     processed = candidates.length;
-    console.log(`📊 STEM OPT window: ${processed} user(s) ready to process (after profile + email resolution)`);
+    secureLog.info(`STEM OPT window: ${processed} user(s) ready to process`);
 
     for (const c of candidates) {
       try {
@@ -146,29 +146,29 @@ export async function GET(req: NextRequest) {
         if (result.ok) {
           if (result.skipped === "deduped") {
             skipped_dedup++;
-            console.log(`⏭️ Dedup skip (60d): ${c.toEmail} user=${c.user_id}`);
+            secureLog.info(`Dedup skip (60d) user=${logIdPrefix(c.user_id)}`);
           } else if (result.skipped === "blocked") {
             skipped_blocked++;
-            console.log(`🚫 Blocked: ${c.toEmail} user=${c.user_id}`);
+            secureLog.info(`Blocked user=${logIdPrefix(c.user_id)}`);
           } else {
             sent++;
-            console.log(`✅ stem_opt_window_open sent: ${c.toEmail} user=${c.user_id}`);
+            secureLog.info(`stem_opt_window_open sent user=${logIdPrefix(c.user_id)}`);
           }
         } else {
           failed++;
-          console.error(`❌ sendStemOptWindowEmail failed user=${c.user_id}: ${result.error}`);
+          secureLog.error(`sendStemOptWindowEmail failed user=${logIdPrefix(c.user_id)}: ${result.error}`);
         }
 
         await new Promise((r) => setTimeout(r, 200));
       } catch (err: unknown) {
         failed++;
-        console.error(`❌ Error user ${c.user_id}:`, sanitizeError(err));
+        secureLog.error(`Error user ${logIdPrefix(c.user_id)}:`, sanitizeError(err));
       }
     }
 
     const duration_ms = Date.now() - startTime;
-    console.log(
-      `✅ STEM OPT window job done in ${duration_ms}ms — processed=${processed} sent=${sent} skipped_dedup=${skipped_dedup} skipped_blocked=${skipped_blocked} failed=${failed}`
+    secureLog.info(
+      `STEM OPT window job done in ${duration_ms}ms — processed=${processed} sent=${sent} skipped_dedup=${skipped_dedup} skipped_blocked=${skipped_blocked} failed=${failed}`,
     );
 
     return NextResponse.json({
@@ -180,7 +180,7 @@ export async function GET(req: NextRequest) {
       failed,
     });
   } catch (error: unknown) {
-    console.error("❌ stem-opt-window-alert cron error:", sanitizeError(error));
+    secureLog.error("stem-opt-window-alert cron error:", sanitizeError(error));
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

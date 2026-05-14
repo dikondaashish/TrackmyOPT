@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sanitizeError } from '@/lib/secure-logger';
+import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     const apiKey = process.env.API_SECRET_KEY;
 
     if (!apiUrl || !apiKey) {
-      console.error('[cron] Missing NEXT_PUBLIC_API_URL or API_SECRET_KEY');
+      secureLog.error('[cron] Missing NEXT_PUBLIC_API_URL or API_SECRET_KEY');
       return NextResponse.json(
         { ok: false, error: 'Server misconfiguration' },
         { status: 500 }
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error(`[cron] Backend returned ${response.status}`);
+      secureLog.error(`[cron] Backend returned ${response.status}`);
       return NextResponse.json(
         { ok: false, error: `Backend error ${response.status}` },
         { status: 502 }
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('[cron] check-case-status error:', sanitizeError(error));
+    secureLog.error('[cron] check-case-status error:', sanitizeError(error));
     return NextResponse.json(
       { ok: false, error: 'Internal server error' },
       { status: 500 }

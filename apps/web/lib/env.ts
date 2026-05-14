@@ -104,6 +104,8 @@ const serverEnvSchema = clientEnvSchema.extend({
     API_SECRET_KEY: z.string().min(8).optional(),
     SEO_PING_SECRET: z.string().min(8).optional(),
     INDEXNOW_KEY: z.string().optional(),
+    /** POST /api/admin/bulk-notification — Bearer secret (server only). */
+    ADMIN_SECRET: z.string().min(8).optional(),
     EMAIL_LINK_SIGNING_SECRET: z.string().min(16).optional(),
 
     // USCIS API

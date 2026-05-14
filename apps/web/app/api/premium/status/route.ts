@@ -4,25 +4,23 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/auth/jwt';
 import Stripe from 'stripe';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
+import { logIdPrefix, sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
-// CORS headers for Chrome extension
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-// Handle preflight requests
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeadersWebAndExtension(req),
+  });
 }
 
 /**
  * GET - Check if user has premium access
  */
 export async function GET(req: NextRequest) {
+  const cors = corsHeadersWebAndExtension(req);
   try {
     let userId: string | null = null;
 
@@ -71,7 +69,7 @@ export async function GET(req: NextRequest) {
         error: 'Not authenticated'
       }, {
         status: 200,
-        headers: corsHeaders
+        headers: cors
       });
     }
 
@@ -88,19 +86,19 @@ export async function GET(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error checking premium status:', error);
+      console.error('Error checking premium status:', sanitizeError(error));
       return NextResponse.json({
         isPremium: false,
         error: error.message
       }, {
         status: 200,
-        headers: corsHeaders
+        headers: cors
       });
     }
 
     // If no profile found — nothing to check
     if (!data) {
-      return NextResponse.json({ isPremium: false, purchasedAt: null }, { status: 200, headers: corsHeaders });
+      return NextResponse.json({ isPremium: false, purchasedAt: null }, { status: 200, headers: cors });
     }
 
     // premium_status is false in DB but a stripe_customer_id exists — the DB may have
@@ -133,7 +131,9 @@ export async function GET(req: NextRequest) {
             })
             .eq('user_id', userId);
 
-          console.log(`GET /api/premium/status: self-healed premium for user ${userId}`);
+          secureLog.info(
+            `GET /api/premium/status: self-healed premium for user ${logIdPrefix(userId)}`,
+          );
 
           return NextResponse.json(
             {
@@ -143,19 +143,22 @@ export async function GET(req: NextRequest) {
               purchasedAt: data.premium_purchased_at,
               customerId: data.stripe_customer_id,
             },
-            { status: 200, headers: corsHeaders }
+            { status: 200, headers: cors }
           );
         }
       } catch (stripeErr) {
-        console.error('GET /api/premium/status: Stripe self-heal check failed:', stripeErr);
+        secureLog.error(
+          'GET /api/premium/status: Stripe self-heal check failed:',
+          sanitizeError(stripeErr),
+        );
       }
       // Stripe confirmed no active sub — correctly return false
-      return NextResponse.json({ isPremium: false, purchasedAt: null }, { status: 200, headers: corsHeaders });
+      return NextResponse.json({ isPremium: false, purchasedAt: null }, { status: 200, headers: cors });
     }
 
     // No stripe_customer_id or premium_status is definitively false
     if (!data.premium_status) {
-      return NextResponse.json({ isPremium: false, purchasedAt: null }, { status: 200, headers: corsHeaders });
+      return NextResponse.json({ isPremium: false, purchasedAt: null }, { status: 200, headers: cors });
     }
 
     // User has premium (active subscription)
@@ -192,11 +195,16 @@ export async function GET(req: NextRequest) {
               newExpiresAt = new Date(periodEnd * 1000).toISOString();
             } else {
               newExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-              console.warn('GET /api/premium/status: current_period_end not found; using 30-day fallback expiry');
+              secureLog.warn(
+                'GET /api/premium/status: current_period_end not found; using 30-day fallback expiry',
+              );
             }
           }
         } catch (stripeErr) {
-          console.error('GET /api/premium/status: Stripe check failed, trusting DB expiry:', stripeErr);
+          secureLog.error(
+            'GET /api/premium/status: Stripe check failed, trusting DB expiry:',
+            sanitizeError(stripeErr),
+          );
         }
       }
 
@@ -220,7 +228,7 @@ export async function GET(req: NextRequest) {
             purchasedAt: data.premium_purchased_at,
             customerId: data.stripe_customer_id,
           },
-          { status: 200, headers: corsHeaders }
+          { status: 200, headers: cors }
         );
       }
 
@@ -234,7 +242,10 @@ export async function GET(req: NextRequest) {
         .eq('user_id', userId);
 
       if (revokeError) {
-        console.error('GET /api/premium/status: failed to persist expiry revocation:', revokeError);
+        secureLog.error(
+          'GET /api/premium/status: failed to persist expiry revocation:',
+          sanitizeError(revokeError),
+        );
       }
 
       return NextResponse.json(
@@ -244,7 +255,7 @@ export async function GET(req: NextRequest) {
           expiresAt: data.subscription_expires_at,
           customerId: data.stripe_customer_id,
         },
-        { status: 200, headers: corsHeaders }
+        { status: 200, headers: cors }
       );
     }
 
@@ -256,14 +267,13 @@ export async function GET(req: NextRequest) {
       customerId: data.stripe_customer_id
     }, {
       status: 200,
-      headers: corsHeaders
+      headers: cors
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    console.error('GET /api/premium/status error:', msg);
+    secureLog.error('GET /api/premium/status error:', sanitizeError(error));
     return NextResponse.json(
       { isPremium: false, error: 'internal_error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: cors }
     );
   }
 }

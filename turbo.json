@@ -31,6 +31,7 @@
                 "EMAIL_LINK_SIGNING_SECRET",
                 "SEO_PING_SECRET",
                 "INDEXNOW_KEY",
+                "ADMIN_SECRET",
                 "POSTHOG_*",
                 "UPSTASH_*"
             ]

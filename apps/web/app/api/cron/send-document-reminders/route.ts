@@ -14,7 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
-import { sanitizeError } from '@/lib/secure-logger';
+import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 
 // Create SMTP transporter for Hostinger
 const transporter = nodemailer.createTransport({
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
 
     if (authHeader !== expectedAuth) {
-      console.error('❌ Unauthorized cron request');
+      secureLog.warn('Unauthorized cron request (send-document-reminders)');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
       .lt('send_at', todayEnd);
 
     if (queryError) {
-      console.error('❌ Database query error:', queryError);
+      secureLog.error('Database query error (document reminders):', sanitizeError(queryError));
       throw queryError;
     }
 
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
         const { data: userData, error: userError } = await supabase.auth.admin.getUserById(reminder.user_id);
 
         if (userError || !userData?.user?.email) {
-          console.error(`❌ Could not get user email for ${reminder.user_id}`);
+          secureLog.error(`Could not get user email for ${logIdPrefix(reminder.user_id)}`);
           failedCount++;
           continue;
         }
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
           .single();
 
         if (!profile?.premium_status) {
-          console.log(`⏭️ Skipping document reminder for ${reminder.user_id} - user is not premium`);
+          secureLog.info(`Skipping document reminder for ${logIdPrefix(reminder.user_id)} — not premium`);
           // Mark as skipped for non-premium users
           await supabase
             .from('document_reminders')
@@ -170,7 +170,10 @@ export async function GET(request: NextRequest) {
             html: generateReminderEmail(reminder),
           });
         } catch (emailError) {
-          console.error(`❌ Email send error for ${userEmail}:`, emailError);
+          secureLog.error('Email send error (document reminder):', {
+            user: logIdPrefix(reminder.user_id),
+            err: sanitizeError(emailError),
+          });
 
           // Mark as failed
           await supabase
@@ -198,7 +201,7 @@ export async function GET(request: NextRequest) {
         sentCount++;
 
       } catch (error) {
-        console.error(`❌ Error processing reminder ${reminder.id}:`, error);
+        secureLog.error(`Error processing reminder ${logIdPrefix(reminder.id)}:`, sanitizeError(error));
         failedCount++;
       }
     }
@@ -213,7 +216,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Cron job error:', sanitizeError(error));
+    secureLog.error('Cron job error (send-document-reminders):', sanitizeError(error));
 
     return NextResponse.json(
       { error: 'Cron job failed' },

@@ -25,7 +25,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/notifications/email-service';
-import { sanitizeError } from '@/lib/secure-logger';
+import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 import {
   calculateUnemploymentDays,
   getFilingWindow,
@@ -68,12 +68,12 @@ export async function GET(req: NextRequest) {
   const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
   
   if (authHeader !== expectedAuth) {
-    console.error('⚠️ Unauthorized cron job attempt');
+    secureLog.warn('Unauthorized cron job attempt (send-daily-reminders)');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    console.log('📧 Starting daily reminder job...');
+    secureLog.info('Starting daily reminder job');
 
     // Get all premium users with at least one tool email set
     // Tool emails are stored in profiles table: opt_apply_email, opt_clock_email, etc.
@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
       .eq('premium_status', true);
 
     if (profilesError) {
-      console.error('❌ Error fetching profiles:', profilesError);
+      secureLog.error('Error fetching profiles for daily reminders:', sanitizeError(profilesError));
       return NextResponse.json({ error: profilesError.message }, { status: 500 });
     }
 
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
     );
 
     if (usersWithEmails.length === 0) {
-      console.log('ℹ️ No users with tool emails enabled');
+      secureLog.info('No users with tool emails enabled');
       return NextResponse.json({ 
         success: true, 
         message: 'No users with email enabled',
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    console.log(`📊 Found ${usersWithEmails.length} premium users with tool emails`);
+    secureLog.info(`Found ${usersWithEmails.length} premium users with tool emails`);
 
     const results = {
       total: usersWithEmails.length,
@@ -147,7 +147,7 @@ export async function GET(req: NextRequest) {
         }));
 
         if (!optData) {
-          console.log(`ℹ️ No OPT data for user ${profile.user_id}`);
+          secureLog.info(`No OPT data for user ${logIdPrefix(profile.user_id)}`);
           results.skipped++;
           continue;
         }
@@ -165,7 +165,7 @@ export async function GET(req: NextRequest) {
         const tools = calculateActiveTools(optData, toolPrefs, employmentSpans);
 
         if (tools.length === 0) {
-          console.log(`ℹ️ No active tools for user ${profile.user_id}`);
+          secureLog.info(`No active tools for user ${logIdPrefix(profile.user_id)}`);
           results.skipped++;
           continue;
         }
@@ -186,7 +186,7 @@ export async function GET(req: NextRequest) {
 
         if (result.success) {
           results.sent++;
-          console.log(`✅ Sent to ${targetEmail}`);
+          secureLog.info('Daily reminder sent', { user: logIdPrefix(profile.user_id) });
 
           // Log to email_queue (optional - don't fail if this errors)
           try {
@@ -203,8 +203,8 @@ export async function GET(req: NextRequest) {
           } catch { /* ignore logging errors */ }
         } else {
           results.failed++;
-          results.errors.push(`${targetEmail}: ${result.error}`);
-          console.error(`❌ Failed: ${targetEmail}`);
+          results.errors.push(`${logIdPrefix(profile.user_id)}: ${result.error}`);
+          secureLog.error('Daily reminder send failed', { user: logIdPrefix(profile.user_id) });
         }
 
         // Rate limiting delay
@@ -212,13 +212,15 @@ export async function GET(req: NextRequest) {
 
       } catch (error: any) {
         results.failed++;
-        results.errors.push(`User ${profile.user_id}: ${error.message}`);
-        console.error(`❌ Error processing user ${profile.user_id}:`, sanitizeError(error));
+        results.errors.push(`User ${logIdPrefix(profile.user_id)}: ${error.message}`);
+        secureLog.error(`Error processing user ${logIdPrefix(profile.user_id)}:`, sanitizeError(error));
       }
     }
 
     const duration = Date.now() - startTime;
-    console.log(`✅ Job completed in ${duration}ms - Sent: ${results.sent}, Skipped: ${results.skipped}, Failed: ${results.failed}`);
+    secureLog.info(
+      `Daily reminder job completed in ${duration}ms — sent=${results.sent} skipped=${results.skipped} failed=${results.failed}`,
+    );
 
     return NextResponse.json({
       success: true,
@@ -227,7 +229,7 @@ export async function GET(req: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error('❌ Cron job error:', sanitizeError(error));
+    secureLog.error('Cron job error (send-daily-reminders):', sanitizeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

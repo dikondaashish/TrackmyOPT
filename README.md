@@ -92,6 +92,7 @@ Validation lives in [`apps/web/lib/env.ts`](./apps/web/lib/env.ts) using zod sch
 - AI resume generator: `GEMINI_API_KEY`
 - Email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
 - Cron protection: `CRON_SECRET` (Vercel Cron + cron-job.org auth header)
+- Admin bulk notifications API: `ADMIN_SECRET` (server only; never `NEXT_PUBLIC_*`)
 
 > **Note** — `lib/env.ts` validates these lazily so partial preview deployments still boot.
 

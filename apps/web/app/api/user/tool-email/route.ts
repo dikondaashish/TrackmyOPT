@@ -12,6 +12,8 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth/getUserId';
 import { sendEnrollmentEmail, type EnrollmentEmailData } from '@/lib/notifications/email-service';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
+import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,26 +21,22 @@ export const dynamic = 'force-dynamic';
 const VALID_TOOLS = ['opt_apply', 'opt_clock', 'stem_apply', 'stem_clock'] as const;
 type ToolName = typeof VALID_TOOLS[number];
 
-// CORS headers for Chrome extension
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-// Handle preflight requests
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeadersWebAndExtension(req),
+  });
 }
 
 
 
 // GET - Fetch emails for all tools or specific tool
 export async function GET(req: NextRequest) {
+  const cors = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
     }
 
     const { searchParams } = new URL(req.url);
@@ -68,7 +66,7 @@ export async function GET(req: NextRequest) {
             stem_apply: null,
             stem_clock: null,
           }
-        }, { headers: corsHeaders });
+        }, { headers: cors });
       }
     }
 
@@ -84,22 +82,23 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         tool,
         email: emails[tool.replace('_', '_') as keyof typeof emails] || null,
-      }, { headers: corsHeaders });
+      }, { headers: cors });
     }
 
-    return NextResponse.json({ emails }, { headers: corsHeaders });
+    return NextResponse.json({ emails }, { headers: cors });
 
   } catch (error) {
-    console.error('Error fetching tool emails:', error);
+    secureLog.error('Error fetching tool emails:', sanitizeError(error));
     return NextResponse.json(
       { error: 'Failed to fetch tool emails' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: cors }
     );
   }
 }
 
 // POST - Update email for a specific tool
 export async function POST(req: NextRequest) {
+  const cors = corsHeadersWebAndExtension(req);
   try {
     const { tool, email } = await req.json();
 
@@ -107,7 +106,7 @@ export async function POST(req: NextRequest) {
     if (!tool || !VALID_TOOLS.includes(tool)) {
       return NextResponse.json(
         { error: 'Invalid tool name. Must be one of: opt_apply, opt_clock, stem_apply, stem_clock' },
-        { status: 400, headers: corsHeaders }
+        { status: 400, headers: cors }
       );
     }
 
@@ -117,14 +116,14 @@ export async function POST(req: NextRequest) {
       if (!emailRegex.test(email)) {
         return NextResponse.json(
           { error: 'Invalid email format' },
-          { status: 400, headers: corsHeaders }
+          { status: 400, headers: cors }
         );
       }
     }
 
     const userId = await getUserId(req);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
     }
 
     // Use service role client to bypass RLS
@@ -171,27 +170,29 @@ export async function POST(req: NextRequest) {
     }
 
     if (error) {
-      console.error('Error saving tool email:', error);
+      secureLog.error('Error saving tool email:', sanitizeError(error));
 
       // Check if column doesn't exist
       if (error.message?.includes('column') || error.code === '42703') {
         return NextResponse.json(
           { error: 'Database column not found. Please run migration 008_add_tool_emails.sql in Supabase.' },
-          { status: 500, headers: corsHeaders }
+          { status: 500, headers: cors }
         );
       }
 
       return NextResponse.json(
         { error: `Failed to save email: ${error.message}` },
-        { status: 500, headers: corsHeaders }
+        { status: 500, headers: cors }
       );
     }
 
     // Send enrollment confirmation email if this is a new enrollment (premium users only)
-    console.log(`📧 Tool email save - Tool: ${tool}, Email: ${email}, PreviousEmail: ${previousEmail}, IsPremium: ${isPremium}, IsNewEnrollment: ${isNewEnrollment}`);
+    secureLog.info(
+      `Tool email save: tool=${tool}, isPremium=${isPremium}, isNewEnrollment=${isNewEnrollment}`,
+    );
 
     if (!isPremium && email && (!previousEmail || previousEmail !== email)) {
-      console.log(`⏭️ Skipping tool enrollment email for ${tool} - user is not premium`);
+      secureLog.info(`Skipping tool enrollment email for ${tool} — not premium`);
     }
 
     if (isNewEnrollment) {
@@ -255,24 +256,24 @@ export async function POST(req: NextRequest) {
           }
         }
       } catch (err) {
-        console.log('Could not fetch OPT data for enrollment email:', err);
+        secureLog.warn('Could not fetch OPT data for enrollment email:', sanitizeError(err));
       }
 
-      console.log(`📤 Sending enrollment email for ${toolNameForEmail} to ${email}`);
+      secureLog.info(`Sending enrollment email for tool=${toolNameForEmail}`);
 
       // Send enrollment email and wait for result to ensure it's sent
       try {
         const result = await sendEnrollmentEmail(email, firstName, toolNameForEmail, enrollmentData);
         if (result.success) {
-          console.log(`✅ Enrollment email sent successfully to ${email} for ${tool}`);
+          secureLog.info(`Enrollment email sent for tool=${tool}`);
         } else {
-          console.error(`❌ Failed to send enrollment email for ${tool}:`, result.error);
+          secureLog.error(`Failed to send enrollment email for ${tool}:`, result.error);
         }
       } catch (err) {
-        console.error(`❌ Enrollment email error for ${tool}:`, err);
+        secureLog.error(`Enrollment email error for ${tool}:`, sanitizeError(err));
       }
     } else {
-      console.log(`ℹ️ Skipping enrollment email - not a new enrollment for ${tool}`);
+      secureLog.info(`Skipping enrollment email — not a new enrollment for ${tool}`);
     }
 
     return NextResponse.json({
@@ -280,13 +281,13 @@ export async function POST(req: NextRequest) {
       tool,
       email: email || null,
       enrollmentEmailSent: isNewEnrollment,
-    }, { headers: corsHeaders });
+    }, { headers: cors });
 
   } catch (error) {
-    console.error('Error saving tool email:', error);
+    secureLog.error('Error saving tool email:', sanitizeError(error));
     return NextResponse.json(
       { error: 'Failed to save tool email' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: cors }
     );
   }
 }

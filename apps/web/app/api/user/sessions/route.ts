@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/getUserId';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
+import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 // Admin client to bypass RLS for session management
 const getAdminClient = () => createClient(
@@ -10,15 +12,8 @@ const getAdminClient = () => createClient(
 
 export const dynamic = 'force-dynamic';
 
-// CORS headers for Chrome extension
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+  return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
 
@@ -28,13 +23,14 @@ export async function OPTIONS() {
  * Get recent sessions and extension status
  */
 export async function GET(req: NextRequest) {
+  const cors = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
 
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: cors }
       );
     }
 
@@ -53,10 +49,10 @@ export async function GET(req: NextRequest) {
       .limit(10);
 
     if (error) {
-      console.error('Error fetching sessions:', error);
+      secureLog.error('Error fetching sessions:', sanitizeError(error));
       return NextResponse.json(
         { error: 'Failed to fetch sessions' },
-        { status: 500, headers: corsHeaders }
+        { status: 500, headers: cors }
       );
     }
 
@@ -79,13 +75,13 @@ export async function GET(req: NextRequest) {
         lastActiveAt: extensionSession?.last_active_at || null,
         version: extensionSession?.device_info || null,
       },
-    }, { headers: corsHeaders });
+    }, { headers: cors });
 
   } catch (error) {
-    console.error('Error in sessions API:', error);
+    secureLog.error('Error in sessions API:', sanitizeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: cors }
     );
   }
 }
@@ -95,13 +91,14 @@ export async function GET(req: NextRequest) {
  * Record or update a session (called on login or extension activity)
  */
 export async function POST(req: NextRequest) {
+  const cors = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
 
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: cors }
       );
     }
 
@@ -111,7 +108,7 @@ export async function POST(req: NextRequest) {
     if (!device_type || !['web', 'extension', 'mobile'].includes(device_type)) {
       return NextResponse.json(
         { error: 'Invalid device_type' },
-        { status: 400, headers: corsHeaders }
+        { status: 400, headers: cors }
       );
     }
 
@@ -144,10 +141,10 @@ export async function POST(req: NextRequest) {
         .eq('id', existingSession.id);
 
       if (updateError) {
-        console.error('Error updating session:', updateError);
+        secureLog.error('Error updating session:', sanitizeError(updateError));
         return NextResponse.json(
           { error: 'Failed to update session' },
-          { status: 500, headers: corsHeaders }
+          { status: 500, headers: cors }
         );
       }
     } else {
@@ -165,21 +162,21 @@ export async function POST(req: NextRequest) {
         });
 
       if (insertError) {
-        console.error('Error creating session:', insertError);
+        secureLog.error('Error creating session:', sanitizeError(insertError));
         return NextResponse.json(
           { error: 'Failed to create session' },
-          { status: 500, headers: corsHeaders }
+          { status: 500, headers: cors }
         );
       }
     }
 
-    return NextResponse.json({ ok: true }, { headers: corsHeaders });
+    return NextResponse.json({ ok: true }, { headers: cors });
 
   } catch (error) {
-    console.error('Error in sessions POST:', error);
+    secureLog.error('Error in sessions POST:', sanitizeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: cors }
     );
   }
 }
@@ -189,13 +186,14 @@ export async function POST(req: NextRequest) {
  * Revoke a session or disconnect extension
  */
 export async function DELETE(req: NextRequest) {
+  const cors = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
 
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: cors }
       );
     }
 
@@ -216,7 +214,7 @@ export async function DELETE(req: NextRequest) {
       if (error) {
         return NextResponse.json(
           { error: 'Failed to revoke session' },
-          { status: 500, headers: corsHeaders }
+          { status: 500, headers: cors }
         );
       }
     } else if (deviceType) {
@@ -230,18 +228,18 @@ export async function DELETE(req: NextRequest) {
       if (error) {
         return NextResponse.json(
           { error: 'Failed to disconnect device' },
-          { status: 500, headers: corsHeaders }
+          { status: 500, headers: cors }
         );
       }
     }
 
-    return NextResponse.json({ ok: true }, { headers: corsHeaders });
+    return NextResponse.json({ ok: true }, { headers: cors });
 
   } catch (error) {
-    console.error('Error in sessions DELETE:', error);
+    secureLog.error('Error in sessions DELETE:', sanitizeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: cors }
     );
   }
 }

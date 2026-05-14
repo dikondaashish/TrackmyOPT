@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
 
-// CORS headers
-const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const corsHeaders = corsHeadersConfiguredWebApp();
 
 export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });

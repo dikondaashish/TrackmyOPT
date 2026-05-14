@@ -11,6 +11,7 @@ import { Redis } from '@upstash/redis';
 import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
 
 // Rate Limiter: 10 requests per minute per IP using Upstash
 const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN 
@@ -28,12 +29,7 @@ const GenerateSchema = z.object({
     templateId: z.string().min(1).max(50),
 });
 
-// CORS headers
-const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const corsHeaders = corsHeadersConfiguredWebApp();
 
 export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });

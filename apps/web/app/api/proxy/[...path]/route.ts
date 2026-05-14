@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').replace(
   /\/+$/,
@@ -159,8 +160,10 @@ async function handleProxyRequest(req: NextRequest, pathArray: string[]) {
       headers: responseHeaders,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'unknown error';
-    console.error('Proxy error:', { message, url: req.url });
+    secureLog.error('Resume proxy error:', {
+      path: req.nextUrl.pathname,
+      err: sanitizeError(error),
+    });
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500, headers: { 'Content-Type': 'application/json' } },

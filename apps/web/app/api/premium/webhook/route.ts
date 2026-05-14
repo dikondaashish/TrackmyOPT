@@ -17,7 +17,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
-import { sanitizeError } from '@/lib/secure-logger';
+import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 import { applyStripeCheckoutSession } from '@/lib/premium/applyStripeCheckoutSession';
 import { requireLiveStripeKeyInProduction } from '@/lib/stripe/requireLiveKeyInProduction';
 import {
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   const signature = (await headers()).get('stripe-signature');
 
   if (!signature) {
-    console.error('⚠️ Webhook Error: No Stripe signature header');
+    secureLog.error('⚠️ Webhook Error: No Stripe signature header');
     return NextResponse.json({ error: 'No signature' }, { status: 400 });
   }
 
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error('⚠️ Webhook signature verification failed:', msg);
+    secureLog.error('⚠️ Webhook signature verification failed:', msg);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
@@ -145,11 +145,14 @@ export async function POST(req: NextRequest) {
 
       default:
         // Unknown event type — log for observability so we can add handlers as needed.
-        console.log(`ℹ️ Unhandled Stripe event type: ${event.type}`);
+        secureLog.info(`ℹ️ Unhandled Stripe event type: ${event.type}`);
     }
   } catch (error: unknown) {
     // Return 5xx so Stripe retries the event instead of silently dropping it.
-    console.error(`❌ Fatal error handling webhook event ${event.type} (${event.id}):`, sanitizeError(error));
+    secureLog.error(
+      `Fatal webhook handler error: eventType=${event.type} eventId=${logIdPrefix(event.id)}`,
+      sanitizeError(error),
+    );
     return NextResponse.json(
       { error: 'Webhook handler error' },
       { status: 500 }
@@ -163,18 +166,18 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
   try {
     const result = await applyStripeCheckoutSession({ stripe, supabase, session });
     if (!result.ok) {
-      console.error('❌ handleCheckoutCompleted:', result.reason, {
-        sessionId: session.id,
-        customer: session.customer,
+      secureLog.error('handleCheckoutCompleted failed:', result.reason, {
+        sessionId: logIdPrefix(session.id),
+        customer: typeof session.customer === 'string' ? logIdPrefix(session.customer) : '(linked)',
         hasMetadataUser: Boolean(session.metadata?.supabase_user_id),
       });
       return;
     }
     if (result.alreadyRecorded) {
-      console.log('✅ checkout session already synced:', session.id);
+      secureLog.info('checkout session already synced:', logIdPrefix(session.id));
     }
   } catch (error: unknown) {
-    console.error('❌ handleCheckoutCompleted exception:', sanitizeError(error));
+    secureLog.error('❌ handleCheckoutCompleted exception:', sanitizeError(error));
   }
 }
 
@@ -196,7 +199,7 @@ async function logPaymentFailure(session: Stripe.Checkout.Session) {
       failure_reason: 'Async payment failed',
     });
   } catch (error) {
-    console.error('❌ Error logging payment failure:', error);
+    secureLog.error('Error logging payment failure:', sanitizeError(error));
   }
 }
 
@@ -223,7 +226,7 @@ async function handleAsyncCheckoutPaymentFailed(session: Stripe.Checkout.Session
       email = authUser?.user?.email?.trim() || '';
     }
     if (!email) {
-      console.warn('async_payment_failed: no email for user', userId);
+      secureLog.warn('async_payment_failed: no email for user', logIdPrefix(userId));
       return;
     }
 
@@ -244,10 +247,10 @@ async function handleAsyncCheckoutPaymentFailed(session: Stripe.Checkout.Session
       stripeInvoiceId: null,
     });
     if (!r.ok && 'error' in r && r.error) {
-      console.error('async_payment_failed email:', r.error);
+      secureLog.error('async_payment_failed email:', r.error);
     }
   } catch (error: unknown) {
-    console.error('handleAsyncCheckoutPaymentFailed:', sanitizeError(error));
+    secureLog.error('handleAsyncCheckoutPaymentFailed:', sanitizeError(error));
   }
 }
 
@@ -298,7 +301,7 @@ async function handlePaymentIntentPaymentFailed(
     }
 
     if (!resolved) {
-      console.warn('payment_intent.payment_failed: could not resolve user', paymentIntent.id);
+      secureLog.warn('payment_intent.payment_failed: could not resolve user', logIdPrefix(paymentIntent.id));
       return;
     }
 
@@ -316,7 +319,7 @@ async function handlePaymentIntentPaymentFailed(
         const pid = sub.metadata?.planId;
         planLabel = pid ? `TrackMyOPT Premium (${String(pid)})` : planLabel;
       } catch (e) {
-        console.warn('PI failed: subscription retrieve failed', e);
+        secureLog.warn('PI failed: subscription retrieve failed', sanitizeError(e));
       }
     } else if (typeof meta.planId === 'string') {
       planLabel = `TrackMyOPT Premium (${meta.planId})`;
@@ -337,10 +340,10 @@ async function handlePaymentIntentPaymentFailed(
       stripeInvoiceId: invoiceId,
     });
     if (!r.ok && 'error' in r && r.error) {
-      console.error('payment_intent.payment_failed email:', r.error);
+      secureLog.error('payment_intent.payment_failed email:', r.error);
     }
   } catch (error: unknown) {
-    console.error('handlePaymentIntentPaymentFailed:', sanitizeError(error));
+    secureLog.error('handlePaymentIntentPaymentFailed:', sanitizeError(error));
   }
 }
 
@@ -367,10 +370,10 @@ async function handleTrialWillEnd(subscription: Stripe.Subscription, eventId: st
       stripeEventId: eventId,
     });
     if (!r.ok && 'error' in r && r.error) {
-      console.error('trial_will_end email:', r.error);
+      secureLog.error('trial_will_end email:', r.error);
     }
   } catch (error: unknown) {
-    console.error('handleTrialWillEnd:', sanitizeError(error));
+    secureLog.error('handleTrialWillEnd:', sanitizeError(error));
   }
 }
 
@@ -390,10 +393,10 @@ async function updateTransactionStatus(
       .eq('stripe_payment_intent_id', paymentIntentId);
 
     if (error) {
-      console.error('❌ Error updating transaction status:', error);
+      secureLog.error('Error updating transaction status:', sanitizeError(error));
     }
   } catch (error) {
-    console.error('❌ Error in updateTransactionStatus:', error);
+    secureLog.error('Error in updateTransactionStatus:', sanitizeError(error));
   }
 }
 
@@ -412,7 +415,7 @@ async function handleInvoicePaymentFailed(
 
     const user = await resolveUserForStripeCustomer(supabase, customerId);
     if (!user) {
-      console.warn('invoice.payment_failed: no profile for customer', customerId);
+      secureLog.warn('invoice.payment_failed: no profile for customer', logIdPrefix(customerId));
       return;
     }
 
@@ -425,7 +428,7 @@ async function handleInvoicePaymentFailed(
         const pid = sub.metadata?.planId;
         planLabel = pid ? `TrackMyOPT Premium (${String(pid)})` : planLabel;
       } catch (e) {
-        console.warn('invoice.payment_failed: subscription retrieve failed', e);
+        secureLog.warn('invoice.payment_failed: subscription retrieve failed', sanitizeError(e));
       }
     }
 
@@ -444,10 +447,10 @@ async function handleInvoicePaymentFailed(
       stripeInvoiceId: inv.id,
     });
     if (!r.ok && r.error) {
-      console.error('invoice.payment_failed email:', r.error);
+      secureLog.error('invoice.payment_failed email:', r.error);
     }
   } catch (error: unknown) {
-    console.error('handleInvoicePaymentFailed:', sanitizeError(error));
+    secureLog.error('handleInvoicePaymentFailed:', sanitizeError(error));
   }
 }
 
@@ -493,10 +496,10 @@ async function safeSendPaymentFailedForSubscription(
       stripeInvoiceId: invoiceId,
     });
     if (!r.ok && r.error) {
-      console.error('subscription payment_failed email:', r.error);
+      secureLog.error('subscription payment_failed email:', r.error);
     }
   } catch (error: unknown) {
-    console.error('safeSendPaymentFailedForSubscription:', sanitizeError(error));
+    secureLog.error('safeSendPaymentFailedForSubscription:', sanitizeError(error));
   }
 }
 
@@ -598,7 +601,7 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
 
   for (const userId of userIds) {
     if (!isFullRefund) {
-      console.log(`ℹ️ charge.refunded: partial refund for user ${userId} — not revoking premium`);
+      secureLog.info(`charge.refunded: partial refund for user ${logIdPrefix(userId)} — not revoking premium`);
       // Still send refund acknowledgment email for partial refunds (fall through).
     } else {
     const { error } = await supabase
@@ -609,9 +612,9 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
       })
       .eq('user_id', userId);
     if (error) {
-      console.error('❌ Refund: failed to revoke premium for user', userId, error);
+      secureLog.error('Refund: failed to revoke premium for user', logIdPrefix(userId), sanitizeError(error));
     } else {
-      console.log('✅ Refund: revoked premium for user', userId);
+      secureLog.info('Refund: revoked premium for user', logIdPrefix(userId));
     }
     } // end isFullRefund
 
@@ -638,16 +641,16 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
           stripeEventId: eventId,
         });
         if (!r.ok && 'error' in r && r.error) {
-          console.error('refund acknowledgment email:', r.error);
+          secureLog.error('refund acknowledgment email:', r.error);
         }
       }
     } catch (e: unknown) {
-      console.error('charge.refunded email:', sanitizeError(e));
+      secureLog.error('charge.refunded email:', sanitizeError(e));
     }
   }
 
   if (!rows.length) {
-    console.warn('⚠️ charge.refunded: no payment_transactions row matched for charge', charge.id);
+    secureLog.warn('charge.refunded: no payment_transactions row matched for charge', logIdPrefix(charge.id));
   }
 }
 
@@ -690,12 +693,14 @@ async function handleInvoicePaid(stripe: Stripe, invoice: Stripe.Invoice) {
       .eq('stripe_customer_id', customerId);
 
     if (error) {
-      console.error('❌ handleInvoicePaid: DB update failed:', error);
+      secureLog.error('handleInvoicePaid: DB update failed:', sanitizeError(error));
     } else {
-      console.log(`✅ handleInvoicePaid: renewed expiry for customer ${customerId} → ${newExpiry}`);
+      secureLog.info(
+        `handleInvoicePaid: renewed expiry for customer ${logIdPrefix(customerId)} → ${newExpiry}`,
+      );
     }
   } catch (error: unknown) {
-    console.error('handleInvoicePaid:', sanitizeError(error));
+    secureLog.error('handleInvoicePaid:', sanitizeError(error));
   }
 }
 
@@ -738,7 +743,7 @@ async function handleSubscriptionUpdated(
     }
     // Other statuses (incomplete, paused) → no change to DB; let next event decide.
   } catch (error: unknown) {
-    console.error('handleSubscriptionUpdated:', sanitizeError(error));
+    secureLog.error('handleSubscriptionUpdated:', sanitizeError(error));
   }
 }
 
@@ -770,10 +775,10 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription, even
       stripeEventId: eventId,
     });
     if (!r.ok && r.error) {
-      console.error('subscription_ended email:', r.error);
+      secureLog.error('subscription_ended email:', r.error);
     }
   } catch (error: unknown) {
-    console.error('handleSubscriptionDeleted:', sanitizeError(error));
+    secureLog.error('handleSubscriptionDeleted:', sanitizeError(error));
   }
 }
 
@@ -795,11 +800,11 @@ async function revokePremiumAccess(stripeCustomerId: string): Promise<{
       .maybeSingle();
 
     if (fetchErr) {
-      console.error('revokePremiumAccess fetch:', fetchErr);
+      secureLog.error('revokePremiumAccess fetch:', sanitizeError(fetchErr));
       return null;
     }
     if (!prof?.user_id) {
-      console.warn(`revokePremiumAccess: no profile for customer ${stripeCustomerId}`);
+      secureLog.warn(`revokePremiumAccess: no profile for customer ${logIdPrefix(stripeCustomerId)}`);
       return null;
     }
 
@@ -818,19 +823,23 @@ async function revokePremiumAccess(stripeCustomerId: string): Promise<{
       .eq('stripe_customer_id', stripeCustomerId);
 
     if (error) {
-      console.error(`❌ Error revoking premium access for customer ${stripeCustomerId}:`, error);
+      secureLog.error(
+        'Error revoking premium access for customer',
+        logIdPrefix(stripeCustomerId),
+        sanitizeError(error),
+      );
       return null;
     }
-    console.log(`✅ Revoked premium access for customer ${stripeCustomerId}`);
+    secureLog.info('Revoked premium access for customer', logIdPrefix(stripeCustomerId));
 
     if (!email) {
-      console.warn('revokePremiumAccess: no email for subscription email', prof.user_id);
+      secureLog.warn('revokePremiumAccess: no email for subscription email', logIdPrefix(prof.user_id));
       return null;
     }
 
     return { userId: prof.user_id, email, firstName: prof.first_name };
   } catch (error) {
-    console.error(`❌ Error in revokePremiumAccess:`, error);
+    secureLog.error('Error in revokePremiumAccess:', sanitizeError(error));
     return null;
   }
 }

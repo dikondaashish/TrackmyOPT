@@ -16,6 +16,7 @@ import {
   buildWelcomeFreeEmailBodies,
   getTransactionalEmailFromHeader,
 } from "@/lib/notifications/transactional-emails";
+import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
@@ -55,7 +56,7 @@ async function resolveBodiesForRetry(
     let firstName: string | null = null;
     const { data, error } = await supabase.auth.admin.getUserById(row.user_id);
     if (error) {
-      console.error("retry-pending-emails getUserById:", error.message);
+      secureLog.error("retry-pending-emails getUserById:", sanitizeError(error));
     } else if (data?.user) {
       const meta = data.user.user_metadata as { firstName?: string; first_name?: string } | undefined;
       firstName = meta?.firstName || meta?.first_name || null;
@@ -72,7 +73,7 @@ export async function GET(req: NextRequest) {
   const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
 
   if (!expectedAuth || authHeader !== expectedAuth) {
-    console.error("retry-pending-emails: unauthorized");
+    secureLog.warn("retry-pending-emails: unauthorized");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -87,7 +88,7 @@ export async function GET(req: NextRequest) {
     .lt("created_at", cutoffIso);
 
   if (qErr) {
-    console.error("retry-pending-emails query:", qErr);
+    secureLog.error("retry-pending-emails query:", sanitizeError(qErr));
     return NextResponse.json({ error: "query_failed" }, { status: 500 });
   }
 
@@ -169,7 +170,7 @@ export async function GET(req: NextRequest) {
         .eq("id", row.id);
 
       results.push({ id: row.id, outcome: failed ? "failed_send" : "pending_retry" });
-      console.error("retry-pending-emails send failed:", row.id, msg);
+      secureLog.error("retry-pending-emails send failed:", logIdPrefix(row.id), msg);
     }
   }
 

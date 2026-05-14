@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { SignJWT } from "jose";
+import { sanitizeError, secureLog } from "@/lib/secure-logger";
 
 const alg = "HS256";
 
@@ -52,8 +53,8 @@ export async function GET(req: NextRequest) {
     if (code) {
       const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) {
-        console.error('Code exchange error:', {
-          message: exchangeError.message,
+        secureLog.error('Extension OAuth code exchange error:', {
+          message: sanitizeError(exchangeError),
           status: exchangeError.status,
           name: exchangeError.name,
         });
@@ -71,7 +72,7 @@ export async function GET(req: NextRequest) {
     
     
     if (!user) {
-      console.error('No user found in callback, redirecting back to auth');
+      secureLog.warn('Extension callback: no user after exchange, redirecting to auth');
       return NextResponse.redirect(
         new URL(
           `/auth/extension?error=not_signed_in&redirect_uri=${encodeURIComponent(redirect_uri)}&state=${encodeURIComponent(state)}`, 
@@ -153,7 +154,7 @@ export async function GET(req: NextRequest) {
     });
     
   } catch (error) {
-    console.error('Callback error:', error);
+    secureLog.error('Extension callback error:', sanitizeError(error));
     return new NextResponse(
       `Error: ${error instanceof Error ? error.message : 'Unknown error'}`, 
       { status: 500 }

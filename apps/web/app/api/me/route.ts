@@ -3,21 +3,17 @@ import { verifyToken } from '@/lib/auth/jwt';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
-import { sanitizeError } from '@/lib/secure-logger';
+import { sanitizeError, secureLog } from '@/lib/secure-logger';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { sendFreeWelcomeEmail } from '@/lib/notifications/transactional-emails';
 
 export const dynamic = 'force-dynamic';
 
-// CORS headers for Chrome extension
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-// Handle preflight requests
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeadersWebAndExtension(req),
+  });
 }
 
 function toDayStart(value: string | Date): Date | null {
@@ -62,8 +58,9 @@ function toDayStart(value: string | Date): Date | null {
 }
 
 export async function GET(request: NextRequest) {
+  const cors = corsHeadersWebAndExtension(request);
   try {
-    
+
     // First, try to get user from Supabase session cookies (primary method)
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -105,10 +102,10 @@ export async function GET(request: NextRequest) {
       
       
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        console.error('❌ /api/me - No session cookies and no JWT token');
+        secureLog.error('/api/me: no session and no Bearer token');
         return NextResponse.json(
           { error: 'Not authenticated', user: null },
-          { status: 401, headers: corsHeaders }
+          { status: 401, headers: cors }
         );
       }
 
@@ -116,10 +113,10 @@ export async function GET(request: NextRequest) {
       const decoded = await verifyToken(token);
       
       if (!decoded) {
-        console.error('❌ /api/me - JWT token verification failed');
+        secureLog.error('/api/me: JWT verification failed');
         return NextResponse.json(
           { error: 'Invalid or expired token', user: null },
-          { status: 401, headers: corsHeaders }
+          { status: 401, headers: cors }
         );
       }
 
@@ -173,7 +170,7 @@ export async function GET(request: NextRequest) {
         console.error('Failed to create profile:', insertError);
         return NextResponse.json(
           { error: 'Failed to create user profile' },
-          { status: 500 }
+          { status: 500, headers: cors }
         );
       }
 
@@ -202,7 +199,7 @@ export async function GET(request: NextRequest) {
       console.error('Profile query error:', profileError);
       return NextResponse.json(
         { error: 'Failed to fetch profile' },
-        { status: 500 }
+        { status: 500, headers: cors }
       );
     }
 
@@ -295,13 +292,13 @@ export async function GET(request: NextRequest) {
           optStatus: null,
           employmentSpans: employmentSpans || [],
           unemploymentDays: 0,
-        }, { headers: { ...corsHeaders, 'Cache-Control': 'no-store' } });
+        }, { headers: { ...cors, 'Cache-Control': 'no-store' } });
       }
 
       console.error('OPT status query error:', statusError);
       return NextResponse.json(
         { error: 'Failed to fetch OPT status' },
-        { status: 500 }
+        { status: 500, headers: cors }
       );
     }
 
@@ -315,12 +312,12 @@ export async function GET(request: NextRequest) {
       optStatus: status,
       employmentSpans: employmentSpans || [],
       unemploymentDays,
-    }, { headers: { ...corsHeaders, 'Cache-Control': 'no-store' } });
+    }, { headers: { ...cors, 'Cache-Control': 'no-store' } });
   } catch (error) {
-    console.error('API /me error:', sanitizeError(error));
+    secureLog.error('API /me error:', sanitizeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: cors }
     );
   }
 }

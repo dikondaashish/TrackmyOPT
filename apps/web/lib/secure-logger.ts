@@ -117,6 +117,13 @@ export function sanitizeError(error: unknown): string {
   return String(error);
 }
 
+/** Short prefix for logs (Stripe ids, UUIDs) — avoids logging full identifiers. */
+export function logIdPrefix(id: string | null | undefined, keep = 12): string {
+  if (id == null || id === '') return '(none)';
+  const s = String(id);
+  return s.length <= keep ? s : `${s.slice(0, keep)}…`;
+}
+
 /**
  * Secure console wrapper. All arguments are sanitized before output.
  */

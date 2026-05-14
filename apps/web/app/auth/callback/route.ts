@@ -4,6 +4,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { getPostHogClient } from '@/lib/posthog-server';
 import { safeInternalRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
+import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
 
 
     if (!code) {
-      console.error('❌ No OAuth code in callback');
+      secureLog.warn('No OAuth code in callback');
       return NextResponse.redirect(
         new URL('/login?error=no_code', req.url)
       );
@@ -61,7 +62,7 @@ export async function GET(req: NextRequest) {
     const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
-      console.error('❌ Code exchange failed:', exchangeError);
+      secureLog.error('Code exchange failed:', sanitizeError(exchangeError));
       return NextResponse.redirect(
         new URL(
           `/login?error=exchange_failed`,
@@ -71,7 +72,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (!sessionData.session || !sessionData.user) {
-      console.error('❌ No session or user after code exchange');
+      secureLog.warn('No session or user after code exchange');
       return NextResponse.redirect(
         new URL('/login?error=no_session', req.url)
       );
@@ -98,7 +99,7 @@ export async function GET(req: NextRequest) {
         // Delete the newly created user since they're blocked
         await supabaseAdmin.auth.admin.deleteUser(sessionData.user.id);
 
-        console.error('❌ Blocked email attempted OAuth login:', userEmail);
+        secureLog.warn('Blocked email attempted OAuth login', { user: logIdPrefix(sessionData.user.id) });
         return NextResponse.redirect(
           new URL('/login?error=This+email+has+been+permanently+blocked.+Previously+deleted+accounts+cannot+be+recreated.', req.url)
         );
@@ -196,7 +197,7 @@ export async function GET(req: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('❌ OAuth callback error:', error);
+    secureLog.error('OAuth callback error:', sanitizeError(error));
     return NextResponse.redirect(
       new URL(
         `/login?error=callback_failed`,

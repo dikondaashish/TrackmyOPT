@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { safeInternalRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
+import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
 
 
     if (!code) {
-      console.error('❌ No OAuth code in callback');
+      secureLog.warn('No OAuth code in callback (server)');
       return NextResponse.redirect(
         new URL('/login?error=no_code', req.url)
       );
@@ -55,7 +56,7 @@ export async function GET(req: NextRequest) {
     const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
-      console.error('❌ Code exchange failed:', exchangeError);
+      secureLog.error('Code exchange failed (server callback):', sanitizeError(exchangeError));
       return NextResponse.redirect(
         new URL(
           `/login?error=exchange_failed`,
@@ -65,7 +66,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (!sessionData.session || !sessionData.user) {
-      console.error('❌ No session or user after code exchange');
+      secureLog.warn('No session or user after code exchange (server callback)');
       return NextResponse.redirect(
         new URL('/login?error=no_session', req.url)
       );
@@ -77,7 +78,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.redirect(redirectUrl);
   } catch (error) {
-    console.error('❌ OAuth callback error:', error);
+    secureLog.error('OAuth callback error (server):', sanitizeError(error));
     return NextResponse.redirect(
       new URL(
         `/login?error=callback_failed`,
