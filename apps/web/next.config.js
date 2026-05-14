@@ -133,4 +133,18 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+// Wrap with @next/bundle-analyzer when ANALYZE=true so `pnpm build` can produce
+// an interactive client.html / server.html report under .next/analyze/.
+let wrappedConfig = nextConfig;
+if (process.env.ANALYZE === 'true') {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const withBundleAnalyzer = require('@next/bundle-analyzer')({ enabled: true });
+    wrappedConfig = withBundleAnalyzer(nextConfig);
+  } catch {
+    // @next/bundle-analyzer not installed — ignore so non-analyze builds aren't blocked.
+    console.warn('[next.config] ANALYZE=true but @next/bundle-analyzer is not installed.');
+  }
+}
+
+module.exports = wrappedConfig;

@@ -16,6 +16,9 @@
     "test:e2e": "playwright test",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,md,css}\"",
+    "analyze": "ANALYZE=true next build",
+    "knip": "knip",
+    "knip:fix": "knip --fix",
     "submit:indexnow": "node ../scripts/submit-to-indexnow.js"
   },
   "dependencies": {
@@ -66,6 +69,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
+    "@next/bundle-analyzer": "^16.1.6",
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -80,8 +84,9 @@
     "@typescript-eslint/parser": "^8.57.1",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.17",
+    "knip": "^5.36.5",
     "dotenv": "^17.2.3",
-    "eslint": "^8.57.1",
+    "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.6",
     "eslint-config-prettier": "^10.1.8",
     "jsdom": "^29.0.1",

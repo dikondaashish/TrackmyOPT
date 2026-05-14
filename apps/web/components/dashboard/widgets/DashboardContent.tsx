@@ -218,7 +218,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
 
     setFetchError(null);
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [user.id, fetchRetryNonce]);
 
   // Render widget based on ID

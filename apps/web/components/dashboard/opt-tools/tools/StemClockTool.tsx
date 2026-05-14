@@ -41,7 +41,7 @@ export function StemClockTool() {
 
   useEffect(() => {
     loadSavedData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   useEffect(() => {

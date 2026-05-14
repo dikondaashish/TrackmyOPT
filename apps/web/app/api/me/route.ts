@@ -143,6 +143,7 @@ export async function GET(request: NextRequest) {
     // Supabase client already created above for user authentication
 
     // Query user profile
+    // eslint-disable-next-line prefer-const -- `profile` is reassigned below for the create-on-first-login flow
     let { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('timezone, is_stem_eligible, degree_level, major_name')

@@ -80,7 +80,7 @@ export function CaseStatusSection() {
     loadCaseStatus(true);
     checkPremiumStatus();
     loadUserEmail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // ── Supabase Realtime: Instant UI updates when cron updates DB ──

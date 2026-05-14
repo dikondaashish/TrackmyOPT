@@ -1,0 +1,72 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "ui": "stream",
+    "globalDependencies": [
+        ".env",
+        ".env.local",
+        ".env.production",
+        "tsconfig.json",
+        "tsconfig.*.json"
+    ],
+    "globalEnv": [
+        "NODE_ENV",
+        "VERCEL_ENV",
+        "ANALYZE"
+    ],
+    "tasks": {
+        "build": {
+            "dependsOn": ["^build"],
+            "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+            "env": [
+                "NEXT_PUBLIC_*",
+                "SUPABASE_*",
+                "STRIPE_*",
+                "AWS_*",
+                "USCIS_*",
+                "GEMINI_*",
+                "SMTP_*",
+                "CRON_SECRET",
+                "API_SECRET_KEY",
+                "JWT_SIGNING_SECRET",
+                "EMAIL_LINK_SIGNING_SECRET",
+                "SEO_PING_SECRET",
+                "INDEXNOW_KEY",
+                "POSTHOG_*",
+                "UPSTASH_*"
+            ]
+        },
+        "lint": {
+            "outputs": []
+        },
+        "lint:fix": {
+            "cache": false,
+            "outputs": []
+        },
+        "typecheck": {
+            "dependsOn": ["^build"],
+            "outputs": []
+        },
+        "test": {
+            "dependsOn": [],
+            "outputs": ["coverage/**"]
+        },
+        "test:watch": {
+            "cache": false,
+            "persistent": true
+        },
+        "test:e2e": {
+            "cache": false,
+            "outputs": ["playwright-report/**", "test-results/**"]
+        },
+        "format": {
+            "cache": false
+        },
+        "format:check": {
+            "outputs": []
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        }
+    }
+}

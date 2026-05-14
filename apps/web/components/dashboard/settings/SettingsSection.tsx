@@ -548,7 +548,7 @@ export function SettingsSection() {
             }
 
             // Format device name
-            let device = session.device_type === 'extension'
+            const device = session.device_type === 'extension'
               ? 'Chrome Extension'
               : session.device_info || 'Web Browser';
 

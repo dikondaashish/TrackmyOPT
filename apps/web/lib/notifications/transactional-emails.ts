@@ -987,7 +987,7 @@ export async function resolveUserForStripeCustomer(
   if (!profile?.user_id) return null;
 
   let email = profile.email?.trim() || "";
-  let firstName = profile.first_name;
+  const firstName = profile.first_name;
 
   if (!email) {
     const { data: userData, error } = await supabase.auth.admin.getUserById(profile.user_id);

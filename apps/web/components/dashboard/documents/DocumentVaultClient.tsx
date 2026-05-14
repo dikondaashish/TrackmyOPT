@@ -65,7 +65,7 @@ export function DocumentVaultClient() {
     checkPremiumStatus();
     // Initialize lastActivity to current time after hydration
     setLastActivity(Date.now());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // Check passcode status and get auto-lock settings

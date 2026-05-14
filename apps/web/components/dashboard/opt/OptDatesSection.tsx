@@ -349,7 +349,7 @@ export function OptDatesSection() {
     void (async () => {
       await Promise.all([loadDates(), checkPremiumStatus(), loadToolEmails(), loadEmploymentSpans()]);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const loadEmploymentSpans = async () => {

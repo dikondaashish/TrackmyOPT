@@ -6,16 +6,20 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "pnpm --filter web build",
-    "vercel-build": "pnpm install && pnpm --filter web build",
-    "dev": "pnpm -r dev",
-    "lint": "pnpm --filter api lint && pnpm --filter web run check:lint",
-    "lint:fix": "pnpm --filter web run lint:fix",
-    "typecheck": "pnpm --filter web run typecheck",
-    "test": "pnpm --filter web run test",
-    "test:e2e": "pnpm --filter web run test:e2e",
-    "format": "pnpm --filter web run format",
-    "format:check": "pnpm --filter web run format:check"
+    "build": "turbo run build --filter=web",
+    "vercel-build": "pnpm install && turbo run build --filter=web",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix --filter=web",
+    "typecheck": "turbo run typecheck --filter=web",
+    "test": "turbo run test --filter=web",
+    "test:e2e": "turbo run test:e2e --filter=web",
+    "format": "turbo run format --filter=web",
+    "format:check": "turbo run format:check --filter=web",
+    "clean": "turbo run clean && rm -rf node_modules .turbo"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.6"
   },
   "packageManager": "pnpm@10.18.2",
   "engines": {

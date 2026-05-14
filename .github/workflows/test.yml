@@ -1,47 +1,77 @@
-name: Launch Verification Pipeline
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
+
+# Cancel superseded runs on the same branch / PR.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
-    name: Typecheck, Lint, and Test
+  verify:
+    name: Lint · Typecheck · Test · Build
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 15
+
     strategy:
       matrix:
-        node-version: [24.x]
+        node-version: ['20.x']
 
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install pnpm
-      uses: pnpm/action-setup@v3
-      with:
-        version: 9
+      - uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
-        
-    - name: Install Dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: Typecheck Frontend
-      run: pnpm --filter web run typecheck
-      # Ensure package.json has "typecheck": "tsc --noEmit"
-      
-    - name: Run Unit Tests (Vitest)
-      run: pnpm --filter web run test --run
-      
-    - name: Install Playwright Browsers
-      run: pnpm --filter web exec playwright install --with-deps
-      
-    - name: Run E2E Tests (Playwright)
-      # Skip in generic CI until staging environment URLs and secrets are populated
-      run: pnpm --filter web exec playwright test || echo "Skipped pending secrets"
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter web run lint
+
+      - name: Typecheck
+        run: pnpm --filter web run typecheck
+
+      - name: Unit tests
+        run: pnpm --filter web run test
+
+      - name: Build
+        # The web app's Next build doubles as our end-to-end TS validation.
+        run: pnpm --filter web run build
+        env:
+          # Build needs at least Supabase URLs to compile static metadata.
+          NEXT_PUBLIC_SUPABASE_URL: 'https://ci-placeholder.supabase.co'
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: 'ci-placeholder-anon-key'
+          JWT_SIGNING_SECRET: 'ci-placeholder-must-be-at-least-32-chars-long'
+          SUPABASE_SERVICE_ROLE_KEY: 'ci-placeholder-service-role-key'
+
+  e2e:
+    name: Playwright E2E (manual / nightly)
+    runs-on: ubuntu-latest
+    needs: verify
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web exec playwright install --with-deps
+      - run: pnpm --filter web run test:e2e

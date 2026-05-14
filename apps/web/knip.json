@@ -1,0 +1,41 @@
+{
+    "$schema": "https://unpkg.com/knip@5/schema.json",
+    "entry": [
+        "app/**/page.tsx",
+        "app/**/layout.tsx",
+        "app/**/route.ts",
+        "app/**/error.tsx",
+        "app/**/not-found.tsx",
+        "app/**/loading.tsx",
+        "app/sitemap.ts",
+        "app/robots.ts",
+        "middleware.ts",
+        "instrumentation.ts",
+        "instrumentation-client.ts",
+        "next.config.js",
+        "tailwind.config.ts",
+        "postcss.config.js",
+        "vitest.config.ts",
+        "vitest.setup.ts",
+        "playwright.config.ts",
+        "scripts/**/*.{ts,js,mjs}",
+        "**/*.test.{ts,tsx}"
+    ],
+    "project": [
+        "**/*.{ts,tsx,js,mjs}",
+        "!.next/**",
+        "!node_modules/**",
+        "!coverage/**",
+        "!types/supabase.ts"
+    ],
+    "ignore": [
+        "next-env.d.ts",
+        "types/supabase.ts"
+    ],
+    "ignoreDependencies": [
+        "@next/bundle-analyzer",
+        "autoprefixer",
+        "postcss",
+        "tailwindcss"
+    ]
+}

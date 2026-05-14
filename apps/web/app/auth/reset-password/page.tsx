@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -147,12 +148,12 @@ export default function ResetPasswordPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <a
+          <Link
             href="/"
             className="text-sm text-blue-600 hover:text-blue-700 font-medium"
           >
             ← Back to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

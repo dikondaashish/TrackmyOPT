@@ -37,7 +37,7 @@ export function OptApplyTool() {
   // Load saved data on mount
   useEffect(() => {
     loadSavedData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // Auto-calculate when dates change
