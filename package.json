@@ -9,7 +9,13 @@
     "build": "pnpm --filter web build",
     "vercel-build": "pnpm install && pnpm --filter web build",
     "dev": "pnpm -r dev",
-    "lint": "pnpm --filter api lint && pnpm --filter web run check:lint"
+    "lint": "pnpm --filter api lint && pnpm --filter web run check:lint",
+    "lint:fix": "pnpm --filter web run lint:fix",
+    "typecheck": "pnpm --filter web run typecheck",
+    "test": "pnpm --filter web run test",
+    "test:e2e": "pnpm --filter web run test:e2e",
+    "format": "pnpm --filter web run format",
+    "format:check": "pnpm --filter web run format:check"
   },
   "packageManager": "pnpm@10.18.2",
   "engines": {

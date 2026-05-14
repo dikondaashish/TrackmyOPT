@@ -1,95 +1,181 @@
-# TrackMyOPT 🚀
+# TrackMyOPT
 
-A comprehensive platform designed to help F-1 students effortlessly manage their OPT, STEM OPT, and immigration journeys.
+A SaaS platform that helps F-1 students manage their OPT, STEM OPT, and US immigration journey — compliance clocks, USCIS case status, document vault, AI resume generator, H-1B sponsor research, and a companion Chrome extension.
 
-## 🏗 Architecture & Tech Stack
+---
 
-This project is built as a **PNPM Monorepo**, ensuring a clean separation between applications and shared configurations.
+## Tech stack
 
-### Core Technologies
-- **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Database / Auth**: [Supabase](https://supabase.com/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **UI Components**: [Radix UI](https://www.radix-ui.com/) & [Lucide Icons](https://lucide.dev/)
-- **AI Engine**: Google Gemini API & AWS Textract (OCR)
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Language**: TypeScript (strict)
+- **Database / Auth**: Supabase (Postgres + RLS + Auth)
+- **Styling**: Tailwind CSS + Radix UI
+- **State**: Zustand
+- **AI**: Google Gemini, AWS Textract (OCR)
 - **Payments**: Stripe
+- **Email**: SMTP (Resend) + custom queue
+- **Analytics**: PostHog
+- **Hosting**: Vercel (web), Render (Nest API)
+- **Background jobs**: Vercel Cron + cron-job.org
 
 ---
 
-## 📁 Project Structure
+## Repository layout
 
-### `/apps/web`
-The main Next.js application. It follows a feature-driven directory structure:
-
-- **`/app`**: Next.js App Router. Contains all pages and API routes (Dashboard, Auth, Landing).
-- **`/components`**:
-  - **`/dashboard`**: Sub-divided into logical features:
-    - `widgets/`: Dynamic dashboard tiles (Resource Center, Tools, Help).
-    - `case-status/`: USCIS tracking and timeline visualizations.
-    - `documents/`: The "Document Vault" for encrypted storage.
-    - `opt/`: Specific tools for OPT/STEM OPT reporting.
-    - `settings/` & `security/`: User profile and security (Passcode) management.
-  - **`/layout`**: Global components like Sidebar, Header, and Theme Provider.
-  - **`/landing`**: Marketing components and guest preview features.
-  - **`/ui`**: Base atomic components (buttons, inputs, tooltips).
-- **`/lib`**: Core business logic and utilities:
-  - `auth/`: JWT handling and rate-limiting.
-  - `aws/`: S3 and Textract OCR logic.
-  - `immigration/`: Specialized USCIS and insurance eligibility tools.
-  - `ai/`: AI prompt engineering and generator logic.
-
----
-
-## 🚀 Key Features
-
-### 1. USCIS Case Tracker 🕵️‍♂️
-Real-time tracking of USCIS applications with automated status updates and timeline visualizations.
-
-### 2. AI Resume Optimizer 📝
-Advanced AI-powered resume generator specifically tuned for international students navigating the OPT job market. Uses OCR (AWS Textract) to parse existing resumes.
-
-### 3. Document Vault 🔒
-Encrypted document storage with multi-layer security (AES-256) and optional passcode protection.
-
-### 4. OPT Clock & Deadlines ⏰
-Automated calculation of unemployment days, filing windows, and critical reporting deadlines.
-
-### 5. Health Insurance Finder 🏥
-A state-by-state eligibility tool helping F-1 students find state-sponsored insurance plans.
-
----
-
-## 🛠 Development Workflow
-
-### Prerequisites
-- [PNPM](https://pnpm.io/) installed.
-- Node.js >= 18.17.0.
-
-### Installation
-```bash
-pnpm install
+```
+.
+├── apps/
+│   ├── web/                Next.js App Router (the SaaS frontend + APIs)
+│   ├── extension/          Chrome extension (job tracker, case status checker)
+│   └── api/                NestJS backend on Render (USCIS batch scrape)
+├── docs/                   Architecture decisions & playbooks
+├── supabase/               Top-level migrations + RLS policies
+├── scripts/                Repo-wide tooling (IndexNow submitter, etc.)
+└── vercel.json             Vercel cron + build config
 ```
 
-### Running Locally
+For internal-only structure inside `apps/web`, see [`apps/web/ARCHITECTURE.md`](./apps/web/ARCHITECTURE.md).
+
+---
+
+## Quick start
+
 ```bash
+# 1. Install
+pnpm install
+
+# 2. Configure environment
+cp .env.example .env.local
+# Edit .env.local — at minimum: Supabase URL + keys + JWT_SIGNING_SECRET.
+
+# 3. Run dev server (Next + extension dev script in parallel)
 pnpm dev
 ```
 
-### Deployment
-The project is optimized for **Vercel**. Run the build locally to verify:
-```bash
-pnpm build
-```
+The web app boots at `http://localhost:3000`.
 
 ---
 
-## 🤝 For New Developers
-Welcome! To get started:
-1. Review the [Architectural Overview](./docs/ARCHITECTURAL_OVERVIEW.md).
-2. Explore a component in `apps/web/components/dashboard` to understand our pattern.
-3. Check `apps/web/lib/supabaseClient.ts` for database interaction patterns.
+## Scripts (monorepo root)
 
-**Stay lean**: We prioritize clean code and minimal redundancy. Use our specialized subdirectories rather than dumping files into roots.
+| Script | What it does |
+|---|---|
+| `pnpm dev` | Run all packages in dev mode (parallel) |
+| `pnpm build` | Production build of `apps/web` |
+| `pnpm lint` | ESLint for `apps/api` (Nest) + `apps/web` |
+| `pnpm lint:fix` | ESLint autofix on `apps/web` |
+| `pnpm typecheck` | `tsc --noEmit` for `apps/web` |
+| `pnpm test` | Vitest unit tests |
+| `pnpm test:e2e` | Playwright e2e tests |
+| `pnpm format` | Prettier write |
+| `pnpm format:check` | Prettier check (CI-friendly, no writes) |
+
+Each script can also be called inside `apps/web` directly (e.g., `pnpm -C apps/web test`).
+
+---
+
+## Environment variables
+
+Every variable used in the codebase is documented in [`./.env.example`](./.env.example).
+Validation lives in [`apps/web/lib/env.ts`](./apps/web/lib/env.ts) using zod schemas.
+
+**Required to boot any environment:**
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server only)
+- `JWT_SIGNING_SECRET` (≥ 32 chars)
+
+**Required to enable specific features** — missing values fail closed at the route level with a friendly error, NOT at boot:
+- Billing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- USCIS case status: `USCIS_CLIENT_ID`, `USCIS_CLIENT_SECRET` (live by default; `USCIS_MOCK=true` ignored in prod)
+- Document Vault + OCR: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`
+- AI resume generator: `GEMINI_API_KEY`
+- Email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
+- Cron protection: `CRON_SECRET` (Vercel Cron + cron-job.org auth header)
+
+> **Note** — `lib/env.ts` validates these lazily so partial preview deployments still boot.
+
+---
+
+## Architecture decisions
+
+| Decision | File / location |
+|---|---|
+| Phase-aware OPT/STEM unemployment math (90 + cumulative 150) | [`apps/web/lib/immigration/optCalculations.ts`](./apps/web/lib/immigration/optCalculations.ts) + tests |
+| Stripe self-heal (premium status reconciles with Stripe even after DB drift) | [`apps/web/app/api/premium/status/route.ts`](./apps/web/app/api/premium/status/route.ts) |
+| Webhook idempotency + 5xx-on-error so Stripe retries | [`apps/web/app/api/premium/webhook/route.ts`](./apps/web/app/api/premium/webhook/route.ts) |
+| USCIS mock cannot run in production | [`apps/web/app/api/case-status/check/route.ts`](./apps/web/app/api/case-status/check/route.ts) |
+| Standard API response envelope | [`apps/web/lib/api/response.ts`](./apps/web/lib/api/response.ts) |
+| Premium shared via React context (no duplicate fetches) | [`apps/web/lib/premium/usePremiumStatus.tsx`](./apps/web/lib/premium/usePremiumStatus.tsx) |
+| Document Vault forgot-passcode self-service | [`apps/web/app/api/documents/passcode/forgot/`](./apps/web/app/api/documents/passcode/forgot/) |
+| OCR job state durable in Supabase (not in-memory) | [`apps/web/app/api/resume-generator/ocr/`](./apps/web/app/api/resume-generator/ocr/) |
+
+---
+
+## Testing
+
+```bash
+pnpm test               # vitest unit tests
+pnpm test:watch         # watch mode
+pnpm test:coverage      # coverage report
+pnpm test:e2e           # Playwright (requires browsers installed)
+```
+
+Critical tests live in [`apps/web/lib/immigration/__tests__/optCalculations.test.ts`](./apps/web/lib/immigration/__tests__/optCalculations.test.ts) and cover the entire OPT/STEM compliance model. **Do not change `calculateUnemploymentDays` without rerunning these.**
+
+---
+
+## Deployment
+
+### Web app — Vercel (project: `trackmy-opt-web`)
+
+Pushing to `main` triggers a production deploy. No manual step needed.
+
+```bash
+# To force a redeploy without code changes:
+vercel --prod
+```
+
+### Database — Supabase (project: `deknauqkqqzwuvopqott`)
+
+Migrations live in `supabase/migrations/`. Apply via the Supabase CLI or MCP.
+
+### Cron jobs
+
+| Job | Trigger | Schedule |
+|---|---|---|
+| USCIS case status batch | Vercel Cron | `0 14 * * *` (daily 14:00 UTC / 9 AM ET) |
+| Daily reminders | cron-job.org | 9 AM ET |
+| Document expiry reminders | cron-job.org | daily |
+| STEM OPT window alert | cron-job.org | daily |
+| Retry pending emails | cron-job.org | every 30 min |
+
+All cron-triggered routes require `Authorization: Bearer ${CRON_SECRET}`.
+
+---
+
+## Production-readiness checklist (run before every release)
+
+```bash
+pnpm lint        # 0 errors expected; warnings OK
+pnpm typecheck   # must pass
+pnpm test        # must pass
+pnpm build       # must succeed
+```
+
+CI on GitHub runs the same four. If anything is red, do not promote.
+
+---
+
+## Contributing
+
+1. Branch from `main`.
+2. Run `pnpm typecheck` + `pnpm test` before pushing.
+3. PRs that touch `lib/immigration/`, `app/api/premium/`, or `app/api/case-status/` require attorney-style review for compliance correctness — see `docs/COMPLIANCE.md` if it exists, or open a discussion.
+4. Never commit secrets. Use `.env.local` (gitignored).
+
+---
+
+## License
+
+Proprietary. © Zyene, Inc.

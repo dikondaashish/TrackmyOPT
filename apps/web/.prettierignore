@@ -1,0 +1,11 @@
+.next/
+.turbo/
+node_modules/
+coverage/
+dist/
+build/
+public/
+pnpm-lock.yaml
+types/supabase.ts
+next-env.d.ts
+tsconfig.tsbuildinfo
