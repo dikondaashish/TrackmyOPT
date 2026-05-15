@@ -31,6 +31,31 @@ function markExtensionConnected() {
 // Run immediately when content script loads
 markExtensionConnected();
 
+/** Signals for the dashboard (useExtensionDetector / sidebar) that the extension is present. */
+function signalExtensionPresentToPage() {
+  try {
+    const version = getExtensionVersion() || '1';
+    if (!document.getElementById('trackmyopt-extension-installed')) {
+      const marker = document.createElement('div');
+      marker.id = 'trackmyopt-extension-installed';
+      marker.setAttribute('data-version', version);
+      marker.setAttribute('aria-hidden', 'true');
+      marker.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;clip:rect(0,0,0,0);';
+      (document.documentElement || document.body).appendChild(marker);
+    }
+    document.documentElement.setAttribute('data-trackmyopt-extension', version);
+    window.dispatchEvent(new CustomEvent('trackmyopt-extension-loaded', { detail: { version } }));
+  } catch {
+    // ignore
+  }
+}
+
+if (document.documentElement) {
+  signalExtensionPresentToPage();
+} else {
+  document.addEventListener('DOMContentLoaded', signalExtensionPresentToPage, { once: true });
+}
+
 // Also listen for messages from the page
 window.addEventListener('message', (event) => {
   // Only accept messages from the same origin
@@ -49,6 +74,7 @@ window.addEventListener('message', (event) => {
 
       // Also update localStorage
       markExtensionConnected();
+      signalExtensionPresentToPage();
     } catch (error) {
       console.warn('[TrackMyOPT] Failed to respond to extension check:', error);
     }
@@ -59,6 +85,7 @@ window.addEventListener('message', (event) => {
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     markExtensionConnected();
+    signalExtensionPresentToPage();
   }
 });
 

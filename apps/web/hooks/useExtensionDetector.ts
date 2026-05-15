@@ -1,68 +1,90 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+
+function detectExtensionInDocument(): boolean {
+  if (typeof document === "undefined") return false;
+
+  if (document.getElementById("trackmyopt-extension-installed")) return true;
+
+  if (
+    document.documentElement?.hasAttribute("data-trackmyopt-extension") ||
+    document.body?.hasAttribute("data-trackmyopt-extension")
+  ) {
+    return true;
+  }
+
+  if ((window as unknown as { __TRACKMYOPT_EXTENSION_INSTALLED__?: boolean }).__TRACKMYOPT_EXTENSION_INSTALLED__ === true) {
+    return true;
+  }
+
+  return false;
+}
 
 /**
- * Custom hook to detect if the TrackMyOPT Chrome extension is installed.
- * 
- * The extension should inject a hidden DOM element with id="trackmyopt-extension-installed"
- * when the user visits trackmyopt.com. This hook checks for that marker.
- * 
- * @returns {Object} { isExtensionInstalled: boolean, isLoading: boolean }
+ * Detects whether the TrackMyOPT Chrome extension is present for this origin.
+ * The extension content script sets a hidden marker, `data-trackmyopt-extension` on `<html>`,
+ * and dispatches `trackmyopt-extension-loaded` (see apps/extension/src/content.ts).
  */
 export function useExtensionDetector() {
-    const [isInstalled, setIsInstalled] = useState<boolean | null>(null);
+  const [isInstalled, setIsInstalled] = useState<boolean | null>(null);
 
-    useEffect(() => {
-        const extensionId = "hfljbefkccdmlnhclfojlafipjnjbajm";
-        
-        const checkExtension = async () => {
-            // Method 1: Check for the injected DOM marker
-            const marker = document.getElementById("trackmyopt-extension-installed");
-            
-            // Method 2: Check for a global flag injected by the extension
-            const hasGlobalFlag = (window as any).__TRACKMYOPT_EXTENSION_INSTALLED__ === true;
-            
-            // Method 3: Check for attribute on html/body
-            const hasAttribute = document.documentElement.hasAttribute('data-trackmyopt-extension') || 
-                                document.body.hasAttribute('data-trackmyopt-extension');
+  const runCheck = useCallback(() => {
+    setIsInstalled(detectExtensionInDocument());
+  }, []);
 
-            if (marker || hasGlobalFlag || hasAttribute) {
-                setIsInstalled(true);
-                return;
-            }
+  useEffect(() => {
+    runCheck();
 
-            // Method 4: Check for a web-accessible resource (common icons or manifest)
-            try {
-                const response = await fetch(`chrome-extension://${extensionId}/icon128.png`);
-                if (response.ok) {
-                    setIsInstalled(true);
-                    return;
-                }
-            } catch (e) {
-                // Fetch to chrome-extension:// will fail if not installed or not externally connectable
-            }
+    const onExtensionSignal = () => runCheck();
+    window.addEventListener("trackmyopt-extension-loaded", onExtensionSignal);
 
-            setIsInstalled(false);
-        };
-
-        checkExtension();
-
-        const handleExtensionLoaded = () => {
-            checkExtension();
-        };
-        window.addEventListener("trackmyopt-extension-loaded", handleExtensionLoaded);
-
-        const timeoutId = setTimeout(checkExtension, 2000);
-
-        return () => {
-            window.removeEventListener("trackmyopt-extension-loaded", handleExtensionLoaded);
-            clearTimeout(timeoutId);
-        };
-    }, []);
-
-    return {
-        isExtensionInstalled: isInstalled === true,
-        isLoading: isInstalled === null,
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === "TMO_EXTENSION_PRESENT") {
+        runCheck();
+      }
     };
+    window.addEventListener("message", onMessage);
+
+    const pingId = window.setTimeout(() => {
+      try {
+        window.postMessage({ type: "TMO_CHECK_EXTENSION" }, window.location.origin);
+      } catch {
+        /* ignore */
+      }
+      runCheck();
+    }, 100);
+
+    // Content scripts can run after first paint; poll briefly for the marker.
+    const pollId = window.setInterval(() => {
+      if (detectExtensionInDocument()) {
+        setIsInstalled(true);
+        window.clearInterval(pollId);
+      }
+    }, 250);
+
+    const stopPoll = window.setTimeout(() => {
+      window.clearInterval(pollId);
+      setIsInstalled(detectExtensionInDocument());
+    }, 6000);
+
+    const timeoutId = window.setTimeout(() => {
+      runCheck();
+    }, 2000);
+
+    return () => {
+      window.removeEventListener("trackmyopt-extension-loaded", onExtensionSignal);
+      window.removeEventListener("message", onMessage);
+      window.clearInterval(pollId);
+      window.clearTimeout(stopPoll);
+      window.clearTimeout(timeoutId);
+      window.clearTimeout(pingId);
+    };
+  }, [runCheck]);
+
+  return {
+    isExtensionInstalled: isInstalled === true,
+    isLoading: isInstalled === null,
+  };
 }

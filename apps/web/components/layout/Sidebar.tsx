@@ -322,7 +322,8 @@ export function Sidebar({
     const pathname = usePathname();
     const router = useRouter(); // Although not used here, good to have for consistency
 
-    // Detect if Chrome extension is installed to conditionally hide the sidebar link
+    // When the TrackMyOPT extension is installed, hide the Web Store promo link.
+    // useExtensionDetector reads DOM markers injected by the extension content script (content.ts).
     const { isExtensionInstalled } = useExtensionDetector();
 
     // Filter sidebar config based on extension installation

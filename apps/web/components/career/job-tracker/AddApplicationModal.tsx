@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,13 +87,26 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
             </Button>
 
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="sm:max-w-lg bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800" onClose={() => setOpen(false)}>
-                    <DialogHeader>
-                        <DialogTitle>{isSuccess ? "Application Added!" : "Add Job Application"}</DialogTitle>
+                <DialogContent
+                    className={cn(
+                        "p-0 gap-0 overflow-hidden rounded-xl border-border bg-card text-card-foreground shadow-2xl",
+                        "max-w-[min(100vw-1.5rem,28rem)] sm:max-w-lg w-full"
+                    )}
+                    onClose={() => setOpen(false)}
+                >
+                    <DialogHeader className="space-y-1.5 px-6 sm:px-8 pt-6 pb-4 pr-14 text-left border-b border-border/80 bg-muted/35 dark:bg-muted/25">
+                        <DialogTitle className="text-xl font-semibold tracking-tight">
+                            {isSuccess ? "Application added" : "Add job application"}
+                        </DialogTitle>
+                        {!isSuccess && (
+                            <DialogDescription className="text-left text-sm leading-relaxed">
+                                Add a role to your tracker. Company and role title are required.
+                            </DialogDescription>
+                        )}
                     </DialogHeader>
 
                     {isSuccess ? (
-                        <div className="py-8 flex flex-col items-center text-center space-y-6">
+                        <div className="px-6 sm:px-8 py-8 flex flex-col items-center text-center space-y-6">
                             <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center">
                                 <CheckCircle2 className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
                             </div>
@@ -125,81 +144,135 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                             </div>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Company Name *</Label>
-                                <Input
-                                    placeholder="e.g. Google"
-                                    value={formData.company_name}
-                                    onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Role Title *</Label>
-                                <Input
-                                    placeholder="e.g. Software Engineer"
-                                    value={formData.role_title}
-                                    onChange={(e) => setFormData({ ...formData, role_title: e.target.value })}
-                                    required
-                                />
-                            </div>
-                        </div>
+                        <form onSubmit={handleSubmit} className="flex flex-col">
+                            <div className="px-6 sm:px-8 py-6 sm:py-7">
+                                <div className="rounded-xl border border-border/70 bg-muted/20 dark:bg-muted/10 p-5 sm:p-6 space-y-5 sm:space-y-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                                        <div className="space-y-2 min-w-0">
+                                            <Label htmlFor="tmo-add-company" className="text-sm font-medium">
+                                                Company name <span className="text-destructive">*</span>
+                                            </Label>
+                                            <Input
+                                                id="tmo-add-company"
+                                                className="h-11 bg-background"
+                                                placeholder="e.g. Google"
+                                                value={formData.company_name}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, company_name: e.target.value })
+                                                }
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-2 min-w-0">
+                                            <Label htmlFor="tmo-add-role" className="text-sm font-medium">
+                                                Role title <span className="text-destructive">*</span>
+                                            </Label>
+                                            <Input
+                                                id="tmo-add-role"
+                                                className="h-11 bg-background"
+                                                placeholder="e.g. Software Engineer"
+                                                value={formData.role_title}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, role_title: e.target.value })
+                                                }
+                                                required
+                                            />
+                                        </div>
+                                    </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Location</Label>
-                                <Input
-                                    placeholder="e.g. Remote / SF"
-                                    value={formData.location}
-                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                />
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                                        <div className="space-y-2 min-w-0">
+                                            <Label htmlFor="tmo-add-location" className="text-sm font-medium">
+                                                Location
+                                            </Label>
+                                            <Input
+                                                id="tmo-add-location"
+                                                className="h-11 bg-background"
+                                                placeholder="e.g. Remote / SF"
+                                                value={formData.location}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, location: e.target.value })
+                                                }
+                                            />
+                                        </div>
+                                        <div className="space-y-2 min-w-0">
+                                            <Label htmlFor="tmo-add-status" className="text-sm font-medium">
+                                                Status
+                                            </Label>
+                                            <select
+                                                id="tmo-add-status"
+                                                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                value={formData.status}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        status: e.target.value as JobStage,
+                                                    })
+                                                }
+                                            >
+                                                {JOB_STAGES.map((stage) => (
+                                                    <option key={stage} value={stage}>
+                                                        {stage}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="tmo-add-url" className="text-sm font-medium">
+                                            Job URL
+                                        </Label>
+                                        <Input
+                                            id="tmo-add-url"
+                                            className="h-11 bg-background"
+                                            placeholder="https://..."
+                                            type="url"
+                                            inputMode="url"
+                                            value={formData.job_url}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, job_url: e.target.value })
+                                            }
+                                        />
+                                    </div>
+
+                                    {formData.status !== "Wishlist" && (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="tmo-add-applied" className="text-sm font-medium">
+                                                Date applied
+                                            </Label>
+                                            <Input
+                                                id="tmo-add-applied"
+                                                className="h-11 max-w-full sm:max-w-[12rem] bg-background"
+                                                type="date"
+                                                value={formData.applied_at}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, applied_at: e.target.value })
+                                                }
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label>Status</Label>
-                                <select
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                    value={formData.status}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.value as JobStage })}
+
+                            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 px-6 sm:px-8 py-4 sm:py-5 border-t border-border/80 bg-muted/25 dark:bg-muted/15">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full sm:w-auto min-h-11"
+                                    onClick={() => setOpen(false)}
                                 >
-                                    {JOB_STAGES.map(stage => (
-                                        <option key={stage} value={stage}>{stage}</option>
-                                    ))}
-                                </select>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    disabled={!isFormValid || loading}
+                                    className="w-full sm:w-auto min-h-11 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                >
+                                    {loading ? "Saving…" : "Save application"}
+                                </Button>
                             </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>Job URL</Label>
-                            <Input
-                                placeholder="https://..."
-                                value={formData.job_url}
-                                onChange={(e) => setFormData({ ...formData, job_url: e.target.value })}
-                            />
-                        </div>
-
-                        {/* Show Applied Date only if status is past wishlist */}
-                        {formData.status !== "Wishlist" && (
-                            <div className="space-y-2">
-                                <Label>Date Applied</Label>
-                                <Input
-                                    type="date"
-                                    value={formData.applied_at}
-                                    onChange={(e) => setFormData({ ...formData, applied_at: e.target.value })}
-                                />
-                            </div>
-                        )}
-
-                        <div className="flex justify-end gap-3 mt-6">
-                            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={!isFormValid || loading} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                                {loading ? "Saving..." : "Save Application"}
-                            </Button>
-                        </div>
-                    </form>
+                        </form>
                     )}
                 </DialogContent>
             </Dialog>
