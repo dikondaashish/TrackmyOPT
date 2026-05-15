@@ -53,7 +53,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     </style>
     <div class="header" role="region" aria-label="TrackMyOPT header">
       <div class="logo-icon">
-        <img src="icons/logo.gif" alt="TrackMyOPT Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <img src="icons/logo.gif" alt="TrackMyOPT" />
       </div>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
@@ -175,6 +175,16 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       if (!confirm('Are you sure you want to sign out?')) return;
       (logoutBtn as HTMLButtonElement).disabled = true;
       try {
+        await new Promise<void>((resolve) => {
+          chrome.runtime.sendMessage({ type: 'EXTENSION_SIGN_OUT' }, (res?: { ok?: boolean }) => {
+            if (chrome.runtime.lastError || res?.ok === false) {
+              void performExtensionSignOut().finally(() => resolve());
+              return;
+            }
+            resolve();
+          });
+        });
+      } catch {
         await performExtensionSignOut();
       } finally {
         window.location.reload();

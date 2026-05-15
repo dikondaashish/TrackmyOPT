@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from './config.js';
+import { EXTENSION_LOCAL_SIGNOUT_KEY } from './signOut.js';
 import { renderHome } from './home.js';
 import { renderLocked } from './locked.js';
 import { renderOptApply } from './pages/opt-apply.js';
@@ -25,11 +26,52 @@ function isTokenStillValid(token: string): boolean {
 }
 
 /**
- * Check if user is signed in by calling /api/me.
- * Prefetches a fresh extension token only when the stored one is missing or expiring.
+ * Check if user is signed in for the extension UI.
+ * - Respects extension-only sign-out (web session can still exist).
+ * - Uses stored JWT first so dashboard sign-out (cookies cleared) does not lock the extension until the JWT expires.
  */
 async function isSignedIn(): Promise<boolean> {
   try {
+    const { [EXTENSION_LOCAL_SIGNOUT_KEY]: localOut } = await chrome.storage.sync.get(
+      EXTENSION_LOCAL_SIGNOUT_KEY
+    );
+    if (localOut === true) {
+      return false;
+    }
+
+    const { idToken } = await chrome.storage.sync.get('idToken');
+
+    if (typeof idToken === 'string' && idToken.length > 0) {
+      const bearerRes = await fetch(API_ENDPOINTS.ME, {
+        method: 'GET',
+        credentials: 'omit',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      if (bearerRes.ok) {
+        await chrome.storage.sync.set({ signedIn: true });
+        try {
+          const needsRefresh = !isTokenStillValid(idToken);
+          if (needsRefresh) {
+            const tokenRes = await fetch(API_ENDPOINTS.EXTENSION_TOKEN, {
+              credentials: 'include',
+            });
+            if (tokenRes.ok) {
+              const body = (await tokenRes.json()) as { token?: string };
+              if (typeof body.token === 'string' && body.token.length > 0) {
+                await chrome.storage.sync.set({ idToken: body.token });
+              }
+            }
+          }
+        } catch {
+          /* ignore */
+        }
+        return true;
+      }
+    }
+
     const response = await fetch(API_ENDPOINTS.ME, {
       method: 'GET',
       credentials: 'include',
@@ -39,9 +81,8 @@ async function isSignedIn(): Promise<boolean> {
     if (response.ok) {
       await chrome.storage.sync.set({ signedIn: true });
       try {
-        // Only fetch a new token if the stored one is absent or about to expire.
-        const { idToken } = await chrome.storage.sync.get('idToken');
-        const needsRefresh = typeof idToken !== 'string' || !isTokenStillValid(idToken);
+        const { idToken: stored } = await chrome.storage.sync.get('idToken');
+        const needsRefresh = typeof stored !== 'string' || !isTokenStillValid(stored);
         if (needsRefresh) {
           const tokenRes = await fetch(API_ENDPOINTS.EXTENSION_TOKEN, {
             credentials: 'include',
@@ -57,10 +98,10 @@ async function isSignedIn(): Promise<boolean> {
         // Background will mint on demand for job save
       }
       return true;
-    } else {
-      await chrome.storage.sync.set({ signedIn: false });
-      return false;
     }
+
+    await chrome.storage.sync.set({ signedIn: false });
+    return false;
   } catch {
     return false;
   }
@@ -203,7 +244,10 @@ document.addEventListener('DOMContentLoaded', () => {
  * Listen for storage changes to re-render when sign-in state changes
  */
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === 'sync' && changes.signedIn) {
+  if (
+    areaName === 'sync' &&
+    (changes.signedIn || changes[EXTENSION_LOCAL_SIGNOUT_KEY])
+  ) {
     render();
   }
 });

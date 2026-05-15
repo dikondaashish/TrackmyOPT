@@ -58,7 +58,10 @@ export async function POST(req: NextRequest) {
         { status: 429, headers: corsHeaders }
       );
     }
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400, headers: corsHeaders });
+    }
 
     const {
       company_name,
@@ -105,26 +108,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: message }, { status: 500, headers: corsHeaders });
     }
 
-    const posthog = getPostHogClient();
-    posthog.capture({
-      distinctId: userId as string,
-      event: 'extension_job_added',
-      properties: {
-        company_name: String(company_name).trim(),
-        role_title: String(role_title).trim(),
-        status: status === 'Applied' ? 'Applied' : 'Wishlist',
-        source: 'chrome_extension',
-        has_job_url: !!job_url,
-      },
-    });
-    await posthog.shutdown();
+    try {
+      const posthog = getPostHogClient();
+      posthog.capture({
+        distinctId: userId as string,
+        event: 'extension_job_added',
+        properties: {
+          company_name: String(company_name).trim(),
+          role_title: String(role_title).trim(),
+          status: status === 'Applied' ? 'Applied' : 'Wishlist',
+          source: 'chrome_extension',
+          has_job_url: !!job_url,
+        },
+      });
+      await posthog.shutdown();
+    } catch (e) {
+      console.warn('PostHog extension_job_added (non-fatal):', e);
+    }
 
     return NextResponse.json(
       { ok: true, id: data.id, message: 'Job added to tracker' },
       { headers: corsHeaders }
     );
   } catch (error) {
-    console.error('Extension job-application error:', error instanceof Error ? error.message : 'Unknown error');
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Extension job-application error:', message, error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500, headers: corsHeaders }

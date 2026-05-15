@@ -315,9 +315,112 @@ function isLinkedInJobSurface(): boolean {
   const path = window.location.pathname;
   const q = window.location.search || '';
   if (/^\/jobs(\/|$)/i.test(path)) return true;
-  if (/currentJobId=/i.test(q)) return true;
+  if (/[?&]currentJobId=\d+/i.test(q)) return true;
   if (/^\/job\//i.test(path)) return true;
   return false;
+}
+
+/** Right-hand job pane on LinkedIn search / collections (SPA loads content after idle). */
+function linkedInJobDetailsRoots(): Element[] {
+  const selectors = [
+    '.jobs-search__job-details--wrapper',
+    '.jobs-search__job-details',
+    '.jobs-search__job-details--container',
+    '[class*="jobs-search-job-details"]',
+    '[class*="job-details-reader"]',
+    '.jobs-details',
+    'div.scaffold-layout__list-detail-inner',
+    '.scaffold-layout__list-detail',
+    '[data-testid="job-search-details"]',
+    'aside[class*="job-details"]',
+    'div[class*="jobs-details"]',
+  ];
+  const seen = new Set<Element>();
+  const out: Element[] = [];
+  for (let i = 0; i < selectors.length; i++) {
+    const el = document.querySelector(selectors[i]);
+    if (el && !seen.has(el)) {
+      seen.add(el);
+      out.push(el);
+    }
+  }
+  return out;
+}
+
+function pickLinkedInTitleCompanyLocation(
+  root: Document | Element
+): { role_title: string; company_name: string; location?: string } | null {
+  const titleSelectors = [
+    '[data-testid="jobsearch-JobInfoHeader-title"]',
+    '.job-details-jobs-unified-top-card__job-title',
+    '.jobs-details-top-card__job-title',
+    '.jobs-details-top-card__title',
+    '.jobs-unified-top-card__job-title',
+    'h1[class*="job-details-jobs-unified-top-card"]',
+    'h1[class*="jobs-unified-top-card"]',
+    'h1[class*="job-title"]',
+    'div[class*="job-details-jobs-unified-top-card"] h1',
+    'div[class*="jobs-unified-top-card"] h1',
+    '.jobs-search__job-details--container h1',
+    'article[data-job-id] h1',
+    'h1.t-24',
+    'h1[class*="t-24"]',
+    'h1',
+  ];
+
+  const companySelectors = [
+    '.job-details-jobs-unified-top-card__company-name a',
+    '.job-details-jobs-unified-top-card__company-name',
+    '.jobs-unified-top-card__company-name a',
+    '.jobs-unified-top-card__company-name',
+    '.jobs-details-top-card__company-name',
+    'a[data-tracking-control-name="public_jobs_topcard-org-name"]',
+    'a[href*="linkedin.com/company/"]',
+    'div[class*="top-card"] a[href*="/company/"]',
+    'span[class*="jobs-unified-top-card__company-name"] a',
+  ];
+
+  const locationSelectors = [
+    '.job-details-jobs-unified-top-card__bullet',
+    '.jobs-unified-top-card__bullet',
+    '.jobs-details-top-card__primary-description-container',
+    'span[class*="bullet"]',
+  ];
+
+  let titleEl: Element | null = null;
+  for (let i = 0; i < titleSelectors.length; i++) {
+    const el = root.querySelector(titleSelectors[i]);
+    const t = el?.textContent?.trim();
+    if (t && t.length > 1 && t.length < 500 && !/^jobs$/i.test(t) && !/^linkedin$/i.test(t)) {
+      titleEl = el;
+      break;
+    }
+  }
+
+  let companyEl: Element | null = null;
+  for (let i = 0; i < companySelectors.length; i++) {
+    const el = root.querySelector(companySelectors[i]);
+    const t = el?.textContent?.trim();
+    if (t && t.length > 1 && t.length < 200) {
+      companyEl = el;
+      break;
+    }
+  }
+
+  let locationEl: Element | null = null;
+  for (let i = 0; i < locationSelectors.length; i++) {
+    const el = root.querySelector(locationSelectors[i]);
+    if (el?.textContent?.trim()) {
+      locationEl = el;
+      break;
+    }
+  }
+
+  const role_title = titleEl?.textContent?.trim();
+  const company_name = companyEl?.textContent?.trim();
+  if (!role_title || !company_name) return null;
+  const location = locationEl?.textContent?.trim();
+  return { role_title, company_name, location: location || undefined };
 }
 
 function getLinkedInJobInfo(): JobInfo | null {
@@ -339,76 +442,29 @@ function getLinkedInJobInfo(): JobInfo | null {
     return null;
   };
 
-  const titleSelectors = [
-    '.job-details-jobs-unified-top-card__job-title',
-    '.jobs-details-top-card__job-title',
-    '.jobs-details-top-card__title',
-    '.jobs-unified-top-card__job-title',
-    'h1[class*="job-details-jobs-unified-top-card"]',
-    'h1[class*="jobs-unified-top-card"]',
-    'h1[class*="job-title"]',
-    'div[class*="job-details-jobs-unified-top-card"] h1',
-    'div[class*="jobs-unified-top-card"] h1',
-    '.jobs-search__job-details--container h1',
-    'article[data-job-id] h1',
-    'main h1',
-    'h1.t-24',
-    'h1[class*="t-24"]',
-    'h1',
-  ];
-
-  const companySelectors = [
-    '.job-details-jobs-unified-top-card__company-name a',
-    '.job-details-jobs-unified-top-card__company-name',
-    '.jobs-unified-top-card__company-name a',
-    '.jobs-unified-top-card__company-name',
-    '.jobs-details-top-card__company-name',
-    'a[data-tracking-control-name="public_jobs_topcard-org-name"]',
-    'a[href*="linkedin.com/company/"]',
-    'div[class*="top-card"] a[href*="/company/"]',
-  ];
-
-  const locationSelectors = [
-    '.job-details-jobs-unified-top-card__bullet',
-    '.jobs-unified-top-card__bullet',
-    '.jobs-details-top-card__primary-description-container',
-    'span[class*="bullet"]',
-  ];
-
-  let titleEl: Element | null = null;
-  for (let i = 0; i < titleSelectors.length; i++) {
-    const el = document.querySelector(titleSelectors[i]);
-    const t = el?.textContent?.trim();
-    if (t && t.length > 1 && t.length < 500) {
-      titleEl = el;
-      break;
+  // 1) Prefer the job-details pane (search-results + currentJobId loads here, not in main).
+  const roots = linkedInJobDetailsRoots();
+  for (let r = 0; r < roots.length; r++) {
+    const picked = pickLinkedInTitleCompanyLocation(roots[r]);
+    if (picked) {
+      return {
+        company_name: picked.company_name,
+        role_title: picked.role_title,
+        job_url: url,
+        location: picked.location,
+      };
     }
   }
 
-  let companyEl: Element | null = null;
-  for (let i = 0; i < companySelectors.length; i++) {
-    const el = document.querySelector(companySelectors[i]);
-    const t = el?.textContent?.trim();
-    if (t && t.length > 1 && t.length < 200) {
-      companyEl = el;
-      break;
-    }
-  }
-
-  let locationEl: Element | null = null;
-  for (let i = 0; i < locationSelectors.length; i++) {
-    const el = document.querySelector(locationSelectors[i]);
-    if (el?.textContent?.trim()) {
-      locationEl = el;
-      break;
-    }
-  }
-
-  const role_title = titleEl?.textContent?.trim();
-  const company_name = companyEl?.textContent?.trim();
-  const location = locationEl?.textContent?.trim();
-  if (role_title && company_name) {
-    return { company_name, role_title, job_url: url, location: location || undefined };
+  // 2) Whole document (older / simpler layouts).
+  const docPick = pickLinkedInTitleCompanyLocation(document);
+  if (docPick) {
+    return {
+      company_name: docPick.company_name,
+      role_title: docPick.role_title,
+      job_url: url,
+      location: docPick.location,
+    };
   }
 
   return tryOgMeta() || getJsonLdJobPosting() || null;
@@ -635,15 +691,16 @@ function createJobTrackerWidget(job: JobInfo): HTMLElement {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: linear-gradient(145deg, #bbf7d0 0%, #86efac 55%, #4ade80 100%);
+    background: linear-gradient(145deg, #ecfdf5 0%, #bbf7d0 45%, #86efac 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(22, 101, 52, 0.25);
+    box-shadow: 0 1px 4px rgba(22, 101, 52, 0.22);
+    border: 1px solid rgba(22, 101, 52, 0.12);
   `;
 
-  const extIcon = chrome.runtime.getURL('icons/icon48.png');
+  const extIcon = chrome.runtime.getURL('icons/icon128.png');
   const logoImg = document.createElement('img');
   logoImg.src = extIcon;
   logoImg.alt = '';
@@ -660,10 +717,10 @@ function createJobTrackerWidget(job: JobInfo): HTMLElement {
   hint.textContent = 'Add to board';
   hint.style.cssText = `
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     color: #0f172a;
     white-space: nowrap;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   `;
 
   addBtn.appendChild(logoRing);
@@ -675,14 +732,14 @@ function createJobTrackerWidget(job: JobInfo): HTMLElement {
   dragStrip.style.cssText = `
     width: 34px;
     flex-shrink: 0;
-    background: linear-gradient(180deg, #99f6e4 0%, #5eead4 45%, #2dd4bf 100%);
+    background: linear-gradient(180deg, #ccfbf1 0%, #99f6e4 40%, #5eead4 100%);
     border: none;
-    border-left: 1px solid rgba(20, 184, 166, 0.45);
+    border-left: 1px solid rgba(45, 212, 191, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: grab;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
   `;
 
   const dots = document.createElement('div');
@@ -691,11 +748,11 @@ function createJobTrackerWidget(job: JobInfo): HTMLElement {
     grid-template-columns: repeat(2, 4px);
     grid-template-rows: repeat(3, 4px);
     gap: 3px;
-    opacity: 0.55;
+    opacity: 0.75;
   `;
   for (let i = 0; i < 6; i++) {
     const d = document.createElement('span');
-    d.style.cssText = 'width:4px;height:4px;border-radius:50%;background:#0f766e;';
+    d.style.cssText = 'width:4px;height:4px;border-radius:50%;background:#64748b;';
     dots.appendChild(d);
   }
   dragStrip.appendChild(dots);

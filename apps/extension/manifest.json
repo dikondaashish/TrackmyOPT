@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TrackMyOPT",
-  "version": "0.1.8",
+  "version": "0.1.11",
   "description": "Track your OPT timeline with precision",
   "permissions": ["storage", "tabs", "notifications", "scripting", "cookies"],
   "host_permissions": [
@@ -38,6 +38,7 @@
 
         "*://www.linkedin.com/jobs/*",
         "*://linkedin.com/jobs/*",
+        "*://*.linkedin.com/jobs/*",
 
         "*://www.indeed.com/*",
         "*://indeed.com/*",

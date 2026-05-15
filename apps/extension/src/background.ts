@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
+import { performExtensionSignOut, EXTENSION_LOCAL_SIGNOUT_KEY } from './signOut';
 
 // ISS-039: cap the cached token TTL at 5 minutes and refresh on tab focus.
 // The web side issues 10-minute JWTs, so this gives us a quick check window
@@ -33,29 +34,64 @@ async function writeCachedToken(token: string, userId?: string) {
   });
 }
 
-async function getExtensionBearerToken(forceRefresh = false): Promise<string | null> {
-  if (!forceRefresh) {
-    const cached = await readCachedToken();
-    if (cached && Date.now() - cached.issuedAt < TOKEN_TTL_MS) {
-      return cached.token;
-    }
-  } else {
-    await chrome.storage.sync.remove(['idToken', 'idTokenIssuedAt', 'idTokenUserId']);
+/** True if JWT `exp` is more than 60s in the future (matches popup refresh heuristic). */
+function isJwtNotExpired(token: string): boolean {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+    const payload = JSON.parse(atob(parts[1])) as { exp?: number };
+    if (typeof payload.exp !== 'number') return false;
+    return payload.exp * 1000 > Date.now() + 60_000;
+  } catch {
+    return false;
   }
+}
+
+async function getExtensionBearerToken(forceRefresh = false): Promise<string | null> {
+  const sync = await chrome.storage.sync.get(['signedIn', EXTENSION_LOCAL_SIGNOUT_KEY]);
+  // Only extension-initiated disconnect blocks minting; `signedIn` alone may be stale after web re-login.
+  if (sync[EXTENSION_LOCAL_SIGNOUT_KEY] === true) {
+    await chrome.storage.sync.remove(['idToken', 'idTokenIssuedAt', 'idTokenUserId']);
+    return null;
+  }
+
+  const cached = await readCachedToken();
+  const cacheFresh = !!(cached && Date.now() - cached.issuedAt < TOKEN_TTL_MS);
+
+  if (!forceRefresh && cacheFresh) {
+    await chrome.storage.sync.set({ signedIn: true });
+    return cached!.token;
+  }
+
+  if (!forceRefresh && cached && isJwtNotExpired(cached.token)) {
+    await chrome.storage.sync.set({ signedIn: true });
+    return cached.token;
+  }
+
   try {
     const res = await fetch(API_ENDPOINTS.EXTENSION_TOKEN, {
       method: 'GET',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
     });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { token?: string; userId?: string };
-    if (!data.token) return null;
-    await writeCachedToken(data.token, data.userId);
-    return data.token;
+    if (res.ok) {
+      const data = (await res.json()) as { token?: string; userId?: string };
+      if (!data.token) return null;
+      await writeCachedToken(data.token, data.userId);
+      await chrome.storage.sync.set({ signedIn: true });
+      return data.token;
+    }
   } catch {
-    return null;
+    /* ignore */
   }
+
+  if (cached && isJwtNotExpired(cached.token)) {
+    await chrome.storage.sync.set({ signedIn: true });
+    return cached.token;
+  }
+
+  await chrome.storage.sync.remove(['idToken', 'idTokenIssuedAt', 'idTokenUserId']);
+  return null;
 }
 
 // ISS-039: refresh token whenever the user focuses the browser/extension —
@@ -79,6 +115,12 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       sendResponse({ ok: false, error: e instanceof Error ? e.message : 'Failed to add job' });
     });
     return true; // async response
+  }
+  if (msg.type === 'EXTENSION_SIGN_OUT') {
+    performExtensionSignOut()
+      .then(() => sendResponse({ ok: true as const }))
+      .catch((e) => sendResponse({ ok: false as const, error: e instanceof Error ? e.message : String(e) }));
+    return true;
   }
 });
 
@@ -238,7 +280,10 @@ async function beginAuth(){
             });
             
             if (response.ok) {
-              await chrome.storage.sync.set({ signedIn: true });
+              await chrome.storage.sync.set({
+                signedIn: true,
+                [EXTENSION_LOCAL_SIGNOUT_KEY]: false,
+              });
               
               // Register extension session with server
               const token = await chrome.storage.local.get('authToken');
@@ -275,7 +320,10 @@ async function beginAuth(){
                   headers: { 'Content-Type': 'application/json' },
                 });
                 if (retry.ok) {
-                  await chrome.storage.sync.set({ signedIn: true });
+                  await chrome.storage.sync.set({
+                    signedIn: true,
+                    [EXTENSION_LOCAL_SIGNOUT_KEY]: false,
+                  });
                   resolve();
                 } else {
                   reject(new Error('Could not verify session'));

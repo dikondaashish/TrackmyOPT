@@ -56,14 +56,18 @@ export async function getPageData(page: Page): Promise<any> {
  * Render a page header with back button
  */
 export function renderPageHeader(root: HTMLElement, title: string, subtitle: string): void {
+  const logoUrl = chrome.runtime.getURL('icons/icon48.png');
   const headerHTML = `
     <div class="header" role="region" aria-label="${title}">
       <button class="back-btn" id="back-btn" title="Back to home" aria-label="Back to home">
         <span>←</span>
       </button>
-      <div class="header-content">
-        <h1 class="title">${title}</h1>
-        <p class="subtitle">${subtitle}</p>
+      <div class="header-content header-content--with-logo">
+        <img class="header-page-logo" src="${logoUrl}" width="36" height="36" alt="" />
+        <div class="header-text-block">
+          <h1 class="title">${title}</h1>
+          <p class="subtitle">${subtitle}</p>
+        </div>
       </div>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn-page" title="Toggle theme" aria-label="Toggle theme">
@@ -144,6 +148,16 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
       if (!confirm('Are you sure you want to sign out?')) return;
       (logoutBtn as HTMLButtonElement).disabled = true;
       try {
+        await new Promise<void>((resolve) => {
+          chrome.runtime.sendMessage({ type: 'EXTENSION_SIGN_OUT' }, (res?: { ok?: boolean }) => {
+            if (chrome.runtime.lastError || res?.ok === false) {
+              void performExtensionSignOut().finally(() => resolve());
+              return;
+            }
+            resolve();
+          });
+        });
+      } catch {
         await performExtensionSignOut();
       } finally {
         window.location.reload();
