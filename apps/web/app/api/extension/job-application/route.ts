@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/auth/jwt';
-import { getPostHogClient } from '@/lib/posthog-server';
+import { withPostHogClient } from '@/lib/posthog-server';
 import rateLimit from '@/lib/auth/rate-limit';
 
 export const dynamic = 'force-dynamic';
@@ -108,8 +108,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: message }, { status: 500, headers: corsHeaders });
     }
 
-    try {
-      const posthog = getPostHogClient();
+    await withPostHogClient((posthog) => {
       posthog.capture({
         distinctId: userId as string,
         event: 'extension_job_added',
@@ -121,10 +120,7 @@ export async function POST(req: NextRequest) {
           has_job_url: !!job_url,
         },
       });
-      await posthog.shutdown();
-    } catch (e) {
-      console.warn('PostHog extension_job_added (non-fatal):', e);
-    }
+    });
 
     return NextResponse.json(
       { ok: true, id: data.id, message: 'Job added to tracker' },

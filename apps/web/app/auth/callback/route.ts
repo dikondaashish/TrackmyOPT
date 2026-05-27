@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { getPostHogClient } from '@/lib/posthog-server';
+import { withPostHogClient } from '@/lib/posthog-server';
 import { safeInternalRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 
@@ -148,42 +148,41 @@ export async function GET(req: NextRequest) {
     }
 
     // Track sign-in / sign-up with PostHog
-    const posthog = getPostHogClient();
     const userId = sessionData.user.id;
     const isNewUser =
       sessionData.user.created_at &&
       Date.now() - new Date(sessionData.user.created_at).getTime() < 10_000;
 
-    posthog.identify({
-      distinctId: userId,
-      properties: {
-        email: sessionData.user.email,
-        provider: sessionData.user.app_metadata?.provider ?? 'oauth',
-      },
+    await withPostHogClient((posthog) => {
+      posthog.identify({
+        distinctId: userId,
+        properties: {
+          email: sessionData.user.email,
+          provider: sessionData.user.app_metadata?.provider ?? 'oauth',
+        },
+      });
+
+      if (isNewUser) {
+        posthog.capture({
+          distinctId: userId,
+          event: 'user_signed_up',
+          properties: {
+            email: sessionData.user.email,
+            provider: sessionData.user.app_metadata?.provider ?? 'oauth',
+            referred_by: url.searchParams.get('ref') ?? undefined,
+          },
+        });
+      } else {
+        posthog.capture({
+          distinctId: userId,
+          event: 'user_signed_in',
+          properties: {
+            email: sessionData.user.email,
+            provider: sessionData.user.app_metadata?.provider ?? 'oauth',
+          },
+        });
+      }
     });
-
-    if (isNewUser) {
-      posthog.capture({
-        distinctId: userId,
-        event: 'user_signed_up',
-        properties: {
-          email: sessionData.user.email,
-          provider: sessionData.user.app_metadata?.provider ?? 'oauth',
-          referred_by: url.searchParams.get('ref') ?? undefined,
-        },
-      });
-    } else {
-      posthog.capture({
-        distinctId: userId,
-        event: 'user_signed_in',
-        properties: {
-          email: sessionData.user.email,
-          provider: sessionData.user.app_metadata?.provider ?? 'oauth',
-        },
-      });
-    }
-
-    await posthog.shutdown();
 
     // Redirect to the dashboard or specified next page (never external origins)
     const redirectUrl = safeInternalRedirectTarget(nextRaw, req.url);

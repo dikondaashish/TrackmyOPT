@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server"; // Ensure this matches your project's server client getter
 import { revalidatePath } from "next/cache";
 import { JobApplication, JobFollowup, JobInterview, JobStage } from "@/lib/career/job-tracker/types";
-import { getPostHogClient } from "@/lib/posthog-server";
+import { withPostHogClient } from "@/lib/posthog-server";
 
 const APP_PATH = "/dashboard/career/job-tracker";
 
@@ -72,18 +72,18 @@ export async function createApplication(formData: {
         throw new Error("Failed to create application");
     }
 
-    const posthog = getPostHogClient();
-    posthog.capture({
-        distinctId: user.id,
-        event: 'job_application_created',
-        properties: {
-            company_name: formData.company_name,
-            role_title: formData.role_title,
-            status: formData.status,
-            has_job_url: !!formData.job_url,
-        },
+    await withPostHogClient((posthog) => {
+        posthog.capture({
+            distinctId: user.id,
+            event: 'job_application_created',
+            properties: {
+                company_name: formData.company_name,
+                role_title: formData.role_title,
+                status: formData.status,
+                has_job_url: !!formData.job_url,
+            },
+        });
     });
-    await posthog.shutdown();
 
     revalidatePath(APP_PATH);
     return data as JobApplication;
@@ -105,13 +105,13 @@ export async function updateApplicationStatus(id: string, status: JobStage) {
         throw new Error("Failed to update status");
     }
 
-    const posthog = getPostHogClient();
-    posthog.capture({
-        distinctId: user.id,
-        event: 'job_application_status_updated',
-        properties: { application_id: id, new_status: status },
+    await withPostHogClient((posthog) => {
+        posthog.capture({
+            distinctId: user.id,
+            event: 'job_application_status_updated',
+            properties: { application_id: id, new_status: status },
+        });
     });
-    await posthog.shutdown();
 
     revalidatePath(APP_PATH);
 }
@@ -154,17 +154,13 @@ export async function deleteApplication(id: string) {
         throw new Error("Failed to delete application");
     }
 
-    try {
-        const posthog = getPostHogClient();
+    await withPostHogClient((posthog) => {
         posthog.capture({
             distinctId: user.id,
             event: 'job_application_deleted',
             properties: { application_id: id },
         });
-        await posthog.shutdown();
-    } catch (e) {
-        console.warn("PostHog capture after delete failed:", e);
-    }
+    });
 
     revalidatePath(APP_PATH);
 }
