@@ -6,10 +6,14 @@ import Link from "next/link";
 
 interface CaseStatus {
   receipt_number: string;
-  current_status: string;
+  current_status: string | null;
   status_description?: string;
   last_checked_at: string;
   last_updated_at?: string;
+}
+
+function normalizeStatusText(status: string | null | undefined): string {
+  return (status ?? "").trim();
 }
 
 export function CaseStatusSummary() {
@@ -63,8 +67,11 @@ export function CaseStatusSummary() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    const normalizedStatus = status.toLowerCase();
+  const getStatusIcon = (status: string | null | undefined) => {
+    const normalizedStatus = normalizeStatusText(status).toLowerCase();
+    if (!normalizedStatus) {
+      return <Clock className="w-5 h-5 text-muted-foreground" />;
+    }
     
     if (normalizedStatus.includes("approved") || normalizedStatus.includes("produced")) {
       return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
@@ -78,8 +85,11 @@ export function CaseStatusSummary() {
     return <Clock className="w-5 h-5 text-blue-500" />;
   };
 
-  const getStatusColor = (status: string) => {
-    const normalizedStatus = status.toLowerCase();
+  const getStatusColor = (status: string | null | undefined) => {
+    const normalizedStatus = normalizeStatusText(status).toLowerCase();
+    if (!normalizedStatus) {
+      return "bg-muted text-muted-foreground";
+    }
     
     if (normalizedStatus.includes("approved") || normalizedStatus.includes("produced")) {
       return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
@@ -93,7 +103,8 @@ export function CaseStatusSummary() {
     return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
   };
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return "Not yet checked";
     return new Date(dateStr).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -144,6 +155,9 @@ export function CaseStatusSummary() {
     );
   }
 
+  const statusText = normalizeStatusText(caseStatus.current_status);
+  const isPending = !statusText;
+
   return (
     <div className="bg-card border border-border rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
@@ -179,15 +193,22 @@ export function CaseStatusSummary() {
       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
         {getStatusIcon(caseStatus.current_status)}
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm truncate">{caseStatus.current_status}</p>
+          <p className="font-medium text-sm truncate">
+            {statusText || "Checking USCIS status…"}
+          </p>
           {caseStatus.status_description && (
             <p className="text-xs text-muted-foreground truncate mt-0.5">
               {caseStatus.status_description}
             </p>
           )}
+          {isPending && (
+            <p className="text-xs text-muted-foreground truncate mt-0.5">
+              We&apos;ll update this automatically once USCIS responds.
+            </p>
+          )}
         </div>
         <span className={`shrink-0 px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(caseStatus.current_status)}`}>
-          {caseStatus.current_status.includes("Approved") ? "Complete" : "In Progress"}
+          {isPending ? "Pending" : statusText.includes("Approved") ? "Complete" : "In Progress"}
         </span>
       </div>
 

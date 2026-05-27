@@ -272,23 +272,25 @@ function parseUSCISDate(dateString: string | null): string | null {
 }
 
 /** Determine if status indicates approval */
-export function isApproved(status: string): boolean {
+export function isApproved(status: string | null | undefined): boolean {
+  const normalized = (status ?? "").trim().toLowerCase();
+  if (!normalized) return false;
   const approvedKeywords = ['approved', 'card was mailed', 'card was delivered'];
-  return approvedKeywords.some((keyword) =>
-    status.toLowerCase().includes(keyword)
-  );
+  return approvedKeywords.some((keyword) => normalized.includes(keyword));
 }
 
 /** Determine if status indicates rejection */
-export function isRejected(status: string): boolean {
+export function isRejected(status: string | null | undefined): boolean {
+  const normalized = (status ?? "").trim().toLowerCase();
+  if (!normalized) return false;
   const rejectedKeywords = ['denied', 'rejected', 'terminated'];
-  return rejectedKeywords.some((keyword) =>
-    status.toLowerCase().includes(keyword)
-  );
+  return rejectedKeywords.some((keyword) => normalized.includes(keyword));
 }
 
 /** Determine if status indicates pending */
-export function isPending(status: string): boolean {
+export function isPending(status: string | null | undefined): boolean {
+  const normalized = (status ?? "").trim();
+  if (!normalized) return true;
   return !isApproved(status) && !isRejected(status);
 }
 

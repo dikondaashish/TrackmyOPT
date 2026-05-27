@@ -360,8 +360,8 @@ export function CaseStatusSection() {
     return centerMap[prefix] || 'USCIS Service Center';
   };
 
-  const getStatusExplanation = (status: string) => {
-    const statusLower = status.toLowerCase();
+  const getStatusExplanation = (status: string | null | undefined) => {
+    const statusLower = (status ?? "").toLowerCase();
     if (statusLower.includes('approved')) {
       return { color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-950/30', borderColor: 'border-green-200 dark:border-green-800', explanation: 'Your case has been approved. You should receive an approval notice soon.' };
     } else if (statusLower.includes('denied') || statusLower.includes('rejected') || statusLower.includes('terminated')) {
