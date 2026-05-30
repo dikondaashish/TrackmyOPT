@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { verifyPasscode, isValidPasscode, hashPasscode } from '@/lib/auth/passcode';
 import nodemailer from 'nodemailer';
+import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import bcrypt from 'bcryptjs';
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
     // Send OTP email
     try {
       await transporter.sendMail({
-        from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+        from: getSmtpFromHeader(),
         to: userEmail,
         subject: '🔐 Your OTP for Passcode Change - TrackMyOPT',
         html: generateOTPEmailHTML(otp, user.user_metadata?.full_name || 'there'),

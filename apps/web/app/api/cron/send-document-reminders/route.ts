@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
+import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 
 // Create SMTP transporter for Hostinger
@@ -164,7 +165,7 @@ export async function GET(request: NextRequest) {
         // Send email via SMTP
         try {
           await transporter.sendMail({
-            from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+            from: getSmtpFromHeader(),
             to: userEmail,
             subject: `⏰ Document Expiring Soon: ${subjectDocType}`,
             html: generateReminderEmail(reminder),

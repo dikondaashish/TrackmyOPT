@@ -9,7 +9,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { sendMailWithRetry } from './email-smtp';
+import { getSmtpFromHeader, sendMailWithRetry } from './email-smtp';
 import { sendPremiumWelcomeQueuedEmail } from './transactional-emails';
 import { EMAIL, emailBrandHeader, emailFooter, emailOuterClose, emailOuterOpen } from './email-brand';
 import {
@@ -44,7 +44,7 @@ export interface EmailReminderData {
 export async function sendDailyReminder(data: EmailReminderData) {
   try {
     const info = await sendMailWithRetry({
-      from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_FROM_EMAIL || 'no-reply@trackmyopt.com'}>`,
+      from: getSmtpFromHeader(),
       to: data.userEmail,
       subject: getDailyReminderSubject(data.tools),
       html: renderDailyReminderEmailHtml(data),
@@ -69,7 +69,7 @@ export async function sendExportOtpEmail(
 ) {
   try {
     const info = await sendMailWithRetry({
-      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+      from: getSmtpFromHeader(),
       to: email,
       subject: 'Your TrackMyOPT data export verification code',
       html: `
@@ -492,7 +492,7 @@ export async function sendEnrollmentEmail(
     const chromeExtensionUrl = 'https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm';
 
     const info = await sendMailWithRetry({
-      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+      from: getSmtpFromHeader(),
       to: email,
       subject: `Welcome to ${content.title} — TrackMyOPT`,
       html: `
@@ -581,7 +581,7 @@ export async function sendNotificationPreferencesSavedEmail(email: string, first
     const greeting = esc(firstName && firstName.trim() ? firstName.trim() : 'there');
     const safeEmail = esc(email.trim());
     const info = await sendMailWithRetry({
-      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+      from: getSmtpFromHeader(),
       to: email,
       subject: 'Your TrackMyOPT notification email is saved',
       text: `Hi ${firstName && firstName.trim() ? firstName.trim() : 'there'},
@@ -665,7 +665,7 @@ export async function sendPremiumWelcomeEmail(userId: string, email: string, nam
 export async function sendEmailChangeNotification(userId: string, email: string) {
   try {
     const info = await sendMailWithRetry({
-      from: `${process.env.EMAIL_FROM_NAME || 'Zyene Inc'} <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+      from: getSmtpFromHeader(),
       to: email,
       subject: "Your email address was updated",
       html: `

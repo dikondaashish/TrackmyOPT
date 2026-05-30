@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
+import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -80,7 +81,7 @@ export async function POST(req: NextRequest) {
 
     try {
       await transporter.sendMail({
-        from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+        from: getSmtpFromHeader(),
         to: user.email,
         subject: '🔑 Reset your Document Vault passcode',
         html: `

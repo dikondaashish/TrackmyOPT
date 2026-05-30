@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
+import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 import { sanitizeError } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
             .replace('{{email}}', user.email || '');
 
           await transporter.sendMail({
-            from: `${process.env.EMAIL_FROM_NAME || 'TrackMyOPT'} <${process.env.SMTP_USER}>`,
+            from: getSmtpFromHeader(),
             to: user.email,
             subject: subject,
             html: personalizedHtml,

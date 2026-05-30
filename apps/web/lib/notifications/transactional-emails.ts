@@ -5,7 +5,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Json } from "@/types/supabase";
-import { sendMailWithRetry } from "./email-smtp";
+import { getSmtpFromHeader, sendMailWithRetry } from "./email-smtp";
 import { EMAIL } from "./email-brand";
 
 export function getAppBaseUrl(): string {
@@ -18,7 +18,7 @@ function getFromHeader(): string {
 
 /** From header for SMTP — exported for retry cron + tests */
 export function getTransactionalEmailFromHeader(): string {
-  return `${process.env.EMAIL_FROM_NAME || "TrackMyOPT"} <${process.env.SMTP_FROM_EMAIL || "no-reply@trackmyopt.com"}>`;
+  return getSmtpFromHeader();
 }
 
 type EmailDataRow = { id: string; email_data: Json | null; created_at: string | null };

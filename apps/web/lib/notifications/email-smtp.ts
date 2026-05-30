@@ -1,15 +1,32 @@
 /**
- * Shared SMTP transporter + send with retry (Hostinger / env SMTP_*).
+ * Shared SMTP transporter + send with retry (Resend SMTP, Hostinger, etc.).
  * Used by email-service and transactional-email-queue.
+ *
+ * SMTP_USER is the SMTP login (e.g. "resend"), NOT the From address.
+ * Always use getSmtpFromHeader() for the From header (SMTP_FROM_EMAIL).
  */
 
 import nodemailer from "nodemailer";
 
-const createTransporter = () =>
-  nodemailer.createTransport({
+/** RFC5322 From header — must be a verified mailbox/domain at your SMTP provider. */
+export function getSmtpFromHeader(): string {
+  const address =
+    process.env.SMTP_FROM_EMAIL?.trim() || "no-reply@trackmyopt.com";
+  const name = process.env.EMAIL_FROM_NAME?.trim() || "TrackMyOPT";
+  return `${name} <${address}>`;
+}
+
+const createTransporter = () => {
+  const port = parseInt(process.env.SMTP_PORT || "465", 10);
+  // Port 465 = implicit TLS (secure). Port 587 = STARTTLS (set SMTP_SECURE=false).
+  const secure =
+    process.env.SMTP_SECURE === "true" ||
+    (process.env.SMTP_SECURE !== "false" && port === 465);
+
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || "465", 10),
-    secure: true,
+    port,
+    secure,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -24,6 +41,7 @@ const createTransporter = () =>
       rejectUnauthorized: false,
     },
   });
+};
 
 let transporter: nodemailer.Transporter | null = null;
 

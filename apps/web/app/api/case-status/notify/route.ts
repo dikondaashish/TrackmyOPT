@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
+import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -116,7 +117,7 @@ export async function POST(req: NextRequest) {
     // Send email notification via SMTP
     try {
       const info = await transporter.sendMail({
-        from: `TrackMyOPT <${process.env.SMTP_USER || 'no-reply@trackmyopt.com'}>`,
+        from: getSmtpFromHeader(),
         to: userEmail,
         subject: `🔔 Your USCIS Case Status Has Changed - ${receipt_number}`,
         html: generateEmailHTML({
