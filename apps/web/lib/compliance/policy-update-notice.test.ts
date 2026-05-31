@@ -234,6 +234,6 @@ describe("send-policy-update-notice script", () => {
     );
     expect(content).toContain("--dry-run");
     expect(content).toContain("--send");
-    expect(content).toMatch(/dryRun.*--send/s);
+    expect(content).toMatch(/dryRun[\s\S]*--send/);
   });
 });
