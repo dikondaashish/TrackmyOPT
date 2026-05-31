@@ -5,6 +5,7 @@ import { RISKY_MARKETING_PHRASES } from "@/lib/legal/legal-config";
 
 const WEB_ROOT = join(process.cwd());
 const PRICING_MODAL_PATH = join(WEB_ROOT, "components/pricing/PricingModal.tsx");
+const PLAN_FEATURES_PATH = join(WEB_ROOT, "lib/pricing/plan-features.ts");
 
 const PRICING_UI_BLOCKED = [
   ...RISKY_MARKETING_PHRASES,
@@ -15,8 +16,13 @@ const PRICING_UI_BLOCKED = [
 ] as const;
 
 describe("pricing modal copy compliance", () => {
-  it("PricingModal avoids blocked marketing phrases", () => {
-    const content = readFileSync(PRICING_MODAL_PATH, "utf8").toLowerCase();
+  it("pricing UI avoids blocked marketing phrases", () => {
+    const content = [
+      readFileSync(PRICING_MODAL_PATH, "utf8"),
+      readFileSync(PLAN_FEATURES_PATH, "utf8"),
+    ]
+      .join("\n")
+      .toLowerCase();
     const violations: string[] = [];
     for (const phrase of PRICING_UI_BLOCKED) {
       if (content.includes(phrase)) {
@@ -26,8 +32,8 @@ describe("pricing modal copy compliance", () => {
     expect(violations).toEqual([]);
   });
 
-  it("PricingModal includes safer feature labels", () => {
-    const content = readFileSync(PRICING_MODAL_PATH, "utf8");
+  it("plan features include safer labels", () => {
+    const content = readFileSync(PLAN_FEATURES_PATH, "utf8");
     expect(content).toContain("Daily Status Change Alerts");
     expect(content).toContain("Personalized Support Plan");
     expect(content).toContain("Application Completeness Check");

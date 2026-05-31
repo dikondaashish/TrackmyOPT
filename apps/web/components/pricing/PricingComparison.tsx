@@ -51,7 +51,7 @@ export function PricingComparison() {
                         <tbody>
                             {[
                                 { feature: "OPT Unemployment Day Tracking", free: "Manual", premium: "Automated with alerts at 60, 75, 85 days" },
-                                { feature: "USCIS Case Status Monitoring", free: "Manual check", premium: "Daily auto-check + instant email alerts" },
+                                { feature: "USCIS Case Status Monitoring", free: "Manual check", premium: "Daily auto-check + status change email alerts" },
                                 { feature: "Deadline Reminders", free: "Basic in-app", premium: "Daily 9AM email + push notifications" },
                                 { feature: "H-1B Sponsor Database", free: "100 companies", premium: "Unlimited + approval rate data" },
                                 { feature: "AI Resume Generator", free: "5/month", premium: "500/month + unlimited ATS scans" },

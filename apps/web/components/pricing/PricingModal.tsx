@@ -17,6 +17,7 @@ import { PromoCodeCheckoutBar } from "@/components/pricing/PromoCodeCheckoutBar"
 import type { PromoCheckoutMode } from "@/lib/premium/promoCheckoutTypes";
 import { buildPromoCheckoutBody } from "@/lib/premium/checkoutPromoPayload";
 import { formatMonthlyEquivalentFromYearly } from "@/lib/premium/formatMonthlyEquivalentFromYearly";
+import { getPlanCardFeatures } from "@/lib/pricing/plan-features";
 
 interface PricingModalProps {
   open: boolean;
@@ -171,16 +172,7 @@ export function PricingModal({
       iconBg: 'bg-slate-100 dark:bg-slate-800',
       iconColor: 'text-slate-600 dark:text-slate-400',
       borderColor: 'border-border/60',
-      features: [
-        { text: 'OPT & STEM Calculators', included: true, isHeader: false },
-        { text: 'OPT 90-Day & STEM 60-Day Trackers', included: true, isHeader: false },
-        { text: 'USCIS Case Status (Manual)', included: true, isHeader: false },
-        { text: 'H-1B Sponsors (100 Companies)', included: true, isHeader: false },
-        { text: 'Job Tracker (5 Jobs)', included: true, isHeader: false },
-        { text: 'Resume Builder (5/mo)', included: true, isHeader: false },
-        { text: 'Chrome Extension', included: true, isHeader: false },
-        { text: 'Sprintax partner coupon ($20)', included: true, isHeader: false },
-      ],
+      features: getPlanCardFeatures("free"),
     },
     {
       id: 'pro',
@@ -198,16 +190,7 @@ export function PricingModal({
       iconColor: 'text-white',
       borderColor: 'border-violet-500/50',
       ringColor: 'ring-violet-500/20',
-      features: [
-        { text: 'Everything in Free, plus:', included: true, isHeader: true },
-        { text: 'Daily 9AM Email Reminders', included: true, isHeader: false },
-        { text: 'USCIS Auto-Checks (Daily)', included: true, isHeader: false },
-        { text: 'Daily Status Change Alerts', included: true, isHeader: false },
-        { text: 'H-1B Sponsors (Unlimited)', included: true, isHeader: false },
-        { text: 'Document Vault + Expiry Alerts', included: true, isHeader: false },
-        { text: 'Unlimited Job & Resume Tools', included: true, isHeader: false },
-        { text: 'ATS Scanner (Unlimited)', included: true, isHeader: false },
-      ],
+      features: getPlanCardFeatures("pro"),
     },
     {
       id: 'dedicated',
@@ -223,13 +206,7 @@ export function PricingModal({
       iconBg: 'bg-gradient-to-br from-amber-400 to-orange-500',
       iconColor: 'text-white',
       borderColor: 'border-amber-500/30',
-      features: [
-        { text: 'Everything in Pro, plus:', included: true, isHeader: true },
-        { text: '1-on-1 Attorney Session (1 hr/mo)', included: true, isHeader: false },
-        { text: 'Application Completeness Check', included: true, isHeader: false },
-        { text: '24/7 Dedicated Support', included: true, isHeader: false },
-        { text: 'Personalized Support Plan', included: true, isHeader: false },
-      ],
+      features: getPlanCardFeatures("dedicated"),
     },
   ];
   }, [isPremium, proFreeTrialEligible]);
@@ -366,7 +343,6 @@ export function PricingModal({
                   key={plan.id}
                   className={cn(
                     "relative rounded-2xl md:rounded-xl transition-all duration-300 flex flex-col h-full",
-                    checkoutPage ? "md:min-h-[280px]" : "md:min-h-[300px]",
                     plan.popular
                       ? "bg-gradient-to-b from-violet-500/[0.08] via-violet-500/[0.03] to-transparent ring-2 ring-violet-500/40 shadow-xl shadow-violet-500/10"
                       : "bg-card/60 border hover:border-border/80 hover:shadow-lg",
@@ -627,7 +603,7 @@ export function PricingModal({
 
                     {/* Features List */}
                     <div className="flex-1">
-                      <ul className="space-y-1.5 md:space-y-1">
+                      <ul className="space-y-1.5 md:space-y-1 max-h-[min(340px,52vh)] overflow-y-auto pr-0.5">
                         {plan.features.map((feature, idx) => (
                           <li
                             key={idx}

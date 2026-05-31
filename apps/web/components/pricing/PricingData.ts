@@ -7,65 +7,7 @@ import {
     Zap,
 } from "lucide-react";
 
-export const comparisonFeatures = [
-    {
-        category: "Immigration Tools",
-        features: [
-            { name: "OPT Filing Window Calculator", free: true, pro: true, dedicated: true },
-            { name: "90-Day Unemployment Tracker", free: true, pro: true, dedicated: true },
-            { name: "STEM Extension Calculator", free: true, pro: true, dedicated: true },
-            { name: "STEM 60-Day Unemployment Tracker", free: true, pro: true, dedicated: true },
-        ],
-    },
-    {
-        category: "USCIS Case Tracking",
-        features: [
-            { name: "Manual Case Status Check", free: true, pro: true, dedicated: true },
-            { name: "Daily Auto-Checks", free: false, pro: true, dedicated: true },
-            { name: "Daily Status Change Alerts", free: false, pro: true, dedicated: true },
-        ],
-    },
-    {
-        category: "H-1B Sponsor Data",
-        features: [
-            { name: "Search 100 Companies", free: true, pro: true, dedicated: true },
-            { name: "Unlimited Company Access", free: false, pro: true, dedicated: true },
-            { name: "Approval Rate Data", free: false, pro: true, dedicated: true },
-        ],
-    },
-    {
-        category: "Career Tools",
-        features: [
-            { name: "Job Application Tracker", free: "5 jobs", pro: "Unlimited", dedicated: "Unlimited" },
-            { name: "AI Resume Generator", free: "5/mo", pro: "500/mo", dedicated: "1000/mo" },
-            { name: "ATS Resume Scanner", free: "5/mo", pro: "Unlimited", dedicated: "Unlimited" },
-        ],
-    },
-    {
-        category: "Tax & partners",
-        features: [
-            { name: "Sprintax partner coupon ($20 value)", free: true, pro: true, dedicated: true },
-        ],
-    },
-    {
-        category: "Documents & Reminders",
-        features: [
-            { name: "Basic Notifications", free: true, pro: true, dedicated: true },
-            { name: "Daily 9AM Email Reminders", free: false, pro: true, dedicated: true },
-            { name: "Secure Document Vault", free: false, pro: true, dedicated: true },
-            { name: "Document Expiry Reminders", free: false, pro: true, dedicated: true },
-        ],
-    },
-    {
-        category: "Premium Benefits",
-        features: [
-            { name: "Chrome Extension Priority Alerts", free: false, pro: true, dedicated: true },
-            { name: "1-on-1 Attorney Session (1 hr/mo)", free: false, pro: false, dedicated: true },
-            { name: "Application Completeness Check", free: false, pro: false, dedicated: true },
-            { name: "24/7 Dedicated Support", free: false, pro: false, dedicated: true },
-        ],
-    },
-];
+export { PLAN_COMPARISON_FEATURES as comparisonFeatures } from "@/lib/pricing/plan-features";
 
 export const pricingFaqs = [
     {
@@ -144,14 +86,14 @@ export const whyPremiumReasons = [
     },
     {
         icon: Clock,
-        title: "Real-Time Unemployment Tracking",
+        title: "Automated Unemployment Tracking",
         description: "Automatic counting of unemployment days with alerts at 60, 75, and 85 days. Tracks across job transitions and gaps.",
         risk: "Exceeding 90 days ends your OPT authorization",
     },
     {
         icon: Shield,
         title: "Daily USCIS Case Monitoring",
-        description: "Your case status checked every morning. Instant email notification the moment anything changes — approvals, RFEs, or transfers.",
+        description: "Your case status checked every morning. Email when we detect changes on scheduled daily checks — approvals, RFEs, or transfers.",
         risk: "Delayed RFE response can result in case denial",
     },
     {

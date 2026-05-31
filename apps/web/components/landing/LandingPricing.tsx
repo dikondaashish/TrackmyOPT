@@ -1,6 +1,11 @@
 "use client";
 
 import { PricingModule, PricingPlan } from "@/components/pricing/pricing-module";
+import {
+    LANDING_DEDICATED_FEATURES,
+    LANDING_FREE_FEATURES,
+    LANDING_PRO_FEATURES,
+} from "@/lib/pricing/plan-features";
 import { Layers, Rocket, ShieldCheck } from "lucide-react";
 
 export function LandingPricing() {
@@ -14,33 +19,7 @@ export function LandingPricing() {
             priceYearly: 0,
             users: "Forever Free",
             buttonLabel: "Create Free Account",
-            features: [
-                { label: "Core Immigration Tools", included: true, isHeader: true },
-                { label: "OPT Filing Window Calculator", included: true, tooltip: "Calculate your I-765 filing window" },
-                { label: "OPT 90-Day Unemployment Tracker", included: true, tooltip: "Track your 90-day unemployment limit" },
-                { label: "STEM Extension Calculator", included: true, tooltip: "Calculate your STEM extension filing window" },
-                { label: "STEM 60-Day Unemployment Tracker", included: true, tooltip: "Track your 60-day unemployment limit" },
-
-                { label: "Tracking & Insights", included: true, isHeader: true },
-                { label: "OPT Approval Community Stats", included: true, tooltip: "Community-driven approval trends" },
-                { label: "USCIS Case Status (Manual Check)", included: true },
-                { label: "H-1B Sponsor Data (100 Companies)", included: true },
-
-                { label: "Career Tools", included: true, isHeader: true },
-                { label: "Job Application Tracker (5 Jobs)", included: true },
-                { label: "Resume Generator (5/mo)", included: true },
-                { label: "ATS Resume Scanner (5/mo)", included: true },
-
-                { label: "Platform Access", included: true, isHeader: true },
-                { label: "Full Dashboard Access", included: true },
-                { label: "Chrome Extension", included: true },
-                { label: "Basic Notifications", included: true },
-
-                { label: "Extras", included: true, isHeader: true },
-                { label: "Health Insurance Plans (from $0/mo)", included: true },
-                { label: "Tax Filing Resources", included: true },
-                { label: "Sprintax partner coupon ($20 value)", included: true },
-            ],
+            features: LANDING_FREE_FEATURES,
             recommended: false,
         },
         {
@@ -54,34 +33,7 @@ export function LandingPricing() {
             priceYearlyOriginal: 79.99,
             users: "7-Day Free Trial",
             buttonLabel: "Start 7-Day Free Trial",
-            features: [
-                { label: "Everything in Free, plus:", included: true },
-
-                { label: "Smart Automation", included: true, isHeader: true },
-                { label: "Daily 9AM Email Reminders", included: true, tooltip: "All OPT & STEM tools with daily email updates" },
-                { label: "Smart Suggestions & Auto-Tracking", included: true },
-
-                { label: "USCIS Case Tracker", included: true, isHeader: true },
-                { label: "Daily Auto-Checks", included: true, tooltip: "Automatic daily case status monitoring" },
-                { label: "Daily Status Change Alerts", included: true, tooltip: "Email alerts when we detect status changes on scheduled checks" },
-
-                { label: "Enhanced Insights", included: true, isHeader: true },
-                { label: "Real-Time Approval Data", included: true, tooltip: "Faster, more accurate approval stats" },
-                { label: "H-1B Sponsor Data (Unlimited)", included: true },
-
-                { label: "Secure Storage", included: true, isHeader: true },
-                { label: "Document Vault", included: true, tooltip: "Secure document storage" },
-                { label: "Expiry Reminders", included: true, tooltip: "Alerts at 60, 45, 30, 20, 15, 10, 5, 3, 2, 1 days before expiry" },
-
-                { label: "Unlimited Career Tools", included: true, isHeader: true },
-                { label: "Job App Tracker (Unlimited)", included: true },
-                { label: "Resume Generator (500/mo)", included: true },
-                { label: "ATS Scanner (Unlimited)", included: true },
-
-                { label: "Premium Benefits", included: true, isHeader: true },
-                { label: "Priority Chrome Notifications", included: true },
-                { label: "Exclusive Partner Offers", included: true, tooltip: "Save $100s with partner discounts" },
-            ],
+            features: LANDING_PRO_FEATURES,
             recommended: true,
             badge: "Most Popular",
         },
@@ -96,19 +48,7 @@ export function LandingPricing() {
             priceYearlyOriginal: 199.99,
             users: "1-Hr Attorney Session Included",
             buttonLabel: "Get Started",
-            features: [
-                { label: "Everything in Pro", included: true },
-                { label: "Resume Generator (1000/mo)", included: true },
-
-                { label: "Legal & Strategy Access", included: true, isHeader: true },
-                { label: "1-on-1 Attorney Session (1 hr/mo)", included: true, tooltip: "1 hour per month included" },
-                { label: "Application Completeness Check", included: true },
-                { label: "Personalized Support Plan", included: true, tooltip: "Tailored product support for your OPT workflow" },
-
-                { label: "Priority Support", included: true, isHeader: true },
-                { label: "24/7 Dedicated Support", included: true },
-                { label: "Priority Responses", included: true, tooltip: "Priority across all channels" },
-            ],
+            features: LANDING_DEDICATED_FEATURES,
             recommended: false,
             badge: "Best Value",
         },

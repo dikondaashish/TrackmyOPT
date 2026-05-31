@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { CreditCard, Loader2, Check, Zap, Shield, Star, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
+import { getPlanBullets } from '@/lib/pricing/plan-features';
 import type { PromoCheckoutMode } from '@/lib/premium/promoCheckoutTypes';
 import { formatMonthlyEquivalentFromYearly } from '@/lib/premium/formatMonthlyEquivalentFromYearly';
 import { SubscriptionUsage } from './SubscriptionUsage';
@@ -75,13 +76,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
             description: "Essential timeline tracking for every F-1 student.",
             price: { monthly: 0, yearly: 0 },
             originalPrice: { monthly: null, yearly: null },
-            features: [
-                "Critical Deadline Alerts",
-                "Unemployment Day Counter",
-                "Basic Document Storage",
-                "Community Access",
-                "Premium Job Board (Pro)"
-            ],
+            features: getPlanBullets("free"),
             cta: "Current Plan",
             popular: false,
             highlight: false
@@ -92,13 +87,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
             description: "Accelerate your job search & compliance.",
             price: { monthly: 4.99, yearly: 49.99 },
             originalPrice: { monthly: 7.99, yearly: 79.99 },
-            features: [
-                "Everything in Free",
-                "Priority Case Alerts",
-                "Verified H-1B Sponsor Data",
-                "AI Resume Parser & Scorer",
-                "Detailed Job Analytics"
-            ],
+            features: getPlanBullets("pro"),
             cta: "Start 7-Day Free Trial",
             popular: true,
             highlight: true
@@ -109,13 +98,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
             description: "Ultimate peace of mind with legal backup.",
             price: { monthly: 14.99, yearly: 149.99 },
             originalPrice: { monthly: 19.99, yearly: 199.99 },
-            features: [
-                "Everything in Pro",
-                "24/7 Dedicated Support",
-                "1-on-1 Attorney Session (1 hr/mo)",
-                "Application Completeness Check",
-                "Personalized Support Plan"
-            ],
+            features: getPlanBullets("dedicated"),
             cta: "Upgrade to Dedicated",
             popular: false,
             highlight: true
