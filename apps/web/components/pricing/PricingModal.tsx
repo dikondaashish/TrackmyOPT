@@ -267,7 +267,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         className="max-w-[1100px] w-[95vw] max-h-[min(92vh,880px)] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col md:text-[15px]"
       >
         {/* Header Section */}
-        <div className="relative shrink-0 px-5 sm:px-6 md:px-5 pt-5 pb-3 sm:pb-4 md:pt-4 md:pb-2.5 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
+        <div className="relative shrink-0 px-5 sm:px-6 md:px-5 pt-5 pb-3 sm:pb-4 md:pt-4 md:pb-2 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.08),transparent_50%)]" />
 
@@ -349,43 +349,42 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
             </div>
             )}
 
-            {step === "select" && (
-            <div className="mt-3 md:mt-2 max-w-md mx-auto px-1">
-              <PromoCodeCheckoutBar
-                mode={promoMode}
-                customCode={customPromoInput}
-                error={promoError}
-                disabled={isLoading}
-                onRemoveDefault={() => {
-                  setPromoMode("none");
-                  setCustomPromoInput("");
-                  setPromoError(null);
-                }}
-                onCustomCodeChange={(v) => {
-                  setCustomPromoInput(v);
-                  setPromoError(null);
-                }}
-                onApplyCustom={() => {
-                  const t = customPromoInput.trim();
-                  if (!t) return;
-                  setPromoMode("custom");
-                  setPromoError(null);
-                }}
-                onClearCustom={() => {
-                  setPromoMode("none");
-                  setCustomPromoInput("");
-                  setPromoError(null);
-                }}
-              />
-            </div>
-            )}
           </div>
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
         {step === "select" && (
-        <div className="p-4 sm:p-5 md:p-4 lg:p-5">
-          <div className="grid md:grid-cols-3 gap-3 sm:gap-4 md:gap-3">
+        <div className="p-4 sm:p-5 md:p-4 lg:p-5 pt-3 md:pt-2">
+          <div className="mb-3 md:mb-2 max-w-xs mx-auto w-full">
+            <PromoCodeCheckoutBar
+              compact
+              mode={promoMode}
+              customCode={customPromoInput}
+              error={promoError}
+              disabled={isLoading}
+              onRemoveDefault={() => {
+                setPromoMode("none");
+                setCustomPromoInput("");
+                setPromoError(null);
+              }}
+              onCustomCodeChange={(v) => {
+                setCustomPromoInput(v);
+                setPromoError(null);
+              }}
+              onApplyCustom={() => {
+                const t = customPromoInput.trim();
+                if (!t) return;
+                setPromoMode("custom");
+                setPromoError(null);
+              }}
+              onClearCustom={() => {
+                setPromoMode("none");
+                setCustomPromoInput("");
+                setPromoError(null);
+              }}
+            />
+          </div>
+          <div className="grid md:grid-cols-3 gap-3 sm:gap-4 md:gap-3 md:items-stretch">
             {plans.map((plan) => {
               const Icon = plan.icon;
               const monthlyDisplay = plan.monthlyPrice;
@@ -397,7 +396,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 <div
                   key={plan.id}
                   className={cn(
-                    "relative rounded-2xl md:rounded-xl transition-all duration-300 flex flex-col h-full",
+                    "relative rounded-2xl md:rounded-xl transition-all duration-300 flex flex-col h-full md:min-h-[300px]",
                     plan.popular
                       ? "bg-gradient-to-b from-violet-500/[0.08] via-violet-500/[0.03] to-transparent ring-2 ring-violet-500/40 shadow-xl shadow-violet-500/10"
                       : "bg-card/60 border hover:border-border/80 hover:shadow-lg",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { Sparkles, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,8 @@ interface PromoCodeCheckoutBarProps {
   customCode: string;
   error: string | null;
   disabled?: boolean;
+  /** Slim inline style for pricing modal; default bar for settings pages */
+  compact?: boolean;
   onRemoveDefault: () => void;
   onCustomCodeChange: (value: string) => void;
   onApplyCustom: () => void;
@@ -29,6 +31,7 @@ export function PromoCodeCheckoutBar({
   customCode,
   error,
   disabled,
+  compact = false,
   onRemoveDefault,
   onCustomCodeChange,
   onApplyCustom,
@@ -36,47 +39,70 @@ export function PromoCodeCheckoutBar({
 }: PromoCodeCheckoutBarProps) {
   const inputId = useId();
 
+  if (compact && mode === "default") {
+    return (
+      <div
+        className="flex items-center justify-between gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/[0.07] px-2.5 py-1"
+        role="status"
+      >
+        <p className="min-w-0 truncate text-[11px] sm:text-xs text-foreground">
+          <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+            EARLYBIRD
+          </span>
+          <span className="text-muted-foreground"> · Save $3.00</span>
+        </p>
+        <button
+          type="button"
+          className="shrink-0 text-[10px] font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline disabled:opacity-50"
+          onClick={onRemoveDefault}
+          disabled={disabled}
+        >
+          Remove
+        </button>
+      </div>
+    );
+  }
+
+  const shellClass = compact
+    ? "rounded-md border border-border/60 bg-muted/20 px-2.5 py-1.5 text-left"
+    : "rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-left";
+
   return (
-    <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-left">
+    <div className={shellClass}>
       {mode === "default" && (
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2 text-sm text-foreground">
-            <Sparkles className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-            <span>
-              <span aria-hidden>🎉 </span>
-              <span className="font-medium">EARLYBIRD discount applied</span>
-              <span className="text-muted-foreground"> — </span>
-              <span className="text-muted-foreground">Save $3.00</span>
-            </span>
-          </div>
+          <p className="min-w-0 text-sm text-foreground">
+            <span className="font-medium">EARLYBIRD discount applied</span>
+            <span className="text-muted-foreground"> — Save $3.00</span>
+          </p>
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="h-8 shrink-0 gap-1 text-muted-foreground hover:text-foreground"
+            className="h-7 shrink-0 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
             onClick={onRemoveDefault}
             disabled={disabled}
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
             Remove
           </Button>
         </div>
       )}
 
       {(mode === "none" || mode === "custom") && (
-        <div className="space-y-2">
+        <div className={compact ? "space-y-1.5" : "space-y-2"}>
           {mode === "custom" && customCode.trim() ? (
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm text-foreground">
+              <p className={cn("text-foreground", compact ? "text-xs" : "text-sm")}>
                 <span className="font-medium">Promo </span>
-                <span className="font-mono text-xs">{customCode.trim()}</span>
-                <span className="text-muted-foreground"> will apply at checkout</span>
+                <span className="font-mono text-[11px]">{customCode.trim()}</span>
+                <span className="text-muted-foreground"> at checkout</span>
               </p>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-8 shrink-0"
+                className={cn("shrink-0", compact ? "h-7 px-2 text-xs" : "h-8")}
                 onClick={onClearCustom}
                 disabled={disabled}
               >
@@ -84,24 +110,27 @@ export function PromoCodeCheckoutBar({
               </Button>
             </div>
           ) : (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
               <label htmlFor={inputId} className="sr-only">
                 Promo code
               </label>
               <Input
                 id={inputId}
-                placeholder="Enter promo code"
+                placeholder="Promo code"
                 value={customCode}
                 onChange={(e) => onCustomCodeChange(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), onApplyCustom())}
                 disabled={disabled}
-                className="h-9 flex-1 font-mono text-sm"
+                className={cn(
+                  "flex-1 font-mono",
+                  compact ? "h-8 text-xs" : "h-9 text-sm"
+                )}
               />
               <Button
                 type="button"
                 variant="secondary"
                 size="sm"
-                className="h-9 shrink-0 sm:w-auto"
+                className={cn("shrink-0 sm:w-auto", compact ? "h-8 text-xs" : "h-9")}
                 onClick={onApplyCustom}
                 disabled={disabled || !customCode.trim()}
               >
@@ -110,7 +139,7 @@ export function PromoCodeCheckoutBar({
             </div>
           )}
           {error && (
-            <p className={cn("text-xs text-destructive")} role="alert">
+            <p className="text-xs text-destructive" role="alert">
               {error}
             </p>
           )}
