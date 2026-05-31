@@ -11,7 +11,23 @@
 import { createClient } from '@supabase/supabase-js';
 import { getSmtpFromHeader, sendMailWithRetry } from './email-smtp';
 import { sendPremiumWelcomeQueuedEmail } from './transactional-emails';
-import { EMAIL, emailBrandHeader, emailFooter, emailOuterClose, emailOuterOpen } from './email-brand';
+import {
+  EMAIL,
+  emailBrandHeaderWithLogo,
+  emailFooter,
+  emailOuterClose,
+  emailOuterOpen,
+  emailTextLead,
+  emailTextMuted,
+  emailTextP,
+} from './email-brand';
+import {
+  buildTransactionalEmail,
+  emailBodySectionClose,
+  emailBodySectionOpen,
+  emailOtpBox,
+  emailPrimaryButton,
+} from './email-layout';
 import {
   getDailyReminderSubject,
   renderDailyReminderEmailHtml,
@@ -72,32 +88,18 @@ export async function sendExportOtpEmail(
       from: getSmtpFromHeader(),
       to: email,
       subject: 'Your TrackMyOPT data export verification code',
-      html: `
-        ${emailOuterOpen()}
-        <div style="background:${EMAIL.bgCard};border-radius:12px;overflow:hidden;border:1px solid ${EMAIL.border};box-shadow:0 1px 3px rgba(15,23,42,0.08);">
-          ${emailBrandHeader({
-            title: 'Data export verification',
-            subtitle: 'Use the code below to finish your export',
-            accentBottom: EMAIL.primary,
-          })}
-          <div style="padding:28px 24px;">
-              <h2 style="margin: 0 0 16px 0; color: ${EMAIL.text}; font-size: 18px; font-weight: 700;">
-                Verification code
-              </h2>
-              <p style="margin: 0 0 24px 0; color: ${EMAIL.textMuted}; font-size: 15px;">
-                ${firstName ? `Hi ${firstName}, ` : ''}You requested an export of your data. Enter this code to continue:
-              </p>
-              <div style="background: ${EMAIL.borderLight}; border: 1px solid ${EMAIL.border}; border-radius: 10px; padding: 24px; text-align: center; margin: 24px 0;">
-                <span style="font-size: 32px; font-weight: 700; letter-spacing: 10px; color: ${EMAIL.text}; font-family: ui-monospace, monospace;">${otp}</span>
-              </div>
-              <p style="margin: 24px 0 0 0; color: ${EMAIL.textSubtle}; font-size: 13px; text-align: center;">
-                Expires in 10 minutes. If you didn&apos;t request this, you can ignore this email.
-              </p>
-          </div>
-          ${emailFooter()}
-        </div>
-        ${emailOuterClose()}
-      `,
+      html: buildTransactionalEmail({
+        headerTitle: 'Data export verification',
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead('Use the code below to finish your export')}
+${emailTextP(
+  `${firstName ? `Hi ${firstName}, ` : ''}You requested an export of your data. Enter this code to continue:`
+)}
+${emailOtpBox(otp)}
+${emailTextMuted("Expires in 10 minutes. If you didn&rsquo;t request this, you can ignore this email.")}
+${emailBodySectionClose()}`,
+      }),
     });
 
     console.log('Export OTP email sent:', info.messageId);
@@ -478,27 +480,25 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
   }
 }
 
-/**
- * Send enrollment confirmation email when user enables daily reminders
- */
-export async function sendEnrollmentEmail(
-  email: string,
+/** Build enrollment HTML (tool onboarding) — shared by send + preview catalog */
+export function buildEnrollmentEmailHtml(
   firstName: string,
   toolName: string,
   data?: EnrollmentEmailData
-) {
-  try {
-    const content = getToolEnrollmentContent(toolName, data);
-    const chromeExtensionUrl = 'https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm';
+): { subject: string; html: string } {
+  const content = getToolEnrollmentContent(toolName, data);
+  const chromeExtensionUrl =
+    "https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm";
+  const dashPath =
+    toolName === "case-status" ? "case-status" : `opt-tools/${toolName}`;
 
-    const info = await sendMailWithRetry({
-      from: getSmtpFromHeader(),
-      to: email,
-      subject: `Welcome to ${content.title} — TrackMyOPT`,
-      html: `
+  const html = `
         ${emailOuterOpen()}
         <div style="background:${EMAIL.bgCard};border-radius:12px;overflow:hidden;border:1px solid ${EMAIL.border};box-shadow:0 1px 3px rgba(15,23,42,0.08);">
-            ${emailBrandHeader({ title: content.title, subtitle: content.subtitle, accentBottom: content.accent })}
+            ${emailBrandHeaderWithLogo({ title: content.title, accentBottom: content.accent })}
+            <div class="tmo-force-card" style="padding:16px 24px 0 24px;background:${EMAIL.bgCard};">
+              ${content.subtitle ? emailTextLead(content.subtitle) : ""}
+            </div>
 
             <div style="background:${EMAIL.bgCard};border-left:4px solid ${content.accent};padding:14px 20px;margin:0;">
               <p style="margin:0;color:${EMAIL.textSecondary};font-size:14px;line-height:1.5;">
@@ -506,33 +506,27 @@ export async function sendEnrollmentEmail(
               </p>
             </div>
 
-            <div style="background: white; padding: 28px 24px;">
+            <div class="tmo-force-card" style="background:${EMAIL.bgCard};padding:28px 24px;">
               
               <p style="margin: 0 0 16px 0; color: ${EMAIL.textSecondary}; font-size: 15px; line-height: 1.6;">
-                Hi <strong>${firstName || 'there'}</strong>,
+                Hi <strong>${firstName || "there"}</strong>,
               </p>
               
               <p style="margin: 0 0 24px 0; color: ${EMAIL.textSecondary}; font-size: 15px; line-height: 1.6;">
                 You&apos;re enrolled in <strong>${content.title}</strong>. We&apos;ll use this channel to send reminders and updates you&apos;ve opted into for this tool.
               </p>
 
-              <!-- Timeline Info (if available) -->
               ${content.timelineHtml}
-
-              <!-- Preparation Section -->
               ${content.preparationHtml}
-
-              <!-- Tips Section -->
               ${content.tipsHtml}
 
-              <!-- What to Expect -->
               <div style="background:${EMAIL.borderLight};border-radius:8px;border:1px solid ${EMAIL.border};padding:18px 18px;margin:20px 0;">
                 <h3 style="margin:0 0 12px 0;color:${EMAIL.text};font-size:15px;font-weight:600;">What to expect</h3>
                 ${content.whatToExpectHtml}
               </div>
 
               <div style="text-align:center;margin:28px 0 20px 0;">
-                <a href="https://www.trackmyopt.com/dashboard/${toolName === 'case-status' ? 'case-status' : 'opt-tools/' + toolName}"
+                <a href="https://www.trackmyopt.com/dashboard/${dashPath}"
                    style="display:inline-block;background:${content.accent};color:#fff!important;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px;">
                   Open ${content.title}
                 </a>
@@ -554,7 +548,31 @@ export async function sendEnrollmentEmail(
             ${emailFooter()}
         </div>
         ${emailOuterClose()}
-      `,
+      `;
+
+  return {
+    subject: `Welcome to ${content.title} — TrackMyOPT`,
+    html,
+  };
+}
+
+/**
+ * Send enrollment confirmation email when user enables daily reminders
+ */
+export async function sendEnrollmentEmail(
+  email: string,
+  firstName: string,
+  toolName: string,
+  data?: EnrollmentEmailData
+) {
+  try {
+    const { subject, html } = buildEnrollmentEmailHtml(firstName, toolName, data);
+
+    const info = await sendMailWithRetry({
+      from: getSmtpFromHeader(),
+      to: email,
+      subject,
+      html,
     });
 
     console.log('Enrollment email sent:', info.messageId);
@@ -595,31 +613,20 @@ ${dashSettings}
 
 — TrackMyOPT
 support@trackmyopt.com`,
-      html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-        <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;color:#374151;">
-          <div style="max-width:560px;margin:0 auto;padding:24px 16px;">
-            <div style="background:#fff;border-radius:12px;padding:28px 24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-              <p style="margin:0 0 8px 0;font-size:18px;font-weight:700;color:#111827;">TrackMyOPT</p>
-              <p style="margin:0 0 20px 0;font-size:15px;line-height:1.6;">Hi <strong>${greeting}</strong>,</p>
-              <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;">
-                We saved this address for your <strong>notification email</strong>:
-              </p>
-              <p style="margin:0 0 20px 0;font-size:15px;font-weight:600;color:#1D4ED8;word-break:break-all;">${safeEmail}</p>
-              <p style="margin:0 0 20px 0;font-size:15px;line-height:1.6;color:#4B5563;">
-                You may receive case updates, document reminders (when you use those features), and other messages you opt into at this address.
-              </p>
-              <div style="text-align:center;margin:24px 0 8px 0;">
-                <a href="${dashSettings}" style="display:inline-block;background:#2563EB;color:#fff !important;text-decoration:none;font-weight:600;font-size:14px;padding:12px 22px;border-radius:8px;">Notification settings</a>
-              </div>
-              <p style="margin:20px 0 0 0;font-size:13px;color:#9CA3AF;">Questions? <a href="mailto:support@trackmyopt.com" style="color:#2563EB;">support@trackmyopt.com</a></p>
-            </div>
-            <p style="text-align:center;margin:16px 0 0 0;font-size:12px;color:#9CA3AF;">© ${new Date().getFullYear()} Zyene, Inc.</p>
-          </div>
-        </body>
-        </html>`,
+      html: buildTransactionalEmail({
+        headerTitle: 'Notification email saved',
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(`Hi <strong>${greeting}</strong>,`)}
+${emailTextP('We saved this address for your <strong>notification email</strong>:')}
+${emailTextP(`<span class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:600;word-break:break-all;">${safeEmail}</span>`)}
+${emailTextP(
+  'You may receive case updates, document reminders (when you use those features), and other messages you opt into at this address.'
+)}
+${emailPrimaryButton(dashSettings, 'Notification settings')}
+${emailTextMuted('Questions? <a href="mailto:support@trackmyopt.com" class="tmo-force-link" style="color:#2563EB !important;">support@trackmyopt.com</a>')}
+${emailBodySectionClose()}`,
+      }),
     });
     console.log('Notification preferences confirmation sent:', info.messageId);
     return { success: true, messageId: info.messageId };
@@ -668,16 +675,16 @@ export async function sendEmailChangeNotification(userId: string, email: string)
       from: getSmtpFromHeader(),
       to: email,
       subject: "Your email address was updated",
-      html: `
-        <div style="font-family: sans-serif; padding: 20px;">
-          <h2>Email Address Updated</h2>
-          <p>Hello,</p>
-          <p>Your email address for TrackMyOPT was recently updated to this address.</p>
-          <p>If you did not make this change, please contact support immediately.</p>
-          <br>
-          <p>Best,<br>TrackMyOPT Team</p>
-        </div>
-      `,
+      html: buildTransactionalEmail({
+        headerTitle: 'Email address updated',
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP('Hello,')}
+${emailTextP('Your email address for TrackMyOPT was recently updated to this address.')}
+${emailTextP('If you did not make this change, please contact support immediately.')}
+${emailTextMuted('&mdash; TrackMyOPT Team')}
+${emailBodySectionClose()}`,
+      }),
     });
 
     console.log('Email change notification sent:', info.messageId);

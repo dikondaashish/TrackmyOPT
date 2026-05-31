@@ -14,6 +14,7 @@ import { createClient } from '@/lib/supabase/server';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
+import { buildForgotVaultPasscodeResetEmail } from '@/lib/notifications/document-expiry-email';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -84,16 +85,10 @@ export async function POST(req: NextRequest) {
         from: getSmtpFromHeader(),
         to: user.email,
         subject: '🔑 Reset your Document Vault passcode',
-        html: `
-<div style="font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
-  <h1 style="font-size:20px;">Reset your Document Vault passcode</h1>
-  <p>You requested to reset your passcode. Enter this code in TrackMyOPT to set a new one:</p>
-  <div style="font-size:36px;letter-spacing:8px;font-weight:800;text-align:center;padding:18px;background:#f3f4f6;border-radius:12px;margin:16px 0;">${otp}</div>
-  <p style="font-size:13px;color:#6b7280;">
-    This code expires in 10 minutes. <strong>For your safety, completing this reset will remove all documents currently in your vault.</strong> You can re-upload them after setting your new passcode.
-  </p>
-  <p style="font-size:12px;color:#9ca3af;">If you did not request this, you can ignore this email.</p>
-</div>`,
+        html: buildForgotVaultPasscodeResetEmail(
+          otp,
+          user.user_metadata?.full_name || 'there',
+        ),
       });
     } catch (mailErr) {
       console.error('forgot/send-otp mail error:', mailErr);

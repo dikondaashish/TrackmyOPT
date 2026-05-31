@@ -6,7 +6,20 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { COMPANY, LEGAL_CONTACT, LEGAL_VERSION_ID } from "@/lib/legal/legal-config";
 import { getAppBaseUrl } from "@/lib/notifications/transactional-emails";
-import { EMAIL, emailFooter, emailOuterOpen, emailOuterClose } from "@/lib/notifications/email-brand";
+import {
+  EMAIL,
+  emailBrandHeaderWithLogo,
+  emailCardOpen,
+  emailFooter,
+  emailOuterClose,
+  emailOuterOpen,
+  emailPrimaryButton,
+  emailTextLead,
+  emailTextList,
+  emailTextMuted,
+  emailTextP,
+} from "@/lib/notifications/email-brand";
+import { emailInfoCallout } from "@/lib/notifications/email-layout";
 import { getSmtpFromHeader, sendMailWithRetry } from "@/lib/notifications/email-smtp";
 
 export const POLICY_UPDATE_NOTICE_TYPE = "policy_update_2026_05_31" as const;
@@ -29,7 +42,17 @@ export type PolicyNoticeRecipient = {
   userId: string;
   email: string;
   firstName: string | null;
+  /** Pro plan only: include plan price / trial / refund / cancellation unchanged notice. */
+  showBillingUnchangedNotice: boolean;
 };
+
+const BILLING_UNCHANGED_NOTICE =
+  "These updates do not change your current plan price, trial period, refund window, or cancellation rights.";
+
+/** True when recipient is on an active Pro subscription tier (not Free or Dedicated). */
+export function recipientShowsBillingUnchangedNotice(planTier: string | null | undefined): boolean {
+  return planTier?.toLowerCase() === "pro";
+}
 
 export type RecipientExclusionReason =
   | "invalid_email"
@@ -45,6 +68,7 @@ export type PolicyNoticeAuthRow = {
   email: string;
   hasProfile: boolean;
   firstName: string | null;
+  planTier: string | null;
 };
 
 export type PolicyNoticeDryRunStats = {
@@ -60,6 +84,8 @@ export type PolicyNoticeDryRunStats = {
   excludedInternalOrTest: number;
   excludedInvalid: number;
   alreadySentSkipped: number;
+  withBillingUnchangedNotice: number;
+  withoutBillingUnchangedNotice: number;
 };
 
 export type RecipientFilterResult = {
@@ -123,11 +149,15 @@ export function getRecipientExclusionReason(email: string): RecipientExclusionRe
   return null;
 }
 
-export function buildPolicyUpdateNoticeEmailContent(firstName: string | null): {
+export function buildPolicyUpdateNoticeEmailContent(
+  firstName: string | null,
+  options?: { showBillingUnchangedNotice?: boolean }
+): {
   subject: string;
   html: string;
   text: string;
 } {
+  const showBillingUnchangedNotice = options?.showBillingUnchangedNotice === true;
   const base = getAppBaseUrl();
   const greeting = firstName?.trim() ? `Hi ${escapeHtml(firstName.trim())},` : "Hi,";
 
@@ -143,33 +173,50 @@ export function buildPolicyUpdateNoticeEmailContent(firstName: string | null): {
   const linkListHtml = links
     .map(
       (l) =>
-        `<li style="margin:0 0 8px 0;"><a href="${l.href}" style="color:${EMAIL.link};font-weight:500;">${escapeHtml(l.label)}</a></li>`
+        `<li class="tmo-force-light-text" style="margin:0 0 8px 0;"><a href="${l.href}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">${escapeHtml(l.label)}</a></li>`
     )
     .join("");
 
   const linkListText = links.map((l) => `${l.label}: ${l.href}`).join("\n");
 
+  const privacyUrl = `${base}/privacy`;
+
   const html = `${emailOuterOpen()}
-    <div style="background:${EMAIL.bgCard};border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,0.08);border:1px solid ${EMAIL.border};">
-      <div style="padding:28px 24px;">
-        <h1 style="font-size:20px;color:${EMAIL.text};margin:0 0 16px 0;font-weight:600;">TrackMyOPT policy update</h1>
-        <p style="margin:0 0 16px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">${greeting}</p>
-        <p style="margin:0 0 16px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">We updated ${escapeHtml(COMPANY.productName)}&rsquo;s Privacy Policy, Terms, Cookie Policy, Disclaimer, Security notices, and related legal notices.</p>
-        <p style="margin:0 0 12px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">The updates clarify:</p>
-        <ul style="margin:0 0 16px 0;padding-left:20px;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">
-          <li style="margin-bottom:8px;">how TrackMyOPT describes USCIS Case Status API access;</li>
-          <li style="margin-bottom:8px;">that TrackMyOPT is independent software and is not affiliated with, endorsed by, or operated by USCIS, DHS, SEVP, ICE, or any U.S. government agency;</li>
-          <li style="margin-bottom:8px;">dormant account handling;</li>
-          <li style="margin-bottom:8px;">business transfer language;</li>
-          <li style="margin-bottom:8px;">breach notification language;</li>
-          <li style="margin-bottom:8px;">analytics opt-out options; and</li>
-          <li style="margin-bottom:8px;">payment/security wording.</li>
-        </ul>
-        <p style="margin:0 0 16px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">These updates do not change your current plan price, trial period, refund window, or cancellation rights.</p>
-        <p style="margin:0 0 8px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;font-weight:600;">You can review the updated policies here:</p>
-        <ul style="margin:0 0 20px 0;padding-left:20px;list-style:none;">${linkListHtml}</ul>
-        <p style="margin:0 0 16px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">If you have questions, contact <a href="mailto:${LEGAL_CONTACT.support}" style="color:${EMAIL.link};">${LEGAL_CONTACT.support}</a>.</p>
-        <p style="margin:0;color:${EMAIL.textMuted};font-size:14px;">${escapeHtml(COMPANY.productName)} Team</p>
+    ${emailCardOpen({
+      headerHtml: emailBrandHeaderWithLogo({
+        title: "Policy update",
+      }),
+    })}
+      <div class="tmo-force-card" style="padding:28px 24px;font-family:${EMAIL.fontStack};background:${EMAIL.bgCard};">
+        ${emailTextLead("Privacy, Terms, and related legal notices")}
+        ${emailTextP(greeting)}
+        ${emailTextP(
+          `We updated ${escapeHtml(COMPANY.productName)}&rsquo;s Privacy Policy, Terms, Cookie Policy, Disclaimer, Security notices, and related legal notices.`
+        )}
+        ${emailTextP("The updates clarify:")}
+        ${emailTextList([
+          "how TrackMyOPT describes USCIS Case Status API access;",
+          "that TrackMyOPT is independent software and is not affiliated with, endorsed by, or operated by USCIS, DHS, SEVP, ICE, or any U.S. government agency;",
+          "dormant account handling;",
+          "business transfer language;",
+          "breach notification language;",
+          "analytics opt-out options; and",
+          "payment/security wording.",
+        ])}
+        ${
+          showBillingUnchangedNotice
+            ? emailInfoCallout(
+                `<p class="tmo-force-info-text" style="margin:0;color:${EMAIL.infoText} !important;font-size:14px;line-height:1.55;">${BILLING_UNCHANGED_NOTICE}</p>`
+              )
+            : ""
+        }
+        ${emailTextLead("You can review the updated policies here:")}
+        <ul class="tmo-force-light-text" style="margin:0 0 8px 0;padding-left:20px;list-style:none;">${linkListHtml}</ul>
+        ${emailPrimaryButton(privacyUrl, "Review policies")}
+        ${emailTextP(
+          `If you have questions, contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">${LEGAL_CONTACT.support}</a>.`
+        )}
+        ${emailTextMuted(`&mdash; ${escapeHtml(COMPANY.productName)} Team`)}
       </div>
       ${emailFooter()}
     </div>
@@ -187,15 +234,20 @@ The updates clarify:
 - breach notification language;
 - analytics opt-out options; and
 - payment/security wording.
+${
+  showBillingUnchangedNotice
+    ? `
 
-These updates do not change your current plan price, trial period, refund window, or cancellation rights.
+${BILLING_UNCHANGED_NOTICE}`
+    : ""
+}
 
 You can review the updated policies here:
 ${linkListText}
 
 If you have questions, contact ${LEGAL_CONTACT.support}.
 
-TrackMyOPT Team`;
+— TrackMyOPT Team`;
 
   return { subject: POLICY_UPDATE_NOTICE_SUBJECT, html, text };
 }
@@ -254,6 +306,7 @@ export function filterPolicyNoticeRecipients(
       userId: row.userId,
       email: emailRaw,
       firstName: row.firstName,
+      showBillingUnchangedNotice: recipientShowsBillingUnchangedNotice(row.planTier),
     };
 
     const existing = seenEmails.get(emailRaw);
@@ -279,6 +332,8 @@ export function filterPolicyNoticeRecipients(
     return row?.hasProfile;
   }).length;
   const eligibleAuthOnly = eligible.length - eligibleProfileBacked;
+  const withBillingUnchangedNotice = eligible.filter((r) => r.showBillingUnchangedNotice).length;
+  const withoutBillingUnchangedNotice = eligible.length - withBillingUnchangedNotice;
 
   const excludedInternalOrTest =
     exclusionCounts.test_account +
@@ -305,21 +360,35 @@ export function filterPolicyNoticeRecipients(
       excludedInternalOrTest,
       excludedInvalid: exclusionCounts.invalid_email,
       alreadySentSkipped: exclusionCounts.already_sent,
+      withBillingUnchangedNotice,
+      withoutBillingUnchangedNotice,
     },
   };
 }
 
 async function fetchAllProfiles(
   supabase: SupabaseClient
-): Promise<Array<{ user_id: string; email: string | null; first_name: string | null }>> {
+): Promise<
+  Array<{
+    user_id: string;
+    email: string | null;
+    first_name: string | null;
+    plan_tier: string | null;
+  }>
+> {
   const pageSize = 1000;
   let from = 0;
-  const all: Array<{ user_id: string; email: string | null; first_name: string | null }> = [];
+  const all: Array<{
+    user_id: string;
+    email: string | null;
+    first_name: string | null;
+    plan_tier: string | null;
+  }> = [];
 
   while (true) {
     const { data, error } = await supabase
       .from("profiles")
-      .select("user_id, email, first_name")
+      .select("user_id, email, first_name, plan_tier")
       .range(from, from + pageSize - 1);
 
     if (error) throw new Error(`Failed to fetch profiles: ${error.message}`);
@@ -388,6 +457,7 @@ export async function fetchActiveAuthUsersForPolicyNotice(
       email: authEmail,
       hasProfile: Boolean(profile),
       firstName: profile?.first_name?.trim() || null,
+      planTier: profile?.plan_tier ?? null,
     });
   }
 
@@ -478,7 +548,9 @@ export async function sendPolicyUpdateNoticeToRecipient(args: {
   dryRun: boolean;
 }): Promise<SendPolicyNoticeResult> {
   const { supabase, recipient, dryRun } = args;
-  const { subject, html, text } = buildPolicyUpdateNoticeEmailContent(recipient.firstName);
+  const { subject, html, text } = buildPolicyUpdateNoticeEmailContent(recipient.firstName, {
+    showBillingUnchangedNotice: recipient.showBillingUnchangedNotice,
+  });
 
   if (dryRun) {
     return { status: "skipped", reason: "dry_run" };

@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/server';
 import { verifyPasscode, isValidPasscode, hashPasscode } from '@/lib/auth/passcode';
 import nodemailer from 'nodemailer';
 import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
+import { buildPasscodeChangeOtpEmailHtml } from '@/lib/notifications/document-expiry-email';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import bcrypt from 'bcryptjs';
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
         from: getSmtpFromHeader(),
         to: userEmail,
         subject: '🔐 Your OTP for Passcode Change - TrackMyOPT',
-        html: generateOTPEmailHTML(otp, user.user_metadata?.full_name || 'there'),
+        html: buildPasscodeChangeOtpEmailHtml(otp, user.user_metadata?.full_name || 'there'),
       });
 
       console.log('OTP sent to:', userEmail);
@@ -186,66 +187,4 @@ function maskEmail(email: string): string {
   const [local, domain] = email.split('@');
   const maskedLocal = local.charAt(0) + '***' + local.charAt(local.length - 1);
   return `${maskedLocal}@${domain}`;
-}
-
-// Generate OTP email HTML
-function generateOTPEmailHTML(otp: string, name: string): string {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f3f4f6;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-        <div style="background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-          
-          <!-- Header -->
-          <div style="margin-bottom: 30px;">
-            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 16px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-              <span style="font-size: 28px;">🔐</span>
-            </div>
-            <h1 style="margin: 0; color: #1f2937; font-size: 24px; font-weight: 700;">
-              Passcode Change Verification
-            </h1>
-          </div>
-          
-          <!-- Message -->
-          <p style="margin: 0 0 30px 0; color: #6b7280; font-size: 16px; line-height: 1.6;">
-            Hi ${name}, use the code below to verify your passcode change request.
-          </p>
-          
-          <!-- OTP Code -->
-          <div style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-radius: 12px; padding: 24px; margin-bottom: 30px;">
-            <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
-              Your OTP Code
-            </p>
-            <div style="font-size: 36px; font-weight: 800; color: #1f2937; letter-spacing: 8px; font-family: 'Courier New', monospace;">
-              ${otp}
-            </div>
-          </div>
-          
-          <!-- Warning -->
-          <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: left;">
-            <p style="margin: 0; color: #92400e; font-size: 14px;">
-              ⚠️ <strong>This code expires in 10 minutes.</strong> Do not share this code with anyone. TrackMyOPT will never ask for your OTP.
-            </p>
-          </div>
-          
-          <!-- Footer -->
-          <p style="margin: 0; color: #9ca3af; font-size: 13px;">
-            If you didn't request this change, please ignore this email or contact support.
-          </p>
-          
-        </div>
-        
-        <!-- Bottom Footer -->
-        <p style="margin: 24px 0 0 0; color: #9ca3af; font-size: 12px; text-align: center;">
-          © ${new Date().getFullYear()} TrackMyOPT. All rights reserved.
-        </p>
-      </div>
-    </body>
-    </html>
-  `;
 }

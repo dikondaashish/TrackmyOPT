@@ -7,6 +7,21 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Json } from "@/types/supabase";
 import { getSmtpFromHeader, sendMailWithRetry } from "./email-smtp";
 import { EMAIL } from "./email-brand";
+import {
+  buildTransactionalEmail,
+  emailBodySectionClose,
+  emailBodySectionOpen,
+  emailInfoCallout,
+  emailPrimaryButton,
+  emailTextLead,
+  emailTextList,
+  emailTextMuted,
+  emailTextP,
+  emailTextStrong,
+  emailWarningNote,
+  buildInternalAlertEmail,
+} from "./email-layout";
+import { COMPANY, LEGAL_CONTACT } from "@/lib/legal/legal-config";
 
 export function getAppBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://www.trackmyopt.com").replace(/\/$/, "");
@@ -299,6 +314,85 @@ function formatMoney(amountCents: number, currency: string): string {
   }
 }
 
+/** HTML + plain text for payment-failed dunning (shared by send + preview catalog). */
+export function buildPaymentFailedEmailBodies(args: {
+  firstName: string | null;
+  planLabel: string;
+  amountCents: number;
+  currency: string;
+}): { subject: string; html: string; text: string } {
+  const base = getAppBaseUrl();
+  const settingsUrl = `${base}/dashboard/settings`;
+  const greeting = args.firstName?.trim()
+    ? `Hi ${escapeHtml(args.firstName.trim())},`
+    : "Hi,";
+  const amountStr = formatMoney(args.amountCents, args.currency);
+  const safePlan = escapeHtml(args.planLabel);
+
+  const html = buildTransactionalEmail({
+    headerTitle: "Update your payment method",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextLead("Your subscription payment needs attention")}
+${emailTextP(
+  `We couldn&rsquo;t process the charge below. Stripe may retry automatically, but updating your card now helps you keep uninterrupted Premium access.`
+)}
+${emailInfoCallout(`
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
+  <tr>
+    <td style="padding:0 0 10px 0;border-bottom:1px solid ${EMAIL.infoBorder};">
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Plan</p>
+      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">${safePlan}</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px 0 0 0;">
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Amount</p>
+      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">${escapeHtml(amountStr)}</p>
+    </td>
+  </tr>
+</table>
+`)}
+${emailTextLead("What to do")}
+${emailTextList([
+  `Open <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Settings &rarr; Subscription</a>`,
+  "Select <strong>Manage billing</strong> to open the secure Stripe portal",
+  "Update your card or payment method and save",
+])}
+${emailPrimaryButton(settingsUrl, "Update payment method")}
+${emailTextMuted(
+  `Questions? Contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a>`
+)}
+${emailBodySectionClose()}`,
+  });
+
+  const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
+  const text = `${greetingText}
+
+Your subscription payment needs attention.
+
+We couldn't process your latest charge:
+Plan: ${args.planLabel}
+Amount: ${amountStr}
+
+Stripe may retry automatically. To keep Premium access without interruption, update your payment method:
+
+1. Open Settings → Subscription: ${settingsUrl}
+2. Tap Manage billing (Stripe Customer Portal)
+3. Update your card and save
+
+Questions? ${LEGAL_CONTACT.support}
+
+© ${new Date().getFullYear()} ${COMPANY.legalName}`;
+
+  return {
+    subject: "TrackMyOPT: Payment failed — update your card",
+    html,
+    text,
+  };
+}
+
 export async function sendPaymentFailedEmail(args: {
   supabase: SupabaseClient;
   userId: string;
@@ -321,54 +415,20 @@ export async function sendPaymentFailedEmail(args: {
     stripeEventId,
     stripeInvoiceId,
   } = args;
-  const base = getAppBaseUrl();
-  const settingsUrl = `${base}/dashboard/settings`;
-  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
-  const amountStr = formatMoney(amountCents, currency);
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:${EMAIL.headerGradientDanger};padding:28px 24px;text-align:center;">
-        <h1 style="color:#fff;margin:0;font-size:22px;">Payment didn’t go through</h1>
-      </div>
-      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
-        <p style="margin:0 0 16px 0;">${greeting}</p>
-        <p style="margin:0 0 16px 0;">We couldn’t charge your card for <strong>${escapeHtml(planLabel)}</strong> (${amountStr}). Stripe will automatically retry the payment. To avoid losing Premium access, please update your payment method.</p>
-        <div style="text-align:center;margin:28px 0;">
-          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Open billing settings</a>
-        </div>
-        <p style="margin:0;color:#6B7280;font-size:13px;">From Settings → Subscription, use <strong>Manage billing</strong> to open the Stripe Customer Portal and update your card.</p>
-      </div>
-      <div style="background:#F9FAFB;padding:20px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
-        <p style="margin:0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
-        <p style="margin:8px 0 0 0;"><a href="mailto:support@trackmyopt.com" style="color:#6B7280;">support@trackmyopt.com</a></p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
-
-  const text = `${firstName ? `Hi ${firstName},` : "Hi,"}
-
-We couldn't charge your card for ${planLabel} (${amountStr}). Stripe will retry automatically.
-
-Update your payment method: ${settingsUrl}
-(Settings → Subscription → Manage billing → Stripe Customer Portal)
-
-© ${new Date().getFullYear()} Zyene, Inc.
-support@trackmyopt.com`;
+  const { subject, html, text } = buildPaymentFailedEmailBodies({
+    firstName,
+    planLabel,
+    amountCents,
+    currency,
+  });
 
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
     emailType: "payment_failed",
-    subject: "TrackMyOPT: Payment failed — update your card",
+    subject,
     html,
     text,
     emailData: {
@@ -384,6 +444,139 @@ support@trackmyopt.com`;
   });
 }
 
+/** HTML + plain text when Premium / Pro subscription ends (shared by send + preview catalog). */
+export function buildSubscriptionEndedEmailBodies(args: {
+  firstName: string | null;
+  accessEndedDate: string;
+}): { subject: string; html: string; text: string } {
+  const base = getAppBaseUrl();
+  const checkoutUrl = `${base}/premium/checkout`;
+  const dashUrl = `${base}/dashboard`;
+  const settingsUrl = `${base}/dashboard/settings`;
+  const resumeUrl = `${base}/dashboard/career/resume-generator`;
+  const caseStatusUrl = `${base}/dashboard/case-status`;
+  const pricingUrl = `${base}/premium/checkout`;
+  const greeting = args.firstName?.trim()
+    ? `Hi ${escapeHtml(args.firstName.trim())},`
+    : "Hi,";
+  const safeEndDate = escapeHtml(args.accessEndedDate);
+
+  const html = buildTransactionalEmail({
+    headerTitle: "Your Premium subscription has ended",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextLead("You&rsquo;re now on the Free plan")}
+${emailTextP(
+  `Your paid subscription ended on ${emailTextStrong(safeEndDate)}. Your account is still active &mdash; nothing was deleted. You can keep using Free tools and resubscribe anytime to restore Premium.`
+)}
+${emailInfoCallout(`
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
+  <tr>
+    <td style="padding:0 0 10px 0;border-bottom:1px solid ${EMAIL.infoBorder};">
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Access ended</p>
+      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">${safeEndDate}</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px 0 0 0;">
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Current plan</p>
+      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">Free</p>
+    </td>
+  </tr>
+</table>
+`)}
+${emailTextLead("What you still have on Free")}
+${emailTextList([
+  "OPT &amp; STEM timeline calculators and unemployment trackers",
+  "Manual USCIS case status checks and core dashboard access",
+  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("5 AI-built resumes per month")} on Free (saved drafts stay in your account)`,
+  "Chrome extension and saved account data",
+], { ordered: false })}
+${emailInfoCallout(`
+<p class="tmo-force-info-text" style="margin:0 0 8px 0;color:${EMAIL.infoText} !important;font-size:14px;font-weight:600;">Want your full career toolkit back?</p>
+<p class="tmo-force-light-text" style="margin:0 0 12px 0;color:${EMAIL.textSecondary} !important;font-size:14px;line-height:1.55;">
+  On Premium, the <strong>AI Resume Generator</strong> scales to ${emailTextStrong("500 resumes/month")}, plus unlimited ATS scans, job tracking, and daily USCIS alerts &mdash; built for serious OPT job searches.
+</p>
+<p style="margin:0;text-align:center;">
+  <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:600;font-size:14px;">Open AI Resume Generator</a>
+</p>
+`)}
+${emailTextLead("Other Premium features that are paused")}
+${emailTextList([
+  "Daily 9&nbsp;AM email reminders and smart auto-tracking",
+  "Daily USCIS auto-checks and status-change alerts",
+  "Unlimited H-1B sponsor search and job application tracker",
+  "Secure document vault and expiry reminders",
+], { ordered: false })}
+${emailTextMuted(
+  `${emailTextStrong("Your data is safe:")} OPT/STEM dates, saved resumes, case trackers, and profile settings are still in your account &mdash; only feature limits changed.`
+)}
+${emailTextLead("Suggested next steps on Free")}
+${emailTextList([
+  `Use your monthly AI resume allowance in the <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a>`,
+  `Run a manual <a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">USCIS case status</a> check when you need an update`,
+  `Review timelines and tools in <a href="${dashUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">your dashboard</a>`,
+], { ordered: true })}
+${emailPrimaryButton(checkoutUrl, "Resubscribe to Premium")}
+${emailTextMuted(
+  `No further charges unless you resubscribe. Compare plans: <a href="${pricingUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">View Premium</a> &middot; <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Billing settings</a>`
+)}
+${emailTextMuted(
+  `Questions? Contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a>`
+)}
+${emailBodySectionClose()}`,
+  });
+
+  const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
+  const text = `${greetingText}
+
+Your Premium subscription has ended. You're now on the Free plan.
+
+Access ended: ${args.accessEndedDate}
+Current plan: Free
+
+Your account is still active. You can keep using Free tools and resubscribe anytime.
+
+What you still have on Free:
+- OPT & STEM calculators and unemployment trackers
+- Manual USCIS case checks and core dashboard
+- AI Resume Generator — 5 AI-built resumes per month (saved drafts remain)
+- Chrome extension and saved data
+
+On Premium, AI Resume Generator includes 500 resumes/month plus unlimited ATS scans and full career tools.
+
+Open AI Resume Generator: ${resumeUrl}
+
+Other Premium features that are paused:
+- Daily email reminders and smart auto-tracking
+- Daily USCIS auto-checks and status alerts
+- Unlimited sponsor search and job tracker
+- Document vault and expiry reminders
+
+Your data is safe: OPT/STEM dates, saved resumes, and profile settings remain in your account.
+
+Suggested next steps on Free:
+1. Use AI Resume Generator (5/month): ${resumeUrl}
+2. Manual USCIS case check: ${caseStatusUrl}
+3. Review dashboard: ${dashUrl}
+
+No further charges unless you resubscribe.
+View Premium: ${pricingUrl}
+Resubscribe: ${checkoutUrl}
+Settings: ${settingsUrl}
+
+Questions? ${LEGAL_CONTACT.support}
+
+© ${new Date().getFullYear()} ${COMPANY.legalName}`;
+
+  return {
+    subject: "TrackMyOPT: Your Premium subscription has ended",
+    html,
+    text,
+  };
+}
+
 export async function sendSubscriptionEndedEmail(args: {
   supabase: SupabaseClient;
   userId: string;
@@ -393,60 +586,37 @@ export async function sendSubscriptionEndedEmail(args: {
   stripeEventId: string;
 }): Promise<QueueTransactionalResult> {
   const { supabase, userId, toEmail, firstName, accessEndedDate, stripeEventId } = args;
-  const base = getAppBaseUrl();
-  const checkoutUrl = `${base}/premium/checkout`;
-  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
-        <h1 style="color:#fff;margin:0;font-size:22px;">Your Premium access has ended</h1>
-      </div>
-      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
-        <p style="margin:0 0 16px 0;">${greeting}</p>
-        <p style="margin:0 0 16px 0;">Your subscription ended on <strong>${escapeHtml(accessEndedDate)}</strong>. You’re now on the free plan.</p>
-        <p style="margin:0 0 12px 0;font-weight:600;color:#1F2937;">What’s locked now:</p>
-        <ul style="margin:0 0 20px 0;padding-left:20px;color:#4B5563;">
-          <li>Advanced Premium dashboards &amp; alerts</li>
-          <li>Unlimited AI resume scans &amp; priority tools</li>
-          <li>Premium-only tracker and analytics features</li>
-        </ul>
-        <div style="text-align:center;margin:28px 0;">
-          <a href="${checkoutUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Resubscribe to Premium</a>
-        </div>
-      </div>
-      <div style="background:#F9FAFB;padding:20px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
-        <p style="margin:0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
-
-  const text = `${firstName ? `Hi ${firstName},` : "Hi,"}
-
-Your subscription ended on ${accessEndedDate}. Premium features are no longer available.
-
-Resubscribe: ${checkoutUrl}
-
-© ${new Date().getFullYear()} Zyene, Inc.`;
+  const { subject, html, text } = buildSubscriptionEndedEmailBodies({
+    firstName,
+    accessEndedDate,
+  });
 
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
     emailType: "subscription_ended",
-    subject: "TrackMyOPT: Your Premium subscription has ended",
+    subject,
     html,
     text,
     emailData: { access_ended_date: accessEndedDate },
     dedupe: { kind: "stripe_event_alltime", stripeEventId },
   });
+}
+
+function welcomeOnboardingStepHtml(num: number, title: string, description: string): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 14px 0;">
+    <tr>
+      <td width="40" valign="top" style="padding-top:2px;">
+        <div class="tmo-force-badge" style="width:32px;height:32px;line-height:32px;text-align:center;background:${EMAIL.primary};color:${EMAIL.ctaText} !important;border-radius:50%;font-size:15px;font-weight:700;font-family:${EMAIL.fontStack};">${num}</div>
+      </td>
+      <td valign="top" style="padding-left:12px;">
+        <p class="tmo-force-text" style="margin:0 0 4px 0;font-weight:600;color:${EMAIL.text} !important;font-size:15px;font-family:${EMAIL.fontStack};">${title}</p>
+        <p class="tmo-force-muted" style="margin:0;color:${EMAIL.textMuted} !important;font-size:14px;line-height:1.55;font-family:${EMAIL.fontStack};">${description}</p>
+      </td>
+    </tr>
+  </table>`;
 }
 
 /** HTML + text + subject for free welcome — used by retry cron when body columns were empty */
@@ -457,51 +627,120 @@ export function buildWelcomeFreeEmailBodies(firstName: string | null): {
 } {
   const base = getAppBaseUrl();
   const dashUrl = `${base}/dashboard`;
-  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
+  const settingsUrl = `${base}/dashboard/settings`;
+  const resumeUrl = `${base}/dashboard/career/resume-generator`;
+  const caseStatusUrl = `${base}/dashboard/case-status`;
+  const optToolsUrl = `${base}/dashboard/opt-tools/opt-apply`;
+  const chromeExtensionUrl =
+    "https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm";
+  const pricingUrl = `${base}/premium/checkout`;
+  const greeting = firstName?.trim() ? `Hi ${escapeHtml(firstName.trim())},` : "Hi,";
+  const greetingText = firstName?.trim() ? `Hi ${firstName.trim()},` : "Hi,";
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
-        <h1 style="color:#fff;margin:0;font-size:22px;">Welcome to TrackMyOPT</h1>
-      </div>
-      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
-        <p style="margin:0 0 16px 0;">${greeting}</p>
-        <p style="margin:0 0 16px 0;">TrackMyOPT helps you stay on top of OPT &amp; STEM deadlines, unemployment days, and case status — so you can focus on your career.</p>
-        <p style="margin:0 0 12px 0;font-weight:600;color:#1F2937;">Get started in 3 steps:</p>
-        <ol style="margin:0 0 24px 0;padding-left:20px;color:#4B5563;">
-          <li style="margin-bottom:8px;">Set your OPT / STEM key dates</li>
-          <li style="margin-bottom:8px;">Add your notification email for reminders</li>
-          <li style="margin-bottom:8px;">Enable reminders in Settings</li>
-        </ol>
-        <div style="text-align:center;">
-          <a href="${dashUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Go to dashboard</a>
-        </div>
-      </div>
-      <div style="background:#F9FAFB;padding:20px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
-        <p style="margin:0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+  const html = buildTransactionalEmail({
+    headerTitle: "Welcome aboard",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("Your OPT &amp; STEM command center")}
+${emailTextP(greeting)}
+${emailTextP(
+  `${escapeHtml(COMPANY.productName)} helps you stay on top of OPT &amp; STEM deadlines, unemployment days, USCIS case status, and your job search &mdash; including our ${emailTextStrong("AI Resume Generator")} for ATS-friendly resumes tailored to U.S. roles.`
+)}
+${emailInfoCallout(`
+  <p class="tmo-force-info-text" style="margin:0 0 8px 0;color:${EMAIL.infoText} !important;font-size:14px;font-weight:600;">✨ AI Resume Generator</p>
+  <p class="tmo-force-light-text" style="margin:0 0 14px 0;color:${EMAIL.textSecondary} !important;font-size:14px;line-height:1.55;">
+    Turn a rough draft or old CV into a polished, job-ready resume in minutes. Start free with ${emailTextStrong("5 AI generations per month")} &mdash; upgrade anytime for higher limits and unlimited ATS scans.
+  </p>
+  <p style="margin:0;text-align:center;">
+    <a href="${resumeUrl}" class="tmo-force-cta" style="display:inline-block;background:${EMAIL.cta};color:${EMAIL.ctaText} !important;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Try AI Resume Generator</a>
+  </p>
+`)}
+${emailInfoCallout(`
+  <p class="tmo-force-info-text" style="margin:0 0 10px 0;color:${EMAIL.infoText} !important;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Get started in 3 steps</p>
+  ${welcomeOnboardingStepHtml(
+    1,
+    "Set your OPT / STEM key dates",
+    "Add program start, end, and reporting dates so your timeline stays accurate."
+  )}
+  ${welcomeOnboardingStepHtml(
+    2,
+    "Add your notification email",
+    "Choose where you want deadline and case-status reminders delivered."
+  )}
+  ${welcomeOnboardingStepHtml(
+    3,
+    "Turn on reminders in Settings",
+    `Open <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;text-decoration:none;">Settings</a> and enable the alerts that matter to you (Premium adds daily 9&nbsp;AM emails).`
+  )}
+`)}
+${emailTextLead("Explore your toolkit")}
+${emailTextList([
+  `<a href="${optToolsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">OPT &amp; STEM calculators</a> &mdash; filing windows and unemployment day tracking`,
+  `<a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Case Status Tracker</a> &mdash; check USCIS updates by receipt number`,
+  `<a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a> &mdash; ATS-friendly resumes for U.S. applications`,
+  `<a href="${chromeExtensionUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Chrome extension</a> &mdash; see deadlines on every new tab`,
+], { ordered: false })}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="tmo-force-card" style="margin:0 0 20px 0;background:${EMAIL.bgCard};border:1px solid ${EMAIL.border};border-radius:8px;">
+  <tr>
+    <td style="width:50%;padding:12px 8px;text-align:center;vertical-align:top;border-bottom:1px solid ${EMAIL.border};border-right:1px solid ${EMAIL.border};">
+      <p class="tmo-force-text" style="margin:0 0 4px 0;font-size:12px;font-weight:600;color:${EMAIL.text} !important;">Deadlines</p>
+      <p class="tmo-force-muted" style="margin:0;font-size:12px;color:${EMAIL.textMuted} !important;line-height:1.4;">OPT &amp; STEM clocks</p>
+    </td>
+    <td style="width:50%;padding:12px 8px;text-align:center;vertical-align:top;border-bottom:1px solid ${EMAIL.border};">
+      <p class="tmo-force-text" style="margin:0 0 4px 0;font-size:12px;font-weight:600;color:${EMAIL.text} !important;">Case status</p>
+      <p class="tmo-force-muted" style="margin:0;font-size:12px;color:${EMAIL.textMuted} !important;line-height:1.4;">USCIS updates</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="width:50%;padding:12px 8px;text-align:center;vertical-align:top;border-right:1px solid ${EMAIL.border};">
+      <p class="tmo-force-text" style="margin:0 0 4px 0;font-size:12px;font-weight:600;color:${EMAIL.text} !important;">Unemployment</p>
+      <p class="tmo-force-muted" style="margin:0;font-size:12px;color:${EMAIL.textMuted} !important;line-height:1.4;">Day tracking</p>
+    </td>
+    <td style="width:50%;padding:12px 8px;text-align:center;vertical-align:top;">
+      <p class="tmo-force-text" style="margin:0 0 4px 0;font-size:12px;font-weight:600;color:${EMAIL.primary} !important;">AI Resume</p>
+      <p class="tmo-force-muted" style="margin:0;font-size:12px;color:${EMAIL.textMuted} !important;line-height:1.4;">ATS-ready drafts</p>
+    </td>
+  </tr>
+</table>
+${emailPrimaryButton(dashUrl, "Go to dashboard")}
+${emailTextMuted(
+  `Need more? <a href="${pricingUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">See Premium</a> for daily reminders, auto USCIS checks, document vault, and higher AI resume limits.`
+)}
+${emailTextMuted(
+  `Questions? <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;text-decoration:none;">${LEGAL_CONTACT.support}</a>`,
+)}
+${emailBodySectionClose()}`,
+  });
 
-  const text = `${firstName ? `Hi ${firstName},` : "Hi,"}
+  const text = `${greetingText}
 
-Welcome to TrackMyOPT — OPT & STEM deadlines, unemployment tracking, and case tools in one place.
+Welcome to ${COMPANY.productName} — your OPT & STEM command center.
 
-Next steps:
-1) Set your OPT / STEM dates
-2) Add your notification email
-3) Enable reminders in Settings
+${COMPANY.productName} helps you stay on top of OPT & STEM deadlines, unemployment days, USCIS case status, and your job search — including the AI Resume Generator for ATS-friendly U.S. resumes.
+
+AI Resume Generator (try it free):
+- Build job-ready resumes in minutes from a draft or existing CV
+- Free plan: 5 AI generations per month
+Try it: ${resumeUrl}
+
+Get started in 3 steps:
+1) Set your OPT / STEM key dates
+2) Add your notification email for reminders
+3) Enable reminders in Settings: ${settingsUrl}
+
+Explore your toolkit:
+- OPT & STEM calculators: ${optToolsUrl}
+- Case Status Tracker: ${caseStatusUrl}
+- AI Resume Generator: ${resumeUrl}
+- Chrome extension: ${chromeExtensionUrl}
 
 Open your dashboard: ${dashUrl}
+See Premium: ${pricingUrl}
 
-© ${new Date().getFullYear()} Zyene, Inc.`;
+Questions? ${LEGAL_CONTACT.support}
+
+— ${COMPANY.productName} Team
+© ${new Date().getFullYear()} ${COMPANY.legalName}`;
 
   return {
     subject: "Welcome to TrackMyOPT — here’s how to get started",
@@ -532,6 +771,113 @@ export async function sendFreeWelcomeEmail(args: {
   });
 }
 
+/** HTML + plain text for refund confirmation (shared by send + preview catalog). */
+export function buildRefundProcessedEmailBodies(args: {
+  firstName: string | null;
+  amountCents: number;
+  currency: string;
+}): { subject: string; html: string; text: string } {
+  const base = getAppBaseUrl();
+  const dashUrl = `${base}/dashboard`;
+  const settingsUrl = `${base}/dashboard/settings`;
+  const resumeUrl = `${base}/dashboard/career/resume-generator`;
+  const pricingUrl = `${base}/premium/checkout`;
+  const greeting = args.firstName?.trim()
+    ? `Hi ${escapeHtml(args.firstName.trim())},`
+    : "Hi,";
+  const amountStr = formatMoney(args.amountCents, args.currency);
+
+  const html = buildTransactionalEmail({
+    headerTitle: "Refund confirmation",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextLead("Your refund has been processed")}
+${emailTextP(
+  `This confirms we issued a refund to your original payment method and moved your account back to the ${emailTextStrong("Free")} plan. Your TrackMyOPT account stays active &mdash; nothing was deleted.`
+)}
+${emailInfoCallout(`
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
+  <tr>
+    <td style="padding:0 0 10px 0;border-bottom:1px solid ${EMAIL.infoBorder};">
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Refund amount</p>
+      <p class="tmo-force-info-text" style="margin:0;font-size:18px;font-weight:700;color:${EMAIL.infoText} !important;">${escapeHtml(amountStr)}</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px 0;border-bottom:1px solid ${EMAIL.infoBorder};">
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Status</p>
+      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">Processed</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px 0 0 0;">
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Current plan</p>
+      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">Free</p>
+    </td>
+  </tr>
+</table>
+`)}
+${emailTextLead("When to expect the credit")}
+${emailTextP(
+  `Most refunds appear on your statement within ${emailTextStrong("5&ndash;10 business days")}. Your bank or card issuer may take a few extra days to post the credit &mdash; the exact timing depends on their processing cycle.`
+)}
+${emailTextLead("What this means for your account")}
+${emailTextList([
+  `${emailTextStrong("Premium access has ended")} &mdash; daily reminders, auto USCIS checks, document vault, and other Pro-only tools are paused`,
+  `${emailTextStrong("Your data is unchanged")} &mdash; OPT/STEM timelines, saved resumes, and profile settings remain in your account`,
+  `<strong>AI Resume Generator</strong> is still available on Free (${emailTextStrong("5 AI-built resumes per month")})`,
+  `${emailTextStrong("No further charges")} unless you choose to subscribe again`,
+], { ordered: false })}
+${emailPrimaryButton(dashUrl, "Go to dashboard")}
+${emailTextMuted(
+  `Changed your mind? You can resubscribe anytime from <a href="${pricingUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Premium checkout</a> or <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Billing settings</a>.`
+)}
+${emailTextMuted(
+  `While on Free, try the <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">AI Resume Generator</a> for your job search.`
+)}
+${emailTextMuted(
+  `Questions about this refund? Contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a> and include the email address on your TrackMyOPT account.`
+)}
+${emailBodySectionClose()}`,
+  });
+
+  const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
+  const text = `${greetingText}
+
+Your refund has been processed.
+
+Refund amount: ${amountStr}
+Status: Processed
+Current plan: Free
+
+This confirms we issued a refund to your original payment method. Your TrackMyOPT account stays active — your data was not deleted.
+
+When to expect the credit:
+Most refunds appear within 5-10 business days. Your bank may take a few extra days to post the credit.
+
+What this means:
+- Premium access has ended (Pro-only tools are paused)
+- Your OPT/STEM timelines, saved resumes, and settings remain
+- AI Resume Generator still available on Free (5/month)
+- No further charges unless you resubscribe
+
+Dashboard: ${dashUrl}
+AI Resume Generator: ${resumeUrl}
+Resubscribe: ${pricingUrl}
+Billing settings: ${settingsUrl}
+
+Questions? ${LEGAL_CONTACT.support}
+
+© ${new Date().getFullYear()} ${COMPANY.legalName}`;
+
+  return {
+    subject: "TrackMyOPT: Refund confirmation",
+    html,
+    text,
+  };
+}
+
 export async function sendRefundAcknowledgmentEmail(args: {
   supabase: SupabaseClient;
   userId: string;
@@ -542,47 +888,19 @@ export async function sendRefundAcknowledgmentEmail(args: {
   stripeEventId: string;
 }): Promise<QueueTransactionalResult> {
   const { supabase, userId, toEmail, firstName, amountCents, currency, stripeEventId } = args;
-  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
-  const amountStr = formatMoney(amountCents, currency);
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:${EMAIL.headerGradientSuccess};padding:28px 24px;text-align:center;">
-        <h1 style="color:#fff;margin:0;font-size:22px;">Refund processed</h1>
-      </div>
-      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
-        <p style="margin:0 0 16px 0;">${greeting}</p>
-        <p style="margin:0 0 16px 0;">We’ve received your refund of <strong>${amountStr}</strong>. Your Premium access has ended.</p>
-        <p style="margin:0 0 16px 0;">Refunds typically post to your original payment method in <strong>5–10 business days</strong> (your bank may take longer).</p>
-        <p style="margin:0;color:#6B7280;font-size:14px;">Questions? Reply to this email or write to <a href="mailto:support@trackmyopt.com" style="color:${EMAIL.link};">support@trackmyopt.com</a>.</p>
-      </div>
-      <div style="background:#F9FAFB;padding:20px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
-        <p style="margin:0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
-
-  const text = `${firstName ? `Hi ${firstName},` : "Hi,"}
-
-We've processed your refund of ${amountStr}. Premium access has ended.
-
-Please allow 5-10 business days for the refund to appear on your statement.
-
-support@trackmyopt.com`;
+  const { subject, html, text } = buildRefundProcessedEmailBodies({
+    firstName,
+    amountCents,
+    currency,
+  });
 
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
     emailType: "refund_processed",
-    subject: "TrackMyOPT: Refund confirmation",
+    subject,
     html,
     text,
     emailData: { amount_cents: amountCents, currency },
@@ -590,59 +908,150 @@ support@trackmyopt.com`;
   });
 }
 
-function premiumWelcomeHtml(firstName: string): string {
-  const year = new Date().getFullYear();
+/** HTML + plain text for post-checkout Premium welcome (shared by send + preview catalog). */
+export function buildPremiumWelcomeEmailBodies(firstName: string | null): {
+  subject: string;
+  html: string;
+  text: string;
+} {
   const base = getAppBaseUrl();
   const dashUrl = `${base}/dashboard`;
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome to Premium</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F3F4F6;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <div style="background:${EMAIL.headerGradient};padding:32px 24px;text-align:center;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">Welcome to Premium! 🎉</h1>
-          </div>
-          <div style="padding: 32px 24px;">
-            <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-bottom: 16px;">
-              Hi ${escapeHtml(firstName)},
-            </p>
-            <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-bottom: 24px;">
-              Thank you for upgrading to <strong>TrackMyOPT Premium</strong>! You&apos;ve unlocked powerful tools to help you secure and maintain your status.
-            </p>
-            <div style="background: #F3F4F6; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-              <h3 style="margin: 0 0 12px 0; color: #1F2937; font-size: 16px;">🚀 Your new features:</h3>
-              <ul style="margin: 0; padding-left: 20px; color: #4B5563; font-size: 15px; line-height: 1.6;">
-                <li>Unlimited AI Resume Scans</li>
-                <li>Advanced Job Tracker &amp; Analytics</li>
-                <li>Priority Alerts &amp; Reminders</li>
-                <li>Exclusive Sponsor Data Access</li>
-              </ul>
-            </div>
-            <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-bottom: 32px;">
-              We&apos;re excited to be part of your career journey in the US.
-            </p>
-            <div style="text-align: center;">
-              <a href="${dashUrl}" style="display:inline-block;background:${EMAIL.cta};color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;">
-                Go to Dashboard
-              </a>
-            </div>
-          </div>
-          <div style="background: #F9FAFB; padding: 24px; text-align: center; border-top: 1px solid #E5E7EB;">
-            <p style="font-size: 12px; color: #6B7280; margin: 0;">
-              © ${year} Zyene, Inc. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+  const settingsUrl = `${base}/dashboard/settings`;
+  const resumeUrl = `${base}/dashboard/career/resume-generator`;
+  const caseStatusUrl = `${base}/dashboard/case-status`;
+  const optToolsUrl = `${base}/dashboard/opt-tools/opt-apply`;
+  const documentsUrl = `${base}/dashboard/documents`;
+  const sponsorsUrl = `${base}/dashboard/career/h1b-sponsors`;
+  const chromeExtensionUrl =
+    "https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm";
+  const name = firstName?.trim() || "there";
+  const greeting = `Hi ${escapeHtml(name)},`;
+
+  const html = buildTransactionalEmail({
+    headerTitle: "Welcome to Premium",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("You&rsquo;re on Pro &mdash; here&rsquo;s what&rsquo;s unlocked")}
+${emailTextP(greeting)}
+${emailTextP(
+  `Thank you for upgrading to ${emailTextStrong(`${COMPANY.productName} Premium`)}. You now have the full toolkit to stay OPT/STEM compliant, track USCIS cases automatically, and move your U.S. job search forward with confidence.`
+)}
+${emailInfoCallout(`
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
+  <tr>
+    <td style="padding:0 0 10px 0;border-bottom:1px solid ${EMAIL.infoBorder};">
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Plan</p>
+      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">Premium (Pro)</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px 0 0 0;">
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Status</p>
+      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">Active</p>
+    </td>
+  </tr>
+</table>
+`)}
+${emailInfoCallout(`
+  <p class="tmo-force-info-text" style="margin:0 0 10px 0;color:${EMAIL.infoText} !important;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Get the most from Premium in 3 steps</p>
+  ${welcomeOnboardingStepHtml(
+    1,
+    "Turn on daily reminders",
+    `In <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Settings &rarr; Notifications</a>, confirm your email and enable daily 9&nbsp;AM ET deadline reminders.`
+  )}
+  ${welcomeOnboardingStepHtml(
+    2,
+    "Track your USCIS case automatically",
+    `Add your receipt number in <a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Case Status Tracker</a> for daily auto-checks and instant change alerts.`
+  )}
+  ${welcomeOnboardingStepHtml(
+    3,
+    "Polish your resume with AI",
+    `Open the <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a> &mdash; ${emailTextStrong("500 AI-built resumes/month")} plus unlimited ATS scans on Pro.`
+  )}
+`)}
+${emailTextLead("Immigration &amp; automation")}
+${emailTextList([
+  "Daily 9&nbsp;AM email reminders for OPT/STEM tools",
+  "Smart suggestions and auto-tracking on your timeline",
+  "Daily USCIS auto-checks and status-change email alerts",
+  "Document Vault with expiry reminders for passports, EADs, and more",
+], { ordered: false })}
+${emailTextLead("Career &amp; job search")}
+${emailTextList([
+  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("500 generations/month")} and ${emailTextStrong("unlimited ATS resume scans")}`,
+  "Unlimited job application tracker and analytics",
+  "Unlimited H-1B sponsor search with approval-rate insights",
+  "Chrome extension priority alerts on every new tab",
+], { ordered: false })}
+${emailTextLead("Quick links")}
+${emailTextList([
+  `<a href="${optToolsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">OPT &amp; STEM calculators</a>`,
+  `<a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Case Status Tracker</a>`,
+  `<a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a>`,
+  `<a href="${documentsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Document Vault</a>`,
+  `<a href="${sponsorsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">H-1B sponsor search</a>`,
+  `<a href="${chromeExtensionUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Chrome extension</a>`,
+], { ordered: false })}
+${emailPrimaryButton(dashUrl, "Open your dashboard")}
+${emailTextMuted(
+  `Manage billing anytime in <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Settings &rarr; Subscription</a>.`
+)}
+${emailTextP("We&rsquo;re glad to be part of your journey in the U.S.")}
+${emailTextMuted(
+  `Questions? <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a>`
+)}
+${emailBodySectionClose()}`,
+  });
+
+  const greetingText = firstName?.trim() ? `Hi ${firstName.trim()},` : "Hi there,";
+  const text = `${greetingText}
+
+Thank you for upgrading to TrackMyOPT Premium (Pro). Your subscription is active.
+
+Get the most from Premium in 3 steps:
+1. Turn on daily 9 AM ET reminders: ${settingsUrl}
+2. Add your USCIS case for auto-checks: ${caseStatusUrl}
+3. Try AI Resume Generator (500/month + unlimited ATS scans): ${resumeUrl}
+
+Immigration & automation:
+- Daily email reminders for OPT/STEM tools
+- Smart suggestions and auto-tracking
+- Daily USCIS auto-checks and status alerts
+- Document Vault with expiry reminders
+
+Career & job search:
+- AI Resume Generator: 500/month + unlimited ATS scans
+- Unlimited job tracker
+- Unlimited H-1B sponsor search with analytics
+- Chrome extension priority alerts
+
+Quick links:
+- OPT & STEM: ${optToolsUrl}
+- Case status: ${caseStatusUrl}
+- Documents: ${documentsUrl}
+- Sponsors: ${sponsorsUrl}
+- Chrome extension: ${chromeExtensionUrl}
+
+Dashboard: ${dashUrl}
+Billing: ${settingsUrl}
+
+We're glad to be part of your journey in the U.S.
+
+Questions? ${LEGAL_CONTACT.support}
+
+© ${new Date().getFullYear()} ${COMPANY.legalName}`;
+
+  return {
+    subject: "Welcome to TrackMyOPT Premium! 🚀",
+    html,
+    text,
+  };
+}
+
+/** @deprecated Use buildPremiumWelcomeEmailBodies().html */
+export function buildPremiumWelcomeEmailHtml(firstName: string): string {
+  return buildPremiumWelcomeEmailBodies(firstName).html;
 }
 
 /**
@@ -655,23 +1064,14 @@ export async function sendPremiumWelcomeQueuedEmail(args: {
   firstName: string;
 }): Promise<QueueTransactionalResult> {
   const { supabase, userId, toEmail, firstName } = args;
-  const name = firstName?.trim() || "Student";
-  const html = premiumWelcomeHtml(name);
-  const base = getAppBaseUrl();
-  const text = `Hi ${name},
-
-Thank you for upgrading to TrackMyOPT Premium!
-
-Open your dashboard: ${base}/dashboard
-
-© ${new Date().getFullYear()} Zyene, Inc.`;
+  const { subject, html, text } = buildPremiumWelcomeEmailBodies(firstName);
 
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
     emailType: "premium_welcome",
-    subject: "Welcome to TrackMyOPT Premium! 🚀",
+    subject,
     html,
     text,
     emailData: {},
@@ -695,31 +1095,18 @@ export async function sendTrialEndingEmail(args: {
   const settingsUrl = `${base}/dashboard/settings`;
   const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
-        <h1 style="color:#fff;margin:0;font-size:22px;">Your trial is ending soon</h1>
-      </div>
-      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
-        <p style="margin:0 0 16px 0;">${greeting}</p>
-        <p style="margin:0 0 16px 0;">Your TrackMyOPT Premium trial ends on <strong>${escapeHtml(trialEndDate)}</strong>. After that, your subscription will continue per your plan unless you cancel.</p>
-        <p style="margin:0 0 24px 0;color:#6B7280;font-size:14px;">Review billing or cancel anytime from Settings.</p>
-        <div style="text-align:center;">
-          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">Open billing settings</a>
-        </div>
-      </div>
-      <div style="background:#F9FAFB;padding:20px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
-        <p style="margin:0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+  const html = buildTransactionalEmail({
+    headerTitle: "Your trial is ending soon",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextP(
+  `Your ${COMPANY.productName} Premium trial ends on ${emailTextStrong(escapeHtml(trialEndDate))}. After that, your subscription will continue per your plan unless you cancel.`
+)}
+${emailTextMuted("Review billing or cancel anytime from Settings.")}
+${emailPrimaryButton(settingsUrl, "Open billing settings")}
+${emailBodySectionClose()}`,
+  });
 
   const text = `${firstName ? `Hi ${firstName},` : "Hi,"}
 
@@ -756,28 +1143,20 @@ export async function sendTrialStartedEmail(args: {
   const settingsUrl = `${base}/dashboard/settings`;
   const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
-        <h1 style="color:#fff;margin:0;font-size:22px;">Your 7-day Pro trial has started</h1>
-      </div>
-      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
-        <p style="margin:0 0 16px 0;">${greeting}</p>
-        <p style="margin:0 0 16px 0;">Your free trial ends on <strong>${escapeHtml(trialEndDate)}</strong>. You will not be charged if you cancel before that date.</p>
-        <p style="margin:0 0 16px 0;color:#6B7280;font-size:14px;">After the trial, your Pro plan auto-renews at the price shown at checkout unless you cancel.</p>
-        <div style="text-align:center;margin-top:24px;">
-          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;">Manage billing</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+  const html = buildTransactionalEmail({
+    headerTitle: "Your 7-day Pro trial has started",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextP(
+  `Your free trial ends on ${emailTextStrong(escapeHtml(trialEndDate))}. You will not be charged if you cancel before that date.`
+)}
+${emailTextMuted(
+  "After the trial, your Pro plan auto-renews at the price shown at checkout unless you cancel."
+)}
+${emailPrimaryButton(settingsUrl, "Manage billing")}
+${emailBodySectionClose()}`,
+  });
 
   const text = `${firstName ? `Hi ${firstName},` : "Hi,"}
 
@@ -813,31 +1192,25 @@ export async function sendCancellationConfirmedEmail(args: {
   const settingsUrl = `${base}/dashboard/settings`;
   const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
   const chargeLine = nextChargeDate
-    ? `<p style="margin:0 0 16px 0;color:#B45309;font-size:14px;"><strong>Note:</strong> A charge may still be scheduled on ${escapeHtml(nextChargeDate)} if you cancel during a trial or billing window. Check Stripe receipts in billing settings.</p>`
-    : `<p style="margin:0 0 16px 0;color:#6B7280;font-size:14px;">No further renewal charges are scheduled after ${escapeHtml(accessThroughDate)}.</p>`;
+    ? emailWarningNote(
+        `<strong>Note:</strong> A charge may still be scheduled on ${escapeHtml(nextChargeDate)} if you cancel during a trial or billing window. Check Stripe receipts in billing settings.`
+      )
+    : emailTextMuted(
+        `No further renewal charges are scheduled after ${escapeHtml(accessThroughDate)}.`
+      );
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;">
-      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
-        <h1 style="color:#fff;margin:0;font-size:22px;">Subscription cancellation confirmed</h1>
-      </div>
-      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
-        <p style="margin:0 0 16px 0;">${greeting}</p>
-        <p style="margin:0 0 16px 0;">Your subscription is set to cancel. You keep full access until <strong>${escapeHtml(accessThroughDate)}</strong>.</p>
-        ${chargeLine}
-        <div style="text-align:center;margin-top:24px;">
-          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;">View billing</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+  const html = buildTransactionalEmail({
+    headerTitle: "Cancellation confirmed",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextP(
+  `Your subscription is set to cancel. You keep full access until ${emailTextStrong(escapeHtml(accessThroughDate))}.`
+)}
+${chargeLine}
+${emailPrimaryButton(settingsUrl, "View billing")}
+${emailBodySectionClose()}`,
+  });
 
   const text = `Cancellation confirmed. Access through ${accessThroughDate}. Billing: ${settingsUrl}`;
 
@@ -883,30 +1256,20 @@ export async function sendSubscriptionReceiptEmail(args: {
   const settingsUrl = `${base}/dashboard/settings`;
   const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;">
-      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
-        <h1 style="color:#fff;margin:0;font-size:22px;">Subscription receipt</h1>
-      </div>
-      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
-        <p style="margin:0 0 16px 0;">${greeting}</p>
-        <p style="margin:0 0 8px 0;"><strong>Plan:</strong> ${escapeHtml(planLabel)}</p>
-        <p style="margin:0 0 8px 0;"><strong>Amount:</strong> ${escapeHtml(amountFormatted)} (${escapeHtml(billingInterval)})</p>
-        <p style="margin:0 0 16px 0;"><strong>Current period ends:</strong> ${escapeHtml(periodEndDate)}</p>
-        <p style="margin:0 0 16px 0;color:#6B7280;font-size:14px;">This is an auto-renewing subscription. Cancel before renewal in Settings → Billing.</p>
-        <div style="text-align:center;">
-          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;">Billing settings</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+  const html = buildTransactionalEmail({
+    headerTitle: "Subscription receipt",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextP(`<strong>Plan:</strong> ${escapeHtml(planLabel)}`)}
+${emailTextP(`<strong>Amount:</strong> ${escapeHtml(amountFormatted)} (${escapeHtml(billingInterval)})`)}
+${emailTextP(`<strong>Current period ends:</strong> ${escapeHtml(periodEndDate)}`)}
+${emailTextMuted(
+  "This is an auto-renewing subscription. Cancel before renewal in Settings &rarr; Billing."
+)}
+${emailPrimaryButton(settingsUrl, "Billing settings")}
+${emailBodySectionClose()}`,
+  });
 
   const text = `Receipt: ${planLabel} ${amountFormatted} (${billingInterval}). Period ends ${periodEndDate}. ${settingsUrl}`;
 
@@ -941,23 +1304,24 @@ export async function sendMaterialPolicyChangeEmail(args: {
   const refundUrl = `${base}/refund-policy`;
   const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
-      <h1 style="font-size:20px;color:#111827;margin:0 0 16px 0;">Important billing policy update</h1>
-      <p style="margin:0 0 16px 0;">${greeting}</p>
-      <p style="margin:0 0 16px 0;">We are updating subscription billing terms effective <strong>${escapeHtml(effectiveDate)}</strong> (version ${escapeHtml(policyVersion)}).</p>
-      <p style="margin:0 0 16px 0;">${escapeHtml(changeSummary)}</p>
-      <p style="margin:0 0 16px 0;"><a href="${termsUrl}">Terms</a> · <a href="${refundUrl}">Refund Policy</a></p>
-      <p style="margin:0;color:#6B7280;font-size:13px;">If you do not agree, cancel before the effective date in Settings → Billing to avoid future renewals.</p>
-    </div>
-  </div>
-</body>
-</html>`;
+  const html = buildTransactionalEmail({
+    headerTitle: "Billing policy update",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("Important update for subscribers")}
+${emailTextP(greeting)}
+${emailTextP(
+  `We are updating subscription billing terms effective ${emailTextStrong(escapeHtml(effectiveDate))} (version ${escapeHtml(policyVersion)}).`
+)}
+${emailTextP(escapeHtml(changeSummary))}
+${emailTextP(
+  `<a href="${termsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Terms</a> &middot; <a href="${refundUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Refund Policy</a>`
+)}
+${emailTextMuted(
+  "If you do not agree, cancel before the effective date in Settings &rarr; Billing to avoid future renewals."
+)}
+${emailBodySectionClose()}`,
+  });
 
   const text = `Billing policy update effective ${effectiveDate}. ${changeSummary} ${termsUrl}`;
 
@@ -990,29 +1354,21 @@ export async function sendContactReceivedEmail(args: {
   const base = getAppBaseUrl();
   const dashUrl = `${base}/dashboard`;
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#F3F4F6;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:${EMAIL.headerGradient};padding:24px 24px;text-align:center;">
-        <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">TrackMyOPT Support</p>
-      </div>
-      <div style="padding:28px 24px;">
-        <p style="margin:0 0 16px 0;color:#374151;font-size:15px;line-height:1.6;">${greeting}</p>
-        <p style="margin:0 0 16px 0;color:#374151;font-size:15px;line-height:1.6;">Thanks for reaching out. We&apos;ve received your message and will get back to you within <strong>24–48 hours</strong>.</p>
-        <p style="margin:0 0 24px 0;color:#374151;font-size:15px;line-height:1.6;">In the meantime, check your <a href="${dashUrl}" style="color:${EMAIL.link};font-weight:600;">dashboard</a> for any updates.</p>
-        <p style="margin:0;color:#6B7280;font-size:14px;">— TrackMyOPT Team</p>
-      </div>
-      <div style="background:#F9FAFB;padding:16px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
-        <p style="margin:0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+  const html = buildTransactionalEmail({
+    headerTitle: "We received your message",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("TrackMyOPT Support")}
+${emailTextP(greeting)}
+${emailTextP(
+  `Thanks for reaching out. We&rsquo;ve received your message and will get back to you within ${emailTextStrong("24&ndash;48 hours")}.`
+)}
+${emailTextP(
+  `In the meantime, check your <a href="${dashUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:600;">dashboard</a> for updates.`
+)}
+${emailTextMuted(`&mdash; ${COMPANY.productName} Team`)}
+${emailBodySectionClose()}`,
+  });
 
   const text = `Hi ${first},
 
@@ -1076,41 +1432,33 @@ export async function sendStemOptWindowEmail(args: {
     // keep raw string
   }
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;color:#374151;">
-  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-      <div style="background:${EMAIL.headerGradient};padding:24px;text-align:center;">
-        <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">TrackMyOPT</p>
-        <p style="margin:8px 0 0 0;color:rgba(255,255,255,0.95);font-size:14px;">STEM OPT extension</p>
-      </div>
-      <div style="padding:28px 24px;">
-        <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;">${greeting}</p>
-        <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;"><strong>Your STEM OPT extension window is now open.</strong></p>
-        <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;">Your current OPT EAD expires on <strong>${escapeHtml(eadDisplay)}</strong>. You are now within the 90-day window to apply for a 24-month STEM OPT extension — but you must act before your EAD expires.</p>
-        <p style="margin:0 0 12px 0;font-size:15px;font-weight:600;color:#111827;">Here's what to do right now:</p>
-        <ol style="margin:0 0 20px 0;padding-left:20px;font-size:15px;line-height:1.65;color:#374151;">
-          <li style="margin-bottom:10px;"><strong>Talk to your DSO</strong> — request a STEM OPT recommendation in your school's system (SEVIS). This is required before you can file.</li>
-          <li style="margin-bottom:10px;"><strong>Confirm your employer is E-Verify enrolled</strong> — your employer must be actively participating in E-Verify. Check with your HR team.</li>
-          <li style="margin-bottom:10px;"><strong>File Form I-765 with USCIS</strong> — file before your current EAD expires. If filed on time, you get an automatic 180-day cap-gap extension.</li>
-          <li style="margin-bottom:10px;"><strong>Complete Form I-983 with your employer</strong> — training plan required for STEM OPT. Due within 10 days of starting.</li>
-        </ol>
-        <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;">Track your STEM OPT application timeline in your TrackMyOPT dashboard.</p>
-        <div style="text-align:center;margin:0 0 28px 0;">
-          <a href="${escapeHtml(dashUrl)}" style="display:inline-block;background:${EMAIL.cta};color:#fff !important;text-decoration:none;font-weight:600;font-size:16px;padding:14px 28px;border-radius:10px;">Open My Dashboard →</a>
-        </div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#6B7280;">Questions? Reply to this email or contact <a href="mailto:support@trackmyopt.com" style="color:${EMAIL.link};">support@trackmyopt.com</a></p>
-      </div>
-      <div style="background:#F9FAFB;padding:16px;text-align:center;border-top:1px solid #E5E7EB;font-size:12px;color:#6B7280;">
-        <p style="margin:0;">© ${new Date().getFullYear()} Zyene, Inc. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+  const html = buildTransactionalEmail({
+    headerTitle: "STEM OPT extension window",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("Your 90-day filing window is open")}
+${emailTextP(greeting)}
+${emailTextP(emailTextStrong("Your STEM OPT extension window is now open."))}
+${emailTextP(
+  `Your current OPT EAD expires on ${emailTextStrong(escapeHtml(eadDisplay))}. You are within the 90-day window to apply for a 24-month STEM OPT extension &mdash; act before your EAD expires.`
+)}
+${emailTextLead("Here&rsquo;s what to do right now:")}
+${emailTextList(
+  [
+    "<strong>Talk to your DSO</strong> &mdash; request a STEM OPT recommendation in SEVIS before you file.",
+    "<strong>Confirm E-Verify enrollment</strong> &mdash; your employer must participate in E-Verify.",
+    "<strong>File Form I-765 with USCIS</strong> &mdash; file before your EAD expires for cap-gap protection.",
+    "<strong>Complete Form I-983</strong> &mdash; training plan with your employer (due within 10 days of starting).",
+  ],
+  { ordered: true }
+)}
+${emailTextP("Track your STEM OPT timeline in your dashboard.")}
+${emailPrimaryButton(dashUrl, "Open my dashboard")}
+${emailTextMuted(
+  `Questions? Reply to this email or contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a>`
+)}
+${emailBodySectionClose()}`,
+  });
 
   const text = `${firstName ? `Hi ${firstName},` : "Hi,"}
 
@@ -1177,26 +1525,21 @@ export async function sendInternalContactFormNotification(args: {
     const to = "support@trackmyopt.com";
     const subj = `New contact form submission from ${args.name.slice(0, 80)}`;
     const safeMsg = escapeHtml(args.message);
-    const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;color:#374151;line-height:1.6;background:#F3F4F6;">
-  <div style="max-width:640px;margin:0 auto;background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
-    <h1 style="margin:0 0 16px 0;font-size:20px;color:#111827;">New contact form submission</h1>
-    <p style="margin:0 0 8px 0;"><strong>Submission ID:</strong> ${escapeHtml(args.submissionId)}</p>
-    <p style="margin:0 0 8px 0;"><strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}</p>
-    <p style="margin:0 0 16px 0;"><strong>User ID:</strong> ${args.userId ? escapeHtml(args.userId) : "(anonymous)"}</p>
-    <hr style="border:none;border-top:1px solid #E5E7EB;margin:16px 0"/>
-    <p style="margin:0 0 8px 0;"><strong>Name:</strong> ${escapeHtml(args.name)}</p>
-    <p style="margin:0 0 8px 0;"><strong>Email:</strong> ${escapeHtml(args.email)}</p>
-    <p style="margin:0 0 16px 0;"><strong>Subject:</strong> ${escapeHtml(args.subject)}</p>
-    <p style="margin:0 0 8px 0;font-weight:600;">Message</p>
-    <div style="background:#F9FAFB;border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;">${safeMsg}</div>
-    ${rowLink ? `<p style="margin-top:20px;"><a href="${escapeHtml(rowLink)}" style="color:${EMAIL.link};">Open row in Supabase Table Editor</a></p>` : ""}
-  </div>
-</body>
-</html>`;
+    const html = buildInternalAlertEmail(
+      "New contact form",
+      `
+${emailTextP(`<strong>Submission ID:</strong> ${escapeHtml(args.submissionId)}`)}
+${emailTextP(`<strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}`)}
+${emailTextP(`<strong>User ID:</strong> ${args.userId ? escapeHtml(args.userId) : "(anonymous)"}`)}
+<hr style="border:none;border-top:1px solid ${EMAIL.border};margin:16px 0"/>
+${emailTextP(`<strong>Name:</strong> ${escapeHtml(args.name)}`)}
+${emailTextP(`<strong>Email:</strong> ${escapeHtml(args.email)}`)}
+${emailTextP(`<strong>Subject:</strong> ${escapeHtml(args.subject)}`)}
+${emailTextLead("Message")}
+<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${safeMsg}</div>
+${rowLink ? emailTextP(`<a href="${escapeHtml(rowLink)}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Open row in Supabase Table Editor</a>`) : ""}
+`
+    );
     const text = [
       `New contact form submission`,
       `Submission ID: ${args.submissionId}`,
@@ -1294,25 +1637,20 @@ export async function sendInternalPartnershipNotification(args: {
     const to = "support@trackmyopt.com";
     const subj = `New Partnership Inquiry from ${args.university.slice(0, 80)}`;
     const safeMsg = escapeHtml(args.message);
-    const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;color:#374151;line-height:1.6;background:#F3F4F6;">
-  <div style="max-width:640px;margin:0 auto;background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
-    <h1 style="margin:0 0 16px 0;font-size:20px;color:#111827;">New Partnership Inquiry</h1>
-    <p style="margin:0 0 8px 0;"><strong>Submission ID:</strong> ${escapeHtml(args.submissionId)}</p>
-    <p style="margin:0 0 8px 0;"><strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}</p>
-    <hr style="border:none;border-top:1px solid #E5E7EB;margin:16px 0"/>
-    <p style="margin:0 0 8px 0;"><strong>Name:</strong> ${escapeHtml(args.name)}</p>
-    <p style="margin:0 0 8px 0;"><strong>Email:</strong> ${escapeHtml(args.email)}</p>
-    <p style="margin:0 0 8px 0;"><strong>University/Institution:</strong> ${escapeHtml(args.university)}</p>
-    <p style="margin:0 0 16px 0;"><strong>Role:</strong> ${escapeHtml(args.role)}</p>
-    <p style="margin:0 0 8px 0;font-weight:600;">Message</p>
-    <div style="background:#F9FAFB;border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;">${safeMsg}</div>
-  </div>
-</body>
-</html>`;
+    const html = buildInternalAlertEmail(
+      "Partnership inquiry",
+      `
+${emailTextP(`<strong>Submission ID:</strong> ${escapeHtml(args.submissionId)}`)}
+${emailTextP(`<strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}`)}
+<hr style="border:none;border-top:1px solid ${EMAIL.border};margin:16px 0"/>
+${emailTextP(`<strong>Name:</strong> ${escapeHtml(args.name)}`)}
+${emailTextP(`<strong>Email:</strong> ${escapeHtml(args.email)}`)}
+${emailTextP(`<strong>University/Institution:</strong> ${escapeHtml(args.university)}`)}
+${emailTextP(`<strong>Role:</strong> ${escapeHtml(args.role)}`)}
+${emailTextLead("Message")}
+<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${safeMsg}</div>
+`
+    );
     const text = [
       "New Partnership Inquiry",
       `Submission ID: ${args.submissionId}`,
@@ -1337,4 +1675,214 @@ export async function sendInternalPartnershipNotification(args: {
   } catch (e) {
     console.error("sendInternalPartnershipNotification:", e);
   }
+}
+
+export type EmailPreviewItem = {
+  id: string;
+  category: string;
+  subject: string;
+  html: string;
+};
+
+/** Sample HTML for all queued transactional templates (preview / QA only). */
+export function getTransactionalEmailPreviews(firstName = "Alex"): EmailPreviewItem[] {
+  const base = getAppBaseUrl();
+  const settingsUrl = `${base}/dashboard/settings`;
+  const checkoutUrl = `${base}/premium/checkout`;
+  const dashUrl = `${base}/dashboard`;
+  const termsUrl = `${base}/terms`;
+  const refundUrl = `${base}/refund-policy`;
+  const greeting = `Hi ${escapeHtml(firstName)},`;
+  const trialEnd = "June 15, 2026";
+  const accessEnd = "May 31, 2026";
+
+  const welcomeFree = buildWelcomeFreeEmailBodies(firstName);
+
+  return [
+    {
+      id: "payment_failed",
+      category: "Billing",
+      ...buildPaymentFailedEmailBodies({
+        firstName,
+        planLabel: "TrackMyOPT Pro",
+        amountCents: 1900,
+        currency: "usd",
+      }),
+    },
+    {
+      id: "subscription_ended",
+      category: "Billing",
+      ...buildSubscriptionEndedEmailBodies({
+        firstName,
+        accessEndedDate: accessEnd,
+      }),
+    },
+    {
+      id: "welcome_free",
+      category: "Onboarding",
+      subject: welcomeFree.subject,
+      html: welcomeFree.html,
+    },
+    {
+      id: "refund_processed",
+      category: "Billing",
+      ...buildRefundProcessedEmailBodies({
+        firstName,
+        amountCents: 1900,
+        currency: "usd",
+      }),
+    },
+    {
+      id: "premium_welcome",
+      category: "Onboarding",
+      ...buildPremiumWelcomeEmailBodies(firstName),
+    },
+    {
+      id: "trial_ending",
+      category: "Billing",
+      subject: "TrackMyOPT: Your Premium trial is ending soon",
+      html: buildTransactionalEmail({
+        headerTitle: "Your trial is ending soon",
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextP(
+  `Your ${COMPANY.productName} Premium trial ends on ${emailTextStrong(trialEnd)}. After that, your subscription will continue per your plan unless you cancel.`
+)}
+${emailPrimaryButton(settingsUrl, "Open billing settings")}
+${emailBodySectionClose()}`,
+      }),
+    },
+    {
+      id: "trial_started",
+      category: "Billing",
+      subject: "TrackMyOPT: Your 7-day Pro trial has started",
+      html: buildTransactionalEmail({
+        headerTitle: "Your 7-day Pro trial has started",
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextP(
+  `Your free trial ends on ${emailTextStrong(trialEnd)}. You will not be charged if you cancel before that date.`
+)}
+${emailPrimaryButton(settingsUrl, "Manage billing")}
+${emailBodySectionClose()}`,
+      }),
+    },
+    {
+      id: "subscription_cancel_confirmed",
+      category: "Billing",
+      subject: "TrackMyOPT: Subscription cancellation confirmed",
+      html: buildTransactionalEmail({
+        headerTitle: "Cancellation confirmed",
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextP(
+  `Your subscription is set to cancel. You keep full access until ${emailTextStrong(accessEnd)}.`
+)}
+${emailPrimaryButton(settingsUrl, "View billing")}
+${emailBodySectionClose()}`,
+      }),
+    },
+    {
+      id: "subscription_receipt",
+      category: "Billing",
+      subject: "TrackMyOPT: Subscription receipt",
+      html: buildTransactionalEmail({
+        headerTitle: "Subscription receipt",
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextP("<strong>Plan:</strong> TrackMyOPT Pro")}
+${emailTextP("<strong>Amount:</strong> $19.00 (monthly)")}
+${emailTextP(`<strong>Current period ends:</strong> ${accessEnd}`)}
+${emailPrimaryButton(settingsUrl, "Billing settings")}
+${emailBodySectionClose()}`,
+      }),
+    },
+    {
+      id: "material_policy_change",
+      category: "Billing",
+      subject: "TrackMyOPT: Important update to subscription terms",
+      html: buildTransactionalEmail({
+        headerTitle: "Billing policy update",
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("Important update for subscribers")}
+${emailTextP(greeting)}
+${emailTextP(
+  `We are updating subscription billing terms effective ${emailTextStrong("July 1, 2026")} (version sample-preview).`
+)}
+${emailTextP("Sample summary: renewal and refund terms clarified.")}
+${emailTextP(
+  `<a href="${termsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Terms</a> &middot; <a href="${refundUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Refund Policy</a>`
+)}
+${emailBodySectionClose()}`,
+      }),
+    },
+    {
+      id: "contact_received",
+      category: "Support",
+      subject: "We received your message — TrackMyOPT Support",
+      html: buildTransactionalEmail({
+        headerTitle: "We received your message",
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("TrackMyOPT Support")}
+${emailTextP(`Hi ${escapeHtml(firstName)},`)}
+${emailTextP(
+  `Thanks for reaching out. We&rsquo;ve received your message and will get back to you within ${emailTextStrong("24&ndash;48 hours")}.`
+)}
+${emailPrimaryButton(dashUrl, "Open dashboard")}
+${emailBodySectionClose()}`,
+      }),
+    },
+    {
+      id: "stem_opt_window_open",
+      category: "Cron",
+      subject: "Your STEM OPT extension window is now open — here's what to do",
+      html: buildTransactionalEmail({
+        headerTitle: "STEM OPT extension window",
+        bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("Your 90-day filing window is open")}
+${emailTextP(greeting)}
+${emailTextP(emailTextStrong("Your STEM OPT extension window is now open."))}
+${emailTextP(
+  `Your current OPT EAD expires on ${emailTextStrong("August 15, 2026")}. You are within the 90-day window to apply for a 24-month STEM OPT extension.`
+)}
+${emailPrimaryButton(dashUrl, "Open my dashboard")}
+${emailBodySectionClose()}`,
+      }),
+    },
+    {
+      id: "internal_contact_form",
+      category: "Internal (to support)",
+      subject: `New contact form submission from ${firstName}`,
+      html: buildInternalAlertEmail(
+        "New contact form",
+        `
+${emailTextP("<strong>Submission ID:</strong> preview-0001")}
+${emailTextP(`<strong>Name:</strong> ${escapeHtml(firstName)}`)}
+${emailTextP("<strong>Email:</strong> student@example.com")}
+${emailTextP("<strong>Subject:</strong> Preview sample")}
+${emailTextLead("Message")}
+<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;">Sample contact message for preview.</div>`
+      ),
+    },
+    {
+      id: "internal_partnership",
+      category: "Internal (to support)",
+      subject: "New Partnership Inquiry from Sample University",
+      html: buildInternalAlertEmail(
+        "Partnership inquiry",
+        `
+${emailTextP(`<strong>Name:</strong> ${escapeHtml(firstName)}`)}
+${emailTextP("<strong>University:</strong> Sample University")}
+${emailTextLead("Message")}
+<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;">Sample partnership inquiry.</div>`
+      ),
+    },
+  ];
 }

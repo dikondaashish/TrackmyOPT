@@ -111,6 +111,8 @@ function printDryRunStats(
       console.log(`  - ${row.reason}: ${row.count}`);
     }
   }
+  console.log(`With billing-unchanged notice (Pro only): ${stats.withBillingUnchangedNotice}`);
+  console.log(`Without billing-unchanged notice: ${stats.withoutBillingUnchangedNotice}`);
   console.log(`\nFinal target count this run: ${finalTargetCount}`);
 }
 
@@ -181,6 +183,7 @@ async function main() {
       userId: "00000000-0000-0000-0000-000000000000",
       email: testEmail,
       firstName: null,
+      showBillingUnchangedNotice: false,
     };
 
     const result = await sendPolicyUpdateNoticeToRecipient({
