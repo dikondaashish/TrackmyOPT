@@ -1,0 +1,499 @@
+/**
+ * Policy update notice (May 2026) — transactional email content and recipient filtering.
+ * Not a marketing campaign; no upsells or promotional CTAs.
+ */
+
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { COMPANY, LEGAL_CONTACT, LEGAL_VERSION_ID } from "@/lib/legal/legal-config";
+import { getAppBaseUrl } from "@/lib/notifications/transactional-emails";
+import { EMAIL, emailFooter, emailOuterOpen, emailOuterClose } from "@/lib/notifications/email-brand";
+import { getSmtpFromHeader, sendMailWithRetry } from "@/lib/notifications/email-smtp";
+
+export const POLICY_UPDATE_NOTICE_TYPE = "policy_update_2026_05_31" as const;
+export const POLICY_UPDATE_NOTICE_TEMPLATE = "policy_update_notice_2026_05_31" as const;
+export const POLICY_UPDATE_NOTICE_SUBJECT = "TrackMyOPT policy update";
+
+const INVALID_EMAIL_DOMAINS = [
+  "example.com",
+  "example.org",
+  "test",
+  "localhost",
+  "invalid",
+] as const;
+
+const INTERNAL_EMAIL_DOMAINS = ["zyene.com", "trackmyopt.com"] as const;
+
+const TEST_EMAIL_LOCAL_PREFIXES = ["test", "demo", "dev"] as const;
+
+export type PolicyNoticeRecipient = {
+  userId: string;
+  email: string;
+  firstName: string | null;
+};
+
+export type RecipientExclusionReason =
+  | "invalid_email"
+  | "invalid_domain"
+  | "test_account"
+  | "internal_account"
+  | "blocked_email"
+  | "duplicate_email"
+  | "already_sent";
+
+export type RecipientFilterResult = {
+  eligible: PolicyNoticeRecipient[];
+  excluded: { reason: RecipientExclusionReason; count: number }[];
+  stats: {
+    totalRegistered: number;
+    eligible: number;
+    excludedTotal: number;
+    duplicateEmailsRemoved: number;
+  };
+};
+
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+function isValidEmailFormat(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function getRecipientExclusionReason(email: string): RecipientExclusionReason | null {
+  const normalized = normalizeEmail(email);
+  if (!normalized || !isValidEmailFormat(normalized)) {
+    return "invalid_email";
+  }
+
+  const [local, domain] = normalized.split("@");
+  if (!local || !domain) return "invalid_email";
+
+  if (INVALID_EMAIL_DOMAINS.some((d) => domain === d || domain.endsWith(`.${d}`))) {
+    return "invalid_domain";
+  }
+
+  if (INTERNAL_EMAIL_DOMAINS.includes(domain as (typeof INTERNAL_EMAIL_DOMAINS)[number])) {
+    return "internal_account";
+  }
+
+  const localBase = local.split("+")[0]?.split(".")[0] ?? local;
+  if (
+    TEST_EMAIL_LOCAL_PREFIXES.some(
+      (p) => localBase === p || local.startsWith(`${p}+`) || local.startsWith(`${p}.`)
+    )
+  ) {
+    return "test_account";
+  }
+
+  return null;
+}
+
+export function buildPolicyUpdateNoticeEmailContent(firstName: string | null): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const base = getAppBaseUrl();
+  const greeting = firstName?.trim() ? `Hi ${escapeHtml(firstName.trim())},` : "Hi,";
+
+  const links = [
+    { label: "Privacy Policy", href: `${base}/privacy` },
+    { label: "Terms", href: `${base}/terms` },
+    { label: "Refund Policy", href: `${base}/refund-policy` },
+    { label: "Cookie Policy", href: `${base}/cookie-policy` },
+    { label: "Disclaimer", href: `${base}/disclaimer` },
+    { label: "Security", href: `${base}/security` },
+  ];
+
+  const linkListHtml = links
+    .map(
+      (l) =>
+        `<li style="margin:0 0 8px 0;"><a href="${l.href}" style="color:${EMAIL.link};font-weight:500;">${escapeHtml(l.label)}</a></li>`
+    )
+    .join("");
+
+  const linkListText = links.map((l) => `${l.label}: ${l.href}`).join("\n");
+
+  const html = `${emailOuterOpen()}
+    <div style="background:${EMAIL.bgCard};border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,0.08);border:1px solid ${EMAIL.border};">
+      <div style="padding:28px 24px;">
+        <h1 style="font-size:20px;color:${EMAIL.text};margin:0 0 16px 0;font-weight:600;">TrackMyOPT policy update</h1>
+        <p style="margin:0 0 16px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">${greeting}</p>
+        <p style="margin:0 0 16px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">We updated ${escapeHtml(COMPANY.productName)}&rsquo;s Privacy Policy, Terms, Cookie Policy, Disclaimer, Security notices, and related legal notices.</p>
+        <p style="margin:0 0 12px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">The updates clarify:</p>
+        <ul style="margin:0 0 16px 0;padding-left:20px;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">
+          <li style="margin-bottom:8px;">how TrackMyOPT describes USCIS Case Status API access;</li>
+          <li style="margin-bottom:8px;">that TrackMyOPT is independent software and is not affiliated with, endorsed by, or operated by USCIS, DHS, SEVP, ICE, or any U.S. government agency;</li>
+          <li style="margin-bottom:8px;">dormant account handling;</li>
+          <li style="margin-bottom:8px;">business transfer language;</li>
+          <li style="margin-bottom:8px;">breach notification language;</li>
+          <li style="margin-bottom:8px;">analytics opt-out options; and</li>
+          <li style="margin-bottom:8px;">payment/security wording.</li>
+        </ul>
+        <p style="margin:0 0 16px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">These updates do not change your current plan price, trial period, refund window, or cancellation rights.</p>
+        <p style="margin:0 0 8px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;font-weight:600;">You can review the updated policies here:</p>
+        <ul style="margin:0 0 20px 0;padding-left:20px;list-style:none;">${linkListHtml}</ul>
+        <p style="margin:0 0 16px 0;color:${EMAIL.textSecondary};font-size:15px;line-height:1.6;">If you have questions, contact <a href="mailto:${LEGAL_CONTACT.support}" style="color:${EMAIL.link};">${LEGAL_CONTACT.support}</a>.</p>
+        <p style="margin:0;color:${EMAIL.textMuted};font-size:14px;">${escapeHtml(COMPANY.productName)} Team</p>
+      </div>
+      ${emailFooter()}
+    </div>
+  ${emailOuterClose()}`;
+
+  const text = `${greeting}
+
+We updated TrackMyOPT's Privacy Policy, Terms, Cookie Policy, Disclaimer, Security notices, and related legal notices.
+
+The updates clarify:
+- how TrackMyOPT describes USCIS Case Status API access;
+- that TrackMyOPT is independent software and is not affiliated with, endorsed by, or operated by USCIS, DHS, SEVP, ICE, or any U.S. government agency;
+- dormant account handling;
+- business transfer language;
+- breach notification language;
+- analytics opt-out options; and
+- payment/security wording.
+
+These updates do not change your current plan price, trial period, refund window, or cancellation rights.
+
+You can review the updated policies here:
+${linkListText}
+
+If you have questions, contact ${LEGAL_CONTACT.support}.
+
+TrackMyOPT Team`;
+
+  return { subject: POLICY_UPDATE_NOTICE_SUBJECT, html, text };
+}
+
+type RawProfileRow = {
+  user_id: string;
+  email: string | null;
+  first_name: string | null;
+  auth_email: string | null;
+};
+
+async function fetchAllProfiles(
+  supabase: SupabaseClient
+): Promise<Array<{ user_id: string; email: string | null; first_name: string | null }>> {
+  const pageSize = 1000;
+  let from = 0;
+  const all: Array<{ user_id: string; email: string | null; first_name: string | null }> = [];
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("user_id, email, first_name")
+      .range(from, from + pageSize - 1);
+
+    if (error) throw new Error(`Failed to fetch profiles: ${error.message}`);
+    if (!data?.length) break;
+    all.push(...data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return all;
+}
+
+async function fetchAuthUsersById(
+  supabase: SupabaseClient
+): Promise<Map<string, { email: string | null; deleted: boolean }>> {
+  const map = new Map<string, { email: string | null; deleted: boolean }>();
+  let page = 1;
+  const perPage = 1000;
+
+  while (true) {
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+    if (error) throw new Error(`Failed to fetch auth users: ${error.message}`);
+
+    const users = data.users ?? [];
+    for (const u of users) {
+      map.set(u.id, {
+        email: u.email ?? null,
+        deleted: Boolean(u.deleted_at),
+      });
+    }
+
+    if (users.length < perPage) break;
+    page += 1;
+  }
+
+  return map;
+}
+
+/**
+ * Registered users: profiles row + non-deleted auth.users.
+ * Email: profiles.email if set, otherwise auth.users.email.
+ */
+export async function fetchRegisteredUsersForPolicyNotice(
+  supabase: SupabaseClient
+): Promise<RawProfileRow[]> {
+  const [profiles, authById] = await Promise.all([
+    fetchAllProfiles(supabase),
+    fetchAuthUsersById(supabase),
+  ]);
+
+  const rows: RawProfileRow[] = [];
+
+  for (const profile of profiles) {
+    const auth = authById.get(profile.user_id);
+    if (!auth || auth.deleted) continue;
+
+    rows.push({
+      user_id: profile.user_id,
+      email: profile.email,
+      first_name: profile.first_name,
+      auth_email: auth.email,
+    });
+  }
+
+  return rows;
+}
+
+/** Prefer SQL-style batch fetch via RPC alternative: paginate profiles + admin listUsers in chunks */
+export async function loadPolicyNoticeRecipients(
+  supabase: SupabaseClient,
+  options?: { alreadySentEmails?: Set<string>; blockedEmails?: Set<string> }
+): Promise<RecipientFilterResult> {
+  const alreadySent = options?.alreadySentEmails ?? new Set<string>();
+  const blocked = options?.blockedEmails ?? new Set<string>();
+
+  const exclusionCounts: Record<RecipientExclusionReason, number> = {
+    invalid_email: 0,
+    invalid_domain: 0,
+    test_account: 0,
+    internal_account: 0,
+    blocked_email: 0,
+    duplicate_email: 0,
+    already_sent: 0,
+  };
+
+  const rawRows = await fetchRegisteredUsersForPolicyNotice(supabase);
+  const totalRegistered = rawRows.length;
+  const seenEmails = new Set<string>();
+  const eligible: PolicyNoticeRecipient[] = [];
+
+  for (const row of rawRows) {
+    const emailRaw = (row.email?.trim() || row.auth_email?.trim() || "").toLowerCase();
+    if (!emailRaw) {
+      exclusionCounts.invalid_email += 1;
+      continue;
+    }
+
+    const exclusion = getRecipientExclusionReason(emailRaw);
+    if (exclusion) {
+      exclusionCounts[exclusion] += 1;
+      continue;
+    }
+
+    if (blocked.has(emailRaw)) {
+      exclusionCounts.blocked_email += 1;
+      continue;
+    }
+
+    if (alreadySent.has(emailRaw)) {
+      exclusionCounts.already_sent += 1;
+      continue;
+    }
+
+    if (seenEmails.has(emailRaw)) {
+      exclusionCounts.duplicate_email += 1;
+      continue;
+    }
+
+    seenEmails.add(emailRaw);
+    eligible.push({
+      userId: row.user_id,
+      email: emailRaw,
+      firstName: row.first_name?.trim() || null,
+    });
+  }
+
+  const excludedTotal = Object.values(exclusionCounts).reduce((a, b) => a + b, 0);
+
+  return {
+    eligible,
+    excluded: (Object.entries(exclusionCounts) as [RecipientExclusionReason, number][])
+      .filter(([, count]) => count > 0)
+      .map(([reason, count]) => ({ reason, count })),
+    stats: {
+      totalRegistered,
+      eligible: eligible.length,
+      excludedTotal,
+      duplicateEmailsRemoved: exclusionCounts.duplicate_email,
+    },
+  };
+}
+
+export async function loadBlockedEmails(supabase: SupabaseClient): Promise<Set<string>> {
+  const blocked = new Set<string>();
+  const pageSize = 500;
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("blocked_emails")
+      .select("email")
+      .range(from, from + pageSize - 1);
+
+    if (error) {
+      console.warn("blocked_emails fetch failed:", error.message);
+      break;
+    }
+
+    for (const row of data ?? []) {
+      if (row.email) blocked.add(normalizeEmail(row.email));
+    }
+
+    if (!data || data.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return blocked;
+}
+
+export async function loadAlreadySentNoticeEmails(
+  supabase: SupabaseClient,
+  noticeType: string = POLICY_UPDATE_NOTICE_TYPE
+): Promise<Set<string>> {
+  const sent = new Set<string>();
+  const pageSize = 500;
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("policy_notice_email_events")
+      .select("email")
+      .eq("notice_type", noticeType)
+      .eq("status", "sent")
+      .range(from, from + pageSize - 1);
+
+    if (error) {
+      if (error.message.includes("does not exist")) return sent;
+      throw new Error(`Failed to load policy notice events: ${error.message}`);
+    }
+
+    for (const row of data ?? []) {
+      if (row.email) sent.add(normalizeEmail(row.email));
+    }
+
+    if (!data || data.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return sent;
+}
+
+export type SendPolicyNoticeResult =
+  | { status: "sent"; providerMessageId: string }
+  | { status: "skipped"; reason: string }
+  | { status: "failed"; error: string };
+
+export async function sendPolicyUpdateNoticeToRecipient(args: {
+  supabase: SupabaseClient;
+  recipient: PolicyNoticeRecipient;
+  dryRun: boolean;
+}): Promise<SendPolicyNoticeResult> {
+  const { supabase, recipient, dryRun } = args;
+  const { subject, html, text } = buildPolicyUpdateNoticeEmailContent(recipient.firstName);
+
+  if (dryRun) {
+    return { status: "skipped", reason: "dry_run" };
+  }
+
+  const { data: existing } = await supabase
+    .from("policy_notice_email_events")
+    .select("id, status")
+    .eq("email", recipient.email)
+    .eq("notice_type", POLICY_UPDATE_NOTICE_TYPE)
+    .maybeSingle();
+
+  if (existing?.status === "sent") {
+    return { status: "skipped", reason: "already_sent" };
+  }
+
+  const userIdForAudit =
+    recipient.userId === "00000000-0000-0000-0000-000000000000"
+      ? null
+      : recipient.userId;
+
+  const eventRow = {
+    user_id: userIdForAudit,
+    email: recipient.email,
+    notice_type: POLICY_UPDATE_NOTICE_TYPE,
+    policy_version: LEGAL_VERSION_ID,
+    status: "pending" as const,
+    metadata: { template: POLICY_UPDATE_NOTICE_TEMPLATE },
+  };
+
+  const { data: inserted, error: insErr } = await supabase
+    .from("policy_notice_email_events")
+    .upsert(eventRow, { onConflict: "email,notice_type" })
+    .select("id")
+    .single();
+
+  if (insErr || !inserted?.id) {
+    return { status: "failed", error: insErr?.message || "audit_insert_failed" };
+  }
+
+  try {
+    const info = await sendMailWithRetry({
+      from: getSmtpFromHeader(),
+      to: recipient.email,
+      subject,
+      html,
+      text,
+    });
+
+    const providerMessageId =
+      typeof info.messageId === "string" && info.messageId.length > 0
+        ? info.messageId
+        : `smtp-${inserted.id}`;
+
+    await supabase
+      .from("policy_notice_email_events")
+      .update({
+        status: "sent",
+        sent_at: new Date().toISOString(),
+        provider_message_id: providerMessageId,
+        error: null,
+      })
+      .eq("id", inserted.id);
+
+    await supabase.from("email_queue").insert({
+      user_id: userIdForAudit,
+      email_address: recipient.email,
+      email_type: POLICY_UPDATE_NOTICE_TYPE,
+      email_subject: subject,
+      email_data: {
+        policy_version: LEGAL_VERSION_ID,
+        notice_type: POLICY_UPDATE_NOTICE_TYPE,
+        template: POLICY_UPDATE_NOTICE_TEMPLATE,
+      },
+      status: "sent",
+      sent_at: new Date().toISOString(),
+      provider_message_id: providerMessageId,
+      body_html: html,
+      body_text: text,
+      retry_count: 0,
+    });
+
+    return { status: "sent", providerMessageId };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await supabase
+      .from("policy_notice_email_events")
+      .update({ status: "failed", error: message })
+      .eq("id", inserted.id);
+    return { status: "failed", error: message };
+  }
+}

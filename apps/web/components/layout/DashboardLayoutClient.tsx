@@ -7,6 +7,7 @@ import { SprintaxPromoBanner } from "@/components/promo/SprintaxPromoBanner";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { PremiumStatusProvider, usePremiumStatus } from "@/lib/premium/usePremiumStatus";
+import { PolicyUpdateConsentModal } from "@/components/compliance/PolicyUpdateConsentModal";
 
 interface DashboardLayoutClientProps {
     children: React.ReactNode;
@@ -90,6 +91,7 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
 
     return (
         <div className="h-screen overflow-hidden bg-[#e8edf5] dark:bg-gray-950">
+            <PolicyUpdateConsentModal />
             <SprintaxPromoBanner variant="dashboard" />
             {/* Fixed Header — below promo banner */}
             <Header
