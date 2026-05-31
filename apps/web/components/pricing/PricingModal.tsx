@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowRight, Check, ChevronLeft, Crown, Shield, Sparkles, Star, Zap, Gift } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, Check, Crown, Shield, Sparkles, Star, Zap, Gift } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,8 +12,6 @@ import { PromoCodeCheckoutBar } from "@/components/pricing/PromoCodeCheckoutBar"
 import type { PromoCheckoutMode } from "@/lib/premium/promoCheckoutTypes";
 import { buildPromoCheckoutBody } from "@/lib/premium/checkoutPromoPayload";
 import { formatMonthlyEquivalentFromYearly } from "@/lib/premium/formatMonthlyEquivalentFromYearly";
-import { SubscriptionCheckoutDisclosures } from "@/components/billing/SubscriptionCheckoutDisclosures";
-import type { BillingInterval, PaidPlanId } from "@/lib/billing/legal-config";
 
 interface PricingModalProps {
   open: boolean;
@@ -28,8 +26,6 @@ function isYearlyBillingDefault(interval: string | undefined): boolean {
   return interval !== "month";
 }
 
-type CheckoutStep = "select" | "confirm";
-
 export function PricingModal({ open, onClose, userEmail, isPremium = false, initialPlan, initialInterval }: PricingModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   /** Annual on by default; only `initialInterval === "month"` forces monthly (user can toggle anytime). */
@@ -39,12 +35,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   const [promoError, setPromoError] = useState<string | null>(null);
   /** null = still loading / unknown; server omits trial when false */
   const [proFreeTrialEligible, setProFreeTrialEligible] = useState<boolean | null>(null);
-  const [recurringConsent, setRecurringConsent] = useState(false);
-  const [disclosurePlan, setDisclosurePlan] = useState<PaidPlanId>("pro");
-  const [consentError, setConsentError] = useState<string | null>(null);
-  const [step, setStep] = useState<CheckoutStep>("select");
-  const [confirmInterval, setConfirmInterval] = useState<BillingInterval>("year");
-  const confirmHeadingRef = useRef<HTMLHeadingElement>(null);
+  const [proConsent, setProConsent] = useState(false);
+  const [dedicatedConsent, setDedicatedConsent] = useState(false);
 
   useEffect(() => {
     if (!open || isPremium) {
@@ -80,46 +72,21 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
       setPromoMode("default");
       setCustomPromoInput("");
       setPromoError(null);
-      setRecurringConsent(false);
-      setConsentError(null);
-      setStep("select");
+      setProConsent(false);
+      setDedicatedConsent(false);
     }
   }, [open]);
 
   useEffect(() => {
-    if (step !== "confirm" || !open) return;
-    const t = window.setTimeout(() => {
-      confirmHeadingRef.current?.focus();
-    }, 0);
-    return () => window.clearTimeout(t);
-  }, [step, open]);
+    setProConsent(false);
+    setDedicatedConsent(false);
+  }, [isYearly]);
 
-  const handleSelectPlan = (planId: "pro" | "dedicated") => {
-    setDisclosurePlan(planId);
-    setConfirmInterval(isYearly ? "year" : "month");
-    setConsentError(null);
-    setPromoError(null);
-    setStep("confirm");
-  };
-
-  const handleUpgrade = async (selectedPlan: string, intervalOverride?: BillingInterval) => {
-    const paidPlan = selectedPlan === "dedicated" ? "dedicated" : "pro";
-    setDisclosurePlan(paidPlan);
-    setConsentError(null);
-
-    if (!recurringConsent) {
-      setConsentError("Please check the box to agree to auto-renewing subscription terms.");
-      window.setTimeout(() => {
-        document.getElementById("recurring-billing-consent")?.focus();
-      }, 0);
-      return;
-    }
-
+  const handleUpgrade = async (selectedPlan: string) => {
     setIsLoading(true);
     setPromoError(null);
 
-    const currentInterval =
-      intervalOverride ?? confirmInterval ?? (isYearly ? "year" : "month");
+    const currentInterval = isYearly ? "year" : "month";
 
     try {
       const promoFields = buildPromoCheckoutBody(promoMode, customPromoInput);
@@ -252,14 +219,6 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   ];
   }, [isPremium, proFreeTrialEligible]);
 
-  const selectedPlanForConfirm = useMemo(
-    () => plans.find((p) => p.id === disclosurePlan),
-    [plans, disclosurePlan]
-  );
-
-  const showProTrialOnConfirm =
-    disclosurePlan === "pro" && proFreeTrialEligible !== false;
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
@@ -279,37 +238,14 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
             </div>
 
             {/* Title */}
-            {step === "select" ? (
-              <>
-                <h2 className="text-xl sm:text-2xl md:text-xl lg:text-[1.35rem] font-bold tracking-tight text-foreground mb-1">
-                  Choose Your Plan
-                </h2>
-                <p className="text-muted-foreground text-xs sm:text-sm md:text-xs max-w-lg mx-auto leading-snug">
-                  Join 2,500+ international students who trust TrackMyOPT to navigate their F-1 visa journey
-                </p>
-              </>
-            ) : (
-              <>
-                <h2
-                  ref={confirmHeadingRef}
-                  tabIndex={-1}
-                  className="text-xl sm:text-2xl md:text-xl lg:text-[1.35rem] font-bold tracking-tight text-foreground mb-1 outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40 rounded-sm"
-                >
-                  Review &amp; confirm
-                </h2>
-                <p className="text-muted-foreground text-xs sm:text-sm md:text-xs max-w-lg mx-auto leading-snug">
-                  Review subscription terms before continuing to secure payment
-                </p>
-                {promoMode !== "none" && (
-                  <p className="text-xs text-green-600 dark:text-green-400 mt-2 font-medium">
-                    Promo code will be applied at checkout
-                  </p>
-                )}
-              </>
-            )}
+            <h2 className="text-xl sm:text-2xl md:text-xl lg:text-[1.35rem] font-bold tracking-tight text-foreground mb-1">
+              Choose Your Plan
+            </h2>
+            <p className="text-muted-foreground text-xs sm:text-sm md:text-xs max-w-lg mx-auto leading-snug">
+              Join 2,500+ international students who trust TrackMyOPT to navigate their F-1 visa journey
+            </p>
 
             {/* Billing Toggle */}
-            {step === "select" && (
             <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-2.5 mt-3 sm:mt-4 md:mt-2.5">
               <span className={cn(
                 "text-sm md:text-xs font-medium transition-all duration-200",
@@ -347,13 +283,11 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 </span>
               </div>
             </div>
-            )}
 
           </div>
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
-        {step === "select" && (
         <div className="p-4 sm:p-5 md:p-4 lg:p-5 pt-3 md:pt-2">
           <div className="mb-3 md:mb-2 max-w-xs mx-auto w-full">
             <PromoCodeCheckoutBar
@@ -482,7 +416,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                       )}
                     </div>
 
-                    {/* CTA Button */}
+                    {/* Consent + CTA Button */}
                     <div className="mb-3 md:mb-2">
                       {plan.current ? (
                         <Button
@@ -502,29 +436,79 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                           Free Forever
                         </Button>
                       ) : (
-                        <Button
-                          onClick={() => {
-                            if (plan.id === "pro" || plan.id === "dedicated") {
-                              handleSelectPlan(plan.id);
+                        <>
+                          {/* Inline consent checkbox */}
+                          <label
+                            className={cn(
+                              "flex items-start gap-2.5 rounded-lg border p-2.5 my-3 cursor-pointer min-h-[44px] select-none transition-all duration-200",
+                              plan.id === "pro"
+                                ? proConsent
+                                  ? "border-violet-500 bg-violet-500/[0.06]"
+                                  : "border-border/60 bg-transparent hover:border-violet-400/50"
+                                : dedicatedConsent
+                                  ? "border-amber-500 bg-amber-500/[0.06]"
+                                  : "border-border/60 bg-transparent hover:border-amber-400/50"
+                            )}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={plan.id === "pro" ? proConsent : dedicatedConsent}
+                              onChange={() =>
+                                plan.id === "pro"
+                                  ? setProConsent((v: boolean) => !v)
+                                  : setDedicatedConsent((v: boolean) => !v)
+                              }
+                              className={cn(
+                                "mt-0.5 h-4 w-4 shrink-0 rounded",
+                                plan.id === "pro" ? "accent-violet-600" : "accent-amber-500"
+                              )}
+                            />
+                            <span className="text-[11px] leading-snug text-muted-foreground">
+                              {plan.id === "pro"
+                                ? proFreeTrialEligible !== false
+                                  ? `I agree the 7-day free trial auto-converts to $${isYearly ? `${plan.yearlyPrice.toFixed(2)}/year` : `${plan.monthlyPrice.toFixed(2)}/month`} unless I cancel before renewal.`
+                                  : `I agree to auto-renewing charges of $${isYearly ? `${plan.yearlyPrice.toFixed(2)}/year` : `${plan.monthlyPrice.toFixed(2)}/month`} unless I cancel.`
+                                : `I agree the 3-day money-back period applies, then $${isYearly ? `${plan.yearlyPrice.toFixed(2)}/year` : `${plan.monthlyPrice.toFixed(2)}/month`} is charged unless I cancel.`}
+                            </span>
+                          </label>
+
+                          <Button
+                            onClick={() => handleUpgrade(plan.id)}
+                            disabled={
+                              isLoading ||
+                              (plan.id === "pro" ? !proConsent : !dedicatedConsent)
                             }
-                          }}
-                          disabled={isLoading}
-                          className={cn(
-                            "w-full h-9 md:h-8 text-xs md:text-[11px] font-semibold transition-all duration-300",
-                            plan.popular
-                              ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 md:hover:scale-[1.01]"
-                              : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 md:hover:scale-[1.01]"
-                          )}
-                        >
-                          <span className="flex items-center gap-1.5">
-                            {plan.popular
-                              ? proFreeTrialEligible === false
-                                ? "Subscribe to Pro"
-                                : "Start 7-Day Free Trial"
-                              : "Upgrade to Dedicated"}
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </span>
-                        </Button>
+                            className={cn(
+                              "w-full h-9 md:h-8 text-xs md:text-[11px] font-semibold transition-all duration-300",
+                              plan.popular
+                                ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 md:hover:scale-[1.01]"
+                                : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 md:hover:scale-[1.01]",
+                              (plan.id === "pro" ? !proConsent : !dedicatedConsent) &&
+                                "!opacity-40 !cursor-not-allowed !shadow-none"
+                            )}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              {isLoading ? (
+                                <>
+                                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  Processing...
+                                </>
+                              ) : plan.popular ? (
+                                <>
+                                  {proFreeTrialEligible === false
+                                    ? "Subscribe to Pro"
+                                    : "Start 7-Day Free Trial"}
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </>
+                              ) : (
+                                <>
+                                  Upgrade to Dedicated
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </>
+                              )}
+                            </span>
+                          </Button>
+                        </>
                       )}
                     </div>
 
@@ -573,129 +557,13 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
               );
             })}
           </div>
+
+          {promoError && (
+            <p className="px-4 pb-2 text-xs text-destructive text-center" role="alert">
+              {promoError}
+            </p>
+          )}
         </div>
-        )}
-
-        {step === "confirm" && selectedPlanForConfirm && (
-          <div className="p-4 sm:p-5 md:p-4 max-w-xl mx-auto w-full space-y-4 md:space-y-3">
-            <button
-              type="button"
-              onClick={() => {
-                setStep("select");
-                setConsentError(null);
-              }}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40 rounded-sm"
-            >
-              <ChevronLeft className="w-4 h-4" aria-hidden />
-              Back to plans
-            </button>
-
-            <div
-              className={cn(
-                "rounded-2xl md:rounded-xl border p-4 sm:p-5 md:p-4",
-                selectedPlanForConfirm.popular
-                  ? "border-violet-500/40 bg-gradient-to-b from-violet-500/[0.08] to-transparent"
-                  : "border-amber-500/30 bg-card/60"
-              )}
-            >
-              <div className="flex items-center gap-2.5 mb-3">
-                {(() => {
-                  const Icon = selectedPlanForConfirm.icon;
-                  return (
-                    <div className={cn("p-2 rounded-lg shadow-sm", selectedPlanForConfirm.iconBg)}>
-                      <Icon className={cn("w-[18px] h-[18px]", selectedPlanForConfirm.iconColor)} />
-                    </div>
-                  );
-                })()}
-                <div>
-                  <h3 className="font-bold text-base text-foreground">
-                    {selectedPlanForConfirm.name}
-                  </h3>
-                  <p className="text-muted-foreground text-[11px] leading-tight">
-                    {selectedPlanForConfirm.tagline}
-                  </p>
-                </div>
-              </div>
-
-              <div className="pb-3 border-b border-border/50">
-                {confirmInterval === "year" ? (
-                  <>
-                    <div className="flex items-baseline gap-1 flex-wrap">
-                      <span className="text-3xl md:text-2xl font-bold tracking-tight text-foreground tabular-nums">
-                        $
-                        {formatMonthlyEquivalentFromYearly(
-                          selectedPlanForConfirm.yearlyPrice
-                        )}
-                      </span>
-                      <span className="text-sm md:text-xs font-medium text-muted-foreground">/mo</span>
-                    </div>
-                    <p className="text-xs md:text-[11px] text-muted-foreground mt-0.5">
-                      ${selectedPlanForConfirm.yearlyPrice.toFixed(2)} billed yearly
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="text-3xl md:text-2xl font-bold tracking-tight text-foreground tabular-nums">
-                        ${selectedPlanForConfirm.monthlyPrice}
-                      </span>
-                      <span className="text-sm md:text-xs font-medium text-muted-foreground">/mo</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">Billed monthly</p>
-                  </>
-                )}
-                {showProTrialOnConfirm && selectedPlanForConfirm.trial && (
-                  <p className="text-violet-600 dark:text-violet-400 text-xs font-medium mt-1.5 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
-                    {selectedPlanForConfirm.trial}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <SubscriptionCheckoutDisclosures
-              planId={disclosurePlan}
-              interval={confirmInterval}
-              includeProTrial={showProTrialOnConfirm}
-              checked={recurringConsent}
-              onCheckedChange={(v) => {
-                setRecurringConsent(v);
-                if (v) setConsentError(null);
-              }}
-              disabled={isLoading}
-            />
-
-            {(consentError || promoError) && (
-              <p className="text-xs text-destructive" role="alert">
-                {consentError || promoError}
-              </p>
-            )}
-
-            <Button
-              type="button"
-              onClick={() => handleUpgrade(disclosurePlan, confirmInterval)}
-              disabled={isLoading}
-              className={cn(
-                "w-full h-11 md:h-10 text-sm md:text-xs font-semibold cursor-pointer transition-all duration-200 focus-visible:ring-2 focus-visible:ring-violet-500/40",
-                disclosurePlan === "pro"
-                  ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25"
-                  : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/20"
-              )}
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Processing...
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-1.5">
-                  Agree and Continue to Payment
-                  <ArrowRight className="w-4 h-4" />
-                </span>
-              )}
-            </Button>
-          </div>
-        )}
 
           {/* Footer Trust Section */}
           <div className="px-4 sm:px-5 md:px-4 pb-4 md:pb-3 pt-3 md:pt-2 border-t border-border/40 bg-background/95">
@@ -704,10 +572,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 <Shield className="w-3.5 h-3.5 text-green-600" />
                 <span>Secure Payment</span>
               </div>
-              {!isPremium &&
-                proFreeTrialEligible !== false &&
-                (step === "select" ||
-                  (step === "confirm" && disclosurePlan === "pro")) && (
+              {!isPremium && proFreeTrialEligible !== false && (
               <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
                 <Sparkles className="w-3.5 h-3.5 md:w-3 md:h-3 text-violet-600" />
                 <span>7-Day Free Trial</span>
