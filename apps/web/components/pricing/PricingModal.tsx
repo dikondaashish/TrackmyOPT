@@ -264,7 +264,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         onClose={onClose}
-        className="max-w-[1100px] md:max-w-[1180px] w-[95vw] max-h-[min(92vh,880px)] md:max-h-[min(90vh,800px)] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col md:text-[15px]"
+        className="max-w-[1100px] w-[95vw] max-h-[min(92vh,880px)] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col md:text-[15px]"
       >
         {/* Header Section */}
         <div className="relative shrink-0 px-5 sm:px-6 md:px-5 pt-5 pb-3 sm:pb-4 md:pt-4 md:pb-2.5 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
