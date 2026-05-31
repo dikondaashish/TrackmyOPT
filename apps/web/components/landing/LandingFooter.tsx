@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LEGAL_FOOTER_LINKS } from "@/lib/legal/legal-config";
 
 // Custom SVG Logos for Trust Signals
 const CloudflareLogo = () => (
@@ -10,20 +11,9 @@ const CloudflareLogo = () => (
     </svg>
 );
 
-const PciDssLogo = () => (
-    <div className="flex flex-col items-center bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 px-2 py-1 rounded shadow-sm">
-        <span className="text-[10px] font-black tracking-tighter leading-none text-gray-900 dark:text-gray-100">PCI DSS</span>
-        <span className="text-[6px] font-medium tracking-wide uppercase text-gray-500 dark:text-gray-400">Compliant</span>
-    </div>
-);
-
-const Soc2Logo = () => (
-    <div className="flex flex-col items-center justify-center bg-gray-900 text-white px-2 py-1 rounded w-auto shadow-sm">
-        <div className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-            <span className="text-[10px] font-bold tracking-tight leading-none">SOC 2</span>
-        </div>
-        <span className="text-[6px] font-medium uppercase tracking-wider opacity-80">Type II</span>
+const StripeBadge = () => (
+    <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 px-2.5 py-1 rounded-full">
+        <span className="text-[9px] font-semibold text-violet-800 dark:text-violet-200 uppercase tracking-wide">Payments by Stripe</span>
     </div>
 );
 
@@ -69,10 +59,7 @@ export function LandingFooter() {
             { label: "Contact", href: "/contact" },
             { label: "Report Fraud", href: "/resources/report-fraud" },
         ],
-        legal: [
-            { label: "Privacy Policy", href: "/privacy" },
-            { label: "Terms of Service", href: "/terms" },
-        ],
+        legal: [...LEGAL_FOOTER_LINKS],
     };
 
     return (
@@ -181,8 +168,8 @@ export function LandingFooter() {
                         </h4>
                         <ul className="space-y-1 md:space-y-3">
 
-                            {footerLinks.legal.map((link, index) => (
-                                <li key={index}>
+                            {footerLinks.legal.map((link) => (
+                                <li key={link.href}>
                                     <Link
                                         href={link.href}
                                         className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
@@ -191,30 +178,6 @@ export function LandingFooter() {
                                     </Link>
                                 </li>
                             ))}
-                            <li>
-                                <Link
-                                    href="/refund-policy"
-                                    className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
-                                >
-                                    Refund Policy
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/disclaimer"
-                                    className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
-                                >
-                                    Disclaimer
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/cookie-policy"
-                                    className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
-                                >
-                                    Cookie Policy
-                                </Link>
-                            </li>
                         </ul>
                     </div>
                 </div>
@@ -225,18 +188,10 @@ export function LandingFooter() {
                         © {currentYear} TrackMyOPT. Made with ❤️ for international students.
                     </p>
 
-                    {/* Trust Badges - Real Brand Logos */}
-                    <div className="flex flex-wrap justify-center items-center gap-6 opacity-90 grayscale hover:grayscale-0 transition-all duration-300">
-                        <div title="SSL Secured" className="hover:scale-105 transition-transform">
-                            <SslLogo />
-                        </div>
-                        <div title="PCI DSS Compliant" className="hover:scale-105 transition-transform">
-                            <PciDssLogo />
-                        </div>
-                        <div title="SOC 2 Type II" className="hover:scale-105 transition-transform">
-                            <Soc2Logo />
-                        </div>
-                        <div title="Protected by Cloudflare" className="hover:scale-105 transition-transform">
+                    <div className="flex flex-wrap justify-center items-center gap-4 opacity-90">
+                        <SslLogo />
+                        <StripeBadge />
+                        <div title="CDN / edge protection may be used" className="opacity-80">
                             <CloudflareLogo />
                         </div>
                     </div>

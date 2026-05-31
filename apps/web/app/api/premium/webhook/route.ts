@@ -27,7 +27,11 @@ import {
   sendRefundAcknowledgmentEmail,
   sendSubscriptionEndedEmail,
   sendTrialEndingEmail,
+  sendTrialStartedEmail,
+  sendCancellationConfirmedEmail,
+  sendSubscriptionReceiptEmail,
 } from '@/lib/notifications/transactional-emails';
+import { recordBillingConsentEvent } from '@/lib/billing/recordBillingConsent';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -175,6 +179,91 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     }
     if (result.alreadyRecorded) {
       secureLog.info('checkout session already synced:', logIdPrefix(session.id));
+      return;
+    }
+
+    const userId = session.metadata?.supabase_user_id;
+    if (!userId) return;
+
+    const subId =
+      typeof session.subscription === 'string'
+        ? session.subscription
+        : session.subscription && typeof session.subscription === 'object'
+          ? session.subscription.id
+          : null;
+
+    if (subId) {
+      await recordBillingConsentEvent({
+        userId,
+        eventType: 'checkout_recurring_consent',
+        stripeCheckoutSessionId: session.id,
+        stripeSubscriptionId: subId,
+        metadata: { source: 'stripe_webhook_checkout_completed', session_metadata: session.metadata },
+      });
+    }
+
+    let email = session.customer_details?.email?.trim() || '';
+    let firstName: string | null = session.customer_details?.name?.split(/\s+/)[0] || null;
+    if (!email) {
+      const resolved = await resolveUserById(supabase, userId);
+      if (resolved) {
+        email = resolved.email;
+        firstName = firstName || resolved.firstName;
+      }
+    }
+    if (!email) return;
+
+    const planId = session.metadata?.planId || 'pro';
+    const interval = session.metadata?.interval === 'month' ? 'monthly' : 'yearly';
+    const eventId = `checkout_${session.id}`;
+
+    if (subId) {
+      try {
+        const sub = await stripe.subscriptions.retrieve(subId);
+        const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end;
+        const periodEndLabel = periodEnd
+          ? new Date(periodEnd * 1000).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          : 'your billing period end';
+
+        if (sub.status === 'trialing' && sub.trial_end) {
+          const trialEnd = new Date(sub.trial_end * 1000).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
+          await sendTrialStartedEmail({
+            supabase,
+            userId,
+            toEmail: email,
+            firstName,
+            trialEndDate: trialEnd,
+            stripeEventId: eventId,
+          });
+        } else {
+          const amountCents = session.amount_total ?? 0;
+          const amountFormatted = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: (session.currency || 'usd').toUpperCase(),
+          }).format(amountCents / 100);
+          await sendSubscriptionReceiptEmail({
+            supabase,
+            userId,
+            toEmail: email,
+            firstName,
+            planLabel: `TrackMyOPT ${String(planId)} (${interval})`,
+            amountFormatted,
+            billingInterval: interval,
+            periodEndDate: periodEndLabel,
+            stripeEventId: eventId,
+          });
+        }
+      } catch (e) {
+        secureLog.warn('post-checkout billing emails failed', sanitizeError(e));
+      }
     }
   } catch (error: unknown) {
     secureLog.error('❌ handleCheckoutCompleted exception:', sanitizeError(error));
@@ -722,6 +811,48 @@ async function handleSubscriptionUpdated(
     // cancellation), which is standard SaaS practice and prevents cutting off users
     // during temporary payment failures.
     const isTerminal = ['canceled', 'incomplete_expired'].includes(subscription.status);
+
+    if (subscription.cancel_at_period_end && ['active', 'trialing'].includes(subscription.status)) {
+      const user = await resolveUserForStripeCustomer(supabase, customerId);
+      if (user) {
+        const periodEnd = (subscription as unknown as { current_period_end?: number }).current_period_end;
+        const accessThroughDate = periodEnd
+          ? new Date(periodEnd * 1000).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          : 'the end of your current billing period';
+        const nextCharge =
+          subscription.status === 'trialing' && subscription.trial_end
+            ? new Date(subscription.trial_end * 1000).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })
+            : null;
+
+        await recordBillingConsentEvent({
+          userId: user.userId,
+          eventType: 'subscription_cancel_initiated',
+          stripeSubscriptionId: subscription.id,
+          metadata: { cancel_at_period_end: true, initiated_by: 'stripe_portal_or_api' },
+        });
+
+        const r = await sendCancellationConfirmedEmail({
+          supabase,
+          userId: user.userId,
+          toEmail: user.email,
+          firstName: user.firstName,
+          accessThroughDate,
+          nextChargeDate: nextCharge,
+          stripeEventId: `sub_cancel_confirm_${subscription.id}`,
+        });
+        if (!r.ok && 'error' in r && r.error) {
+          secureLog.error('cancellation_confirmed email:', r.error);
+        }
+      }
+    }
 
     if (isTerminal) {
       await revokePremiumAccess(customerId);

@@ -121,6 +121,7 @@ export type QueueTransactionalResult =
 type DedupeMode =
   | { kind: "payment_failed"; stripeEventId: string; stripeInvoiceId?: string | null }
   | { kind: "stripe_event_alltime"; stripeEventId: string }
+  | { kind: "material_policy"; policyVersion: string }
   | { kind: "welcome_free" }
   | { kind: "premium_welcome" }
   | { kind: "stem_opt_window" }
@@ -196,6 +197,22 @@ export async function queueTransactionalEmailSend(args: {
       return { ok: true, skipped: "deduped" };
     }
     dataWithEvent.stripe_event_id = dedupe.stripeEventId;
+  } else if (dedupe.kind === "material_policy") {
+    if (!userId) {
+      return { ok: false, error: "user_id required for material_policy dedupe" };
+    }
+    const { data: prior } = await supabase
+      .from("email_queue")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("email_type", "material_policy_change")
+      .contains("email_data", { policy_version: dedupe.policyVersion })
+      .limit(1)
+      .maybeSingle();
+    if (prior?.id) {
+      return { ok: true, skipped: "deduped" };
+    }
+    dataWithEvent.policy_version = dedupe.policyVersion;
   }
 
   const { data: inserted, error: insErr } = await supabase
@@ -720,6 +737,240 @@ Your Premium trial ends on ${trialEndDate}. Manage billing: ${settingsUrl}
     text,
     emailData: { trial_end_date: trialEndDate },
     dedupe: { kind: "stripe_event_alltime", stripeEventId },
+  });
+}
+
+/**
+ * Pro trial started (checkout completed with trial).
+ */
+export async function sendTrialStartedEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+  trialEndDate: string;
+  stripeEventId: string;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName, trialEndDate, stripeEventId } = args;
+  const base = getAppBaseUrl();
+  const settingsUrl = `${base}/dashboard/settings`;
+  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;">
+  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
+    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
+        <h1 style="color:#fff;margin:0;font-size:22px;">Your 7-day Pro trial has started</h1>
+      </div>
+      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 16px 0;">${greeting}</p>
+        <p style="margin:0 0 16px 0;">Your free trial ends on <strong>${escapeHtml(trialEndDate)}</strong>. You will not be charged if you cancel before that date.</p>
+        <p style="margin:0 0 16px 0;color:#6B7280;font-size:14px;">After the trial, your Pro plan auto-renews at the price shown at checkout unless you cancel.</p>
+        <div style="text-align:center;margin-top:24px;">
+          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;">Manage billing</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const text = `${firstName ? `Hi ${firstName},` : "Hi,"}
+
+Your Pro trial ends ${trialEndDate}. Cancel before then to avoid charges: ${settingsUrl}`;
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "trial_started",
+    subject: "TrackMyOPT: Your 7-day Pro trial has started",
+    html,
+    text,
+    emailData: { trial_end_date: trialEndDate },
+    dedupe: { kind: "stripe_event_alltime", stripeEventId },
+  });
+}
+
+/**
+ * Cancellation scheduled (cancel at period end) — not the same as subscription ended.
+ */
+export async function sendCancellationConfirmedEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+  accessThroughDate: string;
+  nextChargeDate: string | null;
+  stripeEventId: string;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName, accessThroughDate, nextChargeDate, stripeEventId } = args;
+  const base = getAppBaseUrl();
+  const settingsUrl = `${base}/dashboard/settings`;
+  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
+  const chargeLine = nextChargeDate
+    ? `<p style="margin:0 0 16px 0;color:#B45309;font-size:14px;"><strong>Note:</strong> A charge may still be scheduled on ${escapeHtml(nextChargeDate)} if you cancel during a trial or billing window. Check Stripe receipts in billing settings.</p>`
+    : `<p style="margin:0 0 16px 0;color:#6B7280;font-size:14px;">No further renewal charges are scheduled after ${escapeHtml(accessThroughDate)}.</p>`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;">
+  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
+    <div style="background:#fff;border-radius:16px;overflow:hidden;">
+      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
+        <h1 style="color:#fff;margin:0;font-size:22px;">Subscription cancellation confirmed</h1>
+      </div>
+      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 16px 0;">${greeting}</p>
+        <p style="margin:0 0 16px 0;">Your subscription is set to cancel. You keep full access until <strong>${escapeHtml(accessThroughDate)}</strong>.</p>
+        ${chargeLine}
+        <div style="text-align:center;margin-top:24px;">
+          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;">View billing</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const text = `Cancellation confirmed. Access through ${accessThroughDate}. Billing: ${settingsUrl}`;
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "subscription_cancel_confirmed",
+    subject: "TrackMyOPT: Subscription cancellation confirmed",
+    html,
+    text,
+    emailData: { access_through: accessThroughDate },
+    dedupe: { kind: "stripe_event_alltime", stripeEventId },
+  });
+}
+
+/**
+ * Subscription receipt after first paid period or immediate Dedicated charge.
+ */
+export async function sendSubscriptionReceiptEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+  planLabel: string;
+  amountFormatted: string;
+  billingInterval: string;
+  periodEndDate: string;
+  stripeEventId: string;
+}): Promise<QueueTransactionalResult> {
+  const {
+    supabase,
+    userId,
+    toEmail,
+    firstName,
+    planLabel,
+    amountFormatted,
+    billingInterval,
+    periodEndDate,
+    stripeEventId,
+  } = args;
+  const base = getAppBaseUrl();
+  const settingsUrl = `${base}/dashboard/settings`;
+  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;">
+  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
+    <div style="background:#fff;border-radius:16px;overflow:hidden;">
+      <div style="background:${EMAIL.headerGradient};padding:28px 24px;text-align:center;">
+        <h1 style="color:#fff;margin:0;font-size:22px;">Subscription receipt</h1>
+      </div>
+      <div style="padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 16px 0;">${greeting}</p>
+        <p style="margin:0 0 8px 0;"><strong>Plan:</strong> ${escapeHtml(planLabel)}</p>
+        <p style="margin:0 0 8px 0;"><strong>Amount:</strong> ${escapeHtml(amountFormatted)} (${escapeHtml(billingInterval)})</p>
+        <p style="margin:0 0 16px 0;"><strong>Current period ends:</strong> ${escapeHtml(periodEndDate)}</p>
+        <p style="margin:0 0 16px 0;color:#6B7280;font-size:14px;">This is an auto-renewing subscription. Cancel before renewal in Settings → Billing.</p>
+        <div style="text-align:center;">
+          <a href="${settingsUrl}" style="display:inline-block;background:${EMAIL.cta};color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;">Billing settings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const text = `Receipt: ${planLabel} ${amountFormatted} (${billingInterval}). Period ends ${periodEndDate}. ${settingsUrl}`;
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "subscription_receipt",
+    subject: "TrackMyOPT: Subscription receipt",
+    html,
+    text,
+    emailData: { plan: planLabel, amount: amountFormatted },
+    dedupe: { kind: "stripe_event_alltime", stripeEventId },
+  });
+}
+
+/**
+ * Material change to subscription/refund/billing terms (active subscribers).
+ */
+export async function sendMaterialPolicyChangeEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+  effectiveDate: string;
+  changeSummary: string;
+  policyVersion: string;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName, effectiveDate, changeSummary, policyVersion } = args;
+  const base = getAppBaseUrl();
+  const termsUrl = `${base}/terms`;
+  const refundUrl = `${base}/refund-policy`;
+  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;">
+  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
+    <div style="background:#fff;border-radius:16px;padding:28px 24px;color:#374151;font-size:15px;line-height:1.6;">
+      <h1 style="font-size:20px;color:#111827;margin:0 0 16px 0;">Important billing policy update</h1>
+      <p style="margin:0 0 16px 0;">${greeting}</p>
+      <p style="margin:0 0 16px 0;">We are updating subscription billing terms effective <strong>${escapeHtml(effectiveDate)}</strong> (version ${escapeHtml(policyVersion)}).</p>
+      <p style="margin:0 0 16px 0;">${escapeHtml(changeSummary)}</p>
+      <p style="margin:0 0 16px 0;"><a href="${termsUrl}">Terms</a> · <a href="${refundUrl}">Refund Policy</a></p>
+      <p style="margin:0;color:#6B7280;font-size:13px;">If you do not agree, cancel before the effective date in Settings → Billing to avoid future renewals.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const text = `Billing policy update effective ${effectiveDate}. ${changeSummary} ${termsUrl}`;
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "material_policy_change",
+    subject: "TrackMyOPT: Important update to subscription terms",
+    html,
+    text,
+    emailData: { effective_date: effectiveDate, policy_version: policyVersion },
+    dedupe: { kind: "material_policy", policyVersion },
   });
 }
 

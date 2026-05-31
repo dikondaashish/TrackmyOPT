@@ -273,7 +273,7 @@ function ContactFAQ() {
         { question: "What are your support hours?", answer: "Our team is available Monday-Friday, 9am-6pm EST. We respond to all emails within 4 hours during business hours." },
         { question: "How do I reset my password?", answer: "Click 'Forgot Password' on the login page. You'll receive an email with a reset link within a few minutes." },
         { question: "How do I upgrade to Premium?", answer: "Go to Settings > Subscription in your dashboard. You can upgrade with a credit card or use our student discount code." },
-        { question: "Can I get a refund?", answer: "Yes, we offer a 14-day money-back guarantee. Contact us within 14 days of purchase for a full refund." },
+        { question: "Can I get a refund?", answer: "Pro includes a 7-day free trial when eligible. Dedicated includes a 3-day money-back guarantee on the first paid month only. After those windows, we generally do not refund change-of-mind charges. See our Refund Policy for exceptions (billing errors, fraud, major service failure)." },
     ];
 
     return (

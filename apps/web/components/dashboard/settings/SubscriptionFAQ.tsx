@@ -1,26 +1,36 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import Link from 'next/link';
+import { DEDICATED_MONEY_BACK_DAYS, PRO_TRIAL_DAYS } from '@/lib/billing/legal-config';
 
 const faqs = [
     {
-        question: "How do I cancel my subscription?",
-        answer: "Sign in → Settings → Subscription → Manage Subscription. That opens Stripe’s secure Customer Portal where you can cancel, update your card, or download invoices. After you cancel, Stripe confirms by email; your TrackMyOPT access stays until the end of the paid or trial period, then the app moves you to the free plan."
+        question: "Is this an auto-renewing subscription?",
+        answer: `Yes. Pro and Dedicated renew automatically at the price shown at checkout (monthly or yearly) until you cancel in Settings → Subscription → Cancel subscription (Stripe billing portal).`
     },
     {
-        question: "Is this a subscription?",
-        answer: "Yes, we offer flexible monthly and annual plans. You can cancel anytime. Our annual plans come with a 20% discount."
+        question: "How do I cancel?",
+        answer: "Sign in → Settings → Subscription & Billing → Cancel subscription. Stripe's portal confirms cancellation. We email you your final access date. Cancellation stops future charges only; you keep access through the end of your current paid or trial period."
     },
     {
-        question: "Is my payment secure?",
-        answer: "Absolutely. We use Stripe, a globally trusted payment processor (used by Amazon, Google, etc.), to handle your payment details safely. We never store your card info."
+        question: "What is the Pro free trial?",
+        answer: `Pro includes one ${PRO_TRIAL_DAYS}-day free trial per account (ever). You are not charged if you cancel before the trial ends. After the trial, Pro auto-renews unless you cancel.`
+    },
+    {
+        question: "What about Dedicated billing?",
+        answer: `Dedicated is charged when you subscribe (no trial). You have a ${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee on your first paid month only. See our Refund Policy for details.`
     },
     {
         question: "Can I get a refund?",
-        answer: "Pro includes one 7-day free trial per account, ever. If you still have that trial available, you will not be charged if you cancel before it ends. After the trial has been used once on your account, new Pro subscriptions bill on Stripe’s schedule with no extra trial period."
+        answer: `After the Pro trial or Dedicated ${DEDICATED_MONEY_BACK_DAYS}-day first-month window, we do not refund change-of-mind charges. Exceptions: billing errors, unauthorized/fraudulent charges, or major service failure—contact support@trackmyopt.com.`
+    },
+    {
+        question: "Is my payment secure?",
+        answer: "Yes. Stripe processes payments. We do not store your full card number."
     },
     {
         question: "What happens to my data if I cancel?",
-        answer: "Your data is safe! You will return to the free plan. You'll keep your account and basic data, but premium features like the H-1B database will be locked."
+        answer: "You return to the free plan. Your account and basic data remain; premium features are locked."
     }
 ];
 
@@ -35,7 +45,7 @@ export function SubscriptionFAQ() {
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-4">
                 <HelpCircle className="w-5 h-5 text-gray-500" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Frequently Asked Questions</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Billing FAQ</h3>
             </div>
 
             <div className="space-y-2">
@@ -64,8 +74,17 @@ export function SubscriptionFAQ() {
                 ))}
             </div>
 
-            <div className="mt-6 text-center">
-                <p className="text-sm text-gray-500">
+            <div className="mt-6 text-center text-sm text-gray-500 space-y-1">
+                <p>
+                    <Link href="/refund-policy" className="text-blue-600 hover:underline">Refund Policy</Link>
+                    {" · "}
+                    <Link href="/terms" className="text-blue-600 hover:underline">Terms of Service</Link>
+                    {" · "}
+                    <Link href="/disclaimer" className="text-blue-600 hover:underline">Disclaimer</Link>
+                    {" · "}
+                    <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
+                </p>
+                <p>
                     Need help? <a href="mailto:support@trackmyopt.com" className="text-blue-600 hover:underline">Contact Support</a>
                 </p>
             </div>

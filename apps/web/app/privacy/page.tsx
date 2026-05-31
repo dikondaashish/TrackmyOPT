@@ -1,311 +1,156 @@
-import { Metadata } from 'next';
-import { LandingNavbar } from "../../components/landing/LandingNavbar";
-import { LandingFooter } from "../../components/landing/LandingFooter";
-import { ArrowLeft } from "lucide-react";
+import { Metadata } from "next";
 import Link from "next/link";
+import { LegalPageShell } from "@/components/legal/LegalPageShell";
+import { COMPANY, LEGAL_CONTACT, THIRD_PARTY_SERVICES } from "@/lib/legal/legal-config";
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | TrackMyOPT',
-  description: 'Privacy Policy for TrackMyOPT - OPT & STEM OPT Toolkit',
-  alternates: {
-    canonical: 'https://www.trackmyopt.com/privacy',
-  },
+  title: "Privacy Policy | TrackMyOPT",
+  description: "How TrackMyOPT collects, uses, and protects your information.",
+  alternates: { canonical: "https://www.trackmyopt.com/privacy" },
 };
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900/30 dark:selection:text-blue-100 relative">
-      {/* Careerflow-inspired Vignette Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        {/* 1. Base Layer: Soft White/Zinc */}
-        <div className="absolute inset-0 bg-slate-50 dark:bg-zinc-950" />
+    <LegalPageShell title="Privacy Policy" policyType="privacy_policy">
+      <h2>1. Who we are</h2>
+      <p>
+        {COMPANY.productName} is a software product of <strong>{COMPANY.legalName}</strong> ({COMPANY.stateOfIncorporation}), with offices in {COMPANY.headquarters}. This Privacy Policy explains how we handle personal information when you use our website, web app, Chrome extension, and related services (the &quot;Service&quot;).
+      </p>
+      <p>
+        Contact: <a href={`mailto:${LEGAL_CONTACT.support}`}>{LEGAL_CONTACT.support}</a> (general) ·{" "}
+        <a href={`mailto:${LEGAL_CONTACT.privacy}`}>{LEGAL_CONTACT.privacy}</a> (privacy requests)
+      </p>
 
-        {/* 2. Top-Center Highlights (Sunlight effect) */}
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[80%] h-[500px] bg-blue-100/40 dark:bg-blue-900/10 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
+      <h2>2. Information we collect</h2>
+      <h3>2.1 Account information</h3>
+      <ul>
+        <li>Email address, name (if provided), and authentication credentials (passwords are hashed; we do not store plain-text passwords)</li>
+        <li>Sign-in method (email/password or Google OAuth)</li>
+        <li>Account settings and preferences</li>
+      </ul>
 
-        {/* 3. Vignette Edges (Depth) */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,0.8)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
-      </div>
+      <h3>2.2 Immigration and workflow information you provide</h3>
+      <p>You may voluntarily enter information to use OPT/STEM OPT tools, for example:</p>
+      <ul>
+        <li>Program end dates, OPT/STEM OPT start and end dates, DSO recommendation dates</li>
+        <li>Employment history, unemployment tracking inputs, and related notes</li>
+        <li>USCIS receipt numbers for case status tracking</li>
+        <li>Case status text, descriptions, and status history returned from USCIS public systems</li>
+      </ul>
+      <p>
+        This information can be sensitive. We use it only to provide the features you request (timelines, reminders, dashboards, notifications).
+      </p>
 
-      <div className="relative z-10">
-        <LandingNavbar />
+      <h3>2.3 Documents and files</h3>
+      <p>
+        Premium users may upload files to the document vault (e.g. immigration-related PDFs or images). Files are stored using our cloud infrastructure (Supabase Storage). The vault is protected by an optional account passcode (stored as a hash).{" "}
+        <strong>The passcode controls access in the product; it is not end-to-end encryption.</strong> If you reset a forgotten passcode, existing vault files may be removed per our recovery policy.
+      </p>
 
-        <div className="max-w-4xl mx-auto pt-8 pb-20 px-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors mb-8 group"
-          >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            Back to Home
-          </Link>
+      <h3>2.4 Payment and billing</h3>
+      <p>
+        Paid subscriptions are processed by <strong>Stripe</strong>. We receive subscription status, customer IDs, and transaction metadata from Stripe. We do <strong>not</strong> store full payment card numbers on our servers.
+      </p>
 
-          <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm rounded-[2.5rem] border border-gray-200 dark:border-white/10 shadow-2xl p-8 md:p-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">Privacy Policy</h1>
+      <h3>2.5 Communications</h3>
+      <ul>
+        <li>Transactional emails (welcome, billing, case status, reminders, support replies)</li>
+        <li>Email addresses and message metadata in our email queue logs</li>
+        <li>Information you send via contact or support forms</li>
+      </ul>
 
-            <p className="text-sm font-mono text-blue-600 dark:text-blue-400 mb-12 uppercase tracking-widest">
-              Last Updated: December 12, 2025
-            </p>
+      <h3>2.6 Device, log, and usage data</h3>
+      <ul>
+        <li>IP address, browser type, device information, and timestamps (security and abuse prevention)</li>
+        <li>Authentication session cookies (see <Link href="/cookie-policy">Cookie Policy</Link>)</li>
+        <li>Optional analytics (PostHog) when enabled in our deployment</li>
+        <li>Aggregated performance metrics (Vercel Analytics / Speed Insights) on our website</li>
+        <li>Chrome extension: version, timezone, and sync storage for sign-in state (see extension permissions)</li>
+      </ul>
 
-            <div className="prose prose-lg prose-longform dark:prose-invert max-w-none 
-              prose-headings:text-gray-900 dark:prose-headings:text-white 
-              prose-headings:font-bold prose-headings:tracking-tight
-              prose-p:text-gray-600 dark:prose-p:text-gray-400
-              prose-li:text-gray-600 dark:prose-li:text-gray-400
-              prose-strong:text-gray-900 dark:prose-strong:text-white
-              prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-              prose-hr:border-gray-200 dark:prose-hr:border-white/10">
+      <h3>2.7 AI-assisted features</h3>
+      <p>
+        If you use resume or document AI features, content you submit may be sent to our AI provider (e.g. Google Gemini) to generate output. Do not submit information you are not comfortable sharing with that provider. AI output is not legal advice.
+      </p>
 
-              <h2>1. Introduction</h2>
-              <p>
-                TrackMyOPT is a product of <strong>Zyene, Inc.</strong>, a company incorporated in the State of Delaware, with headquarters located in San Francisco, California. TrackMyOPT ("we," "our," or "us") is committed to protecting your privacy in full compliance with global regulations including the California Consumer Privacy Act (CCPA) and the General Data Protection Regulation (GDPR). This Privacy Policy explains how we collect, use, disclose, and safeguard your information.
-              </p>
+      <h2>3. How we use information</h2>
+      <ul>
+        <li>Provide, operate, and improve the Service</li>
+        <li>Calculate timelines, unemployment tracking, and reminders</li>
+        <li>Check USCIS case status when you provide a receipt number</li>
+        <li>Process subscriptions and send billing-related communications</li>
+        <li>Authenticate users and protect against fraud or abuse</li>
+        <li>Respond to support requests and enforce our Terms</li>
+        <li>Comply with law and protect our rights</li>
+      </ul>
 
-              <h2 id="what-data-do-we-collect" className="direct-answer">2. What Information Do We Collect?</h2>
+      <h2>4. How we share information</h2>
+      <p>
+        <strong>We do not sell your personal information.</strong> We share information only with:
+      </p>
+      <ul>
+        {THIRD_PARTY_SERVICES.map((s) => (
+          <li key={s.name}>
+            <strong>{s.name}</strong> — {s.purpose}
+            {s.privacyUrl ? (
+              <>
+                {" "}
+                (<a href={s.privacyUrl} target="_blank" rel="noopener noreferrer">privacy policy</a>)
+              </>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+      <p>We may also disclose information if required by law, court order, or to protect safety and rights.</p>
 
-              <h3>Personal Information</h3>
-              <p>When you create an account or sign in, we collect:</p>
-              <ul>
-                <li><strong>Email address</strong>: For account creation and authentication</li>
-                <li><strong>Name</strong>: First and last name (for Google OAuth or manual sign-up)</li>
-                <li><strong>Password</strong>: Encrypted and stored securely (manual sign-up only)</li>
-              </ul>
+      <h2>5. Legal bases (EEA/UK users)</h2>
+      <p>Where GDPR applies, we rely on consent, contract performance, legitimate interests (security, improvement), and legal obligations as applicable.</p>
 
-              <h3>OPT & Immigration Data</h3>
-              <p>You may voluntarily provide:</p>
-              <ul>
-                <li>Program End Date</li>
-                <li>DSO Recommendation Date</li>
-                <li>OPT EAD End Date</li>
-                <li>OPT Start Date</li>
-                <li>STEM OPT Start Date</li>
-                <li>Employment history and dates</li>
-                <li>STEM eligibility status</li>
-              </ul>
+      <h2>6. Data retention</h2>
+      <ul>
+        <li>Account data: retained while your account is active</li>
+        <li>After account deletion: we delete or anonymize personal data within a reasonable period (typically within 30 days), subject to backups and legal holds</li>
+        <li>Billing records: retained as needed for tax, accounting, and dispute resolution</li>
+        <li>Consent and checkout audit logs: retained for dispute evidence and compliance</li>
+      </ul>
 
-              <h3>USCIS Case Status Data (Personal Identifiable Information)</h3>
-              <p>If you use our Case Status Tracking feature, you may voluntarily provide:</p>
-              <ul>
-                <li><strong>USCIS Receipt Number</strong>: Your 13-character case receipt number (e.g., EAC1234567890) used to track your immigration case status with USCIS</li>
-              </ul>
-              <p>
-                <strong>Important:</strong> USCIS Receipt Numbers are considered <strong>Personal Identifiable Information (PII)</strong> as they are unique identifiers linked to your individual immigration case. We treat this data with the highest level of security and confidentiality.
-              </p>
+      <h2>7. Security</h2>
+      <p>
+        We use industry-standard measures including TLS in transit, access controls, and Row Level Security on our database where configured. No method of transmission or storage is 100% secure. See our <Link href="/security">Security</Link> page for an overview.
+      </p>
 
-              <h3>Usage Data</h3>
-              <p>We automatically collect:</p>
-              <ul>
-                <li>Browser type and version</li>
-                <li>Extension version</li>
-                <li>Timezone (for accurate date calculations)</li>
-                <li>Authentication timestamps</li>
-              </ul>
+      <h2>8. Your choices and rights</h2>
+      <ul>
+        <li><strong>Access / correction:</strong> Update profile and OPT data in Settings</li>
+        <li><strong>Deletion:</strong> Delete your account in Settings (or email {LEGAL_CONTACT.privacy})</li>
+        <li><strong>Email opt-out:</strong> Unsubscribe links in marketing emails; manage notification preferences in Settings</li>
+        <li><strong>California (CCPA/CPRA):</strong> Right to know, delete, correct, and opt out of sale/sharing (we do not sell personal information)</li>
+        <li><strong>EEA/UK (GDPR):</strong> Rights to access, rectification, erasure, restriction, portability, and objection where applicable</li>
+      </ul>
+      <p>
+        To exercise rights, email <a href={`mailto:${LEGAL_CONTACT.privacy}`}>{LEGAL_CONTACT.privacy}</a>. We may verify your identity before responding.
+      </p>
 
-              <h2 id="how-do-we-use-your-data" className="direct-answer">3. How Do We Use Your Information?</h2>
-              <p>We use your information to:</p>
-              <ul>
-                <li>Provide and maintain our service</li>
-                <li>Calculate OPT filing windows and deadlines</li>
-                <li>Send reminders about critical dates (if you opt-in to email notifications)</li>
-                <li>Authenticate your account and secure your data</li>
-                <li>Improve our services and user experience</li>
-                <li>Respond to your support requests</li>
-              </ul>
+      <h2>9. Children</h2>
+      <p>
+        The Service is intended for users 18 and older (typical F-1/OPT audience). We do not knowingly collect personal information from children under 13. Contact us if you believe a child has provided data.
+      </p>
 
-              <h3>How We Use Your USCIS Receipt Number</h3>
-              <p>Your USCIS Receipt Number is used exclusively for the following purposes:</p>
-              <ul>
-                <li><strong>Case Status Monitoring</strong>: We use your receipt number to periodically check the public USCIS Case Status Online system (egov.uscis.gov) on your behalf to retrieve your current case status</li>
-                <li><strong>Status Change Notifications</strong>: When your case status changes, we notify you via email (premium feature) so you stay informed about updates to your immigration case</li>
-                <li><strong>Dashboard Display</strong>: We display your current case status within your TrackMyOPT dashboard for easy reference</li>
-              </ul>
-              <p>
-                <strong>We do NOT:</strong>
-              </p>
-              <ul>
-                <li>Share your receipt number with any third parties</li>
-                <li>Use your receipt number for any purpose other than checking your case status</li>
-                <li>Store any case history beyond the current status</li>
-                <li>Sell or monetize your receipt number data in any way</li>
-              </ul>
+      <h2>10. International transfers</h2>
+      <p>
+        We are based in the United States. If you access the Service from outside the U.S., your information may be processed in the U.S. and other countries where our providers operate.
+      </p>
 
-              <h2>Data Storage and Security</h2>
+      <h2>11. Changes to this policy</h2>
+      <p>
+        We may update this Privacy Policy. We will update the date and version at the top. For material changes, we will provide notice (e.g. email or in-app) when appropriate.
+      </p>
 
-              <h3>Where We Store Data</h3>
-              <p>
-                Your data is stored securely using <strong>Supabase</strong>, a PostgreSQL database with enterprise-grade security:
-              </p>
-              <ul>
-                <li>Encrypted at rest and in transit (TLS/SSL)</li>
-                <li>Row-Level Security (RLS) policies ensure you can only access your own data</li>
-                <li>Regular backups and disaster recovery</li>
-                <li>SOC 2 Type II compliant infrastructure</li>
-              </ul>
-
-              <h3>Local Storage</h3>
-              <p>The Chrome extension stores:</p>
-              <ul>
-                <li><strong>Authentication tokens</strong>: Short-lived JWT tokens (10-minute expiry) in <code>chrome.storage.sync</code></li>
-                <li><strong>Session state</strong>: Sign-in status and timestamps</li>
-              </ul>
-              <p>
-                These are stored locally on your device and synchronized across your Chrome browsers if you're signed into Chrome.
-              </p>
-
-              <h2>Data Sharing and Disclosure</h2>
-              <p>
-                <strong>We do NOT sell, rent, or share your personal information with third parties</strong> except in the following limited circumstances:
-              </p>
-
-              <h3>Service Providers</h3>
-              <ul>
-                <li><strong>Supabase</strong>: Database and authentication (privacy policy: <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a>)</li>
-                <li><strong>Hostinger SMTP</strong>: Email notifications via our own domain (emails sent from @trackmyopt.com)</li>
-                <li><strong>Google OAuth</strong>: If you sign in with Google (privacy policy: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">policies.google.com/privacy</a>)</li>
-                <li><strong>Stripe</strong>: Payment processing for premium features (privacy policy: <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer">stripe.com/privacy</a>)</li>
-              </ul>
-              <p>
-                <strong>All third-party service providers are contractually bound</strong> to protect your data in accordance with this Privacy Policy and are prohibited from using your data for any purpose other than providing their services to TrackMyOPT.
-              </p>
-
-              <h3>Legal Requirements</h3>
-              <p>We may disclose your information if required by law or in response to valid legal requests.</p>
-
-              <h2>Your Rights</h2>
-              <p>You have the right to:</p>
-              <ul>
-                <li><strong>Access</strong>: Request a copy of your personal data</li>
-                <li><strong>Correction</strong>: Update or correct your information in the app settings</li>
-                <li><strong>Deletion</strong>: Request deletion of your account and all associated data</li>
-                <li><strong>Portability</strong>: Export your data in a machine-readable format</li>
-                <li><strong>Opt-out</strong>: Unsubscribe from email notifications at any time</li>
-              </ul>
-
-              <p>
-                To exercise these rights, please contact us at: <a href="mailto:support@trackmyopt.com">support@trackmyopt.com</a>
-              </p>
-
-              <h2>Data Retention</h2>
-              <p>
-                We retain your personal information for as long as your account is active. If your account becomes dormant (no login for 24 months), we will notify you before taking any action on your data.
-              </p>
-              <p>If you delete your account:</p>
-              <ul>
-                <li>All personal data is permanently deleted within 30 days</li>
-                <li>Aggregated, anonymized data may be retained for analytics</li>
-              </ul>
-
-              <h2>Data Breach Notification</h2>
-              <p>
-                In the unlikely event of a data breach affecting your personal information, we will:
-              </p>
-              <ul>
-                <li>Notify affected users via email within 72 hours of discovery</li>
-                <li>Provide details about what data was compromised</li>
-                <li>Explain what steps we are taking to address the breach</li>
-                <li>Provide instructions on actions you may take to protect yourself</li>
-                <li>Report to relevant authorities as required by law</li>
-              </ul>
-
-              <h2>Business Transfers</h2>
-              <p>
-                If TrackMyOPT is involved in a merger, acquisition, or sale of assets:
-              </p>
-              <ul>
-                <li>We will notify you via email and/or prominent notice on our website before your data is transferred</li>
-                <li>Your data will only be transferred to entities that agree to protect your data consistent with this Privacy Policy</li>
-                <li>You will have the option to delete your account and data before any transfer</li>
-              </ul>
-              <p>
-                If TrackMyOPT ceases operations, we will provide at least 30 days' notice and securely delete all user data.
-              </p>
-
-              <h2>Cookies and Tracking</h2>
-              <p>
-                We use minimal cookies for authentication and session management:
-              </p>
-              <ul>
-                <li><strong>Supabase auth cookies</strong>: For maintaining your sign-in session</li>
-                <li><strong>No third-party tracking</strong>: We do NOT use Google Analytics or other tracking tools</li>
-              </ul>
-
-              <h2>Children's Privacy</h2>
-              <p>
-                TrackMyOPT is intended for F-1 students (typically 18+). We do not knowingly collect information from anyone under 13.
-              </p>
-
-              <h2>International Users</h2>
-              <p>
-                Your data is stored in the United States. By using TrackMyOPT, you consent to the transfer of your information to the U.S.
-              </p>
-
-              <h2 id="ccpa-rights" className="direct-answer">9. California Privacy Rights (CCPA / CPRA)</h2>
-              <p>
-                If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA) and the California Privacy Rights Act (CPRA):
-              </p>
-              <ul>
-                <li><strong>Right to Know</strong>: You may request information about the categories and specific pieces of personal information we have collected about you in the past 12 months.</li>
-                <li><strong>Right to Delete</strong>: You may request deletion of your personal information.</li>
-                <li><strong>Right to Correct</strong>: You have the right to request correction of inaccurate personal information.</li>
-                <li><strong>Right to Opt-Out</strong>: You have the right to opt-out of the sale or sharing of personal information. Note: <strong>We do NOT sell your personal information.</strong></li>
-                <li><strong>Right to Non-Discrimination</strong>: We will not discriminate against you for exercising your privacy rights.</li>
-              </ul>
-              <p>
-                To exercise your CCPA data rights, please email <strong>privacy@trackmyopt.com</strong>.
-              </p>
-
-              <h2 id="gdpr-rights" className="direct-answer">10. European Economic Area (EEA) and UK Rights (GDPR)</h2>
-              <div className="bg-blue-50 dark:bg-blue-900/10 border-l-4 border-blue-500 p-6 rounded-xl my-6">
-                <p>
-                  If you are located in the EEA or the UK, we process your personal data under the following <strong>Lawful Bases (Article 6, GDPR)</strong>:
-                </p>
-                <ul>
-                  <li><strong>Consent</strong>: When you voluntarily create an account or opt-in to emails.</li>
-                  <li><strong>Contractual Necessity</strong>: To provide you with the core TrackMyOPT timeline tracking and USCIS dashboard services.</li>
-                  <li><strong>Legitimate Interests</strong>: For security monitoring and preventing fraud.</li>
-                </ul>
-                <p className="mt-4 font-bold">Your GDPR Rights Include:</p>
-                <ul>
-                  <li><strong>Right to be Forgotten (Erasure)</strong>: You can instantly delete your entire account and all associated PII via your Dashboard settings.</li>
-                  <li><strong>Right to Restrict Processing</strong>: You can ask us to temporarily halt processing of your data.</li>
-                  <li><strong>Right to Data Portability</strong>: You can request an export of your timeline and profile data in a structured JSON/CSV format.</li>
-                  <li><strong>Right to Object</strong>: You may object to data processing for direct marketing purposes at any time.</li>
-                </ul>
-              </div>
-
-              <h2>Changes to This Privacy Policy</h2>
-              <p>
-                We may update this Privacy Policy from time to time. When we make changes:
-              </p>
-              <ul>
-                <li>We will update the "Last Updated" date at the top of this page</li>
-                <li>For material changes, we will send an email notification to all registered users</li>
-                <li>We will provide a <strong>plain-language summary</strong> of what has changed</li>
-                <li>For significant changes, we will request your <strong>active consent</strong> (e.g., checkbox confirmation) before the changes take effect</li>
-                <li>You will have the opportunity to review changes and delete your account if you do not agree</li>
-              </ul>
-
-              <h2>Contact Us</h2>
-              <p>
-                If you have questions or concerns about this Privacy Policy, please contact us:
-              </p>
-              <ul>
-                <li><strong>Company</strong>: Zyene, Inc.</li>
-                <li><strong>Headquarters</strong>: San Francisco, California</li>
-                <li><strong>Email</strong>: <a href="mailto:support@trackmyopt.com">support@trackmyopt.com</a></li>
-                <li><strong>Website</strong>: <a href="https://www.trackmyopt.com">trackmyopt.com</a></li>
-              </ul>
-
-              <hr className="my-8" />
-
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                By using TrackMyOPT, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <LandingFooter />
-      </div>
-    </main>
+      <h2>12. Related policies</h2>
+      <p>
+        <Link href="/terms">Terms of Service</Link> · <Link href="/disclaimer">Disclaimer</Link> ·{" "}
+        <Link href="/cookie-policy">Cookie Policy</Link> · <Link href="/refund-policy">Refund Policy</Link>
+      </p>
+    </LegalPageShell>
   );
 }

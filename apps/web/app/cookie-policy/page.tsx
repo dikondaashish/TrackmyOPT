@@ -1,128 +1,80 @@
-import { Metadata } from 'next';
-import { LandingNavbar } from "../../components/landing/LandingNavbar";
-import { LandingFooter } from "../../components/landing/LandingFooter";
-import { ArrowLeft, Cookie } from "lucide-react";
+import { Metadata } from "next";
 import Link from "next/link";
+import { LegalPageShell } from "@/components/legal/LegalPageShell";
+import { LEGAL_CONTACT } from "@/lib/legal/legal-config";
 
 export const metadata: Metadata = {
-    title: 'Cookie Policy | TrackMyOPT',
-    description: 'Cookie Policy for TrackMyOPT - How we handle your data',
-    alternates: {
-        canonical: 'https://www.trackmyopt.com/cookie-policy',
-    },
+  title: "Cookie Policy | TrackMyOPT",
+  description: "How TrackMyOPT uses cookies and similar technologies.",
+  alternates: { canonical: "https://www.trackmyopt.com/cookie-policy" },
 };
 
 export default function CookiePolicyPage() {
-    return (
-        <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900/30 dark:selection:text-blue-100 relative">
-            {/* Background Vignette */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute inset-0 bg-slate-50 dark:bg-zinc-950" />
-                <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[80%] h-[500px] bg-blue-100/40 dark:bg-blue-900/10 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,0.8)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
-            </div>
+  return (
+    <LegalPageShell title="Cookie Policy" policyType="cookie_policy">
+      <h2>1. What are cookies?</h2>
+      <p>
+        Cookies are small text files stored on your device when you visit a website. We also use similar technologies (e.g. local storage, session tokens) for authentication and preferences.
+      </p>
 
-            <div className="relative z-10">
-                <LandingNavbar />
+      <h2>2. Cookies we use</h2>
 
-                <div className="max-w-4xl mx-auto pt-8 pb-20 px-4">
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors mb-8 group"
-                    >
-                        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                        Back to Home
-                    </Link>
+      <h3>2.1 Essential (strictly necessary)</h3>
+      <ul>
+        <li><strong>Supabase authentication cookies</strong> — keep you signed in securely</li>
+        <li><strong>Session / CSRF protection</strong> — help prevent unauthorized requests</li>
+        <li><strong>Stripe</strong> — may set cookies during checkout on Stripe-hosted pages</li>
+      </ul>
+      <p>These are required for login, billing, and core security. Disabling them may prevent you from using the Service.</p>
 
-                    <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm rounded-[2.5rem] border border-gray-200 dark:border-white/10 shadow-2xl p-8 md:p-12">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                                <Cookie className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white tracking-tight">Cookie Policy</h1>
-                        </div>
+      <h3>2.2 Functional</h3>
+      <ul>
+        <li>Theme or UI preferences (e.g. light/dark mode) where stored locally</li>
+        <li>Chrome extension sync storage for extension sign-in state</li>
+      </ul>
 
-                        <p className="text-sm font-mono text-blue-600 dark:text-blue-400 mb-12 uppercase tracking-widest pl-1">
-                            Last Updated: January 28, 2026
-                        </p>
+      <h3>2.3 Analytics (optional)</h3>
+      <p>When enabled in our environment:</p>
+      <ul>
+        <li><strong>PostHog</strong> — product analytics (events, feature usage)</li>
+        <li><strong>Vercel Analytics / Speed Insights</strong> — aggregated page performance metrics</li>
+      </ul>
+      <p>We do not use advertising or retargeting cookies on the core web app.</p>
 
-                        <div className="prose prose-lg prose-longform dark:prose-invert max-w-none 
-              prose-headings:text-gray-900 dark:prose-headings:text-white 
-              prose-headings:font-bold prose-headings:tracking-tight
-              prose-p:text-gray-600 dark:prose-p:text-gray-400
-              prose-li:text-gray-600 dark:prose-li:text-gray-400
-              prose-strong:text-gray-900 dark:prose-strong:text-white
-              prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-              prose-hr:border-gray-200 dark:prose-hr:border-white/10">
+      <h3>2.4 Marketing cookies</h3>
+      <p>
+        We do <strong>not</strong> currently use Facebook Pixel, Google Ads remarketing, or similar ad-tracking cookies on {`TrackMyOPT`}. If that changes, we will update this policy.
+      </p>
 
-                            <h2>1. What Are Cookies?</h2>
-                            <p>
-                                Cookies are small text files that are stored on your device (computer or mobile phone) when you visit a website. They are widely used to make websites work more efficiently and to provide information to the owners of the site.
-                            </p>
+      <h2>3. Third-party cookies</h2>
+      <p>
+        Third parties (Supabase, Stripe, Google sign-in, analytics providers) may set their own cookies when you use those features. Their policies govern those cookies.
+      </p>
 
-                            <h2>2. How We Use Cookies</h2>
-                            <p>
-                                At TrackMyOPT, we use cookies sparingly and only for essential functions. We do <strong>NOT</strong> use cookies for third-party advertising or non-essential tracking.
-                            </p>
+      <h2>4. How to manage cookies</h2>
+      <ul>
+        <li><strong>Browser settings:</strong> Chrome, Safari, Firefox, and Edge let you block or delete cookies</li>
+        <li><strong>Sign out:</strong> Clears session cookies for your account</li>
+        <li><strong>Analytics:</strong> If we offer an in-app analytics opt-out, use Settings → Privacy; otherwise contact {LEGAL_CONTACT.privacy}</li>
+      </ul>
+      <p>
+        Blocking essential cookies will break login and dashboard access.
+      </p>
 
-                            <h3>2.1 Essential Cookies (Strictly Necessary)</h3>
-                            <p>
-                                These cookies are necessary for the website to function and cannot be switched off.
-                            </p>
-                            <ul>
-                                <li><strong>Supabase Auth</strong>: We use Supabase for authentication. When you log in, a cookie is stored to maintain your secure session. This ensures you don't have to log in every time you refresh the page.</li>
-                                <li><strong>Session Security</strong>: These cookies help prevent Cross-Site Request Forgery (CSRF) attacks to keep your data safe.</li>
-                            </ul>
+      <h2>5. Do Not Track</h2>
+      <p>
+        Some browsers send &quot;Do Not Track&quot; signals. We do not currently respond differently to DNT signals because there is no industry standard; we limit tracking to the categories above.
+      </p>
 
-                            <h3>2.2 Functional Cookies</h3>
-                            <p>
-                                These cookies enable the website to provide enhanced functionality and personalization.
-                            </p>
-                            <ul>
-                                <li><strong>Theme Preference</strong>: We may store a cookie to remember if you prefer "Light Mode" or "Dark Mode."</li>
-                            </ul>
+      <h2>6. Updates</h2>
+      <p>
+        We may update this Cookie Policy. See the version date at the top of this page.
+      </p>
 
-                            <h2>3. What We Do NOT Use</h2>
-                            <p>
-                                We value your privacy. Unlike many other sites, <strong>we do NOT use</strong>:
-                            </p>
-                            <ul>
-                                <li>Google Analytics tracking cookies</li>
-                                <li>Facebook Pixel or social media tracking</li>
-                                <li>Advertising or retargeting cookies</li>
-                            </ul>
-
-                            <h2>4. Managing Cookies & Withdrawing Consent (GDPR)</h2>
-                            <p>
-                                Under European Data Protection laws (GDPR) and the ePrivacy Directive, you have the right to withdraw your consent to non-essential cookies at any time.
-                            </p>
-                            <div className="bg-blue-50 dark:bg-blue-900/10 border-l-4 border-blue-500 p-6 rounded-xl my-6">
-                                <strong>How to clear your cookies:</strong>
-                                <ul className="mt-2 mb-0">
-                                    <li><strong>Google Chrome:</strong> Settings &gt; Privacy and security &gt; Clear browsing data.</li>
-                                    <li><strong>Safari:</strong> Preferences &gt; Privacy &gt; Manage Website Data.</li>
-                                    <li><strong>Firefox:</strong> Options &gt; Privacy & Security &gt; Cookies and Site Data.</li>
-                                </ul>
-                            </div>
-                            <p>
-                                Please note: Since TrackMyOPT only uses <strong>Strictly Necessary</strong> cookies for authentication and CSRF security, disabling all cookies in your browser settings will break your ability to log in and use your dashboard dashboard securely.
-                            </p>
-
-                            <h2>5. Updates to This Policy</h2>
-                            <p>
-                                We may update this Cookie Policy from time to time. Any changes will be posted on this page with an updated revision date.
-                            </p>
-
-                            <hr className="my-8" />
-                            <p className="text-sm">
-                                For more information on how we handle your data, please read our <Link href="/privacy">Privacy Policy</Link>.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <LandingFooter />
-            </div>
-        </main>
-    );
+      <p>
+        More detail: <Link href="/privacy">Privacy Policy</Link> · Contact:{" "}
+        <a href={`mailto:${LEGAL_CONTACT.privacy}`}>{LEGAL_CONTACT.privacy}</a>
+      </p>
+    </LegalPageShell>
+  );
 }

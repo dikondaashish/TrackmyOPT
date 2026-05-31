@@ -12,6 +12,10 @@ import { getUserId } from "@/lib/auth/getUserId";
 import { sanitizeError } from "@/lib/secure-logger";
 import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
 import { syncProFreeTrialConsumedFromStripe } from "@/lib/premium/proFreeTrialFromStripe";
+import { recordBillingConsentEvent } from "@/lib/billing/recordBillingConsent";
+import { getRequestAuditFromHeaders } from "@/lib/billing/request-audit";
+import { LEGAL_POLICY_VERSIONS } from "@/lib/billing/legal-config";
+import type { BillingInterval, PaidPlanId } from "@/lib/billing/legal-config";
 
 // Initialize Stripe
 const getStripe = () => {
@@ -121,11 +125,22 @@ export async function POST(req: NextRequest) {
     const { planId = "pro", interval = "year" } = body;
     /** undefined = default EARLYBIRD; null = removed; string = custom */
     const promoCode = body.promoCode as string | null | undefined;
+    const recurringBillingAccepted = body.recurringBillingAccepted === true;
 
     console.log(`Checkout request: planId=${planId}, interval=${interval}, userId=${userId}, promo=${promoCode === null ? "null" : promoCode === undefined ? "default" : "custom"}`);
 
     if (!["pro", "dedicated"].includes(planId) || !["month", "year"].includes(interval)) {
       return NextResponse.json({ error: "Invalid plan or interval" }, { status: 400 });
+    }
+
+    if (!recurringBillingAccepted) {
+      return NextResponse.json(
+        {
+          error:
+            "You must agree to the auto-renewing subscription terms before continuing to checkout.",
+        },
+        { status: 400 }
+      );
     }
 
     const priceId = PRICES[planId as keyof typeof PRICES]?.[interval as "month" | "year"];
@@ -200,6 +215,22 @@ export async function POST(req: NextRequest) {
     }
 
     const includeProTrial = planId === "pro" && !proFreeTrialConsumed;
+
+    const audit = getRequestAuditFromHeaders(req);
+    await recordBillingConsentEvent({
+      userId,
+      eventType: "checkout_recurring_consent",
+      planId: planId as PaidPlanId,
+      interval: interval as BillingInterval,
+      includeProTrial,
+      ipAddress: audit.ip_address,
+      userAgent: audit.user_agent,
+      metadata: {
+        checkout_promo_key: checkoutPromoKey,
+        terms_version: LEGAL_POLICY_VERSIONS.terms_of_service,
+        refund_policy_version: LEGAL_POLICY_VERSIONS.refund_policy,
+      },
+    });
 
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
     const { data: recentPending } = await supabase
@@ -280,6 +311,10 @@ export async function POST(req: NextRequest) {
         planId,
         interval,
         checkout_promo: checkoutPromoKey,
+        terms_version: LEGAL_POLICY_VERSIONS.terms_of_service,
+        refund_policy_version: LEGAL_POLICY_VERSIONS.refund_policy,
+        subscription_terms_version: LEGAL_POLICY_VERSIONS.subscription_billing_terms,
+        include_pro_trial: includeProTrial ? "true" : "false",
       },
     };
 

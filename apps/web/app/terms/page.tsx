@@ -3,6 +3,7 @@ import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { LEGAL_EFFECTIVE_DATE, LEGAL_VERSION_ID } from "@/lib/legal/legal-config";
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions | TrackMyOPT',
@@ -42,8 +43,11 @@ export default function TermsPage() {
           <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm rounded-[2.5rem] border border-gray-200 dark:border-white/10 shadow-2xl p-8 md:p-12">
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">Terms & Conditions</h1>
 
-            <p className="text-sm font-mono text-blue-600 dark:text-blue-400 mb-12 uppercase tracking-widest">
-              Last Updated: December 12, 2025
+            <p className="text-sm font-mono text-blue-600 dark:text-blue-400 mb-4 uppercase tracking-widest">
+              Last Updated: {LEGAL_EFFECTIVE_DATE} · Version {LEGAL_VERSION_ID}
+            </p>
+            <p className="text-xs text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-12">
+              U.S. counsel should review these Terms, especially arbitration, subscription billing, and immigration disclaimers, before launch.
             </p>
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none 
@@ -71,14 +75,42 @@ export default function TermsPage() {
                 <li>Document vault for storing immigration documents</li>
                 <li>USCIS Case Status Tracking using your receipt number</li>
                 <li>Email notifications for important dates (optional, premium feature)</li>
+                <li>Optional career tools (resume, job tracker, H-1B sponsor data) where available on your plan</li>
               </ul>
+
+              <h2 id="immigration-disclaimer" className="direct-answer">2A. Important immigration and legal notice</h2>
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-5 rounded-xl my-6">
+                <p className="m-0 text-yellow-900 dark:text-yellow-100">
+                  <strong>TrackMyOPT is not a law firm and does not provide legal or immigration advice.</strong> We are not affiliated with USCIS, DHS, SEVP, ICE, any university, any DSO, or any government agency. We do not guarantee any immigration outcome, approval, or deadline accuracy. You must verify all requirements with official sources, your DSO, your employer, and/or a licensed immigration attorney. See our <Link href="/disclaimer">Disclaimer</Link>.
+                </p>
+              </div>
+
+              <h2>2B. AI and automated features</h2>
+              <p>
+                Some features use automated or AI-assisted processing (e.g. resume suggestions). Output may be incorrect. You are responsible for reviewing all output before use. AI features are not legal, immigration, or professional advice.
+              </p>
 
               <h2>3. Eligibility</h2>
               <p>
                 You must be at least 18 years old to use TrackMyOPT. By using our Service, you represent that you meet this requirement.
               </p>
 
-              <h2>4. User Accounts</h2>
+              <h2>4. Subscriptions, billing, and cancellation</h2>
+              <p>
+                TrackMyOPT offers optional paid plans (Pro and Dedicated) billed through Stripe as <strong>auto-renewing subscriptions</strong>. Before you pay, we disclose the price, billing interval (monthly or yearly), whether a free trial applies, and how to cancel.
+              </p>
+              <ul>
+                <li><strong>Pro:</strong> One 7-day free trial per account when eligible. If you cancel before the trial ends, you are not charged. After the trial, Pro renews automatically at the checkout price until you cancel.</li>
+                <li><strong>Dedicated:</strong> Billed immediately when you subscribe. A 3-day money-back guarantee applies to your first paid month only, as described in our <Link href="/refund-policy">Refund Policy</Link>.</li>
+                <li><strong>After trial or guarantee windows:</strong> No refunds for change of mind except billing errors, unauthorized charges, or major service failure as stated in the Refund Policy.</li>
+                <li><strong>Cancellation:</strong> Use Settings → Subscription → Cancel subscription to open Stripe&apos;s Customer Portal. Cancellation stops future renewals only; access continues through the end of the current paid period.</li>
+                <li><strong>Material changes:</strong> We will provide advance notice by email and/or in-app notice when we materially change subscription price, renewal, cancellation, or refund terms.</li>
+              </ul>
+              <p>
+                By starting a subscription and checking the recurring-billing consent box at checkout, you agree to these terms and our Refund Policy.
+              </p>
+
+              <h2>5. User Accounts</h2>
 
               <h3>4.1 Account Creation</h3>
               <p>
@@ -102,7 +134,7 @@ export default function TermsPage() {
                 We reserve the right to suspend or terminate your account if you violate these Terms or engage in fraudulent, abusive, or illegal activity.
               </p>
 
-              <h2>5. User Data and Privacy</h2>
+              <h2>6. User Data and Privacy</h2>
               <p>
                 Your use of TrackMyOPT is also governed by our <a href="/privacy" className="text-blue-600 hover:text-blue-700">Privacy Policy</a>. By using our Service, you consent to our collection and use of your information as described in the Privacy Policy.
               </p>
@@ -117,10 +149,10 @@ export default function TermsPage() {
                 <li><strong>Immigration Dates</strong>: OPT/STEM dates you voluntarily provide for timeline calculations.</li>
               </ul>
               <p>
-                We treat all PII with the highest level of security. Your USCIS receipt number and other sensitive data are encrypted and never shared with third parties. See our <a href="/privacy" className="text-blue-600 hover:text-blue-700">Privacy Policy</a> for complete details on how we collect, use, and protect your data.
+                We protect sensitive data using reasonable technical and organizational measures (see our <Link href="/privacy">Privacy Policy</Link> and <Link href="/security">Security</Link> page). We do not sell your personal information. Service providers (e.g. Supabase, Stripe) process data only to operate the Service.
               </p>
 
-              <h2>6. Acceptable Use</h2>
+              <h2>7. Acceptable Use</h2>
 
               <h3>6.1 Permitted Use</h3>
               <p>
@@ -139,7 +171,7 @@ export default function TermsPage() {
                 <li>Interfere with or disrupt the Service's operation</li>
               </ul>
 
-              <h2>7. Disclaimer of Warranties</h2>
+              <h2>8. Disclaimer of Warranties</h2>
 
               <p className="font-semibold text-gray-900 dark:text-white">
                 IMPORTANT: TRACKMYOPT IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND.
@@ -175,7 +207,7 @@ export default function TermsPage() {
                 <li>Compatible with all devices or browsers</li>
               </ul>
 
-              <h2>8. Limitation of Liability</h2>
+              <h2>9. Limitation of Liability</h2>
 
               <p className="font-semibold text-gray-900 dark:text-white">
                 TO THE MAXIMUM EXTENT PERMITTED BY LAW, TRACKMYOPT AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR:
@@ -191,7 +223,7 @@ export default function TermsPage() {
                 You acknowledge that <strong>you are solely responsible</strong> for managing your OPT status and meeting USCIS deadlines.
               </p>
 
-              <h2>9. Indemnification</h2>
+              <h2>10. Indemnification</h2>
               <p>
                 You agree to indemnify and hold harmless TrackMyOPT, its developers, and affiliates from any claims, damages, losses, or expenses arising from:
               </p>
@@ -201,7 +233,7 @@ export default function TermsPage() {
                 <li>Your violation of any third-party rights</li>
               </ul>
 
-              <h2>10. Intellectual Property</h2>
+              <h2>11. Intellectual Property</h2>
 
               <h3>10.1 Our Rights</h3>
               <p>
@@ -218,7 +250,7 @@ export default function TermsPage() {
                 <li>Commercial use without written permission</li>
               </ul>
 
-              <h2>11. Third-Party Services</h2>
+              <h2>12. Third-Party Services</h2>
               <p>
                 TrackMyOPT integrates with third-party services:
               </p>
@@ -232,7 +264,7 @@ export default function TermsPage() {
                 Your use of these services is subject to their respective terms and privacy policies. We are not responsible for third-party services.
               </p>
 
-              <h2>12. Modifications to Terms</h2>
+              <h2>13. Modifications to Terms</h2>
               <p>
                 We reserve the right to modify these Terms at any time. Changes will be effective upon posting. We will notify you of material changes via:
               </p>
@@ -245,14 +277,14 @@ export default function TermsPage() {
                 Your continued use of TrackMyOPT after changes constitutes acceptance of the new Terms.
               </p>
 
-              <h2 id="dispute-resolution" className="direct-answer">13. Governing Law and Dispute Resolution</h2>
+              <h2 id="dispute-resolution" className="direct-answer">14. Governing Law and Dispute Resolution</h2>
 
-              <h3>13.1 Governing Law</h3>
+              <h3>14.1 Governing Law</h3>
               <p>
                 These Terms are governed by the laws of the United States and the State of Delaware, without regard to conflict of law principles.
               </p>
 
-              <h3>13.2 Binding Arbitration</h3>
+              <h3>14.2 Binding Arbitration</h3>
               <p>
                 Any disputes arising from these Terms or your use of TrackMyOPT shall be resolved exclusively through:
               </p>
@@ -261,17 +293,17 @@ export default function TermsPage() {
                 <li><strong>Binding Arbitration</strong>: If informal resolution fails, all disputes will be resolved through final and binding arbitration in accordance with the American Arbitration Association (AAA) rules. The arbitration shall take place exclusively in <strong>San Francisco County, California</strong>.</li>
               </ol>
 
-              <h2>14. Severability</h2>
+              <h2>15. Severability</h2>
               <p>
                 If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions will remain in full force and effect.
               </p>
 
-              <h2>15. Entire Agreement</h2>
+              <h2>16. Entire Agreement</h2>
               <p>
                 These Terms, together with our Privacy Policy, constitute the entire agreement between you and TrackMyOPT regarding your use of the Service.
               </p>
 
-              <h2>16. Contact Information</h2>
+              <h2>17. Contact Information</h2>
               <p>
                 If you have questions about these Terms, please contact us:
               </p>

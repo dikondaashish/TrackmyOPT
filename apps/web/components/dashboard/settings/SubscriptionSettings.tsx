@@ -3,13 +3,13 @@ import { CreditCard, Loader2, Check, Zap, Shield, Star, Crown } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
 import type { PromoCheckoutMode } from '@/lib/premium/promoCheckoutTypes';
-import { buildPromoCheckoutBody } from '@/lib/premium/checkoutPromoPayload';
 import { formatMonthlyEquivalentFromYearly } from '@/lib/premium/formatMonthlyEquivalentFromYearly';
 import { SubscriptionUsage } from './SubscriptionUsage';
 import { BillingHistory } from './BillingHistory';
 import { SubscriptionFAQ } from './SubscriptionFAQ';
 import { PlanComparisonModal } from './PlanComparisonModal';
 import { PricingModal } from '@/components/pricing/PricingModal';
+import { CancelSubscriptionCard } from '@/components/billing/CancelSubscriptionCard';
 
 interface PremiumStatus {
     isPremium: boolean;
@@ -324,43 +324,11 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
     const [customPromoInput, setCustomPromoInput] = useState('');
     const [promoError, setPromoError] = useState<string | null>(null);
 
-    // Direct Checkout Handler (Bypasses Modal)
-    const handleDirectCheckout = async (planId: string, interval: string) => {
-        setCheckoutLoadingPlan(planId);
-        setPromoError(null);
-        try {
-            const promoFields = buildPromoCheckoutBody(promoMode, customPromoInput);
-            const response = await fetch('/api/premium/create-checkout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    planId: planId,
-                    interval: interval,
-                    ...promoFields,
-                }),
-            });
-
-            if (!response.ok) {
-                const errBody = await response.json().catch(() => ({}));
-                const msg =
-                    typeof (errBody as { error?: string }).error === 'string'
-                        ? (errBody as { error: string }).error
-                        : 'Failed to create checkout session';
-                setPromoError(msg);
-                setCheckoutLoadingPlan(null);
-                return;
-            }
-
-            const { url } = await response.json();
-            window.location.href = url;
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Failed to start upgrade process.';
-            setPromoError(message);
-            setCheckoutLoadingPlan(null);
-        }
+    // Open pricing modal so recurring-billing disclosures + consent apply before Stripe
+    const handleDirectCheckout = (planId: string, interval: string) => {
+        setSelectedPlan(planId);
+        setSelectedInterval(interval);
+        setShowPricingModal(true);
     };
 
     if (isLoading) {
@@ -473,16 +441,20 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
                                     </div>
                                 </div>
 
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 leading-relaxed">
-                                    To <strong className="text-gray-700 dark:text-gray-300">cancel</strong>, update your card, or get receipts, use Manage Subscription — you’ll be sent to Stripe’s billing portal (same secure checkout provider).
-                                </p>
-
                                 <Button
                                     onClick={onManage}
-                                    className="w-full mt-3 bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800"
+                                    className="w-full mt-4 bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800"
                                 >
-                                    Manage Subscription
+                                    Manage payment method & invoices
                                 </Button>
+
+                                <div className="mt-4">
+                                    <CancelSubscriptionCard
+                                        accessThroughDate={premium.expiresAt ?? null}
+                                        onCancel={onManage}
+                                        isLoading={isLoading}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

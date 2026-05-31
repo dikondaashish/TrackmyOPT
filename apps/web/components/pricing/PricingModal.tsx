@@ -12,6 +12,8 @@ import { PromoCodeCheckoutBar } from "@/components/pricing/PromoCodeCheckoutBar"
 import type { PromoCheckoutMode } from "@/lib/premium/promoCheckoutTypes";
 import { buildPromoCheckoutBody } from "@/lib/premium/checkoutPromoPayload";
 import { formatMonthlyEquivalentFromYearly } from "@/lib/premium/formatMonthlyEquivalentFromYearly";
+import { SubscriptionCheckoutDisclosures } from "@/components/billing/SubscriptionCheckoutDisclosures";
+import type { BillingInterval, PaidPlanId } from "@/lib/billing/legal-config";
 
 interface PricingModalProps {
   open: boolean;
@@ -36,6 +38,9 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
   const [promoError, setPromoError] = useState<string | null>(null);
   /** null = still loading / unknown; server omits trial when false */
   const [proFreeTrialEligible, setProFreeTrialEligible] = useState<boolean | null>(null);
+  const [recurringConsent, setRecurringConsent] = useState(false);
+  const [disclosurePlan, setDisclosurePlan] = useState<PaidPlanId>("pro");
+  const [consentError, setConsentError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open || isPremium) {
@@ -71,10 +76,21 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
       setPromoMode("default");
       setCustomPromoInput("");
       setPromoError(null);
+      setRecurringConsent(false);
+      setConsentError(null);
     }
   }, [open]);
 
   const handleUpgrade = async (selectedPlan: string, intervalOverride?: string) => {
+    const paidPlan = selectedPlan === "dedicated" ? "dedicated" : "pro";
+    setDisclosurePlan(paidPlan);
+    setConsentError(null);
+
+    if (!recurringConsent) {
+      setConsentError("Please check the box to agree to auto-renewing subscription terms.");
+      return;
+    }
+
     setIsLoading(true);
     setLoadingPlan(selectedPlan);
     setPromoError(null);
@@ -93,6 +109,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         body: JSON.stringify({
           planId: selectedPlan,
           interval: currentInterval,
+          recurringBillingAccepted: true,
           ...promoFields,
         }),
       });
@@ -432,7 +449,12 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                         </Button>
                       ) : (
                         <Button
-                          onClick={() => handleUpgrade(plan.id)}
+                          onClick={() => {
+                            if (plan.id === "pro" || plan.id === "dedicated") {
+                              setDisclosurePlan(plan.id);
+                            }
+                            handleUpgrade(plan.id);
+                          }}
                           disabled={isLoading}
                           className={cn(
                             "w-full h-9 text-xs font-semibold transition-all duration-300",
@@ -507,6 +529,26 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
           </div>
         </div>
 
+          {!isPremium && (
+            <div className="px-4 sm:px-5 pt-3">
+              <SubscriptionCheckoutDisclosures
+                planId={disclosurePlan}
+                interval={(isYearly ? "year" : "month") as BillingInterval}
+                includeProTrial={
+                  disclosurePlan === "pro" && proFreeTrialEligible !== false
+                }
+                checked={recurringConsent}
+                onCheckedChange={setRecurringConsent}
+                disabled={isLoading}
+              />
+              {(consentError || promoError) && (
+                <p className="text-xs text-destructive mt-2" role="alert">
+                  {consentError || promoError}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Footer Trust Section */}
           <div className="px-4 sm:px-5 pb-4 pt-3 border-t border-border/40 bg-background/95">
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
@@ -522,7 +564,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
               )}
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Zap className="w-3.5 h-3.5 text-amber-600" />
-                <span>Cancel Anytime</span>
+                <span>Cancel in Settings → Billing</span>
               </div>
               <div className="flex items-center gap-1.5 text-xs">
                 <span className="text-muted-foreground/60">Powered by</span>

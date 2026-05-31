@@ -97,7 +97,7 @@ const faqCategories = [
             {
                 question: "Is my data secure on TrackMyOPT?",
                 answer:
-                    "Absolutely. TrackMyOPT uses bank-grade AES-256 encryption for all stored documents and data. Your Document Vault is protected with passcode authentication and auto-lock features. We never share personal information with third parties. Data is encrypted both at rest and in transit. You can export or delete all your data at any time (GDPR compliant). Our infrastructure is hosted on secure, SOC 2 compliant cloud providers.",
+                    "We use HTTPS/TLS in transit, secure cloud providers (e.g. Supabase), and access controls including Row Level Security. The Document Vault uses an optional passcode (hashed on our servers) and auto-lock—it is not end-to-end encryption. We do not sell your personal information. You can delete your account and data in Settings. See our Privacy Policy and Security page for details.",
             },
         ],
     },

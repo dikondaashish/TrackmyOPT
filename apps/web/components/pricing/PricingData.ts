@@ -97,8 +97,12 @@ export const pricingFaqs = [
         a: "We accept all major credit and debit cards (Visa, Mastercard, American Express) through Stripe, a PCI DSS Level 1 certified payment processor. All transactions are encrypted end-to-end.",
     },
     {
+        q: "What is your refund policy?",
+        a: "Pro includes a 7-day free trial when eligible—cancel before it ends and you are not charged. Dedicated is billed immediately with a 3-day money-back guarantee on the first paid month only. After those windows, we generally do not refund change-of-mind charges. See our Refund Policy for exceptions.",
+    },
+    {
         q: "Can I cancel my subscription anytime?",
-        a: "Yes. Cancel your Pro or Dedicated subscription at any time from your Settings page. You keep access until the end of your current billing period.",
+        a: "Yes. Go to Settings → Subscription → Cancel subscription (Stripe billing portal). Cancellation stops future charges; you keep access through the end of your current paid or trial period.",
     },
     {
         q: "Do you offer annual billing?",

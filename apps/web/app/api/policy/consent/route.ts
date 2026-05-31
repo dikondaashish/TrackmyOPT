@@ -11,9 +11,13 @@ export const dynamic = 'force-dynamic';
  */
 
 interface PolicyConsentRequest {
-  policyType: 'privacy_policy' | 'terms_of_service';
+  policyType:
+    | 'privacy_policy'
+    | 'terms_of_service'
+    | 'refund_policy'
+    | 'subscription_billing_terms';
   policyVersion: string;
-  consentMethod: 'checkbox' | 'modal' | 'banner_click';
+  consentMethod: 'checkbox' | 'modal' | 'banner_click' | 'checkout_checkbox';
 }
 
 /**

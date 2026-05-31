@@ -1050,6 +1050,16 @@ function LoginPageContent() {
                   >
                     Terms & Conditions
                   </a>
+                  {', '}
+                  <a
+                    href="/disclaimer"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Disclaimer
+                  </a>
                 </label>
               </div>
 
