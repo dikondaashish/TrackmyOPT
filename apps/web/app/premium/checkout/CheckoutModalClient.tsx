@@ -50,6 +50,7 @@ export function CheckoutModalClient({ user }: CheckoutModalClientProps) {
             isPremium={isPremium}
             initialPlan={planId}
             initialInterval={interval}
+            checkoutPage
         />
     );
 }

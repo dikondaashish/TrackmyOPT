@@ -25,13 +25,23 @@ interface PricingModalProps {
   isPremium?: boolean;
   initialPlan?: string;
   initialInterval?: string;
+  /** Slightly larger desktop typography on /premium/checkout (full-page flow). */
+  checkoutPage?: boolean;
 }
 
 function isYearlyBillingDefault(interval: string | undefined): boolean {
   return interval !== "month";
 }
 
-export function PricingModal({ open, onClose, userEmail, isPremium = false, initialPlan, initialInterval }: PricingModalProps) {
+export function PricingModal({
+  open,
+  onClose,
+  userEmail,
+  isPremium = false,
+  initialPlan,
+  initialInterval,
+  checkoutPage = false,
+}: PricingModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   /** Annual on by default; only `initialInterval === "month"` forces monthly (user can toggle anytime). */
   const [isYearly, setIsYearly] = useState(() => isYearlyBillingDefault(initialInterval));
@@ -228,7 +238,12 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         onClose={onClose}
-        className="max-w-[1100px] w-[95vw] max-h-[min(92vh,880px)] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col md:text-[15px]"
+        className={cn(
+          "max-w-[1100px] w-[95vw] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col",
+          checkoutPage
+            ? "max-h-[min(95vh,920px)] md:text-base lg:text-[15px]"
+            : "max-h-[min(92vh,880px)] md:text-[15px]"
+        )}
       >
         {/* Header Section */}
         <div className="relative shrink-0 px-5 sm:px-6 md:px-5 pt-5 pb-3 sm:pb-4 md:pt-4 md:pb-2 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
@@ -243,10 +258,20 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
             </div>
 
             {/* Title */}
-            <h2 className="text-xl sm:text-2xl md:text-xl lg:text-[1.35rem] font-bold tracking-tight text-foreground mb-1">
+            <h2
+              className={cn(
+                "text-xl sm:text-2xl font-bold tracking-tight text-foreground mb-1",
+                checkoutPage ? "md:text-2xl lg:text-[1.4rem]" : "md:text-xl lg:text-[1.35rem]"
+              )}
+            >
               Choose Your Plan
             </h2>
-            <p className="text-muted-foreground text-xs sm:text-sm md:text-xs max-w-lg mx-auto leading-snug">
+            <p
+              className={cn(
+                "text-muted-foreground max-w-lg mx-auto leading-snug",
+                checkoutPage ? "text-xs sm:text-sm md:text-sm" : "text-xs sm:text-sm md:text-xs"
+              )}
+            >
               Join 2,500+ international students who trust TrackMyOPT to navigate their F-1 visa journey
             </p>
 
@@ -293,7 +318,12 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
-        <div className="p-4 sm:p-5 md:p-4 lg:p-5 pt-3 md:pt-2">
+        <div
+          className={cn(
+            "p-4 sm:p-5 pt-3",
+            checkoutPage ? "md:p-5 lg:p-6 md:pt-3" : "md:p-4 lg:p-5 md:pt-2"
+          )}
+        >
           <div className="mb-3 md:mb-2 max-w-xs mx-auto w-full">
             <PromoCodeCheckoutBar
               compact
@@ -335,7 +365,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 <div
                   key={plan.id}
                   className={cn(
-                    "relative rounded-2xl md:rounded-xl transition-all duration-300 flex flex-col h-full md:min-h-[300px]",
+                    "relative rounded-2xl md:rounded-xl transition-all duration-300 flex flex-col h-full",
+                    checkoutPage ? "md:min-h-[280px]" : "md:min-h-[300px]",
                     plan.popular
                       ? "bg-gradient-to-b from-violet-500/[0.08] via-violet-500/[0.03] to-transparent ring-2 ring-violet-500/40 shadow-xl shadow-violet-500/10"
                       : "bg-card/60 border hover:border-border/80 hover:shadow-lg",
@@ -352,7 +383,12 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                     </div>
                   )}
 
-                  <div className="p-4 sm:p-5 md:p-3.5 flex flex-col h-full">
+                  <div
+                    className={cn(
+                      "p-4 sm:p-5 flex flex-col h-full",
+                      checkoutPage ? "md:p-4" : "md:p-3.5"
+                    )}
+                  >
                     {/* Plan Header */}
                     <div className="mb-3 md:mb-2">
                       <div className="flex items-center gap-2.5 md:gap-2 mb-2 md:mb-1.5">
@@ -363,8 +399,22 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                           <Icon className={cn("w-[18px] h-[18px] md:w-4 md:h-4", plan.iconColor)} />
                         </div>
                         <div>
-                          <h3 className="font-bold text-base md:text-sm text-foreground">{plan.name}</h3>
-                          <p className="text-muted-foreground text-[11px] md:text-[10px] leading-tight">{plan.tagline}</p>
+                          <h3
+                            className={cn(
+                              "font-bold text-foreground",
+                              checkoutPage ? "text-base md:text-[15px]" : "text-base md:text-sm"
+                            )}
+                          >
+                            {plan.name}
+                          </h3>
+                          <p
+                            className={cn(
+                              "text-muted-foreground leading-tight",
+                              checkoutPage ? "text-[11px] md:text-xs" : "text-[11px] md:text-[10px]"
+                            )}
+                          >
+                            {plan.tagline}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -381,7 +431,12 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                       ) : isYearly ? (
                         <>
                           <div className="flex items-baseline gap-1 flex-wrap">
-                            <span className="text-3xl md:text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                            <span
+                              className={cn(
+                                "font-bold tracking-tight text-foreground tabular-nums",
+                                checkoutPage ? "text-3xl md:text-[1.65rem]" : "text-3xl md:text-2xl"
+                              )}
+                            >
                               ${formatMonthlyEquivalentFromYearly(yearlyTotal)}
                             </span>
                             <span className="text-sm md:text-xs font-medium text-muted-foreground">/mo</span>
@@ -400,7 +455,12 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                       ) : (
                         <>
                           <div className="flex items-baseline gap-2 flex-wrap">
-                            <span className="text-3xl md:text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                            <span
+                              className={cn(
+                                "font-bold tracking-tight text-foreground tabular-nums",
+                                checkoutPage ? "text-3xl md:text-[1.65rem]" : "text-3xl md:text-2xl"
+                              )}
+                            >
                               ${monthlyDisplay}
                             </span>
                             {originalMonthly != null &&
@@ -468,7 +528,12 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                                 plan.id === "pro" ? "accent-violet-600" : "accent-amber-500"
                               )}
                             />
-                            <span className="text-[11px] leading-snug text-muted-foreground">
+                            <span
+                              className={cn(
+                                "leading-snug text-muted-foreground",
+                                checkoutPage ? "text-xs md:text-[13px]" : "text-[11px]"
+                              )}
+                            >
                               {plan.id === "pro"
                                 ? getPricingModalProConsentLabel({
                                     interval: isYearly ? "year" : "month",
@@ -484,7 +549,12 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                             </span>
                           </label>
 
-                          <p className="text-[10px] leading-snug text-muted-foreground mb-2">
+                          <p
+                            className={cn(
+                              "leading-snug text-muted-foreground mb-2",
+                              checkoutPage ? "text-[11px] md:text-xs" : "text-[10px]"
+                            )}
+                          >
                             By continuing, you agree to the{" "}
                             <Link
                               href="/terms"

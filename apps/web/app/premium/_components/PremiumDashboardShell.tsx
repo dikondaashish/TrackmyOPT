@@ -24,7 +24,7 @@ export function PremiumDashboardShell({
           <DashboardContent user={user} />
         </div>
         {/* Foreground: pricing modal or cancelled card */}
-        <div className="relative z-50 flex min-h-[min(560px,calc(100vh-10rem))] items-center justify-center py-6 sm:py-8">
+        <div className="relative z-50 flex min-h-[min(560px,calc(100vh-8rem))] items-center justify-center px-2 py-4 sm:px-3 sm:py-6">
           {children}
         </div>
       </div>
