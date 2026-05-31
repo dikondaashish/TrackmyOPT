@@ -22,7 +22,7 @@ export const comparisonFeatures = [
         features: [
             { name: "Manual Case Status Check", free: true, pro: true, dedicated: true },
             { name: "Daily Auto-Checks", free: false, pro: true, dedicated: true },
-            { name: "Instant Status Change Alerts", free: false, pro: true, dedicated: true },
+            { name: "Daily Status Change Alerts", free: false, pro: true, dedicated: true },
         ],
     },
     {
@@ -61,7 +61,7 @@ export const comparisonFeatures = [
         features: [
             { name: "Chrome Extension Priority Alerts", free: false, pro: true, dedicated: true },
             { name: "1-on-1 Attorney Session (1 hr/mo)", free: false, pro: false, dedicated: true },
-            { name: "Complete Application Audit", free: false, pro: false, dedicated: true },
+            { name: "Application Completeness Check", free: false, pro: false, dedicated: true },
             { name: "24/7 Dedicated Support", free: false, pro: false, dedicated: true },
         ],
     },

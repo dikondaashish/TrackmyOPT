@@ -67,6 +67,10 @@ export const RISKY_MARKETING_PHRASES = [
   "real-time uscis",
   "instant uscis",
   "accurate uscis status",
+  "instant status change alerts",
+  "instant status change",
+  "real-time status",
+  "personalized strategy plan",
 ] as const;
 
 /** Policy version IDs (YYYY-MM-DD). Bump when copy changes materially. */
@@ -201,6 +205,36 @@ export function getPlanBillingSummary(
     autoRenewLine: `You will be charged ${formatUsd(amount)} ${frequencyLabel}. Your subscription renews automatically until you cancel.`,
     cancelMethod,
   };
+}
+
+/** Inline consent copy on PricingModal paid plan cards (before Stripe). */
+export function getPricingModalProConsentLabel(params: {
+  interval: BillingInterval;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  includeTrial: boolean;
+}): string {
+  const price =
+    params.interval === "year"
+      ? `$${params.yearlyPrice.toFixed(2)}/year`
+      : `$${params.monthlyPrice.toFixed(2)}/month`;
+
+  if (params.includeTrial) {
+    return `I agree Pro starts with a 7-day free trial, then renews at ${price} unless I cancel before the trial ends.`;
+  }
+  return `I agree Pro renews at ${price} unless I cancel.`;
+}
+
+/** Inline consent copy on PricingModal Dedicated card (charged today, not after money-back window). */
+export function getPricingModalDedicatedConsentLabel(params: {
+  interval: BillingInterval;
+  monthlyPrice: number;
+  yearlyPrice: number;
+}): string {
+  if (params.interval === "year") {
+    return `I agree Dedicated is charged today at $${params.yearlyPrice.toFixed(2)}/year, renews annually until canceled, and the 3-day money-back guarantee applies only to the first paid term.`;
+  }
+  return `I agree Dedicated is charged today at $${params.monthlyPrice.toFixed(2)}/month, renews monthly until canceled, and the 3-day money-back guarantee applies only to the first paid month.`;
 }
 
 export function buildCheckoutDisclosures(params: {

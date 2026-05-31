@@ -113,8 +113,8 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                 "Everything in Pro",
                 "24/7 Dedicated Support",
                 "1-on-1 Attorney Session (1 hr/mo)",
-                "Complete Application Audit",
-                "Personalized Strategy Plan"
+                "Application Completeness Check",
+                "Personalized Support Plan"
             ],
             cta: "Upgrade to Dedicated",
             popular: false,

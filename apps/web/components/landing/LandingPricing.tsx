@@ -63,7 +63,7 @@ export function LandingPricing() {
 
                 { label: "USCIS Case Tracker", included: true, isHeader: true },
                 { label: "Daily Auto-Checks", included: true, tooltip: "Automatic daily case status monitoring" },
-                { label: "Instant Status Change Alerts", included: true, tooltip: "Email alerts for any status changes" },
+                { label: "Daily Status Change Alerts", included: true, tooltip: "Email alerts when we detect status changes on scheduled checks" },
 
                 { label: "Enhanced Insights", included: true, isHeader: true },
                 { label: "Real-Time Approval Data", included: true, tooltip: "Faster, more accurate approval stats" },
@@ -102,8 +102,8 @@ export function LandingPricing() {
 
                 { label: "Legal & Strategy Access", included: true, isHeader: true },
                 { label: "1-on-1 Attorney Session (1 hr/mo)", included: true, tooltip: "1 hour per month included" },
-                { label: "Complete Application Audit", included: true },
-                { label: "Personalized Strategy Plan", included: true, tooltip: "Custom immigration strategy" },
+                { label: "Application Completeness Check", included: true },
+                { label: "Personalized Support Plan", included: true, tooltip: "Tailored product support for your OPT workflow" },
 
                 { label: "Priority Support", included: true, isHeader: true },
                 { label: "24/7 Dedicated Support", included: true },

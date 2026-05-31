@@ -1,8 +1,13 @@
 "use client";
 
 import { ArrowRight, Check, Crown, Shield, Sparkles, Star, Zap, Gift } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  getPricingModalDedicatedConsentLabel,
+  getPricingModalProConsentLabel,
+} from "@/lib/legal/legal-config";
 import {
   Dialog,
   DialogContent,
@@ -187,7 +192,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         { text: 'Everything in Free, plus:', included: true, isHeader: true },
         { text: 'Daily 9AM Email Reminders', included: true, isHeader: false },
         { text: 'USCIS Auto-Checks (Daily)', included: true, isHeader: false },
-        { text: 'Instant Status Change Alerts', included: true, isHeader: false },
+        { text: 'Daily Status Change Alerts', included: true, isHeader: false },
         { text: 'H-1B Sponsors (Unlimited)', included: true, isHeader: false },
         { text: 'Document Vault + Expiry Alerts', included: true, isHeader: false },
         { text: 'Unlimited Job & Resume Tools', included: true, isHeader: false },
@@ -211,9 +216,9 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
       features: [
         { text: 'Everything in Pro, plus:', included: true, isHeader: true },
         { text: '1-on-1 Attorney Session (1 hr/mo)', included: true, isHeader: false },
-        { text: 'Complete Application Audit', included: true, isHeader: false },
+        { text: 'Application Completeness Check', included: true, isHeader: false },
         { text: '24/7 Dedicated Support', included: true, isHeader: false },
-        { text: 'Personalized Strategy Plan', included: true, isHeader: false },
+        { text: 'Personalized Support Plan', included: true, isHeader: false },
       ],
     },
   ];
@@ -465,12 +470,50 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                             />
                             <span className="text-[11px] leading-snug text-muted-foreground">
                               {plan.id === "pro"
-                                ? proFreeTrialEligible !== false
-                                  ? `I agree the 7-day free trial auto-converts to $${isYearly ? `${plan.yearlyPrice.toFixed(2)}/year` : `${plan.monthlyPrice.toFixed(2)}/month`} unless I cancel before renewal.`
-                                  : `I agree to auto-renewing charges of $${isYearly ? `${plan.yearlyPrice.toFixed(2)}/year` : `${plan.monthlyPrice.toFixed(2)}/month`} unless I cancel.`
-                                : `I agree the 3-day money-back period applies, then $${isYearly ? `${plan.yearlyPrice.toFixed(2)}/year` : `${plan.monthlyPrice.toFixed(2)}/month`} is charged unless I cancel.`}
+                                ? getPricingModalProConsentLabel({
+                                    interval: isYearly ? "year" : "month",
+                                    monthlyPrice: plan.monthlyPrice,
+                                    yearlyPrice: plan.yearlyPrice,
+                                    includeTrial: proFreeTrialEligible !== false,
+                                  })
+                                : getPricingModalDedicatedConsentLabel({
+                                    interval: isYearly ? "year" : "month",
+                                    monthlyPrice: plan.monthlyPrice,
+                                    yearlyPrice: plan.yearlyPrice,
+                                  })}
                             </span>
                           </label>
+
+                          <p className="text-[10px] leading-snug text-muted-foreground mb-2">
+                            By continuing, you agree to the{" "}
+                            <Link
+                              href="/terms"
+                              className="underline underline-offset-2 hover:text-foreground"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Terms
+                            </Link>
+                            ,{" "}
+                            <Link
+                              href="/privacy"
+                              className="underline underline-offset-2 hover:text-foreground"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Privacy Policy
+                            </Link>
+                            , and{" "}
+                            <Link
+                              href="/refund-policy"
+                              className="underline underline-offset-2 hover:text-foreground"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Refund Policy
+                            </Link>
+                            .
+                          </p>
 
                           <Button
                             onClick={() => handleUpgrade(plan.id)}

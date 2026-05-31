@@ -3,8 +3,11 @@ import {
   buildCheckoutDisclosures,
   CASE_STATUS_DISCLAIMER,
   DEDICATED_MONEY_BACK_DAYS,
+  getPricingModalDedicatedConsentLabel,
+  getPricingModalProConsentLabel,
   LEGAL_FOOTER_LINKS,
   LEGAL_POLICY_VERSIONS,
+  PLAN_DISPLAY_PRICES,
   PRO_TRIAL_DAYS,
   USCIS_API_DISCLOSURE,
 } from "./legal-config";
@@ -56,5 +59,51 @@ describe("legal-config", () => {
     const labels = LEGAL_FOOTER_LINKS.map((l) => l.href);
     expect(labels).toContain("/security");
     expect(labels).toContain("/contact");
+  });
+
+  it("pricing modal Pro consent mentions trial, renews, and cancel", () => {
+    const label = getPricingModalProConsentLabel({
+      interval: "month",
+      monthlyPrice: PLAN_DISPLAY_PRICES.pro.month,
+      yearlyPrice: PLAN_DISPLAY_PRICES.pro.year,
+      includeTrial: true,
+    });
+    expect(label).toContain("7-day free trial");
+    expect(label).toContain("renews");
+    expect(label).toContain("unless I cancel");
+    expect(label).not.toContain("auto-converts");
+  });
+
+  it("pricing modal Pro annual consent uses yearly price", () => {
+    const label = getPricingModalProConsentLabel({
+      interval: "year",
+      monthlyPrice: PLAN_DISPLAY_PRICES.pro.month,
+      yearlyPrice: PLAN_DISPLAY_PRICES.pro.year,
+      includeTrial: true,
+    });
+    expect(label).toContain("/year");
+    expect(label).toContain("$49.99/year");
+  });
+
+  it("pricing modal Dedicated consent discloses charge today and money-back scope", () => {
+    const monthly = getPricingModalDedicatedConsentLabel({
+      interval: "month",
+      monthlyPrice: PLAN_DISPLAY_PRICES.dedicated.month,
+      yearlyPrice: PLAN_DISPLAY_PRICES.dedicated.year,
+    });
+    expect(monthly).toContain("charged today");
+    expect(monthly).toContain("renews monthly");
+    expect(monthly).toContain("3-day money-back guarantee");
+    expect(monthly).toContain("first paid month");
+    expect(monthly).not.toContain("then $");
+
+    const annual = getPricingModalDedicatedConsentLabel({
+      interval: "year",
+      monthlyPrice: PLAN_DISPLAY_PRICES.dedicated.month,
+      yearlyPrice: PLAN_DISPLAY_PRICES.dedicated.year,
+    });
+    expect(annual).toContain("charged today");
+    expect(annual).toContain("renews annually");
+    expect(annual).toContain("first paid term");
   });
 });
