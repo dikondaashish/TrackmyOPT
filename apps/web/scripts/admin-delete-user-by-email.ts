@@ -5,9 +5,12 @@
 
 import * as dotenv from "dotenv";
 import path from "path";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
+import type { Database } from "@/types/supabase";
 import { cancelStripeSubscriptionsForCustomer } from "../lib/premium/cancelStripeSubscriptionsForCustomer";
+
+type AdminSupabase = SupabaseClient<Database>;
 
 dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
 
@@ -34,10 +37,7 @@ const USER_DATA_TABLES = [
   "policy_consents",
 ] as const;
 
-async function findUserByEmail(
-  supabase: ReturnType<typeof createClient>,
-  email: string
-) {
+async function findUserByEmail(supabase: AdminSupabase, email: string) {
   let page = 1;
   const target = email.toLowerCase();
   while (page <= 20) {
@@ -52,7 +52,7 @@ async function findUserByEmail(
 }
 
 async function deleteUserAccount(
-  supabase: ReturnType<typeof createClient>,
+  supabase: AdminSupabase,
   stripe: Stripe | null,
   userId: string,
   userEmail: string
@@ -87,10 +87,14 @@ async function deleteUserAccount(
     if (error) console.warn(`  ${table}: ${error.message}`);
   }
 
-  await supabase
+  // Table exists in DB but is not yet in generated Database types.
+  const { error: policyNoticeError } = await (supabase as SupabaseClient)
     .from("policy_notice_email_events")
     .delete()
     .eq("email", userEmail.toLowerCase());
+  if (policyNoticeError) {
+    console.warn(`  policy_notice_email_events: ${policyNoticeError.message}`);
+  }
 
   const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
   if (deleteError) throw new Error(`auth delete failed: ${deleteError.message}`);
@@ -108,7 +112,7 @@ async function main() {
     process.exit(1);
   }
 
-  const supabase = createClient(
+  const supabase = createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { persistSession: false, autoRefreshToken: false } }
