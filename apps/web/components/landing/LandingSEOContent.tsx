@@ -69,9 +69,9 @@ export function LandingSEOContent() {
                                         "Students from over 100 countries use TrackMyOPT to manage their immigration timelines. Join a community that understands your journey.",
                                 },
                                 {
-                                    title: "Bank-Grade Security",
+                                    title: "Security & privacy",
                                     description:
-                                        "Your immigration documents deserve the highest protection. We use AES-256 encryption, the same standard used by financial institutions.",
+                                        "We use HTTPS (TLS) in transit and access controls for stored data. See our Security page for our current practices and limitations.",
                                 },
                                 {
                                     title: "Free Forever Core Features",

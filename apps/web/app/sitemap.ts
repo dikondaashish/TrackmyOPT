@@ -62,6 +62,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/cookie-policy',
         '/refund-policy',
         '/disclaimer',
+        '/security',
         '/resources/report-fraud',
     ];
 

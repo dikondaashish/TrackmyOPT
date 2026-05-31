@@ -12,7 +12,7 @@ const faqs = [
     {
         question: "Is my data secure?",
         answer:
-            "Absolutely. We use bank-grade 256-bit AES encryption for all stored data. Your documents in the vault are encrypted at rest and in transit. We never share your personal information with third parties.",
+            "We use HTTPS (TLS) for data in transit and industry-standard protections for stored data. The document vault uses an optional passcode (hashed on our servers)—your passcode is not stored in a way that only your device can decrypt. We do not sell your personal information. See our Privacy Policy and Security page for details.",
     },
     {
         question: "What happens if I miss an OPT deadline?",

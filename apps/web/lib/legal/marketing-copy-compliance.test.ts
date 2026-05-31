@@ -1,0 +1,90 @@
+import { describe, expect, it } from "vitest";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+import {
+  LEGAL_FOOTER_LINKS,
+  LEGAL_POLICY_VERSIONS,
+  RISKY_MARKETING_PHRASES,
+  USCIS_API_DISCLOSURE,
+} from "./legal-config";
+
+const WEB_ROOT = join(process.cwd());
+
+function collectFiles(dir: string, acc: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    const stat = statSync(full);
+    if (stat.isDirectory()) {
+      if (entry === "node_modules" || entry === ".next" || entry === "dist") continue;
+      collectFiles(full, acc);
+    } else if (/\.(tsx|ts)$/.test(entry) && !entry.endsWith(".test.ts") && !entry.endsWith(".test.tsx")) {
+      acc.push(full);
+    }
+  }
+  return acc;
+}
+
+/** Public marketing surfaces to scan for risky phrases. */
+const MARKETING_SCAN_ROOTS = [
+  "app/features",
+  "app/how-it-works",
+  "components/landing",
+  "components/features",
+].map((p) => join(WEB_ROOT, p));
+
+describe("marketing copy compliance scan", () => {
+  it("USCIS_API_DISCLOSURE does not imply product USCIS approval", () => {
+    expect(USCIS_API_DISCLOSURE.toLowerCase()).not.toContain("uscis approved");
+    expect(USCIS_API_DISCLOSURE.toLowerCase()).toContain("authorized access");
+    expect(USCIS_API_DISCLOSURE.toLowerCase()).toContain("not affiliated");
+  });
+
+  it("footer links include required legal pages", () => {
+    const hrefs = LEGAL_FOOTER_LINKS.map((l) => l.href);
+    expect(hrefs).toContain("/privacy");
+    expect(hrefs).toContain("/terms");
+    expect(hrefs).toContain("/refund-policy");
+    expect(hrefs).toContain("/disclaimer");
+    expect(hrefs).toContain("/cookie-policy");
+    expect(hrefs).toContain("/security");
+    expect(hrefs).toContain("/contact");
+  });
+
+  it("legal config seeds all policy version keys", () => {
+    const required: (keyof typeof LEGAL_POLICY_VERSIONS)[] = [
+      "privacy_policy",
+      "terms_of_service",
+      "refund_policy",
+      "disclaimer",
+      "cookie_policy",
+      "subscription_billing_terms",
+      "security_page",
+    ];
+    for (const key of required) {
+      expect(LEGAL_POLICY_VERSIONS[key]).toBeTruthy();
+    }
+  });
+
+  it("public marketing files avoid risky phrases", () => {
+    const files: string[] = [];
+    for (const root of MARKETING_SCAN_ROOTS) {
+      try {
+        collectFiles(root, files);
+      } catch {
+        // path may not exist in all test environments
+      }
+    }
+
+    const violations: string[] = [];
+    for (const file of files) {
+      const content = readFileSync(file, "utf8").toLowerCase();
+      for (const phrase of RISKY_MARKETING_PHRASES) {
+        if (content.includes(phrase)) {
+          violations.push(`${file}: "${phrase}"`);
+        }
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+});

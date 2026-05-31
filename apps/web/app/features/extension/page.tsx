@@ -33,6 +33,11 @@ import { ExtensionOverlayVisual } from "@/components/features/ExtensionOverlayVi
 import { ExtensionDemo } from "@/components/features/ExtensionDemo";
 import { VerificationBadgePopup } from "@/components/features/VerificationBadgePopup";
 import { H2, Lead, P } from "@/components/ui/typography";
+import { ExtensionLegalLinks } from "@/components/legal/ExtensionLegalLinks";
+import {
+  EXTENSION_FEATURE_DISCLAIMER,
+  EXTENSION_PRIVACY_SHORT,
+} from "@/lib/legal/legal-config";
 
 // Browser Overlay (Replacing previous mockup)
 function BrowserVisual() {
@@ -80,10 +85,10 @@ function PlatformGrid() {
 // Privacy Checklist
 function PrivacyChecklist() {
     const items = [
-        "No data collection or tracking",
-        "Works entirely in your browser",
-        "No account required to use",
-        "Open source & auditable",
+        "Designed to minimize data collection",
+        "Reads job listing pages only to identify employers",
+        "Optional sign-in to sync with TrackMyOPT",
+        "See our Privacy Policy for details",
     ];
 
     return (
@@ -127,11 +132,11 @@ export default function ExtensionPage() {
                 featurePath="/features/extension"
                 faqItems={[
                   {question: "Which job sites does the extension work on?", answer: "Currently LinkedIn and Indeed, with Glassdoor coming soon. We show sponsor badges and H-1B filing history directly on job listings."},
-                  {question: "What data does the extension access?", answer: "The extension only reads job listing page content to identify company names. It never accesses your personal data, messages, or login credentials."},
+                  {question: "What data does the extension access?", answer: "The extension reads job listing page content to identify company names for sponsor lookups. Depending on your use of TrackMyOPT, we may also process account, usage, case-status, notification, billing, and optional analytics data as described in our Privacy Policy."},
                   {question: "Is the extension really free?", answer: "Yes, forever! The extension is completely free with no premium version. We believe job seekers shouldn't pay for this essential information."},
                   {question: "Where does the H-1B data come from?", answer: "We use official Department of Labor LCA filings, USCIS data, and E-Verify records. Data is updated quarterly to ensure accuracy."},
                   {question: "Does it slow down my browser?", answer: "No, the extension is lightweight and only activates on job sites. It uses minimal resources and won't affect your browsing speed."},
-                  {question: "Can I trust this extension with my data?", answer: "Absolutely. We collect zero personal data, have no analytics, and never track your browsing. The extension is open for security audits."}
+                  {question: "Can I trust this extension with my data?", answer: "The extension is designed to minimize data collection. We do not read your LinkedIn or Indeed messages or passwords. See our Privacy Policy, Terms, Disclaimer, and Cookie Policy for what we collect when you use TrackMyOPT services."}
                 ]}
             />
             {/* Hero */}
@@ -248,17 +253,16 @@ export default function ExtensionPage() {
                                 <Shield className="w-4 h-4" />
                                 Privacy First
                             </div>
-                            <H2>Your Data Stays Private</H2>
-                            <P>
-                                We don't track your browsing, store your data, or sell your information.
-                                The extension works entirely in your browser.
-                            </P>
-                            <ul className="space-y-4">
+                            <H2>Privacy & data use</H2>
+                            <P>{EXTENSION_PRIVACY_SHORT}</P>
+                            <P className="text-sm text-muted-foreground">{EXTENSION_FEATURE_DISCLAIMER}</P>
+                            <ExtensionLegalLinks className="mt-2" />
+                            <ul className="space-y-4 mt-6">
                                 {[
-                                    "No analytics or tracking",
-                                    "Data fetched on-demand only",
-                                    "Minimal permissions required",
-                                    "Regular security audits"
+                                    "Job-site permissions only (LinkedIn, Indeed)",
+                                    "Sponsor data fetched on demand",
+                                    "No sale of personal information",
+                                    "Security practices described on our Security page"
                                 ].map((item, i) => (
                                     <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                                         <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
@@ -280,7 +284,7 @@ export default function ExtensionPage() {
                     { value: "3+ hrs", label: "Saved per week on research", icon: <Clock className="w-5 h-5" /> },
                     { value: "Free", label: "Forever—no hidden costs", icon: <Shield className="w-5 h-5" /> },
                     { value: "5 sec", label: "To see sponsor history", icon: <Zap className="w-5 h-5" /> },
-                    { value: "100%", label: "Privacy focused", icon: <Lock className="w-5 h-5" /> },
+                    { value: "Min.", label: "Data collection by design", icon: <Lock className="w-5 h-5" /> },
                 ]}
             />
 
@@ -307,7 +311,7 @@ export default function ExtensionPage() {
                     },
                     {
                         question: "What data does the extension access?",
-                        answer: "The extension only reads job listing page content to identify company names. It never accesses your personal data, messages, or login credentials."
+                        answer: "The extension reads job listing page content to identify company names. Depending on your use of TrackMyOPT, we may process account, usage, case-status, notification, billing, and optional analytics data as described in our Privacy Policy."
                     },
                     {
                         question: "Is the extension really free?",
@@ -323,7 +327,7 @@ export default function ExtensionPage() {
                     },
                     {
                         question: "Can I trust this extension with my data?",
-                        answer: "Absolutely. We collect zero personal data, have no analytics, and never track your browsing. The extension is open for security audits."
+                        answer: "The extension is designed to minimize data collection and does not access your messages or login credentials on job sites. See our Privacy Policy, Terms, Disclaimer, and Cookie Policy for details."
                     },
                 ]}
             />

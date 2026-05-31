@@ -2296,7 +2296,7 @@ export function SettingsSection() {
                   <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                     <li className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-500" />
-                      Your data is encrypted at rest
+                      Data protected with HTTPS (TLS) and access controls
                     </li>
                     <li className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-500" />
@@ -2304,7 +2304,7 @@ export function SettingsSection() {
                     </li>
                     <li className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-500" />
-                      GDPR and CCPA compliant
+                      See Privacy Policy for your rights and choices
                     </li>
                   </ul>
                 </div>

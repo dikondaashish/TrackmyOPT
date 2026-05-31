@@ -54,7 +54,12 @@ export default function SecurityPage() {
 
       <h2>7. Vulnerability reports</h2>
       <p>
-        If you believe you found a security issue, email <a href={`mailto:${LEGAL_CONTACT.support}`}>{LEGAL_CONTACT.support}</a> with details. Please do not publicly disclose unresolved critical issues without giving us reasonable time to respond.
+        If you believe you found a security issue, email{" "}
+        <a href={`mailto:${LEGAL_CONTACT.security}`}>{LEGAL_CONTACT.security}</a> (or{" "}
+        <a href={`mailto:${LEGAL_CONTACT.support}`}>{LEGAL_CONTACT.support}</a>) with details. Please do not publicly disclose unresolved critical issues without giving us reasonable time to respond.
+      </p>
+      <p className="text-sm text-muted-foreground">
+        We use TLS for data in transit, access controls, and trusted infrastructure providers. We do not claim SOC 2, PCI DSS, HIPAA, FedRAMP, or end-to-end encryption for the Service unless separately documented in writing.
       </p>
 
       <p>

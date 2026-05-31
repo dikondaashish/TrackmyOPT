@@ -74,7 +74,8 @@ INSERT INTO public.policy_versions (policy_type, current_version, requires_conse
 VALUES
   ('privacy_policy', '2026-05-31', true, '2026-05-31', 'Expanded data categories: document vault, case history, analytics, AI features, and accurate third-party list.'),
   ('disclaimer', '2026-05-31', false, '2026-05-31', 'Clarified not legal advice, no government affiliation, no outcome guarantees, AI limitations.'),
-  ('cookie_policy', '2026-05-31', false, '2026-05-31', 'Documented essential, analytics (PostHog/Vercel), and Stripe cookies.')
+  ('cookie_policy', '2026-05-31', false, '2026-05-31', 'Documented essential, analytics (PostHog/Vercel), and Stripe cookies.'),
+  ('security_page', '2026-05-31', false, '2026-05-31', 'Security practices: TLS, Stripe payments, access controls; no unverified certification claims.')
 ON CONFLICT (policy_type) DO UPDATE SET
   current_version = EXCLUDED.current_version,
   requires_consent = EXCLUDED.requires_consent,

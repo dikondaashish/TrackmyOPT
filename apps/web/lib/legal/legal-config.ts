@@ -17,7 +17,45 @@ export const COMPANY = {
 export const LEGAL_CONTACT = {
   support: "support@trackmyopt.com",
   privacy: "privacy@trackmyopt.com",
+  security: "security@trackmyopt.com",
 } as const;
+
+/** Use wherever USCIS case-status API/features are described. Not product "USCIS approval." */
+export const USCIS_API_DISCLOSURE =
+  "TrackMyOPT uses authorized access to USCIS case-status data where available. TrackMyOPT is independent software and is not affiliated with, endorsed by, or operated by USCIS, DHS, SEVP, ICE, or any U.S. government agency. Case-status information is provided for convenience and should be verified with official USCIS notices and accounts.";
+
+export const CASE_STATUS_DISCLAIMER =
+  "Case status information is provided for convenience and may be delayed, incomplete, unavailable, or different from official USCIS notices. Always verify important updates through official USCIS channels, your DSO, employer, or a licensed immigration attorney.";
+
+export const CASE_STATUS_ALERT_DISCLAIMER =
+  "Alerts are convenience notifications only and may not reflect every USCIS update. You remain responsible for monitoring your official USCIS account, paper notices, DSO/employer requirements, and deadlines.";
+
+export const EXTENSION_PRIVACY_SHORT =
+  "Designed to minimize data collection. Depending on how you use TrackMyOPT, we may process account, usage, case-status, notification, billing, and optional analytics data as described in our Privacy Policy.";
+
+export const EXTENSION_FEATURE_DISCLAIMER =
+  "The extension is a convenience tool for accessing TrackMyOPT workflows. It is not a government service, does not provide legal advice, and does not guarantee immigration outcomes.";
+
+/** Phrases that must not appear in customer-facing product copy (tests scan for these). */
+export const RISKY_MARKETING_PHRASES = [
+  "uscis approved",
+  "approved by uscis",
+  "government approved",
+  "official uscis partner",
+  "uscis partner",
+  "endorsed by uscis",
+  "guaranteed approval",
+  "guaranteed opt",
+  "zero personal data",
+  "no personal data",
+  "no analytics",
+  "bank-grade",
+  "soc 2 type ii",
+  "soc 2 certified",
+  "end-to-end encryption",
+  "official government app",
+  "official uscis app",
+] as const;
 
 /** Policy version IDs (YYYY-MM-DD). Bump when copy changes materially. */
 export const LEGAL_POLICY_VERSIONS = {
@@ -39,6 +77,7 @@ export const LEGAL_FOOTER_LINKS = [
   { label: "Disclaimer", href: "/disclaimer" },
   { label: "Cookie Policy", href: "/cookie-policy" },
   { label: "Security", href: "/security" },
+  { label: "Contact", href: "/contact" },
 ] as const;
 
 /** Third parties actually used in the product (keep in sync with codebase). */
@@ -79,8 +118,9 @@ export const THIRD_PARTY_SERVICES = [
     privacyUrl: "https://policies.google.com/privacy",
   },
   {
-    name: "USCIS / public sources",
-    purpose: "Case status lookups using receipt numbers you provide (public USCIS systems)",
+    name: "USCIS Case Status API",
+    purpose:
+      "Case status lookups using receipt numbers you provide (authorized USCIS case-status API access where available)",
     privacyUrl: "https://www.uscis.gov",
   },
 ] as const;

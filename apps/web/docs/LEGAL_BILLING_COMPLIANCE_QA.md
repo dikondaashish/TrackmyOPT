@@ -13,7 +13,9 @@
 
 ## Footer & navigation
 
-- [ ] Footer links: Privacy, Terms, Refund, Disclaimer, Cookie, Security
+- [ ] Footer links: Privacy, Terms, Refund, Disclaimer, Cookie, Security, Contact
+- [ ] `/security` included in `app/sitemap.ts` legal pages
+- [ ] `robots.txt` does not block `/privacy`, `/terms`, `/security`, etc.
 - [ ] Signup checkbox links: Privacy, Terms, Disclaimer
 - [ ] Billing FAQ links Refund + Terms
 
@@ -29,14 +31,30 @@
 ## Copy consistency
 
 - [ ] No “USCIS-approved,” “guaranteed approval,” or “fully compliant” language
+- [ ] USCIS features use `USCIS_API_DISCLOSURE` / authorized API access wording (not product endorsement)
+- [ ] Extension page does not claim “zero personal data” or “no analytics”
+- [ ] Case-status dashboard + `/features/case-status` show delay/verification disclaimer
 - [ ] Contact page refund FAQ matches Refund Policy (not 14-day generic)
 - [ ] Footer does not claim SOC 2 / PCI DSS unless certified
+- [ ] No “bank-grade,” “encrypted at rest” (product-wide), or E2E encryption claims without evidence
 
 ## Sensitive data accuracy
 
-- [ ] Privacy describes receipt numbers, case history, document vault, Stripe, optional PostHog
+- [ ] Privacy describes receipt numbers, USCIS API case status, case history, document vault, Stripe, optional PostHog/Gemini
 - [ ] Privacy states vault passcode is not end-to-end encryption
 - [ ] Cookie policy does not claim “no analytics” if PostHog env is set in production
+- [ ] Extension feature page links Privacy, Terms, Disclaimer, Cookie Policy
+
+## Automated checks
+
+- [ ] `npm run test` — `legal-config.test.ts` + `marketing-copy-compliance.test.ts` pass
+- [ ] `policy_versions` migration seeds: refund, subscription_billing_terms, privacy, terms, disclaimer, cookie, security_page
+
+## Checkout (re-verify)
+
+- [ ] No “14-day refund” marketing copy remains
+- [ ] Pro: 7-day trial; Dedicated: immediate charge + 3-day first-month guarantee only
+- [ ] Checkout requires `recurringBillingAccepted: true`
 
 ## Admin / disputes
 

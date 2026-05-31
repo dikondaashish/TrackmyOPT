@@ -325,7 +325,7 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
     const [promoError, setPromoError] = useState<string | null>(null);
 
     // Open pricing modal so recurring-billing disclosures + consent apply before Stripe
-    const handleDirectCheckout = (planId: string, interval: string) => {
+    const handleDirectCheckout = async (planId: string, interval: string): Promise<void> => {
         setSelectedPlan(planId);
         setSelectedInterval(interval);
         setShowPricingModal(true);

@@ -106,7 +106,7 @@ async function getUSCISAccessToken(): Promise<string | null> {
 }
 
 /**
- * Fetch case status from official USCIS API.
+ * Fetch case status via authorized USCIS Case Status API access.
  * @param receiptNumber - USCIS receipt number (e.g., IOE1234567890)
  */
 export async function checkUSCISStatus(

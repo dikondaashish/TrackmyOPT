@@ -25,6 +25,9 @@ import { FeatureWhyMatters } from "@/components/features/FeatureWhyMatters";
 import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
 import { H2, Lead, P } from "@/components/ui/typography";
+import { UscisApiDisclosureBlock } from "@/components/legal/UscisApiDisclosureBlock";
+import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
+import { CASE_STATUS_ALERT_DISCLAIMER } from "@/lib/legal/legal-config";
 
 function CaseStatusCard() {
     return (
@@ -77,15 +80,15 @@ const howItWorks = [
     {
         step: "02",
         icon: <RefreshCw className="w-6 h-6" />,
-        title: "We Check USCIS Daily",
-        description: "Our system queries USCIS every day and compares your status to the previous check.",
+        title: "We Check Case Status Daily",
+        description: "TrackMyOPT uses authorized USCIS case-status API access where available and compares results to your previous check.",
         color: "teal",
     },
     {
         step: "03",
         icon: <Bell className="w-6 h-6" />,
-        title: "Get Instant Alerts",
-        description: "The moment your status changes, you get an email with a plain-English explanation.",
+        title: "Get Email Alerts",
+        description: "When we detect a status change, you can receive an email with a plain-English explanation (timing may vary).",
         color: "cyan",
     },
 ];
@@ -112,7 +115,7 @@ const jargonTranslations = [
 const faqItems = [
     {
         question: "How often does TrackMyOPT check my case status?",
-        answer: "We check your USCIS case status every day automatically. When we detect a change, you receive an instant email notification explaining exactly what changed and what it means for you.",
+        answer: "Pro users receive automated daily checks where our USCIS case-status API access is available. When we detect a change, we send an email notification with a plain-English explanation. Timing may vary and is not guaranteed.",
     },
     {
         question: "Which receipt numbers can I track?",
@@ -124,11 +127,11 @@ const faqItems = [
     },
     {
         question: "Will I get an alert for every status change?",
-        answer: "Yes. Every time USCIS updates your case status, we detect the change and send you a notification email. We also translate the USCIS jargon into plain English so you know exactly what's happening.",
+        answer: `${CASE_STATUS_ALERT_DISCLAIMER} We aim to notify you when we detect changes, but alerts may be delayed or missed.`,
     },
     {
         question: "Is my receipt number stored securely?",
-        answer: "Absolutely. Your receipt number is encrypted at rest and in transit. We only use it to query the public USCIS case status system — the same system you'd use manually at egov.uscis.gov.",
+        answer: "Your receipt number is stored in our database and transmitted over HTTPS (TLS). We use it only to retrieve case-status information through authorized USCIS case-status API access where available. See our Privacy Policy and Security page for details.",
     },
     {
         question: "Can I track multiple cases at once?",
@@ -145,19 +148,12 @@ export default function CaseStatusPage() {
                 name="USCIS Case Status Tracker"
                 description="Automated daily USCIS case status checks with instant email alerts when your status changes. Tracks I-765 (EAD), I-140, I-485, and other USCIS applications."
                 featurePath="/features/case-status"
-                faqItems={[
-                  {question: "How often does TrackMyOPT check my case status?", answer: "We check your USCIS case status every day automatically. When we detect a change, you receive an instant email notification explaining exactly what changed and what it means for you."},
-                  {question: "Which receipt numbers can I track?", answer: "You can track any USCIS receipt number including IOE, EAC, WAC, LIN, SRC, and MSC prefixes. This covers I-765 (EAD), I-140, I-485, and most other USCIS applications."},
-                  {question: "How long does OPT EAD processing take?", answer: "As of 2026, I-765 OPT processing typically takes 3-5 months. STEM OPT extensions may take 3-6 months. Processing times vary by service center. TrackMyOPT keeps you updated throughout the entire wait."},
-                  {question: "Will I get an alert for every status change?", answer: "Yes. Every time USCIS updates your case status, we detect the change and send you a notification email. We also translate the USCIS jargon into plain English so you know exactly what's happening."},
-                  {question: "Is my receipt number stored securely?", answer: "Absolutely. Your receipt number is encrypted at rest and in transit. We only use it to query the public USCIS case status system — the same system you'd use manually at egov.uscis.gov."},
-                  {question: "Can I track multiple cases at once?", answer: "Yes. You can add multiple receipt numbers to your dashboard and track them all simultaneously. This is useful if you have pending I-765, I-140, or other applications at the same time."}
-                ]}
+                faqItems={faqItems}
             />
             <FeatureHero
                 badge="Real-Time Tracking"
                 headline="Know Your USCIS Case Status Instantly"
-                subheadline="Automated daily checks with instant email alerts the moment your status changes. No more refreshing USCIS — we do it for you and explain it in plain English."
+                subheadline="Automated daily checks and email alerts when we detect status changes—using authorized USCIS case-status API access where available. Always verify important updates with official USCIS notices."
                 ctaText="Start Tracking Free"
                 ctaHref="/login"
                 secondaryCta={{
@@ -277,6 +273,11 @@ export default function CaseStatusPage() {
                 }}
                 accentColor="emerald"
             />
+
+            <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+                <UscisApiDisclosureBlock />
+                <UscisCaseStatusDisclaimer className="mt-4" />
+            </section>
 
             <FeatureFAQ
                 title="Case Status Tracking Questions"

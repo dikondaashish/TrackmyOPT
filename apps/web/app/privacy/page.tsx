@@ -35,7 +35,9 @@ export default function PrivacyPage() {
         <li>Program end dates, OPT/STEM OPT start and end dates, DSO recommendation dates</li>
         <li>Employment history, unemployment tracking inputs, and related notes</li>
         <li>USCIS receipt numbers for case status tracking</li>
-        <li>Case status text, descriptions, and status history returned from USCIS public systems</li>
+        <li>
+          Case status text, descriptions, and status history returned via authorized USCIS case-status API access (where available)
+        </li>
       </ul>
       <p>
         This information can be sensitive. We use it only to provide the features you request (timelines, reminders, dashboards, notifications).

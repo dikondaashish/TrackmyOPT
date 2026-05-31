@@ -97,7 +97,7 @@ const faqCategories = [
             {
                 question: "Is my data secure on TrackMyOPT?",
                 answer:
-                    "We use HTTPS/TLS in transit, secure cloud providers (e.g. Supabase), and access controls including Row Level Security. The Document Vault uses an optional passcode (hashed on our servers) and auto-lock—it is not end-to-end encryption. We do not sell your personal information. You can delete your account and data in Settings. See our Privacy Policy and Security page for details.",
+                    "We use HTTPS/TLS in transit, secure cloud providers (e.g. AWS), and access controls including Row Level Security. The Document Vault uses an optional passcode (hashed on our servers) and auto-lock—only your account can unlock the vault in the product, but we can still access stored files as the service provider. We do not sell your personal information. You can delete your account and data in Settings. See our Privacy Policy and Security page for details.",
             },
         ],
     },

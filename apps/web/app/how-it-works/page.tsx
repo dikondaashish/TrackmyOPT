@@ -20,7 +20,7 @@ const steps = [
         number: 1,
         title: "Create Your Free Account",
         description:
-            "Sign up in seconds using Google or email. No credit card required. Your account is secured with bank-grade encryption.",
+            "Sign up in seconds using Google or email. No credit card required. Sessions are protected with HTTPS (TLS) and standard authentication practices.",
         icon: UserPlus,
         color: "blue",
     },

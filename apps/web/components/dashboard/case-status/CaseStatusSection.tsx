@@ -8,6 +8,7 @@ import { Collapsible } from "@/components/ui/collapsible";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
+import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
 import {
   ClipboardCheck,
   RefreshCw,
@@ -451,8 +452,9 @@ export function CaseStatusSection() {
         </div>
         <p className="text-muted-foreground">
           Free: track and refresh your case status in-app.{' '}
-          <span className="font-medium text-foreground">Pro:</span> automatic daily checks + email alerts the moment your status changes.
+          <span className="font-medium text-foreground">Pro:</span> automatic daily checks + email alerts when we detect a status change.
         </p>
+        <UscisCaseStatusDisclaimer className="mt-4" />
       </div>
 
       {/* Receipt Number Input */}
@@ -688,8 +690,9 @@ export function CaseStatusSection() {
                           {notificationEmail || 'No email set'}
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">
-                          You will be notified when your case status changes.
+                          You will be notified when we detect a case status change.
                         </p>
+                        <UscisCaseStatusDisclaimer variant="compact" showAlertNote className="mt-3" />
                       </div>
                     )}
                   </>
