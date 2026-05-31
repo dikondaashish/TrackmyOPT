@@ -264,27 +264,27 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         onClose={onClose}
-        className="max-w-[1100px] w-[95vw] max-h-[min(92vh,880px)] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col"
+        className="max-w-[1100px] md:max-w-[1180px] w-[95vw] max-h-[min(92vh,880px)] md:max-h-[min(90vh,800px)] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col md:text-[15px]"
       >
         {/* Header Section */}
-        <div className="relative shrink-0 px-5 sm:px-6 pt-5 pb-3 sm:pb-4 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
+        <div className="relative shrink-0 px-5 sm:px-6 md:px-5 pt-5 pb-3 sm:pb-4 md:pt-4 md:pb-2.5 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.08),transparent_50%)]" />
 
           <div className="relative z-10">
             {/* Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 text-[11px] font-semibold mb-2 border border-violet-500/20">
-              <Sparkles className="w-3 h-3" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 md:px-2.5 md:py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 text-[11px] md:text-[10px] font-semibold mb-2 md:mb-1.5 border border-violet-500/20">
+              <Sparkles className="w-3 h-3 md:w-2.5 md:h-2.5" />
               Upgrade Your OPT Journey
             </div>
 
             {/* Title */}
             {step === "select" ? (
               <>
-                <h2 className="text-xl sm:text-2xl md:text-[1.65rem] font-bold tracking-tight text-foreground mb-1">
+                <h2 className="text-xl sm:text-2xl md:text-xl lg:text-[1.35rem] font-bold tracking-tight text-foreground mb-1">
                   Choose Your Plan
                 </h2>
-                <p className="text-muted-foreground text-xs sm:text-sm max-w-lg mx-auto leading-snug">
+                <p className="text-muted-foreground text-xs sm:text-sm md:text-xs max-w-lg mx-auto leading-snug">
                   Join 2,500+ international students who trust TrackMyOPT to navigate their F-1 visa journey
                 </p>
               </>
@@ -293,11 +293,11 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 <h2
                   ref={confirmHeadingRef}
                   tabIndex={-1}
-                  className="text-xl sm:text-2xl md:text-[1.65rem] font-bold tracking-tight text-foreground mb-1 outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40 rounded-sm"
+                  className="text-xl sm:text-2xl md:text-xl lg:text-[1.35rem] font-bold tracking-tight text-foreground mb-1 outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40 rounded-sm"
                 >
                   Review &amp; confirm
                 </h2>
-                <p className="text-muted-foreground text-xs sm:text-sm max-w-lg mx-auto leading-snug">
+                <p className="text-muted-foreground text-xs sm:text-sm md:text-xs max-w-lg mx-auto leading-snug">
                   Review subscription terms before continuing to secure payment
                 </p>
                 {promoMode !== "none" && (
@@ -310,9 +310,9 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
             {/* Billing Toggle */}
             {step === "select" && (
-            <div className="flex items-center justify-center gap-3 sm:gap-4 mt-3 sm:mt-4">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-2.5 mt-3 sm:mt-4 md:mt-2.5">
               <span className={cn(
-                "text-sm font-medium transition-all duration-200",
+                "text-sm md:text-xs font-medium transition-all duration-200",
                 !isYearly ? "text-foreground" : "text-muted-foreground"
               )}>
                 Monthly
@@ -321,7 +321,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
               <button
                 onClick={() => setIsYearly(!isYearly)}
                 className={cn(
-                  "relative w-16 h-8 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500/40",
+                  "relative w-16 h-8 md:w-14 md:h-7 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500/40",
                   isYearly
                     ? "bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/30"
                     : "bg-muted border border-border"
@@ -329,19 +329,19 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 aria-label="Toggle billing period"
               >
                 <div className={cn(
-                  "absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300 ease-out",
-                  isYearly ? "left-[34px]" : "left-1"
+                  "absolute top-1 w-6 h-6 md:w-5 md:h-5 md:top-1 rounded-full bg-white shadow-md transition-all duration-300 ease-out",
+                  isYearly ? "left-[34px] md:left-[30px]" : "left-1"
                 )} />
               </button>
 
               <div className="flex items-center gap-2">
                 <span className={cn(
-                  "text-sm font-medium transition-all duration-200",
+                  "text-sm md:text-xs font-medium transition-all duration-200",
                   isYearly ? "text-foreground" : "text-muted-foreground"
                 )}>
                   Annual
                 </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase tracking-wider border border-green-500/20">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 md:px-2 md:py-0.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] md:text-[9px] font-bold uppercase tracking-wider border border-green-500/20">
                   <Gift className="w-3 h-3" />
                   Save 40%
                 </span>
@@ -350,7 +350,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
             )}
 
             {step === "select" && (
-            <div className="mt-3 max-w-md mx-auto px-1">
+            <div className="mt-3 md:mt-2 max-w-md mx-auto px-1">
               <PromoCodeCheckoutBar
                 mode={promoMode}
                 customCode={customPromoInput}
@@ -384,8 +384,8 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
         {step === "select" && (
-        <div className="p-4 sm:p-5 md:p-6">
-          <div className="grid md:grid-cols-3 gap-3 sm:gap-4">
+        <div className="p-4 sm:p-5 md:p-4 lg:p-5">
+          <div className="grid md:grid-cols-3 gap-3 sm:gap-4 md:gap-3">
             {plans.map((plan) => {
               const Icon = plan.icon;
               const monthlyDisplay = plan.monthlyPrice;
@@ -397,7 +397,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 <div
                   key={plan.id}
                   className={cn(
-                    "relative rounded-2xl transition-all duration-300 flex flex-col h-full",
+                    "relative rounded-2xl md:rounded-xl transition-all duration-300 flex flex-col h-full",
                     plan.popular
                       ? "bg-gradient-to-b from-violet-500/[0.08] via-violet-500/[0.03] to-transparent ring-2 ring-violet-500/40 shadow-xl shadow-violet-500/10"
                       : "bg-card/60 border hover:border-border/80 hover:shadow-lg",
@@ -414,41 +414,41 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                     </div>
                   )}
 
-                  <div className="p-4 sm:p-5 flex flex-col h-full">
+                  <div className="p-4 sm:p-5 md:p-3.5 flex flex-col h-full">
                     {/* Plan Header */}
-                    <div className="mb-3">
-                      <div className="flex items-center gap-2.5 mb-2">
+                    <div className="mb-3 md:mb-2">
+                      <div className="flex items-center gap-2.5 md:gap-2 mb-2 md:mb-1.5">
                         <div className={cn(
-                          "p-2 rounded-lg shadow-sm",
+                          "p-2 md:p-1.5 rounded-lg shadow-sm",
                           plan.iconBg
                         )}>
-                          <Icon className={cn("w-[18px] h-[18px]", plan.iconColor)} />
+                          <Icon className={cn("w-[18px] h-[18px] md:w-4 md:h-4", plan.iconColor)} />
                         </div>
                         <div>
-                          <h3 className="font-bold text-base text-foreground">{plan.name}</h3>
-                          <p className="text-muted-foreground text-[11px] leading-tight">{plan.tagline}</p>
+                          <h3 className="font-bold text-base md:text-sm text-foreground">{plan.name}</h3>
+                          <p className="text-muted-foreground text-[11px] md:text-[10px] leading-tight">{plan.tagline}</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Price Section */}
-                    <div className="mb-3 pb-3 border-b border-border/50">
+                    <div className="mb-3 md:mb-2 pb-3 md:pb-2 border-b border-border/50">
                       {plan.id === "free" ? (
                         <>
                           <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-bold tracking-tight text-foreground">$0</span>
+                            <span className="text-3xl md:text-2xl font-bold tracking-tight text-foreground">$0</span>
                           </div>
-                          <p className="text-muted-foreground text-xs mt-0.5">Forever free</p>
+                          <p className="text-muted-foreground text-xs md:text-[11px] mt-0.5">Forever free</p>
                         </>
                       ) : isYearly ? (
                         <>
                           <div className="flex items-baseline gap-1 flex-wrap">
-                            <span className="text-3xl font-bold tracking-tight text-foreground tabular-nums">
+                            <span className="text-3xl md:text-2xl font-bold tracking-tight text-foreground tabular-nums">
                               ${formatMonthlyEquivalentFromYearly(yearlyTotal)}
                             </span>
-                            <span className="text-sm font-medium text-muted-foreground">/mo</span>
+                            <span className="text-sm md:text-xs font-medium text-muted-foreground">/mo</span>
                           </div>
-                          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs md:text-[11px] text-muted-foreground">
                             {originalYearly != null &&
                               yearlyTotal > 0 &&
                               originalYearly > yearlyTotal && (
@@ -462,43 +462,43 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                       ) : (
                         <>
                           <div className="flex items-baseline gap-2 flex-wrap">
-                            <span className="text-3xl font-bold tracking-tight text-foreground tabular-nums">
+                            <span className="text-3xl md:text-2xl font-bold tracking-tight text-foreground tabular-nums">
                               ${monthlyDisplay}
                             </span>
                             {originalMonthly != null &&
                               originalMonthly > monthlyDisplay && (
-                                <span className="text-sm text-muted-foreground/70 line-through tabular-nums">
+                                <span className="text-sm md:text-xs text-muted-foreground/70 line-through tabular-nums">
                                   ${originalMonthly}
                                 </span>
                               )}
                           </div>
-                          <p className="text-muted-foreground text-xs mt-0.5">per month</p>
+                          <p className="text-muted-foreground text-xs md:text-[11px] mt-0.5">per month</p>
                         </>
                       )}
                       {plan.trial && (
-                        <p className="text-violet-600 dark:text-violet-400 text-xs font-medium mt-1.5 flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" />
+                        <p className="text-violet-600 dark:text-violet-400 text-xs md:text-[11px] font-medium mt-1.5 md:mt-1 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 md:w-2.5 md:h-2.5" />
                           {plan.trial}
                         </p>
                       )}
                     </div>
 
                     {/* CTA Button */}
-                    <div className="mb-3">
+                    <div className="mb-3 md:mb-2">
                       {plan.current ? (
                         <Button
                           disabled
                           variant="outline"
-                          className="w-full h-9 text-xs font-medium"
+                          className="w-full h-9 md:h-8 text-xs md:text-[11px] font-medium"
                         >
-                          <Check className="w-3.5 h-3.5 mr-1.5" />
+                          <Check className="w-3.5 h-3.5 md:w-3 md:h-3 mr-1.5" />
                           Current Plan
                         </Button>
                       ) : plan.id === 'free' ? (
                         <Button
                           disabled
                           variant="outline"
-                          className="w-full h-9 text-xs font-medium opacity-60"
+                          className="w-full h-9 md:h-8 text-xs md:text-[11px] font-medium opacity-60"
                         >
                           Free Forever
                         </Button>
@@ -511,10 +511,10 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                           }}
                           disabled={isLoading}
                           className={cn(
-                            "w-full h-9 text-xs font-semibold transition-all duration-300",
+                            "w-full h-9 md:h-8 text-xs md:text-[11px] font-semibold transition-all duration-300",
                             plan.popular
-                              ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-[1.02]"
-                              : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 hover:scale-[1.02]"
+                              ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 md:hover:scale-[1.01]"
+                              : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 md:hover:scale-[1.01]"
                           )}
                         >
                           <span className="flex items-center gap-1.5">
@@ -531,17 +531,17 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
                     {/* Features List */}
                     <div className="flex-1">
-                      <ul className="space-y-1.5">
+                      <ul className="space-y-1.5 md:space-y-1">
                         {plan.features.map((feature, idx) => (
                           <li
                             key={idx}
                             className={cn(
-                              "flex items-start gap-2",
+                              "flex items-start gap-2 md:gap-1.5",
                               feature.isHeader && "pt-0.5"
                             )}
                           >
                             <div className={cn(
-                              "mt-0.5 flex-shrink-0 rounded-full p-0.5",
+                              "mt-0.5 flex-shrink-0 rounded-full p-0.5 md:p-px",
                               plan.popular
                                 ? "bg-violet-500/10"
                                 : plan.id === 'dedicated'
@@ -549,7 +549,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                                   : "bg-muted"
                             )}>
                               <Check className={cn(
-                                "w-2.5 h-2.5",
+                                "w-2.5 h-2.5 md:w-2 md:h-2",
                                 plan.popular
                                   ? "text-violet-600 dark:text-violet-400"
                                   : plan.id === 'dedicated'
@@ -558,7 +558,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                               )} />
                             </div>
                             <span className={cn(
-                              "text-xs leading-snug",
+                              "text-xs md:text-[11px] leading-snug md:leading-tight",
                               feature.isHeader
                                 ? "font-semibold text-foreground"
                                 : "text-muted-foreground"
@@ -578,7 +578,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         )}
 
         {step === "confirm" && selectedPlanForConfirm && (
-          <div className="p-4 sm:p-5 md:p-6 max-w-xl mx-auto w-full space-y-4">
+          <div className="p-4 sm:p-5 md:p-4 max-w-xl mx-auto w-full space-y-4 md:space-y-3">
             <button
               type="button"
               onClick={() => {
@@ -593,7 +593,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
 
             <div
               className={cn(
-                "rounded-2xl border p-4 sm:p-5",
+                "rounded-2xl md:rounded-xl border p-4 sm:p-5 md:p-4",
                 selectedPlanForConfirm.popular
                   ? "border-violet-500/40 bg-gradient-to-b from-violet-500/[0.08] to-transparent"
                   : "border-amber-500/30 bg-card/60"
@@ -622,25 +622,25 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 {confirmInterval === "year" ? (
                   <>
                     <div className="flex items-baseline gap-1 flex-wrap">
-                      <span className="text-3xl font-bold tracking-tight text-foreground tabular-nums">
+                      <span className="text-3xl md:text-2xl font-bold tracking-tight text-foreground tabular-nums">
                         $
                         {formatMonthlyEquivalentFromYearly(
                           selectedPlanForConfirm.yearlyPrice
                         )}
                       </span>
-                      <span className="text-sm font-medium text-muted-foreground">/mo</span>
+                      <span className="text-sm md:text-xs font-medium text-muted-foreground">/mo</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs md:text-[11px] text-muted-foreground mt-0.5">
                       ${selectedPlanForConfirm.yearlyPrice.toFixed(2)} billed yearly
                     </p>
                   </>
                 ) : (
                   <>
                     <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="text-3xl font-bold tracking-tight text-foreground tabular-nums">
+                      <span className="text-3xl md:text-2xl font-bold tracking-tight text-foreground tabular-nums">
                         ${selectedPlanForConfirm.monthlyPrice}
                       </span>
-                      <span className="text-sm font-medium text-muted-foreground">/mo</span>
+                      <span className="text-sm md:text-xs font-medium text-muted-foreground">/mo</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">Billed monthly</p>
                   </>
@@ -677,7 +677,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
               onClick={() => handleUpgrade(disclosurePlan, confirmInterval)}
               disabled={isLoading}
               className={cn(
-                "w-full h-11 text-sm font-semibold cursor-pointer transition-all duration-200 focus-visible:ring-2 focus-visible:ring-violet-500/40",
+                "w-full h-11 md:h-10 text-sm md:text-xs font-semibold cursor-pointer transition-all duration-200 focus-visible:ring-2 focus-visible:ring-violet-500/40",
                 disclosurePlan === "pro"
                   ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25"
                   : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/20"
@@ -699,9 +699,9 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
         )}
 
           {/* Footer Trust Section */}
-          <div className="px-4 sm:px-5 pb-4 pt-3 border-t border-border/40 bg-background/95">
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div className="px-4 sm:px-5 md:px-4 pb-4 md:pb-3 pt-3 md:pt-2 border-t border-border/40 bg-background/95">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 md:gap-x-4 gap-y-2 md:gap-y-1">
+              <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
                 <Shield className="w-3.5 h-3.5 text-green-600" />
                 <span>Secure Payment</span>
               </div>
@@ -709,16 +709,16 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
                 proFreeTrialEligible !== false &&
                 (step === "select" ||
                   (step === "confirm" && disclosurePlan === "pro")) && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Sparkles className="w-3.5 h-3.5 text-violet-600" />
+              <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
+                <Sparkles className="w-3.5 h-3.5 md:w-3 md:h-3 text-violet-600" />
                 <span>7-Day Free Trial</span>
               </div>
               )}
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Zap className="w-3.5 h-3.5 text-amber-600" />
+              <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
+                <Zap className="w-3.5 h-3.5 md:w-3 md:h-3 text-amber-600" />
                 <span>Cancel in Settings → Billing</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs">
+              <div className="flex items-center gap-1.5 text-xs md:text-[11px]">
                 <span className="text-muted-foreground/60">Powered by</span>
                 <span className="font-semibold text-foreground/80">Stripe</span>
               </div>
