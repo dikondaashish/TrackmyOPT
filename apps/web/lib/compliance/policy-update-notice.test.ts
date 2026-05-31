@@ -4,8 +4,11 @@ import { join } from "node:path";
 import { RISKY_MARKETING_PHRASES } from "@/lib/legal/legal-config";
 import {
   buildPolicyUpdateNoticeEmailContent,
+  filterPolicyNoticeRecipients,
   getRecipientExclusionReason,
   POLICY_UPDATE_NOTICE_SUBJECT,
+  redactEmail,
+  type PolicyNoticeAuthRow,
 } from "./policy-update-notice";
 
 const MARKETING_BLOCKED = ["upgrade", "discount", "limited offer", "try pro"] as const;
@@ -53,9 +56,30 @@ describe("policy-update-notice email", () => {
   it("personalizes greeting when first name is provided", () => {
     expect(html).toContain("Hi Alex,");
   });
+
+  it("uses generic greeting when profile first name is missing", () => {
+    const generic = buildPolicyUpdateNoticeEmailContent(null);
+    expect(generic.html).toContain("Hi,");
+    expect(generic.html).not.toContain("Hi null,");
+  });
 });
 
 describe("policy-update-notice recipient filter", () => {
+  const baseRows: PolicyNoticeAuthRow[] = [
+    {
+      userId: "11111111-1111-1111-1111-111111111111",
+      email: "student@university.edu",
+      hasProfile: true,
+      firstName: "Sam",
+    },
+    {
+      userId: "22222222-2222-2222-2222-222222222222",
+      email: "orphan@gmail.com",
+      hasProfile: false,
+      firstName: null,
+    },
+  ];
+
   it("excludes example and test accounts", () => {
     expect(getRecipientExclusionReason("user@example.com")).toBe("invalid_domain");
     expect(getRecipientExclusionReason("test@company.com")).toBe("test_account");
@@ -64,6 +88,82 @@ describe("policy-update-notice recipient filter", () => {
 
   it("allows normal student emails", () => {
     expect(getRecipientExclusionReason("student@university.edu")).toBeNull();
+  });
+
+  it("includes active auth user without profile", () => {
+    const result = filterPolicyNoticeRecipients(baseRows, {
+      blockedEmails: new Set(),
+      alreadySentEmails: new Set(),
+    });
+    expect(result.eligible).toHaveLength(2);
+    expect(result.stats.eligibleAuthOnly).toBe(1);
+    expect(result.stats.eligibleProfileBacked).toBe(1);
+    const authOnly = result.eligible.find((r) => r.email === "orphan@gmail.com");
+    expect(authOnly?.firstName).toBeNull();
+  });
+
+  it("excludes blocked email", () => {
+    const result = filterPolicyNoticeRecipients(baseRows, {
+      blockedEmails: new Set(["orphan@gmail.com"]),
+      alreadySentEmails: new Set(),
+    });
+    expect(result.eligible).toHaveLength(1);
+    expect(result.stats.excludedBlocked).toBe(1);
+  });
+
+  it("excludes internal domain", () => {
+    const rows: PolicyNoticeAuthRow[] = [
+      {
+        userId: "33333333-3333-3333-3333-333333333333",
+        email: "staff@zyene.com",
+        hasProfile: false,
+        firstName: null,
+      },
+    ];
+    const result = filterPolicyNoticeRecipients(rows, {
+      blockedEmails: new Set(),
+      alreadySentEmails: new Set(),
+    });
+    expect(result.eligible).toHaveLength(0);
+    expect(result.stats.excludedInternalOrTest).toBeGreaterThan(0);
+  });
+
+  it("skips already-sent notice", () => {
+    const result = filterPolicyNoticeRecipients(baseRows, {
+      blockedEmails: new Set(),
+      alreadySentEmails: new Set(["student@university.edu"]),
+    });
+    expect(result.eligible).toHaveLength(1);
+    expect(result.stats.alreadySentSkipped).toBe(1);
+  });
+
+  it("removes duplicate emails preferring profile-backed row", () => {
+    const rows: PolicyNoticeAuthRow[] = [
+      {
+        userId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        email: "dup@gmail.com",
+        hasProfile: false,
+        firstName: null,
+      },
+      {
+        userId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        email: "dup@gmail.com",
+        hasProfile: true,
+        firstName: "Pat",
+      },
+    ];
+    const result = filterPolicyNoticeRecipients(rows, {
+      blockedEmails: new Set(),
+      alreadySentEmails: new Set(),
+    });
+    expect(result.eligible).toHaveLength(1);
+    expect(result.eligible[0]?.userId).toBe("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    expect(result.eligible[0]?.firstName).toBe("Pat");
+    expect(result.stats.duplicateEmailsRemoved).toBe(1);
+  });
+
+  it("redacts emails for debug output", () => {
+    expect(redactEmail("alex.student@gmail.com")).toBe("a***@gmail.com");
   });
 });
 

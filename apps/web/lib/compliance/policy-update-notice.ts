@@ -40,16 +40,42 @@ export type RecipientExclusionReason =
   | "duplicate_email"
   | "already_sent";
 
+export type PolicyNoticeAuthRow = {
+  userId: string;
+  email: string;
+  hasProfile: boolean;
+  firstName: string | null;
+};
+
+export type PolicyNoticeDryRunStats = {
+  activeAuthUsers: number;
+  usersWithProfiles: number;
+  authOnlyUsers: number;
+  eligibleProfileBacked: number;
+  eligibleAuthOnly: number;
+  totalEligible: number;
+  excludedTotal: number;
+  duplicateEmailsRemoved: number;
+  excludedBlocked: number;
+  excludedInternalOrTest: number;
+  excludedInvalid: number;
+  alreadySentSkipped: number;
+};
+
 export type RecipientFilterResult = {
   eligible: PolicyNoticeRecipient[];
   excluded: { reason: RecipientExclusionReason; count: number }[];
-  stats: {
-    totalRegistered: number;
-    eligible: number;
-    excludedTotal: number;
-    duplicateEmailsRemoved: number;
-  };
+  stats: PolicyNoticeDryRunStats;
 };
+
+/** Redact email for optional debug output only. */
+export function redactEmail(email: string): string {
+  const normalized = normalizeEmail(email);
+  const [local, domain] = normalized.split("@");
+  if (!local || !domain) return "***";
+  const visible = local.length <= 1 ? "*" : `${local[0]}***`;
+  return `${visible}@${domain}`;
+}
 
 function escapeHtml(unsafe: string): string {
   return unsafe
@@ -174,12 +200,114 @@ TrackMyOPT Team`;
   return { subject: POLICY_UPDATE_NOTICE_SUBJECT, html, text };
 }
 
-type RawProfileRow = {
-  user_id: string;
-  email: string | null;
-  first_name: string | null;
-  auth_email: string | null;
-};
+/**
+ * Filter active auth-backed rows into eligible policy notice recipients.
+ * Profile is optional; auth.users email is the account identifier for legal notice.
+ */
+export function filterPolicyNoticeRecipients(
+  rows: PolicyNoticeAuthRow[],
+  options: { blockedEmails: Set<string>; alreadySentEmails: Set<string> }
+): RecipientFilterResult {
+  const { blockedEmails, alreadySentEmails } = options;
+
+  const exclusionCounts: Record<RecipientExclusionReason, number> = {
+    invalid_email: 0,
+    invalid_domain: 0,
+    test_account: 0,
+    internal_account: 0,
+    blocked_email: 0,
+    duplicate_email: 0,
+    already_sent: 0,
+  };
+
+  const activeAuthUsers = rows.length;
+  const usersWithProfiles = rows.filter((r) => r.hasProfile).length;
+  const authOnlyUsers = activeAuthUsers - usersWithProfiles;
+
+  const seenEmails = new Map<string, PolicyNoticeRecipient>();
+  const eligible: PolicyNoticeRecipient[] = [];
+
+  for (const row of rows) {
+    const emailRaw = normalizeEmail(row.email);
+    if (!emailRaw) {
+      exclusionCounts.invalid_email += 1;
+      continue;
+    }
+
+    const exclusion = getRecipientExclusionReason(emailRaw);
+    if (exclusion) {
+      exclusionCounts[exclusion] += 1;
+      continue;
+    }
+
+    if (blockedEmails.has(emailRaw)) {
+      exclusionCounts.blocked_email += 1;
+      continue;
+    }
+
+    if (alreadySentEmails.has(emailRaw)) {
+      exclusionCounts.already_sent += 1;
+      continue;
+    }
+
+    const recipient: PolicyNoticeRecipient = {
+      userId: row.userId,
+      email: emailRaw,
+      firstName: row.firstName,
+    };
+
+    const existing = seenEmails.get(emailRaw);
+    if (existing) {
+      exclusionCounts.duplicate_email += 1;
+      const existingRow = rows.find((r) => r.userId === existing.userId);
+      const currentHasProfile = row.hasProfile;
+      const existingHasProfile = existingRow?.hasProfile ?? false;
+      if (currentHasProfile && !existingHasProfile) {
+        seenEmails.set(emailRaw, recipient);
+        const idx = eligible.findIndex((e) => e.email === emailRaw);
+        if (idx >= 0) eligible[idx] = recipient;
+      }
+      continue;
+    }
+
+    seenEmails.set(emailRaw, recipient);
+    eligible.push(recipient);
+  }
+
+  const eligibleProfileBacked = eligible.filter((r) => {
+    const row = rows.find((x) => x.userId === r.userId);
+    return row?.hasProfile;
+  }).length;
+  const eligibleAuthOnly = eligible.length - eligibleProfileBacked;
+
+  const excludedInternalOrTest =
+    exclusionCounts.test_account +
+    exclusionCounts.internal_account +
+    exclusionCounts.invalid_domain;
+
+  const excludedTotal = Object.values(exclusionCounts).reduce((a, b) => a + b, 0);
+
+  return {
+    eligible,
+    excluded: (Object.entries(exclusionCounts) as [RecipientExclusionReason, number][])
+      .filter(([, count]) => count > 0)
+      .map(([reason, count]) => ({ reason, count })),
+    stats: {
+      activeAuthUsers,
+      usersWithProfiles,
+      authOnlyUsers,
+      eligibleProfileBacked,
+      eligibleAuthOnly,
+      totalEligible: eligible.length,
+      excludedTotal,
+      duplicateEmailsRemoved: exclusionCounts.duplicate_email,
+      excludedBlocked: exclusionCounts.blocked_email,
+      excludedInternalOrTest,
+      excludedInvalid: exclusionCounts.invalid_email,
+      alreadySentSkipped: exclusionCounts.already_sent,
+    },
+  };
+}
 
 async function fetchAllProfiles(
   supabase: SupabaseClient
@@ -231,35 +359,41 @@ async function fetchAuthUsersById(
 }
 
 /**
- * Registered users: profiles row + non-deleted auth.users.
- * Email: profiles.email if set, otherwise auth.users.email.
+ * All active auth.users with valid email; profile optional (first name only).
+ * Legal notice uses auth account email as source of truth.
  */
-export async function fetchRegisteredUsersForPolicyNotice(
+export async function fetchActiveAuthUsersForPolicyNotice(
   supabase: SupabaseClient
-): Promise<RawProfileRow[]> {
+): Promise<PolicyNoticeAuthRow[]> {
   const [profiles, authById] = await Promise.all([
     fetchAllProfiles(supabase),
     fetchAuthUsersById(supabase),
   ]);
 
-  const rows: RawProfileRow[] = [];
+  const profileByUserId = new Map(
+    profiles.map((p) => [p.user_id, p] as const)
+  );
 
-  for (const profile of profiles) {
-    const auth = authById.get(profile.user_id);
-    if (!auth || auth.deleted) continue;
+  const rows: PolicyNoticeAuthRow[] = [];
+
+  for (const [userId, auth] of authById) {
+    if (auth.deleted) continue;
+    const authEmail = auth.email?.trim();
+    if (!authEmail) continue;
+
+    const profile = profileByUserId.get(userId);
 
     rows.push({
-      user_id: profile.user_id,
-      email: profile.email,
-      first_name: profile.first_name,
-      auth_email: auth.email,
+      userId,
+      email: authEmail,
+      hasProfile: Boolean(profile),
+      firstName: profile?.first_name?.trim() || null,
     });
   }
 
   return rows;
 }
 
-/** Prefer SQL-style batch fetch via RPC alternative: paginate profiles + admin listUsers in chunks */
 export async function loadPolicyNoticeRecipients(
   supabase: SupabaseClient,
   options?: { alreadySentEmails?: Set<string>; blockedEmails?: Set<string> }
@@ -267,71 +401,11 @@ export async function loadPolicyNoticeRecipients(
   const alreadySent = options?.alreadySentEmails ?? new Set<string>();
   const blocked = options?.blockedEmails ?? new Set<string>();
 
-  const exclusionCounts: Record<RecipientExclusionReason, number> = {
-    invalid_email: 0,
-    invalid_domain: 0,
-    test_account: 0,
-    internal_account: 0,
-    blocked_email: 0,
-    duplicate_email: 0,
-    already_sent: 0,
-  };
-
-  const rawRows = await fetchRegisteredUsersForPolicyNotice(supabase);
-  const totalRegistered = rawRows.length;
-  const seenEmails = new Set<string>();
-  const eligible: PolicyNoticeRecipient[] = [];
-
-  for (const row of rawRows) {
-    const emailRaw = (row.email?.trim() || row.auth_email?.trim() || "").toLowerCase();
-    if (!emailRaw) {
-      exclusionCounts.invalid_email += 1;
-      continue;
-    }
-
-    const exclusion = getRecipientExclusionReason(emailRaw);
-    if (exclusion) {
-      exclusionCounts[exclusion] += 1;
-      continue;
-    }
-
-    if (blocked.has(emailRaw)) {
-      exclusionCounts.blocked_email += 1;
-      continue;
-    }
-
-    if (alreadySent.has(emailRaw)) {
-      exclusionCounts.already_sent += 1;
-      continue;
-    }
-
-    if (seenEmails.has(emailRaw)) {
-      exclusionCounts.duplicate_email += 1;
-      continue;
-    }
-
-    seenEmails.add(emailRaw);
-    eligible.push({
-      userId: row.user_id,
-      email: emailRaw,
-      firstName: row.first_name?.trim() || null,
-    });
-  }
-
-  const excludedTotal = Object.values(exclusionCounts).reduce((a, b) => a + b, 0);
-
-  return {
-    eligible,
-    excluded: (Object.entries(exclusionCounts) as [RecipientExclusionReason, number][])
-      .filter(([, count]) => count > 0)
-      .map(([reason, count]) => ({ reason, count })),
-    stats: {
-      totalRegistered,
-      eligible: eligible.length,
-      excludedTotal,
-      duplicateEmailsRemoved: exclusionCounts.duplicate_email,
-    },
-  };
+  const authRows = await fetchActiveAuthUsersForPolicyNotice(supabase);
+  return filterPolicyNoticeRecipients(authRows, {
+    blockedEmails: blocked,
+    alreadySentEmails: alreadySent,
+  });
 }
 
 export async function loadBlockedEmails(supabase: SupabaseClient): Promise<Set<string>> {
