@@ -210,7 +210,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
       id: 'dedicated',
       name: 'Dedicated',
       icon: Shield,
-      tagline: 'Premium legal & expert support',
+      tagline: 'Premium support with independent attorney access',
       monthlyPrice: 14.99,
       yearlyPrice: 149.99,
       originalMonthly: 19.99,
@@ -222,7 +222,7 @@ export function PricingModal({ open, onClose, userEmail, isPremium = false, init
       borderColor: 'border-amber-500/30',
       features: [
         { text: 'Everything in Pro, plus:', included: true, isHeader: true },
-        { text: '1-on-1 Lawyer Session (1 hr/mo)', included: true, isHeader: false },
+        { text: '1-on-1 Attorney Session (1 hr/mo)', included: true, isHeader: false },
         { text: 'Complete Application Audit', included: true, isHeader: false },
         { text: '24/7 Dedicated Support', included: true, isHeader: false },
         { text: 'Personalized Strategy Plan', included: true, isHeader: false },

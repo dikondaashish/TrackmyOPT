@@ -94,14 +94,14 @@ export function LandingPricing() {
             priceMonthlyOriginal: 19.99,
             priceYearly: 149.99,
             priceYearlyOriginal: 199.99,
-            users: "1-Hr Lawyer Session Included",
+            users: "1-Hr Attorney Session Included",
             buttonLabel: "Get Started",
             features: [
                 { label: "Everything in Pro", included: true },
                 { label: "Resume Generator (1000/mo)", included: true },
 
                 { label: "Legal & Strategy Access", included: true, isHeader: true },
-                { label: "1-on-1 Lawyer Session (1 hr/mo)", included: true, tooltip: "1 hour per month included" },
+                { label: "1-on-1 Attorney Session (1 hr/mo)", included: true, tooltip: "1 hour per month included" },
                 { label: "Complete Application Audit", included: true },
                 { label: "Personalized Strategy Plan", included: true, tooltip: "Custom immigration strategy" },
 

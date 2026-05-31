@@ -40,6 +40,10 @@ export default function CookiePolicyPage() {
         <li><strong>Vercel Analytics / Speed Insights</strong> — aggregated page performance metrics</li>
       </ul>
       <p>We do not use advertising or retargeting cookies on the core web app.</p>
+      <p>
+        Analytics tools, when enabled, are used for product improvement and performance measurement, not advertising retargeting. You may contact{" "}
+        <a href={`mailto:${LEGAL_CONTACT.privacy}`}>{LEGAL_CONTACT.privacy}</a> to request opt-out.
+      </p>
 
       <h3>2.4 Marketing cookies</h3>
       <p>

@@ -305,7 +305,7 @@ export function generateUscisTrackerEmail(firstName: string): string {
 
       <div class="tmo-force-dark" style="background:#1E3A5F;padding:12px 28px;text-align:center;">
         <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.8);letter-spacing:0.5px;">
-          &#x2714;&nbsp; Uses <strong style="color:#ffffff;">authorized USCIS case-status API access</strong> where available &nbsp;&mdash;&nbsp; not screen scraping.
+          &#x2714;&nbsp; Uses <strong style="color:#ffffff;">USCIS Case Status API access</strong> &nbsp;&mdash;&nbsp; not screen scraping.
         </p>
       </div>
 
@@ -343,7 +343,7 @@ export function generateUscisTrackerEmail(firstName: string): string {
                   </td>
                   <td style="vertical-align:top;padding-top:6px;">
                     <p style="margin:0 0 2px 0;font-size:14px;font-weight:600;color:${BRAND.textPrimary};">We check USCIS <em>for you</em> daily</p>
-                    <p style="margin:0;font-size:13px;color:${BRAND.textMuted};line-height:1.4;">Authorized USCIS case-status API access where available. Always verify with official USCIS notices.</p>
+                    <p style="margin:0;font-size:13px;color:${BRAND.textMuted};line-height:1.4;">USCIS Case Status API access. Always verify with official USCIS notices.</p>
                   </td>
                 </tr>
               </table>

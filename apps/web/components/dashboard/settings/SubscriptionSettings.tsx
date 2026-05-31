@@ -112,7 +112,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
             features: [
                 "Everything in Pro",
                 "24/7 Dedicated Support",
-                "1-on-1 Lawyer Session (1 hr/mo)",
+                "1-on-1 Attorney Session (1 hr/mo)",
                 "Complete Application Audit",
                 "Personalized Strategy Plan"
             ],
@@ -248,7 +248,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                                                 ? proFreeTrialEligible === false
                                                     ? 'No trial — your account already used the one-time Pro trial'
                                                     : '7-Day Free Trial'
-                                                : '1-Hr Lawyer Session Included'}
+                                                : '1-Hr Attorney Session Included'}
                                         </div>
                                     </>
                                 ) : (
@@ -270,7 +270,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                                                 ? proFreeTrialEligible === false
                                                     ? 'No trial — your account already used the one-time Pro trial'
                                                     : '7-Day Free Trial'
-                                                : '1-Hr Lawyer Session Included'}
+                                                : '1-Hr Attorney Session Included'}
                                         </div>
                                     </>
                                 )}

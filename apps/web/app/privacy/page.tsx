@@ -36,7 +36,7 @@ export default function PrivacyPage() {
         <li>Employment history, unemployment tracking inputs, and related notes</li>
         <li>USCIS receipt numbers for case status tracking</li>
         <li>
-          Case status text, descriptions, and status history returned via authorized USCIS case-status API access (where available)
+          Case status text, descriptions, and status history returned via USCIS Case Status API access
         </li>
       </ul>
       <p>
@@ -65,7 +65,10 @@ export default function PrivacyPage() {
       <ul>
         <li>IP address, browser type, device information, and timestamps (security and abuse prevention)</li>
         <li>Authentication session cookies (see <Link href="/cookie-policy">Cookie Policy</Link>)</li>
-        <li>Optional analytics (PostHog) when enabled in our deployment</li>
+        <li>
+          Optional analytics (PostHog) when enabled in our deployment. PostHog analytics, when enabled, may collect usage events such as feature interactions and page visits to help us improve the product. PostHog does not use this data for advertising targeting. You may contact{" "}
+          <a href={`mailto:${LEGAL_CONTACT.privacy}`}>{LEGAL_CONTACT.privacy}</a> to request opt-out.
+        </li>
         <li>Aggregated performance metrics (Vercel Analytics / Speed Insights) on our website</li>
         <li>Chrome extension: version, timezone, and sync storage for sign-in state (see extension permissions)</li>
       </ul>
@@ -104,6 +107,9 @@ export default function PrivacyPage() {
         ))}
       </ul>
       <p>We may also disclose information if required by law, court order, or to protect safety and rights.</p>
+      <p>
+        If TrackMyOPT is involved in a merger, acquisition, financing, reorganization, bankruptcy, or sale of assets, your information may be transferred as part of that transaction. We will provide notice before your personal information becomes subject to a materially different privacy policy, and you will retain any applicable privacy rights.
+      </p>
 
       <h2>5. Legal bases (EEA/UK users)</h2>
       <p>Where GDPR applies, we rely on consent, contract performance, legitimate interests (security, improvement), and legal obligations as applicable.</p>
@@ -115,10 +121,16 @@ export default function PrivacyPage() {
         <li>Billing records: retained as needed for tax, accounting, and dispute resolution</li>
         <li>Consent and checkout audit logs: retained for dispute evidence and compliance</li>
       </ul>
+      <p>
+        For accounts inactive for 24 months with no subscription activity, we may send notice to the email address on your account. If you do not reactivate or respond within 30 days, we may delete account data, subject to legal, billing, security, fraud-prevention, and audit-retention requirements.
+      </p>
 
       <h2>7. Security</h2>
       <p>
         We use industry-standard measures including TLS in transit, access controls, and Row Level Security on our database where configured. No method of transmission or storage is 100% secure. See our <Link href="/security">Security</Link> page for an overview.
+      </p>
+      <p>
+        If we become aware of a security breach that may have compromised personal information, we will notify affected users by email and notify applicable authorities as required by applicable law.
       </p>
 
       <h2>8. Your choices and rights</h2>
@@ -145,7 +157,7 @@ export default function PrivacyPage() {
 
       <h2>11. Changes to this policy</h2>
       <p>
-        We may update this Privacy Policy. We will update the date and version at the top. For material changes, we will provide notice (e.g. email or in-app) when appropriate.
+        We may update this Privacy Policy. We will update the date and version at the top. For material changes, we will provide notice (e.g. email or in-app) when appropriate. For material changes to this Privacy Policy or our Terms that require consent, we may request active consent before the changes apply to your continued use of TrackMyOPT.
       </p>
 
       <h2>12. Related policies</h2>

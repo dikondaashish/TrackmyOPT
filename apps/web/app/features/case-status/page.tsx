@@ -81,7 +81,7 @@ const howItWorks = [
         step: "02",
         icon: <RefreshCw className="w-6 h-6" />,
         title: "We Check Case Status Daily",
-        description: "TrackMyOPT uses authorized USCIS case-status API access where available and compares results to your previous check.",
+        description: "TrackMyOPT retrieves case-status information using USCIS Case Status API access and compares results to your previous check.",
         color: "teal",
     },
     {
@@ -131,7 +131,7 @@ const faqItems = [
     },
     {
         question: "Is my receipt number stored securely?",
-        answer: "Your receipt number is stored in our database and transmitted over HTTPS (TLS). We use it only to retrieve case-status information through authorized USCIS case-status API access where available. See our Privacy Policy and Security page for details.",
+        answer: "Your receipt number is stored in our database and transmitted over HTTPS (TLS). We use it only to retrieve case-status information using USCIS Case Status API access. See our Privacy Policy and Security page for details.",
     },
     {
         question: "Can I track multiple cases at once?",
@@ -146,14 +146,14 @@ export default function CaseStatusPage() {
             <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="USCIS Case Status Tracker"
-                description="Automated daily USCIS case status checks with instant email alerts when your status changes. Tracks I-765 (EAD), I-140, I-485, and other USCIS applications."
+                description="Automated daily case status checks with email alerts when we detect status changes. Tracks I-765 (EAD), I-140, I-485, and other USCIS applications."
                 featurePath="/features/case-status"
                 faqItems={faqItems}
             />
             <FeatureHero
-                badge="Real-Time Tracking"
-                headline="Know Your USCIS Case Status Instantly"
-                subheadline="Automated daily checks and email alerts when we detect status changes—using authorized USCIS case-status API access where available. Always verify important updates with official USCIS notices."
+                badge="Case Status Tracking"
+                headline="Track Your USCIS Case Status"
+                subheadline="Automated daily checks and email alerts when we detect status changes—using USCIS Case Status API access. Always verify important updates with official USCIS notices."
                 ctaText="Start Tracking Free"
                 ctaHref="/login"
                 secondaryCta={{

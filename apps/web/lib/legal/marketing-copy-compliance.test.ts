@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
+  CASE_STATUS_DISCLAIMER,
   LEGAL_FOOTER_LINKS,
   LEGAL_POLICY_VERSIONS,
   RISKY_MARKETING_PHRASES,
@@ -28,15 +29,20 @@ function collectFiles(dir: string, acc: string[] = []): string[] {
 const MARKETING_SCAN_ROOTS = [
   "app/features",
   "app/how-it-works",
+  "app/pricing",
   "components/landing",
   "components/features",
+  "components/pricing",
+  "lib/notifications",
 ].map((p) => join(WEB_ROOT, p));
 
 describe("marketing copy compliance scan", () => {
   it("USCIS_API_DISCLOSURE does not imply product USCIS approval", () => {
-    expect(USCIS_API_DISCLOSURE.toLowerCase()).not.toContain("uscis approved");
-    expect(USCIS_API_DISCLOSURE.toLowerCase()).toContain("authorized access");
-    expect(USCIS_API_DISCLOSURE.toLowerCase()).toContain("not affiliated");
+    const lower = USCIS_API_DISCLOSURE.toLowerCase();
+    expect(lower).not.toContain("uscis approved");
+    expect(lower).not.toContain("authorized access");
+    expect(lower).toContain("uscis case status api access");
+    expect(lower).toContain("not affiliated");
   });
 
   it("footer links include required legal pages", () => {
@@ -86,5 +92,28 @@ describe("marketing copy compliance scan", () => {
     }
 
     expect(violations).toEqual([]);
+  });
+
+  it("privacy page includes attorney-required clauses", () => {
+    const privacy = readFileSync(join(WEB_ROOT, "app/privacy/page.tsx"), "utf8").toLowerCase();
+    expect(privacy).toContain("inactive for 24 months");
+    expect(privacy).toContain("merger, acquisition");
+    expect(privacy).toContain("security breach");
+    expect(privacy).toContain("request opt-out");
+  });
+
+  it("pricing FAQ does not claim encrypted end-to-end", () => {
+    const pricing = readFileSync(
+      join(WEB_ROOT, "components/pricing/PricingData.ts"),
+      "utf8"
+    ).toLowerCase();
+    expect(pricing).not.toContain("encrypted end-to-end");
+    expect(pricing).toContain("pci dss level 1");
+  });
+
+  it("case-status disclaimer constant is unchanged", () => {
+    expect(CASE_STATUS_DISCLAIMER).toContain(
+      "Always verify important updates through official USCIS channels"
+    );
   });
 });

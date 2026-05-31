@@ -60,7 +60,7 @@ export const comparisonFeatures = [
         category: "Premium Benefits",
         features: [
             { name: "Chrome Extension Priority Alerts", free: false, pro: true, dedicated: true },
-            { name: "1-on-1 Lawyer Session (1 hr/mo)", free: false, pro: false, dedicated: true },
+            { name: "1-on-1 Attorney Session (1 hr/mo)", free: false, pro: false, dedicated: true },
             { name: "Complete Application Audit", free: false, pro: false, dedicated: true },
             { name: "24/7 Dedicated Support", free: false, pro: false, dedicated: true },
         ],
@@ -94,7 +94,7 @@ export const pricingFaqs = [
     },
     {
         q: "What payment methods do you accept?",
-        a: "We accept all major credit and debit cards (Visa, Mastercard, American Express) through Stripe, a PCI DSS Level 1 certified payment processor. All transactions are encrypted end-to-end.",
+        a: "We accept all major credit and debit cards (Visa, Mastercard, American Express) through Stripe, a PCI DSS Level 1 certified payment processor. All transactions are processed by Stripe over an encrypted connection.",
     },
     {
         q: "What is your refund policy?",

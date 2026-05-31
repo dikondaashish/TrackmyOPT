@@ -86,7 +86,7 @@ export default function CompliancePage() {
                   {question: "When should I apply for STEM OPT extension?", answer: "You must apply 90 days before your OPT expires. Our filing calculator shows you the exact window and sends reminders 60, 30, and 7 days before your deadline."},
                   {question: "Do I need to report every job change to SEVP?", answer: "Yes, you must update the SEVP Portal within 10 days of any employment change including new jobs, address changes, or employer name changes. TrackMyOPT reminds you of these reporting requirements."},
                   {question: "Is TrackMyOPT free to use?", answer: "Yes! Our core OPT tracking features are completely free forever. This includes the countdown timer, unemployment tracker, and deadline alerts. Premium features like document storage and H-1B sponsor search are available with a subscription."},
-                  {question: "How accurate is the filing deadline calculator?", answer: "Our calculator uses official USCIS timelines and accounts for your specific OPT start date, employment status, and extension type. It's been validated by immigration attorneys and DSOs."}
+                  {question: "How accurate is the filing deadline calculator?", answer: "Our calculator uses publicly available USCIS timelines and accounts for your specific OPT start date, employment status, and extension type. Always verify deadlines with your DSO or a licensed immigration attorney."}
                 ]}
             />
             {/* Hero */}
@@ -285,7 +285,7 @@ export default function CompliancePage() {
                     },
                     {
                         question: "How accurate is the filing deadline calculator?",
-                        answer: "Our calculator uses official USCIS timelines and accounts for your specific OPT start date, employment status, and extension type. It's been validated by immigration attorneys and DSOs."
+                        answer: "Our calculator uses publicly available USCIS timelines and accounts for your specific OPT start date, employment status, and extension type. Always verify deadlines with your DSO or a licensed immigration attorney."
                     },
                 ]}
             />

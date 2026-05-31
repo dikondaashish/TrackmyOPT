@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildCheckoutDisclosures,
+  CASE_STATUS_DISCLAIMER,
   DEDICATED_MONEY_BACK_DAYS,
   LEGAL_FOOTER_LINKS,
   LEGAL_POLICY_VERSIONS,
@@ -36,9 +37,19 @@ describe("legal-config", () => {
     expect(d.consentLabel).toContain("Privacy Policy");
   });
 
-  it("exposes USCIS API disclosure without product endorsement wording", () => {
-    expect(USCIS_API_DISCLOSURE).toMatch(/authorized access/i);
-    expect(USCIS_API_DISCLOSURE.toLowerCase()).not.toMatch(/uscis approved/);
+  it("exposes USCIS API disclosure without authorized-access or endorsement wording", () => {
+    const lower = USCIS_API_DISCLOSURE.toLowerCase();
+    expect(lower).not.toContain("authorized access");
+    expect(lower).not.toMatch(/uscis approved/);
+    expect(lower).toContain("uscis case status api access");
+    expect(lower).toContain("not affiliated");
+  });
+
+  it("case-status disclaimer matches attorney-approved wording", () => {
+    expect(CASE_STATUS_DISCLAIMER).toContain(
+      "Case status information is provided for convenience"
+    );
+    expect(CASE_STATUS_DISCLAIMER).toContain("licensed immigration attorney");
   });
 
   it("footer includes security and contact", () => {

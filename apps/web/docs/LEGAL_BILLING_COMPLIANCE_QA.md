@@ -31,7 +31,7 @@
 ## Copy consistency
 
 - [ ] No “USCIS-approved,” “guaranteed approval,” or “fully compliant” language
-- [ ] USCIS features use `USCIS_API_DISCLOSURE` / authorized API access wording (not product endorsement)
+- [ ] USCIS features use `USCIS_API_DISCLOSURE` / “USCIS Case Status API access” wording (not “authorized access” or product endorsement)
 - [ ] Extension page does not claim “zero personal data” or “no analytics”
 - [ ] Case-status dashboard + `/features/case-status` show delay/verification disclaimer
 - [ ] Contact page refund FAQ matches Refund Policy (not 14-day generic)
@@ -66,6 +66,25 @@
 |--------|--------|
 | Wording only | Bump version in `legal-config.ts` + DB seed |
 | Material (price, trial, refund, cancel rights) | Email subscribers + in-app notice before effective date |
+
+## Attorney-confirmed launch checklist (final pass)
+
+- [ ] Removed “authorized access” from customer-facing copy
+- [ ] Removed “official USCIS API” from customer-facing copy
+- [ ] USCIS API wording uses “USCIS Case Status API access”
+- [ ] Non-affiliation notice appears with USCIS data-source copy
+- [ ] Privacy Policy includes dormant account clause (24 months)
+- [ ] Privacy Policy includes business transfer/acquisition clause
+- [ ] Privacy Policy includes breach notification clause
+- [ ] Payment copy no longer says end-to-end encryption (Stripe PCI DSS Level 1 over encrypted connection)
+- [ ] PostHog email opt-out described in Privacy + Cookie Policy
+- [ ] Case-status disclaimer appears beside each status result
+- [ ] Dedicated plan uses “Attorney Session” (not “Lawyer Session”)
+- [ ] No “immigration experts verified” marketing claims on About/Compliance
+- [ ] USCIS API agreement manually reviewed — see `USCIS_API_AGREEMENT_REVIEW_CHECKLIST.md`
+- [ ] Vercel deploy uses final commit
+- [ ] Supabase `policy_versions` still aligned
+- [ ] Checkout consent still creates `billing_consent_events` row
 
 ## Attorney review checklist
 

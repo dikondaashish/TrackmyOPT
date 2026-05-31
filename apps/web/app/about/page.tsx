@@ -72,7 +72,7 @@ function TeamVisual() {
 function MissionSection() {
     const values = [
         { icon: Heart, title: "Student-First", description: "Every feature is built with international students in mind" },
-        { icon: Target, title: "Accuracy", description: "USCIS guidelines verified by immigration experts" },
+        { icon: Target, title: "Accuracy", description: "Built using publicly available USCIS guidelines and regulations" },
         { icon: Zap, title: "Simplicity", description: "Complex immigration made simple and stress-free" },
         { icon: Users, title: "Community", description: "A network of students helping each other succeed" },
     ];

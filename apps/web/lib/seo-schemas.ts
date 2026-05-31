@@ -345,7 +345,7 @@ export const serviceSchemas = [
         "@type": "Service",
         name: "USCIS Case Status Tracker",
         description:
-            "Real-time USCIS case status monitoring with email notifications for I-765, I-140, and other immigration forms",
+            "USCIS case status monitoring using USCIS Case Status API access with email notifications for I-765, I-140, and other immigration forms",
         provider: { "@id": "https://www.trackmyopt.com/#organization" },
         serviceType: "Immigration Case Tracking",
     },

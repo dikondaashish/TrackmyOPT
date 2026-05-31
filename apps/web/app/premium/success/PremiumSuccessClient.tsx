@@ -229,7 +229,7 @@ export function PremiumSuccessClient() {
   const dedicatedFeatures = [
     {
       icon: Clock,
-      title: "Lawyer time",
+      title: "Attorney session",
       description: "Included session each month for strategy.",
     },
     {
@@ -257,7 +257,7 @@ export function PremiumSuccessClient() {
         },
         {
           title: "Watch your email",
-          detail: "We’ll send next steps for your lawyer session.",
+          detail: "We’ll send next steps for your attorney session.",
         },
         {
           title: "Confirm notification email",

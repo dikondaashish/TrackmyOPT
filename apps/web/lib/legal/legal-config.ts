@@ -22,7 +22,10 @@ export const LEGAL_CONTACT = {
 
 /** Use wherever USCIS case-status API/features are described. Not product "USCIS approval." */
 export const USCIS_API_DISCLOSURE =
-  "TrackMyOPT uses authorized access to USCIS case-status data where available. TrackMyOPT is independent software and is not affiliated with, endorsed by, or operated by USCIS, DHS, SEVP, ICE, or any U.S. government agency. Case-status information is provided for convenience and should be verified with official USCIS notices and accounts.";
+  "TrackMyOPT retrieves case-status information using USCIS Case Status API access. TrackMyOPT is independent software and is not affiliated with, endorsed by, or operated by USCIS, DHS, SEVP, ICE, or any U.S. government agency. Case-status information is provided for convenience and should be verified with official USCIS notices and accounts.";
+
+export const USCIS_API_DISCLOSURE_SHORT =
+  "Case-status information is retrieved using USCIS Case Status API access. TrackMyOPT is independent software and is not affiliated with USCIS or any government agency.";
 
 export const CASE_STATUS_DISCLAIMER =
   "Case status information is provided for convenience and may be delayed, incomplete, unavailable, or different from official USCIS notices. Always verify important updates through official USCIS channels, your DSO, employer, or a licensed immigration attorney.";
@@ -53,8 +56,17 @@ export const RISKY_MARKETING_PHRASES = [
   "soc 2 type ii",
   "soc 2 certified",
   "end-to-end encryption",
+  "encrypted end-to-end",
   "official government app",
   "official uscis app",
+  "official uscis api",
+  "official uscis case status",
+  "authorized access",
+  "authorized uscis",
+  "powered by uscis",
+  "real-time uscis",
+  "instant uscis",
+  "accurate uscis status",
 ] as const;
 
 /** Policy version IDs (YYYY-MM-DD). Bump when copy changes materially. */
@@ -120,7 +132,7 @@ export const THIRD_PARTY_SERVICES = [
   {
     name: "USCIS Case Status API",
     purpose:
-      "Case status lookups using receipt numbers you provide (authorized USCIS case-status API access where available)",
+      "Case status lookups using receipt numbers you provide (USCIS Case Status API access)",
     privacyUrl: "https://www.uscis.gov",
   },
 ] as const;
