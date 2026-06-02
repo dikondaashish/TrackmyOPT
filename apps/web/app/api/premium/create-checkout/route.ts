@@ -12,6 +12,14 @@ import { getUserId } from "@/lib/auth/getUserId";
 import { sanitizeError } from "@/lib/secure-logger";
 import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
 import { syncProFreeTrialConsumedFromStripe } from "@/lib/premium/proFreeTrialFromStripe";
+import {
+  getPlanFromSubscription,
+  getTierRank,
+  listValidCustomerSubscriptions,
+  pickBestSubscription,
+  upgradeProSubscriptionToDedicated,
+} from "@/lib/premium/stripeSubscriptionSync";
+import type { CreateCheckoutResponse } from "@/lib/premium/checkoutResponseTypes";
 import { recordBillingConsentEvent } from "@/lib/billing/recordBillingConsent";
 import { getRequestAuditFromHeaders } from "@/lib/billing/request-audit";
 import { LEGAL_POLICY_VERSIONS } from "@/lib/billing/legal-config";
@@ -48,6 +56,22 @@ const getPrices = () => ({
 });
 
 type PlanId = "pro" | "dedicated";
+
+async function createBillingPortalUrl(
+  stripe: Stripe,
+  customerId: string,
+  origin: string
+): Promise<string | null> {
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${origin}/dashboard/settings?tab=subscription`,
+    });
+    return session.url;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Resolves discounts + stable key for session reuse.
@@ -121,11 +145,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Please log in to upgrade" }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { planId = "pro", interval = "year" } = body;
+    const requestBody = await req.json();
+    const { planId = "pro", interval = "year" } = requestBody;
     /** undefined = default EARLYBIRD; null = removed; string = custom */
-    const promoCode = body.promoCode as string | null | undefined;
-    const recurringBillingAccepted = body.recurringBillingAccepted === true;
+    const promoCode = requestBody.promoCode as string | null | undefined;
+    const recurringBillingAccepted = requestBody.recurringBillingAccepted === true;
 
     console.log(`Checkout request: planId=${planId}, interval=${interval}, userId=${userId}, promo=${promoCode === null ? "null" : promoCode === undefined ? "default" : "custom"}`);
 
@@ -197,6 +221,85 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(`Using Stripe customer: ${customerId}`);
+
+    const origin =
+      req.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://www.trackmyopt.com";
+    const targetPlan = planId as PlanId;
+
+    const existingSubs = await listValidCustomerSubscriptions(stripe, customerId);
+    const bestExisting = pickBestSubscription(existingSubs);
+
+    if (bestExisting) {
+      const existingPlan = getPlanFromSubscription(bestExisting);
+      const portalUrl = await createBillingPortalUrl(stripe, customerId, origin);
+
+      if (targetPlan === "dedicated" && existingPlan === "pro") {
+        const audit = getRequestAuditFromHeaders(req);
+        await recordBillingConsentEvent({
+          userId,
+          eventType: "checkout_recurring_consent",
+          planId: "dedicated",
+          interval: interval as BillingInterval,
+          includeProTrial: false,
+          ipAddress: audit.ip_address,
+          userAgent: audit.user_agent,
+          metadata: {
+            checkout_promo_key: checkoutPromoKey,
+            upgrade_from: "pro",
+            stripe_subscription_id: bestExisting.id,
+          },
+        });
+
+        const upgrade = await upgradeProSubscriptionToDedicated({
+          stripe,
+          supabase,
+          userId,
+          customerId,
+          existingSubscriptionId: bestExisting.id,
+          dedicatedPriceId: priceId,
+          interval: interval as BillingInterval,
+        });
+
+        if (upgrade.outcome === "active") {
+          const body: CreateCheckoutResponse = {
+            type: "subscription_updated",
+            status: "active",
+            redirect: `${origin}/premium/success?planId=dedicated&upgrade=1`,
+            planId: "dedicated",
+          };
+          return NextResponse.json(body);
+        }
+
+        if (upgrade.outcome === "payment_action_required") {
+          const body: CreateCheckoutResponse = {
+            type: "payment_action_required",
+            message: upgrade.message,
+            clientSecret: upgrade.clientSecret,
+            hostedInvoiceUrl: upgrade.hostedInvoiceUrl,
+            portalUrl,
+          };
+          return NextResponse.json(body, { status: 402 });
+        }
+
+        const body: CreateCheckoutResponse = {
+          type: "payment_required",
+          message: upgrade.message,
+          hostedInvoiceUrl: upgrade.hostedInvoiceUrl,
+          portalUrl,
+        };
+        return NextResponse.json(body, { status: 402 });
+      }
+
+      if (targetPlan === existingPlan || getTierRank(existingPlan) > getTierRank(targetPlan)) {
+        const body: CreateCheckoutResponse = {
+          type: "already_subscribed",
+          message: `You already have an active ${existingPlan} subscription. Manage billing in the customer portal.`,
+          planId: existingPlan,
+          portalUrl,
+        };
+        return NextResponse.json(body, { status: 409 });
+      }
+    }
 
     const profileRow = profile as typeof profile & { pro_free_trial_consumed?: boolean | null };
     let proFreeTrialConsumed = profileRow.pro_free_trial_consumed === true;
@@ -271,10 +374,12 @@ export async function POST(req: NextRequest) {
           samePromoAsRequest
         ) {
           console.log(`Reusing open checkout session ${existingSession.id} for ${planId}/${interval}`);
-          return NextResponse.json({
+          const body: CreateCheckoutResponse = {
+            type: "checkout",
             sessionId: existingSession.id,
             url: existingSession.url,
-          });
+          };
+          return NextResponse.json(body);
         }
         console.log(
           `Not reusing pending session ${recentPending.stripe_checkout_session_id}: ` +
@@ -284,8 +389,6 @@ export async function POST(req: NextRequest) {
         console.warn("Could not retrieve existing checkout session, creating a new one:", sanitizeError(e));
       }
     }
-
-    const origin = req.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://www.trackmyopt.com";
 
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
@@ -342,7 +445,12 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(`Checkout session created: ${session.id}`);
-    return NextResponse.json({ sessionId: session.id, url: session.url });
+    const body: CreateCheckoutResponse = {
+      type: "checkout",
+      sessionId: session.id,
+      url: session.url!,
+    };
+    return NextResponse.json(body);
   } catch (error: unknown) {
     console.error("Stripe checkout error:", sanitizeError(error));
 

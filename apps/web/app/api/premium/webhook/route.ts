@@ -21,6 +21,13 @@ import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 import { applyStripeCheckoutSession } from '@/lib/premium/applyStripeCheckoutSession';
 import { requireLiveStripeKeyInProduction } from '@/lib/stripe/requireLiveKeyInProduction';
 import {
+  cancelOtherCustomerSubscriptions,
+  getPlanFromSubscription,
+  reconcileCustomerBilling,
+  subscriptionHasPendingUpdate,
+  syncProfileFromSubscription,
+} from '@/lib/premium/stripeSubscriptionSync';
+import {
   resolveUserById,
   resolveUserForStripeCustomer,
   sendPaymentFailedEmail,
@@ -137,13 +144,31 @@ export async function POST(req: NextRequest) {
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionDeleted(subscription, event.id);
+        await handleSubscriptionDeleted(stripe, subscription, event.id);
         break;
       }
 
       case 'customer.subscription.trial_will_end': {
         const subscription = event.data.object as Stripe.Subscription;
         await handleTrialWillEnd(subscription, event.id);
+        break;
+      }
+
+      case 'customer.subscription.pending_update_applied': {
+        const subscription = event.data.object as Stripe.Subscription;
+        await handleSubscriptionPendingUpdateApplied(stripe, subscription);
+        break;
+      }
+
+      case 'customer.subscription.pending_update_expired': {
+        const subscription = event.data.object as Stripe.Subscription;
+        await handleSubscriptionPendingUpdateExpired(stripe, subscription);
+        break;
+      }
+
+      case 'invoice.payment_action_required': {
+        const invoice = event.data.object as Stripe.Invoice;
+        await handleInvoicePaymentActionRequired(stripe, invoice);
         break;
       }
 
@@ -179,18 +204,32 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     }
     if (result.alreadyRecorded) {
       secureLog.info('checkout session already synced:', logIdPrefix(session.id));
-      return;
     }
 
-    const userId = session.metadata?.supabase_user_id;
-    if (!userId) return;
-
+    const customerId =
+      typeof session.customer === 'string' ? session.customer : session.customer?.id;
     const subId =
       typeof session.subscription === 'string'
         ? session.subscription
         : session.subscription && typeof session.subscription === 'object'
           ? session.subscription.id
           : null;
+
+    if (customerId && subId) {
+      await cancelOtherCustomerSubscriptions({
+        stripe,
+        customerId,
+        keepSubscriptionId: subId,
+        reason: 'new_checkout_subscription',
+      });
+    }
+
+    if (result.alreadyRecorded) {
+      return;
+    }
+
+    const userId = session.metadata?.supabase_user_id;
+    if (!userId) return;
 
     if (subId) {
       await recordBillingConsentEvent({
@@ -753,39 +792,34 @@ async function handleInvoicePaid(stripe: Stripe, invoice: Stripe.Invoice) {
     const inv = invoice as Stripe.Invoice & {
       subscription?: string | Stripe.Subscription | null;
     };
-    const customerId = typeof inv.customer === 'string' ? inv.customer : (inv.customer as any)?.id;
+    const customerId = typeof inv.customer === 'string' ? inv.customer : (inv.customer as { id?: string })?.id;
     if (!customerId) return;
 
     const subRef = inv.subscription;
-    const subId = typeof subRef === 'string' ? subRef : (subRef as any)?.id ?? null;
+    const subId = typeof subRef === 'string' ? subRef : (subRef as { id?: string })?.id ?? null;
     if (!subId) return;
 
     const subscription = await stripe.subscriptions.retrieve(subId);
-    if (!['active', 'trialing'].includes(subscription.status)) return;
+    if (subscriptionHasPendingUpdate(subscription)) {
+      secureLog.info('handleInvoicePaid: skip sync — subscription has pending_update', logIdPrefix(subId));
+      return;
+    }
 
-    const sub = subscription as unknown as { current_period_end: number };
-    const newExpiry = new Date(sub.current_period_end * 1000).toISOString();
-    const planTier = subscription.metadata?.planId || 'pro';
+    const user = await resolveUserForStripeCustomer(supabase, customerId);
+    if (!user) return;
 
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const plan = getPlanFromSubscription(subscription);
+    const result = await reconcileCustomerBilling({
+      stripe,
+      supabase,
+      customerId,
+      userId: user.userId,
+      cancelDuplicates: plan === 'dedicated',
+    });
 
-    const { error } = await supabaseAdmin
-      .from('profiles')
-      .update({
-        premium_status: true,
-        plan_tier: planTier,
-        subscription_expires_at: newExpiry,
-      })
-      .eq('stripe_customer_id', customerId);
-
-    if (error) {
-      secureLog.error('handleInvoicePaid: DB update failed:', sanitizeError(error));
-    } else {
+    if (result.action === 'synced') {
       secureLog.info(
-        `handleInvoicePaid: renewed expiry for customer ${logIdPrefix(customerId)} → ${newExpiry}`,
+        `handleInvoicePaid: synced ${result.planTier} for customer ${logIdPrefix(customerId)}`,
       );
     }
   } catch (error: unknown) {
@@ -854,35 +888,73 @@ async function handleSubscriptionUpdated(
       }
     }
 
-    if (isTerminal) {
-      await revokePremiumAccess(customerId);
-    } else if (['active', 'trialing', 'past_due', 'unpaid'].includes(subscription.status)) {
-      const supabaseAdmin = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    if (subscriptionHasPendingUpdate(subscription)) {
+      secureLog.info(
+        'handleSubscriptionUpdated: pending_update — not syncing plan yet',
+        logIdPrefix(subscription.id),
       );
-
-      const sub = subscription as unknown as { current_period_end: number };
-      await supabaseAdmin
-        .from('profiles')
-        .update({
-          premium_status: true,
-          plan_tier: subscription.metadata?.planId || 'pro',
-          subscription_expires_at: new Date(sub.current_period_end * 1000).toISOString(),
-        })
-        .eq('stripe_customer_id', customerId);
+      return;
     }
-    // Other statuses (incomplete, paused) → no change to DB; let next event decide.
+
+    const user = await resolveUserForStripeCustomer(supabase, customerId);
+    if (!user) return;
+
+    if (isTerminal) {
+      const result = await reconcileCustomerBilling({
+        stripe,
+        supabase,
+        customerId,
+        userId: user.userId,
+        excludeSubscriptionId: subscription.id,
+      });
+      if (result.action === 'revoked') {
+        secureLog.info(
+          'handleSubscriptionUpdated: revoked after terminal sub',
+          logIdPrefix(customerId),
+        );
+      }
+      return;
+    }
+
+    if (['active', 'trialing', 'past_due', 'unpaid'].includes(subscription.status)) {
+      await reconcileCustomerBilling({
+        stripe,
+        supabase,
+        customerId,
+        userId: user.userId,
+      });
+    }
   } catch (error: unknown) {
     secureLog.error('handleSubscriptionUpdated:', sanitizeError(error));
   }
 }
 
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription, eventId: string) {
+async function handleSubscriptionDeleted(
+  stripe: Stripe,
+  subscription: Stripe.Subscription,
+  eventId: string
+) {
   try {
     const customerId = subscription.customer as string;
-    const revoked = await revokePremiumAccess(customerId);
-    if (!revoked) return;
+    const user = await resolveUserForStripeCustomer(supabase, customerId);
+    if (!user) return;
+
+    const result = await reconcileCustomerBilling({
+      stripe,
+      supabase,
+      customerId,
+      userId: user.userId,
+      excludeSubscriptionId: subscription.id,
+    });
+
+    if (result.action === 'synced') {
+      secureLog.info(
+        `handleSubscriptionDeleted: kept access on ${result.planTier} (${logIdPrefix(result.subscriptionId)})`,
+      );
+      return;
+    }
+
+    if (result.action !== 'revoked') return;
 
     const periodEnd = (subscription as unknown as { current_period_end?: number }).current_period_end;
     const accessEndedDate = periodEnd
@@ -899,9 +971,9 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription, even
 
     const r = await sendSubscriptionEndedEmail({
       supabase,
-      userId: revoked.userId,
-      toEmail: revoked.email,
-      firstName: revoked.firstName,
+      userId: user.userId,
+      toEmail: user.email,
+      firstName: user.firstName,
       accessEndedDate,
       stripeEventId: eventId,
     });
@@ -910,6 +982,81 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription, even
     }
   } catch (error: unknown) {
     secureLog.error('handleSubscriptionDeleted:', sanitizeError(error));
+  }
+}
+
+async function handleSubscriptionPendingUpdateApplied(
+  stripe: Stripe,
+  subscription: Stripe.Subscription
+) {
+  try {
+    const customerId = subscription.customer as string;
+    const user = await resolveUserForStripeCustomer(supabase, customerId);
+    if (!user) return;
+
+    const plan = getPlanFromSubscription(subscription);
+    await syncProfileFromSubscription({
+      supabase,
+      userId: user.userId,
+      customerId,
+      subscription,
+    });
+
+    if (plan === 'dedicated') {
+      await cancelOtherCustomerSubscriptions({
+        stripe,
+        customerId,
+        keepSubscriptionId: subscription.id,
+        reason: 'dedicated_upgrade_applied',
+      });
+    }
+  } catch (error: unknown) {
+    secureLog.error('handleSubscriptionPendingUpdateApplied:', sanitizeError(error));
+  }
+}
+
+async function handleSubscriptionPendingUpdateExpired(
+  stripe: Stripe,
+  subscription: Stripe.Subscription
+) {
+  try {
+    const customerId = subscription.customer as string;
+    const user = await resolveUserForStripeCustomer(supabase, customerId);
+    if (!user) return;
+
+    await reconcileCustomerBilling({
+      stripe,
+      supabase,
+      customerId,
+      userId: user.userId,
+    });
+    secureLog.info(
+      'handleSubscriptionPendingUpdateExpired: reconciled without granting pending upgrade',
+      logIdPrefix(subscription.id),
+    );
+  } catch (error: unknown) {
+    secureLog.error('handleSubscriptionPendingUpdateExpired:', sanitizeError(error));
+  }
+}
+
+async function handleInvoicePaymentActionRequired(stripe: Stripe, invoice: Stripe.Invoice) {
+  try {
+    const inv = invoice as Stripe.Invoice & {
+      subscription?: string | Stripe.Subscription | null;
+    };
+    const subRef = inv.subscription;
+    const subId = typeof subRef === 'string' ? subRef : (subRef as { id?: string })?.id ?? null;
+    if (!subId) return;
+
+    const subscription = await stripe.subscriptions.retrieve(subId);
+    if (!subscriptionHasPendingUpdate(subscription)) return;
+
+    secureLog.info(
+      'handleInvoicePaymentActionRequired: pending upgrade — not granting new plan',
+      logIdPrefix(subId),
+    );
+  } catch (error: unknown) {
+    secureLog.error('handleInvoicePaymentActionRequired:', sanitizeError(error));
   }
 }
 

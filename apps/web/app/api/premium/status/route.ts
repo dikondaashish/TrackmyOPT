@@ -6,6 +6,11 @@ import { verifyToken } from '@/lib/auth/jwt';
 import Stripe from 'stripe';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { logIdPrefix, sanitizeError, secureLog } from '@/lib/secure-logger';
+import {
+  getPlanFromSubscription,
+  listValidCustomerSubscriptions,
+  pickBestSubscription,
+} from '@/lib/premium/stripeSubscriptionSync';
 
 function trialPayload(proFreeTrialConsumed: boolean | null | undefined) {
   const consumed = proFreeTrialConsumed === true;
@@ -119,12 +124,8 @@ export async function GET(req: NextRequest) {
     if (!data.premium_status && data.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
       try {
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-09-30.clover' });
-        // Query both active and trialing — status:'active' is exact and excludes trials.
-        const [activeSubs, trialSubs] = await Promise.all([
-          stripe.subscriptions.list({ customer: data.stripe_customer_id, status: 'active', limit: 1 }),
-          stripe.subscriptions.list({ customer: data.stripe_customer_id, status: 'trialing', limit: 1 }),
-        ]);
-        const foundSub = activeSubs.data[0] ?? trialSubs.data[0] ?? null;
+        const validSubs = await listValidCustomerSubscriptions(stripe, data.stripe_customer_id);
+        const foundSub = pickBestSubscription(validSubs);
         if (foundSub) {
           // Cast needed: current_period_end is on the Subscription object but not
           // reflected in the Stripe SDK types for this API version.
@@ -133,7 +134,7 @@ export async function GET(req: NextRequest) {
           const healedExpiry = typeof periodEnd === 'number'
             ? new Date(periodEnd * 1000).toISOString()
             : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-          const healedPlanTier = (sub.metadata?.planId as string | undefined) || data.plan_tier || 'pro';
+          const healedPlanTier = getPlanFromSubscription(sub) || data.plan_tier || 'pro';
 
           await supabase
             .from('profiles')
@@ -210,17 +211,13 @@ export async function GET(req: NextRequest) {
           const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
             apiVersion: '2025-09-30.clover',
           });
-          // Query both active and trialing — status:'active' is exact and excludes trials.
-          const [activeSubs, trialSubs] = await Promise.all([
-            stripe.subscriptions.list({ customer: data.stripe_customer_id, status: 'active', limit: 1 }),
-            stripe.subscriptions.list({ customer: data.stripe_customer_id, status: 'trialing', limit: 1 }),
-          ]);
-          const foundSub = (activeSubs.data[0] ?? trialSubs.data[0] ?? null) as
+          const validSubs = await listValidCustomerSubscriptions(stripe, data.stripe_customer_id);
+          const foundSub = pickBestSubscription(validSubs) as
             | (Stripe.Subscription & { current_period_end?: number })
             | null;
           if (foundSub) {
             stripeConfirmsActive = true;
-            newPlanTier = (foundSub.metadata?.planId as string | undefined) || data.plan_tier || 'pro';
+            newPlanTier = getPlanFromSubscription(foundSub) || data.plan_tier || 'pro';
             const periodEnd: number | undefined = foundSub.current_period_end;
             if (typeof periodEnd === 'number') {
               newExpiresAt = new Date(periodEnd * 1000).toISOString();

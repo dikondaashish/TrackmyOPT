@@ -120,17 +120,85 @@ export function PricingModal({
         }),
       });
 
+      const payload = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
         const msg =
-          typeof errBody?.error === 'string' ? errBody.error : 'Failed to create checkout session';
+          typeof payload?.message === 'string'
+            ? payload.message
+            : typeof payload?.error === 'string'
+              ? payload.error
+              : 'Failed to create checkout session';
+
+        if (payload?.portalUrl && typeof payload.portalUrl === 'string') {
+          const usePortal = window.confirm(
+            `${msg}\n\nOpen billing portal to update payment or manage your subscription?`
+          );
+          if (usePortal) {
+            window.location.href = payload.portalUrl;
+            return;
+          }
+        }
+
+        if (payload?.hostedInvoiceUrl && typeof payload.hostedInvoiceUrl === 'string') {
+          window.location.href = payload.hostedInvoiceUrl;
+          return;
+        }
+
         setPromoError(msg);
         setIsLoading(false);
         return;
       }
 
-      const { url } = await response.json();
-      window.location.href = url;
+      if (payload?.type === 'checkout' && payload?.url) {
+        window.location.href = payload.url;
+        return;
+      }
+
+      if (payload?.type === 'subscription_updated' && payload?.redirect) {
+        window.location.href = payload.redirect;
+        return;
+      }
+
+      if (payload?.type === 'already_subscribed') {
+        if (payload?.portalUrl) {
+          window.location.href = payload.portalUrl;
+          return;
+        }
+        setPromoError(
+          typeof payload?.message === 'string'
+            ? payload.message
+            : 'You already have an active subscription.'
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      if (payload?.type === 'payment_action_required' || payload?.type === 'payment_required') {
+        if (payload?.hostedInvoiceUrl) {
+          window.location.href = payload.hostedInvoiceUrl;
+          return;
+        }
+        if (payload?.portalUrl) {
+          window.location.href = payload.portalUrl;
+          return;
+        }
+        setPromoError(
+          typeof payload?.message === 'string'
+            ? payload.message
+            : 'Payment is required to complete this upgrade.'
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      if (payload?.url) {
+        window.location.href = payload.url;
+        return;
+      }
+
+      setPromoError('Unexpected checkout response. Please try again or contact support.');
+      setIsLoading(false);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to start upgrade process.';
       setPromoError(message);
