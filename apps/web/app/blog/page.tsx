@@ -29,6 +29,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["F-1 Visa", "Startup", "Entrepreneurship"],
         featured: true,
+        image: "/blog/f1-startup.png"
     },
     {
         slug: "start-company-f1-opt-visa",
@@ -39,6 +40,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["OPT", "Startup", "Entrepreneurship"],
         featured: true,
+        image: "/blog/f1-opt-startup.png"
     },
     {
         slug: "start-company-f1-stem-opt",
@@ -49,6 +51,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["STEM OPT", "Startup", "E-Verify"],
         featured: true,
+        image: "/blog/f1-stem-opt-startup.png"
     },
     {
         slug: "uscis-green-card-adjustment-of-status-update-2026",
@@ -59,6 +62,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["USCIS", "Green Card", "Adjustment of Status"],
         featured: true,
+        image: "/blog/green-card-processing.png"
     },
     {
         slug: "f1-visa-duration-of-status-ds-ending-2026",
@@ -69,6 +73,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["F-1 Visa", "Duration of Status", "OPT"],
         featured: true,
+        image: "/blog/duration-of-status.png"
     },
     {
         slug: "dol-prevailing-wage-hikes-h1b-impact-2026",
@@ -79,6 +84,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["H-1B", "Prevailing Wage", "DOL"],
         featured: true,
+        image: "/blog/prevailing-wage-hikes.png"
     },
     {
         slug: "opt-stem-opt-legislation-congress-2026",
@@ -89,6 +95,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["OPT", "STEM OPT", "Congress"],
         featured: true,
+        image: "/blog/opt-congress-bills.png"
     },
     {
         slug: "federal-court-vacates-100k-h1b-fee-2026",
@@ -99,6 +106,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["H-1B", "Fee", "Update", "2026"],
         featured: true,
+        image: "/blog/h1b-fee-vacated.png"
     },
     {
         slug: "h1b-weighted-selection-process-fy2027",
@@ -109,6 +117,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["H-1B", "Lottery", "FY 2027", "Wage Levels"],
         featured: true,
+        image: "/blog/h1b-weighted-selection.png"
     },
     {
         slug: "opt-cpt-enforcement-scrutiny-2026",
@@ -119,6 +128,7 @@ const blogPosts = [
         date: "June 12, 2026",
         tags: ["OPT", "CPT", "Compliance", "Scrutiny"],
         featured: true,
+        image: "/blog/opt-cpt-scrutiny.png"
     },
     {
         slug: "90-day-unemployment-rule-opt",
