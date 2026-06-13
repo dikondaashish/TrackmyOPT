@@ -20,7 +20,13 @@ export function normalizeStatusCategory(status: string | null | undefined): stri
   if (s.includes("withdraw")) {
     return "withdrawn";
   }
-  if (s.includes("request for evidence") || s.includes("rfe")) {
+  if (
+    s.includes("request for evidence") ||
+    s.includes("request for additional evidence") ||
+    s.includes("request for initial evidence") ||
+    s.includes("rfe") ||
+    s.includes("evidence was sent")
+  ) {
     return "rfe";
   }
   if (s.includes("transferred")) {
@@ -33,6 +39,7 @@ export function normalizeStatusCategory(status: string | null | undefined): stri
     s.includes("pending") ||
     s.includes("under review") ||
     s.includes("being processed") ||
+    s.includes("actively reviewed") ||
     s.includes("fingerprints") ||
     s.includes("interview")
   ) {

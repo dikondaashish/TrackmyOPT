@@ -14,6 +14,8 @@ import { createClient } from "@supabase/supabase-js";
 import { sendMailWithRetry } from "@/lib/notifications/email-smtp";
 import {
   buildWelcomeFreeEmailBodies,
+  buildCheckoutRecoveryEmailBodies,
+  buildFreeReceiptReengagementEmailBodies,
   getTransactionalEmailFromHeader,
 } from "@/lib/notifications/transactional-emails";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
@@ -62,6 +64,30 @@ async function resolveBodiesForRetry(
       firstName = meta?.firstName || meta?.first_name || null;
     }
     const bodies = buildWelcomeFreeEmailBodies(firstName);
+    return { subject: bodies.subject, html: bodies.html, text: bodies.text };
+  }
+
+  if (row.email_type === "checkout_recovery" && row.user_id) {
+    let firstName: string | null = null;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("first_name")
+      .eq("user_id", row.user_id)
+      .maybeSingle();
+    firstName = profile?.first_name ?? null;
+    const bodies = buildCheckoutRecoveryEmailBodies(firstName);
+    return { subject: bodies.subject, html: bodies.html, text: bodies.text };
+  }
+
+  if (row.email_type === "free_receipt_reengagement" && row.user_id) {
+    let firstName: string | null = null;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("first_name")
+      .eq("user_id", row.user_id)
+      .maybeSingle();
+    firstName = profile?.first_name ?? null;
+    const bodies = buildFreeReceiptReengagementEmailBodies(firstName);
     return { subject: bodies.subject, html: bodies.html, text: bodies.text };
   }
 

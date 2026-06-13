@@ -112,6 +112,19 @@ async function shouldSkipPremiumWelcome(supabase: SupabaseClient, userId: string
   return rows.length > 0;
 }
 
+async function shouldSkipCheckoutRecovery(supabase: SupabaseClient, userId: string): Promise<boolean> {
+  const rows = await fetchExistingTypeRows(supabase, userId, "checkout_recovery");
+  return rows.length > 0;
+}
+
+async function shouldSkipFreeReceiptReengagement(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<boolean> {
+  const rows = await fetchExistingTypeRows(supabase, userId, "free_receipt_reengagement");
+  return rows.length > 0;
+}
+
 /** STEM OPT window alert: skip if we already queued/sent this type in the last 60 days */
 async function shouldSkipStemOptWindowWithin60Days(
   supabase: SupabaseClient,
@@ -139,6 +152,8 @@ type DedupeMode =
   | { kind: "material_policy"; policyVersion: string }
   | { kind: "welcome_free" }
   | { kind: "premium_welcome" }
+  | { kind: "checkout_recovery" }
+  | { kind: "free_receipt_reengagement" }
   | { kind: "stem_opt_window" }
   | { kind: "none" };
 
@@ -179,6 +194,20 @@ export async function queueTransactionalEmailSend(args: {
       return { ok: false, error: "user_id required for premium_welcome" };
     }
     if (await shouldSkipPremiumWelcome(supabase, userId)) {
+      return { ok: true, skipped: "deduped" };
+    }
+  } else if (dedupe.kind === "checkout_recovery") {
+    if (!userId) {
+      return { ok: false, error: "user_id required for checkout_recovery" };
+    }
+    if (await shouldSkipCheckoutRecovery(supabase, userId)) {
+      return { ok: true, skipped: "deduped" };
+    }
+  } else if (dedupe.kind === "free_receipt_reengagement") {
+    if (!userId) {
+      return { ok: false, error: "user_id required for free_receipt_reengagement" };
+    }
+    if (await shouldSkipFreeReceiptReengagement(supabase, userId)) {
       return { ok: true, skipped: "deduped" };
     }
   } else if (dedupe.kind === "stem_opt_window") {
@@ -768,6 +797,160 @@ export async function sendFreeWelcomeEmail(args: {
     text,
     emailData: {},
     dedupe: { kind: "welcome_free" },
+  });
+}
+
+/** HTML + text for abandoned checkout recovery — CTA starts a fresh checkout session. */
+export function buildCheckoutRecoveryEmailBodies(firstName: string | null): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const checkoutUrl = `${getAppBaseUrl()}/premium/checkout`;
+  const greeting = firstName?.trim() ? `Hi ${escapeHtml(firstName.trim())},` : "Hi,";
+  const greetingText = firstName?.trim() ? `Hi ${firstName.trim()},` : "Hi,";
+
+  const html = buildTransactionalEmail({
+    headerTitle: "Finish your Pro setup",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("Daily USCIS alerts &mdash; one step left")}
+${emailTextP(greeting)}
+${emailTextP(
+  "You started setting up daily USCIS alerts. Finish in one step and we&rsquo;ll email you the moment your case status changes."
+)}
+${emailTextList(
+  [
+    "Automatic daily USCIS case checks",
+    "Instant email alerts when your status changes",
+    "Full case history in your dashboard",
+  ],
+  { ordered: false }
+)}
+${emailPrimaryButton(checkoutUrl, "Finish checkout")}
+${emailTextMuted(
+  "This link opens a fresh checkout &mdash; your previous session may have expired."
+)}
+${emailBodySectionClose()}`,
+  });
+
+  const text = `${greetingText}
+
+You started setting up daily USCIS alerts. Finish in one step.
+
+- Automatic daily USCIS case checks
+- Instant email alerts when your status changes
+- Full case history in your dashboard
+
+Finish checkout: ${checkoutUrl}
+
+This link opens a fresh checkout — your previous session may have expired.
+
+— ${COMPANY.productName} Team`;
+
+  return {
+    subject: "Finish setting up your daily USCIS alerts",
+    html,
+    text,
+  };
+}
+
+export async function sendCheckoutRecoveryEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName } = args;
+  const { subject, html, text } = buildCheckoutRecoveryEmailBodies(firstName);
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "checkout_recovery",
+    subject,
+    html,
+    text,
+    emailData: { recovery_email_sent: true },
+    dedupe: { kind: "checkout_recovery" },
+  });
+}
+
+/** HTML + text for free users with a saved receipt — Pro alert upsell. */
+export function buildFreeReceiptReengagementEmailBodies(firstName: string | null): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const checkoutUrl = `${getAppBaseUrl()}/premium/checkout`;
+  const caseStatusUrl = `${getAppBaseUrl()}/dashboard/case-status`;
+  const greeting = firstName?.trim() ? `Hi ${escapeHtml(firstName.trim())},` : "Hi,";
+  const greetingText = firstName?.trim() ? `Hi ${firstName.trim()},` : "Hi,";
+
+  const html = buildTransactionalEmail({
+    headerTitle: "Your case is on our radar",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("Daily USCIS checks, instant Pro alerts")}
+${emailTextP(greeting)}
+${emailTextP(
+  "We&rsquo;ve been checking your case with USCIS daily. Pro emails you the moment it changes &mdash; no manual refreshing."
+)}
+${emailTextList(
+  [
+    "Automatic daily USCIS status checks",
+    "Instant email the moment your status changes",
+    "Full case history in one place",
+  ],
+  { ordered: false }
+)}
+${emailPrimaryButton(checkoutUrl, "Upgrade to Pro")}
+${emailTextMuted(
+  `<a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">View your case status</a> in your dashboard anytime.`
+)}
+${emailBodySectionClose()}`,
+  });
+
+  const text = `${greetingText}
+
+We've been checking your case with USCIS daily. Pro emails you the moment it changes — no manual refreshing.
+
+- Automatic daily USCIS status checks
+- Instant email the moment your status changes
+- Full case history in one place
+
+Upgrade to Pro: ${checkoutUrl}
+View your case status: ${caseStatusUrl}
+
+— ${COMPANY.productName} Team`;
+
+  return {
+    subject: "Pro emails you the moment your USCIS status changes",
+    html,
+    text,
+  };
+}
+
+export async function sendFreeReceiptReengagementEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName } = args;
+  const { subject, html, text } = buildFreeReceiptReengagementEmailBodies(firstName);
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "free_receipt_reengagement",
+    subject,
+    html,
+    text,
+    emailData: { reengagement_email_sent: true },
+    dedupe: { kind: "free_receipt_reengagement" },
   });
 }
 

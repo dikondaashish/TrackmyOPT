@@ -10,6 +10,18 @@ import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProg
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
 import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
+import { CaseStatusExplainerCard } from "@/components/dashboard/case-status/CaseStatusExplainerCard";
+import { StatusChangeUpgradeBanner } from "@/components/dashboard/case-status/StatusChangeUpgradeBanner";
+import { ManualRefreshUpsellPrompt } from "@/components/dashboard/case-status/ManualRefreshUpsellPrompt";
+import { saveReceiptAndPoll } from "@/lib/case-status/save-receipt-and-poll";
+import {
+  shouldShowStatusChangeWedge,
+  MANUAL_REFRESH_COUNT_SESSION_KEY,
+  MANUAL_REFRESH_UPSELL_SESSION_KEY,
+  CHECKOUT_UPSELL_TRIGGER,
+} from "@/lib/case-status/free-change-wedge";
+import { captureUpgradePromptShown } from "@/lib/posthog-client";
+import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import {
   ClipboardCheck,
   RefreshCw,
@@ -37,6 +49,9 @@ interface CaseStatus {
   received_date: string | null;
   last_checked_at: string | null;
   last_status_change_at: string | null;
+  last_status_viewed_at?: string | null;
+  status_last_changed_at?: string | null;
+  last_change_alert_suppressed?: boolean;
   status_history: Array<{
     status: string;
     date: string;
@@ -77,6 +92,13 @@ export function CaseStatusSection() {
   const [isRemoving, setIsRemoving] = useState(false);
   // ISS-030: explicit load error so UI can distinguish "no case" vs "couldn't load"
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [wedgeDismissed, setWedgeDismissed] = useState(false);
+  const [showManualRefreshUpsell, setShowManualRefreshUpsell] = useState(false);
+
+  const showStatusChangeWedge = useMemo(() => {
+    if (wedgeDismissed || isPremium !== false || !caseStatus) return false;
+    return shouldShowStatusChangeWedge(caseStatus, isPremium);
+  }, [wedgeDismissed, isPremium, caseStatus]);
 
   useEffect(() => {
     loadCaseStatus(true);
@@ -183,60 +205,48 @@ export function CaseStatusSection() {
 
     const trimmed = receiptNumber.trim().toUpperCase();
     if (!trimmed) {
-      setError('Please enter a receipt number.');
+      setError("Please enter a receipt number.");
       return;
     }
 
-    const receiptPattern = /^[A-Z]{3}\d{10}$/;
-    if (!receiptPattern.test(trimmed)) {
-      setError('Invalid format. A receipt number is 3 letters followed by 10 digits (e.g., IOE1234567890).');
+    const validation = validateReceiptNumber(trimmed);
+    if (!validation.valid) {
+      setError(validation.error);
       return;
     }
 
     try {
       setIsSaving(true);
-      const response = await fetch('/api/case-status', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          receipt_number: trimmed,
-          notifications_enabled: caseStatus?.notifications_enabled ?? true,
-        }),
+      setIsPolling(true);
+
+      const saveResult = await saveReceiptAndPoll(validation.normalized, {
+        notificationsEnabled: caseStatus?.notifications_enabled ?? true,
       });
 
-      const result = await response.json();
+      if (!saveResult.ok) {
+        setError(saveResult.error);
+        return;
+      }
 
-      if (response.ok && result.ok) {
-        setSuccess(true);
-        setIsPolling(true);
+      const data = await loadCaseStatus();
+      if (data) {
+        setCaseStatus(data);
+        setReceiptNumber(data.receipt_number);
+      }
+      setSuccess(true);
 
-        const maxAttempts = 10;
-        for (let i = 0; i < maxAttempts; i++) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          const data = await loadCaseStatus();
-
-          const hasStatus = data?.current_status &&
-            data.current_status !== 'Status will be fetched shortly...' &&
-            data.last_checked_at;
-
-          if (hasStatus) {
-            setSuccess(true);
-            setIsPolling(false);
-            setTimeout(() => setSuccess(false), 3000);
-            return;
-          }
-        }
-
-        setError('Status check is taking longer than expected. It will update automatically — please check back shortly.');
-        setIsPolling(false);
+      if (!saveResult.statusResolved) {
+        setError(
+          "Status check is taking longer than expected. It will update automatically — please check back shortly."
+        );
       } else {
-        setError(result.error || 'Failed to save receipt number.');
+        setTimeout(() => setSuccess(false), 3000);
       }
     } catch {
-      setError('An error occurred. Please try again.');
+      setError("An error occurred. Please try again.");
     } finally {
       setIsSaving(false);
+      setIsPolling(false);
     }
   };
 
@@ -257,6 +267,26 @@ export function CaseStatusSection() {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
         await loadCaseStatus();
+
+        if (isPremium === false && typeof window !== "undefined") {
+          const prev = parseInt(
+            sessionStorage.getItem(MANUAL_REFRESH_COUNT_SESSION_KEY) || "0",
+            10
+          );
+          const count = prev + 1;
+          sessionStorage.setItem(MANUAL_REFRESH_COUNT_SESSION_KEY, String(count));
+
+          if (
+            count === 2 &&
+            !sessionStorage.getItem(MANUAL_REFRESH_UPSELL_SESSION_KEY)
+          ) {
+            sessionStorage.setItem(MANUAL_REFRESH_UPSELL_SESSION_KEY, "1");
+            setShowManualRefreshUpsell(true);
+            captureUpgradePromptShown({
+              trigger: CHECKOUT_UPSELL_TRIGGER.SECOND_MANUAL_REFRESH,
+            });
+          }
+        }
       } else {
         setError(result.error || 'Failed to refresh status. Please try again.');
       }
@@ -576,6 +606,34 @@ export function CaseStatusSection() {
               {isRemoving ? 'Removing...' : 'Remove'}
             </Button>
           </div>
+
+          {showStatusChangeWedge && caseStatus.status_last_changed_at && (
+            <StatusChangeUpgradeBanner
+              statusLastChangedAt={caseStatus.status_last_changed_at}
+              onAcknowledged={() => {
+                setWedgeDismissed(true);
+                setCaseStatus((prev) =>
+                  prev
+                    ? { ...prev, last_status_viewed_at: new Date().toISOString() }
+                    : prev
+                );
+              }}
+            />
+          )}
+
+          {showManualRefreshUpsell && (
+            <ManualRefreshUpsellPrompt
+              onDismiss={() => setShowManualRefreshUpsell(false)}
+            />
+          )}
+
+          {caseStatus.last_checked_at && (
+            <CaseStatusExplainerCard
+              currentStatus={caseStatus.current_status}
+              lastCheckedAt={caseStatus.last_checked_at}
+              formatLastChecked={formatDate}
+            />
+          )}
 
           {/* ISS-012: USCIS check failure banner */}
           {caseStatus.last_check_failed_at && (caseStatus.consecutive_failures ?? 0) > 0 && (

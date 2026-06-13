@@ -52,6 +52,73 @@ export function captureOnboardingCompleted(
   });
 }
 
+export function captureOnboardingReceiptPromptShown(): void {
+  captureClientEvent("onboarding_receipt_prompt_shown", {
+    capture_source: "client",
+    source: "onboarding_wizard",
+  });
+}
+
+export type OnboardingReceiptSkippedProperties = {
+  receipt_prefix: string | null;
+};
+
+export function captureOnboardingReceiptSkipped(
+  properties: OnboardingReceiptSkippedProperties
+): void {
+  captureClientEvent("onboarding_receipt_skipped", {
+    ...properties,
+    capture_source: "client",
+    source: "onboarding_wizard",
+  });
+}
+
+export type CaseStatusExplainerViewedProperties = {
+  status_category: string;
+};
+
+export function captureCaseStatusExplainerViewed(
+  properties: CaseStatusExplainerViewedProperties
+): void {
+  captureClientEvent("case_status_explainer_viewed", {
+    ...properties,
+    capture_source: "client",
+    source: "case_status_page",
+  });
+}
+
+export type UpgradePromptTrigger =
+  | "status_change_wedge"
+  | "second_manual_refresh";
+
+export type UpgradePromptShownProperties = {
+  trigger: UpgradePromptTrigger;
+};
+
+export function captureUpgradePromptShown(
+  properties: UpgradePromptShownProperties
+): void {
+  captureClientEvent("upgrade_prompt_shown", {
+    ...properties,
+    capture_source: "client",
+    source: "case_status_page",
+  });
+}
+
+export type CheckoutStartedProperties = {
+  trigger: UpgradePromptTrigger;
+};
+
+export function captureCheckoutStarted(
+  properties: CheckoutStartedProperties
+): void {
+  captureClientEvent("checkout_started", {
+    ...properties,
+    capture_source: "client",
+    source: "case_status_page",
+  });
+}
+
 export type SignOutSource = "profile_menu" | "navbar" | "sidebar" | "unknown";
 
 const SIGN_OUT_FLUSH_MS = 250;

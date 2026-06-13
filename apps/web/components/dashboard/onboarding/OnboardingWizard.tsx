@@ -1,16 +1,32 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Briefcase, Calendar, ChevronRight, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  GraduationCap,
+  Briefcase,
+  Calendar,
+  ChevronRight,
+  ArrowRight,
+  Loader2,
+  CheckCircle2,
+  ClipboardCheck,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DateInput } from "../opt-tools/DateInput";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
-import { captureOnboardingCompleted } from "@/lib/posthog-client";
+import {
+  captureOnboardingCompleted,
+  captureOnboardingReceiptPromptShown,
+  captureOnboardingReceiptSkipped,
+} from "@/lib/posthog-client";
+import { saveReceiptAndPoll, type CaseStatusRecord } from "@/lib/case-status/save-receipt-and-poll";
+import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
+import { getReceiptPrefix } from "@/lib/posthog/uscis-status-category";
 
-type WizardStep = 'welcome' | 'course' | 'status' | 'dates' | 'finishing';
+type WizardStep = 'welcome' | 'course' | 'status' | 'dates' | 'receipt' | 'finishing';
 
 const STEM_KEYWORDS = [
   'computer', 'software', 'engineering', 'math', 'science', 'technology', 
@@ -44,7 +60,6 @@ interface OnboardingWizardProps {
 }
 
 export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizardProps) {
-  const router = useRouter();
   const { toast } = useToast();
   
   const [step, setStep] = useState<WizardStep>('welcome');
@@ -62,8 +77,16 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   const [optEndDate, setOptEndDate] = useState("");
   const [stemStartDate, setStemStartDate] = useState("");
 
+  // Receipt step
+  const [receiptNumber, setReceiptNumber] = useState("");
+  const [receiptError, setReceiptError] = useState<string | null>(null);
+  const [isReceiptSaving, setIsReceiptSaving] = useState(false);
+  const [savedCaseStatus, setSavedCaseStatus] = useState<CaseStatusRecord | null>(null);
+  const [receiptStatusPending, setReceiptStatusPending] = useState(false);
+
   const [showDropdown, setShowDropdown] = useState(false);
   const onboardingTrackedRef = useRef(false);
+  const receiptPromptTrackedRef = useRef(false);
   const filteredMajors = majorName
     ? COMMON_MAJORS.filter(m => m.toLowerCase().includes(majorName.toLowerCase()))
     : COMMON_MAJORS;
@@ -96,9 +119,15 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       setStep('dates');
     }
     else if (step === 'dates') {
-      handleSave();
+      handleSaveDates();
     }
   };
+
+  useEffect(() => {
+    if (step !== "receipt" || receiptPromptTrackedRef.current) return;
+    receiptPromptTrackedRef.current = true;
+    captureOnboardingReceiptPromptShown();
+  }, [step]);
 
   const calculateAutoDates = (field: string, value: string) => {
     // If OPT start is filled, we can auto-suggest OPT End
@@ -154,7 +183,28 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     });
   };
 
-  const handleSave = async () => {
+  const finishOnboarding = async (skipped: boolean) => {
+    if (!markOnboardingTrackedOnce()) {
+      onComplete();
+      return;
+    }
+    try {
+      await persistOnboardingFlags(skipped);
+    } catch {
+      /* non-blocking */
+    }
+    trackOnboardingCompleted(skipped);
+    if (!skipped) {
+      toast({
+        title: "Profile Configured! 🎉",
+        description: "Your dashboard is now customized for your journey.",
+        className: "bg-green-50 border-green-200",
+      });
+    }
+    onComplete();
+  };
+
+  const handleSaveDates = async () => {
     // Requires at least one date or basic validation based on status
     if (status === 'applying_opt' && !programEndDate) {
       toast({ title: "Program End Date is required", variant: "destructive" });
@@ -176,7 +226,6 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
 
     try {
       setIsSaving(true);
-      setStep('finishing');
 
       const payload = {
         degree_level: degreeLevel,
@@ -198,32 +247,63 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       const result = await response.json();
 
       if (response.ok && result.ok) {
-        if (!markOnboardingTrackedOnce()) {
-          onComplete();
-          return;
-        }
-        // ISS-006: persist server-side onboarding completion
-        try {
-          await persistOnboardingFlags(false);
-        } catch { /* non-blocking */ }
-
-        trackOnboardingCompleted(false);
-
-        toast({
-          title: "Profile Configured! 🎉",
-          description: "Your dashboard is now customized for your journey.",
-          className: "bg-green-50 border-green-200",
-        });
-        onComplete(); // Tells parent to hide the modal and refresh data
+        setStep("receipt");
       } else {
         throw new Error(result.error || "Failed to save dates");
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
-      setStep('dates'); // revert step
+      setStep('dates');
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleReceiptSave = async () => {
+    setReceiptError(null);
+
+    const validation = validateReceiptNumber(receiptNumber, { strictPrefix: true });
+    if (!validation.valid) {
+      setReceiptError(validation.error);
+      return;
+    }
+
+    try {
+      setIsReceiptSaving(true);
+      setReceiptStatusPending(true);
+      const saveResult = await saveReceiptAndPoll(validation.normalized);
+
+      if (!saveResult.ok) {
+        setReceiptError(saveResult.error);
+        return;
+      }
+
+      setSavedCaseStatus(saveResult.data);
+      if (!saveResult.statusResolved) {
+        setReceiptError(
+          "Status check is taking longer than expected. Your receipt is saved — we'll update it shortly."
+        );
+      }
+    } catch {
+      setReceiptError("An error occurred while saving your receipt. Please try again.");
+    } finally {
+      setIsReceiptSaving(false);
+      setReceiptStatusPending(false);
+    }
+  };
+
+  const handleReceiptSkip = async () => {
+    const trimmed = receiptNumber.trim().toUpperCase();
+    captureOnboardingReceiptSkipped({
+      receipt_prefix: trimmed.length >= 3 ? getReceiptPrefix(trimmed) : null,
+    });
+    setStep("finishing");
+    await finishOnboarding(false);
+  };
+
+  const handleReceiptFinish = async () => {
+    setStep("finishing");
+    await finishOnboarding(false);
   };
 
   // ISS-006: explicit "skip with checklist" — mark onboarding dismissed server-side so the
@@ -237,6 +317,19 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     trackOnboardingCompleted(true);
     (onSkip ?? onComplete)();
   };
+
+  const progressWidth =
+    step === "welcome"
+      ? "w-1/6"
+      : step === "course"
+        ? "w-2/6"
+        : step === "status"
+          ? "w-3/6"
+          : step === "dates"
+            ? "w-4/6"
+            : step === "receipt"
+              ? "w-5/6"
+              : "w-full";
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
@@ -255,12 +348,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       >
         {/* Header Progress */}
         <div className="h-1.5 w-full bg-muted flex">
-          <div className={`h-full bg-blue-600 transition-all duration-500 ${
-            step === 'welcome' ? 'w-1/5' : 
-            step === 'course' ? 'w-2/5' : 
-            step === 'status' ? 'w-3/5' : 
-            step === 'dates' ? 'w-4/5' : 'w-full'
-          }`} />
+          <div className={`h-full bg-blue-600 transition-all duration-500 ${progressWidth}`} />
         </div>
 
         <div className="p-8 sm:p-10 min-h-[460px] flex flex-col">
@@ -484,9 +572,109 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                   </button>
                 </div>
                 <Button onClick={handleNext} disabled={isSaving} className="px-8">
-                  {isSaving ? 'Saving...' : 'Finish Setup'} 
-                  {!isSaving && <ArrowRight className="ml-2 w-4 h-4" />}
+                  {isSaving ? "Saving..." : "Continue"}
+                  {!isSaving && <ChevronRight className="ml-2 w-4 h-4" />}
                 </Button>
+              </div>
+            </div>
+          )}
+
+          {step === "receipt" && (
+            <div className="animate-in fade-in slide-in-from-right-4 flex-1 flex flex-col">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600">
+                  <ClipboardCheck className="w-5 h-5" />
+                </div>
+                <h2 className="text-2xl font-bold tracking-tight">Track your USCIS case</h2>
+              </div>
+              <p className="text-muted-foreground mb-6">
+                We&apos;ll check USCIS daily and tell you the moment your status changes.
+              </p>
+
+              <div className="space-y-4 flex-1">
+                <div>
+                  <label htmlFor="onboarding-receipt-input" className="block text-sm font-medium mb-2">
+                    USCIS Receipt Number
+                  </label>
+                  <Input
+                    id="onboarding-receipt-input"
+                    type="text"
+                    placeholder="e.g., IOE1234567890"
+                    value={receiptNumber}
+                    onChange={(e) => {
+                      setReceiptNumber(e.target.value.toUpperCase());
+                      if (receiptError) setReceiptError(null);
+                    }}
+                    className="font-mono ph-mask"
+                    data-ph-mask
+                    maxLength={13}
+                    disabled={isReceiptSaving || Boolean(savedCaseStatus)}
+                    aria-describedby="onboarding-receipt-help"
+                  />
+                  <p id="onboarding-receipt-help" className="text-xs text-muted-foreground mt-2">
+                    13 characters: IOE, EAC, WAC, LIN, SRC, MSC, or YSC + 10 digits
+                  </p>
+                  {receiptError && (
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-2" role="alert">
+                      {receiptError}
+                    </p>
+                  )}
+                </div>
+
+                {(isReceiptSaving || receiptStatusPending) && (
+                  <div className="flex items-center gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
+                    <Loader2 className="w-5 h-5 text-blue-600 animate-spin shrink-0" />
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      Checking USCIS for your latest status...
+                    </p>
+                  </div>
+                )}
+
+                {savedCaseStatus?.current_status && (
+                  <div className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+                          Current status
+                        </p>
+                        <p className="text-sm text-emerald-800 dark:text-emerald-200 mt-1">
+                          {savedCaseStatus.current_status}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-6 flex items-center justify-between mt-auto border-t">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <Button variant="ghost" onClick={() => setStep("dates")} disabled={isReceiptSaving}>
+                    Back
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={handleReceiptSkip}
+                    disabled={isReceiptSaving}
+                    className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline text-left"
+                  >
+                    I don&apos;t have one yet / skip
+                  </button>
+                </div>
+                {savedCaseStatus ? (
+                  <Button onClick={handleReceiptFinish} className="px-8">
+                    Go to dashboard <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleReceiptSave}
+                    disabled={isReceiptSaving || !receiptNumber.trim()}
+                    className="px-8"
+                  >
+                    {isReceiptSaving ? "Saving..." : "Save & check status"}
+                    {!isReceiptSaving && <ArrowRight className="ml-2 w-4 h-4" />}
+                  </Button>
+                )}
               </div>
             </div>
           )}

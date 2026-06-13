@@ -9,6 +9,7 @@ import {
   trackCaseStatusCheckStarted,
 } from '@/lib/posthog/case-status-analytics';
 import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
+import { applyFreeUserChangeWedgeToUpdate } from '@/lib/case-status/free-change-wedge';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,6 +17,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Internal-Secret',
   'Cache-Control': 'no-store',
 };
+
+async function getUserIsPremium(
+  supabase: ReturnType<typeof createClient>,
+  userId: string
+): Promise<boolean> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('premium_status')
+    .eq('user_id', userId)
+    .single();
+  return data?.premium_status === true;
+}
 
 /**
  * POST /api/case-status/check
@@ -207,20 +220,32 @@ export async function POST(req: NextRequest) {
         });
       }
 
+      const isPremium = currentCase?.user_id
+        ? await getUserIsPremium(supabase, currentCase.user_id)
+        : false;
+
+      const mockUpdateData: Record<string, unknown> = {
+        current_status: mockStatus.status,
+        case_type: mockStatus.caseType,
+        received_date: mockStatus.receivedDate,
+        last_checked_at: new Date().toISOString(),
+        last_status_change_at: (isFirstCheck || hasStatusChanged)
+          ? new Date().toISOString()
+          : currentCase?.last_status_change_at,
+        status_history: statusHistory,
+        change_log: existingChangelog,
+        updated_at: new Date().toISOString(),
+      };
+
+      applyFreeUserChangeWedgeToUpdate(mockUpdateData, {
+        hasStatusChanged: Boolean(hasStatusChanged),
+        isFirstCheck: Boolean(isFirstCheck),
+        isPremium,
+      });
+
       await supabase
         .from('case_status')
-        .update({
-          current_status: mockStatus.status,
-          case_type: mockStatus.caseType,
-          received_date: mockStatus.receivedDate,
-          last_checked_at: new Date().toISOString(),
-          last_status_change_at: (isFirstCheck || hasStatusChanged)
-            ? new Date().toISOString()
-            : currentCase?.last_status_change_at,
-          status_history: statusHistory,
-          change_log: existingChangelog,
-          updated_at: new Date().toISOString(),
-        })
+        .update(mockUpdateData)
         .eq('receipt_number', receipt_number);
 
       await finishCompleted(mockStatus.status, 200);
@@ -342,25 +367,37 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const isPremium = currentCase?.user_id
+      ? await getUserIsPremium(supabase, currentCase.user_id)
+      : false;
+
+    const updateData: Record<string, unknown> = {
+      current_status: uscisStatus.status,
+      case_type: uscisStatus.caseType,
+      received_date: uscisStatus.receivedDate,
+      last_checked_at: new Date().toISOString(),
+      last_status_change_at: (isFirstCheck || hasStatusChanged)
+        ? new Date().toISOString()
+        : currentCase?.last_status_change_at,
+      status_history: statusHistory,
+      change_log: existingChangelog,
+      updated_at: new Date().toISOString(),
+      last_check_failed_at: null,
+      last_check_error_code: null,
+      last_check_error_message: null,
+      consecutive_failures: 0,
+    };
+
+    applyFreeUserChangeWedgeToUpdate(updateData, {
+      hasStatusChanged: Boolean(hasStatusChanged),
+      isFirstCheck: Boolean(isFirstCheck),
+      isPremium,
+    });
+
     // Update database — reset failure counters on success (ISS-012)
     const { error: updateError } = await supabase
       .from('case_status')
-      .update({
-        current_status: uscisStatus.status,
-        case_type: uscisStatus.caseType,
-        received_date: uscisStatus.receivedDate,
-        last_checked_at: new Date().toISOString(),
-        last_status_change_at: (isFirstCheck || hasStatusChanged)
-          ? new Date().toISOString()
-          : currentCase?.last_status_change_at,
-        status_history: statusHistory,
-        change_log: existingChangelog,
-        updated_at: new Date().toISOString(),
-        last_check_failed_at: null,
-        last_check_error_code: null,
-        last_check_error_message: null,
-        consecutive_failures: 0,
-      })
+      .update(updateData)
       .eq('receipt_number', receipt_number);
 
     // Log successful check (ISS-015 observability)

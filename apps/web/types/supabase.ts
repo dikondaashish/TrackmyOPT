@@ -48,6 +48,9 @@ export type Database = {
           last_check_failed_at: string | null
           last_checked_at: string | null
           last_status_change_at: string | null
+          last_status_viewed_at: string | null
+          status_last_changed_at: string | null
+          last_change_alert_suppressed: boolean
           notifications_enabled: boolean | null
           receipt_number: string
           received_date: string | null
@@ -67,6 +70,9 @@ export type Database = {
           last_check_failed_at?: string | null
           last_checked_at?: string | null
           last_status_change_at?: string | null
+          last_status_viewed_at?: string | null
+          status_last_changed_at?: string | null
+          last_change_alert_suppressed?: boolean
           notifications_enabled?: boolean | null
           receipt_number: string
           received_date?: string | null
@@ -86,6 +92,9 @@ export type Database = {
           last_check_failed_at?: string | null
           last_checked_at?: string | null
           last_status_change_at?: string | null
+          last_status_viewed_at?: string | null
+          status_last_changed_at?: string | null
+          last_change_alert_suppressed?: boolean
           notifications_enabled?: boolean | null
           receipt_number?: string
           received_date?: string | null

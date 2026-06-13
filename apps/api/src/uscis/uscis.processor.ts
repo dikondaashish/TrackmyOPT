@@ -194,6 +194,21 @@ export class UscisProcessor {
         updateData.last_status_change_at = new Date().toISOString();
       }
 
+      // Free-tier wedge: persist change moment when email alert is suppressed
+      if (hasStatusChanged && !isFirstCheck) {
+        const { data: profile } = await this.supabase
+          .from('profiles')
+          .select('premium_status')
+          .eq('user_id', userId)
+          .single();
+
+        const isPremium = profile?.premium_status === true;
+        if (!isPremium) {
+          updateData.status_last_changed_at = new Date().toISOString();
+          updateData.last_change_alert_suppressed = true;
+        }
+      }
+
       const { error: updateError } = await this.supabase
         .from('case_status')
         .update(updateData)
