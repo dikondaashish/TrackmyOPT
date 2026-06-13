@@ -14,8 +14,8 @@
 
 | Event | Status | Migration |
 |-------|--------|-----------|
-| `case_status_enrolled` | **Legacy — keep for backward compatibility** | Fires on every receipt save (not only first enrollment). Historical dashboards may still reference it. |
+| `case_status_enrolled` | **Removed (2026-06-13)** | Historical data only. Use `receipt_added` / `receipt_updated`. |
 | `receipt_added` | **Preferred** | First save of a receipt for the user |
 | `receipt_updated` | **Preferred** | Subsequent receipt or notification changes |
 
-**TODO:** New dashboards and funnels should use `receipt_added` / `receipt_updated` only. Do not remove `case_status_enrolled` until historical reports are migrated.
+**New dashboards and funnels:** use `receipt_added` / `receipt_updated` only.

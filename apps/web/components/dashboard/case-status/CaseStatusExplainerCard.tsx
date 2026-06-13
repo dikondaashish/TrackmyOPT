@@ -9,7 +9,11 @@ import {
   isPlaceholderStatus,
   USCIS_CASE_STATUS_URL,
 } from "@/lib/uscis/status-explainer";
-import { captureCaseStatusExplainerViewed } from "@/lib/posthog-client";
+import { hasAnalyticsConsent } from "@/lib/cookie-consent";
+import {
+  captureCaseStatusExplainerViewed,
+  ANALYTICS_CONSENT_CHANGE_EVENT,
+} from "@/lib/posthog-client";
 import { cn } from "@/lib/utils";
 
 type CaseStatusExplainerCardProps = {
@@ -54,10 +58,27 @@ export function CaseStatusExplainerCard({
 
   useEffect(() => {
     if (!lastCheckedAt) return;
+
     const trackKey = `${explainer.category}:${lastCheckedAt}`;
-    if (trackedKeyRef.current === trackKey) return;
-    trackedKeyRef.current = trackKey;
-    captureCaseStatusExplainerViewed({ status_category: explainer.category });
+
+    const tryTrack = () => {
+      if (!hasAnalyticsConsent()) return;
+      if (trackedKeyRef.current === trackKey) return;
+      trackedKeyRef.current = trackKey;
+      captureCaseStatusExplainerViewed({ status_category: explainer.category });
+    };
+
+    tryTrack();
+
+    const onConsentChange = (event: Event) => {
+      const accepted = (event as CustomEvent<{ accepted: boolean }>).detail?.accepted;
+      if (accepted) tryTrack();
+    };
+
+    window.addEventListener(ANALYTICS_CONSENT_CHANGE_EVENT, onConsentChange);
+    return () => {
+      window.removeEventListener(ANALYTICS_CONSENT_CHANGE_EVENT, onConsentChange);
+    };
   }, [explainer.category, lastCheckedAt]);
 
   if (!lastCheckedAt) {

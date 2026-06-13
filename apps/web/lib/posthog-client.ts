@@ -1,5 +1,8 @@
 import posthog from "posthog-js";
 
+/** Dispatched when the user accepts/declines analytics cookies (see posthog-browser). */
+export const ANALYTICS_CONSENT_CHANGE_EVENT = "trackmyopt:analytics-consent";
+
 export type TrackMyOptPersonProperties = {
   plan_tier?: string | null;
   premium_status?: boolean;

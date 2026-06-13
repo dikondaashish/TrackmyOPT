@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { captureDashboardViewed } from "@/lib/posthog-client";
+import { captureDashboardViewed, ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/posthog-client";
 import { hasAnalyticsConsent } from "@/lib/cookie-consent";
 import { isPendingStatus } from "@/lib/posthog/uscis-status-category";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
@@ -80,9 +80,9 @@ export function DashboardViewTracker() {
       if (accepted) trackDashboardView();
     };
 
-    window.addEventListener("trackmyopt:analytics-consent", onConsentChange);
+    window.addEventListener(ANALYTICS_CONSENT_CHANGE_EVENT, onConsentChange);
     return () => {
-      window.removeEventListener("trackmyopt:analytics-consent", onConsentChange);
+      window.removeEventListener(ANALYTICS_CONSENT_CHANGE_EVENT, onConsentChange);
     };
   }, [premium.isLoading, premium.isPremium, premium.planName]);
 

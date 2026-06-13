@@ -184,9 +184,6 @@ export async function POST(req: NextRequest) {
       is_new_enrollment: isNewEnrollment,
     };
 
-    // Legacy event — keep for historical dashboards. Prefer receipt_added / receipt_updated for new analytics.
-    // See lib/posthog/LEGACY_EVENTS.md
-    await captureServerEvent(userId, 'case_status_enrolled', receiptEventProps);
     await captureServerEvent(
       userId,
       isFirstSave ? 'receipt_added' : 'receipt_updated',

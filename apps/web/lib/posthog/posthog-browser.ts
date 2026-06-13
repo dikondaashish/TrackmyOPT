@@ -1,5 +1,6 @@
 import posthog from "posthog-js";
 import { getStoredCookieConsent } from "@/lib/cookie-consent";
+import { ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/posthog-client";
 import { POSTHOG_SESSION_RECORDING } from "@/lib/posthog/session-replay-privacy";
 
 function resolvePostHogToken(): string | undefined {
@@ -14,12 +15,10 @@ function isPostHogReady(): boolean {
   return typeof window !== "undefined" && typeof posthog?.capture === "function";
 }
 
-const ANALYTICS_CONSENT_EVENT = "trackmyopt:analytics-consent";
-
 function dispatchAnalyticsConsentChange(accepted: boolean): void {
   if (typeof window === "undefined") return;
   window.dispatchEvent(
-    new CustomEvent(ANALYTICS_CONSENT_EVENT, { detail: { accepted } })
+    new CustomEvent(ANALYTICS_CONSENT_CHANGE_EVENT, { detail: { accepted } })
   );
 }
 

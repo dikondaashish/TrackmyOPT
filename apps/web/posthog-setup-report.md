@@ -25,7 +25,9 @@ The wizard has completed a deep integration of PostHog analytics into TrackMyOPT
 | `insurance_eligibility_checked` | User submits the insurance eligibility form | `app/dashboard/opt-health-insurance-finder/page.tsx` |
 | `insurance_plan_clicked` | User clicks "Apply" or "View Plans" for a partner | `app/dashboard/opt-health-insurance-finder/results/page.tsx` |
 | `document_uploaded` | User uploads a document to the Document Vault (premium) | `app/api/documents/upload/route.ts` |
-| `case_status_enrolled` | User saves a USCIS receipt number for tracking | `app/api/case-status/route.ts` |
+| `receipt_added` | User saves a USCIS receipt number for the first time | `app/api/case-status/route.ts` |
+| `receipt_updated` | User updates receipt or notification settings | `app/api/case-status/route.ts`, `app/api/case-status/notifications/route.ts` |
+| `case_status_explainer_viewed` | Free-user status explainer card renders (client) | `components/dashboard/case-status/CaseStatusExplainerCard.tsx` |
 | `resume_compiled` | User successfully compiles their LaTeX resume to PDF | `app/api/resume-generator/compile/route.ts` |
 | `extension_job_added` | Chrome extension adds a job on behalf of the user | `app/api/extension/job-application/route.ts` |
 
