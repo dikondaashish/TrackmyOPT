@@ -14,6 +14,15 @@ function isPostHogReady(): boolean {
   return typeof window !== "undefined" && typeof posthog?.capture === "function";
 }
 
+const ANALYTICS_CONSENT_EVENT = "trackmyopt:analytics-consent";
+
+function dispatchAnalyticsConsentChange(accepted: boolean): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent(ANALYTICS_CONSENT_EVENT, { detail: { accepted } })
+  );
+}
+
 /** Apply stored banner choice to PostHog (client-only). */
 export function applyPostHogConsentFromStorage(): void {
   if (!isPostHogReady()) return;
@@ -32,6 +41,7 @@ export function setPostHogAnalyticsConsent(accepted: boolean): void {
   } else {
     posthog.opt_out_capturing();
   }
+  dispatchAnalyticsConsentChange(accepted);
 }
 
 /**
@@ -44,6 +54,12 @@ export function initPostHogBrowser(): void {
   const posthogToken = resolvePostHogToken();
   if (!posthogToken || typeof window === "undefined") return;
 
+  const alreadyLoaded = Boolean((posthog as { __loaded?: boolean }).__loaded);
+  if (alreadyLoaded) {
+    applyPostHogConsentFromStorage();
+    return;
+  }
+
   posthog.init(posthogToken, {
     api_host: "/ingest",
     ui_host: "https://us.posthog.com",
@@ -52,7 +68,8 @@ export function initPostHogBrowser(): void {
     debug: process.env.NODE_ENV === "development",
     opt_out_capturing_by_default: true,
     session_recording: POSTHOG_SESSION_RECORDING,
+    loaded: () => {
+      applyPostHogConsentFromStorage();
+    },
   });
-
-  applyPostHogConsentFromStorage();
 }

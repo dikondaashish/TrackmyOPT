@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { captureDashboardViewed } from "@/lib/posthog-client";
+import { hasAnalyticsConsent } from "@/lib/cookie-consent";
 import { isPendingStatus } from "@/lib/posthog/uscis-status-category";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { supabase } from "@/lib/supabaseClient";
@@ -22,9 +23,11 @@ export function DashboardViewTracker() {
   useEffect(() => {
     if (trackedRef.current || premium.isLoading) return;
 
-    trackedRef.current = true;
+    const trackDashboardView = () => {
+      if (trackedRef.current || !hasAnalyticsConsent()) return;
+      trackedRef.current = true;
 
-    (async () => {
+      (async () => {
       let hasReceipt = false;
       let hasStatus = false;
       let isPending = false;
@@ -67,7 +70,20 @@ export function DashboardViewTracker() {
         premium_status: premium.isPremium === true,
         onboarding_completed: onboardingCompleted,
       });
-    })();
+      })();
+    };
+
+    trackDashboardView();
+
+    const onConsentChange = (event: Event) => {
+      const accepted = (event as CustomEvent<{ accepted: boolean }>).detail?.accepted;
+      if (accepted) trackDashboardView();
+    };
+
+    window.addEventListener("trackmyopt:analytics-consent", onConsentChange);
+    return () => {
+      window.removeEventListener("trackmyopt:analytics-consent", onConsentChange);
+    };
   }, [premium.isLoading, premium.isPremium, premium.planName]);
 
   return null;
