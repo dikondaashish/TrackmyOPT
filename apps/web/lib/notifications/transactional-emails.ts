@@ -125,6 +125,25 @@ async function shouldSkipFreeReceiptReengagement(
   return rows.length > 0;
 }
 
+async function shouldSkipWelcomeFreeResend(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<boolean> {
+  const [resentRows, sentWelcomeRows] = await Promise.all([
+    fetchExistingTypeRows(supabase, userId, "welcome_free_resend"),
+    supabase
+      .from("email_queue")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("email_type", "welcome_free")
+      .eq("status", "sent")
+      .limit(1),
+  ]);
+
+  if (resentRows.length > 0) return true;
+  return Boolean(sentWelcomeRows.data && sentWelcomeRows.data.length > 0);
+}
+
 /** STEM OPT window alert: skip if we already queued/sent this type in the last 60 days */
 async function shouldSkipStemOptWindowWithin60Days(
   supabase: SupabaseClient,
@@ -154,6 +173,7 @@ type DedupeMode =
   | { kind: "premium_welcome" }
   | { kind: "checkout_recovery" }
   | { kind: "free_receipt_reengagement" }
+  | { kind: "welcome_free_resend" }
   | { kind: "stem_opt_window" }
   | { kind: "none" };
 
@@ -208,6 +228,13 @@ export async function queueTransactionalEmailSend(args: {
       return { ok: false, error: "user_id required for free_receipt_reengagement" };
     }
     if (await shouldSkipFreeReceiptReengagement(supabase, userId)) {
+      return { ok: true, skipped: "deduped" };
+    }
+  } else if (dedupe.kind === "welcome_free_resend") {
+    if (!userId) {
+      return { ok: false, error: "user_id required for welcome_free_resend" };
+    }
+    if (await shouldSkipWelcomeFreeResend(supabase, userId)) {
       return { ok: true, skipped: "deduped" };
     }
   } else if (dedupe.kind === "stem_opt_window") {
@@ -797,6 +824,29 @@ export async function sendFreeWelcomeEmail(args: {
     text,
     emailData: {},
     dedupe: { kind: "welcome_free" },
+  });
+}
+
+/** Re-send welcome_free for users whose original send failed (one-time campaign). */
+export async function sendWelcomeFreeResendEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName } = args;
+  const { subject, html, text } = buildWelcomeFreeEmailBodies(firstName);
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "welcome_free_resend",
+    subject,
+    html,
+    text,
+    emailData: { welcome_resend: true },
+    dedupe: { kind: "welcome_free_resend" },
   });
 }
 

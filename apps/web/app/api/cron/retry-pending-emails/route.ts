@@ -67,6 +67,25 @@ async function resolveBodiesForRetry(
     return { subject: bodies.subject, html: bodies.html, text: bodies.text };
   }
 
+  if (row.email_type === "welcome_free_resend" && row.user_id) {
+    let firstName: string | null = null;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("first_name")
+      .eq("user_id", row.user_id)
+      .maybeSingle();
+    firstName = profile?.first_name ?? null;
+    if (!firstName) {
+      const { data, error } = await supabase.auth.admin.getUserById(row.user_id);
+      if (!error && data?.user) {
+        const meta = data.user.user_metadata as { firstName?: string; first_name?: string } | undefined;
+        firstName = meta?.firstName || meta?.first_name || null;
+      }
+    }
+    const bodies = buildWelcomeFreeEmailBodies(firstName);
+    return { subject: bodies.subject, html: bodies.html, text: bodies.text };
+  }
+
   if (row.email_type === "checkout_recovery" && row.user_id) {
     let firstName: string | null = null;
     const { data: profile } = await supabase

@@ -2,6 +2,26 @@
  * Free-tier status change wedge — backend fields + client visibility helpers.
  */
 
+/** Wedge copy and visibility only apply to changes within this window. */
+export const STATUS_CHANGE_WEDGE_MAX_AGE_DAYS = 14;
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+export function getStatusChangeAgeDays(iso: string, now = new Date()): number | null {
+  const changed = new Date(iso);
+  const changedAt = changed.getTime();
+  if (Number.isNaN(changedAt)) return null;
+  return Math.max(0, Math.floor((now.getTime() - changedAt) / MS_PER_DAY));
+}
+
+export function isStatusChangeWithinWedgeWindow(
+  iso: string,
+  now = new Date()
+): boolean {
+  const days = getStatusChangeAgeDays(iso, now);
+  return days !== null && days <= STATUS_CHANGE_WEDGE_MAX_AGE_DAYS;
+}
+
 export type FreeChangeWedgeFields = {
   status_last_changed_at?: string | null;
   last_change_alert_suppressed?: boolean | null;
@@ -31,6 +51,10 @@ export function shouldShowStatusChangeWedge(
   if (!caseRow.last_change_alert_suppressed) return false;
   if (!caseRow.status_last_changed_at) return false;
 
+  if (!isStatusChangeWithinWedgeWindow(caseRow.status_last_changed_at)) {
+    return false;
+  }
+
   const changedAt = new Date(caseRow.status_last_changed_at).getTime();
   if (Number.isNaN(changedAt)) return false;
 
@@ -41,11 +65,10 @@ export function shouldShowStatusChangeWedge(
   return changedAt > viewedAt;
 }
 
-export function formatStatusChangedDaysAgo(iso: string): string {
-  const changed = new Date(iso);
-  const now = new Date();
-  const diffMs = now.getTime() - changed.getTime();
-  const days = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+export function formatStatusChangedDaysAgo(iso: string, now = new Date()): string {
+  const days = getStatusChangeAgeDays(iso, now);
+  if (days === null) return "recently";
+  if (days > STATUS_CHANGE_WEDGE_MAX_AGE_DAYS) return "recently";
 
   if (days === 0) return "today";
   if (days === 1) return "1 day ago";

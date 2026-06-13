@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   applyFreeUserChangeWedgeToUpdate,
   formatStatusChangedDaysAgo,
+  isStatusChangeWithinWedgeWindow,
   shouldShowStatusChangeWedge,
+  STATUS_CHANGE_WEDGE_MAX_AGE_DAYS,
 } from "./free-change-wedge";
 
 describe("applyFreeUserChangeWedgeToUpdate", () => {
@@ -50,8 +52,12 @@ describe("applyFreeUserChangeWedgeToUpdate", () => {
 });
 
 describe("shouldShowStatusChangeWedge", () => {
+  const recentChangeAt = new Date(
+    Date.now() - 3 * 24 * 60 * 60 * 1000
+  ).toISOString();
+
   const baseRow = {
-    status_last_changed_at: "2026-05-28T12:00:00.000Z",
+    status_last_changed_at: recentChangeAt,
     last_change_alert_suppressed: true,
     last_status_viewed_at: null,
   };
@@ -65,11 +71,15 @@ describe("shouldShowStatusChangeWedge", () => {
   });
 
   it("hides after user viewed since change", () => {
+    const viewedAfterChange = new Date(
+      Date.now() - 2 * 24 * 60 * 60 * 1000
+    ).toISOString();
+
     expect(
       shouldShowStatusChangeWedge(
         {
           ...baseRow,
-          last_status_viewed_at: "2026-05-29T12:00:00.000Z",
+          last_status_viewed_at: viewedAfterChange,
         },
         false
       )
@@ -84,6 +94,20 @@ describe("shouldShowStatusChangeWedge", () => {
       )
     ).toBe(false);
   });
+
+  it("hides when change is older than the wedge window", () => {
+    const staleChangeAt = new Date(
+      Date.now() - (STATUS_CHANGE_WEDGE_MAX_AGE_DAYS + 1) * 24 * 60 * 60 * 1000
+    ).toISOString();
+
+    expect(
+      shouldShowStatusChangeWedge(
+        { ...baseRow, status_last_changed_at: staleChangeAt },
+        false
+      )
+    ).toBe(false);
+    expect(isStatusChangeWithinWedgeWindow(staleChangeAt)).toBe(false);
+  });
 });
 
 describe("formatStatusChangedDaysAgo", () => {
@@ -95,5 +119,12 @@ describe("formatStatusChangedDaysAgo", () => {
   it("formats plural days", () => {
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
     expect(formatStatusChangedDaysAgo(threeDaysAgo)).toBe("3 days ago");
+  });
+
+  it("never returns a day count above the wedge window", () => {
+    const staleChangeAt = new Date(
+      Date.now() - (STATUS_CHANGE_WEDGE_MAX_AGE_DAYS + 5) * 24 * 60 * 60 * 1000
+    ).toISOString();
+    expect(formatStatusChangedDaysAgo(staleChangeAt)).toBe("recently");
   });
 });
