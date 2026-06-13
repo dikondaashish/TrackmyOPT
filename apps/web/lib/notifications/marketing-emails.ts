@@ -305,7 +305,7 @@ export function generateUscisTrackerEmail(firstName: string): string {
 
       <div class="tmo-force-dark" style="background:#1E3A5F;padding:12px 28px;text-align:center;">
         <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.8);letter-spacing:0.5px;">
-          &#x2714;&nbsp; Powered by the <strong style="color:#ffffff;">Official USCIS API</strong> &nbsp;&mdash;&nbsp; Real data, not screen scraping.
+          &#x2714;&nbsp; <strong style="color:#ffffff;">USCIS Case Status API access</strong> &nbsp;&mdash;&nbsp; Structured status data, not screen scraping.
         </p>
       </div>
 
@@ -343,7 +343,7 @@ export function generateUscisTrackerEmail(firstName: string): string {
                   </td>
                   <td style="vertical-align:top;padding-top:6px;">
                     <p style="margin:0 0 2px 0;font-size:14px;font-weight:600;color:${BRAND.textPrimary};">We check USCIS <em>for you</em> daily</p>
-                    <p style="margin:0;font-size:13px;color:${BRAND.textMuted};line-height:1.4;">Using the official USCIS API. No guesswork, no stale updates.</p>
+                    <p style="margin:0;font-size:13px;color:${BRAND.textMuted};line-height:1.4;">Retrieved via USCIS Case Status API access. No guesswork, no stale updates.</p>
                   </td>
                 </tr>
               </table>
@@ -402,7 +402,7 @@ export function generateUscisTrackerEmail(firstName: string): string {
           <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
             <tr><td style="font-size:13px;color:${BRAND.purpleDark};padding:5px 0;">&#x2714;&nbsp; <strong>Full status history</strong> — see every change in one timeline</td></tr>
             <tr><td style="font-size:13px;color:${BRAND.purpleDark};padding:5px 0;">&#x2714;&nbsp; <strong>Multiple receipt numbers</strong> — track EAD, STEM, and more</td></tr>
-            <tr><td style="font-size:13px;color:${BRAND.purpleDark};padding:5px 0;">&#x2714;&nbsp; <strong>Official USCIS API</strong> — accurate, real-time data</td></tr>
+            <tr><td style="font-size:13px;color:${BRAND.purpleDark};padding:5px 0;">&#x2714;&nbsp; <strong>USCIS Case Status API access</strong> — reliable case-status lookups</td></tr>
           </table>
           <div style="text-align:center;">
             <a href="${featureUrl}" style="display:inline-block;background:${BRAND.premiumPurple};color:#ffffff!important;text-decoration:none;padding:11px 28px;border-radius:10px;font-weight:600;font-size:14px;">Track My Case Status &rarr;</a>
