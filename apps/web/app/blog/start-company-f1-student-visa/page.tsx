@@ -142,18 +142,25 @@ export default function F1StartupArticle() {
                         Some students attempt to use Curricular Practical Training (CPT) to work for their own company. While technically possible, it is incredibly risky and highly scrutinized by universities. Most DSOs will refuse to authorize CPT for a student's own company because CPT requires a formal employer-employee relationship and a supervisor to evaluate your learning. You cannot be your own supervisor.
                     </p>
 
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
                         <div>
                             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1 flex items-center gap-2">
                                 <Download className="w-5 h-5" /> Free F-1 Incorporation Checklist
                             </h3>
                             <p className="text-sm text-blue-800 dark:text-blue-200 mb-0">
-                                Download our PDF checklist of legal Do's and Don'ts for setting up a Delaware C-Corp while on an F-1 visa.
+                                Download our detailed PDF checklist of legal Do&apos;s and Don&apos;ts, a step-by-step incorporation roadmap, and a quick-reference table for setting up a Delaware C-Corp while on an F-1 visa.
                             </p>
+                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">📄 2-page PDF • 21 checkpoints • Updated June 2026</p>
                         </div>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap">
-                            Download PDF
-                        </button>
+                        <a
+                            href="/templates/f1-incorporation-checklist.pdf"
+                            download="TrackMyOPT-F1-Incorporation-Checklist.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center gap-2 shrink-0"
+                        >
+                            <Download className="w-4 h-4" /> Download Free PDF
+                        </a>
                     </div>
                 </section>
 
