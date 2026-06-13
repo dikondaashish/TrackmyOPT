@@ -1,6 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import {
+  captureErrorBoundaryTriggered,
+} from '@/lib/posthog-client';
 
 export default function ErrorBoundary({
   error,
@@ -9,9 +13,15 @@ export default function ErrorBoundary({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const pathname = usePathname();
+
   useEffect(() => {
-    console.error('Unhandled application error:', error);
-  }, [error]);
+    captureErrorBoundaryTriggered({
+      route: pathname || 'unknown',
+      component_area: 'global',
+      ...(error.digest ? { error_digest: error.digest } : {}),
+    });
+  }, [error, pathname]);
 
   return (
     <div className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center">

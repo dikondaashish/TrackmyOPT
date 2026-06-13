@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { withPostHogClient } from '@/lib/posthog-server';
+import { captureServerEvent, identifyServerUser } from '@/lib/posthog-server';
 import { safeInternalRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 
@@ -153,36 +153,21 @@ export async function GET(req: NextRequest) {
       sessionData.user.created_at &&
       Date.now() - new Date(sessionData.user.created_at).getTime() < 10_000;
 
-    await withPostHogClient((posthog) => {
-      posthog.identify({
-        distinctId: userId,
-        properties: {
-          email: sessionData.user.email,
-          provider: sessionData.user.app_metadata?.provider ?? 'oauth',
-        },
-      });
+    const authProvider = sessionData.user.app_metadata?.provider ?? 'oauth';
+    const referredBy = url.searchParams.get('ref') ?? undefined;
 
-      if (isNewUser) {
-        posthog.capture({
-          distinctId: userId,
-          event: 'user_signed_up',
-          properties: {
-            email: sessionData.user.email,
-            provider: sessionData.user.app_metadata?.provider ?? 'oauth',
-            referred_by: url.searchParams.get('ref') ?? undefined,
-          },
-        });
-      } else {
-        posthog.capture({
-          distinctId: userId,
-          event: 'user_signed_in',
-          properties: {
-            email: sessionData.user.email,
-            provider: sessionData.user.app_metadata?.provider ?? 'oauth',
-          },
-        });
-      }
-    });
+    await identifyServerUser(userId, { provider: authProvider });
+
+    if (isNewUser) {
+      await captureServerEvent(userId, 'user_signed_up', {
+        provider: authProvider,
+        ...(referredBy ? { referred_by: referredBy } : {}),
+      });
+    } else {
+      await captureServerEvent(userId, 'user_signed_in', {
+        provider: authProvider,
+      });
+    }
 
     // Redirect to the dashboard or specified next page (never external origins)
     const redirectUrl = safeInternalRedirectTarget(nextRaw, req.url);

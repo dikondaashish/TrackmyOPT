@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { checkUSCISStatus, mockUSCISStatus } from '@/lib/immigration/uscis-checker';
+import {
+  resolveCaseCheckSource,
+  resolveCaseCheckTrigger,
+  trackCaseStatusCheckCompleted,
+  trackCaseStatusCheckFailed,
+  trackCaseStatusCheckStarted,
+} from '@/lib/posthog/case-status-analytics';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,6 +27,43 @@ const corsHeaders = {
 export async function POST(req: NextRequest) {
   const checkStartedAt = Date.now();
   let receiptNumberForLog: string | null = null;
+  let analyticsUserId: string | null = null;
+  let analyticsTrigger: ReturnType<typeof resolveCaseCheckTrigger> = 'unknown';
+  let analyticsSource: ReturnType<typeof resolveCaseCheckSource> = 'api';
+  let analyticsReceiptNumber: string | null = null;
+
+  const finishCompleted = async (
+    statusText: string | null | undefined,
+    httpStatus: number
+  ) => {
+    if (!analyticsReceiptNumber) return;
+    await trackCaseStatusCheckCompleted({
+      userId: analyticsUserId,
+      receiptNumber: analyticsReceiptNumber,
+      trigger: analyticsTrigger,
+      source: analyticsSource,
+      durationMs: Date.now() - checkStartedAt,
+      statusText,
+      httpStatus,
+    });
+  };
+
+  const finishFailed = async (
+    httpStatus: number,
+    errorCode?: string | number | null
+  ) => {
+    if (!analyticsReceiptNumber) return;
+    await trackCaseStatusCheckFailed({
+      userId: analyticsUserId,
+      receiptNumber: analyticsReceiptNumber,
+      trigger: analyticsTrigger,
+      source: analyticsSource,
+      durationMs: Date.now() - checkStartedAt,
+      httpStatus,
+      errorCode,
+    });
+  };
+
   try {
     // Verify internal request or cron authorization
     const authHeader = req.headers.get('authorization');
@@ -45,12 +89,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const normalizedReceipt = receipt_number.toUpperCase();
+    analyticsReceiptNumber = normalizedReceipt;
+    analyticsTrigger = resolveCaseCheckTrigger(req);
+    analyticsSource = resolveCaseCheckSource(analyticsTrigger);
 
     // Use service role key for database access
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+
+    const { data: caseMeta } = await supabase
+      .from('case_status')
+      .select('user_id, current_status')
+      .eq('receipt_number', normalizedReceipt)
+      .maybeSingle();
+    analyticsUserId = caseMeta?.user_id ?? null;
+
+    await trackCaseStatusCheckStarted({
+      userId: analyticsUserId,
+      receiptNumber: normalizedReceipt,
+      trigger: analyticsTrigger,
+      source: analyticsSource,
+    });
 
     // SMART POLLING: Check if case is in a final state before calling external API
     // Only apply this optimization for automated checks (Cron), not manual user refreshes
@@ -79,6 +141,7 @@ export async function POST(req: NextRequest) {
 
         if (isFinalState) {
           console.log(`[case-status] Skipping ${receipt_number} (final state: ${existingCase.current_status})`);
+          await finishCompleted(existingCase.current_status, 200);
           return NextResponse.json(
             {
               ok: true,
@@ -157,6 +220,8 @@ export async function POST(req: NextRequest) {
         })
         .eq('receipt_number', receipt_number);
 
+      await finishCompleted(mockStatus.status, 200);
+
       return NextResponse.json(
         {
           ok: true,
@@ -214,6 +279,9 @@ export async function POST(req: NextRequest) {
         });
       } catch { /* ignore log failures */ }
 
+      const failureHttpStatus = uscisResult.error.code === 500 ? 500 : 400;
+      await finishFailed(failureHttpStatus, uscisResult.error.code);
+
       return NextResponse.json(
         {
           ok: false,
@@ -237,6 +305,7 @@ export async function POST(req: NextRequest) {
 
     if (fetchError && fetchError.code !== 'PGRST116') {
       console.error('Error fetching current case:', fetchError);
+      await finishFailed(500, 'db_fetch_error');
       return NextResponse.json(
         { ok: false, error: 'Database error' },
         { status: 500, headers: corsHeaders }
@@ -301,6 +370,7 @@ export async function POST(req: NextRequest) {
 
     if (updateError) {
       console.error('Error updating case status:', updateError);
+      await finishFailed(500, 'db_update_error');
       return NextResponse.json(
         { ok: false, error: 'Failed to update database' },
         { status: 500, headers: corsHeaders }
@@ -329,6 +399,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    await finishCompleted(uscisStatus.status, 200);
+
     return NextResponse.json(
       {
         ok: true,
@@ -343,6 +415,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error('Error in POST /api/case-status/check:', error);
+    await finishFailed(500, 'internal_error');
     return NextResponse.json(
       { ok: false, error: 'Internal server error' },
       { status: 500, headers: corsHeaders }

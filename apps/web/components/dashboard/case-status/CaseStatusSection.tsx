@@ -9,6 +9,7 @@ import { PricingModal } from "@/components/pricing/PricingModal";
 import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
+import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
 import {
   ClipboardCheck,
   RefreshCw,
@@ -444,6 +445,12 @@ export function CaseStatusSection() {
 
   return (
     <div className="space-y-6">
+      <CaseStatusPageViewTracker
+        isInitialLoadComplete={!isInitialLoad}
+        hasReceipt={Boolean(caseStatus?.receipt_number)}
+        hasStatus={Boolean(caseStatus?.current_status)}
+        currentStatus={caseStatus?.current_status ?? null}
+      />
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-2">

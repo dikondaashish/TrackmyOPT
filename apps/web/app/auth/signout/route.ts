@@ -37,7 +37,7 @@ async function signOut(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     await withPostHogClient((posthog) => {
-      posthog.capture({ distinctId: user.id, event: 'user_signed_out' });
+      posthog.capture({ distinctId: user.id, event: 'user_signed_out', properties: { source: 'unknown' } });
     });
   }
 

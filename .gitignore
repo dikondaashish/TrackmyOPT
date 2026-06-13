@@ -71,3 +71,4 @@ __pycache__/
 all-in-one-career/
 AutoResumeDev/
 .cursor
+.vercel

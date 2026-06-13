@@ -10,7 +10,8 @@ import {
   addRateLimitHeaders
 } from '@/lib/auth/api-rate-limit';
 import { caseStatusRequestSchema, validateRequest } from '@/lib/validation';
-import { withPostHogClient } from '@/lib/posthog-server';
+import { captureServerEvent, normalizePlanTier } from '@/lib/posthog-server';
+import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,6 +101,9 @@ export async function POST(req: NextRequest) {
 
     // Validate receipt number
     if (!receipt_number || typeof receipt_number !== 'string') {
+      await captureServerEvent(userId, 'receipt_validation_failed', {
+        validation_error_code: 'missing_receipt',
+      });
       return NextResponse.json(
         { ok: false, error: 'Receipt number is required' },
         { status: 400, headers: corsHeaders }
@@ -108,6 +112,10 @@ export async function POST(req: NextRequest) {
 
     const receiptPattern = /^[A-Z]{3}\d{10}$/;
     if (!receiptPattern.test(receipt_number)) {
+      await captureServerEvent(userId, 'receipt_validation_failed', {
+        receipt_prefix: getReceiptPrefix(receipt_number),
+        validation_error_code: 'invalid_format',
+      });
       return NextResponse.json(
         { ok: false, error: 'Invalid receipt number format' },
         { status: 400, headers: corsHeaders }
@@ -119,6 +127,14 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+
+    const { data: existingCase } = await supabaseAdmin
+      .from('case_status')
+      .select('receipt_number, current_status')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    const isFirstSave = !existingCase;
 
     // Upsert case status (insert or update)
     const { data: caseStatus, error: dbError } = await supabaseAdmin
@@ -147,20 +163,32 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if this is a new case enrollment (first time saving)
-    // If caseStatus was just created (no previous current_status), send enrollment email
-    const isNewEnrollment = notifications_enabled && !caseStatus?.current_status;
+    const isNewEnrollment = notifications_enabled && !existingCase?.current_status;
+    const receiptPrefix = getReceiptPrefix(receipt_number);
 
-    await withPostHogClient((posthog) => {
-      posthog.capture({
-        distinctId: userId,
-        event: 'case_status_enrolled',
-        properties: {
-          receipt_prefix: receipt_number.substring(0, 3),
-          notifications_enabled,
-          is_new_enrollment: isNewEnrollment,
-        },
-      });
-    });
+    const { data: profileForAnalytics } = await supabaseAdmin
+      .from('profiles')
+      .select('plan_tier, premium_status')
+      .eq('user_id', userId)
+      .maybeSingle();
+    const planTier = normalizePlanTier(
+      profileForAnalytics?.plan_tier ||
+        (profileForAnalytics?.premium_status ? 'pro' : 'free')
+    );
+
+    const receiptEventProps = {
+      receipt_prefix: receiptPrefix,
+      notifications_enabled,
+      plan_tier: planTier,
+      is_new_enrollment: isNewEnrollment,
+    };
+
+    await captureServerEvent(userId, 'case_status_enrolled', receiptEventProps);
+    await captureServerEvent(
+      userId,
+      isFirstSave ? 'receipt_added' : 'receipt_updated',
+      receiptEventProps
+    );
 
     if (isNewEnrollment) {
       console.log(`[case-status] New enrollment: ${receipt_number}`);
@@ -209,6 +237,7 @@ export async function POST(req: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'X-Internal-Secret': process.env.CRON_SECRET || '',
+        'X-Check-Trigger': 'initial',
       },
       body: JSON.stringify({ receipt_number: receipt_number.toUpperCase() }),
     }).catch((err) => {

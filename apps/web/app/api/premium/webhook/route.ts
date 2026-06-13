@@ -39,6 +39,11 @@ import {
   sendSubscriptionReceiptEmail,
 } from '@/lib/notifications/transactional-emails';
 import { recordBillingConsentEvent } from '@/lib/billing/recordBillingConsent';
+import {
+  captureServerEvent,
+  normalizeBillingInterval,
+  normalizePlanTier,
+} from '@/lib/posthog-server';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -231,6 +236,52 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     const userId = session.metadata?.supabase_user_id;
     if (!userId) return;
 
+    const planId = session.metadata?.planId || 'pro';
+    const billingIntervalLabel =
+      session.metadata?.interval === 'month' ? 'monthly' : 'yearly';
+    const interval = normalizeBillingInterval(
+      session.metadata?.interval === 'month' ? 'month' : 'year'
+    );
+    const planTier = normalizePlanTier(planId);
+    const hadTrialFromCheckout = session.metadata?.include_pro_trial === 'true';
+    const eventId = `checkout_${session.id}`;
+
+    if (subId) {
+      try {
+        const sub = await stripe.subscriptions.retrieve(subId);
+        if (sub.status === 'trialing') {
+          await captureServerEvent(userId, 'trial_started', {
+            plan_tier: planTier,
+            interval,
+            had_trial: true,
+            currency: session.currency || 'usd',
+          });
+          await captureServerEvent(userId, 'subscription_started', {
+            plan_tier: planTier,
+            interval,
+            had_trial: true,
+            is_upgrade: false,
+          });
+        } else {
+          await captureServerEvent(userId, 'payment_succeeded', {
+            plan_tier: planTier,
+            interval,
+            amount_cents: session.amount_total ?? 0,
+            currency: session.currency || 'usd',
+            is_upgrade: false,
+          });
+          await captureServerEvent(userId, 'subscription_started', {
+            plan_tier: planTier,
+            interval,
+            had_trial: hadTrialFromCheckout,
+            is_upgrade: false,
+          });
+        }
+      } catch (e) {
+        secureLog.warn('post-checkout billing analytics failed', sanitizeError(e));
+      }
+    }
+
     if (subId) {
       await recordBillingConsentEvent({
         userId,
@@ -251,10 +302,6 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
       }
     }
     if (!email) return;
-
-    const planId = session.metadata?.planId || 'pro';
-    const interval = session.metadata?.interval === 'month' ? 'monthly' : 'yearly';
-    const eventId = `checkout_${session.id}`;
 
     if (subId) {
       try {
@@ -293,9 +340,9 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
             userId,
             toEmail: email,
             firstName,
-            planLabel: `TrackMyOPT ${String(planId)} (${interval})`,
+            planLabel: `TrackMyOPT ${String(planId)} (${billingIntervalLabel})`,
             amountFormatted,
-            billingInterval: interval,
+            billingInterval: billingIntervalLabel,
             periodEndDate: periodEndLabel,
             stripeEventId: eventId,
           });
@@ -362,6 +409,13 @@ async function handleAsyncCheckoutPaymentFailed(session: Stripe.Checkout.Session
     const planLabel = `TrackMyOPT Premium (${planId})`;
     const amountCents = session.amount_total || 0;
     const currency = session.currency || 'usd';
+
+    await captureServerEvent(userId, 'payment_failed', {
+      plan_tier: normalizePlanTier(planId),
+      amount_cents: amountCents,
+      currency,
+      failure_code: 'async_payment_failed',
+    });
 
     const r = await sendPaymentFailedEmail({
       supabase,
@@ -434,6 +488,7 @@ async function handlePaymentIntentPaymentFailed(
     }
 
     let planLabel = 'TrackMyOPT Premium';
+    let planTier: ReturnType<typeof normalizePlanTier> = 'pro';
     const subRef = invoiceObj?.subscription;
     const subId =
       typeof subRef === 'string'
@@ -445,16 +500,26 @@ async function handlePaymentIntentPaymentFailed(
       try {
         const sub = await stripe.subscriptions.retrieve(subId);
         const pid = sub.metadata?.planId;
+        planTier = normalizePlanTier(typeof pid === 'string' ? pid : undefined);
         planLabel = pid ? `TrackMyOPT Premium (${String(pid)})` : planLabel;
       } catch (e) {
         secureLog.warn('PI failed: subscription retrieve failed', sanitizeError(e));
       }
     } else if (typeof meta.planId === 'string') {
+      planTier = normalizePlanTier(meta.planId);
       planLabel = `TrackMyOPT Premium (${meta.planId})`;
     }
 
     const amountCents = full.amount;
     const currency = full.currency || 'usd';
+    const failureCode = full.last_payment_error?.code ?? undefined;
+
+    await captureServerEvent(resolved.userId, 'payment_failed', {
+      plan_tier: planTier,
+      amount_cents: amountCents,
+      currency,
+      ...(failureCode ? { failure_code: failureCode } : {}),
+    });
 
     const r = await sendPaymentFailedEmail({
       supabase,
@@ -548,12 +613,14 @@ async function handleInvoicePaymentFailed(
     }
 
     let planLabel = 'TrackMyOPT Premium';
+    let planTier: ReturnType<typeof normalizePlanTier> = 'pro';
     const subRef = inv.subscription;
     const subId = typeof subRef === 'string' ? subRef : subRef && typeof subRef === 'object' && 'id' in subRef ? subRef.id : null;
     if (subId) {
       try {
         const sub = await stripe.subscriptions.retrieve(subId);
         const pid = sub.metadata?.planId;
+        planTier = normalizePlanTier(typeof pid === 'string' ? pid : undefined);
         planLabel = pid ? `TrackMyOPT Premium (${String(pid)})` : planLabel;
       } catch (e) {
         secureLog.warn('invoice.payment_failed: subscription retrieve failed', sanitizeError(e));
@@ -562,6 +629,17 @@ async function handleInvoicePaymentFailed(
 
     const amountCents = inv.amount_due || inv.total || 0;
     const currency = inv.currency || 'usd';
+    const failureCode =
+      typeof inv.last_finalization_error?.code === 'string'
+        ? inv.last_finalization_error.code
+        : undefined;
+
+    await captureServerEvent(user.userId, 'payment_failed', {
+      plan_tier: planTier,
+      amount_cents: amountCents,
+      currency,
+      ...(failureCode ? { failure_code: failureCode } : {}),
+    });
 
     const r = await sendPaymentFailedEmail({
       supabase,
@@ -809,6 +887,19 @@ async function handleInvoicePaid(stripe: Stripe, invoice: Stripe.Invoice) {
     if (!user) return;
 
     const plan = getPlanFromSubscription(subscription);
+    const planTier = normalizePlanTier(plan ?? undefined);
+    const interval = normalizeBillingInterval(subscription.metadata?.interval);
+    const amountCents = inv.amount_paid ?? inv.total ?? 0;
+    if (amountCents > 0) {
+      await captureServerEvent(user.userId, 'payment_succeeded', {
+        plan_tier: planTier,
+        interval,
+        amount_cents: amountCents,
+        currency: inv.currency || 'usd',
+        is_upgrade: false,
+      });
+    }
+
     const result = await reconcileCustomerBilling({
       stripe,
       supabase,
@@ -956,6 +1047,10 @@ async function handleSubscriptionDeleted(
 
     if (result.action !== 'revoked') return;
 
+    await captureServerEvent(user.userId, 'subscription_canceled', {
+      plan_tier: normalizePlanTier(getPlanFromSubscription(subscription) ?? undefined),
+    });
+
     const periodEnd = (subscription as unknown as { current_period_end?: number }).current_period_end;
     const accessEndedDate = periodEnd
       ? new Date(periodEnd * 1000).toLocaleDateString('en-US', {
@@ -1003,6 +1098,13 @@ async function handleSubscriptionPendingUpdateApplied(
     });
 
     if (plan === 'dedicated') {
+      await captureServerEvent(user.userId, 'subscription_upgraded', {
+        from_plan: 'pro',
+        to_plan: 'dedicated',
+        plan_tier: 'dedicated',
+        interval: normalizeBillingInterval(subscription.metadata?.interval),
+        is_upgrade: true,
+      });
       await cancelOtherCustomerSubscriptions({
         stripe,
         customerId,

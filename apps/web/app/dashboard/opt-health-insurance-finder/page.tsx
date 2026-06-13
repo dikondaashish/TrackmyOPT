@@ -6,6 +6,7 @@ import { Shield, ChevronDown, ChevronRight, Sparkles, CreditCard, Clock, CheckCi
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 import posthog from "posthog-js";
+import { bucketMonthlyIncome } from "@/lib/posthog/income-bucket";
 
 // US States
 const US_STATES = [
@@ -117,12 +118,16 @@ export default function HealthInsuranceFinderPage() {
       console.error("Error saving:", error);
     }
 
-    posthog.capture('insurance_eligibility_checked', {
-      state,
-      visa_type: visaType,
-      monthly_income: monthlyIncome ? parseFloat(monthlyIncome) : 0,
-      is_pregnant: isPregnant,
-    });
+    try {
+      posthog.capture('insurance_eligibility_checked', {
+        state,
+        visa_type: visaType,
+        income_bucket: bucketMonthlyIncome(monthlyIncome),
+        is_pregnant: isPregnant,
+      });
+    } catch {
+      /* analytics must not block navigation */
+    }
 
     // Navigate to results page with query params
     const params = new URLSearchParams({

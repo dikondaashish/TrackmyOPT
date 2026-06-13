@@ -24,6 +24,11 @@ import { recordBillingConsentEvent } from "@/lib/billing/recordBillingConsent";
 import { getRequestAuditFromHeaders } from "@/lib/billing/request-audit";
 import { LEGAL_POLICY_VERSIONS } from "@/lib/billing/legal-config";
 import type { BillingInterval, PaidPlanId } from "@/lib/billing/legal-config";
+import {
+  captureServerEvent,
+  normalizeBillingInterval,
+  normalizePlanTier,
+} from "@/lib/posthog-server";
 
 // Initialize Stripe
 const getStripe = () => {
@@ -250,6 +255,14 @@ export async function POST(req: NextRequest) {
           },
         });
 
+        await captureServerEvent(userId, "checkout_started", {
+          plan_tier: "dedicated",
+          interval: normalizeBillingInterval(interval),
+          is_upgrade: true,
+          from_plan: "pro",
+          to_plan: "dedicated",
+        });
+
         const upgrade = await upgradeProSubscriptionToDedicated({
           stripe,
           supabase,
@@ -261,6 +274,14 @@ export async function POST(req: NextRequest) {
         });
 
         if (upgrade.outcome === "active") {
+          await captureServerEvent(userId, "subscription_upgraded", {
+            plan_tier: "dedicated",
+            interval: normalizeBillingInterval(interval),
+            is_upgrade: true,
+            from_plan: "pro",
+            to_plan: "dedicated",
+          });
+
           const body: CreateCheckoutResponse = {
             type: "subscription_updated",
             status: "active",
@@ -374,6 +395,13 @@ export async function POST(req: NextRequest) {
           samePromoAsRequest
         ) {
           console.log(`Reusing open checkout session ${existingSession.id} for ${planId}/${interval}`);
+          await captureServerEvent(userId, "checkout_started", {
+            plan_tier: normalizePlanTier(planId),
+            interval: normalizeBillingInterval(interval),
+            is_upgrade: false,
+            had_trial: includeProTrial,
+            session_reused: true,
+          });
           const body: CreateCheckoutResponse = {
             type: "checkout",
             sessionId: existingSession.id,
@@ -445,6 +473,13 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(`Checkout session created: ${session.id}`);
+    await captureServerEvent(userId, "checkout_started", {
+      plan_tier: normalizePlanTier(planId),
+      interval: normalizeBillingInterval(interval),
+      is_upgrade: false,
+      had_trial: includeProTrial,
+      session_reused: false,
+    });
     const body: CreateCheckoutResponse = {
       type: "checkout",
       sessionId: session.id,

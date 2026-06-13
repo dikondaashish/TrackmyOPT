@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/getUserId';
+import { captureServerEvent, normalizePlanTier } from '@/lib/posthog-server';
+import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,6 +62,27 @@ export async function PATCH(req: NextRequest) {
         { status: 500, headers: corsHeaders }
       );
     }
+
+    const { data: caseStatus } = await supabaseAdmin
+      .from('case_status')
+      .select('receipt_number, current_status')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('plan_tier, premium_status')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    await captureServerEvent(userId, 'receipt_updated', {
+      receipt_prefix: getReceiptPrefix(caseStatus?.receipt_number),
+      notifications_enabled,
+      plan_tier: normalizePlanTier(
+        profile?.plan_tier || (profile?.premium_status ? 'pro' : 'free')
+      ),
+      is_new_enrollment: false,
+    });
 
     return NextResponse.json(
       { ok: true, message: 'Notification settings updated' },

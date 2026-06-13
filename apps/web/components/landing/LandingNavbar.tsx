@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, FileText, Users, Star, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { signOutWithAnalytics } from "@/lib/auth/signOutWithAnalytics";
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { UserProfileMenu } from "@/components/layout/UserProfileMenu";
@@ -431,7 +432,7 @@ export function LandingNavbar() {
                                             <button
                                                 type="button"
                                                 onClick={async () => {
-                                                    await supabase.auth.signOut();
+                                                    await signOutWithAnalytics("navbar");
                                                     setIsMobileMenuOpen(false);
                                                     setUser(null);
                                                     router.refresh();

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { LogOut, Settings, HelpCircle, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { signOutWithAnalytics } from "@/lib/auth/signOutWithAnalytics";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -36,7 +36,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
     }, []);
 
     const handleSignOut = async () => {
-        await supabase.auth.signOut();
+        await signOutWithAnalytics("profile_menu");
         router.push("/login");
     };
 

@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { PremiumStatusProvider, usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { PolicyUpdateConsentModal } from "@/components/compliance/PolicyUpdateConsentModal";
+import { PostHogIdentify } from "@/components/analytics/PostHogIdentify";
 
 interface DashboardLayoutClientProps {
     children: React.ReactNode;
@@ -91,6 +92,7 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
 
     return (
         <div className="h-screen overflow-hidden bg-[#e8edf5] dark:bg-gray-950">
+            <PostHogIdentify />
             <PolicyUpdateConsentModal />
             <SprintaxPromoBanner variant="dashboard" />
             {/* Fixed Header — below promo banner */}

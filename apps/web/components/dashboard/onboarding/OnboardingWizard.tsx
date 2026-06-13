@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { GraduationCap, Briefcase, Calendar, ChevronRight, ArrowRight, Loader2, 
 import { useToast } from "@/hooks/use-toast";
 import { DateInput } from "../opt-tools/DateInput";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
+import { captureOnboardingCompleted } from "@/lib/posthog-client";
 
 type WizardStep = 'welcome' | 'course' | 'status' | 'dates' | 'finishing';
 
@@ -62,7 +63,8 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   const [stemStartDate, setStemStartDate] = useState("");
 
   const [showDropdown, setShowDropdown] = useState(false);
-  const filteredMajors = majorName 
+  const onboardingTrackedRef = useRef(false);
+  const filteredMajors = majorName
     ? COMMON_MAJORS.filter(m => m.toLowerCase().includes(majorName.toLowerCase()))
     : COMMON_MAJORS;
 
@@ -120,6 +122,38 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     }
   };
 
+  const buildOnboardingFlagsBody = (skipped: boolean) => ({
+    onboarding_completed: true,
+    skipped,
+    onboarding_status: status,
+    is_stem_eligible: isStemEligible,
+    degree_level: degreeLevel,
+  });
+
+  const trackOnboardingCompleted = (skipped: boolean) => {
+    captureOnboardingCompleted({
+      skipped,
+      status,
+      is_stem_eligible: isStemEligible,
+      degree_level: degreeLevel,
+    });
+  };
+
+  const markOnboardingTrackedOnce = (): boolean => {
+    if (onboardingTrackedRef.current) return false;
+    onboardingTrackedRef.current = true;
+    return true;
+  };
+
+  const persistOnboardingFlags = async (skipped: boolean) => {
+    await fetch('/api/profile/flags', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildOnboardingFlagsBody(skipped)),
+    });
+  };
+
   const handleSave = async () => {
     // Requires at least one date or basic validation based on status
     if (status === 'applying_opt' && !programEndDate) {
@@ -164,27 +198,16 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       const result = await response.json();
 
       if (response.ok && result.ok) {
+        if (!markOnboardingTrackedOnce()) {
+          onComplete();
+          return;
+        }
         // ISS-006: persist server-side onboarding completion
         try {
-          await fetch('/api/profile/flags', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ onboarding_completed: true }),
-          });
+          await persistOnboardingFlags(false);
         } catch { /* non-blocking */ }
 
-        // ISS-038: capture onboarding_completed for funnel analytics
-        try {
-          if (typeof window !== 'undefined') {
-            const posthogClient = (window as unknown as { posthog?: { capture: (e: string, p?: Record<string, unknown>) => void } }).posthog;
-            posthogClient?.capture('onboarding_completed', {
-              status,
-              is_stem_eligible: isStemEligible,
-              degree_level: degreeLevel,
-            });
-          }
-        } catch { /* posthog optional */ }
+        trackOnboardingCompleted(false);
 
         toast({
           title: "Profile Configured! 🎉",
@@ -207,14 +230,11 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   // wizard doesn't reappear, but DO NOT mark as completed. Dashboard will show a checklist
   // nudge instead.
   const handleSkip = async () => {
+    if (!markOnboardingTrackedOnce()) return;
     try {
-      await fetch('/api/profile/flags', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ onboarding_completed: true }),
-      });
+      await persistOnboardingFlags(true);
     } catch { /* non-blocking; fall back to localStorage dismiss in parent */ }
+    trackOnboardingCompleted(true);
     (onSkip ?? onComplete)();
   };
 
