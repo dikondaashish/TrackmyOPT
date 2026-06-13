@@ -14,6 +14,7 @@ import {
 } from "./DashboardWidgets";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardViewTracker } from "@/components/analytics/DashboardViewTracker";
+import { DashboardNextStepCard } from "./DashboardNextStepCard";
 import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/optCalculations";
 
 const WidgetSkeleton = () => (
@@ -316,6 +317,8 @@ export function DashboardContent({ user }: DashboardContentProps) {
         </div>
         <DashboardCustomizeButton onClick={() => setShowSettings(true)} />
       </div>
+
+      <DashboardNextStepCard />
 
       {/* ISS-029: explicit error + retry instead of silent failure */}
       {fetchError && (

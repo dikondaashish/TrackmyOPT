@@ -154,6 +154,47 @@ export function captureDashboardViewed(properties: DashboardViewedProperties): v
   captureClientEvent("dashboard_viewed", properties);
 }
 
+export type DashboardNextStepState =
+  | "no_receipt"
+  | "free_upsell"
+  | "status_live"
+  | "pro_active";
+
+export type DashboardNextStepAction =
+  | "add_receipt"
+  | "upgrade_pro"
+  | "view_case_status"
+  | "pro_manage";
+
+export type DashboardNextStepShownProperties = {
+  state: DashboardNextStepState;
+  status_category?: string;
+};
+
+export function captureDashboardNextStepShown(
+  properties: DashboardNextStepShownProperties
+): void {
+  captureClientEvent("dashboard_next_step_shown", {
+    ...properties,
+    capture_source: "client",
+    source: "dashboard_hub",
+  });
+}
+
+export type DashboardNextStepClickedProperties = {
+  action: DashboardNextStepAction;
+};
+
+export function captureDashboardNextStepClicked(
+  properties: DashboardNextStepClickedProperties
+): void {
+  captureClientEvent("dashboard_next_step_clicked", {
+    ...properties,
+    capture_source: "client",
+    source: "dashboard_hub",
+  });
+}
+
 export type CaseStatusSummaryViewedProperties = DashboardViewedProperties;
 
 export function captureCaseStatusSummaryViewed(
