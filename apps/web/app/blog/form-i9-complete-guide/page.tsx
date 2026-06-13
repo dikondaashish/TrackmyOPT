@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, Download, ShieldCheck } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, Download, ShieldCheck, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
@@ -340,8 +340,8 @@ export default function FormI9GuidePage() {
                         { mistake: "Whiting out or scratching out corrections", fix: "To correct an error, draw a single line through the mistake, enter the correct information, and initial and date the correction. Never use correction fluid." },
                     ].map((item, i) => (
                         <div key={i} className="border border-red-200 dark:border-red-900 rounded-xl p-5">
-                            <p className="font-semibold text-red-700 dark:text-red-400 mb-2">❌ Mistake: {item.mistake}</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">✅ <strong>Fix:</strong> {item.fix}</p>
+                            <p className="font-semibold text-red-700 dark:text-red-400 mb-2 flex items-center gap-1.5"><XCircle className="w-4 h-4" /> Mistake: {item.mistake}</p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-1.5"><CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" /> <span><strong>Fix:</strong> {item.fix}</span></p>
                         </div>
                     ))}
                 </div>
