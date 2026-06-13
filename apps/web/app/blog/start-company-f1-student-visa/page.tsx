@@ -150,7 +150,7 @@ export default function F1StartupArticle() {
                             <p className="text-sm text-blue-800 dark:text-blue-200 mb-0">
                                 Download our detailed PDF checklist of legal Do&apos;s and Don&apos;ts, a step-by-step incorporation roadmap, and a quick-reference table for setting up a Delaware C-Corp while on an F-1 visa.
                             </p>
-                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">📄 2-page PDF • 21 checkpoints • Updated June 2026</p>
+                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1"><FileText className="w-3.5 h-3.5 inline-block -mt-0.5" /> 2-page PDF • 21 checkpoints • Updated June 2026</p>
                         </div>
                         <a
                             href="/templates/f1-incorporation-checklist.pdf"
