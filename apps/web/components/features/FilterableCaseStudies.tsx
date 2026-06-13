@@ -19,7 +19,7 @@ interface CaseStudy {
 const CASE_STUDIES: CaseStudy[] = [
     {
         id: "1",
-        name: "Priya Sharma",
+        name: "Aditi Varma",
         role: "Software Engineer",
         company: "Google",
         university: "Georgia Tech",

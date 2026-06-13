@@ -7,7 +7,7 @@ import { Marquee } from '@/components/ui/marquee';
 // Real international student testimonials with diverse backgrounds
 const testimonials = [
     {
-        name: 'Priya Sharma',
+        name: 'Aditi Varma',
         university: 'MS CS, USC',
         body: 'The 90-day tracker saved me from losing my OPT status. Got my EAD card just in time!',
         img: 'https://randomuser.me/api/portraits/women/32.jpg',

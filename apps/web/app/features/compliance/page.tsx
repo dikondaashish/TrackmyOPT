@@ -250,7 +250,7 @@ export default function CompliancePage() {
             <FeatureTestimonial
                 quote="I was 3 days away from exceeding my 90-day limit and had no idea. TrackMyOPT sent me an alert that literally saved my F-1 status. This tool is essential for every international student."
                 author={{
-                    name: "Priya Sharma",
+                    name: "Aditi Varma",
                     role: "STEM OPT, Software Engineer",
                     university: "Georgia Tech",
                 }}
