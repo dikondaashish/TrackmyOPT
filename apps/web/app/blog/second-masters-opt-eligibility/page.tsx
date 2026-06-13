@@ -51,11 +51,11 @@ export default function BlogPost() {
     return (
         <article className="min-h-screen bg-white dark:bg-black pt-24 pb-20">
             <BlogPostSchema 
-                headline="Can I Apply for OPT Again After a Second Master's Degree?"
+                title="Can I Apply for OPT Again After a Second Master's Degree?"
                 description="Discover the USCIS rules on OPT eligibility when pursuing a second Master's degree. Learn about the 'once per higher degree level' rule and what it means for F-1 students."
-                datePublished="2026-06-12"
-                dateModified="2026-06-12"
-                imageUrl="/blog/second-masters-opt.png"
+                publishedDate="2026-06-12"
+                modifiedDate="2026-06-12"
+                faqItems={jsonLd.mainEntity.map((q: { name: string; acceptedAnswer: { text: string } }) => ({ question: q.name, answer: q.acceptedAnswer.text }))}
             />
             <BreadcrumbSchema 
                 items={[
@@ -64,10 +64,7 @@ export default function BlogPost() {
                     { name: 'Second Masters OPT Eligibility', url: '/blog/second-masters-opt-eligibility' }
                 ]} 
             />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
+
 
             <div className="max-w-4xl mx-auto px-6 lg:px-8">
                 <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8 mt-4">
