@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, Download, CheckCircle, GraduationCap } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
-import { BreadcrumbSchema } from "@/components/blog/BreadcrumbSchema";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
 export const metadata: Metadata = {
     title: "Can I Apply for OPT Again After a Second Master's Degree? (2026 Guide)",
