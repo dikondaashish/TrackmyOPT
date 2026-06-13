@@ -7,7 +7,7 @@
  *   Title: "TrackMyOPT - Checkout Recovery"
  *   URL: https://www.trackmyopt.com/api/cron/checkout-recovery-emails
  *   Method: GET
- *   Schedule: 0 */4 * * * (every 4 hours)
+ *   Schedule: every 4 hours (cron: 0 minute, every 4th hour)
  *   Headers: Authorization: Bearer YOUR_CRON_SECRET
  *
  * Manual test:

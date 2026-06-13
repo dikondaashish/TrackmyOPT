@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { checkUSCISStatus, mockUSCISStatus } from '@/lib/immigration/uscis-checker';
 import {
   resolveCaseCheckSource,
@@ -19,7 +19,7 @@ const corsHeaders = {
 };
 
 async function getUserIsPremium(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   userId: string
 ): Promise<boolean> {
   const { data } = await supabase
@@ -27,7 +27,8 @@ async function getUserIsPremium(
     .select('premium_status')
     .eq('user_id', userId)
     .single();
-  return data?.premium_status === true;
+  const profile = data as { premium_status?: boolean | null } | null;
+  return profile?.premium_status === true;
 }
 
 /**
