@@ -6,6 +6,7 @@ import { Shield, ChevronDown, ChevronRight, Sparkles, CreditCard, Clock, CheckCi
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 import posthog from "posthog-js";
+import { setInsuranceResultsPayload } from "@/lib/insurance/insurance-results-session";
 import { bucketMonthlyIncome } from "@/lib/posthog/income-bucket";
 
 // US States
@@ -128,16 +129,16 @@ export default function HealthInsuranceFinderPage() {
       /* analytics must not block navigation */
     }
 
-    // Navigate to results page with query params
-    const params = new URLSearchParams({
+    setInsuranceResultsPayload({
       state,
-      income: monthlyIncome || "0",
-      visa: visaType,
-      dob: dateOfBirth,
-      pregnant: isPregnant ? "true" : "false",
+      visaType,
+      monthlyIncome,
+      dateOfBirth,
+      gender,
+      isPregnant,
     });
 
-    router.push(`/dashboard/opt-health-insurance-finder/results?${params.toString()}`);
+    router.push("/dashboard/opt-health-insurance-finder/results");
   };
 
   return (

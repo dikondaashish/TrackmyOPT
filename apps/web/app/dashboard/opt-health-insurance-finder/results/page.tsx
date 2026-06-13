@@ -1,10 +1,14 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, Baby, AlertTriangle, Lightbulb, CheckCircle2, CirclePause } from "lucide-react";
 import { calculateEligibility, type EligibilityStatus } from "@/lib/immigration/state-eligibility";
+import {
+  getInsuranceResultsPayload,
+  type InsuranceResultsPayload,
+} from "@/lib/insurance/insurance-results-session";
 import posthog from "posthog-js";
 
 // Age-based pricing for insurance partners
@@ -31,17 +35,34 @@ function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: n
 }
 
 function ResultsContent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const [payload, setPayload] = useState<InsuranceResultsPayload | null>(null);
   const [showExitModal, setShowExitModal] = useState(false);
   const [exitUrl, setExitUrl] = useState("");
   const [expandedInfo, setExpandedInfo] = useState<number | null>(null);
 
-  const state = searchParams.get("state") || "";
-  const income = parseFloat(searchParams.get("income") || "0");
-  const visa = searchParams.get("visa") || "";
-  const dob = searchParams.get("dob") || "";
-  const isPregnant = searchParams.get("pregnant") === "true";
+  useEffect(() => {
+    const stored = getInsuranceResultsPayload();
+    if (!stored) {
+      router.replace("/dashboard/opt-health-insurance-finder");
+      return;
+    }
+    setPayload(stored);
+  }, [router]);
+
+  if (!payload) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const state = payload.state;
+  const income = parseFloat(payload.monthlyIncome || "0");
+  const visa = payload.visaType;
+  const dob = payload.dateOfBirth;
+  const isPregnant = payload.isPregnant;
 
   const pricing = getAgeBracket(dob);
   const age = pricing.age;
