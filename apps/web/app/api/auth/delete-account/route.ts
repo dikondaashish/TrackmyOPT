@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import Stripe from 'stripe';
 import { cancelStripeSubscriptionsForCustomer } from '@/lib/premium/cancelStripeSubscriptionsForCustomer';
+import { logIdPrefix, sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,15 +74,17 @@ export async function DELETE() {
     if (stripeCustomerId) {
       const stripe = getStripe();
       if (!stripe) {
-        console.warn(
+        secureLog.warn(
           'Account delete: STRIPE_SECRET_KEY missing; skipping Stripe cancel (dev/local?)',
-          { stripeCustomerId }
+          { stripeCustomerId: logIdPrefix(stripeCustomerId) },
         );
       } else {
         try {
           const { cancelledIds } = await cancelStripeSubscriptionsForCustomer(stripe, stripeCustomerId);
           if (cancelledIds.length > 0) {
-            console.log(`Account delete: cancelled Stripe subscriptions: ${cancelledIds.join(', ')}`);
+            secureLog.log(
+              `Account delete: cancelled Stripe subscriptions: ${cancelledIds.map((id) => logIdPrefix(id)).join(', ')}`,
+            );
           }
         } catch (err: unknown) {
           const code =
@@ -91,9 +94,12 @@ export async function DELETE() {
           const message = err instanceof Error ? err.message : String(err);
           // Customer already removed in Stripe — still delete our account
           if (code === 'resource_missing' || message.includes('No such customer')) {
-            console.warn('Account delete: Stripe customer not found, continuing:', stripeCustomerId);
+            secureLog.warn(
+              'Account delete: Stripe customer not found, continuing:',
+              logIdPrefix(stripeCustomerId),
+            );
           } else {
-            console.error('Account delete: Stripe subscription cancel failed:', err);
+            secureLog.error('Account delete: Stripe subscription cancel failed:', sanitizeError(err));
             return NextResponse.json(
               {
                 error:

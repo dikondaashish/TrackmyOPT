@@ -123,7 +123,6 @@ export default function HealthInsuranceFinderPage() {
         state,
         visa_type: visaType,
         income_bucket: bucketMonthlyIncome(monthlyIncome),
-        is_pregnant: isPregnant,
       });
     } catch {
       /* analytics must not block navigation */
@@ -190,7 +189,7 @@ export default function HealthInsuranceFinderPage() {
         <div className="bg-white dark:bg-card rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-border p-6 sm:p-8">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-foreground mb-6">Check Your Eligibility</h2>
 
-          <div className="space-y-5">
+          <div className="space-y-5 ph-mask" data-ph-mask>
             {/* State */}
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-foreground mb-2">

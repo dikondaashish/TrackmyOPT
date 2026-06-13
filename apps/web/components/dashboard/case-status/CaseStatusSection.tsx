@@ -486,7 +486,8 @@ export function CaseStatusSection() {
                 placeholder="e.g., IOE1234567890"
                 value={receiptNumber}
                 onChange={(e) => setReceiptNumber(e.target.value.toUpperCase())}
-                className="w-full sm:flex-1 font-mono"
+                className="w-full sm:flex-1 font-mono ph-mask"
+                data-ph-mask
                 maxLength={13}
                 aria-label="Enter your USCIS receipt number"
                 aria-describedby="receipt-number-help"
@@ -837,7 +838,7 @@ export function CaseStatusSection() {
 
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Receipt Number</span>
-                    <span className="text-sm font-semibold font-mono text-right">
+                    <span className="text-sm font-semibold font-mono text-right ph-mask" data-ph-mask data-receipt-display>
                       {caseStatus.receipt_number}
                     </span>
                   </div>
@@ -851,7 +852,7 @@ export function CaseStatusSection() {
 
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Service Center</span>
-                    <span className="text-sm font-semibold text-right">
+                    <span className="text-sm font-semibold text-right ph-mask" data-ph-mask>
                       {getServiceCenter(caseStatus.receipt_number)}
                     </span>
                   </div>

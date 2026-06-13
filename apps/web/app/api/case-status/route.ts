@@ -12,6 +12,7 @@ import {
 import { caseStatusRequestSchema, validateRequest } from '@/lib/validation';
 import { captureServerEvent, normalizePlanTier } from '@/lib/posthog-server';
 import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
+import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -183,6 +184,8 @@ export async function POST(req: NextRequest) {
       is_new_enrollment: isNewEnrollment,
     };
 
+    // Legacy event — keep for historical dashboards. Prefer receipt_added / receipt_updated for new analytics.
+    // See lib/posthog/LEGACY_EVENTS.md
     await captureServerEvent(userId, 'case_status_enrolled', receiptEventProps);
     await captureServerEvent(
       userId,
@@ -191,7 +194,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (isNewEnrollment) {
-      console.log(`[case-status] New enrollment: ${receipt_number}`);
+      secureLog.log(`[case-status] New enrollment: ${redactReceiptNumber(receipt_number)}`);
 
       // Get user's email, name, and premium status from profiles
       const { data: profile } = await supabaseAdmin
@@ -204,7 +207,7 @@ export async function POST(req: NextRequest) {
       const isPremium = profile?.premium_status === true;
 
       if (!isPremium) {
-        console.log(`[case-status] Skipping enrollment email — not premium`);
+        secureLog.log(`[case-status] Skipping enrollment email — not premium`);
       } else {
         // Try to get email from auth.users table directly
         const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
@@ -213,20 +216,20 @@ export async function POST(req: NextRequest) {
         if (userEmail) {
           const firstName = profile?.first_name || 'there';
 
-          console.log(`[case-status] Sending enrollment email to premium user`);
+          secureLog.log(`[case-status] Sending enrollment email to premium user`);
 
           try {
             const result = await sendEnrollmentEmail(userEmail, firstName, 'case-status');
             if (result.success) {
-              console.log(`[case-status] Enrollment email sent`);
+              secureLog.log(`[case-status] Enrollment email sent`);
             } else {
-              console.error(`[case-status] Enrollment email failed:`, result.error);
+              secureLog.error(`[case-status] Enrollment email failed:`, result.error);
             }
           } catch (err) {
-            console.error(`[case-status] Enrollment email error:`, err);
+            secureLog.error(`[case-status] Enrollment email error:`, err);
           }
         } else {
-          console.log(`[case-status] No email found for enrollment notification`);
+          secureLog.log(`[case-status] No email found for enrollment notification`);
         }
       }
     }

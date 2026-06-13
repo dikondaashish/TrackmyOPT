@@ -374,7 +374,7 @@ export function DocumentVaultClient() {
 
   // Main document vault interface
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-document-vault data-ph-no-capture>
       {/* Security Trust Banner */}
       <div className="bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 overflow-hidden relative">
         {/* Background Pattern */}

@@ -35,12 +35,37 @@ const SENSITIVE_PATTERNS = [
   /Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi,
   /eyJ[A-Za-z0-9\-_]+\.eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_.+/=]*/g, // JWTs
   /(?:api[_-]?key|apikey|secret|token|password|credential)["\s:=]+["']?[A-Za-z0-9\-._~+/]{8,}["']?/gi,
+  /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, // emails
+  /\b[A-Z]{3}\d{10}\b/g, // USCIS receipt numbers (IOE1234567890)
+  /\bpi_[A-Za-z0-9]+\b/g, // Stripe payment_intent
+  /\bcus_[A-Za-z0-9]+\b/g, // Stripe customer
+  /\bsub_[A-Za-z0-9]+\b/g, // Stripe subscription
+  /\binv_[A-Za-z0-9]+\b/g, // Stripe invoice
+  /\bcs_[A-Za-z0-9]+\b/g, // Stripe checkout session
 ];
+
+const SENSITIVE_OBJECT_KEYS = new Set([
+  ...SENSITIVE_KEYS,
+  "receipt_number",
+  "receiptnumber",
+  "email",
+  "toemail",
+  "previous_email",
+  "previousemail",
+  "passport",
+  "date_of_birth",
+  "dateofbirth",
+  "address",
+  "street",
+  "payment_method",
+  "card",
+]);
 
 function isSensitiveKey(key: string): boolean {
   const lower = key.toLowerCase().replace(/[-_]/g, '');
-  for (const sensitiveKey of SENSITIVE_KEYS) {
-    if (lower.includes(sensitiveKey.replace(/[-_]/g, ''))) return true;
+  for (const sensitiveKey of SENSITIVE_OBJECT_KEYS) {
+    const normalized = sensitiveKey.replace(/[-_]/g, '');
+    if (lower.includes(normalized)) return true;
   }
   return false;
 }
@@ -49,9 +74,21 @@ function redactString(value: string): string {
   let result = value;
   for (const pattern of SENSITIVE_PATTERNS) {
     pattern.lastIndex = 0;
-    result = result.replace(pattern, '[REDACTED]');
+    if (pattern.source.includes('A-Z]{3}')) {
+      result = result.replace(pattern, (match) => redactReceiptNumber(match));
+    } else {
+      result = result.replace(pattern, '[REDACTED]');
+    }
   }
   return result;
+}
+
+/** Log-safe USCIS receipt: 3-letter prefix + `***` (e.g. IOE***). */
+export function redactReceiptNumber(receipt: string | null | undefined): string {
+  if (!receipt || typeof receipt !== "string") return "(none)";
+  const trimmed = receipt.trim().toUpperCase();
+  if (trimmed.length < 3) return "***";
+  return `${trimmed.slice(0, 3)}***`;
 }
 
 /**

@@ -166,7 +166,7 @@ export function CaseStatusSummary() {
           </div>
           <div>
             <h3 className="font-semibold">Case Status</h3>
-            <p className="text-xs text-muted-foreground font-mono">{caseStatus.receipt_number}</p>
+            <p className="text-xs text-muted-foreground font-mono ph-mask" data-ph-mask data-receipt-display>{caseStatus.receipt_number}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

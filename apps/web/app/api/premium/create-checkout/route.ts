@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getUserId } from "@/lib/auth/getUserId";
-import { sanitizeError } from "@/lib/secure-logger";
+import { sanitizeError, secureLog } from "@/lib/secure-logger";
 import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
 import { syncProFreeTrialConsumedFromStripe } from "@/lib/premium/proFreeTrialFromStripe";
 import {
@@ -206,15 +206,15 @@ export async function POST(req: NextRequest) {
     if (customerId) {
       try {
         await stripe.customers.retrieve(customerId);
-        console.log(`Verified existing Stripe customer: ${customerId}`);
+        secureLog.log(`Verified existing Stripe customer: ${customerId}`);
       } catch (retrieveError: unknown) {
-        console.log(`Customer ${customerId} not found in Stripe, creating new one...`);
+        secureLog.log(`Customer ${customerId} not found in Stripe, creating new one...`);
         customerId = null;
       }
     }
 
     if (!customerId) {
-      console.log("Creating new Stripe customer for user:", userId);
+      secureLog.log("Creating new Stripe customer for user:", userId);
       const customer = await stripe.customers.create({
         email: profile?.email,
         name: `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || undefined,
@@ -222,10 +222,10 @@ export async function POST(req: NextRequest) {
       });
       customerId = customer.id;
       await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("user_id", userId);
-      console.log(`Created new Stripe customer: ${customerId}`);
+      secureLog.log(`Created new Stripe customer: ${customerId}`);
     }
 
-    console.log(`Using Stripe customer: ${customerId}`);
+    secureLog.log(`Using Stripe customer: ${customerId}`);
 
     const origin =
       req.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://www.trackmyopt.com";

@@ -13,6 +13,7 @@ import { verifyPasscode, isValidPasscode, hashPasscode } from '@/lib/auth/passco
 import nodemailer from 'nodemailer';
 import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 import { buildPasscodeChangeOtpEmailHtml } from '@/lib/notifications/document-expiry-email';
+import { secureLog } from '@/lib/secure-logger';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import bcrypt from 'bcryptjs';
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
         html: buildPasscodeChangeOtpEmailHtml(otp, user.user_metadata?.full_name || 'there'),
       });
 
-      console.log('OTP sent to:', userEmail);
+      secureLog.log('OTP sent for passcode change');
     } catch (emailError) {
       console.error('Failed to send OTP email:', emailError);
       return NextResponse.json(

@@ -12,7 +12,7 @@ import {
   sendEnrollmentEmail,
   sendNotificationPreferencesSavedEmail,
 } from '@/lib/notifications/email-service';
-import { sanitizeError } from '@/lib/secure-logger';
+import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -175,30 +175,30 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log(
-      `📧 Notification email save - Email: ${email}, PreviousEmail: ${previousEmail}, IsNewEnrollment: ${isNewEnrollment}, explicitToolType: ${explicitToolType ?? '(none)'}`
+    secureLog.log(
+      `📧 Notification email save - IsNewEnrollment: ${isNewEnrollment}, explicitToolType: ${explicitToolType ?? '(none)'}`,
     );
 
     const firstName = existingProfile?.first_name || 'there';
 
     if (isNewEnrollment && explicitToolType) {
-      console.log(`📤 Sending ${explicitToolType} enrollment email to ${email}`);
+      secureLog.log(`📤 Sending ${explicitToolType} enrollment email`);
       try {
         const result = await sendEnrollmentEmail(email, firstName, explicitToolType);
         if (result.success) {
-          console.log(`✅ ${explicitToolType} enrollment email sent successfully to ${email}`);
+          secureLog.log(`✅ ${explicitToolType} enrollment email sent successfully`);
         } else {
-          console.error(`❌ Failed to send ${explicitToolType} enrollment email:`, result.error);
+          secureLog.error(`❌ Failed to send ${explicitToolType} enrollment email:`, result.error);
         }
       } catch (err) {
-        console.error(`❌ ${explicitToolType} enrollment email error:`, err);
+        secureLog.error(`❌ ${explicitToolType} enrollment email error:`, err);
       }
     } else if (isFirstTimeSettingNotificationEmail && !explicitToolType) {
       // Settings → Notifications: confirm address without implying Document Vault enrollment
       try {
         const result = await sendNotificationPreferencesSavedEmail(email, firstName);
         if (result.success) {
-          console.log(`✅ Notification preferences confirmation sent to ${email}`);
+          secureLog.log(`✅ Notification preferences confirmation sent`);
         } else {
           console.error('❌ Failed to send notification preferences confirmation:', result.error);
         }

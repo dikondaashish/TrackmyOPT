@@ -6,7 +6,7 @@
  * Rate Limits (Production): 10 TPS, 400,000 requests/day
  */
 
-import { sanitizeError } from '@/lib/secure-logger';
+import { sanitizeError, redactReceiptNumber, secureLog } from '@/lib/secure-logger';
 
 export interface USCISHistoryItem {
   date: string;
@@ -141,7 +141,7 @@ export async function checkUSCISStatus(
       const errorData = await response.json().catch(() => null);
       const errorMessage = errorData?.message || 'Unknown error';
 
-      console.error(`[USCIS] ${response.status} for ${receiptNumber}: ${errorMessage}`);
+      secureLog.error(`[USCIS] ${response.status} for ${redactReceiptNumber(receiptNumber)}: ${errorMessage}`);
 
       // Invalidate cached token on auth failure so the next request gets a fresh one
       if (response.status === 401) {

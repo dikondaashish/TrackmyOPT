@@ -155,11 +155,12 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
               value={passcode}
               onChange={(e) => setPasscode(e.target.value.replace(/\D/g, ''))}
               disabled={isLocked || loading}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg text-center text-2xl font-bold tracking-widest [text-security:disc] [-webkit-text-security:disc] focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-muted disabled:cursor-not-allowed bg-white dark:bg-muted dark:text-foreground"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg text-center text-2xl font-bold tracking-widest [text-security:disc] [-webkit-text-security:disc] focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-muted disabled:cursor-not-allowed bg-white dark:bg-muted dark:text-foreground ph-mask"
               placeholder="● ● ● ● ● ●"
               autoFocus
               autoComplete="one-time-code"
               name="pin-code"
+              data-ph-mask
               data-lpignore="true"
               data-form-type="other"
               data-1p-ignore="true"

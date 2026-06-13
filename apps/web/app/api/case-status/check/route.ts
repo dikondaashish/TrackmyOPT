@@ -8,6 +8,7 @@ import {
   trackCaseStatusCheckFailed,
   trackCaseStatusCheckStarted,
 } from '@/lib/posthog/case-status-analytics';
+import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -140,7 +141,9 @@ export async function POST(req: NextRequest) {
         );
 
         if (isFinalState) {
-          console.log(`[case-status] Skipping ${receipt_number} (final state: ${existingCase.current_status})`);
+          secureLog.log(
+            `[case-status] Skipping ${redactReceiptNumber(receipt_number)} (final state: [status redacted])`,
+          );
           await finishCompleted(existingCase.current_status, 200);
           return NextResponse.json(
             {
@@ -243,7 +246,9 @@ export async function POST(req: NextRequest) {
     if (!uscisResult.success) {
       const errorCode = String(uscisResult.error.code);
       const errorMessage = uscisResult.error.userMessage || 'USCIS check failed';
-      console.error(`[case-status] USCIS API error for ${receipt_number}: ${errorCode}`);
+      secureLog.error(
+        `[case-status] USCIS API error for ${redactReceiptNumber(receipt_number)}: ${errorCode}`,
+      );
 
       // Persist failure state so the UI can show "last refresh failed" and
       // cron can apply exponential backoff via consecutive_failures.
