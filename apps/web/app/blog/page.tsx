@@ -10,6 +10,39 @@ export const metadata: Metadata = {
 
 const blogPosts = [
     {
+        slug: "form-i9-complete-guide",
+        title: "Form I-9: The Complete 2026 Guide for Employees & Employers",
+        description: "Everything you need to know about Form I-9 Employment Eligibility Verification — who fills it out, what documents are accepted, deadlines, and how OPT/STEM OPT students complete it.",
+        category: "Compliance",
+        readTime: "10 min read",
+        date: "June 12, 2026",
+        tags: ["Form I-9", "Employment Eligibility", "OPT", "Compliance"],
+        featured: true,
+        image: "/blog/form-i9.png"
+    },
+    {
+        slug: "form-i765-ead-application-guide",
+        title: "Form I-765: The Complete Guide to Applying for Your EAD Card (OPT & STEM OPT 2026)",
+        description: "How to apply for your EAD card using Form I-765 — eligibility categories, filing fees, processing times, and step-by-step instructions for F-1 OPT and STEM OPT students.",
+        category: "OPT",
+        readTime: "12 min read",
+        date: "June 12, 2026",
+        tags: ["Form I-765", "EAD Card", "OPT Application", "STEM OPT"],
+        featured: true,
+        image: "/blog/form-i765.png"
+    },
+    {
+        slug: "form-i983-stem-opt-training-plan-guide",
+        title: "Form I-983: The Complete STEM OPT Training Plan Guide (2026)",
+        description: "Everything students and employers need to know about Form I-983 — all 6 sections explained, E-Verify requirements, 12-month reporting rules, and why self-employment is prohibited.",
+        category: "STEM OPT",
+        readTime: "14 min read",
+        date: "June 12, 2026",
+        tags: ["Form I-983", "STEM OPT", "Training Plan", "E-Verify"],
+        featured: true,
+        image: "/blog/form-i983.png"
+    },
+    {
         slug: "second-masters-opt-eligibility",
         title: "Can I Apply for OPT Again After a Second Master's Degree? (2026 Guide)",
         description: "Discover the USCIS rules on OPT eligibility when pursuing a second Master's degree. Learn about the 'once per higher degree level' rule.",
