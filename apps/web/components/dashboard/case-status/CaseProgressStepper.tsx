@@ -17,9 +17,9 @@ const CASE_STEPS = [
 
 // Map USCIS status strings to step index
 function mapStatusToStep(status: string | null): number {
-    if (!status) return 0;
+    if (typeof status !== "string" || !status.trim()) return 0;
 
-    const lowerStatus = status.toLowerCase();
+    const lowerStatus = status.trim().toLowerCase();
 
     // Step 5: Card Produced/Mailed/Delivered
     if (

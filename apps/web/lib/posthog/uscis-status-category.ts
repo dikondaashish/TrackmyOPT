@@ -8,8 +8,8 @@ export function getReceiptPrefix(receiptNumber: string | null | undefined): stri
 
 /** Normalized USCIS status bucket — never send raw USCIS text to PostHog. */
 export function normalizeStatusCategory(status: string | null | undefined): string {
-  if (!status) return "unknown";
-  const s = status.toLowerCase();
+  if (typeof status !== "string" || !status.trim()) return "unknown";
+  const s = status.trim().toLowerCase();
 
   if (s.includes("delivered") || s.includes("produced") || s.includes("approved")) {
     return "approved";

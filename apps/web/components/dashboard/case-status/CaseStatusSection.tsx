@@ -347,8 +347,15 @@ export function CaseStatusSection() {
     return `${days} days ago`;
   };
 
-  const getServiceCenter = (receiptNumber: string) => {
-    const prefix = receiptNumber.substring(0, 3).toUpperCase();
+  const formatStatusLabel = (status: string | null | undefined, fallback = "Checking USCIS status…") => {
+    const normalized = (status ?? "").trim();
+    return normalized || fallback;
+  };
+
+  const getServiceCenter = (receiptNumber: string | null | undefined) => {
+    const normalized = (receiptNumber ?? "").trim().toUpperCase();
+    if (normalized.length < 3) return "USCIS Service Center";
+    const prefix = normalized.substring(0, 3);
     const centerMap: { [key: string]: string } = {
       'IOE': 'National Benefits Center',
       'EAC': 'Vermont Service Center',
@@ -754,7 +761,12 @@ export function CaseStatusSection() {
                   <Collapsible
                     title={
                       <div className="flex items-center gap-2">
-                        <span className={`text-lg ${statusInfo.color}`}>{caseStatus.status_history[0].status}</span>
+                        <span className={`text-lg ${statusInfo.color}`}>
+                          {formatStatusLabel(
+                            caseStatus.status_history[0].status,
+                            formatStatusLabel(caseStatus.current_status, "Status pending")
+                          )}
+                        </span>
                       </div>
                     }
                     defaultOpen={true}
@@ -766,7 +778,8 @@ export function CaseStatusSection() {
                         {formatDateShort(caseStatus.status_history[0].date)}
                       </p>
                       <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
-                        {caseStatus.status_history[0].description || caseStatus.current_status}
+                        {caseStatus.status_history[0].description ||
+                          formatStatusLabel(caseStatus.current_status, "Status pending")}
                       </p>
                       <div className={`p-3 rounded-lg ${statusInfo.bgColor} border ${statusInfo.borderColor}`}>
                         <div className="flex items-start gap-2">
@@ -846,7 +859,7 @@ export function CaseStatusSection() {
                   <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Current Status</span>
                     <span className="text-sm font-semibold text-right max-w-[60%]">
-                      {caseStatus.current_status || 'Fetching...'}
+                      {formatStatusLabel(caseStatus.current_status, "Checking USCIS status…")}
                     </span>
                   </div>
 
@@ -883,7 +896,9 @@ export function CaseStatusSection() {
               <h2 className="text-xl font-bold">Current Status</h2>
             </div>
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <p className="font-medium text-gray-900 dark:text-gray-100">{caseStatus.current_status}</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
+                {formatStatusLabel(caseStatus.current_status, "Checking USCIS status…")}
+              </p>
               <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600 dark:text-gray-400">Case Type</span>
