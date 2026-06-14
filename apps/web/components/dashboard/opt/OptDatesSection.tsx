@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Calendar as CalendarIcon, Mail, Crown, Edit, CheckCircle2, BellOff, Pencil } from "lucide-react";
+import { Calendar as CalendarIcon, Mail, Crown, CheckCircle2, BellOff, Pencil, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -12,21 +12,22 @@ import dynamic from "next/dynamic";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 import { EmploymentHistoryLog } from "./EmploymentHistoryLog";
 import { EmploymentSetupModal } from "./EmploymentSetupModal";
+import { OptDatesStatusSummary } from "./OptDatesStatusSummary";
+import { OptDatesSetupChecklist } from "./OptDatesSetupChecklist";
 import { getEmploymentSetupAck } from "@/lib/immigration/employmentTracking";
 import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
+import {
+  areOptDatesEqual,
+  buildOptDatesStatusSnapshot,
+  type OptDatesFormData,
+} from "@/lib/immigration/optDatesPageUtils";
 
 const PricingModal = dynamic(
   () => import("@/components/pricing/PricingModal").then((m) => ({ default: m.PricingModal })),
   { ssr: false }
 );
 
-interface OptDatesData {
-  program_end_date?: string;
-  dso_recommendation_date?: string;
-  opt_start_date?: string;
-  opt_ead_end_date?: string;
-  stem_start_date?: string;
-}
+interface OptDatesData extends OptDatesFormData {}
 
 interface EmploymentSpan {
   id: string;
@@ -225,7 +226,7 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           aria-label="Previous month"
         >
-          ↑
+          <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="font-semibold">
           {months[currentDate.getMonth()]} {currentDate.getFullYear()}
@@ -236,7 +237,7 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           aria-label="Next month"
         >
-          ↓
+          <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
@@ -259,7 +260,7 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
             key={day}
             type="button"
             onClick={() => handleDateClick(day)}
-            className={`p-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${isToday(day) ? 'bg-blue-100 dark:bg-blue-900 font-bold' : ''
+            className={`p-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors max-md:min-h-10 max-md:min-w-10 max-md:flex max-md:items-center max-md:justify-center ${isToday(day) ? 'bg-blue-100 dark:bg-blue-900 font-bold' : ''
               } ${isSelected(day) ? 'bg-blue-600 text-white hover:bg-blue-700' : ''
               }`}
           >
@@ -329,6 +330,7 @@ const TOOL_INFO: Record<ToolName, { label: string; icon: string; description: st
 export function OptDatesSection() {
   const { toast } = useToast();
   const [dates, setDates] = useState<OptDatesData>({});
+  const [savedDates, setSavedDates] = useState<OptDatesData>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -348,7 +350,8 @@ export function OptDatesSection() {
   const [employmentSpans, setEmploymentSpans] = useState<EmploymentSpan[]>([]);
   const [showEmploymentSetupModal, setShowEmploymentSetupModal] = useState(false);
   const [autoOpenEmploymentForm, setAutoOpenEmploymentForm] = useState(false);
-  const { setAck } = useEmploymentSetupAck();
+  const [remindersExpanded, setRemindersExpanded] = useState(false);
+  const { setAck, ack } = useEmploymentSetupAck();
 
   // Load all data in parallel on mount
   useEffect(() => {
@@ -366,7 +369,7 @@ export function OptDatesSection() {
         document.getElementById("employment")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 150);
     }
-  }, [isLoading, dates.opt_start_date]);
+  }, [isLoading, savedDates.opt_start_date]);
 
   const scrollToEmployment = () => {
     document.getElementById("employment")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -386,7 +389,12 @@ export function OptDatesSection() {
       if (response.ok) {
         const data = await response.json();
         if (data.ok && Array.isArray(data.spans)) {
-          setEmploymentSpans(data.spans);
+          setEmploymentSpans(
+            data.spans.map((s: EmploymentSpan) => ({
+              ...s,
+              is_current: s.is_current ?? !s.end_date,
+            }))
+          );
         }
       }
     } catch {
@@ -492,6 +500,7 @@ export function OptDatesSection() {
         const result = await response.json();
         if (result.ok && result.data) {
           setDates(result.data);
+          setSavedDates(result.data);
         } else {
         }
       } else {
@@ -506,13 +515,19 @@ export function OptDatesSection() {
     setDates(prev => {
       const newDates = { ...prev, [field]: value };
 
-      // Logic 1: Sync Program End Date ↔ DSO Recommendation Date
+      // Sync Program End ↔ DSO only when the other field was empty or still matched
       if (field === 'program_end_date') {
-        // When Program End Date is updated or cleared, sync DSO Recommendation Date
-        newDates.dso_recommendation_date = value;
+        const dso = prev.dso_recommendation_date?.trim() || '';
+        const prevProgram = prev.program_end_date?.trim() || '';
+        if (!dso || dso === prevProgram) {
+          newDates.dso_recommendation_date = value;
+        }
       } else if (field === 'dso_recommendation_date') {
-        // When DSO Recommendation Date is updated or cleared, sync Program End Date
-        newDates.program_end_date = value;
+        const program = prev.program_end_date?.trim() || '';
+        const prevDso = prev.dso_recommendation_date?.trim() || '';
+        if (!program || program === prevDso) {
+          newDates.program_end_date = value;
+        }
       }
 
       // Logic 2: OPT Start Date → OPT EAD End Date (+ 364 days = ~1 year)
@@ -654,6 +669,21 @@ export function OptDatesSection() {
     }
   };
 
+  const handleDiscardChanges = () => {
+    setDates({ ...savedDates });
+    setErrors({});
+    setLastModifiedField(null);
+  };
+
+  const isDirty = !areOptDatesEqual(dates, savedDates);
+  const statusSnapshot = buildOptDatesStatusSnapshot(
+    savedDates,
+    employmentSpans.length,
+    ack,
+    employmentSpans
+  );
+  const hasSavedOptStart = !!savedDates.opt_start_date?.trim();
+
   if (isLoading) {
     return (
       <div className="max-w-6xl mx-auto space-y-6 px-4 sm:px-6">
@@ -682,69 +712,95 @@ export function OptDatesSection() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">OPT Dates</h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Manage your important OPT-related dates. At least one date is required.
+          Track filing windows, OPT dates, and employment history in one place.
         </p>
       </div>
+
+      <OptDatesStatusSummary status={statusSnapshot} />
+
+      <OptDatesSetupChecklist
+        status={statusSnapshot}
+        isDirty={isDirty}
+        onScrollToEmployment={scrollToEmployment}
+      />
 
       {/* Main Form Card */}
       <Card className="p-4 sm:p-6 lg:p-8">
         <div className="space-y-8">
-          {/* Date Fields Grid - 2 Columns on Desktop, 1 on Mobile */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-            {/* Row 1 Left: Program End Date */}
-            <DateInput
-              id="program_end_date"
-              label="Program End Date"
-              value={dates.program_end_date || ''}
-              onChange={(value) => handleDateChange('program_end_date', value)}
-              description="The date your academic program officially ends"
-            />
-
-            {/* Row 1 Right: OPT EAD End Date */}
-            <DateInput
-              id="opt_ead_end_date"
-              label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={false} /> <JargonTooltip term="EAD" showIcon={true} /> End Date</span>}
-              value={dates.opt_ead_end_date || ''}
-              onChange={(value) => handleDateChange('opt_ead_end_date', value)}
-              description="Employment Authorization Document expiration date for OPT"
-              optional
-            />
-
-            {/* Row 2 Left: DSO Recommendation Date */}
-            <DateInput
-              id="dso_recommendation_date"
-              label={<span className="flex items-center gap-1"><JargonTooltip term="DSO" showIcon={true} /> Recommendation Date</span>}
-              value={dates.dso_recommendation_date || ''}
-              onChange={(value) => handleDateChange('dso_recommendation_date', value)}
-              description="Date when your Designated School Official recommended OPT"
-              optional
-            />
-
-            {/* Row 2 Right: STEM Extension Start Date */}
-            <DateInput
-              id="stem_start_date"
-              label={<span className="flex items-center gap-1"><JargonTooltip term="STEM OPT" showIcon={true}>STEM Extension</JargonTooltip> Start Date</span>}
-              value={dates.stem_start_date || ''}
-              onChange={(value) => handleDateChange('stem_start_date', value)}
-              description="Start date of STEM OPT extension (if applicable)"
-              optional
-            />
-
-            {/* Row 3 Left: OPT Start Date */}
-            <DateInput
-              id="opt_start_date"
-              label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={true} /> Start Date</span>}
-              value={dates.opt_start_date || ''}
-              onChange={(value) => handleDateChange('opt_start_date', value)}
-              description="The start date of your OPT period"
-              optional
-            />
+          <div id="dates-before-opt" className="scroll-mt-24 space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Before OPT</h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                School and filing dates — start here if you have not applied yet.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+              <DateInput
+                id="program_end_date"
+                label="Program End Date"
+                value={dates.program_end_date || ''}
+                onChange={(value) => handleDateChange('program_end_date', value)}
+                description="The date your academic program officially ends"
+              />
+              <DateInput
+                id="dso_recommendation_date"
+                label={<span className="flex items-center gap-1"><JargonTooltip term="DSO" showIcon={true} /> Recommendation Date</span>}
+                value={dates.dso_recommendation_date || ''}
+                onChange={(value) => handleDateChange('dso_recommendation_date', value)}
+                description="Date your DSO recommended OPT (often same as program end)"
+                optional
+              />
+            </div>
           </div>
 
+          <div id="dates-on-opt" className="scroll-mt-24 space-y-4 border-t border-border pt-8">
+            <div>
+              <h2 className="text-base font-semibold">On OPT</h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                From your EAD card — required to track unemployment days.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+              <DateInput
+                id="opt_start_date"
+                label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={true} /> Start Date</span>}
+                value={dates.opt_start_date || ''}
+                onChange={(value) => handleDateChange('opt_start_date', value)}
+                description="Start date printed on your EAD — save to unlock employment tracking"
+                optional
+              />
+              <DateInput
+                id="opt_ead_end_date"
+                label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={false} /> <JargonTooltip term="EAD" showIcon={true} /> End Date</span>}
+                value={dates.opt_ead_end_date || ''}
+                onChange={(value) => handleDateChange('opt_ead_end_date', value)}
+                description="EAD expiration — auto-filled from OPT start (+364 days)"
+                optional
+              />
+            </div>
+          </div>
 
+          <div id="dates-stem" className="scroll-mt-24 space-y-4 border-t border-border pt-8">
+            <div>
+              <h2 className="text-base font-semibold">STEM extension</h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                Only if you have an approved STEM OPT extension. Cumulative unemployment cap becomes 150 days.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+              <DateInput
+                id="stem_start_date"
+                label={<span className="flex items-center gap-1"><JargonTooltip term="STEM OPT" showIcon={true}>STEM Extension</JargonTooltip> Start Date</span>}
+                value={dates.stem_start_date || ''}
+                onChange={(value) => handleDateChange('stem_start_date', value)}
+                description="Start date of STEM OPT extension (if applicable)"
+                optional
+              />
+            </div>
+          </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-border">
             <Button
               onClick={handleSave}
               disabled={isSaving}
@@ -752,39 +808,57 @@ export function OptDatesSection() {
             >
               {isSaving ? 'Saving...' : 'Save Dates'}
             </Button>
-            <Button
-              variant="outline"
-              onClick={loadDates}
-              disabled={isSaving}
-            >
-              Reset
-            </Button>
+            {isDirty && (
+              <Button
+                variant="outline"
+                onClick={handleDiscardChanges}
+                disabled={isSaving}
+              >
+                Discard changes
+              </Button>
+            )}
           </div>
         </div>
       </Card>
 
-      {/* Show Employment History only after OPT Start Date is entered */}
-      {!!dates.opt_start_date?.trim() && (
+      {hasSavedOptStart ? (
         <EmploymentHistoryLog
           employmentSpans={employmentSpans}
-          optStartDate={dates.opt_start_date}
-          optEndDate={dates.opt_ead_end_date}
-          maxUnemploymentDays={dates.stem_start_date ? 150 : 90}
+          optStartDate={savedDates.opt_start_date}
+          optEndDate={savedDates.opt_ead_end_date}
+          maxUnemploymentDays={savedDates.stem_start_date ? 150 : 90}
           autoOpenForm={autoOpenEmploymentForm}
           onSpansChange={(spans) => {
-            setEmploymentSpans(spans);
+            setEmploymentSpans(
+              spans.map((s) => ({
+                ...s,
+                is_current: s.is_current ?? !s.end_date,
+              }))
+            );
             if (spans.length > 0) {
               setAutoOpenEmploymentForm(false);
               setShowEmploymentSetupModal(false);
             }
           }}
         />
+      ) : (
+        <Card id="employment" className="scroll-mt-24 overflow-hidden border-dashed">
+          <div className="p-6 sm:p-8 text-center">
+            <h2 className="text-lg font-semibold mb-2">Employment History</h2>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
+              Save your <strong>OPT start date</strong> above to track jobs and calculate unemployment days.
+            </p>
+            <Button variant="outline" size="sm" asChild>
+              <a href="#dates-on-opt">Go to OPT start date</a>
+            </Button>
+          </div>
+        </Card>
       )}
 
       <EmploymentSetupModal
         open={showEmploymentSetupModal}
         onOpenChange={setShowEmploymentSetupModal}
-        optStartDate={dates.opt_start_date || ""}
+        optStartDate={savedDates.opt_start_date || dates.opt_start_date || ""}
         onAddJob={handleAddJobFromSetup}
         onBetweenJobs={() => {
           setAck("between_jobs");
@@ -796,24 +870,33 @@ export function OptDatesSection() {
         }}
       />
 
-      {/* Tool Email Notifications Section - 4 Separate Emails */}
-      <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
-        <div className="flex items-start gap-4 mb-6">
-          <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-            {isPremium ? <Mail className="w-6 h-6 text-purple-600 dark:text-purple-400" /> : <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />}
+      {/* Tool Email Notifications — collapsed by default */}
+      <Card className="overflow-hidden border-purple-200 dark:border-purple-800">
+        <button
+          type="button"
+          onClick={() => setRemindersExpanded((v) => !v)}
+          className="flex w-full items-center justify-between gap-4 p-4 sm:p-5 text-left bg-gradient-to-br from-purple-50/80 to-blue-50/80 dark:from-purple-900/20 dark:to-blue-900/20 hover:from-purple-50 dark:hover:from-purple-900/30 transition-colors"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+              {isPremium ? <Mail className="w-5 h-5 text-purple-600 dark:text-purple-400" /> : <Crown className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
+                Email reminders {isPremium ? "" : "(Premium)"}
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
+                Daily 9:00 AM ET — unemployment alerts, filing deadlines, STEM dates
+              </p>
+            </div>
           </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
-              Daily Reminders (9:00 AM ET)
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {isPremium
-                ? "Each tool sends separate email notifications. Set different emails for each tool below."
-                : "Get daily Chrome notifications and email reminders for each tool."
-              }
-            </p>
-          </div>
-        </div>
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${remindersExpanded ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        {remindersExpanded && (
+        <div className="p-6 pt-2 border-t border-purple-100 dark:border-purple-900/50">
 
         {isPremium ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -918,7 +1001,7 @@ export function OptDatesSection() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
                 const info = TOOL_INFO[tool];
                 return (
@@ -958,6 +1041,8 @@ export function OptDatesSection() {
               Upgrade to Premium
             </Button>
           </div>
+        )}
+        </div>
         )}
       </Card>
 

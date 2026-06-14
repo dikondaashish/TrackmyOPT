@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
             .single(),
           supabase
             .from('employment_spans')
-            .select('id, employer_name, start_date, end_date, is_current, job_title, location')
+            .select('id, employer_name, start_date, end_date')
             .eq('user_id', profile.user_id),
         ]);
         const optData = optRes.data;
@@ -141,9 +141,7 @@ export async function GET(req: NextRequest) {
           employer_name: s.employer_name || '',
           start_date: s.start_date,
           end_date: s.end_date,
-          is_current: !!s.is_current,
-          job_title: s.job_title,
-          location: s.location,
+          is_current: !s.end_date,
         }));
 
         if (!optData) {

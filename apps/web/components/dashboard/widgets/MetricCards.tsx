@@ -156,7 +156,7 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
         employer_name: s.employer_name || "",
         start_date: s.start_date,
         end_date: s.end_date,
-        is_current: !!s.is_current,
+        is_current: s.is_current ?? !s.end_date,
         job_title: s.job_title,
         location: s.location,
       }));
