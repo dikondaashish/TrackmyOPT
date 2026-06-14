@@ -209,13 +209,13 @@ ${emailBodySectionClose()}`,
     {
       id: "passcode_change_otp",
       category: "Document vault",
-      subject: "🔐 Your OTP for Passcode Change - TrackMyOPT",
+      subject: "Your OTP for Passcode Change - TrackMyOPT",
       html: buildPasscodeChangeOtpEmailHtml("582104", firstName),
     },
     {
       id: "passcode_forgot_reset",
       category: "Document vault",
-      subject: "🔑 Reset your Document Vault passcode",
+      subject: "Reset your Document Vault passcode",
       html: buildForgotVaultPasscodeResetEmail("582104", firstName),
     },
     {

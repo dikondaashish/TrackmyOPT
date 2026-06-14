@@ -1,4 +1,5 @@
 import type { ToolReminderDetail } from '../../email-service';
+import { emailChecklistItem, emailIcon, emailSectionHeading } from '../../email-icons';
 
 function getUrgencyConfig(daysLeft: number, totalDays: number): {
   emoji: string;
@@ -235,14 +236,14 @@ export function generateOptApplySection(tool: ToolReminderDetail): string {
         <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
           Required Documents Checklist:
         </h3>
-        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
-          <li>☐ <strong>Form I-765</strong> - Application for Employment Authorization (completed & signed)</li>
-          <li>☐ <strong>Form I-20</strong> - with OPT recommendation from DSO (<strong>must be signed by you!</strong>)</li>
-          <li>☐ <strong>2 Passport Photos</strong> - 2x2 inches, white background, taken within 30 days</li>
-          <li>☐ <strong>Passport Copy</strong> - Bio page and visa stamp</li>
-          <li>☐ <strong>I-94</strong> - Most recent arrival/departure record</li>
-          <li>☐ <strong>Previous EAD Cards</strong> - If any (copies)</li>
-          <li>☐ <strong>Filing Fee</strong> - $470 (online) or $520 (paper filing)</li>
+        <ul style="margin: 0; padding: 0; color: #374151; font-size: 14px; line-height: 1.8;">
+          ${emailChecklistItem("<strong>Form I-765</strong> - Application for Employment Authorization (completed & signed)")}
+          ${emailChecklistItem("<strong>Form I-20</strong> - with OPT recommendation from DSO (<strong>must be signed by you!</strong>)")}
+          ${emailChecklistItem("<strong>2 Passport Photos</strong> - 2x2 inches, white background, taken within 30 days")}
+          ${emailChecklistItem("<strong>Passport Copy</strong> - Bio page and visa stamp")}
+          ${emailChecklistItem("<strong>I-94</strong> - Most recent arrival/departure record")}
+          ${emailChecklistItem("<strong>Previous EAD Cards</strong> - If any (copies)")}
+          ${emailChecklistItem("<strong>Filing Fee</strong> - $470 (online) or $520 (paper filing)")}
         </ul>
       </div>
 
@@ -279,7 +280,7 @@ export function generateOptApplySection(tool: ToolReminderDetail): string {
       <!-- Where to Apply -->
       <div style="background: #FDF2F8; border: 1px solid #EC4899; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #9D174D; font-size: 16px; font-weight: 600;">
-          � Where to Submit Your Application:
+          ${emailSectionHeading("Where to Submit Your Application:", "link", "#9D174D")}
         </h3>
         <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px;">
           <strong>Option 1: Online (Recommended)</strong><br/>

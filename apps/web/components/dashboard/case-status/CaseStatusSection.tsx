@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PricingModal } from "@/components/pricing/PricingModal";
+import { CaseProcessingBenchmarks } from "@/components/dashboard/case-status/CaseProcessingBenchmarks";
 import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
@@ -594,9 +595,14 @@ export function CaseStatusSection() {
               <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4 uppercase tracking-wide">
                 Case Progress (Form I-765)
               </h3>
-              <CaseProgressStepper currentStatus={caseStatus.current_status} />
+              <CaseProgressStepper
+                currentStatus={caseStatus.current_status}
+                statusHistory={caseStatus.status_history}
+              />
             </Card>
           )}
+
+          <CaseProcessingBenchmarks />
 
           <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
             <div className="flex flex-col sm:flex-row items-start gap-4">

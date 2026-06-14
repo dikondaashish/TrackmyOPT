@@ -1,4 +1,5 @@
 import type { ToolReminderDetail } from '../../email-service';
+import { emailSectionHeading } from '../../email-icons';
 
 export function generateStemClockSection(tool: ToolReminderDetail): string {
   const urgencyColor = tool.urgency === 'critical' ? '#DC2626' :
@@ -94,7 +95,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- Top Job Search Resources for STEM -->
       <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
-          � STEM-Focused Job Resources:
+          ${emailSectionHeading("STEM-Focused Job Resources:", "briefcase", "#065F46")}
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><a href="https://www.linkedin.com/jobs/" style="color: #3B82F6;">LinkedIn Jobs</a> - Filter for "Visa Sponsorship"</li>
@@ -109,7 +110,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- NGO & Research Options -->
       <div style="background: #FDF2F8; border: 1px solid #EC4899; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #9D174D; font-size: 16px; font-weight: 600;">
-          🤝 NGO, Research & Alternative Options:
+          ${emailSectionHeading("NGO, Research & Alternative Options:", "users", "#9D174D")}
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><a href="https://www.idealist.org/" style="color: #3B82F6;">Idealist</a> - NGO & nonprofit jobs</li>

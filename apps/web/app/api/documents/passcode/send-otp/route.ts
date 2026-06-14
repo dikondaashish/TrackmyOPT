@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       await transporter.sendMail({
         from: getSmtpFromHeader(),
         to: userEmail,
-        subject: '🔐 Your OTP for Passcode Change - TrackMyOPT',
+        subject: 'Your OTP for Passcode Change - TrackMyOPT',
         html: buildPasscodeChangeOtpEmailHtml(otp, user.user_metadata?.full_name || 'there'),
       });
 

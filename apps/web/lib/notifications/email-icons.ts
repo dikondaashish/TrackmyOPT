@@ -17,7 +17,13 @@ export type EmailIconName =
   | "checkCircle"
   | "folder"
   | "link"
-  | "sparkles";
+  | "sparkles"
+  | "square"
+  | "camera"
+  | "school"
+  | "users"
+  | "lock"
+  | "key";
 
 const PATHS: Record<EmailIconName, string> = {
   calendar:
@@ -48,6 +54,17 @@ const PATHS: Record<EmailIconName, string> = {
   link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
   sparkles:
     '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+  square: '<rect width="18" height="18" x="3" y="3" rx="2"/>',
+  camera:
+    '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+  school:
+    '<path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M18 5v16"/><path d="m4 6 8-4 8 4"/><path d="M6 10v9"/><path d="M18 10v9"/>',
+  users:
+    '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  lock:
+    '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  key:
+    '<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>',
 };
 
 export function emailIcon(
@@ -67,4 +84,9 @@ export function emailSectionHeading(
   color = "#1F2937"
 ): string {
   return `${emailIcon(iconName, { color })}<span style="vertical-align:middle;">${title}</span>`;
+}
+
+/** Checklist row with Lucide-style square icon. */
+export function emailChecklistItem(htmlContent: string): string {
+  return `<li style="margin: 0 0 8px 0; list-style: none;">${emailIcon("square", { size: 14, color: "#6B7280" })}<span style="vertical-align: middle;"> ${htmlContent}</span></li>`;
 }

@@ -384,11 +384,11 @@ function getOptApplyMessage(daysLeft: number, programEnd: Date, today: Date): st
   if (daysToProgEnd > 60) {
     return `START EARLY: Request official transcripts and gather required documents. You'll need: passport copies, I-94, I-20s, and 2 passport photos.`;
   } else if (daysToProgEnd > 45) {
-    return `📝 PREPARE FORMS: Begin filling out Form I-765 carefully. Double-check every entry - errors cause delays!`;
+    return `PREPARE FORMS: Begin filling out Form I-765 carefully. Double-check every entry - errors cause delays!`;
   } else if (daysToProgEnd > 30) {
-    return `🏫 DSO MEETING: Schedule appointment with your DSO for OPT recommendation on your I-20. This is required!`;
+    return `DSO MEETING: Schedule appointment with your DSO for OPT recommendation on your I-20. This is required!`;
   } else if (daysToProgEnd > 14) {
-    return `📸 FINAL PREP: Get passport photos taken (2 identical, 2x2 inches). Make copies of ALL documents before mailing.`;
+    return `FINAL PREP: Get passport photos taken (2 identical, 2x2 inches). Make copies of ALL documents before mailing.`;
   } else if (daysToProgEnd > 0) {
     return `SUBMIT NOW: Mail your complete application with USPS tracking. Processing takes 3-5 months!`;
   }
@@ -414,11 +414,11 @@ function getStemApplyMessage(daysLeft: number): string {
   if (daysLeft > 75) {
     return `STEM PREP: Start gathering documents. You'll need Form I-983 completed with your employer and proof they're E-Verified.`;
   } else if (daysLeft > 60) {
-    return `📝 FORM I-983: Work with your employer to complete the Training Plan. This requires detailed mentorship info.`;
+    return `FORM I-983: Work with your employer to complete the Training Plan. This requires detailed mentorship info.`;
   } else if (daysLeft > 45) {
-    return `🏫 DSO MEETING: Schedule appointment for STEM I-20 recommendation. Have Form I-983 ready!`;
+    return `DSO MEETING: Schedule appointment for STEM I-20 recommendation. Have Form I-983 ready!`;
   } else if (daysLeft > 30) {
-    return `📸 PREPARE APPLICATION: Get new passport photos. Verify your degree is STEM-eligible (check CIP code).`;
+    return `PREPARE APPLICATION: Get new passport photos. Verify your degree is STEM-eligible (check CIP code).`;
   } else if (daysLeft > 14) {
     return `SUBMIT SOON: Your current OPT expires in ${daysLeft} days. Mail STEM application with tracking!`;
   } else if (daysLeft > 7) {

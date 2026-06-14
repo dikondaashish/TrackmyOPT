@@ -1,4 +1,5 @@
 import type { ToolReminderDetail } from '../../email-service';
+import { emailSectionHeading } from '../../email-icons';
 
 export function generateOptClockSection(tool: ToolReminderDetail): string {
   const urgencyColor = tool.urgency === 'critical' ? '#DC2626' :
@@ -91,7 +92,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Top Job Search Resources -->
       <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
-          � Top Job Search Resources:
+          ${emailSectionHeading("Top Job Search Resources:", "briefcase", "#065F46")}
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><a href="https://www.linkedin.com/jobs/" style="color: #3B82F6; text-decoration: none;">LinkedIn Jobs</a></li>
@@ -105,7 +106,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- NGO & Internship Options -->
       <div style="background: #FDF2F8; border: 1px solid #EC4899; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #9D174D; font-size: 16px; font-weight: 600;">
-          🤝 NGO & Internship Options:
+          ${emailSectionHeading("NGO & Internship Options:", "users", "#9D174D")}
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><a href="https://www.idealist.org/" style="color: #3B82F6; text-decoration: none;">Idealist (NGO)</a></li>
@@ -118,7 +119,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Skill Building -->
       <div style="background: #F5F3FF; border: 1px solid #8B5CF6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">
-          � Skill Building:
+          ${emailSectionHeading("Skill Building:", "lightbulb", "#5B21B6")}
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li>Take relevant online courses (Coursera, Udemy)</li>
@@ -147,7 +148,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
           ${motivationalMessage}
         </p>
         <p style="margin: 0; color: #B45309; font-size: 14px; font-weight: 600;">
-          Stay strong and keep pushing forward! �
+          Stay strong and keep pushing forward!
         </p>
       </div>
 

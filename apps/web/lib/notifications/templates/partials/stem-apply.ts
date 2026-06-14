@@ -1,4 +1,5 @@
 import type { ToolReminderDetail } from '../../email-service';
+import { emailChecklistItem, emailIcon, emailSectionHeading } from '../../email-icons';
 
 export function generateStemApplySection(tool: ToolReminderDetail): string {
   const urgencyColor = tool.urgency === 'critical' ? '#DC2626' :
@@ -37,7 +38,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border-radius: 12px 12px 0 0; padding: 20px; text-align: center;">
         <h2 style="margin: 0; color: white; font-size: 22px; font-weight: 700;">
-          � STEM OPT Extension
+          ${emailIcon("graduationCap", { size: 22, color: "#ffffff" })}<span style="vertical-align:middle;"> STEM OPT Extension</span>
         </h2>
         <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
           24-Month STEM Extension Application
@@ -103,15 +104,15 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
         <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
           Required Documents Checklist:
         </h3>
-        <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
-          <li>☐ <strong>Form I-765</strong> - Application for Employment Authorization</li>
-          <li>☐ <strong>Form I-983</strong> - Training Plan for STEM OPT Students (signed by employer)</li>
-          <li>☐ <strong>Form I-20</strong> - with STEM OPT recommendation from DSO</li>
-          <li>☐ <strong>Copy of Current EAD</strong> - Front and back</li>
-          <li>☐ <strong>Copy of STEM Degree</strong> - Diploma or official transcript</li>
-          <li>☐ <strong>2 Passport Photos</strong> - 2x2 inches, white background</li>
-          <li>☐ <strong>Passport Copy</strong> - Bio page (valid for 6+ months)</li>
-          <li>☐ <strong>Filing Fee</strong> - $410 (check current fee)</li>
+        <ul style="margin: 0; padding: 0; color: #374151; font-size: 14px; line-height: 1.8;">
+          ${emailChecklistItem("<strong>Form I-765</strong> - Application for Employment Authorization")}
+          ${emailChecklistItem("<strong>Form I-983</strong> - Training Plan for STEM OPT Students (signed by employer)")}
+          ${emailChecklistItem("<strong>Form I-20</strong> - with STEM OPT recommendation from DSO")}
+          ${emailChecklistItem("<strong>Copy of Current EAD</strong> - Front and back")}
+          ${emailChecklistItem("<strong>Copy of STEM Degree</strong> - Diploma or official transcript")}
+          ${emailChecklistItem("<strong>2 Passport Photos</strong> - 2x2 inches, white background")}
+          ${emailChecklistItem("<strong>Passport Copy</strong> - Bio page (valid for 6+ months)")}
+          ${emailChecklistItem("<strong>Filing Fee</strong> - $410 (check current fee)")}
         </ul>
       </div>
 
@@ -147,7 +148,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- E-Verify Check -->
       <div style="background: #FFFBEB; border: 1px solid #F59E0B; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #92400E; font-size: 16px; font-weight: 600;">
-          � Verify Your Employer's E-Verify Status:
+          ${emailSectionHeading("Verify Your Employer's E-Verify Status:", "shield", "#92400E")}
         </h3>
         <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px; line-height: 1.6;">
           Before applying, confirm your employer is enrolled in E-Verify:

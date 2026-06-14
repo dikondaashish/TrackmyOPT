@@ -81,6 +81,7 @@ interface OptStatus {
   opt_start_date: string;
   opt_ead_end_date: string;
   stem_start_date?: string | null;
+  stem_end_date?: string | null;
 }
 
 interface EmploymentSpan {
@@ -285,7 +286,26 @@ export function DashboardContent({ user }: DashboardContentProps) {
       case "tools":
         return <ToolsGrid key="tools" />;
       case "charts":
-        return <ChartsSection key="charts" />;
+        return (
+          <ChartsSection
+            key="charts"
+            unemploymentDays={unemploymentDays}
+            maxUnemploymentDays={maxUnemploymentDays}
+            optStartDate={optStatus?.opt_start_date ?? null}
+            optEadEndDate={optStatus?.opt_ead_end_date ?? null}
+            stemStartDate={optStatus?.stem_start_date ?? null}
+            stemEndDate={optStatus?.stem_end_date ?? null}
+            employmentSpans={(employmentSpans || []).map((s) => ({
+              id: s.id,
+              employer_name: s.employer_name || "",
+              start_date: s.start_date,
+              end_date: s.end_date,
+              is_current: s.is_current,
+              job_title: s.job_title,
+              location: s.location,
+            }))}
+          />
+        );
       case "uscis":
         return <UscisProcessingTimes key="uscis" />;
       case "resources":

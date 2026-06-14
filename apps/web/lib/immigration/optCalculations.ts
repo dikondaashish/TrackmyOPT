@@ -251,8 +251,9 @@ export function calculateUnemploymentDays(
     employmentSpans: EmploymentSpan[],
     stemStartDate?: string | null,
     stemEndDate?: string | null,
+    asOfDate?: string | Date,
 ): UnemploymentBreakdown {
-    const today = toUTCDate(new Date());
+    const today = toUTCDate(asOfDate ?? new Date());
     const start = toUTCDate(optStartDate);
     const initialEnd = toUTCDate(optEadEndDate);
 

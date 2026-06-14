@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       await transporter.sendMail({
         from: getSmtpFromHeader(),
         to: user.email,
-        subject: '🔑 Reset your Document Vault passcode',
+        subject: 'Reset your Document Vault passcode',
         html: buildForgotVaultPasscodeResetEmail(
           otp,
           user.user_metadata?.full_name || 'there',
