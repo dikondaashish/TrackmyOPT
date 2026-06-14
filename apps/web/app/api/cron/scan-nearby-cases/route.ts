@@ -2,11 +2,9 @@
  * Cron Job: Scan nearby receipts around Pro users' tracked cases
  *
  * Fills the shared uscis_case_cache so nearby-case cohorts are warm before
- * users open the dashboard.
+ * users open the dashboard. Triggered every 15 minutes by cron-job.org.
  *
- * Primary schedule: Vercel Cron every 15 minutes (vercel.json).
- *
- * Alternative (cron-job.org — matches other TrackMyOPT cron routes):
+ * Setup on cron-job.org:
  * - URL: https://www.trackmyopt.com/api/cron/scan-nearby-cases
  * - Schedule: Every 15 minutes
  * - Method: GET
