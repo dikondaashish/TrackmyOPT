@@ -100,10 +100,13 @@ export function JobTrackerTableView({
         });
     }, [applications, sortField, sortDirection]);
 
-    const SortHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
+    const SortHeader = ({ field, children, className }: { field: SortField; children: React.ReactNode; className?: string }) => (
         <th
             onClick={() => handleSort(field)}
-            className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
+            className={cn(
+                "px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors",
+                className
+            )}
         >
             <div className="flex items-center gap-1">
                 {children}
@@ -132,18 +135,18 @@ export function JobTrackerTableView({
 
     return (
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full min-w-[900px]">
+            <div className="overflow-x-auto max-md:-mx-3 md:mx-0">
+                <table className="w-full min-w-[560px] lg:min-w-[900px]">
                     <thead className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
                         <tr>
                             <SortHeader field="company">Company</SortHeader>
                             <SortHeader field="role">Role</SortHeader>
                             <SortHeader field="stage">Stage</SortHeader>
-                            <SortHeader field="location">Location</SortHeader>
+                            <SortHeader field="location" className="hidden lg:table-cell">Location</SortHeader>
                             <SortHeader field="applied">Applied</SortHeader>
-                            <SortHeader field="followup">Follow-up</SortHeader>
-                            <SortHeader field="interviews">Interviews</SortHeader>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <SortHeader field="followup" className="hidden md:table-cell">Follow-up</SortHeader>
+                            <SortHeader field="interviews" className="hidden lg:table-cell">Interviews</SortHeader>
+                            <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Status
                             </th>
                             <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -224,7 +227,7 @@ export function JobTrackerTableView({
                                     </td>
 
                                     {/* Location */}
-                                    <td className="px-4 py-3">
+                                    <td className="hidden lg:table-cell px-4 py-3">
                                         <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[120px]">
                                             {app.location || "—"}
                                         </p>
@@ -241,7 +244,7 @@ export function JobTrackerTableView({
                                     </td>
 
                                     {/* Follow-up */}
-                                    <td className="px-4 py-3">
+                                    <td className="hidden md:table-cell px-4 py-3">
                                         {app.next_follow_up_at ? (
                                             <span className={cn(
                                                 "text-sm",
@@ -258,14 +261,14 @@ export function JobTrackerTableView({
                                     </td>
 
                                     {/* Interviews Count */}
-                                    <td className="px-4 py-3">
+                                    <td className="hidden lg:table-cell px-4 py-3">
                                         <span className="text-sm text-gray-600 dark:text-gray-400">
                                             {((app as any).job_interviews || (app as any).interviews || []).length}
                                         </span>
                                     </td>
 
                                     {/* Offer Status */}
-                                    <td className="px-4 py-3">
+                                    <td className="hidden md:table-cell px-4 py-3">
                                         {isOffer ? (
                                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-medium">
                                                 <Check className="w-3 h-3" />
@@ -284,14 +287,14 @@ export function JobTrackerTableView({
                                                     href={app.job_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                                    className="p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                                                 >
                                                     <ExternalLink className="w-4 h-4" />
                                                 </a>
                                             )}
                                             <button
                                                 onClick={() => onCardClick(app)}
-                                                className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                                className="p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                                             >
                                                 <Edit2 className="w-4 h-4" />
                                             </button>
@@ -306,7 +309,7 @@ export function JobTrackerTableView({
                                                             console.error(e);
                                                         }
                                                     }}
-                                                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                    className="p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>

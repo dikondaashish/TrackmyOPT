@@ -11,8 +11,8 @@ export default async function JobTrackerPage() {
     const customStages = await getCustomStages();
 
     return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-background">
+            <div className="max-w-[1600px] mx-auto max-md:px-0 max-md:py-0 px-4 sm:px-6 lg:px-8 py-8">
 
 
                 {/* Main Content */}

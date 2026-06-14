@@ -133,7 +133,7 @@ function TaxResultsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
+    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
       {/* Header */}
       <div className="max-w-5xl mx-auto px-4 pt-6 pb-4">
         <button

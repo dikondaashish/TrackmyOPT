@@ -105,7 +105,7 @@ function ResultsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
+    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
       {/* Header */}
       <div className="border-b border-slate-100 dark:border-border bg-white/80 dark:bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3">

@@ -443,11 +443,11 @@ export default function ResumeGeneratorPage() {
 
     return (
         <>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-                    <div className="grid grid-cols-[auto_1fr_auto] lg:grid-cols-3 items-center gap-4">
+                <div className="max-w-7xl mx-auto max-md:px-3 md:px-4 sm:px-6 py-4">
+                    <div className="grid grid-cols-1 max-md:gap-3 md:grid-cols-[auto_1fr_auto] lg:grid-cols-3 items-center gap-4">
                         {/* Back Button */}
                         <div className="flex justify-start">
                             <Link
@@ -494,7 +494,7 @@ export default function ResumeGeneratorPage() {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 max-md:px-3 py-6 sm:py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                     <div className="space-y-6">

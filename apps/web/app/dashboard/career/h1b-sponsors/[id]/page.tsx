@@ -244,14 +244,14 @@ export default function CompanyProfilePage() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{sponsor.name}</h1>
-                            <div className="flex items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400">
                                 <span className="inline-flex items-center gap-1">
                                     <MapPin className="w-4 h-4" />
                                     {sponsor.location}
                                 </span>
-                                <span>•</span>
+                                <span className="max-md:hidden">•</span>
                                 <span>{sponsor.industry}</span>
-                                <span>•</span>
+                                <span className="max-md:hidden">•</span>
                                 <span className="capitalize">{sponsor.size}</span>
                             </div>
 
@@ -283,7 +283,7 @@ export default function CompanyProfilePage() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex max-md:flex-wrap max-md:w-full items-center gap-3">
                         {/* Score Badge */}
                         <div className={`${scoreColors.light} rounded-xl px-4 py-2 border border-transparent`}>
                             <div className="flex items-center gap-2">
@@ -308,7 +308,7 @@ export default function CompanyProfilePage() {
                             href={sponsor.careers_url || `https://www.google.com/search?q=${encodeURIComponent(sponsor.name + " careers")}`}
                             target="_blank"
                             rel="noreferrer"
-                            className={`flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors ${sponsor.careers_url
+                            className={`max-md:flex-1 max-md:justify-center flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors ${sponsor.careers_url
                                 ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/25"
                                 : "bg-blue-600 hover:bg-blue-700 text-white"
                                 }`}

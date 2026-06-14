@@ -169,25 +169,25 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
             <div className="relative w-full max-w-xl bg-white dark:bg-gray-900 shadow-2xl h-full flex flex-col pointer-events-auto border-l border-gray-200 dark:border-gray-800 animate-in slide-in-from-right duration-300">
 
                 {/* Header */}
-                <div className="flex items-start justify-between p-6 border-b border-gray-100 dark:border-gray-800">
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                <div className="flex items-start justify-between p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
+                    <div className="min-w-0 pr-2">
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1 truncate">
                             {application.company_name}
                         </h2>
-                        <p className="text-lg text-gray-500 dark:text-gray-400">
+                        <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 truncate">
                             {application.role_title}
                         </p>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
+                    <Button variant="ghost" size="icon" onClick={onClose} className="max-md:min-h-11 max-md:min-w-11 shrink-0">
                         <X className="w-5 h-5" />
                     </Button>
                 </div>
 
                 {/* Content - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8">
 
                     {/* Status & Links */}
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div className="space-y-2">
                             <Label>Status</Label>
                             <select
@@ -238,7 +238,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
 
                         {isAddingInterview && (
                             <div className="p-4 mb-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 space-y-3">
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="space-y-1">
                                         <Label className="text-xs">Round Name</Label>
                                         <Input
@@ -294,7 +294,7 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
 
                         {isAddingFollowup && (
                             <div className="p-4 mb-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 space-y-3">
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="space-y-1">
                                         <Label className="text-xs">Date</Label>
                                         <Input

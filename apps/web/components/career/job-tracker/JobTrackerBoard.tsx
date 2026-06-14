@@ -410,7 +410,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
             {/* Title + Stats Row */}
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-2">
                 {/* Title Section */}
-                <div className="flex items-center gap-4 min-w-max">
+                <div className="flex items-center gap-4 min-w-0 max-md:w-full">
                     <div className="p-3 rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
                         <ClipboardList className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
                     </div>
@@ -429,11 +429,11 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
             </div>
 
             {/* Controls Row: Usage Bar + Actions */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+            <div className="flex flex-col max-md:items-stretch md:flex-row md:items-center justify-between gap-4 w-full">
                 <div className="w-full md:w-auto">
                     <JobTrackerUsageBar applications={applications} planTier={planTier} />
                 </div>
-                <div className="flex items-center gap-2 self-end md:self-auto">
+                <div className="flex items-center gap-2 max-md:w-full max-md:justify-between md:self-auto self-end">
                     <ViewSwitcher currentView={currentView} onViewChange={handleViewChange} />
                     <AddApplicationModal 
                         onAdd={handleAdd} 
@@ -485,7 +485,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
                             })}
 
                             {/* Add Column Button (Premium Gate) */}
-                            <div className="flex flex-col h-full min-w-[320px] w-[320px] snap-start">
+                            <div className="flex flex-col h-full min-w-[85vw] w-[85vw] md:min-w-[320px] md:w-[320px] snap-start">
                                 <button
                                     onClick={() => {
                                         // Robust Premium Check

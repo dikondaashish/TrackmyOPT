@@ -158,7 +158,7 @@ export default function ReferralStatsPage() {
           {rows[0] && (
             <button
               onClick={() => handleCopy(rows[0].code)}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-md border text-sm hover:bg-muted"
+              className="inline-flex items-center gap-2 px-3 py-2 max-md:min-h-11 rounded-md border text-sm hover:bg-muted w-full sm:w-auto justify-center"
             >
               <Copy className="w-4 h-4" />
               {copiedCode === rows[0].code ? "Copied Link" : "Copy Primary Referral Link"}
@@ -167,7 +167,69 @@ export default function ReferralStatsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card overflow-x-auto shadow-sm">
+      <div className="md:hidden space-y-3">
+        {rows.length === 0 ? (
+          <div className="rounded-xl border bg-card p-6 text-center text-muted-foreground text-sm">
+            No referral code found for your account yet.
+          </div>
+        ) : (
+          rows.map((row) => {
+            const link = `https://www.trackmyopt.com/?ref=${row.code}`;
+            const rowSignupRate = row.clicks > 0 ? ((row.signups || 0) / row.clicks) * 100 : 0;
+            return (
+              <div key={row.code} className="rounded-xl border bg-card p-4 shadow-sm space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-semibold">{row.code}</div>
+                    <div className="text-xs text-muted-foreground truncate">{row.name || "Referral code"}</div>
+                  </div>
+                  <span className={`shrink-0 px-2 py-1 rounded-full text-xs ${row.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                    {row.is_active ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <div className="text-xs text-muted-foreground">Clicks</div>
+                    <div className="font-medium">{row.clicks || 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">Signups</div>
+                    <div className="font-medium">{row.signups || 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">Premium</div>
+                    <div className="font-medium">{row.premium_conversions || 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">CVR</div>
+                    <div className="font-medium">{formatRate(rowSignupRate)}</div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 max-md:min-h-11 rounded-md border text-sm hover:bg-muted"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Open Link
+                  </a>
+                  <button
+                    onClick={() => handleCopy(row.code)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 max-md:min-h-11 rounded-md border text-sm hover:bg-muted"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    {copiedCode === row.code ? "Copied" : "Copy Link"}
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="hidden md:block rounded-xl border bg-card overflow-x-auto shadow-sm">
         <table className="w-full text-sm">
           <thead className="bg-muted/40">
             <tr>
@@ -206,7 +268,7 @@ export default function ReferralStatsPage() {
                         <ExternalLink className="w-3 h-3 text-muted-foreground" />
                         <button
                           onClick={() => handleCopy(row.code)}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs hover:bg-muted"
+                          className="inline-flex items-center gap-1 max-md:min-h-11 max-md:px-3 px-2 py-1 rounded-md border text-xs hover:bg-muted"
                         >
                           <Copy className="w-3 h-3" />
                           {copiedCode === row.code ? "Copied" : "Copy"}

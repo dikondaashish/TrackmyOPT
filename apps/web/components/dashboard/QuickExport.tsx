@@ -146,7 +146,7 @@ Always verify information with your DSO.
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid max-md:grid-cols-1 grid-cols-3 gap-2">
         {exportOptions.map((option) => (
           <button
             key={option.format}

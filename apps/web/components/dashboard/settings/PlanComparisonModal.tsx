@@ -41,7 +41,7 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
             </Button>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="max-w-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800" onClose={() => setIsOpen(false)}>
+                <DialogContent className="max-w-3xl max-md:max-w-[calc(100vw-1.5rem)] max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800" onClose={() => setIsOpen(false)}>
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-center mb-2">Plan Comparison</DialogTitle>
                         <p className="text-center text-gray-500 dark:text-gray-400 mb-6">
@@ -50,12 +50,12 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
                     </DialogHeader>
 
                     <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                        <table className="w-full min-w-[480px] text-sm text-left">
+                        <table className="w-full min-w-0 md:min-w-[480px] text-sm text-left">
                             <thead className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold">
                                 <tr>
-                                    <th className="py-4 px-6 w-1/3">Feature</th>
-                                    <th className="py-4 px-6 w-1/3 text-center text-gray-600 dark:text-gray-400">Free</th>
-                                    <th className="py-4 px-6 w-1/3 text-center text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10">
+                                    <th className="py-3 md:py-4 px-3 md:px-6 w-1/3">Feature</th>
+                                    <th className="py-3 md:py-4 px-3 md:px-6 w-1/3 text-center text-gray-600 dark:text-gray-400">Free</th>
+                                    <th className="py-3 md:py-4 px-3 md:px-6 w-1/3 text-center text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10">
                                         Premium
                                     </th>
                                 </tr>
@@ -63,13 +63,13 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {features.map((feature, i) => (
                                     <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                        <td className="py-3 px-6 font-medium text-gray-700 dark:text-gray-300">
+                                        <td className="py-3 px-3 md:px-6 font-medium text-gray-700 dark:text-gray-300">
                                             {feature.name}
                                         </td>
-                                        <td className="py-3 px-6 text-center text-gray-600 dark:text-gray-400">
+                                        <td className="py-3 px-3 md:px-6 text-center text-gray-600 dark:text-gray-400">
                                             {feature.free}
                                         </td>
-                                        <td className={`py-3 px-6 text-center font-medium ${feature.highlight ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'} bg-blue-50/30 dark:bg-blue-900/5`}>
+                                        <td className={`py-3 px-3 md:px-6 text-center font-medium ${feature.highlight ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'} bg-blue-50/30 dark:bg-blue-900/5`}>
                                             {feature.pro}
                                         </td>
                                     </tr>

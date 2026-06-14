@@ -88,14 +88,14 @@ function DateInput({ id, label, value, onChange, placeholder = "MM/DD/YYYY", des
         <button
           type="button"
           onClick={() => setShowCalendar(!showCalendar)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           aria-label="Open calendar"
         >
           <CalendarIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>
         
         {showCalendar && (
-          <div ref={calendarRef} className="absolute top-full mt-2 z-50">
+          <div ref={calendarRef} className="absolute top-full mt-2 z-50 right-0 max-md:left-0 max-md:right-0">
             <DatePicker value={value} onSelect={handleDateSelect} />
           </div>
         )}
@@ -190,7 +190,7 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
   };
 
   return (
-    <Card className="p-4 w-80 shadow-lg">
+    <Card className="p-4 w-[min(20rem,calc(100vw-2rem))] max-w-full shadow-lg">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button

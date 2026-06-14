@@ -26,7 +26,7 @@ export function JobStageColumn({ column, applications, onCardClick, onDelete }: 
     };
 
     return (
-        <div className="flex flex-col h-full min-w-[320px] w-[320px] snap-start">
+        <div className="flex flex-col h-full min-w-[85vw] w-[85vw] md:min-w-[320px] md:w-[320px] snap-start">
             {/* Clean Header */}
             <div className="flex items-center justify-between p-4 rounded-t-xl bg-slate-50 dark:bg-slate-900 border border-b-0 border-slate-200 dark:border-slate-800 group">
                 <div className="flex items-center gap-2">

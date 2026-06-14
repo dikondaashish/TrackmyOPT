@@ -156,7 +156,7 @@ export function LatexToolbar({
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => onViewModeChange('split')}
-                                    className={`h-7 w-7 rounded ${viewMode === 'split' ? 'bg-white dark:bg-gray-700 shadow text-blue-600' : 'text-gray-500'}`}
+                                    className={`hidden md:flex h-7 w-7 rounded ${viewMode === 'split' ? 'bg-white dark:bg-gray-700 shadow text-blue-600' : 'text-gray-500'}`}
                                 >
                                     <Columns className="w-4 h-4" />
                                 </Button>
@@ -196,7 +196,7 @@ function ToolbarButton({ icon: Icon, label, onClick, disabled }: { icon: LucideI
                     size="icon"
                     onClick={onClick}
                     disabled={disabled}
-                    className="h-8 w-8 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="max-md:min-h-11 max-md:min-w-11 h-8 w-8 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                     <Icon className="w-4 h-4" />
                 </Button>

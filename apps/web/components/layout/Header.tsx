@@ -25,7 +25,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                 {onMenuToggle && (
                     <button
                         onClick={onMenuToggle}
-                        className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        className="lg:hidden min-h-11 min-w-11 p-2.5 rounded-lg hover:bg-white/10 transition-colors flex items-center justify-center"
                         aria-label="Toggle menu"
                     >
                         <Menu className="w-5 h-5 text-white" />
@@ -55,7 +55,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                 {!isPremium && (
                     <Link
                         href="/premium/checkout"
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-sm font-semibold rounded-full hover:from-amber-500 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
+                        className="flex items-center gap-2 px-3 py-2 max-md:min-h-11 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-sm font-semibold rounded-full hover:from-amber-500 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
                     >
                         <Crown className="w-4 h-4" />
                         <span className="hidden md:inline">Upgrade to Premium</span>
@@ -89,7 +89,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                 {/* Mobile Simple Deals Icon */}
                 <Link
                     href="/dashboard/offers"
-                    className="sm:hidden p-2 text-gray-300 hover:text-white transition-colors relative"
+                    className="sm:hidden min-h-11 min-w-11 p-2.5 text-gray-300 hover:text-white transition-colors relative flex items-center justify-center"
                 >
                     <Tag className="w-5 h-5" />
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-gray-900" />

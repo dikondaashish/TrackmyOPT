@@ -456,7 +456,7 @@ export function Sidebar({
                         <span className="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
                         <button
                             onClick={onMobileClose}
-                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+                            className="min-h-11 min-w-11 p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 flex items-center justify-center"
                             aria-label="Close menu"
                         >
                             <X className="w-5 h-5" />

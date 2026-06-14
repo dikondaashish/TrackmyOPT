@@ -94,7 +94,7 @@ export function OfferDetailsSection({
             </div>
 
             {/* Fields */}
-            <div className="grid grid-cols-2 gap-4 mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                 {/* Salary */}
                 <div className="space-y-2">
                     <Label className="text-xs text-gray-600 dark:text-gray-400">Offer Salary</Label>

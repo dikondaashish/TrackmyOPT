@@ -28,7 +28,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             <button
                 onClick={() => setTheme("light")}
                 className={cn(
-                    "w-7 h-7 flex items-center justify-center rounded-full transition-all duration-200",
+                    "max-md:min-h-11 max-md:min-w-11 max-md:w-11 max-md:h-11 w-7 h-7 flex items-center justify-center rounded-full transition-all duration-200",
                     theme === 'light'
                         ? "bg-white text-yellow-500 shadow-sm scale-110"
                         : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -40,7 +40,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             <button
                 onClick={() => setTheme("dark")}
                 className={cn(
-                    "w-7 h-7 flex items-center justify-center rounded-full transition-all duration-200",
+                    "max-md:min-h-11 max-md:min-w-11 max-md:w-11 max-md:h-11 w-7 h-7 flex items-center justify-center rounded-full transition-all duration-200",
                     theme === 'dark'
                         ? "bg-gray-700 text-blue-400 shadow-sm scale-110"
                         : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"

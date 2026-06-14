@@ -159,7 +159,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                         <h3 className="font-semibold text-gray-900 dark:text-white">Processing Speed</h3>
                     </div>
 
-                    <div className="mt-auto grid grid-cols-2 gap-4 items-center">
+                    <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                         {/* Speed Metric */}
                         <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Avg Time</p>
@@ -259,7 +259,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Worksite Hotspots</h3>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {stats.topLocations.map(([loc, count], i) => (
                             <div key={loc} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
                                 <p className="text-xs text-gray-500 uppercase font-medium">Location #{i + 1}</p>

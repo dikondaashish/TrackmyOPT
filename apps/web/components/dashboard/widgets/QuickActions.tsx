@@ -79,7 +79,7 @@ export function QuickActions() {
         <Link
           key={action.id}
           href={action.href}
-          className="group flex flex-col items-center p-4 bg-card border border-border rounded-xl hover:border-primary/50 hover:shadow-md transition-all"
+          className="group flex flex-col items-center max-md:min-h-[88px] p-4 bg-card border border-border rounded-xl hover:border-primary/50 hover:shadow-md transition-all"
         >
           <div className={`p-3 rounded-xl ${action.color} mb-3 group-hover:scale-110 transition-transform`}>
             {action.icon}

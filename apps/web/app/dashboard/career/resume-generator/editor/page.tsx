@@ -105,8 +105,10 @@ export default function ResumeEditorPage() {
 
     // Sync View Mode
     const handleViewModeChange = (mode: EditorViewMode) => {
-        setViewMode(mode);
-        switch (mode) {
+        const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+        const nextMode = isMobile && mode === "split" ? "visual" : mode;
+        setViewMode(nextMode);
+        switch (nextMode) {
             case 'code':
                 setShowPreview(false);
                 setEditorWidth(100);
@@ -123,6 +125,14 @@ export default function ResumeEditorPage() {
     };
 
     // 1. Load data & Generate on Mount (run once)
+    useEffect(() => {
+        if (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches) {
+            setViewMode("visual");
+            setShowPreview(true);
+            setEditorWidth(0);
+        }
+    }, []);
+
     useEffect(() => {
         if (resumeText && jobDescription && selectedTemplateId && !generatedLatex && !isGenerating) {
             generateResume(resumeText, jobDescription, selectedTemplateId);
@@ -497,7 +507,7 @@ export default function ResumeEditorPage() {
     };
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
+        <div className="max-md:-mx-3 max-md:-my-3 max-md:min-h-[calc(100dvh-3.5rem-var(--tmopt-dashboard-promo,0px)-0.5rem)] md:h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
             {/* Feedback Modal */}
             <OptimizationFeedbackModal
                 isOpen={showFeedbackModal}
@@ -542,7 +552,17 @@ export default function ResumeEditorPage() {
                                 size="sm"
                                 onClick={handleSave}
                                 disabled={isSaving || !generatedLatex}
-                                className="hidden sm:flex items-center gap-1 text-gray-600"
+                                className="md:hidden min-h-11 min-w-11 p-0"
+                                aria-label="Save resume"
+                            >
+                                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleSave}
+                                disabled={isSaving || !generatedLatex}
+                                className="hidden md:flex items-center gap-1 text-gray-600"
                             >
                                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                 <span className="hidden lg:inline">Save</span>
@@ -564,7 +584,16 @@ export default function ResumeEditorPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={handleCopy}
-                                className="hidden sm:flex items-center gap-1"
+                                className="md:hidden min-h-11 min-w-11 p-0"
+                                aria-label="Copy LaTeX source"
+                            >
+                                {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleCopy}
+                                className="hidden md:flex items-center gap-1"
                             >
                                 {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                 {isCopied ? "Copied" : "Copy Source"}
@@ -595,13 +624,13 @@ export default function ResumeEditorPage() {
             />
 
             {/* Main Editor Area */}
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex max-md:flex-col overflow-hidden">
                 {/* LaTeX Editor */}
                 {/* Note: We keep the container even if width is "0" to keep state alive, 
                     but simpler to just condition on viewMode for now or use hidden class 
                 */}
                 <div
-                    className={`flex flex-col border-r border-gray-200 dark:border-gray-800 transition-all duration-300 ${viewMode === 'visual' ? 'hidden' : 'block'}`}
+                    className={`flex flex-col border-r border-gray-200 dark:border-gray-800 transition-all duration-300 max-md:!w-full max-md:flex-1 ${viewMode === 'visual' ? 'hidden' : 'block'}`}
                     style={{ width: viewMode === 'code' ? '100%' : viewMode === 'split' ? '50%' : '0%' }}
                 >
                     {/* Editor Header */}
@@ -667,7 +696,7 @@ export default function ResumeEditorPage() {
 
                 {/* PDF Preview */}
                 <div
-                    className={`flex flex-col bg-gray-100 dark:bg-gray-800 transition-all duration-300 ${viewMode === 'code' ? 'hidden' : 'block'}`}
+                    className={`flex flex-col bg-gray-100 dark:bg-gray-800 transition-all duration-300 max-md:!w-full max-md:flex-1 ${viewMode === 'code' ? 'hidden' : 'block'}`}
                     style={{ width: viewMode === 'visual' ? '100%' : viewMode === 'split' ? '50%' : '0%' }}
                 >
                     {/* Preview Content */}

@@ -1193,7 +1193,7 @@ export function SettingsSection() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors
+                flex items-center gap-2 max-md:min-h-11 max-md:px-3 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors
                 ${activeTab === tab.id
                   ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'

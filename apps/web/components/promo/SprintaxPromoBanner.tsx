@@ -106,7 +106,7 @@ export function SprintaxPromoBanner({ variant }: SprintaxPromoBannerProps) {
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
         <Link
           href={ctaHref}
-          className="inline-flex items-center gap-1 rounded-md bg-black px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-zinc-900 sm:px-4 sm:text-sm"
+          className="inline-flex items-center gap-1 rounded-md bg-black px-3 py-2 max-md:min-h-11 text-xs font-semibold text-white transition hover:bg-zinc-900 sm:px-4 sm:text-sm"
         >
           {ctaLabel}
           <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
@@ -114,7 +114,7 @@ export function SprintaxPromoBanner({ variant }: SprintaxPromoBannerProps) {
         <button
           type="button"
           onClick={dismiss}
-          className="rounded p-1 text-white/80 transition hover:bg-white/10 hover:text-white"
+          className="rounded max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center p-1 text-white/80 transition hover:bg-white/10 hover:text-white"
           aria-label="Dismiss promotion"
         >
           <X className="h-4 w-4 sm:h-5 sm:w-5" />

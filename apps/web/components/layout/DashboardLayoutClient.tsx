@@ -127,11 +127,11 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
                 )}
             >
                 {/* Outer Padding Container */}
-                <div className="h-full p-2 sm:p-4 overflow-hidden">
+                <div className="h-full p-1 sm:p-4 overflow-hidden">
                     {/* White Container - THIS IS THE SCROLLABLE AREA */}
                     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm h-full overflow-y-auto">
                         {/* Inner Padding */}
-                        <div className="p-4 sm:p-6">
+                        <div className="p-3 sm:p-6">
                             {children}
                         </div>
                     </div>

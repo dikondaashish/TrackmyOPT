@@ -887,50 +887,50 @@ export function CaseStatusSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Case Type</span>
-                    <span className="text-sm font-semibold text-right">
+                    <span className="text-sm font-semibold max-md:text-left text-right">
                       {caseStatus.case_type || '—'}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Receipt Number</span>
-                    <span className="text-sm font-semibold font-mono text-right ph-mask" data-ph-mask data-receipt-display>
+                    <span className="text-sm font-semibold font-mono max-md:text-left text-right ph-mask" data-ph-mask data-receipt-display>
                       {caseStatus.receipt_number}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Filing Date</span>
-                    <span className="text-sm font-semibold text-right">
+                    <span className="text-sm font-semibold max-md:text-left text-right">
                       {caseStatus.received_date ? formatDateShort(caseStatus.received_date) : '—'}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Service Center</span>
-                    <span className="text-sm font-semibold text-right ph-mask" data-ph-mask>
+                    <span className="text-sm font-semibold max-md:text-left text-right ph-mask" data-ph-mask>
                       {getServiceCenter(caseStatus.receipt_number)}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Current Status</span>
-                    <span className="text-sm font-semibold text-right max-w-[60%]">
+                    <span className="text-sm font-semibold max-md:text-left max-md:max-w-full text-right max-w-[60%]">
                       {formatStatusLabel(caseStatus.current_status, "Checking USCIS status…")}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex max-md:flex-col max-md:items-stretch max-md:gap-3 items-center justify-between pt-4 text-sm text-gray-500 dark:text-gray-400">
                     <div>
                       <span className="text-xs font-medium">Time Since Filed</span>
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {getDaysAgo(caseStatus.received_date)}
                       </p>
                     </div>
-                    <div className="w-px h-10 bg-gray-300 dark:bg-gray-700"></div>
-                    <div className="text-right">
+                    <div className="max-md:hidden w-px h-10 bg-gray-300 dark:bg-gray-700" />
+                    <div className="max-md:text-left text-right">
                       <span className="text-xs font-medium">Last Status Change</span>
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {getDaysAgo(caseStatus.last_status_change_at)}
@@ -958,7 +958,7 @@ export function CaseStatusSection() {
               <p className="font-medium text-gray-900 dark:text-gray-100">
                 {formatStatusLabel(caseStatus.current_status, "Checking USCIS status…")}
               </p>
-              <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 grid grid-cols-2 gap-4 text-sm">
+              <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 grid max-md:grid-cols-1 grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600 dark:text-gray-400">Case Type</span>
                   <p className="font-semibold">{caseStatus.case_type || '—'}</p>

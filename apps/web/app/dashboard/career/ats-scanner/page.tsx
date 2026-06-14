@@ -5,8 +5,8 @@ import Link from "next/link";
 
 export default function ATSScannerPage() {
     return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-background">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 max-md:px-3 py-4 sm:py-6 md:py-10">
                 {/* Back Link */}
                 <Link
                     href="/dashboard/career"

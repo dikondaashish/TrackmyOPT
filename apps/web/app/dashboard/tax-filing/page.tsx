@@ -119,7 +119,7 @@ export default function TaxFilingPage() {
   const filingRequirement = getFilingRequirement();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
+    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/5 via-transparent to-teal-500/5" />

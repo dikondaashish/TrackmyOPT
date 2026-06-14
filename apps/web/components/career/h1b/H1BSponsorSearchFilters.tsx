@@ -66,7 +66,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
                 </div>
 
                 {/* Sort Option */}
-                <div className="relative group min-w-[180px]">
+                <div className="relative group max-md:w-full md:min-w-[180px]">
                     <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     <select
                         value={filters.sort}
@@ -82,7 +82,7 @@ export function H1BSponsorSearchFilters({ filters, onFilterChange, allIndustries
             </div>
 
             {/* Filters Row */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 max-md:[&_select]:min-h-11">
                 <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Filters:</span>
 
                 {/* State Filter */}
