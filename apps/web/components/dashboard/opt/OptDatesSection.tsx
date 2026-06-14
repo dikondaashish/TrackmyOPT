@@ -32,7 +32,7 @@ const PricingModal = dynamic(
   { ssr: false }
 );
 
-interface OptDatesData extends OptDatesFormData {}
+type OptDatesData = OptDatesFormData;
 
 interface EmploymentSpan {
   id: string;
