@@ -273,6 +273,26 @@ export async function POST(req: NextRequest) {
       console.error('Failed to trigger initial status check:', err);
     });
 
+    if (isPremium && isNewReceipt) {
+      fetch(
+        `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/nearby/scan`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Internal-Secret': process.env.CRON_SECRET || '',
+          },
+          body: JSON.stringify({
+            receipt: normalizedReceipt,
+            before: 100,
+            after: 100,
+          }),
+        }
+      ).catch((err) => {
+        console.error('Failed to warm nearby case cache:', err);
+      });
+    }
+
     return NextResponse.json(
       { ok: true, data: caseStatus, enrollmentEmailSent: isNewEnrollment },
       { status: 200, headers: corsHeaders }

@@ -18,6 +18,7 @@ import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHist
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
 import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
 import { CaseStatusOverview } from "@/components/dashboard/case-status/CaseStatusOverview";
+import { PremiumProcessingCountdown } from "@/components/dashboard/case-status/PremiumProcessingCountdown";
 import { CaseStatusReceiptPanel } from "@/components/dashboard/case-status/CaseStatusReceiptPanel";
 import { StatusChangeUpgradeBanner } from "@/components/dashboard/case-status/StatusChangeUpgradeBanner";
 import { ManualRefreshUpsellPrompt } from "@/components/dashboard/case-status/ManualRefreshUpsellPrompt";
@@ -64,6 +65,7 @@ interface CaseStatus {
   current_status: string | null;
   case_type: string | null;
   received_date: string | null;
+  pp_start_date?: string | null;
   last_checked_at: string | null;
   last_status_change_at: string | null;
   last_status_viewed_at?: string | null;
@@ -113,6 +115,8 @@ export function CaseStatusSection() {
   const [wedgeDismissed, setWedgeDismissed] = useState(false);
   const [showManualRefreshUpsell, setShowManualRefreshUpsell] = useState(false);
   const [isEditingReceipt, setIsEditingReceipt] = useState(false);
+  const [filingDateInput, setFilingDateInput] = useState("");
+  const [filingDateSaving, setFilingDateSaving] = useState(false);
 
   const showStatusChangeWedge = useMemo(() => {
     if (wedgeDismissed || isPremium !== false || !caseStatus) return false;
@@ -533,6 +537,40 @@ export function CaseStatusSection() {
     });
   };
 
+  const handleSaveFilingDate = async () => {
+    if (!caseStatus || !filingDateInput) {
+      setError("Please enter a valid filing date.");
+      return;
+    }
+
+    try {
+      setFilingDateSaving(true);
+      setError(null);
+      const response = await fetch("/api/case-status/filing-date", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          case_id: caseStatus.id,
+          received_date: filingDateInput,
+        }),
+      });
+      const result = await response.json();
+      if (response.ok && result.ok) {
+        await loadCaseStatus();
+        setFilingDateInput("");
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.error || "Failed to save filing date.");
+      }
+    } catch {
+      setError("An error occurred while saving filing date.");
+    } finally {
+      setFilingDateSaving(false);
+    }
+  };
+
   const handleEmailSave = async () => {
     if (isPremium === false) {
       setShowPricingModal(true);
@@ -755,6 +793,14 @@ export function CaseStatusSection() {
             </Card>
           )}
 
+          <PremiumProcessingCountdown
+            caseId={caseStatus.id}
+            ppStartDate={caseStatus.pp_start_date ?? null}
+            currentStatus={caseStatus.current_status}
+            statusHistory={caseStatus.status_history ?? []}
+            onSaved={() => void loadCaseStatus()}
+          />
+
           {caseStatus.current_status && (
             <Card className="p-6 sm:p-7 border-0 shadow-lg">
               <h3 className="text-xs font-extrabold text-muted-foreground mb-5 uppercase tracking-widest">
@@ -916,11 +962,32 @@ export function CaseStatusSection() {
                     </span>
                   </div>
 
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-2 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Filing Date</span>
-                    <span className="text-sm font-semibold max-md:text-left text-right">
-                      {caseStatus.received_date ? formatDateShort(caseStatus.received_date) : '—'}
-                    </span>
+                    {caseStatus.received_date ? (
+                      <span className="text-sm font-semibold max-md:text-left text-right">
+                        {formatDateShort(caseStatus.received_date)}
+                      </span>
+                    ) : (
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto max-md:w-full">
+                        <Input
+                          type="date"
+                          value={filingDateInput}
+                          onChange={(e) => setFilingDateInput(e.target.value)}
+                          className="h-9 text-sm max-md:w-full"
+                          aria-label="Filing date"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => void handleSaveFilingDate()}
+                          disabled={filingDateSaving || !filingDateInput}
+                          className="shrink-0"
+                        >
+                          {filingDateSaving ? "Saving…" : "Add date"}
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">

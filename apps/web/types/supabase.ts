@@ -53,6 +53,7 @@ export type Database = {
           status_last_changed_at: string | null
           last_change_alert_suppressed: boolean
           notifications_enabled: boolean | null
+          pp_start_date: string | null
           receipt_number: string
           received_date: string | null
           is_primary: boolean
@@ -78,6 +79,7 @@ export type Database = {
           status_last_changed_at?: string | null
           last_change_alert_suppressed?: boolean
           notifications_enabled?: boolean | null
+          pp_start_date?: string | null
           receipt_number: string
           received_date?: string | null
           is_primary?: boolean
@@ -103,6 +105,7 @@ export type Database = {
           status_last_changed_at?: string | null
           last_change_alert_suppressed?: boolean
           notifications_enabled?: boolean | null
+          pp_start_date?: string | null
           receipt_number?: string
           received_date?: string | null
           is_primary?: boolean

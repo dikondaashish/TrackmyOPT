@@ -11,6 +11,13 @@ export function normalizeStatusCategory(status: string | null | undefined): stri
   if (typeof status !== "string" || !status.trim()) return "unknown";
   const s = status.trim().toLowerCase();
 
+  if (
+    s.includes("premium processing") ||
+    s.includes("changed to premium") ||
+    s.includes("upgraded to premium")
+  ) {
+    return "premium_processing";
+  }
   if (s.includes("delivered") || s.includes("produced") || s.includes("approved")) {
     return "approved";
   }

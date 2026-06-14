@@ -161,6 +161,7 @@ CREATE TABLE IF NOT EXISTS public.case_status (
   current_status TEXT,                        -- Latest case status from USCIS
   case_type TEXT,                             -- Type of case (I-765, I-129, etc.)
   received_date DATE,
+  pp_start_date DATE,                         -- USCIS Premium Processing start (15 biz-day clock)
   is_primary BOOLEAN NOT NULL DEFAULT FALSE,  -- Dashboard primary case (one per user)
   label TEXT,                                 -- Optional user label (e.g. OPT EAD)
   

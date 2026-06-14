@@ -10,6 +10,8 @@ import {
 } from '@/lib/posthog/case-status-analytics';
 import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
 import { applyFreeUserChangeWedgeToUpdate } from '@/lib/case-status/free-change-wedge';
+import { resolveReceivedDate } from '@/lib/case-status/filing-date';
+import { resolvePpStartDateForStorage } from '@/lib/case-status/premium-processing';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -228,7 +230,16 @@ export async function POST(req: NextRequest) {
       const mockUpdateData: Record<string, unknown> = {
         current_status: mockStatus.status,
         case_type: mockStatus.caseType,
-        received_date: mockStatus.receivedDate,
+        received_date: resolveReceivedDate({
+          uscisReceivedDate: mockStatus.receivedDate,
+          statusHistory,
+          existingReceivedDate: currentCase?.received_date,
+        }),
+        pp_start_date: resolvePpStartDateForStorage({
+          existingManual: currentCase?.pp_start_date,
+          statusHistory,
+          currentStatus: mockStatus.status,
+        }),
         last_checked_at: new Date().toISOString(),
         last_status_change_at: (isFirstCheck || hasStatusChanged)
           ? new Date().toISOString()
@@ -375,7 +386,16 @@ export async function POST(req: NextRequest) {
     const updateData: Record<string, unknown> = {
       current_status: uscisStatus.status,
       case_type: uscisStatus.caseType,
-      received_date: uscisStatus.receivedDate,
+      received_date: resolveReceivedDate({
+        uscisReceivedDate: uscisStatus.receivedDate,
+        statusHistory,
+        existingReceivedDate: currentCase?.received_date,
+      }),
+      pp_start_date: resolvePpStartDateForStorage({
+        existingManual: currentCase?.pp_start_date,
+        statusHistory,
+        currentStatus: uscisStatus.status,
+      }),
       last_checked_at: new Date().toISOString(),
       last_status_change_at: (isFirstCheck || hasStatusChanged)
         ? new Date().toISOString()

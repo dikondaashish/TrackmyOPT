@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,8 @@ type NearbyCasesCohortProps = {
 };
 
 const RANGE_OPTIONS = [25, 50, 100, 250, 500];
+const POLL_INTERVAL_MS = 10_000;
+const MAX_POLL_ATTEMPTS = 12;
 
 const CATEGORY_META: Record<
   CohortCase["category"],
@@ -229,6 +231,7 @@ export function NearbyCasesCohort({
   const [analytics, setAnalytics] = useState<CohortAnalytics | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const pollAttemptsRef = useRef(0);
 
   const loadCohort = useCallback(async () => {
     if (isPremium !== true) return;
@@ -255,6 +258,28 @@ export function NearbyCasesCohort({
   useEffect(() => {
     if (isPremium === true) void loadCohort();
   }, [loadCohort, isPremium]);
+
+  useEffect(() => {
+    pollAttemptsRef.current = 0;
+  }, [receiptNumber, range]);
+
+  useEffect(() => {
+    if (isPremium !== true || !analytics || analytics.pending <= 0) return;
+    if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) return;
+
+    const timer = setInterval(() => {
+      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+        clearInterval(timer);
+        return;
+      }
+      pollAttemptsRef.current += 1;
+      void loadCohort();
+    }, POLL_INTERVAL_MS);
+
+    return () => clearInterval(timer);
+  }, [analytics?.pending, analytics?.totalScanned, isPremium, loadCohort]);
+
+  const isLiveScanning = Boolean(analytics && analytics.pending > 0);
 
   /* ── Free / locked state ──────────────────────────────────── */
   if (isPremium !== true) {
@@ -454,7 +479,14 @@ export function NearbyCasesCohort({
             {analytics.pending > 0 && (
               <div>
                 <div className="flex items-center justify-between text-xs text-muted-foreground mb-2 font-medium">
-                  <span>Scan coverage</span>
+                  <span>
+                    Scan coverage
+                    {isLiveScanning && (
+                      <span className="ml-2 text-indigo-600 dark:text-indigo-400">
+                        · Scanning nearby cases… updating live
+                      </span>
+                    )}
+                  </span>
                   <span className="tabular-nums">
                     {analytics.totalScanned}/{analytics.totalRequested} ({coveragePct}%)
                   </span>

@@ -65,6 +65,13 @@ const EXPLAINER_BY_CATEGORY: Record<StatusExplainerCategory, Omit<StatusExplaine
     showUscisLink: false,
     tone: "neutral",
   },
+  premium_processing: {
+    title: "Premium Processing active",
+    meaning: "USCIS upgraded your case to Premium Processing. USCIS targets a decision within 15 business days of the PP start date.",
+    nextStep: "Watch the PP countdown below. If the deadline passes with no decision, contact the USCIS Contact Center for Premium Processing follow-up.",
+    showUscisLink: true,
+    tone: "urgent",
+  },
   other: {
     title: "Status update",
     meaning: "We received a status update from USCIS that doesn't match a common pattern we recognize.",
