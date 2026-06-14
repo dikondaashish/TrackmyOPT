@@ -8,6 +8,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { Upload, ScanLine } from 'lucide-react';
 
 interface DocumentUploadModalProps {
   open: boolean;
@@ -487,7 +488,19 @@ function AnimatedProcessingState({ progress, stage }: { progress: number; stage:
       <div className="space-y-2">
         <div className="flex justify-between text-sm text-gray-600">
           <span>
-            {stage === 'uploading' ? '📤 Uploading file...' : '🤖 AI analyzing document...'}
+          <span className="inline-flex items-center gap-2">
+            {stage === 'uploading' ? (
+              <>
+                <Upload className="w-4 h-4" />
+                Uploading file...
+              </>
+            ) : (
+              <>
+                <ScanLine className="w-4 h-4" />
+                Analyzing document...
+              </>
+            )}
+          </span>
           </span>
           <span>{progress}%</span>
         </div>

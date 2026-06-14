@@ -546,7 +546,7 @@ export default function OffersPage() {
                                                 <li className="flex gap-3">
                                                     <span className="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</span>
                                                     <div>
-                                                        <span className="text-sm font-medium text-green-700 dark:text-green-400">Save at the Pump! 🎉</span>
+                                                        <span className="text-sm font-medium text-green-700 dark:text-green-400">Save at the Pump!</span>
                                                         <p className="text-xs text-muted-foreground">
                                                             Go to a participating gas station, select the app, enter your <strong>Alt ID</strong>
                                                         </p>

@@ -12,7 +12,7 @@ import {
   Copy,
   Check,
   FileText,
-  Sparkles
+  Handshake,
 } from "lucide-react";
 
 // Tax filing partners
@@ -199,7 +199,7 @@ function TaxResultsContent() {
       <div className="max-w-5xl mx-auto px-4 pb-8">
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-full text-sm font-medium mb-3">
-            <Sparkles className="w-4 h-4" />
+            <Handshake className="w-4 h-4" />
             Recommended Partners
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-foreground">File Your Taxes Online</h2>

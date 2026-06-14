@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Clock, FolderOpen, Lock, ScanLine } from 'lucide-react';
 import { PasscodeSetupModal } from '../settings/PasscodeSetupModal';
 import { PasscodeVerifyModal } from '../security/PasscodeVerifyModal';
 import { DocumentUploadModal } from './DocumentUploadModal';
@@ -279,7 +280,7 @@ export function DocumentVaultClient() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-                <span className="text-3xl">🔐</span>
+                <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                 Document Vault (Pro)
               </h1>
               <p className="text-sm text-gray-700 dark:text-muted-foreground mt-2 max-w-xl">
@@ -307,7 +308,7 @@ export function DocumentVaultClient() {
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-card border border-border rounded-xl p-5 space-y-2">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
-              <span className="text-lg">📁</span>
+              <FolderOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               All documents in one place
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -316,7 +317,7 @@ export function DocumentVaultClient() {
           </div>
           <div className="bg-card border border-border rounded-xl p-5 space-y-2">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
-              <span className="text-lg">🤖</span>
+              <ScanLine className="w-5 h-5 text-violet-600 dark:text-violet-400" />
               AI-powered document analysis
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -325,7 +326,7 @@ export function DocumentVaultClient() {
           </div>
           <div className="bg-card border border-border rounded-xl p-5 space-y-2">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
-              <span className="text-lg">⏰</span>
+              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               Smart expiry reminders
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -463,7 +464,7 @@ export function DocumentVaultClient() {
         <div className="flex justify-between items-start mb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-              <span className="text-3xl">🔐</span>
+              <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               Document Vault
             </h1>
             <p className="text-sm text-gray-600 dark:text-muted-foreground mt-1">

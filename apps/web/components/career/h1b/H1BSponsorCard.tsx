@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Linkedin, Briefcase, Sparkles, Check, AlertTriangle } from "lucide-react";
+import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Linkedin, Briefcase, Star, Check, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
@@ -118,7 +118,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                     {/* Sponsor Score */}
                     <div className={`flex-1 rounded-xl p-3 ${scoreColors.light} border border-transparent`}>
                         <div className="flex items-center gap-1.5 mb-1">
-                            <Sparkles className={`w-3.5 h-3.5 ${scoreColors.text}`} />
+                            <Star className={`w-3.5 h-3.5 ${scoreColors.text}`} />
                             <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Score</span>
                         </div>
                         <div className="flex items-baseline gap-1.5">

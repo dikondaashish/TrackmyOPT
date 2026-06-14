@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DollarSign, Calendar, Clock, Award, ArrowRight } from "lucide-react";
+import { DollarSign, Calendar, Clock, Award, ArrowRight, PartyPopper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -142,8 +142,9 @@ export function OfferDetailsSection({
                         />
                     </div>
                     {deadlineInfo && (
-                        <p className={`text-xs font-medium ${deadlineInfo.color}`}>
-                            ⏰ {deadlineInfo.text}
+                        <p className={`text-xs font-medium flex items-center gap-1.5 ${deadlineInfo.color}`}>
+                            <Clock className="w-3.5 h-3.5 shrink-0" />
+                            {deadlineInfo.text}
                         </p>
                     )}
                 </div>
@@ -172,8 +173,9 @@ export function OfferDetailsSection({
                         </button>
                     </div>
                     {h1bSponsorship === true && (
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                            🎉 Great news for your OPT transition!
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                            <PartyPopper className="w-3.5 h-3.5 shrink-0" />
+                            Great news for your OPT transition!
                         </p>
                     )}
                 </div>

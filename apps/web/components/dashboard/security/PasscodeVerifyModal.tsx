@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Lock } from 'lucide-react';
 
 interface PasscodeVerifyModalProps {
   open: boolean;
@@ -129,8 +130,15 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
         </div>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-center mb-2">
-          {isLocked ? '🔒 Account Locked' : 'Unlock Document Vault'}
+        <h2 className="text-2xl font-bold text-center mb-2 flex items-center justify-center gap-2">
+          {isLocked ? (
+            <>
+              <Lock className="w-6 h-6 text-red-600" />
+              Account Locked
+            </>
+          ) : (
+            'Unlock Document Vault'
+          )}
         </h2>
         <p className="text-gray-600 dark:text-muted-foreground text-center mb-6">
           {isLocked

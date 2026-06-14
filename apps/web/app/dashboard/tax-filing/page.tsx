@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Clock,
   Shield,
-  Sparkles,
   GraduationCap,
   Briefcase
 } from "lucide-react";
@@ -126,7 +125,7 @@ export default function TaxFilingPage() {
         <div className="max-w-5xl mx-auto px-4 pt-6 pb-6 sm:pt-8 sm:pb-8">
           <div className="text-center">
             <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
+              <Receipt className="w-4 h-4" />
               Tax Season 2024-2025
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-foreground tracking-tight mb-4">

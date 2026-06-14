@@ -12,6 +12,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Calendar, Clock, FileText, FolderOpen, Upload } from 'lucide-react';
 import { triggerBrowserDownload } from '@/lib/browser-download';
 
 interface Document {
@@ -265,7 +266,9 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
                 {/* Summary */}
                 {document.summary && (
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2">📝 Summary</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                      <FileText className="w-4 h-4" /> Summary
+                    </h3>
                     <p className="text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-700/50 p-3 rounded-lg">{document.summary}</p>
                   </div>
                 )}
@@ -275,7 +278,9 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
                   {/* Document Type - Editable */}
                   {isEditingType ? (
                     <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-800/40 dark:to-indigo-800/40 rounded-lg p-4 border border-purple-200 dark:border-purple-500/40">
-                      <label className="text-xs text-purple-700 dark:text-purple-300 uppercase tracking-wide font-medium">📁 Edit Document Type</label>
+                      <label className="text-xs text-purple-700 dark:text-purple-300 uppercase tracking-wide font-medium flex items-center gap-1.5">
+                        <FolderOpen className="w-3.5 h-3.5" /> Edit Document Type
+                      </label>
                       <select
                         value={isCustomType ? 'custom' : documentType}
                         onChange={(e) => handleTypeSelectChange(e.target.value)}
@@ -331,7 +336,9 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
                   {/* Expiry Date - Editable */}
                   {isEditingExpiry ? (
                     <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-800/40 dark:to-indigo-800/40 rounded-lg p-4 border border-blue-200 dark:border-blue-500/40">
-                      <label className="text-xs text-blue-700 dark:text-blue-300 uppercase tracking-wide font-medium">📅 Edit Expiry Date</label>
+                      <label className="text-xs text-blue-700 dark:text-blue-300 uppercase tracking-wide font-medium flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" /> Edit Expiry Date
+                      </label>
                       <input
                         type="date"
                         value={expiryDate}
@@ -357,7 +364,9 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
                   ) : currentExpiryDate && isValidDate(currentExpiryDate) ? (
                     <div className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-800/40 dark:to-red-800/40 rounded-lg p-4 border border-orange-200 dark:border-orange-500/40">
                       <div className="flex justify-between items-start">
-                        <label className="text-xs text-orange-700 dark:text-orange-300 uppercase tracking-wide font-medium">⏰ Expires On</label>
+                        <label className="text-xs text-orange-700 dark:text-orange-300 uppercase tracking-wide font-medium flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" /> Expires On
+                        </label>
                         <button
                           onClick={() => setIsEditingExpiry(true)}
                           className="text-xs text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 underline"
@@ -378,7 +387,9 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
                     </div>
                   ) : (
                     <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-800/40 dark:to-yellow-800/40 rounded-lg p-4 border border-amber-200 dark:border-amber-500/40">
-                      <label className="text-xs text-amber-700 dark:text-amber-300 uppercase tracking-wide font-medium">📅 Expiry Date</label>
+                      <label className="text-xs text-amber-700 dark:text-amber-300 uppercase tracking-wide font-medium flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" /> Expiry Date
+                      </label>
                       <p className="font-semibold text-amber-900 dark:text-amber-200 mt-1">No expiry date set</p>
                       <button
                         onClick={() => setIsEditingExpiry(true)}
@@ -391,7 +402,9 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
 
                   {/* Uploaded Date */}
                   <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 border border-gray-100 dark:border-slate-600">
-                    <label className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wide">📤 Uploaded</label>
+                    <label className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+                      <Upload className="w-3.5 h-3.5" /> Uploaded
+                    </label>
                     <p className="font-semibold text-gray-900 dark:text-white mt-1">
                       {isValidDate(document.uploadedAt)
                         ? new Date(document.uploadedAt).toLocaleDateString('en-US', {

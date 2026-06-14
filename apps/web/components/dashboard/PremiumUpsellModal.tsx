@@ -6,6 +6,9 @@
  * Shown to non-premium users when accessing premium features
  */
 
+import type { LucideIcon } from "lucide-react";
+import { BarChart3, Clock, Crown, Key, Lock, Mail, ScanLine } from "lucide-react";
+
 interface PremiumUpsellModalProps {
   open: boolean;
   onClose: () => void;
@@ -20,9 +23,7 @@ export function PremiumUpsellModal({ open, onClose, feature }: PremiumUpsellModa
       <div className="bg-white rounded-lg max-w-2xl w-full p-8">
         {/* Premium Badge */}
         <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
+          <Crown className="w-10 h-10 text-white" />
         </div>
 
         {/* Title */}
@@ -36,32 +37,32 @@ export function PremiumUpsellModal({ open, onClose, feature }: PremiumUpsellModa
         {/* Features */}
         <div className="space-y-4 mb-8">
           <Feature
-            icon="🔐"
+            icon={Lock}
             title="Secure Document Storage"
             description="Store all your immigration documents in one encrypted vault"
           />
           <Feature
-            icon="🤖"
+            icon={ScanLine}
             title="AI-Powered Analysis"
             description="Automatic document classification and metadata extraction using Gemini AI"
           />
           <Feature
-            icon="⏰"
+            icon={Clock}
             title="Expiry Reminders"
             description="Never miss a renewal with automatic expiry notifications"
           />
           <Feature
-            icon="📊"
+            icon={BarChart3}
             title="Smart Organization"
             description="Search, filter, and categorize all your documents effortlessly"
           />
           <Feature
-            icon="🔒"
+            icon={Key}
             title="Passcode Protection"
             description="Extra security layer with 6-digit PIN and lockout protection"
           />
           <Feature
-            icon="📧"
+            icon={Mail}
             title="Email Notifications"
             description="Get notified about expiring documents and status changes"
           />
@@ -96,17 +97,19 @@ export function PremiumUpsellModal({ open, onClose, feature }: PremiumUpsellModa
 }
 
 function Feature({
-  icon,
+  icon: Icon,
   title,
   description,
 }: {
-  icon: string;
+  icon: LucideIcon;
   title: string;
   description: string;
 }) {
   return (
     <div className="flex gap-4 items-start">
-      <div className="text-3xl flex-shrink-0">{icon}</div>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-cyan-700">
+        <Icon className="w-5 h-5" />
+      </div>
       <div>
         <h3 className="font-semibold text-gray-900 mb-1">{title}</h3>
         <p className="text-sm text-gray-600">{description}</p>
@@ -114,4 +117,3 @@ function Feature({
     </div>
   );
 }
-

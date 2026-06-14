@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Sparkles, ChevronRight, ChevronDown, ChevronUp, FileText, Target, CheckCircle2, History } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, Lightbulb, ChevronRight, ChevronDown, ChevronUp, FileText, Target, CheckCircle2, History } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
@@ -473,7 +473,7 @@ export function StemClockTool() {
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center shadow-lg">
-                      <Sparkles className="w-4 h-4 text-white" />
+                      <Lightbulb className="w-4 h-4 text-white" />
                     </div>
                     <h3 className="font-bold text-gray-900 dark:text-white">Pro Tips</h3>
                   </div>

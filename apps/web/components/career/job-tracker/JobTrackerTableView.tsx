@@ -12,7 +12,8 @@ import {
     Trash2,
     Check,
     X,
-    Award
+    Award,
+    Briefcase,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { getRelativeDate, getFollowupBadgeInfo } from "@/lib/career/job-tracker/filtering";
@@ -123,7 +124,7 @@ export function JobTrackerTableView({
         return (
             <div className="flex flex-col items-center justify-center py-20 px-4">
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center mb-4">
-                    <span className="text-3xl">📊</span>
+                    <Briefcase className="w-8 h-8 text-gray-500 dark:text-gray-400" />
                 </div>
                 <p className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-1">No applications yet</p>
                 <p className="text-sm text-gray-400 dark:text-gray-500 text-center">

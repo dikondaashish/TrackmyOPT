@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { Download, ExternalLink, Check, Loader2 } from "lucide-react";
+import { Download, ExternalLink, Check, Loader2, Calendar, GraduationCap, Clock, Timer } from "lucide-react";
 
 // Chrome API type declarations for extension communication
 declare global {
@@ -276,7 +276,7 @@ export function ToolsGrid() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <ToolCard 
-          icon={<span className="text-3xl">📝</span>} 
+          icon={<Calendar className="w-8 h-8 text-primary" />} 
           title="OPT Apply Start Dates" 
           description="Calculate when you can start applying for OPT" 
           available 
@@ -286,7 +286,7 @@ export function ToolsGrid() {
           isLoading={loadingTool === "opt-apply"}
         />
         <ToolCard 
-          icon={<span className="text-3xl">🎒</span>} 
+          icon={<GraduationCap className="w-8 h-8 text-primary" />} 
           title="STEM OPT Apply Start Dates" 
           description="Calculate STEM OPT extension application dates" 
           available 
@@ -296,7 +296,7 @@ export function ToolsGrid() {
           isLoading={loadingTool === "stem-apply"}
         />
         <ToolCard 
-          icon={<span className="text-3xl">⏱️</span>} 
+          icon={<Clock className="w-8 h-8 text-primary" />} 
           title="OPT Clock Tracker" 
           description="Track your unemployment days in real-time" 
           available 
@@ -306,7 +306,7 @@ export function ToolsGrid() {
           isLoading={loadingTool === "clock"}
         />
         <ToolCard 
-          icon={<span className="text-3xl">⏲️</span>} 
+          icon={<Timer className="w-8 h-8 text-primary" />} 
           title="STEM Clock Tracker" 
           description="Track your STEM OPT unemployment days" 
           available 

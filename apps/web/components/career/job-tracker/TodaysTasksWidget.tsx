@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { JobApplication } from "@/lib/career/job-tracker/types";
 import { isToday, parseISO, differenceInHours, differenceInDays, addDays } from "date-fns";
-import { Bell, Video, AlertCircle, Check, Calendar, Sparkles } from "lucide-react";
+import { Bell, Video, AlertCircle, Check, Calendar, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CompanyLogo } from "./CompanyLogo";
 
@@ -123,11 +123,11 @@ export function TodaysTasksWidget({ applications, onCardClick, onMarkFollowupDon
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800 p-6">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
-                        <Sparkles className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                        <PartyPopper className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
                         <h3 className="font-semibold text-emerald-800 dark:text-emerald-300">
-                            🎉 You're all caught up today!
+                            You&apos;re all caught up today!
                         </h3>
                         <p className="text-sm text-emerald-600 dark:text-emerald-400">
                             No pending tasks. Keep applying and following up!

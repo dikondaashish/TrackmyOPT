@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Clock, AlertTriangle, CheckCircle2, Timer, Zap, Coffee, Rocket, FileText, Upload, CheckSquare } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle2, Timer, Zap, Coffee, Rocket, FileText, Upload, CheckSquare, Circle } from "lucide-react";
 
 interface TickingClockProps {
   targetDate: Date;
@@ -97,24 +97,24 @@ export function TickingClock({
   const getTimelineMessage = () => {
     // If dates haven't started yet
     if (isNotStarted) {
-      if (toolType === 'opt-apply') return { icon: Clock, message: "⏳ Your OPT application window hasn't opened yet. Be prepared with your documents - I-20, passport photos, I-765 form. Check your earliest filing date below!", color: "text-blue-200" };
-      if (toolType === 'stem-apply') return { icon: Clock, message: "⏳ Your STEM OPT application window hasn't opened yet. Be prepared with your docs - I-983 training plan, updated I-20, employer's E-Verify info!", color: "text-emerald-200" };
-      return { icon: Clock, message: "⏳ Your dates haven't started yet. Check your start date below and prepare your documents!", color: "text-blue-200" };
+      if (toolType === 'opt-apply') return { icon: Clock, message: "Your OPT application window hasn't opened yet. Be prepared with your documents - I-20, passport photos, I-765 form. Check your earliest filing date below!", color: "text-blue-200" };
+      if (toolType === 'stem-apply') return { icon: Clock, message: "Your STEM OPT application window hasn't opened yet. Be prepared with your docs - I-983 training plan, updated I-20, employer's E-Verify info!", color: "text-emerald-200" };
+      return { icon: Clock, message: "Your dates haven't started yet. Check your start date below and prepare your documents!", color: "text-blue-200" };
     }
 
     // If deadline has passed
     if (isPassed) {
       if (toolType === 'opt-apply' || toolType === 'stem-apply') {
-        return { icon: AlertTriangle, message: "⚠️ Deadline has passed! Contact your DSO immediately, talk to an immigration attorney, or check your application status on USCIS.gov", color: "text-red-200" };
+        return { icon: AlertTriangle, message: "Deadline has passed! Contact your DSO immediately, talk to an immigration attorney, or check your application status on USCIS.gov", color: "text-red-200" };
       }
-      return { icon: AlertTriangle, message: "⚠️ Period has ended. Contact your DSO or an immigration attorney if you have concerns about your status.", color: "text-red-200" };
+      return { icon: AlertTriangle, message: "Period has ended. Contact your DSO or an immigration attorney if you have concerns about your status.", color: "text-red-200" };
     }
 
-    if (isCritical) return { icon: Zap, message: "⚡ URGENT! Submit your application TODAY! You're at risk of missing the deadline!", color: "text-red-200" };
-    if (isUrgent) return { icon: Rocket, message: "🚀 Time is running short! Submit now to avoid last-minute issues. USCIS processing takes 3-6 months!", color: "text-amber-200" };
-    if (timeLeft.days <= 30) return { icon: FileText, message: "📋 Apply soon! Early filers get processed faster. Don't wait - USCIS queues are long!", color: "text-blue-200" };
-    if (timeLeft.days <= 60) return { icon: Rocket, message: "🚀 Great time to apply! Submit early to skip the long USCIS queue. Processing takes months!", color: "text-white/80" };
-    return { icon: CheckSquare, message: "✨ Perfect time to file early! Beat the rush - early applicants avoid delays and long wait times!", color: "text-white/70" };
+    if (isCritical) return { icon: Zap, message: "URGENT! Submit your application TODAY! You're at risk of missing the deadline!", color: "text-red-200" };
+    if (isUrgent) return { icon: Rocket, message: "Time is running short! Submit now to avoid last-minute issues. USCIS processing takes 3-6 months!", color: "text-amber-200" };
+    if (timeLeft.days <= 30) return { icon: FileText, message: "Apply soon! Early filers get processed faster. Don't wait - USCIS queues are long!", color: "text-blue-200" };
+    if (timeLeft.days <= 60) return { icon: Rocket, message: "Great time to apply! Submit early to skip the long USCIS queue. Processing takes months!", color: "text-white/80" };
+    return { icon: CheckSquare, message: "Perfect time to file early! Beat the rush - early applicants avoid delays and long wait times!", color: "text-white/70" };
   };
 
   const timelineInfo = getTimelineMessage();
@@ -281,120 +281,120 @@ export function TickingClockCompact({
     if (isNotStarted) {
       if (toolType === 'opt-apply') {
         return [
-          "⏳ Window not open yet",
-          "📄 Prepare I-765 & I-20",
-          "📸 Get passport photos ready"
+          "Window not open yet",
+          "Prepare I-765 & I-20",
+          "Get passport photos ready"
         ];
       }
       if (toolType === 'stem-apply') {
         return [
-          "⏳ Window not open yet",
-          "📄 Prepare I-983 training plan",
-          "✅ Verify employer is E-Verify"
+          "Window not open yet",
+          "Prepare I-983 training plan",
+          "Verify employer is E-Verify"
         ];
       }
       return [
-        "⏳ Dates not started yet",
-        "📄 Prepare your documents",
-        "⏰ Wait until window opens"
+        "Dates not started yet",
+        "Prepare your documents",
+        "Wait until window opens"
       ];
     }
 
     // If deadline has passed
     if (isPassed) {
       return [
-        "⚠️ Deadline has passed!",
-        "📞 Contact your DSO",
-        "👨‍⚖️ Talk to an attorney"
+        "Deadline has passed!",
+        "Contact your DSO",
+        "Talk to an attorney"
       ];
     }
 
     // OPT Apply specific action items - always encourage early filing
     if (toolType === 'opt-apply') {
       if (isCritical) return [
-        "⚡ SUBMIT TO USCIS TODAY!",
-        "📋 Double-check I-765 form",
-        "📞 Contact DSO if not ready"
+        "SUBMIT TO USCIS TODAY!",
+        "Double-check I-765 form",
+        "Contact DSO if not ready"
       ];
       if (isUrgent) return [
-        "🚀 Submit NOW - don't delay!",
-        "✅ I-20 with OPT endorsement ready?",
-        "📸 USCIS-size photos (2x2 inches)"
+        "Submit NOW - don't delay!",
+        "I-20 with OPT endorsement ready?",
+        "USCIS-size photos (2x2 inches)"
       ];
       if (timeLeft.days <= 30) return [
-        "🚀 Apply NOW - beat the queue!",
-        "📄 Get I-20 endorsed by DSO",
-        "💳 Prepare $470+ filing fee"
+        "Apply NOW - beat the queue!",
+        "Get I-20 endorsed by DSO",
+        "Prepare $470+ filing fee"
       ];
       if (timeLeft.days <= 60) return [
-        "⭐ Apply early - avoid 3-6 month delays!",
-        "📄 Request I-20 from DSO today",
-        "📸 Get 2x2 inch passport photos"
+        "Apply early - avoid 3-6 month delays!",
+        "Request I-20 from DSO today",
+        "Get 2x2 inch passport photos"
       ];
       return [
-        "🚀 File early - skip the long queue!",
-        "📄 Request I-20 from DSO ASAP",
-        "📖 Review I-765 form instructions"
+        "File early - skip the long queue!",
+        "Request I-20 from DSO ASAP",
+        "Review I-765 form instructions"
       ];
     }
 
     // OPT Clock specific action items
     if (toolType === 'opt-clock') {
       if (isCritical) return [
-        "⚠️ Unemployment limit almost reached!",
-        "💼 Secure employment immediately",
-        "📞 Contact DSO for guidance"
+        "Unemployment limit almost reached!",
+        "Secure employment immediately",
+        "Contact DSO for guidance"
       ];
       if (isUrgent) return [
-        "🔍 Actively search for jobs",
-        "📝 Update resume & LinkedIn",
-        "💼 Apply to multiple positions"
+        "Actively search for jobs",
+        "Update resume & LinkedIn",
+        "Apply to multiple positions"
       ];
       return [
-        "📊 Track employment periods",
-        "💼 Maintain employment records",
-        "📅 Monitor unemployment days"
+        "Track employment periods",
+        "Maintain employment records",
+        "Monitor unemployment days"
       ];
     }
 
     // STEM Apply specific action items
     if (toolType === 'stem-apply') {
       if (isCritical) return [
-        "⚡ Submit STEM extension NOW!",
-        "📋 I-983 training plan ready?",
-        "📞 Confirm E-Verify with employer"
+        "Submit STEM extension NOW!",
+        "I-983 training plan ready?",
+        "Confirm E-Verify with employer"
       ];
       if (isUrgent) return [
-        "🚀 File early - don't wait!",
-        "📄 Complete I-983 with employer",
-        "✅ Verify employer E-Verify status"
+        "File early - don't wait!",
+        "Complete I-983 with employer",
+        "Verify employer E-Verify status"
       ];
       return [
-        "📋 Prepare I-983 training plan",
-        "🏢 Confirm employer E-Verify",
-        "📝 Update I-20 for STEM"
+        "Prepare I-983 training plan",
+        "Confirm employer E-Verify",
+        "Update I-20 for STEM"
       ];
     }
 
     // STEM Clock specific action items
     if (toolType === 'stem-clock') {
       if (isCritical) return [
-        "⚠️ 60-day limit approaching!",
-        "💼 Find E-Verify job urgently",
-        "📞 Contact DSO for options"
+        "60-day limit approaching!",
+        "Find E-Verify job urgently",
+        "Contact DSO for options"
       ];
       return [
-        "📊 Track STEM unemployment",
-        "💼 Maintain E-Verify employment",
-        "📅 Report changes to DSO"
+        "Track STEM unemployment",
+        "Maintain E-Verify employment",
+        "Report changes to DSO"
       ];
     }
 
     // Default fallback
     return [
-      "📅 Track your deadlines",
-      "📋 Organize documents",
-      "🔍 Check USCIS.gov"
+      "Track your deadlines",
+      "Organize documents",
+      "Check USCIS.gov"
     ];
   };
 
@@ -436,7 +436,10 @@ export function TickingClockCompact({
           <div className="space-y-1.5 pt-3 border-t border-white/20">
             <p className="text-xs text-white/60 uppercase tracking-wider mb-2">Next Steps</p>
             {actionItems.map((item, index) => (
-              <p key={index} className="text-xs text-white/90">{item}</p>
+              <p key={index} className="text-xs text-white/90 flex items-start gap-2">
+                <Circle className="w-2 h-2 shrink-0 mt-1 fill-current opacity-70" />
+                <span>{item}</span>
+              </p>
             ))}
           </div>
         )}

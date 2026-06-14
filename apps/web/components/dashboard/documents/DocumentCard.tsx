@@ -10,6 +10,8 @@
  * - Quick actions (view, delete)
  */
 
+import { getDocumentTypeIcon } from '@/lib/document-type-icons';
+
 interface Document {
   id: string;
   filename: string;
@@ -35,7 +37,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
   const expiryStatus = getExpiryStatus(document.expiryDate);
   // Use category first (which holds the updated type), fall back to documentType
   const displayType = document.category || document.documentType || 'other';
-  const icon = getDocumentIcon(displayType);
+  const DocIcon = getDocumentTypeIcon(displayType);
 
   return (
     <div className="group bg-white dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg dark:hover:shadow-blue-500/10 transition-all duration-200 overflow-hidden">
@@ -43,7 +45,9 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
       <div className={`p-4 ${getHeaderColor(expiryStatus)}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="text-3xl">{icon}</div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/80 dark:bg-slate-900/40">
+              <DocIcon className="w-5 h-5 text-gray-700 dark:text-slate-200" />
+            </div>
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-white capitalize text-sm">
                 {displayType?.replace(/_/g, ' ') || 'Document'}
@@ -147,21 +151,6 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
       </div>
     </div>
   );
-}
-
-function getDocumentIcon(type: string): string {
-  const icons: Record<string, string> = {
-    passport: '📘',
-    visa: '🛂',
-    i20: '📋',
-    ead_card: '💳',
-    i983: '📄',
-    offer_letter: '📨',
-    paystub: '💰',
-    receipt_notice: '📬',
-    other: '📁',
-  };
-  return icons[type] || '📁';
 }
 
 function isValidDate(dateString: string | null): boolean {

@@ -9,7 +9,7 @@ import {
   ClipboardList,
   Crown,
   Loader2,
-  Sparkles,
+  BadgeCheck,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -121,7 +121,7 @@ export function DashboardNextStepCard() {
         };
       case "status_live":
         return {
-          icon: Sparkles,
+          icon: BadgeCheck,
           iconClass: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30",
           title: "Your case is up to date",
           description: `Last checked ${step.lastCheckedLabel}. Status: ${step.plainEnglishStatus}.`,

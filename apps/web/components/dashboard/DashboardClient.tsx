@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Calendar, Clock, Timer, GraduationCap } from 'lucide-react';
 import {
   calculateOPTDates,
   calculateUnemploymentDays,
@@ -68,7 +69,7 @@ export default function DashboardClient({
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Card 1: OPT Filing Window */}
           <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 hover:shadow-md transition">
-            <div className="text-2xl mb-2">📝</div>
+            <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400 mb-2" />
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               OPT Filing Window
             </h3>
@@ -85,7 +86,7 @@ export default function DashboardClient({
 
           {/* Card 2: Next Deadline */}
           <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 hover:shadow-md transition">
-            <div className="text-2xl mb-2">⏰</div>
+            <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400 mb-2" />
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Next Deadline
             </h3>
@@ -108,7 +109,7 @@ export default function DashboardClient({
 
           {/* Card 3: Unemployment Clock */}
           <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 hover:shadow-md transition">
-            <div className="text-2xl mb-2">⏱️</div>
+            <Timer className="w-6 h-6 text-purple-600 dark:text-purple-400 mb-2" />
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Unemployment Clock
             </h3>
@@ -130,7 +131,7 @@ export default function DashboardClient({
 
           {/* Card 4: STEM Status */}
           <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 hover:shadow-md transition">
-            <div className="text-2xl mb-2">🎒</div>
+            <GraduationCap className="w-6 h-6 text-emerald-600 dark:text-emerald-400 mb-2" />
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               STEM Status
             </h3>
@@ -150,7 +151,7 @@ export default function DashboardClient({
       {optStatus && calculated && (
         <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <span>📅</span> Your OPT Timeline
+            <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" /> Your OPT Timeline
           </h2>
           <div className="space-y-4">
             <TimelineItem
@@ -208,7 +209,7 @@ export default function DashboardClient({
       <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <span>📅</span> Your Dates
+            <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" /> Your Dates
           </h2>
           <a
             href="/dashboard/opt-dates"

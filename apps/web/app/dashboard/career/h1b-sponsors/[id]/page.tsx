@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import {
-    ArrowLeft, Building2, MapPin, Globe, Bookmark, ExternalLink, Linkedin, Sparkles, Check,
+    ArrowLeft, Building2, MapPin, Globe, Bookmark, ExternalLink, Linkedin, Star, Check,
     Scale, AlertTriangle, DollarSign
 } from "lucide-react";
 import { Database } from "@/types/supabase";
@@ -287,7 +287,7 @@ export default function CompanyProfilePage() {
                         {/* Score Badge */}
                         <div className={`${scoreColors.light} rounded-xl px-4 py-2 border border-transparent`}>
                             <div className="flex items-center gap-2">
-                                <Sparkles className={`w-5 h-5 ${scoreColors.text}`} />
+                                <Star className={`w-5 h-5 ${scoreColors.text}`} />
                                 <span className={`text-2xl font-bold ${scoreColors.text}`}>{scoreData.score}</span>
                                 <span className="text-sm text-gray-500">/100</span>
                             </div>

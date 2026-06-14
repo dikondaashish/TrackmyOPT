@@ -21,6 +21,7 @@ import {
   buildOptDatesStatusSnapshot,
   type OptDatesFormData,
 } from "@/lib/immigration/optDatesPageUtils";
+import { OPT_TOOL_ICONS, type OptToolIconKey } from "@/lib/opt-tool-icons";
 
 const PricingModal = dynamic(
   () => import("@/components/pricing/PricingModal").then((m) => ({ default: m.PricingModal })),
@@ -300,28 +301,28 @@ interface ToolEmails {
 
 type ToolName = keyof ToolEmails;
 
-const TOOL_INFO: Record<ToolName, { label: string; icon: string; description: string; color: string }> = {
+const TOOL_INFO: Record<ToolName, { label: string; icon: OptToolIconKey; description: string; color: string }> = {
   opt_apply: {
     label: 'OPT Apply Dates',
-    icon: '📅',
+    icon: 'opt_apply',
     description: 'Get reminders for OPT filing deadlines',
     color: 'from-blue-500 to-blue-600',
   },
   opt_clock: {
     label: 'OPT Clock Tracker',
-    icon: '⏰',
+    icon: 'opt_clock',
     description: 'Track unemployment days and get alerts',
     color: 'from-amber-500 to-orange-500',
   },
   stem_apply: {
     label: 'STEM Apply Dates',
-    icon: '🎓',
+    icon: 'stem_apply',
     description: 'STEM OPT extension deadline reminders',
     color: 'from-green-500 to-emerald-600',
   },
   stem_clock: {
     label: 'STEM Clock Tracker',
-    icon: '⏲️',
+    icon: 'stem_clock',
     description: 'STEM unemployment tracking alerts',
     color: 'from-purple-500 to-violet-600',
   },
@@ -902,6 +903,7 @@ export function OptDatesSection() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
               const info = TOOL_INFO[tool];
+              const ToolIcon = OPT_TOOL_ICONS[info.icon];
               const isEditing = editingTool === tool;
               const isSaving = emailSaving === tool;
               const hasEmail = !!toolEmails[tool];
@@ -914,7 +916,9 @@ export function OptDatesSection() {
                   {/* Top row: Tool info + Status badge */}
                   <div className="flex flex-col items-start sm:flex-row sm:items-start justify-between gap-4 sm:gap-0 mb-4">
                     <div className="flex items-center gap-3">
-                      <span className="text-3xl">{info.icon}</span>
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/20">
+                        <ToolIcon className="h-5 w-5" />
+                      </div>
                       <div>
                         <h4 className="font-bold text-base">{info.label}</h4>
                         <p className="text-sm opacity-90">{info.description}</p>
@@ -1004,12 +1008,13 @@ export function OptDatesSection() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
                 const info = TOOL_INFO[tool];
+                const ToolIcon = OPT_TOOL_ICONS[info.icon];
                 return (
                   <div
                     key={tool}
                     className={`p-3 rounded-lg bg-gradient-to-br ${info.color} text-white text-center`}
                   >
-                    <span className="text-xl">{info.icon}</span>
+                    <ToolIcon className="mx-auto h-6 w-6" />
                     <p className="text-xs font-medium mt-1">{info.label}</p>
                   </div>
                 );

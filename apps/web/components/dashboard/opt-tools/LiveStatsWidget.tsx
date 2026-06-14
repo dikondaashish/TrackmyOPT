@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { TrendingUp, TrendingDown, Minus, Clock, CheckCircle2, AlertCircle, RefreshCw, ChevronDown, ChevronUp, Briefcase, FileText, Upload } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Clock, CheckCircle2, AlertCircle, RefreshCw, ChevronDown, ChevronUp, Briefcase, FileText, Upload, BarChart3 } from "lucide-react";
 
 type ToolType = 'opt-apply' | 'opt-clock' | 'stem-apply' | 'stem-clock';
 
@@ -237,8 +237,9 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
               <p className="text-xs text-gray-500 text-center">
                 Last updated: {stats.lastUpdated.toLocaleTimeString()}
               </p>
-              <p className="text-xs text-gray-400 text-center mt-1">
-                📊 Source: Reddit & Community Data
+              <p className="text-xs text-gray-400 text-center mt-1 flex items-center justify-center gap-1.5">
+                <BarChart3 className="w-3.5 h-3.5" />
+                Source: Reddit & Community Data
               </p>
             </div>
           </div>

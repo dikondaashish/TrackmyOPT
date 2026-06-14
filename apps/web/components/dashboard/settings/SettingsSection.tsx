@@ -42,6 +42,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { SubscriptionSettings } from "./SubscriptionSettings";
+import { OPT_TOOL_ICONS, type OptToolIconKey } from "@/lib/opt-tool-icons";
 
 const STEM_KEYWORDS = [
   'computer', 'software', 'engineering', 'math', 'science', 'technology', 
@@ -1670,16 +1671,20 @@ export function SettingsSection() {
                 )}
 
                 <div className={`space-y-3 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
-                  {[
-                    { key: 'opt_apply', label: 'OPT Apply Dates', icon: '📅', description: 'OPT filing deadline reminders' },
-                    { key: 'opt_clock', label: 'OPT Clock Tracker', icon: '⏰', description: 'Unemployment days tracking alerts' },
-                    { key: 'stem_apply', label: 'STEM Apply Dates', icon: '🎓', description: 'STEM extension deadline reminders' },
-                    { key: 'stem_clock', label: 'STEM Clock Tracker', icon: '⏲️', description: 'STEM unemployment tracking alerts' },
-                  ].map((tool) => (
+                  {([
+                    { key: 'opt_apply' as const, label: 'OPT Apply Dates', icon: 'opt_apply' as OptToolIconKey, description: 'OPT filing deadline reminders' },
+                    { key: 'opt_clock' as const, label: 'OPT Clock Tracker', icon: 'opt_clock' as OptToolIconKey, description: 'Unemployment days tracking alerts' },
+                    { key: 'stem_apply' as const, label: 'STEM Apply Dates', icon: 'stem_apply' as OptToolIconKey, description: 'STEM extension deadline reminders' },
+                    { key: 'stem_clock' as const, label: 'STEM Clock Tracker', icon: 'stem_clock' as OptToolIconKey, description: 'STEM unemployment tracking alerts' },
+                  ]).map((tool) => {
+                    const ToolIcon = OPT_TOOL_ICONS[tool.icon];
+                    return (
                     <div key={tool.key} className="p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700">
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                         <div className="flex items-center gap-3 w-full sm:w-auto">
-                          <span className="text-xl">{tool.icon}</span>
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200/80 dark:bg-gray-800">
+                            <ToolIcon className="h-4 w-4 text-gray-700 dark:text-gray-300" />
+                          </div>
                           <div>
                             <p className="font-medium text-gray-900 dark:text-gray-100">{tool.label}</p>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{tool.description}</p>
@@ -1728,7 +1733,8 @@ export function SettingsSection() {
                         )}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

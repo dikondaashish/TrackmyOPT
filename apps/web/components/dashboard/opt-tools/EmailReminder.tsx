@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Mail, Bell, Crown, Check, BellOff, Loader2, CheckCircle2, Pencil, Clock } from "lucide-react";
+import { OPT_TOOL_ICONS_BY_SLUG } from "@/lib/opt-tool-icons";
 
 interface EmailReminderProps {
   toolType: 'opt-apply' | 'opt-clock' | 'stem-apply' | 'stem-clock';
@@ -24,11 +25,11 @@ const TOOL_LABELS: Record<string, string> = {
   'stem-clock': 'STEM Clock Tracker',
 };
 
-const TOOL_ICONS: Record<string, string> = {
-  'opt-apply': '📅',
-  'opt-clock': '⏰',
-  'stem-apply': '🎓',
-  'stem-clock': '⏲️',
+const TOOL_SLUGS: Record<string, keyof typeof OPT_TOOL_ICONS_BY_SLUG> = {
+  'opt-apply': 'opt-apply',
+  'opt-clock': 'opt-clock',
+  'stem-apply': 'stem-apply',
+  'stem-clock': 'stem-clock',
 };
 
 const TOOL_COLORS: Record<string, string> = {
@@ -47,7 +48,8 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
 
   const gradient = TOOL_COLORS[toolType];
   const label = TOOL_LABELS[toolType];
-  const icon = TOOL_ICONS[toolType];
+  const toolSlug = TOOL_SLUGS[toolType];
+  const ToolIcon = OPT_TOOL_ICONS_BY_SLUG[toolSlug];
   const apiKey = TOOL_API_KEYS[toolType];
 
   useEffect(() => {
@@ -146,7 +148,7 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
 
         <div className="space-y-4">
           <div className={`p-4 rounded-xl bg-gradient-to-br ${gradient} text-white text-center`}>
-            <span className="text-2xl">{icon}</span>
+            <ToolIcon className="w-6 h-6" />
             <p className="text-sm font-medium mt-1">{label}</p>
           </div>
 
@@ -187,7 +189,7 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-4 sm:gap-0">
         <div className="flex items-center gap-3">
-          <span className="text-3xl">{icon}</span>
+          <ToolIcon className="w-7 h-7" />
           <div>
             <h4 className="font-bold text-base">{label}</h4>
             <div className="flex items-center gap-1.5 text-sm opacity-90">

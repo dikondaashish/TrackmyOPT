@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sparkles } from "lucide-react";
+import { Columns3 } from "lucide-react";
 
 interface AddColumnModalProps {
     isOpen: boolean;
@@ -42,7 +42,7 @@ export function AddColumnModal({ isOpen, onClose }: AddColumnModalProps) {
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <div className="p-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
-                            <Sparkles className="w-4 h-4 text-white" />
+                            <Columns3 className="w-4 h-4 text-white" />
                         </div>
                         Add Custom Stage
                     </DialogTitle>

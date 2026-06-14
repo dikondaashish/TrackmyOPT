@@ -1,4 +1,5 @@
 "use client";
+import { Calendar, PartyPopper, Target } from "lucide-react";
 import { DateSelector } from "../opt/DateSelector";
 
 export function OnboardingCard() {
@@ -7,7 +8,7 @@ export function OnboardingCard() {
       {/* 1. Welcome Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <span className="text-3xl">🎉</span>
+          <PartyPopper className="w-8 h-8 text-primary" />
           <h2 className="text-2xl font-bold tracking-tight">Welcome to TrackMyOPT!</h2>
         </div>
         <p className="text-muted-foreground">Track your OPT status and stay compliant</p>
@@ -16,7 +17,8 @@ export function OnboardingCard() {
       {/* 2. Info Box - What We Track */}
       <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 border border-primary/20 rounded-lg p-6 mb-6">
         <p className="text-sm mb-4 font-medium">
-          🎯 Your dates are displayed below. Click <strong>"Edit Dates →"</strong> to update them.
+          <Target className="inline w-4 h-4 mr-1 text-primary align-text-bottom" />
+          Your dates are displayed below. Click <strong>"Edit Dates →"</strong> to update them.
         </p>
 
         <div className="space-y-2 text-sm">
@@ -34,7 +36,7 @@ export function OnboardingCard() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🗓️</span>
+            <Calendar className="w-5 h-5 text-primary" />
             <h3 className="text-lg font-semibold">Your Dates</h3>
           </div>
           <a

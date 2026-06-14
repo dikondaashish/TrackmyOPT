@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, Clock, GraduationCap, Timer, TrendingUp, CheckCircle2, AlertCircle, Sparkles, Shield, Zap, ArrowRight } from "lucide-react";
+import { Calendar, Clock, GraduationCap, Timer, TrendingUp, CheckCircle2, AlertCircle, Wrench, Shield, Zap, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface QuickStats {
@@ -94,7 +94,7 @@ export function OptToolsSection() {
         {/* Header */}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/25">
-            <Sparkles className="w-7 h-7 text-white" />
+            <Wrench className="w-7 h-7 text-white" />
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">OPT Tools</h1>

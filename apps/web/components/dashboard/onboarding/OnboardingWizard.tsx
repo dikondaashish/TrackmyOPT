@@ -196,7 +196,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     trackOnboardingCompleted(skipped);
     if (!skipped) {
       toast({
-        title: "Profile Configured! 🎉",
+        title: "Profile Configured!",
         description: "Your dashboard is now customized for your journey.",
         className: "bg-green-50 border-green-200",
       });

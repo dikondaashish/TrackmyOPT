@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Shield, ChevronDown, ChevronRight, Sparkles, CreditCard, Clock, CheckCircle2 } from "lucide-react";
+import { Shield, ChevronDown, ChevronRight, CreditCard, Clock, CheckCircle2 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 import posthog from "posthog-js";
@@ -149,7 +149,7 @@ export default function HealthInsuranceFinderPage() {
         <div className="max-w-5xl mx-auto px-4 pt-6 pb-6 sm:pt-8 sm:pb-8">
           <div className="text-center">
             <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
+              <Shield className="w-4 h-4" />
               Free plans available in select states
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-foreground tracking-tight mb-4">

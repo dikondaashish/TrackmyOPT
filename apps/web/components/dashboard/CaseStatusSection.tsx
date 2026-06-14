@@ -23,7 +23,8 @@ import {
   Mail,
   Crown,
   Info,
-  Edit
+  Edit,
+  PartyPopper,
 } from "lucide-react";
 
 // Sandbox mode check (true while using USCIS Sandbox API)
@@ -683,7 +684,7 @@ export function CaseStatusSection() {
                     title={
                       <div className="flex items-center gap-2">
                         <span className={`text-lg ${statusInfo.color}`}>{caseStatus.status_history[0].status}</span>
-                        <span className="text-2xl">🎉</span>
+                        <PartyPopper className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                       </div>
                     }
                     defaultOpen={true}

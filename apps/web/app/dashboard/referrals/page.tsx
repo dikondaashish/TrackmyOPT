@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Copy, Link as LinkIcon, Users, MousePointerClick, Crown, TrendingUp, Sparkles, ExternalLink } from "lucide-react";
+import { Copy, Link as LinkIcon, Users, MousePointerClick, Crown, TrendingUp, Gift, ExternalLink } from "lucide-react";
 
 interface ReferralRow {
   code: string;
@@ -146,7 +146,7 @@ export default function ReferralStatsPage() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h2 className="text-base font-semibold flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-blue-500" />
+              <Gift className="w-4 h-4 text-blue-500" />
               Quick Insights
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
