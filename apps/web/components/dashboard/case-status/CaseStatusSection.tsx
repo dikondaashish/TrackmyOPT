@@ -749,7 +749,7 @@ export function CaseStatusSection() {
 
           {caseStatus.current_status && (
             <Card className="p-6">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4 uppercase tracking-wide">
+              <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
                 Case Progress (Form I-765)
               </h3>
               <CaseProgressStepper
@@ -759,13 +759,24 @@ export function CaseStatusSection() {
             </Card>
           )}
 
-          <CaseProcessingBenchmarks />
+          <div className="pt-2">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="h-px flex-1 bg-border" aria-hidden />
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Insights &amp; predictions
+              </span>
+              <span className="h-px flex-1 bg-border" aria-hidden />
+            </div>
+            <div className="space-y-6">
+              <CaseProcessingBenchmarks />
 
-          <NearbyCasesCohort
-            receiptNumber={caseStatus.receipt_number}
-            isPremium={isPremium}
-            onUpgrade={() => setShowPricingModal(true)}
-          />
+              <NearbyCasesCohort
+                receiptNumber={caseStatus.receipt_number}
+                isPremium={isPremium}
+                onUpgrade={() => setShowPricingModal(true)}
+              />
+            </div>
+          </div>
 
           <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
             <div className="flex flex-col sm:flex-row items-start gap-4">
