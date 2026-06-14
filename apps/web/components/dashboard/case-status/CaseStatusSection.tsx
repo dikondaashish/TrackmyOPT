@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { CaseProcessingBenchmarks } from "@/components/dashboard/case-status/CaseProcessingBenchmarks";
+import { NearbyCasesCohort } from "@/components/dashboard/case-status/NearbyCasesCohort";
 import { CaseListSwitcher } from "@/components/dashboard/case-status/CaseListSwitcher";
 import { WebPushEnableButton } from "@/components/dashboard/case-status/WebPushEnableButton";
 import {
@@ -759,6 +760,12 @@ export function CaseStatusSection() {
           )}
 
           <CaseProcessingBenchmarks />
+
+          <NearbyCasesCohort
+            receiptNumber={caseStatus.receipt_number}
+            isPremium={isPremium}
+            onUpgrade={() => setShowPricingModal(true)}
+          />
 
           <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
             <div className="flex flex-col sm:flex-row items-start gap-4">

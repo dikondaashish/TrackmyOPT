@@ -1454,6 +1454,51 @@ export type Database = {
         }
         Relationships: []
       }
+      uscis_case_cache: {
+        Row: {
+          case_type: string | null
+          created_at: string
+          current_status: string | null
+          id: string
+          is_valid: boolean
+          last_scanned_at: string
+          prefix: string
+          received_date: string | null
+          receipt_number: string
+          scan_attempts: number
+          serial: number
+          status_date: string | null
+        }
+        Insert: {
+          case_type?: string | null
+          created_at?: string
+          current_status?: string | null
+          id?: string
+          is_valid?: boolean
+          last_scanned_at?: string
+          prefix: string
+          received_date?: string | null
+          receipt_number: string
+          scan_attempts?: number
+          serial: number
+          status_date?: string | null
+        }
+        Update: {
+          case_type?: string | null
+          created_at?: string
+          current_status?: string | null
+          id?: string
+          is_valid?: boolean
+          last_scanned_at?: string
+          prefix?: string
+          received_date?: string | null
+          receipt_number?: string
+          scan_attempts?: number
+          serial?: number
+          status_date?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null

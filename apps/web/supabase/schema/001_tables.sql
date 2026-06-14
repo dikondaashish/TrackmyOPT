@@ -218,6 +218,30 @@ COMMENT ON TABLE public.push_subscriptions IS 'Web push subscription endpoints p
 
 
 -- =============================================================================
+-- TABLE: uscis_case_cache
+-- =============================================================================
+-- Shared cache of scanned USCIS receipts for nearby-case cohort analysis.
+-- Not user-owned; accessed only via service-role API routes.
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS public.uscis_case_cache (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  receipt_number TEXT NOT NULL UNIQUE,
+  prefix TEXT NOT NULL,
+  serial BIGINT NOT NULL,                      -- numeric portion for range queries
+  current_status TEXT,
+  case_type TEXT,
+  received_date TEXT,
+  status_date TEXT,
+  is_valid BOOLEAN NOT NULL DEFAULT TRUE,      -- false = USCIS 404/invalid
+  last_scanned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  scan_attempts INTEGER NOT NULL DEFAULT 1,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.uscis_case_cache IS 'Shared cache of scanned USCIS receipts for nearby-case cohort analysis. Service-role only.';
+
+
+-- =============================================================================
 -- TABLE: document_passcodes
 -- =============================================================================
 -- Stores user's vault passcode (hashed)

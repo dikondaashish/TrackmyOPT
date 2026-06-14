@@ -42,15 +42,18 @@ export const ROADMAP_PHASES = [
   },
   {
     id: 5,
-    title: "Competitive intelligence (scaffold)",
-    status: "planned" as const,
+    title: "Competitive intelligence",
+    status: "in_progress" as const,
     items: [
-      "Visa bulletin API placeholder",
-      "Nearby-case processing predictions",
-      "Multi-agency tracking (NVC, EOIR)",
-      "Native mobile push",
+      "Nearby-case cohort analysis with status/case-type distributions (shipped)",
+      "AI outcome prediction from similar nearby cases (shipped)",
+      "Shared USCIS case cache with lazy background scanning (shipped)",
+      "Visa bulletin API placeholder (scaffolded)",
+      "Multi-agency tracking (NVC, EOIR) — planned",
+      "Native mobile push — planned",
     ],
   },
 ] as const;
 
 export type RoadmapPhase = (typeof ROADMAP_PHASES)[number];
+export type RoadmapStatus = "shipped" | "in_progress" | "planned";
