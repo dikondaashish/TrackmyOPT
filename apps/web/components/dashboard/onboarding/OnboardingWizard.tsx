@@ -274,7 +274,13 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       const saveResult = await saveReceiptAndPoll(validation.normalized);
 
       if (!saveResult.ok) {
-        setReceiptError(saveResult.error);
+        if (saveResult.code === "case_limit_reached") {
+          setReceiptError(
+            "Your free plan includes 1 case. Upgrade to Pro to track up to 8 USCIS receipts from the dashboard."
+          );
+        } else {
+          setReceiptError(saveResult.error);
+        }
         return;
       }
 
@@ -588,7 +594,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                 <h2 className="text-2xl font-bold tracking-tight">Track your USCIS case</h2>
               </div>
               <p className="text-muted-foreground mb-6">
-                We&apos;ll check USCIS daily and tell you the moment your status changes.
+                We&apos;ll check USCIS daily and tell you the moment your status changes. Free includes 1 case; Pro tracks up to 8.
               </p>
 
               <div className="space-y-4 flex-1">
@@ -640,6 +646,9 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                         </p>
                         <p className="text-sm text-emerald-800 dark:text-emerald-200 mt-1">
                           {savedCaseStatus.current_status}
+                        </p>
+                        <p className="text-xs text-emerald-700/80 dark:text-emerald-300/80 mt-2">
+                          Pro users can add more cases anytime from Dashboard → Case Status.
                         </p>
                       </div>
                     </div>

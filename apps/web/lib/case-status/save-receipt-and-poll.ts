@@ -12,7 +12,7 @@ export type CaseStatusRecord = {
 
 export type SaveReceiptAndPollResult =
   | { ok: true; data: CaseStatusRecord; statusResolved: boolean }
-  | { ok: false; error: string };
+  | { ok: false; error: string; code?: string };
 
 type SaveReceiptOptions = {
   notificationsEnabled?: boolean;
@@ -72,6 +72,7 @@ export async function saveReceiptAndPoll(
       error:
         (typeof result.error === "string" && result.error) ||
         "Failed to save receipt number.",
+      code: typeof result.code === "string" ? result.code : undefined,
     };
   }
 

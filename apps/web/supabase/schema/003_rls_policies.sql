@@ -20,6 +20,7 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.opt_status ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.employment_spans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.case_status ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.document_passcodes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.document_reminders ENABLE ROW LEVEL SECURITY;
@@ -48,6 +49,9 @@ DROP POLICY IF EXISTS "Users can view their own case status" ON public.case_stat
 DROP POLICY IF EXISTS "Users can insert their own case status" ON public.case_status;
 DROP POLICY IF EXISTS "Users can update their own case status" ON public.case_status;
 DROP POLICY IF EXISTS "Users can delete their own case status" ON public.case_status;
+
+-- Push Subscriptions
+DROP POLICY IF EXISTS "Users manage own push subscriptions" ON public.push_subscriptions;
 
 -- Document Passcodes
 DROP POLICY IF EXISTS "Users can view their own passcode" ON public.document_passcodes;
@@ -132,8 +136,17 @@ CREATE POLICY "Users can update their own case status" ON public.case_status
   USING ((select auth.uid()) = user_id);
 
 CREATE POLICY "Users can delete their own case status" ON public.case_status
-  FOR DELETE 
+  FOR DELETE
   USING ((select auth.uid()) = user_id);
+
+
+-- =============================================================================
+-- PUSH_SUBSCRIPTIONS POLICIES
+-- =============================================================================
+CREATE POLICY "Users manage own push subscriptions" ON public.push_subscriptions
+  FOR ALL
+  USING ((select auth.uid()) = user_id)
+  WITH CHECK ((select auth.uid()) = user_id);
 
 
 -- =============================================================================

@@ -56,7 +56,7 @@ export const COMMUNITY_REPORTS_MESSAGING = {
   sectionTitle: "Latest community processing reports",
   sectionSubhead:
     "Recent self-reported OPT/STEM timelines from the community. Use as a planning reference — not an official USCIS estimate.",
-  sourceNote: "Self-reported community data · not a USCIS guarantee",
+  sourceNote: "Anonymized TrackMyOPT case data · not a USCIS guarantee",
 } as const;
 
 export const PLAN_OUTCOME_COPY = {

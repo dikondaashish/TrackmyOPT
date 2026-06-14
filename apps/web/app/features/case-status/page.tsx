@@ -87,8 +87,8 @@ const howItWorks = [
     {
         step: "03",
         icon: <Bell className="w-6 h-6" />,
-        title: "Get Email Alerts",
-        description: "When we detect a status change, you can receive an email with a plain-English explanation (timing may vary).",
+        title: "Get Email & Browser Alerts",
+        description: "When we detect a status change, Pro users can get email plus browser push with a plain-English explanation (timing may vary).",
         color: "cyan",
     },
 ];
@@ -135,7 +135,11 @@ const faqItems = [
     },
     {
         question: "Can I track multiple cases at once?",
-        answer: "Yes. You can add multiple receipt numbers to your dashboard and track them all simultaneously. This is useful if you have pending I-765, I-140, or other applications at the same time.",
+        answer: "Yes. Free accounts can track 1 USCIS receipt. Pro accounts can track up to 8 cases at once — useful if you have a pending I-765, I-140, or other applications simultaneously. Mark one case as primary for your dashboard summary.",
+    },
+    {
+        question: "Do you support browser push notifications?",
+        answer: "Pro users can enable browser push alerts on the Case Status page in addition to email. Push requires permission in your browser and is sent when we detect a USCIS status change. Timing may vary and is not guaranteed.",
     },
 ];
 

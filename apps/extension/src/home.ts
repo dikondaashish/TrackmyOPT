@@ -8,6 +8,7 @@ import { icon, themeToggleIcon } from './icons';
 export async function renderHome(root: HTMLElement, onNavigate: (page: string) => void): Promise<void> {
   // Fetch premium status to show badge
   let planBadge = '';
+  let caseStatusCard = '';
   try {
     const res = await fetch(API_ENDPOINTS.STATUS, { credentials: 'include' });
     if (res.ok) {
@@ -20,6 +21,40 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     }
   } catch (err) {
     console.error('Failed to fetch premium status for extension', err);
+  }
+
+  try {
+    const { idToken } = await chrome.storage.sync.get('idToken');
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (typeof idToken === 'string' && idToken.length > 0) {
+      headers.Authorization = `Bearer ${idToken}`;
+    }
+    const caseRes = await fetch(API_ENDPOINTS.CASE_STATUS, {
+      credentials: 'include',
+      headers,
+    });
+    if (caseRes.ok) {
+      const caseData = await caseRes.json();
+      const primary = caseData.data;
+      const caseCount = Array.isArray(caseData.cases) ? caseData.cases.length : primary ? 1 : 0;
+      if (primary?.receipt_number) {
+        const statusText = primary.current_status || 'Checking USCIS…';
+        const moreCases =
+          caseCount > 1 ? `<span class="case-more">+${caseCount - 1} more</span>` : '';
+        caseStatusCard = `
+          <a class="case-status-card" href="${API_ENDPOINTS.DASHBOARD_CASE_STATUS}" target="_blank" rel="noreferrer" aria-label="Open case status dashboard">
+            <div class="case-status-top">
+              <span class="case-status-label">${icon('fileText', 16)} Case Status</span>
+              ${moreCases}
+            </div>
+            <p class="case-status-receipt">${primary.receipt_number}</p>
+            <p class="case-status-text">${statusText}</p>
+          </a>
+        `;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to fetch case status for extension', err);
   }
 
   root.innerHTML = `
@@ -51,6 +86,56 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         align-items: center;
         margin-bottom: 2px;
       }
+      .case-status-card {
+        display: block;
+        margin: 0 0 12px 0;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+        background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(20,184,166,0.12) 100%);
+        text-decoration: none;
+        color: inherit;
+      }
+      .case-status-card:hover {
+        border-color: rgba(16, 185, 129, 0.55);
+      }
+      .case-status-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+      .case-status-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #059669;
+      }
+      .case-more {
+        font-size: 10px;
+        font-weight: 700;
+        color: #047857;
+        background: rgba(16,185,129,0.15);
+        padding: 2px 6px;
+        border-radius: 999px;
+      }
+      .case-status-receipt {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+      }
+      .case-status-text {
+        font-size: 12px;
+        line-height: 1.35;
+        margin: 0;
+        opacity: 0.85;
+      }
     </style>
     <div class="header" role="region" aria-label="TrackMyOPT header">
       <div class="logo-icon">
@@ -74,6 +159,8 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     <div class="banner" aria-live="polite">
       Select a tool below to get started with your OPT journey
     </div>
+
+    ${caseStatusCard}
 
     <div class="grid" role="list">
       <div class="tile blue" role="button" tabindex="0" aria-label="OPT Apply Start Dates - Calculate when you can start applying for OPT" data-page="opt-apply">

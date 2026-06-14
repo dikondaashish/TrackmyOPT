@@ -17,6 +17,8 @@ interface LiveStats {
     positive: boolean;
   }[];
   lastUpdated: Date;
+  sampleSize?: number;
+  dataSource?: 'trackmyopt' | 'baseline';
 }
 
 interface LiveStatsWidgetProps {
@@ -245,7 +247,9 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
               </p>
               <p className="text-xs text-gray-400 text-center mt-1 flex items-center justify-center gap-1.5">
                 <BarChart3 className="w-3.5 h-3.5" />
-                Source: Reddit & Community Data
+                {stats.dataSource === 'trackmyopt'
+                  ? `TrackMyOPT anonymized data · ${stats.sampleSize ?? 0} samples`
+                  : 'Planning baseline · more community data needed'}
               </p>
             </div>
           </div>
