@@ -56,32 +56,32 @@ const CATEGORY_META: Record<
   },
 };
 
-/* ── Probability ring ─────────────────────────────────────────────── */
+/* ── Probability ring with glow ──────────────────────────────── */
 function ProbabilityRing({ pct }: { pct: number | null }) {
   const value = pct ?? 0;
   return (
     <div
-      className="relative h-24 w-24 shrink-0"
+      className="relative h-28 w-28 shrink-0 animate-ring-glow"
       role="img"
       aria-label={pct !== null ? `${pct}% approval probability` : "Probability not yet available"}
     >
       <div
-        className="h-full w-full rounded-full"
+        className="h-full w-full rounded-full shadow-lg"
         style={{
-          background: `conic-gradient(rgb(16 185 129) ${value * 3.6}deg, rgb(148 163 184 / 0.25) 0deg)`,
+          background: `conic-gradient(rgb(16 185 129) ${value * 3.6}deg, rgb(148 163 184 / 0.15) 0deg)`,
         }}
       />
-      <div className="absolute inset-[10px] rounded-full bg-card flex flex-col items-center justify-center">
-        <span className="text-xl font-bold text-foreground leading-none">
+      <div className="absolute inset-[8px] rounded-full bg-card flex flex-col items-center justify-center shadow-inner">
+        <span className="text-2xl font-extrabold text-foreground leading-none animate-fade-in-scale">
           {pct !== null ? `${pct}%` : "—"}
         </span>
-        <span className="text-[10px] text-muted-foreground mt-0.5">approval</span>
+        <span className="text-[10px] text-muted-foreground mt-1 font-medium uppercase tracking-wider">approval</span>
       </div>
     </div>
   );
 }
 
-/* ── Stat tile ────────────────────────────────────────────────────── */
+/* ── Stat tile with hover lift ───────────────────────────────── */
 function StatTile({
   icon,
   label,
@@ -94,49 +94,52 @@ function StatTile({
   sub?: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-card p-4 hover-lift transition-all">
       <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
         {icon}
-        <span className="text-xs font-medium">{label}</span>
+        <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
       </div>
-      <p className="text-2xl font-bold text-foreground leading-none">{value}</p>
+      <p className="text-2xl font-extrabold text-foreground leading-none animate-fade-in-scale">{value}</p>
       {sub && <p className="text-[11px] text-muted-foreground mt-1.5">{sub}</p>}
     </div>
   );
 }
 
-/* ── Case-number range strip (the signature visual) ───────────────── */
+/* ── Case-number range strip (the signature visual) ───────────── */
 function RangeStrip({ cases }: { cases: CohortCase[] }) {
   if (!cases.length) return null;
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-          <h4 className="text-sm font-semibold text-foreground">
+          <h4 className="text-sm font-bold text-foreground">
             Cases around yours
           </h4>
         </div>
-        <span className="text-xs text-muted-foreground">
-          older filings ← → newer filings
+        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+          older ← → newer
         </span>
       </div>
-      <div className="flex items-end gap-[2px] overflow-x-auto pb-2">
-        {cases.map((c) => (
+      <div className="flex items-end gap-[2px] overflow-x-auto pb-2 py-2">
+        {cases.map((c, i) => (
           <div
             key={c.receiptNumber}
             title={`${c.receiptNumber}${c.caseType ? ` · ${c.caseType}` : ""}\n${c.currentStatus || "No data"}`}
             className={cn(
-              "shrink-0 rounded-sm transition-colors",
+              "shrink-0 rounded-sm transition-all duration-300 animate-bar-grow",
               CATEGORY_META[c.category].bar,
-              c.isCenter ? "w-2.5 h-10 ring-2 ring-indigo-500 ring-offset-1 ring-offset-card" : "w-1.5 h-6"
+              c.isCenter
+                ? "w-3 h-12 ring-2 ring-indigo-500 ring-offset-2 ring-offset-card shadow-lg shadow-indigo-500/20"
+                : "w-[5px] h-7 hover:h-9 cursor-pointer"
             )}
+            style={{ animationDelay: `${i * 8}ms` }}
           />
         ))}
       </div>
-      <div className="relative h-4 text-[10px] text-muted-foreground">
+      <div className="relative h-4 text-[10px] text-muted-foreground font-medium">
         <span className="absolute left-0">−range</span>
-        <span className="absolute left-1/2 -translate-x-1/2 font-semibold text-indigo-600 dark:text-indigo-400">
+        <span className="absolute left-1/2 -translate-x-1/2 font-bold text-indigo-600 dark:text-indigo-400">
           your case
         </span>
         <span className="absolute right-0">+range</span>
@@ -145,7 +148,7 @@ function RangeStrip({ cases }: { cases: CohortCase[] }) {
   );
 }
 
-/* ── Distribution bars ────────────────────────────────────────────── */
+/* ── Distribution bars with animated fill ────────────────────── */
 function DistributionBars({
   title,
   items,
@@ -158,24 +161,27 @@ function DistributionBars({
   if (!items.length) return null;
   return (
     <div>
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-4">
         {icon}
-        <h4 className="text-sm font-semibold text-foreground">{title}</h4>
+        <h4 className="text-sm font-bold text-foreground">{title}</h4>
       </div>
-      <div className="space-y-2.5">
-        {items.slice(0, 6).map((item) => (
+      <div className="space-y-3">
+        {items.slice(0, 6).map((item, i) => (
           <div key={item.label}>
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-foreground/80 truncate pr-2">{item.label}</span>
-              <span className="font-semibold text-foreground whitespace-nowrap tabular-nums">
+            <div className="flex items-center justify-between text-xs mb-1.5">
+              <span className="text-foreground/80 truncate pr-2 font-medium">{item.label}</span>
+              <span className="font-bold text-foreground whitespace-nowrap tabular-nums">
                 {item.count}{" "}
                 <span className="text-muted-foreground font-normal">({item.pct}%)</span>
               </span>
             </div>
-            <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+            <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 transition-all duration-500"
-                style={{ width: `${Math.max(item.pct, 2)}%` }}
+                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 animate-bar-grow"
+                style={{
+                  width: `${Math.max(item.pct, 2)}%`,
+                  animationDelay: `${i * 100}ms`,
+                }}
               />
             </div>
           </div>
@@ -185,13 +191,13 @@ function DistributionBars({
   );
 }
 
-/* ── Legend ───────────────────────────────────────────────────────── */
+/* ── Legend ───────────────────────────────────────────────────── */
 function Legend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
       {(["approved", "in_progress", "denied", "invalid"] as const).map((key) => (
-        <span key={key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className={cn("w-2.5 h-2.5 rounded-full", CATEGORY_META[key].dot)} />
+        <span key={key} className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+          <span className={cn("w-3 h-3 rounded-full shadow-sm", CATEGORY_META[key].dot)} />
           {CATEGORY_META[key].label}
         </span>
       ))}
@@ -199,17 +205,17 @@ function Legend() {
   );
 }
 
-/* ── Loading skeleton ─────────────────────────────────────────────── */
+/* ── Loading skeleton ─────────────────────────────────────────── */
 function CohortSkeleton() {
   return (
     <div className="animate-pulse space-y-5" aria-hidden>
-      <div className="h-24 rounded-xl bg-muted" />
+      <div className="h-28 rounded-xl bg-muted" />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-20 rounded-xl bg-muted" />
+          <div key={i} className="h-24 rounded-xl bg-muted" />
         ))}
       </div>
-      <div className="h-16 rounded-xl bg-muted" />
+      <div className="h-20 rounded-xl bg-muted" />
     </div>
   );
 }
@@ -250,18 +256,22 @@ export function NearbyCasesCohort({
     if (isPremium === true) void loadCohort();
   }, [loadCohort, isPremium]);
 
-  /* ── Free / locked state ──────────────────────────────────────── */
+  /* ── Free / locked state ──────────────────────────────────── */
   if (isPremium !== true) {
     return (
-      <Card className="overflow-hidden border-indigo-200/80 dark:border-indigo-800/80">
-        <div className="bg-gradient-to-br from-indigo-600 to-violet-600 px-5 py-6 sm:px-6 text-white">
-          <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+      <Card className="overflow-hidden border-0 shadow-2xl shadow-indigo-900/10 dark:shadow-indigo-900/20">
+        <div className="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 px-5 py-7 sm:px-7 text-white relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/8 blur-xl" />
+
+          <div className="relative z-10 flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center shrink-0 shadow-lg">
               <Users className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold">Nearby Case Insights</h3>
-              <p className="text-sm text-indigo-100 mt-1 max-w-prose">
+              <h3 className="text-xl font-extrabold">Nearby Case Insights</h3>
+              <p className="text-sm text-indigo-100 mt-1.5 max-w-prose leading-relaxed">
                 USCIS issues receipt numbers in order, so cases filed right before
                 and after yours are often the same type. See how that group is
                 moving — approval rates, typical processing time, and an outcome
@@ -270,8 +280,8 @@ export function NearbyCasesCohort({
             </div>
           </div>
         </div>
-        <div className="p-5 sm:p-6">
-          <ul className="grid sm:grid-cols-3 gap-3 mb-5">
+        <div className="p-5 sm:p-7">
+          <ul className="grid sm:grid-cols-3 gap-3 mb-6">
             {[
               { icon: TrendingUp, text: "Approval rate of nearby cases" },
               { icon: Clock, text: "Real processing-time estimates" },
@@ -279,14 +289,14 @@ export function NearbyCasesCohort({
             ].map(({ icon: Icon, text }) => (
               <li
                 key={text}
-                className="flex items-center gap-2.5 rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground"
+                className="flex items-center gap-2.5 rounded-xl border border-border bg-muted/30 px-3.5 py-3 text-sm text-foreground hover-lift transition-all"
               >
-                <Icon className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                <Icon className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                 {text}
               </li>
             ))}
           </ul>
-          <Button onClick={onUpgrade} className="gap-2 w-full sm:w-auto">
+          <Button onClick={onUpgrade} className="gap-2 w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/20">
             <Crown className="w-4 h-4" />
             Unlock with Pro
           </Button>
@@ -300,18 +310,20 @@ export function NearbyCasesCohort({
     ? Math.round((analytics.totalScanned / Math.max(1, analytics.totalRequested)) * 100)
     : 0;
 
-  /* ── Pro state ────────────────────────────────────────────────── */
+  /* ── Pro state ────────────────────────────────────────────── */
   return (
-    <Card className="overflow-hidden border-indigo-200/70 dark:border-indigo-800/70">
+    <Card className="overflow-hidden border-0 shadow-2xl shadow-indigo-900/10 dark:shadow-indigo-900/20">
       {/* Header */}
-      <div className="bg-gradient-to-br from-indigo-600 to-violet-600 px-5 py-5 sm:px-6 text-white">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 px-5 py-5 sm:px-7 text-white relative overflow-hidden animate-gradient-flow">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
+
+        <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center shrink-0">
               <Users className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-lg font-bold leading-tight">Nearby Case Insights</h3>
+              <h3 className="text-lg font-extrabold leading-tight">Nearby Case Insights</h3>
               <p className="text-xs text-indigo-100 truncate">
                 How cases filed near{" "}
                 <span className="font-mono">{receiptNumber}</span> are moving
@@ -326,7 +338,7 @@ export function NearbyCasesCohort({
               id="cohort-range"
               value={range}
               onChange={(e) => setRange(Number(e.target.value))}
-              className="text-sm rounded-lg bg-white/15 text-white border border-white/25 px-2.5 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 [&>option]:text-gray-900"
+              className="text-sm rounded-xl bg-white/15 text-white border border-white/20 px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 [&>option]:text-gray-900 backdrop-blur-sm"
             >
               {RANGE_OPTIONS.map((r) => (
                 <option key={r} value={r}>
@@ -340,7 +352,7 @@ export function NearbyCasesCohort({
               size="sm"
               onClick={() => void loadCohort()}
               disabled={isLoading}
-              className="bg-white/15 text-white border-white/25 hover:bg-white/25 gap-1.5"
+              className="bg-white/15 text-white border-white/20 hover:bg-white/25 gap-1.5 backdrop-blur-sm"
             >
               <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
               <span className="hidden sm:inline">Refresh</span>
@@ -349,9 +361,9 @@ export function NearbyCasesCohort({
         </div>
       </div>
 
-      <div className="p-5 sm:p-6 space-y-6">
+      <div className="p-5 sm:p-7 space-y-7">
         {error && (
-          <div className="flex items-start gap-2 rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 px-3 py-2.5 text-sm text-red-700 dark:text-red-300">
+          <div className="flex items-start gap-2 rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">
             <Info className="w-4 h-4 mt-0.5 shrink-0" />
             {error}
           </div>
@@ -363,20 +375,20 @@ export function NearbyCasesCohort({
           <>
             {/* Prediction hero */}
             {prediction && (
-              <div className="rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-950/30 p-4 sm:p-5">
-                <div className="flex items-center gap-2 mb-3">
+              <div className="rounded-2xl border border-indigo-200 dark:border-indigo-800 bg-gradient-to-br from-indigo-50/80 to-violet-50/50 dark:from-indigo-950/30 dark:to-violet-950/20 p-5 sm:p-6 shadow-lg shadow-indigo-500/5">
+                <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-700 dark:text-indigo-300">
                     Prediction for cases like yours
                   </span>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-7">
                   <ProbabilityRing pct={prediction.probabilityPct} />
-                  <div className="flex-1 space-y-2">
-                    <p className="text-base font-semibold text-foreground">
+                  <div className="flex-1 space-y-3">
+                    <p className="text-lg font-bold text-foreground">
                       {prediction.label}
                     </p>
-                    <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-sm">
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                       <span className="text-muted-foreground">
                         Typical time{" "}
                         <span className="font-bold text-foreground">
@@ -441,15 +453,15 @@ export function NearbyCasesCohort({
             {/* Coverage progress */}
             {analytics.pending > 0 && (
               <div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+                <div className="flex items-center justify-between text-xs text-muted-foreground mb-2 font-medium">
                   <span>Scan coverage</span>
                   <span className="tabular-nums">
                     {analytics.totalScanned}/{analytics.totalRequested} ({coveragePct}%)
                   </span>
                 </div>
-                <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 animate-progress-fill shadow-sm shadow-indigo-500/20"
                     style={{ width: `${Math.max(coveragePct, 2)}%` }}
                   />
                 </div>
@@ -458,14 +470,14 @@ export function NearbyCasesCohort({
 
             {/* Range strip + legend */}
             {analytics.totalValid > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <RangeStrip cases={analytics.cases} />
                 <Legend />
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
+              <div className="rounded-2xl border border-dashed border-border px-4 py-10 text-center">
                 <RefreshCw className="w-5 h-5 mx-auto mb-2 text-muted-foreground animate-spin" />
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-sm font-semibold text-foreground">
                   Gathering nearby cases…
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
@@ -477,7 +489,7 @@ export function NearbyCasesCohort({
 
             {/* Distributions */}
             {analytics.totalValid > 0 && (
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-2 gap-7">
                 <DistributionBars
                   title="Status breakdown"
                   items={analytics.statusDistribution}
@@ -494,33 +506,33 @@ export function NearbyCasesCohort({
             {/* Cases list */}
             {analytics.totalValid > 0 && (
               <details className="group">
-                <summary className="flex items-center justify-between cursor-pointer list-none rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
+                <summary className="flex items-center justify-between cursor-pointer list-none rounded-xl border border-border bg-muted/30 px-4 py-3.5 text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors">
                   <span>
                     View all {analytics.cases.filter((c) => c.isValid).length} found cases
                   </span>
                   <ChevronDownIcon />
                 </summary>
-                <div className="mt-2 max-h-72 overflow-y-auto rounded-xl border border-border divide-y divide-border">
+                <div className="mt-2 max-h-72 overflow-y-auto rounded-xl border border-border divide-y divide-border scrollbar-thin">
                   {analytics.cases
                     .filter((c) => c.isValid || c.isCenter)
                     .map((c) => (
                       <div
                         key={c.receiptNumber}
                         className={cn(
-                          "flex items-center justify-between gap-3 px-3 py-2 text-sm",
+                          "flex items-center justify-between gap-3 px-4 py-2.5 text-sm transition-colors",
                           c.isCenter && "bg-indigo-50/70 dark:bg-indigo-950/30"
                         )}
                       >
-                        <div className="flex items-center gap-2 min-w-0">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           <span
-                            className={cn("w-2 h-2 rounded-full shrink-0", CATEGORY_META[c.category].dot)}
+                            className={cn("w-2.5 h-2.5 rounded-full shrink-0", CATEGORY_META[c.category].dot)}
                             aria-hidden
                           />
                           <span className="font-mono text-xs text-foreground truncate">
                             {c.receiptNumber}
                           </span>
                           {c.isCenter && (
-                            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase">
+                            <span className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-100 dark:bg-indigo-900/40 px-1.5 py-0.5 rounded">
                               You
                             </span>
                           )}
@@ -530,7 +542,7 @@ export function NearbyCasesCohort({
                         </div>
                         <span
                           className={cn(
-                            "text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap max-w-[55%] truncate",
+                            "text-[11px] px-2.5 py-0.5 rounded-full whitespace-nowrap max-w-[55%] truncate font-medium",
                             CATEGORY_META[c.category].pill
                           )}
                         >

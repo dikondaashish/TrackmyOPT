@@ -573,8 +573,12 @@ export function CaseStatusSection() {
 
   if (isInitialLoad) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex flex-col items-center justify-center py-16 gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 animate-pulse">
+          <ClipboardCheck className="w-7 h-7 text-white" />
+        </div>
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+        <p className="text-sm text-muted-foreground font-medium">Loading your case status…</p>
       </div>
     );
   }
@@ -589,14 +593,18 @@ export function CaseStatusSection() {
       />
       {/* Header */}
       <div>
-        <div className="flex items-center gap-3 mb-2">
-          <ClipboardCheck className="w-8 h-8 text-blue-600" />
-          <h1 className="text-2xl sm:text-3xl font-bold">USCIS Case Status Tracker</h1>
+        <div className="flex items-center gap-4 mb-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
+            <ClipboardCheck className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">USCIS Case Status Tracker</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Free: track and refresh in-app.{' '}
+              <span className="font-semibold text-foreground">Pro:</span> daily auto-checks + email alerts on changes.
+            </p>
+          </div>
         </div>
-        <p className="text-muted-foreground">
-          Free: track and refresh your case status in-app.{' '}
-          <span className="font-medium text-foreground">Pro:</span> automatic daily checks + email alerts when we detect a status change.
-        </p>
         <UscisCaseStatusDisclaimer className="mt-4" />
       </div>
 
@@ -748,8 +756,8 @@ export function CaseStatusSection() {
           )}
 
           {caseStatus.current_status && (
-            <Card className="p-6">
-              <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+            <Card className="p-6 sm:p-7 border-0 shadow-lg">
+              <h3 className="text-xs font-extrabold text-muted-foreground mb-5 uppercase tracking-widest">
                 Case Progress (Form I-765)
               </h3>
               <CaseProgressStepper
@@ -759,15 +767,17 @@ export function CaseStatusSection() {
             </Card>
           )}
 
-          <div className="pt-2">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="h-px flex-1 bg-border" aria-hidden />
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="pt-4">
+            <div className="flex items-center gap-4 mb-6">
+              <span className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" aria-hidden />
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
                 Insights &amp; predictions
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
               </span>
-              <span className="h-px flex-1 bg-border" aria-hidden />
+              <span className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" aria-hidden />
             </div>
-            <div className="space-y-6">
+            <div className="space-y-7">
               <CaseProcessingBenchmarks />
 
               <NearbyCasesCohort
@@ -778,10 +788,10 @@ export function CaseStatusSection() {
             </div>
           </div>
 
-          <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
+          <Card className="p-6 sm:p-7 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-0 shadow-lg shadow-purple-500/5">
             <div className="flex flex-col sm:flex-row items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                {isPremium ? <Mail className="w-6 h-6 text-purple-600 dark:text-purple-400" /> : <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />}
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/20">
+                {isPremium ? <Mail className="w-6 h-6 text-white" /> : <Crown className="w-6 h-6 text-white" />}
               </div>
               <div className="flex-1">
                 {isPremium ? (
@@ -875,20 +885,20 @@ export function CaseStatusSection() {
           </Card>
 
           {caseStatus.status_history && caseStatus.status_history.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
+              <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
                 <CaseHistoryTimeline
                   statusHistory={caseStatus.status_history}
                   defaultExpanded={false}
                 />
               </Card>
 
-              <Card className="p-6">
+              <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                    <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <Globe className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-lg font-bold">Case Information</h2>
+                  <h2 className="text-lg font-extrabold">Case Information</h2>
                 </div>
 
                 <div className="space-y-3">

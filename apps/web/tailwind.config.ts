@@ -69,6 +69,15 @@ const config: Config = {
         "premium-hero-in": "premiumHeroIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both",
         "premium-check-draw": "premiumCheckDraw 0.45s ease-out 0.2s both",
         "premium-confetti": "premiumConfetti 2.4s ease-out forwards",
+        "shimmer": "shimmer 3s ease-in-out infinite",
+        "glow-pulse": "glowPulse 2.5s ease-in-out infinite",
+        "gradient-flow": "gradientFlow 8s ease infinite",
+        "slide-in": "slideInLeft 0.4s ease-out both",
+        "bar-grow": "barGrow 0.8s cubic-bezier(0.25,0.46,0.45,0.94) both",
+        "fade-in-scale": "fadeInScale 0.5s cubic-bezier(0.22,1,0.36,1) both",
+        "ring-glow": "ringGlow 3s ease-in-out infinite",
+        "ripple": "ripple 2s ease-out infinite",
+        "progress-fill": "progressFill 1.2s cubic-bezier(0.22,1,0.36,1) both",
       },
       keyframes: {
         premiumHeroIn: {

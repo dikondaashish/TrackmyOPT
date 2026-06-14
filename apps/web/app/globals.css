@@ -249,3 +249,137 @@
 .animate-marquee-vertical {
   animation: marquee-vertical var(--duration) linear infinite;
 }
+
+/* ── Case Status Page — Premium Animations ────────────────────── */
+
+/* Shimmer sweep for premium card backgrounds */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Glow pulse for status indicators */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px 2px var(--glow-color, rgba(59,130,246,0.3)); }
+  50% { box-shadow: 0 0 20px 6px var(--glow-color, rgba(59,130,246,0.5)); }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+
+/* Gradient flow for hero backgrounds */
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-flow {
+  background-size: 200% 200%;
+  animation: gradient-flow 8s ease infinite;
+}
+
+/* Staggered slide-in for timeline entries */
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-in {
+  animation: slide-in-left 0.4s ease-out both;
+}
+
+/* Bar grow for distribution bars */
+@keyframes bar-grow {
+  from { width: 0%; }
+}
+
+.animate-bar-grow {
+  animation: bar-grow 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* Number count-up fade */
+@keyframes fade-in-scale {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in-scale {
+  animation: fade-in-scale 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Ring glow rotation for probability ring */
+@keyframes ring-glow-rotate {
+  0% { filter: drop-shadow(0 0 6px rgba(16,185,129,0.4)); }
+  50% { filter: drop-shadow(0 0 14px rgba(16,185,129,0.6)); }
+  100% { filter: drop-shadow(0 0 6px rgba(16,185,129,0.4)); }
+}
+
+.animate-ring-glow {
+  animation: ring-glow-rotate 3s ease-in-out infinite;
+}
+
+/* Ripple effect for current step */
+@keyframes ripple {
+  0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(99,102,241,0); }
+  100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+}
+
+.animate-ripple {
+  animation: ripple 2s ease-out infinite;
+}
+
+/* Progress bar fill animation */
+@keyframes progress-fill {
+  from { width: 0%; }
+}
+
+.animate-progress-fill {
+  animation: progress-fill 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Subtle hover lift */
+@layer utilities {
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(0,0,0,0.1);
+  }
+  .dark .hover-lift:hover {
+    box-shadow: 0 8px 24px -4px rgba(0,0,0,0.3);
+  }
+}
+
+/* Glass card variant for case status */
+@layer utilities {
+  .glass-status {
+    @apply bg-white/80 dark:bg-gray-900/60 backdrop-blur-lg border border-white/20 dark:border-gray-700/40;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-shimmer,
+  .animate-glow-pulse,
+  .animate-gradient-flow,
+  .animate-slide-in,
+  .animate-bar-grow,
+  .animate-fade-in-scale,
+  .animate-ring-glow,
+  .animate-ripple,
+  .animate-progress-fill {
+    animation: none !important;
+  }
+  .hover-lift:hover {
+    transform: none;
+  }
+}
