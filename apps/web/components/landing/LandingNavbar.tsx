@@ -10,7 +10,7 @@ import { signOutWithAnalytics } from "@/lib/auth/signOutWithAnalytics";
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { UserProfileMenu } from "@/components/layout/UserProfileMenu";
-import { SprintaxPromoBanner } from "@/components/promo/SprintaxPromoBanner";
+import { ResumePromoBanner } from "@/components/promo/ResumePromoBanner";
 
 export function LandingNavbar() {
     const prefersReducedMotion = useReducedMotion();
@@ -65,7 +65,7 @@ export function LandingNavbar() {
 
     return (
         <>
-        <SprintaxPromoBanner variant="marketing" />
+        <ResumePromoBanner variant="marketing" />
         <motion.nav
             initial={{ y: prefersReducedMotion ? 0 : -100 }}
             animate={{ y: 0 }}

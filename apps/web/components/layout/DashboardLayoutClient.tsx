@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
-import { SprintaxPromoBanner } from "@/components/promo/SprintaxPromoBanner";
+import { ResumePromoBanner } from "@/components/promo/ResumePromoBanner";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { PremiumStatusProvider, usePremiumStatus } from "@/lib/premium/usePremiumStatus";
@@ -94,7 +94,7 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
         <div className="h-screen overflow-hidden bg-[#e8edf5] dark:bg-gray-950">
             <PostHogIdentify />
             <PolicyUpdateConsentModal />
-            <SprintaxPromoBanner variant="dashboard" />
+            <ResumePromoBanner variant="dashboard" />
             {/* Fixed Header — below promo banner */}
             <Header
                 userEmail={user.email}
