@@ -1,7 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Briefcase, Calendar, Clock, Plus, ChevronDown, ChevronUp, Building2, MapPin, Trash2 } from "lucide-react";
+import { EmploymentIncompleteCallout } from "./EmploymentIncompleteCallout";
+import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
+import {
+  clearEmploymentSetupAck,
+  isEmploymentTrackingIncomplete,
+  shouldShowUnemploymentComplianceNumbers,
+} from "@/lib/immigration/employmentTracking";
 
 interface EmploymentSpan {
   id: string;
@@ -18,6 +25,9 @@ interface EmploymentHistoryLogProps {
   optStartDate?: string;
   optEndDate?: string;
   maxUnemploymentDays?: number;
+  /** When true, opens the add-employment form (e.g. after setup modal). */
+  autoOpenForm?: boolean;
+  onSpansChange?: (spans: EmploymentSpan[]) => void;
 }
 
 export function EmploymentHistoryLog({
@@ -25,7 +35,11 @@ export function EmploymentHistoryLog({
   optStartDate,
   optEndDate,
   maxUnemploymentDays = 90,
+  autoOpenForm = false,
+  onSpansChange,
 }: EmploymentHistoryLogProps) {
+  const { ack, setAck } = useEmploymentSetupAck();
+  const employerInputRef = useRef<HTMLInputElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [spans, setSpans] = useState<EmploymentSpan[]>(employmentSpans);
   const [showInlineForm, setShowInlineForm] = useState(false);
@@ -50,6 +64,21 @@ export function EmploymentHistoryLog({
   useEffect(() => {
     setSpans(employmentSpans);
   }, [employmentSpans]);
+
+  useEffect(() => {
+    if (autoOpenForm) {
+      setShowInlineForm(true);
+      setTimeout(() => {
+        employerInputRef.current?.focus();
+        document.getElementById("employment")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [autoOpenForm]);
+
+  const spanCount = spans.length;
+  const trackingIncomplete = isEmploymentTrackingIncomplete(optStartDate, spanCount, ack);
+  const showComplianceNumbers = shouldShowUnemploymentComplianceNumbers(optStartDate, spanCount, ack);
+  const notOnOptYet = ack === "not_on_opt" && spanCount === 0;
 
   useEffect(() => {
     if (!optStartDate) {
@@ -215,6 +244,8 @@ export function EmploymentHistoryLog({
       const spansData = await spansRes.json();
       if (spansRes.ok && spansData.ok && Array.isArray(spansData.spans)) {
         setSpans(spansData.spans);
+        clearEmploymentSetupAck();
+        onSpansChange?.(spansData.spans);
       }
 
       setShowInlineForm(false);
@@ -283,6 +314,10 @@ export function EmploymentHistoryLog({
       const spansData = await spansRes.json();
       if (spansRes.ok && spansData.ok && Array.isArray(spansData.spans)) {
         setSpans(spansData.spans);
+        if (spansData.spans.length > 0) {
+          clearEmploymentSetupAck();
+        }
+        onSpansChange?.(spansData.spans);
       }
 
       handleCancelEdit();
@@ -320,6 +355,10 @@ export function EmploymentHistoryLog({
       const spansData = await spansRes.json();
       if (spansRes.ok && spansData.ok && Array.isArray(spansData.spans)) {
         setSpans(spansData.spans);
+        if (spansData.spans.length > 0) {
+          clearEmploymentSetupAck();
+        }
+        onSpansChange?.(spansData.spans);
       }
 
       if (editingId === id) {
@@ -332,8 +371,13 @@ export function EmploymentHistoryLog({
     }
   };
 
+  const openAddJobForm = () => {
+    setShowInlineForm(true);
+    setTimeout(() => employerInputRef.current?.focus(), 50);
+  };
+
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
+    <div id="employment" className="scroll-mt-24 bg-card border border-border rounded-xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-3">
@@ -357,61 +401,112 @@ export function EmploymentHistoryLog({
         </button>
       </div>
 
+      {trackingIncomplete && optStartDate && (
+        <EmploymentIncompleteCallout
+          optStartDate={optStartDate}
+          onAddJob={openAddJobForm}
+          onBetweenJobs={() => setAck("between_jobs")}
+        />
+      )}
+
+      {notOnOptYet && optStartDate && (
+        <div className="mx-4 mt-4 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          OPT dates are saved. The unemployment clock will start counting once your OPT period begins
+          and you confirm your employment status.
+        </div>
+      )}
+
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-muted/30">
-        <div className="text-center">
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-            {stats.totalEmployedDays}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">Days Employed</p>
+      {!notOnOptYet && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-muted/30">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              {showComplianceNumbers ? stats.totalEmployedDays : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Days Employed</p>
+          </div>
+          <div className="text-center">
+            <p
+              className={`text-2xl font-bold ${
+                !showComplianceNumbers
+                  ? "text-muted-foreground"
+                  : stats.totalUnemployedDays >= maxUnemploymentDays * 0.9
+                    ? "text-red-600 dark:text-red-400"
+                    : stats.totalUnemployedDays >= maxUnemploymentDays * 0.75
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-blue-600 dark:text-blue-400"
+              }`}
+            >
+              {showComplianceNumbers ? stats.totalUnemployedDays : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {trackingIncomplete ? "Pending setup" : "Days Unemployed"}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-primary">
+              {showComplianceNumbers ? stats.currentStreak : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Current Streak</p>
+          </div>
+          <div className="text-center">
+            <p
+              className={`text-2xl font-bold ${
+                !showComplianceNumbers
+                  ? "text-muted-foreground"
+                  : stats.longestGap > 30
+                    ? "text-amber-600 dark:text-amber-400"
+                    : "text-muted-foreground"
+              }`}
+            >
+              {showComplianceNumbers ? stats.longestGap : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Longest Gap</p>
+          </div>
         </div>
-        <div className="text-center">
-          <p className={`text-2xl font-bold ${
-            stats.totalUnemployedDays >= maxUnemploymentDays * 0.9
-              ? "text-red-600 dark:text-red-400"
-              : stats.totalUnemployedDays >= maxUnemploymentDays * 0.75
-              ? "text-amber-600 dark:text-amber-400"
-              : "text-blue-600 dark:text-blue-400"
-          }`}>
-            {stats.totalUnemployedDays}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">Days Unemployed</p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold text-primary">
-            {stats.currentStreak}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">Current Streak</p>
-        </div>
-        <div className="text-center">
-          <p className={`text-2xl font-bold ${
-            stats.longestGap > 30 ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
-          }`}>
-            {stats.longestGap}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">Longest Gap</p>
-        </div>
-      </div>
+      )}
 
       {/* Progress Bar */}
-      <div className="px-4 py-3 border-t border-border">
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-          <span>Unemployment Days Used</span>
-          <span>{stats.totalUnemployedDays} / {maxUnemploymentDays}</span>
+      {!notOnOptYet && (
+        <div className="px-4 py-3 border-t border-border">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+            <span>Unemployment Days Used</span>
+            <span>
+              {showComplianceNumbers
+                ? `${stats.totalUnemployedDays} / ${maxUnemploymentDays}`
+                : "Add jobs to calculate"}
+            </span>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            {showComplianceNumbers ? (
+              <div
+                className={`h-full transition-all duration-500 ${
+                  stats.totalUnemployedDays >= maxUnemploymentDays * 0.9
+                    ? "bg-red-500"
+                    : stats.totalUnemployedDays >= maxUnemploymentDays * 0.75
+                      ? "bg-amber-500"
+                      : "bg-emerald-500"
+                }`}
+                style={{
+                  width: `${Math.min(100, (stats.totalUnemployedDays / maxUnemploymentDays) * 100)}%`,
+                }}
+              />
+            ) : (
+              <div className="h-full w-full border-2 border-dashed border-muted-foreground/30 bg-transparent" />
+            )}
+          </div>
+          {trackingIncomplete && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Include every job since OPT started — leave end date blank if you still work there.
+            </p>
+          )}
+          {ack === "between_jobs" && spanCount === 0 && (
+            <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">
+              You confirmed you&apos;re between jobs. Add a job anytime to update this count.
+            </p>
+          )}
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className={`h-full transition-all duration-500 ${
-              stats.totalUnemployedDays >= maxUnemploymentDays * 0.9
-                ? "bg-red-500"
-                : stats.totalUnemployedDays >= maxUnemploymentDays * 0.75
-                ? "bg-amber-500"
-                : "bg-emerald-500"
-            }`}
-            style={{ width: `${Math.min(100, (stats.totalUnemployedDays / maxUnemploymentDays) * 100)}%` }}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Inline Add Employment Form */}
       {showInlineForm && (
@@ -420,6 +515,7 @@ export function EmploymentHistoryLog({
             <div className="flex-1 min-w-[180px]">
               <label className="block text-xs font-medium text-muted-foreground mb-1">Employer Name</label>
               <input
+                ref={employerInputRef}
                 type="text"
                 value={newEmployer}
                 onChange={(e) => setNewEmployer(e.target.value)}
@@ -478,10 +574,14 @@ export function EmploymentHistoryLog({
       {spans.length === 0 && !showInlineForm ? (
         <div className="p-8 text-center">
           <Building2 className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-          <p className="text-sm text-muted-foreground mb-3">No employment records yet</p>
+          <p className="text-sm font-medium text-foreground mb-1">No employment records yet</p>
+          <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto leading-relaxed">
+            Add each employer since your OPT started. If you&apos;re working now, include your current
+            job and leave the end date blank.
+          </p>
           <button
             type="button"
-            onClick={() => setShowInlineForm(true)}
+            onClick={openAddJobForm}
             className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-4 h-4" />

@@ -11,6 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 import dynamic from "next/dynamic";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 import { EmploymentHistoryLog } from "./EmploymentHistoryLog";
+import { EmploymentSetupModal } from "./EmploymentSetupModal";
+import { getEmploymentSetupAck } from "@/lib/immigration/employmentTracking";
+import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
 
 const PricingModal = dynamic(
   () => import("@/components/pricing/PricingModal").then((m) => ({ default: m.PricingModal })),
@@ -343,6 +346,9 @@ export function OptDatesSection() {
   const [emailSaving, setEmailSaving] = useState<ToolName | null>(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [employmentSpans, setEmploymentSpans] = useState<EmploymentSpan[]>([]);
+  const [showEmploymentSetupModal, setShowEmploymentSetupModal] = useState(false);
+  const [autoOpenEmploymentForm, setAutoOpenEmploymentForm] = useState(false);
+  const { setAck } = useEmploymentSetupAck();
 
   // Load all data in parallel on mount
   useEffect(() => {
@@ -351,6 +357,25 @@ export function OptDatesSection() {
     })();
      
   }, []);
+
+  // Deep link: /dashboard/opt-dates#employment
+  useEffect(() => {
+    if (isLoading) return;
+    if (typeof window !== "undefined" && window.location.hash === "#employment") {
+      setTimeout(() => {
+        document.getElementById("employment")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 150);
+    }
+  }, [isLoading, dates.opt_start_date]);
+
+  const scrollToEmployment = () => {
+    document.getElementById("employment")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleAddJobFromSetup = () => {
+    setAutoOpenEmploymentForm(true);
+    scrollToEmployment();
+  };
 
   const loadEmploymentSpans = async () => {
     try {
@@ -586,12 +611,31 @@ export function OptDatesSection() {
       const result = await response.json();
 
       if (response.ok && result.ok) {
-        toast({
-          title: "Success",
-          description: "Dates saved successfully!",
-          className: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
-        });
+        const savedOptStart = payload.opt_start_date;
+        const needsEmploymentSetup =
+          !!savedOptStart && employmentSpans.length === 0 && !getEmploymentSetupAck();
+
+        if (savedOptStart && employmentSpans.length === 0) {
+          toast({
+            title: "OPT start date saved",
+            description: needsEmploymentSetup
+              ? "Next step: add your job history so we can calculate unemployment days accurately."
+              : "Add or update employment records below to keep your unemployment clock accurate.",
+            className: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: "Dates saved successfully!",
+            className: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
+          });
+        }
+
         await loadDates();
+
+        if (needsEmploymentSetup) {
+          setShowEmploymentSetupModal(true);
+        }
       } else {
         toast({
           title: "Error",
@@ -726,8 +770,31 @@ export function OptDatesSection() {
           optStartDate={dates.opt_start_date}
           optEndDate={dates.opt_ead_end_date}
           maxUnemploymentDays={dates.stem_start_date ? 150 : 90}
+          autoOpenForm={autoOpenEmploymentForm}
+          onSpansChange={(spans) => {
+            setEmploymentSpans(spans);
+            if (spans.length > 0) {
+              setAutoOpenEmploymentForm(false);
+              setShowEmploymentSetupModal(false);
+            }
+          }}
         />
       )}
+
+      <EmploymentSetupModal
+        open={showEmploymentSetupModal}
+        onOpenChange={setShowEmploymentSetupModal}
+        optStartDate={dates.opt_start_date || ""}
+        onAddJob={handleAddJobFromSetup}
+        onBetweenJobs={() => {
+          setAck("between_jobs");
+          scrollToEmployment();
+        }}
+        onNotOnOpt={() => {
+          setAck("not_on_opt");
+          scrollToEmployment();
+        }}
+      />
 
       {/* Tool Email Notifications Section - 4 Separate Emails */}
       <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">

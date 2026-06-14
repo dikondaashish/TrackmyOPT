@@ -26,9 +26,15 @@ interface NotificationBannerProps {
   } | null;
   unemploymentDays?: number;
   maxUnemploymentDays?: number;
+  hasEmployment?: boolean;
 }
 
-export function NotificationBanner({ optStatus, unemploymentDays = 0, maxUnemploymentDays = 90 }: NotificationBannerProps) {
+export function NotificationBanner({
+  optStatus,
+  unemploymentDays = 0,
+  maxUnemploymentDays = 90,
+  hasEmployment = false,
+}: NotificationBannerProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
@@ -54,8 +60,8 @@ export function NotificationBanner({ optStatus, unemploymentDays = 0, maxUnemplo
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Check unemployment days
-    if (unemploymentDays >= maxUnemploymentDays * 0.9) {
+    // Check unemployment days (only when employment history exists)
+    if (hasEmployment && unemploymentDays >= maxUnemploymentDays * 0.9) {
       newNotifications.push({
         id: "unemployment-critical",
         type: "urgent",
@@ -67,7 +73,7 @@ export function NotificationBanner({ optStatus, unemploymentDays = 0, maxUnemplo
         },
         dismissible: false,
       });
-    } else if (unemploymentDays >= maxUnemploymentDays * 0.75) {
+    } else if (hasEmployment && unemploymentDays >= maxUnemploymentDays * 0.75) {
       newNotifications.push({
         id: "unemployment-warning",
         type: "warning",

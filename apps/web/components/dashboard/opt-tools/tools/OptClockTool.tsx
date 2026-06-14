@@ -10,6 +10,11 @@ import { EmailReminder } from "../EmailReminder";
 import { UnemploymentClock, UnemploymentClockCompact } from "../UnemploymentClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
+import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
+import {
+  isEmploymentTrackingIncomplete,
+  shouldShowUnemploymentComplianceNumbers,
+} from "@/lib/immigration/employmentTracking";
 
 interface EmploymentSpan {
   id: string;
@@ -35,6 +40,18 @@ export function OptClockTool() {
   const [isLoading, setIsLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [showEmploymentHistory, setShowEmploymentHistory] = useState(false);
+  const { ack } = useEmploymentSetupAck();
+
+  const employmentIncomplete = isEmploymentTrackingIncomplete(
+    optStartDate,
+    employmentSpans.length,
+    ack
+  );
+  const showComplianceNumbers = shouldShowUnemploymentComplianceNumbers(
+    optStartDate,
+    employmentSpans.length,
+    ack
+  );
 
   useEffect(() => {
     loadSavedData();
@@ -389,6 +406,7 @@ export function OptClockTool() {
                   subtitle="90-day unemployment limit for Post-Completion OPT"
                   type="opt"
                   startDate={parseDate(optStartDate) || undefined}
+                  incompleteSetup={employmentIncomplete && ack !== "not_on_opt"}
                 />
 
                 {/* Key Stats Grid */}
@@ -400,36 +418,56 @@ export function OptClockTool() {
                       </div>
                       <div>
                         <h2 className="text-lg font-bold text-gray-900 dark:text-white">Your Unemployment Status</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Track your 90-day limit</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {showComplianceNumbers
+                            ? "Track your 90-day limit"
+                            : "Add jobs to calculate your limit"}
+                        </p>
                       </div>
                     </div>
 
-                    <ProgressBar used={results.used} max={results.max} label="Unemployment Days Used" />
+                    {showComplianceNumbers ? (
+                      <>
+                        <ProgressBar used={results.used} max={results.max} label="Unemployment Days Used" />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                      <ResultCard
-                        icon={
-                          <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                            <History className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                          </div>
-                        }
-                        label="Days Used"
-                        value={`${results.used} days`}
-                        subtext="Total unemployment accumulated"
-                        status={getStatus(results.used, results.max)}
-                      />
-                      <ResultCard
-                        icon={
-                          <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                            <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-                          </div>
-                        }
-                        label="Days Remaining"
-                        value={`${results.remaining} days`}
-                        subtext="Stay employed to maintain status"
-                        status={results.remaining <= 10 ? 'critical' : results.remaining <= 30 ? 'warning' : 'ok'}
-                      />
-                    </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                          <ResultCard
+                            icon={
+                              <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                                <History className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                              </div>
+                            }
+                            label="Days Used"
+                            value={`${results.used} days`}
+                            subtext="Total unemployment accumulated"
+                            status={getStatus(results.used, results.max)}
+                          />
+                          <ResultCard
+                            icon={
+                              <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                              </div>
+                            }
+                            label="Days Remaining"
+                            value={`${results.remaining} days`}
+                            subtext="Stay employed to maintain status"
+                            status={results.remaining <= 10 ? 'critical' : results.remaining <= 30 ? 'warning' : 'ok'}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-amber-300/60 bg-amber-50/50 p-4 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-100">
+                        Add each job since your OPT started on the OPT Dates page. Until employment
+                        history is complete, we won&apos;t show a compliance count here.
+                        <a
+                          href="/dashboard/opt-dates#employment"
+                          className="mt-3 inline-flex items-center gap-1 font-medium text-amber-800 underline dark:text-amber-300"
+                        >
+                          Go to employment history
+                          <ChevronRight className="w-4 h-4" />
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -48,7 +48,7 @@ const ALL_TIPS: Tip[] = [
     title: "Unemployment Limit Critical",
     message: "You're approaching the maximum unemployment days. Finding employment immediately is essential to maintain your OPT status.",
     action: { label: "Job Search Resources", href: "/dashboard/help#job-search" },
-    condition: (data) => data.unemploymentDays >= data.maxUnemploymentDays * 0.9,
+    condition: (data) => data.hasEmployment && data.unemploymentDays >= data.maxUnemploymentDays * 0.9,
   },
   {
     id: "unemployment-warning",
@@ -56,7 +56,7 @@ const ALL_TIPS: Tip[] = [
     title: "Monitor Your Unemployment Days",
     message: "You've used over 75% of your allowed unemployment days. Start planning your job search now.",
     action: { label: "View Employment", href: "/dashboard/opt-dates#employment" },
-    condition: (data) => data.unemploymentDays >= data.maxUnemploymentDays * 0.75 && data.unemploymentDays < data.maxUnemploymentDays * 0.9,
+    condition: (data) => data.hasEmployment && data.unemploymentDays >= data.maxUnemploymentDays * 0.75 && data.unemploymentDays < data.maxUnemploymentDays * 0.9,
   },
   {
     id: "filing-soon",
@@ -94,7 +94,7 @@ const ALL_TIPS: Tip[] = [
     id: "no-employment",
     type: "warning",
     title: "No Employment Recorded",
-    message: "You haven't added any employment records. Make sure to report your job to track unemployment days accurately.",
+    message: "Add your job history on OPT Dates so we can calculate unemployment days accurately. Without employment records, the count isn't reliable yet.",
     action: { label: "Add Employment", href: "/dashboard/opt-dates#employment" },
     condition: (data) => !data.hasEmployment && data.daysUntilOPTEnd !== null,
   },

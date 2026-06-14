@@ -112,6 +112,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
             optStatus={optStatus}
             unemploymentDays={unemploymentDays}
             maxUnemploymentDays={maxUnemploymentDays}
+            hasEmployment={employmentSpans.length > 0}
           />
         );
       case "metrics":

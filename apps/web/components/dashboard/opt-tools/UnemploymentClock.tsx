@@ -11,6 +11,8 @@ interface UnemploymentClockProps {
   gradient?: string;
   type?: 'opt' | 'stem';
   startDate?: Date; // When the OPT/STEM period starts
+  /** When true, hides alarming counts until employment history is added. */
+  incompleteSetup?: boolean;
 }
 
 export function UnemploymentClock({
@@ -20,7 +22,8 @@ export function UnemploymentClock({
   subtitle,
   gradient = 'from-amber-500 via-orange-500 to-red-500',
   type = 'opt',
-  startDate
+  startDate,
+  incompleteSetup = false,
 }: UnemploymentClockProps) {
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [mounted, setMounted] = useState(false);
@@ -74,6 +77,40 @@ export function UnemploymentClock({
         <div className="animate-pulse">
           <div className="h-8 bg-white/20 rounded w-48 mb-4"></div>
           <div className="h-24 bg-white/20 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (incompleteSetup) {
+    const baseGradient = type === 'opt'
+      ? 'from-amber-500 via-orange-500 to-orange-600'
+      : 'from-purple-500 via-violet-500 to-violet-600';
+
+    return (
+      <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${baseGradient} p-5 sm:p-8 shadow-2xl`}>
+        <div className="relative z-10 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <Briefcase className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">{title}</h3>
+              <p className="text-sm text-white/80">Add employment history to activate this clock</p>
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed text-white/90">
+            You saved an OPT start date but haven&apos;t added any jobs yet. Without employment records,
+            we can&apos;t calculate your real unemployment days. Add each employer since OPT started —
+            your count updates instantly.
+          </p>
+          <a
+            href="/dashboard/opt-dates#employment"
+            className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+          >
+            <Briefcase className="w-4 h-4" />
+            Add employment history
+          </a>
         </div>
       </div>
     );

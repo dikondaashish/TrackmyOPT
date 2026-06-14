@@ -3,6 +3,12 @@
 import { useState, useEffect } from "react";
 import { Briefcase, Calendar, Clock, Plus, ChevronDown, ChevronUp, Building2, MapPin } from "lucide-react";
 import Link from "next/link";
+import { EmploymentIncompleteCallout } from "./opt/EmploymentIncompleteCallout";
+import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
+import {
+  isEmploymentTrackingIncomplete,
+  shouldShowUnemploymentComplianceNumbers,
+} from "@/lib/immigration/employmentTracking";
 
 interface EmploymentSpan {
   id: string;
@@ -28,12 +34,18 @@ export function EmploymentHistoryLog({
   maxUnemploymentDays = 90,
 }: EmploymentHistoryLogProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { ack } = useEmploymentSetupAck();
   const [stats, setStats] = useState({
     totalEmployedDays: 0,
     totalUnemployedDays: 0,
     currentStreak: 0,
     longestGap: 0,
   });
+
+  const spanCount = employmentSpans.length;
+  const trackingIncomplete = isEmploymentTrackingIncomplete(optStartDate, spanCount, ack);
+  const showComplianceNumbers = shouldShowUnemploymentComplianceNumbers(optStartDate, spanCount, ack);
+  const notOnOptYet = ack === "not_on_opt" && spanCount === 0;
 
   useEffect(() => {
     if (!optStartDate) {
@@ -52,7 +64,6 @@ export function EmploymentHistoryLog({
     const optEnd = optEndDate ? new Date(optEndDate) : today;
     const effectiveEnd = optEnd < today ? optEnd : today;
 
-    // Sort spans by start date
     const sortedSpans = [...employmentSpans].sort(
       (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
     );
@@ -65,13 +76,11 @@ export function EmploymentHistoryLog({
       const spanStart = new Date(span.start_date);
       const spanEnd = span.end_date ? new Date(span.end_date) : today;
 
-      // Calculate gap before this employment
       if (spanStart > lastEndDate) {
         const gapDays = Math.ceil((spanStart.getTime() - lastEndDate.getTime()) / (1000 * 60 * 60 * 24));
         if (gapDays > longestGap) longestGap = gapDays;
       }
 
-      // Calculate employed days
       const effectiveSpanEnd = spanEnd < effectiveEnd ? spanEnd : effectiveEnd;
       const effectiveSpanStart = spanStart > optStart ? spanStart : optStart;
       if (effectiveSpanEnd > effectiveSpanStart) {
@@ -81,7 +90,6 @@ export function EmploymentHistoryLog({
       if (spanEnd > lastEndDate) lastEndDate = spanEnd;
     });
 
-    // Current streak means currently employed duration OR currently unemployed duration.
     const currentSpan = sortedSpans.find((s) => {
       if (!s.is_current) return false;
       const start = new Date(s.start_date);
@@ -106,7 +114,6 @@ export function EmploymentHistoryLog({
       );
     }
 
-    // Total days in OPT period
     const totalOPTDays = Math.ceil((effectiveEnd.getTime() - optStart.getTime()) / (1000 * 60 * 60 * 24));
     const totalUnemployed = Math.max(0, totalOPTDays - totalEmployed);
 
@@ -130,7 +137,7 @@ export function EmploymentHistoryLog({
     const startDate = new Date(start);
     const endDate = end ? new Date(end) : new Date();
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (days < 30) return `${days} days`;
     if (days < 365) {
       const months = Math.floor(days / 30);
@@ -148,8 +155,7 @@ export function EmploymentHistoryLog({
   const displayedSpans = isExpanded ? sortedSpans : sortedSpans.slice(0, 3);
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      {/* Header */}
+    <div id="employment" className="scroll-mt-24 bg-card border border-border rounded-xl overflow-hidden">
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
@@ -163,7 +169,7 @@ export function EmploymentHistoryLog({
           </div>
         </div>
         <Link
-          href="/dashboard/opt-dates"
+          href="/dashboard/opt-dates#employment"
           className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
@@ -171,69 +177,100 @@ export function EmploymentHistoryLog({
         </Link>
       </div>
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-muted/30">
-        <div className="text-center">
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-            {stats.totalEmployedDays}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">Days Employed</p>
-        </div>
-        <div className="text-center">
-          <p className={`text-2xl font-bold ${
-            stats.totalUnemployedDays >= maxUnemploymentDays * 0.9
-              ? "text-red-600 dark:text-red-400"
-              : stats.totalUnemployedDays >= maxUnemploymentDays * 0.75
-              ? "text-amber-600 dark:text-amber-400"
-              : "text-blue-600 dark:text-blue-400"
-          }`}>
-            {stats.totalUnemployedDays}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">Days Unemployed</p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold text-primary">
-            {stats.currentStreak}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">Current Streak</p>
-        </div>
-        <div className="text-center">
-          <p className={`text-2xl font-bold ${
-            stats.longestGap > 30 ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
-          }`}>
-            {stats.longestGap}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">Longest Gap</p>
-        </div>
-      </div>
+      {trackingIncomplete && optStartDate && (
+        <EmploymentIncompleteCallout
+          optStartDate={optStartDate}
+          showActions={false}
+        />
+      )}
 
-      {/* Progress Bar */}
-      <div className="px-4 py-3 border-t border-border">
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-          <span>Unemployment Days Used</span>
-          <span>{stats.totalUnemployedDays} / {maxUnemploymentDays}</span>
+      {notOnOptYet && optStartDate && (
+        <div className="mx-4 mt-4 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          OPT dates are saved. The unemployment clock will start once your OPT period begins.
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className={`h-full transition-all duration-500 ${
-              stats.totalUnemployedDays >= maxUnemploymentDays * 0.9
-                ? "bg-red-500"
-                : stats.totalUnemployedDays >= maxUnemploymentDays * 0.75
-                ? "bg-amber-500"
-                : "bg-emerald-500"
-            }`}
-            style={{ width: `${Math.min(100, (stats.totalUnemployedDays / maxUnemploymentDays) * 100)}%` }}
-          />
-        </div>
-      </div>
+      )}
 
-      {/* Employment List */}
+      {!notOnOptYet && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-muted/30">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              {showComplianceNumbers ? stats.totalEmployedDays : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Days Employed</p>
+          </div>
+          <div className="text-center">
+            <p
+              className={`text-2xl font-bold ${
+                !showComplianceNumbers
+                  ? "text-muted-foreground"
+                  : stats.totalUnemployedDays >= maxUnemploymentDays * 0.9
+                    ? "text-red-600 dark:text-red-400"
+                    : stats.totalUnemployedDays >= maxUnemploymentDays * 0.75
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-blue-600 dark:text-blue-400"
+              }`}
+            >
+              {showComplianceNumbers ? stats.totalUnemployedDays : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {trackingIncomplete ? "Pending setup" : "Days Unemployed"}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-primary">
+              {showComplianceNumbers ? stats.currentStreak : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Current Streak</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-muted-foreground">
+              {showComplianceNumbers ? stats.longestGap : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Longest Gap</p>
+          </div>
+        </div>
+      )}
+
+      {!notOnOptYet && (
+        <div className="px-4 py-3 border-t border-border">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+            <span>Unemployment Days Used</span>
+            <span>
+              {showComplianceNumbers
+                ? `${stats.totalUnemployedDays} / ${maxUnemploymentDays}`
+                : "Add jobs to calculate"}
+            </span>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            {showComplianceNumbers ? (
+              <div
+                className={`h-full transition-all duration-500 ${
+                  stats.totalUnemployedDays >= maxUnemploymentDays * 0.9
+                    ? "bg-red-500"
+                    : stats.totalUnemployedDays >= maxUnemploymentDays * 0.75
+                      ? "bg-amber-500"
+                      : "bg-emerald-500"
+                }`}
+                style={{
+                  width: `${Math.min(100, (stats.totalUnemployedDays / maxUnemploymentDays) * 100)}%`,
+                }}
+              />
+            ) : (
+              <div className="h-full w-full border-2 border-dashed border-muted-foreground/30 bg-transparent" />
+            )}
+          </div>
+        </div>
+      )}
+
       {employmentSpans.length === 0 ? (
         <div className="p-8 text-center">
           <Building2 className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-          <p className="text-sm text-muted-foreground mb-3">No employment records yet</p>
+          <p className="text-sm font-medium text-foreground mb-1">No employment records yet</p>
+          <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto leading-relaxed">
+            Add your jobs on the OPT Dates page so we can calculate unemployment days accurately.
+          </p>
           <Link
-            href="/dashboard/opt-dates"
+            href="/dashboard/opt-dates#employment"
             className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
@@ -242,22 +279,23 @@ export function EmploymentHistoryLog({
         </div>
       ) : (
         <div className="divide-y divide-border">
-          {displayedSpans.map((span, index) => (
-            <div
-              key={span.id}
-              className="p-4 hover:bg-muted/30 transition-colors"
-            >
+          {displayedSpans.map((span) => (
+            <div key={span.id} className="p-4 hover:bg-muted/30 transition-colors">
               <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                  span.is_current
-                    ? "bg-emerald-100 dark:bg-emerald-900/30"
-                    : "bg-muted"
-                }`}>
-                  <Building2 className={`w-5 h-5 ${
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                     span.is_current
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-muted-foreground"
-                  }`} />
+                      ? "bg-emerald-100 dark:bg-emerald-900/30"
+                      : "bg-muted"
+                  }`}
+                >
+                  <Building2
+                    className={`w-5 h-5 ${
+                      span.is_current
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-muted-foreground"
+                    }`}
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -294,7 +332,6 @@ export function EmploymentHistoryLog({
         </div>
       )}
 
-      {/* Show More/Less */}
       {sortedSpans.length > 3 && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}

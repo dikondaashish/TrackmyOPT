@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Calendar, Clock, Briefcase, GraduationCap } from "lucide-react";
+import Link from "next/link";
 import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/optCalculations";
+import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
+import {
+  isEmploymentTrackingIncomplete,
+  shouldShowUnemploymentComplianceNumbers,
+} from "@/lib/immigration/employmentTracking";
 
 interface MetricCardProps {
   title: string;
@@ -65,6 +71,7 @@ interface MetricCardsProps {
 }
 
 export function MetricCards({ apiData }: MetricCardsProps = {}) {
+  const { ack } = useEmploymentSetupAck();
   const [metrics, setMetrics] = useState({
     filingWindowDays: null as number | null,
     filingDeadlineDays: null as number | null, // days until 60-day-post-program-end deadline
@@ -79,6 +86,8 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     phase: "initial" as "initial" | "stem" | "post",
     exceededInitialOptCap: false,
     exceededCumulativeCap: false,
+    employmentSpanCount: 0,
+    optStartDate: null as string | null,
   });
   const [isLoading, setIsLoading] = useState(!apiData);
 
@@ -181,8 +190,21 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
       phase,
       exceededInitialOptCap,
       exceededCumulativeCap,
+      employmentSpanCount: (data.employmentSpans || []).length,
+      optStartDate: data.optStatus?.opt_start_date || null,
     });
   }
+
+  const employmentTrackingIncomplete = isEmploymentTrackingIncomplete(
+    metrics.optStartDate,
+    metrics.employmentSpanCount,
+    ack
+  );
+  const showUnemploymentNumbers = shouldShowUnemploymentComplianceNumbers(
+    metrics.optStartDate,
+    metrics.employmentSpanCount,
+    ack
+  );
 
   // Determine status for each metric
   const getFilingStatus = () => {
@@ -197,6 +219,7 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
   };
 
   const getUnemploymentStatus = () => {
+    if (!showUnemploymentNumbers && employmentTrackingIncomplete) return "neutral";
     // Hard-critical: either cap was breached at any point in the user's OPT/STEM journey.
     if (metrics.exceededCumulativeCap || metrics.exceededInitialOptCap) return "critical";
     const percentage = metrics.maxUnemployment > 0
@@ -231,7 +254,11 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
 
   // Always shows the CURRENT-phase compliance number (X / 90 in initial, X / 150 after STEM).
   // STEM never resets — the cumulative number carries over.
-  const unemploymentValue = `${metrics.unemploymentUsed}/${metrics.maxUnemployment}`;
+  const unemploymentValue = showUnemploymentNumbers
+    ? `${metrics.unemploymentUsed}/${metrics.maxUnemployment}`
+    : employmentTrackingIncomplete
+      ? "Setup needed"
+      : "—";
   
   const optEndValue = metrics.daysUntilOPTEnd === null 
     ? "—" 
@@ -261,6 +288,7 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
   // Phase-aware subtitle so the card never looks identical between initial OPT
   // and STEM OPT, and so it never suggests STEM "resets" the counter.
   const unemploymentSubtitle = (() => {
+    if (!showUnemploymentNumbers && employmentTrackingIncomplete) return "Add jobs";
     if (metrics.exceededInitialOptCap && metrics.phase !== "initial") {
       return "Initial 90 exceeded";
     }
@@ -321,6 +349,15 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
           subtitle={metrics.hasStemStarted ? "24-Month" : undefined}
         />
       </div>
+
+      {employmentTrackingIncomplete && (
+        <p className="text-xs text-muted-foreground">
+          <Link href="/dashboard/opt-dates#employment" className="text-primary hover:underline">
+            Add your employment history
+          </Link>{" "}
+          to calculate unemployment days. Until then, we won&apos;t show a compliance count.
+        </p>
+      )}
 
       {showBreakdown && (
         <div
