@@ -47,6 +47,7 @@ export type Database = {
           last_check_error_message: string | null
           last_check_failed_at: string | null
           last_checked_at: string | null
+          last_nearby_scan_at: string | null
           last_status_change_at: string | null
           last_status_viewed_at: string | null
           status_last_changed_at: string | null
@@ -71,6 +72,7 @@ export type Database = {
           last_check_error_message?: string | null
           last_check_failed_at?: string | null
           last_checked_at?: string | null
+          last_nearby_scan_at?: string | null
           last_status_change_at?: string | null
           last_status_viewed_at?: string | null
           status_last_changed_at?: string | null
@@ -95,6 +97,7 @@ export type Database = {
           last_check_error_message?: string | null
           last_check_failed_at?: string | null
           last_checked_at?: string | null
+          last_nearby_scan_at?: string | null
           last_status_change_at?: string | null
           last_status_viewed_at?: string | null
           status_last_changed_at?: string | null

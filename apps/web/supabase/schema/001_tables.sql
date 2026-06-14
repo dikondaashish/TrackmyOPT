@@ -166,6 +166,7 @@ CREATE TABLE IF NOT EXISTS public.case_status (
   
   -- Status Tracking
   last_checked_at TIMESTAMPTZ,                -- Last time we checked USCIS
+  last_nearby_scan_at TIMESTAMPTZ,            -- Last nearby-case cohort scan (cron rotation)
   last_status_change_at TIMESTAMPTZ,          -- Last time status actually changed
   status_history JSONB DEFAULT '[]'::JSONB,   -- Array of {status, date, description}
   

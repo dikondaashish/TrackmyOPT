@@ -6,6 +6,10 @@
         {
             "path": "/api/cron/check-case-status",
             "schedule": "0 14 * * *"
+        },
+        {
+            "path": "/api/cron/scan-nearby-cases",
+            "schedule": "*/15 * * * *"
         }
     ]
 }
