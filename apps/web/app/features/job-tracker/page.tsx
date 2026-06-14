@@ -28,7 +28,6 @@ import { FeatureCTA } from "@/components/features/FeatureCTA";
 
 import { TrackerKanbanDemo } from "@/components/features/TrackerKanbanDemo";
 import { SyncConnectionVisual } from "@/components/features/SyncConnectionVisual";
-import { AutoFillAction } from "@/components/features/AutoFillAction";
 import { H2, Lead, P } from "@/components/ui/typography";
 
 

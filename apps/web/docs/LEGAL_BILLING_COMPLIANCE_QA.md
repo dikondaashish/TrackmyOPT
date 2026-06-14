@@ -21,7 +21,7 @@
 
 ## Checkout & billing
 
-- [ ] All paid checkout paths use `PricingModal` + `SubscriptionCheckoutDisclosures`
+- [ ] All paid checkout paths use `PricingModal` with inline consent checkboxes (`legal-config` labels)
 - [ ] Checkbox required; API returns 400 without `recurringBillingAccepted: true`
 - [ ] Disclosure shows plan, price, interval, trial, cancel method, Terms/Refund/Privacy links
 - [ ] `billing_consent_events` row created with policy versions + disclosures JSON
