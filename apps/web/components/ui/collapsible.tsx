@@ -30,9 +30,13 @@ export function Collapsible({
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg ${titleClassName}`}
       >
-        <div className="flex items-center gap-2 flex-1">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           {icon}
-          <span className="text-sm font-semibold">{title}</span>
+          {typeof title === "string" ? (
+            <span className="text-sm font-semibold">{title}</span>
+          ) : (
+            <div className="text-sm font-semibold flex-1 min-w-0">{title}</div>
+          )}
         </div>
         <ChevronDown
           className={`w-4 h-4 transition-transform duration-200 flex-shrink-0 ${

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { triggerBrowserDownload } from "@/lib/browser-download";
 import { Download, FileJson, FileSpreadsheet, FileText, Loader2, Check } from "lucide-react";
 
 interface QuickExportProps {
@@ -34,14 +35,10 @@ export function QuickExport({ className = "" }: QuickExportProps) {
         }
 
         const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `trackmyopt-data-${new Date().toISOString().split("T")[0]}.${format}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        triggerBrowserDownload(
+          blob,
+          `trackmyopt-data-${new Date().toISOString().split("T")[0]}.${format}`
+        );
         setExportSuccess(format);
       }
     } catch (err) {
@@ -103,14 +100,10 @@ Always verify information with your DSO.
 
     // Create a blob and download
     const blob = new Blob([pdfContent], { type: "text/plain" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `trackmyopt-report-${new Date().toISOString().split("T")[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    triggerBrowserDownload(
+      blob,
+      `trackmyopt-report-${new Date().toISOString().split("T")[0]}.txt`
+    );
   };
 
   const exportOptions = [

@@ -12,6 +12,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { triggerBrowserDownload } from '@/lib/browser-download';
 
 interface Document {
   id: string;
@@ -110,16 +111,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
       if (!res.ok) throw new Error('Failed to download');
 
       const blob = await res.blob();
-
-      // Create download link
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = window.document.createElement('a');
-      link.href = downloadUrl;
-      link.download = document.filename || 'document';
-      window.document.body.appendChild(link);
-      link.click();
-      window.document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
+      triggerBrowserDownload(blob, document.filename || 'document');
     } catch (err) {
       setError('Failed to download document. Please try again.');
     }

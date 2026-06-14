@@ -25,19 +25,22 @@ export function SprintaxPromoBanner({ variant }: SprintaxPromoBannerProps) {
   const storageKey = variant === "marketing" ? MARKETING_KEY : DASHBOARD_KEY;
   const cssVar = variant === "marketing" ? VAR_MARKETING : VAR_DASHBOARD;
   const bannerRef = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     try {
-      // Set initial default height to minimize CLS
       document.documentElement.style.setProperty(cssVar, DEFAULT_HEIGHTS[variant]);
 
       if (typeof window !== "undefined" && localStorage.getItem(storageKey) === "1") {
         setVisible(false);
         document.documentElement.style.setProperty(cssVar, "0px");
+      } else {
+        setVisible(true);
       }
     } catch {
-      /* ignore */
+      setVisible(true);
     }
   }, [storageKey, cssVar, variant]);
 
@@ -81,7 +84,7 @@ export function SprintaxPromoBanner({ variant }: SprintaxPromoBannerProps) {
     setVisible(false);
   };
 
-  if (!visible) return null;
+  if (!mounted || !visible) return null;
 
   const ctaHref = variant === "marketing" ? "/login" : "/dashboard/tax-filing";
   const ctaLabel = variant === "marketing" ? "Sign up" : "Get coupon";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
+import { triggerBrowserDownload } from "@/lib/browser-download";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -439,9 +440,11 @@ export default function ResumeEditorPage() {
             const a = document.createElement("a");
             a.href = compiledPdfUrl;
             a.download = `resume_${selectedTemplateId}.pdf`;
+            a.rel = "noopener";
+            a.style.display = "none";
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
+            a.remove();
         } else {
             // Fallback: Compile and download
             compilePdf(generatedLatex);

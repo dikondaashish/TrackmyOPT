@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { triggerBrowserDownload } from "@/lib/browser-download";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -883,14 +884,10 @@ export function SettingsSection() {
       
       if (res.ok) {
         const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `trackmyopt-data-${new Date().toISOString().split('T')[0]}.${format}`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        triggerBrowserDownload(
+          blob,
+          `trackmyopt-data-${new Date().toISOString().split('T')[0]}.${format}`
+        );
         setSuccess('Data exported successfully!');
         setTimeout(() => setSuccess(null), 3000);
       } else {
@@ -904,14 +901,10 @@ export function SettingsSection() {
         exportedAt: new Date().toISOString(),
       };
       const blob = new Blob([JSON.stringify(mockData, null, 2)], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `trackmyopt-data-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      triggerBrowserDownload(
+        blob,
+        `trackmyopt-data-${new Date().toISOString().split('T')[0]}.json`
+      );
       setSuccess('Data exported!');
       setTimeout(() => setSuccess(null), 3000);
     } finally {
@@ -976,14 +969,10 @@ export function SettingsSection() {
       
       if (res.ok) {
         const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `trackmyopt-export-${new Date().toISOString().split('T')[0]}.zip`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        triggerBrowserDownload(
+          blob,
+          `trackmyopt-export-${new Date().toISOString().split('T')[0]}.zip`
+        );
         
         setShowZipExportOtp(false);
         setZipExportOtp('');

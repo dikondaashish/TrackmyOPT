@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { triggerBrowserDownload } from '@/lib/browser-download';
 import { DocumentCard } from './DocumentCard';
 import { DocumentViewModal } from './DocumentViewModal';
 
@@ -51,16 +52,8 @@ export function DocumentGrid({
       if (!res.ok) throw new Error('Failed to download');
       
       const blob = await res.blob();
-      
-      // Create download link
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = window.document.createElement('a');
-      link.href = downloadUrl;
-      link.download = doc.filename || 'document';
-      window.document.body.appendChild(link);
-      link.click();
-      window.document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
+
+      triggerBrowserDownload(blob, doc.filename || 'document');
     } catch (error) {
       alert('Failed to download document. Please try again.');
     }

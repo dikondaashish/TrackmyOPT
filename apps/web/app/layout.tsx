@@ -74,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://deknauqkqqzwuvopqott.supabase.co" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -108,9 +108,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
               {
-                "@context": "https://schema.org",
                 "@type": "Organization",
                 "name": "TrackMyOPT",
                 "alternateName": "Track My OPT",
@@ -131,7 +132,6 @@ export default function RootLayout({
                 ]
               },
               {
-                "@context": "https://schema.org",
                 "@type": "WebSite",
                 "name": "TrackMyOPT",
                 "alternateName": "Track My OPT",
@@ -146,7 +146,6 @@ export default function RootLayout({
                 }
               },
               {
-                "@context": "https://schema.org",
                 "@type": "SoftwareApplication",
                 "name": "TrackMyOPT",
                 "applicationCategory": "UtilitiesApplication",
@@ -164,7 +163,8 @@ export default function RootLayout({
                   "bestRating": "5"
                 }
               }
-            ])
+              ],
+            })
           }}
         />
       </body>

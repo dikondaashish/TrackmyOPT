@@ -355,9 +355,11 @@ export function DashboardContent({ user }: DashboardContentProps) {
         }}
       />
 
-      {/* Render visible widgets */}
+      {/* Render visible widgets after localStorage config is applied (avoids hydration/order flash) */}
       <div className="grid gap-6">
-        {visibleWidgets.map((widget) => renderWidget(widget.id))}
+        {!widgetsLoaded
+          ? [...Array(3)].map((_, i) => <WidgetSkeleton key={`widget-skeleton-${i}`} />)
+          : visibleWidgets.map((widget) => renderWidget(widget.id))}
       </div>
 
       {/* Footer */}
@@ -375,7 +377,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
           <span>·</span>
           <a href="/dashboard/help" className="hover:text-foreground transition-colors">Help</a>
         </div>
-        <p>© {new Date().getFullYear()} TrackMyOPT by Zyene, Inc. All rights reserved.</p>
+        <p suppressHydrationWarning>© {new Date().getFullYear()} TrackMyOPT by Zyene, Inc. All rights reserved.</p>
       </footer>
 
       {/* Settings Modal */}

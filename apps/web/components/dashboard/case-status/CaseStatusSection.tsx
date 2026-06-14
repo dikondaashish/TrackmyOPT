@@ -23,6 +23,11 @@ import {
 import { captureUpgradePromptShown } from "@/lib/posthog-client";
 import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import {
+  normalizeStatusHistory,
+  withNormalizedStatusHistory,
+  type CaseStatusHistoryEntry,
+} from "@/lib/case-status/normalize-status-history";
+import {
   ClipboardCheck,
   RefreshCw,
   Bell,
@@ -52,11 +57,7 @@ interface CaseStatus {
   last_status_viewed_at?: string | null;
   status_last_changed_at?: string | null;
   last_change_alert_suppressed?: boolean;
-  status_history: Array<{
-    status: string;
-    date: string;
-    description?: string;
-  }>;
+  status_history: CaseStatusHistoryEntry[];
   change_log: Array<{
     date: string;
     old_status: string;
@@ -124,9 +125,13 @@ export function CaseStatusSection() {
         (payload) => {
           // Realtime Case status updated
           // Merge the Realtime payload directly into state for instant UI refresh
-          setCaseStatus((prev) =>
-            prev ? { ...prev, ...(payload.new as Partial<CaseStatus>) } : prev
-          );
+          setCaseStatus((prev) => {
+            if (!prev) return prev;
+            return withNormalizedStatusHistory({
+              ...prev,
+              ...(payload.new as Partial<CaseStatus>),
+            });
+          });
         }
       )
       .subscribe();
@@ -178,10 +183,11 @@ export function CaseStatusSection() {
       if (response.ok) {
         const result = await response.json();
         if (result.ok && result.data) {
-          setCaseStatus(result.data);
-          setReceiptNumber(result.data.receipt_number);
+          const normalized = withNormalizedStatusHistory(result.data as CaseStatus);
+          setCaseStatus(normalized);
+          setReceiptNumber(normalized.receipt_number);
           setLoadError(null);
-          return result.data;
+          return normalized;
         }
         // Successful response but no data — user just has no case tracked yet
         setCaseStatus(null);
