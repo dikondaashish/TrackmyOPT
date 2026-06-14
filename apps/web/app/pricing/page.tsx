@@ -101,19 +101,23 @@ export default function PricingPage() {
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <Link
-                                    href="/login"
-                                    className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+                                    href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear"
+                                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-violet-700 rounded-xl font-semibold hover:bg-violet-50 transition-colors"
                                 >
-                                    Start 7-Day Free Trial{" "}
+                                    Start Pro Free Trial{" "}
                                     <ArrowRight className="w-4 h-4" />
                                 </Link>
                                 <Link
-                                    href="/premium-worth-it"
-                                    className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 text-white rounded-xl font-semibold hover:bg-white/20 transition-colors border border-white/20"
+                                    href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Ddedicated%26interval%3Dyear"
+                                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white rounded-xl font-semibold hover:bg-white/20 transition-colors border border-white/20"
                                 >
-                                    Is Premium Worth It?
+                                    Get Dedicated Support
+                                    <ArrowRight className="w-4 h-4" />
                                 </Link>
                             </div>
+                            <p className="text-sm text-blue-100/80 mt-4">
+                                Pro from $4.17/mo billed yearly · Dedicated includes monthly attorney access
+                            </p>
                         </div>
                     </div>
                 </section>

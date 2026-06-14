@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, Crown, Shield, Sparkles, Star, Zap, Gift } from "lucide-react";
+import { ArrowRight, Check, Crown, Shield, Sparkles, Star, Zap, Gift, Bell, Clock, FileCheck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,13 @@ import type { PromoCheckoutMode } from "@/lib/premium/promoCheckoutTypes";
 import { buildPromoCheckoutBody } from "@/lib/premium/checkoutPromoPayload";
 import { formatMonthlyEquivalentFromYearly } from "@/lib/premium/formatMonthlyEquivalentFromYearly";
 import { getPlanCardFeatures } from "@/lib/pricing/plan-features";
+import {
+  PLAN_SALES_META,
+  PRICING_MODAL,
+  PRICING_VALUE_PILLARS,
+  type PaidPlanId,
+} from "@/lib/pricing/sales-copy";
+import { PlanPickerGuide } from "@/components/pricing/PlanPickerGuide";
 
 interface PricingModalProps {
   open: boolean;
@@ -97,6 +104,16 @@ export function PricingModal({
     setProConsent(false);
     setDedicatedConsent(false);
   }, [isYearly]);
+
+  useEffect(() => {
+    if (!open || !initialPlan) return;
+    const timer = window.setTimeout(() => {
+      document
+        .getElementById(`pricing-plan-${initialPlan}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }, 150);
+    return () => window.clearTimeout(timer);
+  }, [open, initialPlan]);
 
   const handleUpgrade = async (selectedPlan: string) => {
     setIsLoading(true);
@@ -246,7 +263,7 @@ export function PricingModal({
       id: 'pro',
       name: 'Pro',
       icon: Crown,
-      tagline: 'Complete OPT success toolkit',
+      tagline: PLAN_SALES_META.pro.tagline,
       monthlyPrice: 4.99,
       yearlyPrice: 49.99,
       originalMonthly: 7.99,
@@ -264,7 +281,7 @@ export function PricingModal({
       id: 'dedicated',
       name: 'Dedicated',
       icon: Shield,
-      tagline: 'Premium support with independent attorney access',
+      tagline: PLAN_SALES_META.dedicated.tagline,
       monthlyPrice: 14.99,
       yearlyPrice: 149.99,
       originalMonthly: 19.99,
@@ -298,8 +315,8 @@ export function PricingModal({
           <div className="relative z-10">
             {/* Badge */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 md:px-2.5 md:py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 text-[11px] md:text-[10px] font-semibold mb-2 md:mb-1.5 border border-violet-500/20">
-              <Sparkles className="w-3 h-3 md:w-2.5 md:h-2.5" />
-              Upgrade Your OPT Journey
+              <Shield className="w-3 h-3 md:w-2.5 md:h-2.5" />
+              {PRICING_MODAL.badge}
             </div>
 
             {/* Title */}
@@ -309,7 +326,7 @@ export function PricingModal({
                 checkoutPage ? "md:text-2xl lg:text-[1.4rem]" : "md:text-xl lg:text-[1.35rem]"
               )}
             >
-              Choose Your Plan
+              {PRICING_MODAL.title}
             </h2>
             <p
               className={cn(
@@ -317,7 +334,15 @@ export function PricingModal({
                 checkoutPage ? "text-xs sm:text-sm md:text-sm" : "text-xs sm:text-sm md:text-xs"
               )}
             >
-              Join 2,500+ international students who trust TrackMyOPT to navigate their F-1 visa journey
+              {PRICING_MODAL.subtitle}
+            </p>
+            <p
+              className={cn(
+                "text-muted-foreground/90 max-w-xl mx-auto mt-2 leading-snug",
+                checkoutPage ? "text-[11px] sm:text-xs" : "text-[10px] sm:text-[11px]"
+              )}
+            >
+              {PRICING_MODAL.valueAnchor}
             </p>
 
             {/* Billing Toggle */}
@@ -359,6 +384,30 @@ export function PricingModal({
               </div>
             </div>
 
+          </div>
+        </div>
+
+        <div className="shrink-0 border-b border-border/30 bg-muted/20 px-4 py-3 md:px-5 md:py-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 max-w-4xl mx-auto">
+            {PRICING_VALUE_PILLARS.map((pillar, index) => {
+              const Icon = [Bell, Clock, FileCheck][index] ?? Bell;
+              return (
+                <div
+                  key={pillar.title}
+                  className="flex items-start gap-2 rounded-lg bg-background/80 border border-border/40 px-3 py-2"
+                >
+                  <Icon className="w-4 h-4 shrink-0 text-violet-600 dark:text-violet-400 mt-0.5" />
+                  <div className="text-left min-w-0">
+                    <p className="text-[11px] md:text-xs font-semibold text-foreground leading-tight">
+                      {pillar.title}
+                    </p>
+                    <p className="text-[10px] md:text-[11px] text-muted-foreground leading-snug">
+                      {pillar.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -405,16 +454,25 @@ export function PricingModal({
               const yearlyTotal = plan.yearlyPrice;
               const originalMonthly = plan.originalMonthly;
               const originalYearly = plan.originalYearly;
+              const salesMeta =
+                plan.id === "pro" || plan.id === "dedicated"
+                  ? PLAN_SALES_META[plan.id as PaidPlanId]
+                  : null;
+              const isInitialPlan = initialPlan === plan.id;
 
               return (
                 <div
                   key={plan.id}
+                  id={`pricing-plan-${plan.id}`}
                   className={cn(
                     "relative rounded-2xl md:rounded-xl transition-all duration-300 flex flex-col h-full",
                     plan.popular
                       ? "bg-gradient-to-b from-violet-500/[0.08] via-violet-500/[0.03] to-transparent ring-2 ring-violet-500/40 shadow-xl shadow-violet-500/10"
-                      : "bg-card/60 border hover:border-border/80 hover:shadow-lg",
-                    plan.borderColor
+                      : plan.id === "dedicated"
+                        ? "bg-gradient-to-b from-amber-500/[0.06] via-amber-500/[0.02] to-transparent ring-2 ring-amber-500/30 shadow-lg shadow-amber-500/5"
+                        : "bg-card/60 border hover:border-border/80 hover:shadow-lg",
+                    plan.borderColor,
+                    isInitialPlan && "ring-offset-2 ring-offset-background"
                   )}
                 >
                   {/* Popular Badge */}
@@ -422,7 +480,16 @@ export function PricingModal({
                     <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
                       <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-violet-500/30">
                         <Star className="w-3 h-3 fill-current" />
-                        Most Popular
+                        {salesMeta?.badge ?? "Most Popular"}
+                      </div>
+                    </div>
+                  )}
+
+                  {plan.id === "dedicated" && (
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
+                      <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-amber-500/30">
+                        <Shield className="w-3 h-3" />
+                        {salesMeta?.badge ?? "Attorney-Backed"}
                       </div>
                     </div>
                   )}
@@ -459,6 +526,18 @@ export function PricingModal({
                           >
                             {plan.tagline}
                           </p>
+                          {salesMeta && (
+                            <p
+                              className={cn(
+                                "text-[10px] md:text-[9px] font-medium mt-0.5",
+                                plan.id === "pro"
+                                  ? "text-violet-600 dark:text-violet-400"
+                                  : "text-amber-700 dark:text-amber-400"
+                              )}
+                            >
+                              Best for: {salesMeta.bestFor}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -521,6 +600,11 @@ export function PricingModal({
                         <p className="text-violet-600 dark:text-violet-400 text-xs md:text-[11px] font-medium mt-1.5 md:mt-1 flex items-center gap-1">
                           <Sparkles className="w-3 h-3 md:w-2.5 md:h-2.5" />
                           {plan.trial}
+                        </p>
+                      )}
+                      {plan.id === "dedicated" && salesMeta?.guarantee && (
+                        <p className="text-amber-700 dark:text-amber-400 text-xs md:text-[11px] font-medium mt-1.5 md:mt-1">
+                          {salesMeta.guarantee}
                         </p>
                       )}
                     </div>
@@ -653,13 +737,13 @@ export function PricingModal({
                               ) : plan.popular ? (
                                 <>
                                   {proFreeTrialEligible === false
-                                    ? "Subscribe to Pro"
-                                    : "Start 7-Day Free Trial"}
+                                    ? PLAN_SALES_META.pro.ctaNoTrial
+                                    : PLAN_SALES_META.pro.ctaDefault}
                                   <ArrowRight className="w-3.5 h-3.5" />
                                 </>
                               ) : (
                                 <>
-                                  Upgrade to Dedicated
+                                  {PLAN_SALES_META.dedicated.ctaDefault}
                                   <ArrowRight className="w-3.5 h-3.5" />
                                 </>
                               )}
@@ -671,7 +755,29 @@ export function PricingModal({
 
                     {/* Features List */}
                     <div className="flex-1">
-                      <ul className="space-y-1.5 md:space-y-1 max-h-[min(340px,52vh)] overflow-y-auto pr-0.5">
+                      {salesMeta && (
+                        <ul className="space-y-1.5 mb-3 pb-3 border-b border-border/40">
+                          {salesMeta.highlights.map((highlight) => (
+                            <li key={highlight} className="flex items-start gap-2">
+                              <Check
+                                className={cn(
+                                  "w-3.5 h-3.5 shrink-0 mt-0.5",
+                                  plan.id === "pro"
+                                    ? "text-violet-600 dark:text-violet-400"
+                                    : "text-amber-600 dark:text-amber-400"
+                                )}
+                              />
+                              <span className="text-xs md:text-[11px] font-medium text-foreground leading-snug">
+                                {highlight}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <p className="text-[10px] uppercase tracking-wide font-semibold text-muted-foreground mb-2">
+                        Full feature list
+                      </p>
+                      <ul className="space-y-1.5 md:space-y-1 max-h-[min(280px,42vh)] overflow-y-auto pr-0.5">
                         {plan.features.map((feature, idx) => (
                           <li
                             key={idx}
@@ -720,6 +826,10 @@ export function PricingModal({
               {promoError}
             </p>
           )}
+
+          <div className="px-4 sm:px-5 md:px-4 pb-3">
+            <PlanPickerGuide compact />
+          </div>
         </div>
 
           {/* Footer Trust Section */}
@@ -732,9 +842,13 @@ export function PricingModal({
               {!isPremium && proFreeTrialEligible !== false && (
               <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
                 <Sparkles className="w-3.5 h-3.5 md:w-3 md:h-3 text-violet-600" />
-                <span>7-Day Free Trial</span>
+                <span>Pro: 7-day free trial</span>
               </div>
               )}
+              <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
+                <Shield className="w-3.5 h-3.5 md:w-3 md:h-3 text-amber-600" />
+                <span>Dedicated: 3-day money-back</span>
+              </div>
               <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
                 <Zap className="w-3.5 h-3.5 md:w-3 md:h-3 text-amber-600" />
                 <span>Cancel in Settings → Billing</span>

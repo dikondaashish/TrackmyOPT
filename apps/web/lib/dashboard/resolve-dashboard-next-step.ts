@@ -82,7 +82,7 @@ export function resolveDashboardNextStep(
   return {
     state: "free_upsell",
     action: "upgrade_pro",
-    href: "/premium/checkout",
+    href: "/premium/checkout?planId=pro&interval=year",
     plainEnglishStatus: null,
     statusCategory: null,
     lastCheckedLabel: null,

@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { PRICING_VALUE_ANCHOR } from "@/lib/pricing/sales-copy";
 
 export function PricingHero() {
     return (
@@ -22,15 +24,28 @@ export function PricingHero() {
                         </span>
                     </h1>
                     <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-4">
-                        TrackMyOPT Premium automates unemployment
-                        tracking, USCIS deadline alerts, and STEM OPT
-                        compliance — so you never risk your F-1 status
-                        over a missed date.
+                        Pro automates unemployment tracking, USCIS monitoring, and deadline
+                        alerts. Dedicated adds monthly attorney access for complex cases.
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Free plan available. Premium from $4.99/mo —
-                        less than a single missed deadline costs.
+                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+                        {PRICING_VALUE_ANCHOR}
                     </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
+                        <Link
+                            href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition-colors"
+                        >
+                            Start Pro Free Trial
+                            <ArrowRight className="w-4 h-4" />
+                        </Link>
+                        <Link
+                            href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Ddedicated%26interval%3Dyear"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-semibold transition-colors"
+                        >
+                            Get Dedicated Support
+                            <ArrowRight className="w-4 h-4" />
+                        </Link>
+                    </div>
                 </motion.div>
             </div>
         </section>

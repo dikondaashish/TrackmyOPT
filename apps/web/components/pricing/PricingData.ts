@@ -11,6 +11,10 @@ export { PLAN_COMPARISON_FEATURES as comparisonFeatures } from "@/lib/pricing/pl
 
 export const pricingFaqs = [
     {
+        q: "When should I choose Dedicated over Pro?",
+        a: "Choose Pro if you want automated USCIS monitoring, unemployment alerts, document vault, and career tools — it covers most OPT and STEM OPT students. Choose Dedicated if you want monthly access to a licensed immigration attorney, hands-on application completeness review, or 24/7 priority support for a complex case (RFE, status issues, or H-1B planning).",
+    },
+    {
         q: "Is TrackMyOPT premium worth it?",
         a: "Yes — for F-1 students on OPT or STEM OPT, premium is worth it because it automates unemployment day tracking, sends deadline alerts before USCIS cutoffs, and consolidates job tracking, resume tools, and I-983 planning in one place. Missing an OPT deadline can result in status termination, making the cost of premium negligible compared to the risk.",
     },

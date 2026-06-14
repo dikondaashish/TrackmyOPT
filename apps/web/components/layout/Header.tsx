@@ -54,11 +54,12 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                 {/* Upgrade Button - Moved to Left per request */}
                 {!isPremium && (
                     <Link
-                        href="/premium/checkout"
-                        className="flex items-center gap-2 px-3 py-2 max-md:min-h-11 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-sm font-semibold rounded-full hover:from-amber-500 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
+                        href="/premium/checkout?planId=pro&interval=year"
+                        className="flex items-center gap-2 px-3 py-2 max-md:min-h-11 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-semibold rounded-full hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
                     >
                         <Crown className="w-4 h-4" />
-                        <span className="hidden md:inline">Upgrade to Premium</span>
+                        <span className="hidden md:inline">Try Pro Free</span>
+                        <span className="md:hidden">Go Pro</span>
                     </Link>
                 )}
 

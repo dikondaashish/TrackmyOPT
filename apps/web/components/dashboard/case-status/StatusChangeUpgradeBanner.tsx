@@ -65,7 +65,7 @@ export function StatusChangeUpgradeBanner({
           </div>
         </div>
         <Link
-          href="/premium/checkout"
+          href="/premium/checkout?planId=pro&interval=year"
           onClick={handleCheckoutClick}
           className="inline-flex items-center justify-center gap-2 rounded-md bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-10 px-4 w-full sm:w-auto shrink-0"
         >

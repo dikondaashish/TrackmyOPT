@@ -94,7 +94,7 @@ export function PricingModule({
                         htmlFor="billing-toggle"
                         className="text-sm text-muted-foreground cursor-pointer font-medium"
                     >
-                        {annualBillingLabel} <span className="text-primary font-bold">(Save 20%)</span>
+                        {annualBillingLabel} <span className="text-primary font-bold">(Save up to 40%)</span>
                     </label>
                 </div>
 

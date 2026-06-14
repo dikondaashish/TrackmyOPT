@@ -290,7 +290,7 @@ export function DocumentVaultClient() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <a
-                href="/premium/checkout"
+                href="/premium/checkout?planId=pro&interval=year"
                 className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition shadow-sm hover:shadow-md"
               >
                 Unlock with Pro

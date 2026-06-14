@@ -1662,10 +1662,10 @@ export function SettingsSection() {
                 {!premium.isPremium && (
                   <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
                     <Button
-                      onClick={() => window.location.href = '/premium/checkout'}
+                      onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
                       className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
                     >
-                      Upgrade to Premium
+                      Upgrade to Pro
                     </Button>
                   </div>
                 )}
@@ -1760,10 +1760,10 @@ export function SettingsSection() {
                 {!premium.isPremium && (
                   <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
                     <Button
-                      onClick={() => window.location.href = '/premium/checkout'}
+                      onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
                       className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
                     >
-                      Upgrade to Premium
+                      Upgrade to Pro
                     </Button>
                   </div>
                 )}
@@ -1852,10 +1852,10 @@ export function SettingsSection() {
                 {!premium.isPremium && (
                   <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
                     <Button
-                      onClick={() => window.location.href = '/premium/checkout'}
+                      onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
                       className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
                     >
-                      Upgrade to Premium
+                      Upgrade to Pro
                     </Button>
                   </div>
                 )}

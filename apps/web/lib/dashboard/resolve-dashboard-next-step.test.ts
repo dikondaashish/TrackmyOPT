@@ -48,7 +48,7 @@ describe("resolveDashboardNextStep", () => {
     });
     expect(step.state).toBe("free_upsell");
     expect(step.action).toBe("upgrade_pro");
-    expect(step.href).toBe("/premium/checkout");
+    expect(step.href).toBe("/premium/checkout?planId=pro&interval=year");
   });
 
   it("never shows free upsell to Pro users", () => {

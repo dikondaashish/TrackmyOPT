@@ -102,11 +102,11 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                             </span>
                         ) : (
                             <Link
-                                href="/premium/checkout"
+                                href="/premium/checkout?planId=pro&interval=year"
                                 className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                Upgrade to Premium
+                                Try Pro Free
                             </Link>
                         )}
                     </div>

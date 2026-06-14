@@ -114,10 +114,10 @@ export function DashboardNextStepCard() {
         return {
           icon: Crown,
           iconClass: "text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30",
-          title: "We check daily — get alerted instantly with Pro",
+          title: "Don't wait for a status change — get daily Pro alerts",
           description:
-            "Your receipt is saved. Upgrade for automatic daily checks and email alerts when your status changes.",
-          cta: "Upgrade to Pro",
+            "Your receipt is saved. Pro checks USCIS every morning and emails you when anything changes — before you find out by accident.",
+          cta: "Try Pro free for 7 days",
         };
       case "status_live":
         return {

@@ -34,7 +34,7 @@ export function ManualRefreshUpsellPrompt({
             className="h-auto p-0 mt-2 text-purple-600 dark:text-purple-400 font-medium"
             onClick={handleCheckoutClick}
           >
-            <Link href="/premium/checkout">Upgrade to Pro</Link>
+            <Link href="/premium/checkout?planId=pro&interval=year">Upgrade to Pro</Link>
           </Button>
         </div>
         <button
