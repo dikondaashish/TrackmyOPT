@@ -180,7 +180,7 @@ export function ResumePromoBanner({ variant }: ResumePromoBannerProps) {
       className="fixed top-0 left-0 right-0 z-[60] flex min-h-10 w-full items-center justify-center gap-2 border-b border-white/10 px-3 py-2 sm:gap-4 sm:px-4"
       style={{
         background:
-          "linear-gradient(90deg, #312e81 0%, #5b21b6 50%, #7c3aed 100%)",
+          "linear-gradient(90deg, #3b0764 0%, #5b21b6 35%, #92400e 100%)",
       }}
     >
       <p className="flex-1 text-center text-xs font-medium leading-snug text-white sm:text-sm">
