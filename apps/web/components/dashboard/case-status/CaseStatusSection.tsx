@@ -6,6 +6,12 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { CaseProcessingBenchmarks } from "@/components/dashboard/case-status/CaseProcessingBenchmarks";
+import { CaseListSwitcher } from "@/components/dashboard/case-status/CaseListSwitcher";
+import { WebPushEnableButton } from "@/components/dashboard/case-status/WebPushEnableButton";
+import {
+  caseLimitMessage,
+  getCaseTrackingLimit,
+} from "@/lib/case-status/case-limits";
 import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
@@ -19,7 +25,6 @@ import {
   formatStatusLabel,
   getServiceCenterLabel,
 } from "@/lib/case-status/case-status-display";
-import { saveReceiptAndPoll } from "@/lib/case-status/save-receipt-and-poll";
 import {
   shouldShowStatusChangeWedge,
   MANUAL_REFRESH_COUNT_SESSION_KEY,
@@ -77,11 +82,16 @@ interface CaseStatus {
   last_check_error_code?: string | null;
   last_check_error_message?: string | null;
   consecutive_failures?: number;
+  is_primary?: boolean;
+  label?: string | null;
 }
 
 export function CaseStatusSection() {
   const [receiptNumber, setReceiptNumber] = useState("");
   const [caseStatus, setCaseStatus] = useState<CaseStatus | null>(null);
+  const [trackedCases, setTrackedCases] = useState<CaseStatus[]>([]);
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
+  const [isAddingCase, setIsAddingCase] = useState(false);
   // isInitialLoad guards the full-page spinner on first mount only.
   // Subsequent reloads (polling, refresh) use isRefreshing so the UI doesn't collapse.
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -107,6 +117,49 @@ export function CaseStatusSection() {
     if (wedgeDismissed || isPremium !== false || !caseStatus) return false;
     return shouldShowStatusChangeWedge(caseStatus, isPremium);
   }, [wedgeDismissed, isPremium, caseStatus]);
+
+  const caseLimit = getCaseTrackingLimit(isPremium === true);
+  const canAddMoreCases = trackedCases.length < caseLimit;
+
+  const applyCasesToState = useCallback(
+    (
+      cases: CaseStatus[],
+      preferredId?: string | null,
+      primaryCaseId?: string | null
+    ) => {
+      const normalized = cases.map((c) => withNormalizedStatusHistory(c));
+      setTrackedCases(normalized);
+      if (normalized.length === 0) {
+        setCaseStatus(null);
+        setSelectedCaseId(null);
+        return;
+      }
+      const activeId =
+        (preferredId && normalized.find((c) => c.id === preferredId)?.id) ||
+        (primaryCaseId && normalized.find((c) => c.id === primaryCaseId)?.id) ||
+        normalized.find((c) => c.is_primary)?.id ||
+        normalized[0].id;
+      const active = normalized.find((c) => c.id === activeId) ?? normalized[0];
+      setSelectedCaseId(active.id);
+      setCaseStatus(active);
+      setReceiptNumber(active.receipt_number);
+    },
+    []
+  );
+
+  const selectCase = useCallback(
+    (caseId: string) => {
+      const found = trackedCases.find((c) => c.id === caseId);
+      if (!found) return;
+      setSelectedCaseId(caseId);
+      setCaseStatus(withNormalizedStatusHistory(found));
+      setReceiptNumber(found.receipt_number);
+      setIsAddingCase(false);
+      setError(null);
+      setSuccess(false);
+    },
+    [trackedCases]
+  );
 
   useEffect(() => {
     loadCaseStatus(true);
@@ -180,7 +233,10 @@ export function CaseStatusSection() {
     }
   };
 
-  const loadCaseStatus = async (isInitial = false) => {
+  const loadCaseStatus = async (
+    isInitial = false,
+    preferredId?: string | null
+  ) => {
     try {
       const response = await fetch('/api/case-status', {
         credentials: 'include',
@@ -189,15 +245,27 @@ export function CaseStatusSection() {
 
       if (response.ok) {
         const result = await response.json();
-        if (result.ok && result.data) {
-          const normalized = withNormalizedStatusHistory(result.data as CaseStatus);
-          setCaseStatus(normalized);
-          setReceiptNumber(normalized.receipt_number);
-          setLoadError(null);
-          return normalized;
+        if (!result.ok) {
+          setLoadError('Could not load your case status.');
+          return null;
         }
-        // Successful response but no data — user just has no case tracked yet
+        const cases: CaseStatus[] = result.cases?.length
+          ? result.cases
+          : result.data
+            ? [result.data]
+            : [];
+        if (cases.length > 0) {
+          applyCasesToState(
+            cases,
+            preferredId ?? selectedCaseId,
+            result.primaryCaseId
+          );
+          setLoadError(null);
+          return cases.find((c) => c.id === selectedCaseId) ?? cases[0];
+        }
+        setTrackedCases([]);
         setCaseStatus(null);
+        setSelectedCaseId(null);
         setLoadError(null);
         return null;
       }
@@ -228,28 +296,68 @@ export function CaseStatusSection() {
       return;
     }
 
+    const isNewCase =
+      isAddingCase ||
+      !trackedCases.some((c) => c.receipt_number === validation.normalized);
+
+    if (isNewCase && !canAddMoreCases) {
+      setError(caseLimitMessage(isPremium === true));
+      if (isPremium === false) setShowPricingModal(true);
+      return;
+    }
+
     try {
       setIsSaving(true);
       setIsPolling(true);
 
-      const saveResult = await saveReceiptAndPoll(validation.normalized, {
-        notificationsEnabled: caseStatus?.notifications_enabled ?? true,
+      const response = await fetch("/api/case-status", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          receipt_number: validation.normalized,
+          notifications_enabled: caseStatus?.notifications_enabled ?? true,
+          set_primary: trackedCases.length === 0,
+        }),
       });
 
-      if (!saveResult.ok) {
-        setError(saveResult.error);
+      const postResult = await response.json().catch(() => ({}));
+      if (!response.ok || !postResult.ok) {
+        setError(
+          (typeof postResult.error === "string" && postResult.error) ||
+            "Failed to save receipt number."
+        );
+        if (postResult.code === "case_limit_reached" && isPremium === false) {
+          setShowPricingModal(true);
+        }
         return;
       }
 
+      for (let i = 0; i < 10; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const data = await loadCaseStatus();
+        if (
+          data?.current_status &&
+          data.last_checked_at &&
+          data.current_status !== "Status will be fetched shortly..."
+        ) {
+          break;
+        }
+      }
+
       const data = await loadCaseStatus();
+      const statusResolved = Boolean(
+        data?.current_status &&
+          data.last_checked_at &&
+          data.current_status !== "Status will be fetched shortly..."
+      );
       if (data) {
-        setCaseStatus(data);
-        setReceiptNumber(data.receipt_number);
         setIsEditingReceipt(false);
+        setIsAddingCase(false);
       }
       setSuccess(true);
 
-      if (!saveResult.statusResolved) {
+      if (!statusResolved) {
         setError(
           "Status check is taking longer than expected. It will update automatically — please check back shortly."
         );
@@ -273,6 +381,8 @@ export function CaseStatusSection() {
       const response = await fetch('/api/case-status/refresh', {
         method: 'POST',
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ case_id: caseStatus.id }),
       });
 
       const result = await response.json();
@@ -312,20 +422,24 @@ export function CaseStatusSection() {
   };
 
   const handleRemove = async () => {
+    if (!caseStatus) return;
     if (!confirm('Are you sure you want to stop tracking this case? This will remove the receipt number from your dashboard.')) {
       return;
     }
 
     try {
       setIsRemoving(true);
-      const response = await fetch('/api/case-status', {
+      const response = await fetch(`/api/case-status?id=${encodeURIComponent(caseStatus.id)}`, {
         method: 'DELETE',
         credentials: 'include',
       });
 
       if (response.ok) {
-        setCaseStatus(null);
-        setReceiptNumber("");
+        const remaining = trackedCases.filter((c) => c.id !== caseStatus.id);
+        applyCasesToState(remaining);
+        if (remaining.length === 0) {
+          setReceiptNumber("");
+        }
         setError(null);
         setSuccess(false);
       } else {
@@ -337,6 +451,35 @@ export function CaseStatusSection() {
     } finally {
       setIsRemoving(false);
     }
+  };
+
+  const handleSetPrimary = async (caseId: string) => {
+    try {
+      const response = await fetch("/api/case-status/primary", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ case_id: caseId }),
+      });
+      if (response.ok) {
+        await loadCaseStatus();
+      }
+    } catch {
+      setError("Could not update primary case.");
+    }
+  };
+
+  const handleStartAddCase = () => {
+    if (!canAddMoreCases) {
+      setError(caseLimitMessage(isPremium === true));
+      if (isPremium === false) setShowPricingModal(true);
+      return;
+    }
+    setIsAddingCase(true);
+    setReceiptNumber("");
+    setError(null);
+    setSuccess(false);
+    setIsEditingReceipt(true);
   };
 
   const toggleNotifications = async () => {
@@ -354,6 +497,7 @@ export function CaseStatusSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           notifications_enabled: !caseStatus.notifications_enabled,
+          case_id: caseStatus.id,
         }),
       });
 
@@ -457,6 +601,18 @@ export function CaseStatusSection() {
 
       {caseStatus ? (
         <>
+          {trackedCases.length > 0 && (
+            <CaseListSwitcher
+              cases={trackedCases}
+              selectedId={selectedCaseId ?? caseStatus.id}
+              onSelect={selectCase}
+              onSetPrimary={handleSetPrimary}
+              onAddCase={handleStartAddCase}
+              canAddMore={canAddMoreCases}
+              isPremium={isPremium}
+            />
+          )}
+
           <CaseStatusOverview
             receiptNumber={caseStatus.receipt_number}
             currentStatus={caseStatus.current_status}
@@ -658,6 +814,9 @@ export function CaseStatusSection() {
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           You will be notified when we detect a case status change.
                         </p>
+                        <div className="mt-3">
+                          <WebPushEnableButton />
+                        </div>
                         <UscisCaseStatusDisclaimer variant="compact" showAlertNote className="mt-3" />
                       </div>
                     )}

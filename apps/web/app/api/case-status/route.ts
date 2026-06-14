@@ -2,17 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/getUserId';
 import { sendEnrollmentEmail } from '@/lib/notifications/email-service';
-import {
-  API_RATE_LIMIT,
-  checkRateLimitByIP,
-  checkRateLimitByUser,
-  rateLimitResponse,
-  addRateLimitHeaders
-} from '@/lib/auth/api-rate-limit';
-import { caseStatusRequestSchema, validateRequest } from '@/lib/validation';
+import { caseLimitMessage, getCaseTrackingLimit } from '@/lib/case-status/case-limits';
+import { pickPrimaryCase } from '@/lib/case-status/select-primary-case';
 import { captureServerEvent, normalizePlanTier } from '@/lib/posthog-server';
 import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
 import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
+import type { Database } from '@/types/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,11 +18,45 @@ const corsHeaders = {
   'Cache-Control': 'no-store, no-cache, must-revalidate',
 };
 
+async function getSupabaseAdmin() {
+  return createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
+async function getUserPremium(
+  supabase: Awaited<ReturnType<typeof getSupabaseAdmin>>,
+  userId: string
+) {
+  const { data } = await supabase
+    .from('profiles')
+    .select('plan_tier, premium_status, first_name')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const isPremium = data?.premium_status === true;
+  return {
+    isPremium,
+    planTier: normalizePlanTier(data?.plan_tier || (isPremium ? 'pro' : 'free')),
+    firstName: data?.first_name ?? 'there',
+  };
+}
+
+function sortCases<T extends { is_primary?: boolean | null; created_at?: string | null }>(
+  cases: T[]
+): T[] {
+  return [...cases].sort((a, b) => {
+    if (a.is_primary && !b.is_primary) return -1;
+    if (!a.is_primary && b.is_primary) return 1;
+    const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return aTime - bTime;
+  });
+}
 
 /**
  * GET /api/case-status
- * Fetch user's current case status
+ * Returns all tracked cases; `data` is the primary case (backward compatible).
  */
 export async function GET(req: NextRequest) {
   try {
@@ -40,28 +69,16 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Use service role key for database access
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = await getSupabaseAdmin();
 
-    // Fetch case status from database
-    const { data: caseStatus, error: dbError } = await supabase
+    const { data: cases, error: dbError } = await supabase
       .from('case_status')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .order('is_primary', { ascending: false })
+      .order('created_at', { ascending: true });
 
     if (dbError) {
-      if (dbError.code === 'PGRST116') {
-        // No case status found (not an error, just empty)
-        return NextResponse.json(
-          { ok: true, data: null },
-          { status: 200, headers: corsHeaders }
-        );
-      }
-
       console.error('Database error fetching case status:', dbError);
       return NextResponse.json(
         { ok: false, error: 'Failed to fetch case status' },
@@ -69,8 +86,16 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const sorted = sortCases(cases ?? []);
+    const primary = pickPrimaryCase(sorted);
+
     return NextResponse.json(
-      { ok: true, data: caseStatus },
+      {
+        ok: true,
+        data: primary ?? null,
+        cases: sorted,
+        primaryCaseId: primary?.id ?? null,
+      },
       { status: 200, headers: corsHeaders }
     );
   } catch (error) {
@@ -84,7 +109,7 @@ export async function GET(req: NextRequest) {
 
 /**
  * POST /api/case-status
- * Save or update user's case receipt number
+ * Add a new receipt or update an existing one (matched by receipt number).
  */
 export async function POST(req: NextRequest) {
   try {
@@ -98,9 +123,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { receipt_number, notifications_enabled = true } = body;
+    const {
+      receipt_number,
+      notifications_enabled = true,
+      label = null,
+      case_type = 'I-765',
+      set_primary = false,
+    } = body;
 
-    // Validate receipt number
     if (!receipt_number || typeof receipt_number !== 'string') {
       await captureServerEvent(userId, 'receipt_validation_failed', {
         validation_error_code: 'missing_receipt',
@@ -111,10 +141,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const normalizedReceipt = receipt_number.toUpperCase().trim();
     const receiptPattern = /^[A-Z]{3}\d{10}$/;
-    if (!receiptPattern.test(receipt_number)) {
+    if (!receiptPattern.test(normalizedReceipt)) {
       await captureServerEvent(userId, 'receipt_validation_failed', {
-        receipt_prefix: getReceiptPrefix(receipt_number),
+        receipt_prefix: getReceiptPrefix(normalizedReceipt),
         validation_error_code: 'invalid_format',
       });
       return NextResponse.json(
@@ -123,39 +154,78 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Use service role key for upsert to bypass RLS
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    const supabaseAdmin = await getSupabaseAdmin();
+    const { isPremium, planTier, firstName } = await getUserPremium(supabaseAdmin, userId);
+
+    const { data: userCases } = await supabaseAdmin
+      .from('case_status')
+      .select('id, receipt_number, current_status, is_primary')
+      .eq('user_id', userId);
+
+    const existing = (userCases ?? []).find(
+      (c) => c.receipt_number === normalizedReceipt
     );
+    const isFirstCase = (userCases ?? []).length === 0;
+    const isNewReceipt = !existing;
 
-    const { data: existingCase } = await supabaseAdmin
-      .from('case_status')
-      .select('receipt_number, current_status')
-      .eq('user_id', userId)
-      .maybeSingle();
+    if (isNewReceipt) {
+      const limit = getCaseTrackingLimit(isPremium);
+      if ((userCases ?? []).length >= limit) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: caseLimitMessage(isPremium),
+            code: 'case_limit_reached',
+            limit,
+          },
+          { status: 403, headers: corsHeaders }
+        );
+      }
+    }
 
-    const isFirstSave = !existingCase;
+    const shouldBePrimary =
+      set_primary || isFirstCase || (userCases ?? []).every((c) => !c.is_primary);
 
-    // Upsert case status (insert or update)
-    const { data: caseStatus, error: dbError } = await supabaseAdmin
-      .from('case_status')
-      .upsert(
-        {
-          user_id: userId,
-          receipt_number: receipt_number.toUpperCase(),
-          notifications_enabled,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: 'user_id',
-          ignoreDuplicates: false,
-        }
-      )
-      .select()
-      .single();
+    if (shouldBePrimary && !isFirstCase) {
+      await supabaseAdmin
+        .from('case_status')
+        .update({ is_primary: false, updated_at: new Date().toISOString() })
+        .eq('user_id', userId);
+    }
 
-    if (dbError) {
+    const upsertPayload = {
+      user_id: userId,
+      receipt_number: normalizedReceipt,
+      notifications_enabled,
+      label: typeof label === 'string' && label.trim() ? label.trim() : null,
+      case_type: typeof case_type === 'string' ? case_type : 'I-765',
+      is_primary: shouldBePrimary,
+      updated_at: new Date().toISOString(),
+    };
+
+    let caseStatus;
+    let dbError;
+
+    if (existing) {
+      const result = await supabaseAdmin
+        .from('case_status')
+        .update(upsertPayload)
+        .eq('id', existing.id)
+        .select()
+        .single();
+      caseStatus = result.data;
+      dbError = result.error;
+    } else {
+      const result = await supabaseAdmin
+        .from('case_status')
+        .insert(upsertPayload)
+        .select()
+        .single();
+      caseStatus = result.data;
+      dbError = result.error;
+    }
+
+    if (dbError || !caseStatus) {
       console.error('Database error saving case status:', dbError);
       return NextResponse.json(
         { ok: false, error: 'Failed to save case status' },
@@ -163,75 +233,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if this is a new case enrollment (first time saving)
-    const isNewEnrollment = notifications_enabled && !existingCase?.current_status;
-    const receiptPrefix = getReceiptPrefix(receipt_number);
-
-    const { data: profileForAnalytics } = await supabaseAdmin
-      .from('profiles')
-      .select('plan_tier, premium_status')
-      .eq('user_id', userId)
-      .maybeSingle();
-    const planTier = normalizePlanTier(
-      profileForAnalytics?.plan_tier ||
-        (profileForAnalytics?.premium_status ? 'pro' : 'free')
-    );
-
-    const receiptEventProps = {
-      receipt_prefix: receiptPrefix,
-      notifications_enabled,
-      plan_tier: planTier,
-      is_new_enrollment: isNewEnrollment,
-    };
+    const isNewEnrollment = notifications_enabled && isNewReceipt;
+    const receiptPrefix = getReceiptPrefix(normalizedReceipt);
 
     await captureServerEvent(
       userId,
-      isFirstSave ? 'receipt_added' : 'receipt_updated',
-      receiptEventProps
+      isNewReceipt ? 'receipt_added' : 'receipt_updated',
+      {
+        receipt_prefix: receiptPrefix,
+        notifications_enabled,
+        plan_tier: planTier,
+        is_new_enrollment: isNewEnrollment,
+        case_count: (userCases ?? []).length + (isNewReceipt ? 1 : 0),
+      }
     );
 
-    if (isNewEnrollment) {
-      secureLog.log(`[case-status] New enrollment: ${redactReceiptNumber(receipt_number)}`);
-
-      // Get user's email, name, and premium status from profiles
-      const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('first_name, premium_status')
-        .eq('user_id', userId)
-        .single();
-
-      // Only send enrollment email to premium users
-      const isPremium = profile?.premium_status === true;
-
-      if (!isPremium) {
-        secureLog.log(`[case-status] Skipping enrollment email — not premium`);
-      } else {
-        // Try to get email from auth.users table directly
-        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
-        const userEmail = userData?.user?.email;
-
-        if (userEmail) {
-          const firstName = profile?.first_name || 'there';
-
-          secureLog.log(`[case-status] Sending enrollment email to premium user`);
-
-          try {
-            const result = await sendEnrollmentEmail(userEmail, firstName, 'case-status');
-            if (result.success) {
-              secureLog.log(`[case-status] Enrollment email sent`);
-            } else {
-              secureLog.error(`[case-status] Enrollment email failed:`, result.error);
-            }
-          } catch (err) {
-            secureLog.error(`[case-status] Enrollment email error:`, err);
-          }
-        } else {
-          secureLog.log(`[case-status] No email found for enrollment notification`);
+    if (isNewEnrollment && isPremium) {
+      secureLog.log(`[case-status] New enrollment: ${redactReceiptNumber(normalizedReceipt)}`);
+      const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+      const userEmail = userData?.user?.email;
+      if (userEmail) {
+        try {
+          await sendEnrollmentEmail(userEmail, firstName, 'case-status');
+        } catch (err) {
+          secureLog.error(`[case-status] Enrollment email error:`, err);
         }
       }
     }
 
-    // Trigger immediate status check (async, don't wait)
     fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/check`, {
       method: 'POST',
       headers: {
@@ -239,7 +268,7 @@ export async function POST(req: NextRequest) {
         'X-Internal-Secret': process.env.CRON_SECRET || '',
         'X-Check-Trigger': 'initial',
       },
-      body: JSON.stringify({ receipt_number: receipt_number.toUpperCase() }),
+      body: JSON.stringify({ receipt_number: normalizedReceipt }),
     }).catch((err) => {
       console.error('Failed to trigger initial status check:', err);
     });
@@ -258,8 +287,8 @@ export async function POST(req: NextRequest) {
 }
 
 /**
- * DELETE /api/case-status
- * Remove user's case receipt number
+ * DELETE /api/case-status?id=<case_uuid>
+ * Remove one tracked case.
  */
 export async function DELETE(req: NextRequest) {
   try {
@@ -272,17 +301,38 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    // Use service role key for database access
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const caseId =
+      req.nextUrl.searchParams.get('id') ||
+      (await req.json().catch(() => ({}))).id;
 
-    // Delete case status record for this user
-    const { error: dbError } = await supabaseAdmin
+    const supabaseAdmin = await getSupabaseAdmin();
+
+    const { data: userCases } = await supabaseAdmin
+      .from('case_status')
+      .select('id')
+      .eq('user_id', userId);
+
+    if (!userCases?.length) {
+      return NextResponse.json({ ok: true }, { status: 200, headers: corsHeaders });
+    }
+
+    let targetId = caseId as string | null;
+    if (!targetId) {
+      if (userCases.length > 1) {
+        return NextResponse.json(
+          { ok: false, error: 'case id is required when tracking multiple cases' },
+          { status: 400, headers: corsHeaders }
+        );
+      }
+      targetId = userCases[0].id;
+    }
+
+    const { data: deleted, error: dbError } = await supabaseAdmin
       .from('case_status')
       .delete()
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .eq('id', targetId)
+      .select('id, is_primary');
 
     if (dbError) {
       console.error('Database error deleting case status:', dbError);
@@ -292,10 +342,23 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      { ok: true },
-      { status: 200, headers: corsHeaders }
-    );
+    const removed = deleted?.[0];
+    if (removed?.is_primary) {
+      const { data: remaining } = await supabaseAdmin
+        .from('case_status')
+        .select('id')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true })
+        .limit(1);
+      if (remaining?.[0]) {
+        await supabaseAdmin
+          .from('case_status')
+          .update({ is_primary: true, updated_at: new Date().toISOString() })
+          .eq('id', remaining[0].id);
+      }
+    }
+
+    return NextResponse.json({ ok: true }, { status: 200, headers: corsHeaders });
   } catch (error) {
     console.error('Error in DELETE /api/case-status:', error);
     return NextResponse.json(
@@ -305,7 +368,6 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
-export async function OPTIONS(req: NextRequest) {
+export async function OPTIONS() {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
-

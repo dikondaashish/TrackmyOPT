@@ -31,7 +31,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { notifications_enabled } = body;
+    const { notifications_enabled, case_id } = body;
 
     if (typeof notifications_enabled !== 'boolean') {
       return NextResponse.json(
@@ -47,13 +47,21 @@ export async function PATCH(req: NextRequest) {
     );
 
     // Update notification settings
-    const { error: updateError } = await supabaseAdmin
+    let updateQuery = supabaseAdmin
       .from('case_status')
       .update({
         notifications_enabled,
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId);
+
+    if (case_id) {
+      updateQuery = updateQuery.eq('id', case_id);
+    } else {
+      updateQuery = updateQuery.eq('is_primary', true);
+    }
+
+    const { error: updateError } = await updateQuery;
 
     if (updateError) {
       console.error('Error updating notifications:', updateError);
@@ -63,11 +71,32 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { data: caseStatus } = await supabaseAdmin
-      .from('case_status')
-      .select('receipt_number, current_status')
-      .eq('user_id', userId)
-      .maybeSingle();
+    let analyticsCaseRow = case_id
+      ? await supabaseAdmin
+          .from('case_status')
+          .select('receipt_number, current_status')
+          .eq('user_id', userId)
+          .eq('id', case_id)
+          .maybeSingle()
+          .then((r) => r.data)
+      : await supabaseAdmin
+          .from('case_status')
+          .select('receipt_number, current_status')
+          .eq('user_id', userId)
+          .eq('is_primary', true)
+          .maybeSingle()
+          .then((r) => r.data);
+
+    if (!analyticsCaseRow) {
+      const { data: first } = await supabaseAdmin
+        .from('case_status')
+        .select('receipt_number, current_status')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      analyticsCaseRow = first;
+    }
 
     const { data: profile } = await supabaseAdmin
       .from('profiles')
@@ -76,7 +105,7 @@ export async function PATCH(req: NextRequest) {
       .maybeSingle();
 
     await captureServerEvent(userId, 'receipt_updated', {
-      receipt_prefix: getReceiptPrefix(caseStatus?.receipt_number),
+      receipt_prefix: getReceiptPrefix(analyticsCaseRow?.receipt_number),
       notifications_enabled,
       plan_tier: normalizePlanTier(
         profile?.plan_tier || (profile?.premium_status ? 'pro' : 'free')

@@ -26,18 +26,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const body = await req.json().catch(() => ({}));
+    const caseId = typeof body.case_id === 'string' ? body.case_id : null;
+
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { error } = await supabase
+    let updateQuery = supabase
       .from('case_status')
       .update({
         last_status_viewed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId);
+
+    if (caseId) {
+      updateQuery = updateQuery.eq('id', caseId);
+    } else {
+      updateQuery = updateQuery.eq('is_primary', true);
+    }
+
+    const { error } = await updateQuery;
 
     if (error) {
       console.error('Error updating last_status_viewed_at:', error);

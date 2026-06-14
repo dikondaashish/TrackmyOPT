@@ -42,6 +42,8 @@ export const PLAN_COMPARISON_FEATURES: ComparisonCategory[] = [
     category: "USCIS Case Tracking",
     features: [
       { name: "Manual Case Status Check", free: true, pro: true, dedicated: true },
+      { name: "Track Multiple USCIS Cases", free: "1 case", pro: "Up to 8", dedicated: "Up to 8" },
+      { name: "Browser Push Case Alerts", free: false, pro: true, dedicated: true },
       { name: "OPT Approval Community Stats", free: true, pro: true, dedicated: true },
       { name: "Daily USCIS Auto-Checks", free: false, pro: true, dedicated: true },
       { name: "Daily Status Change Alerts", free: false, pro: true, dedicated: true },

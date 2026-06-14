@@ -5,11 +5,14 @@ import { FileCheck, Clock, AlertCircle, CheckCircle2, RefreshCw, ExternalLink, C
 import Link from "next/link";
 
 interface CaseStatus {
+  id?: string;
   receipt_number: string;
   current_status: string | null;
   status_description?: string;
   last_checked_at: string;
   last_updated_at?: string;
+  is_primary?: boolean;
+  label?: string | null;
 }
 
 function normalizeStatusText(status: string | null | undefined): string {
@@ -18,6 +21,7 @@ function normalizeStatusText(status: string | null | undefined): string {
 
 export function CaseStatusSummary() {
   const [caseStatus, setCaseStatus] = useState<CaseStatus | null>(null);
+  const [caseCount, setCaseCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +34,7 @@ export function CaseStatusSummary() {
         // API returns { ok: true, data: caseStatus }
         if (data.ok && data.data) {
           setCaseStatus(data.data);
+          setCaseCount(data.cases?.length ?? 1);
         }
       }
     } catch {
@@ -167,7 +172,10 @@ export function CaseStatusSummary() {
           </div>
           <div>
             <h3 className="font-semibold">Case Status</h3>
-            <p className="text-xs text-muted-foreground font-mono">{caseStatus.receipt_number}</p>
+            <p className="text-xs text-muted-foreground font-mono">
+              {caseStatus.receipt_number}
+              {caseCount > 1 ? ` · +${caseCount - 1} more` : ""}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">

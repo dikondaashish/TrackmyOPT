@@ -6,6 +6,7 @@ import {
   CASE_STATUS_CHANGE_SUBJECT_PREFIX,
 } from '@/lib/notifications/case-status-email';
 import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
+import { isWebPushConfigured, sendCaseStatusPush } from '@/lib/notifications/web-push';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -80,7 +81,8 @@ export async function POST(req: NextRequest) {
       .from('case_status')
       .select('notifications_enabled')
       .eq('user_id', user_id)
-      .single();
+      .eq('receipt_number', receipt_number.toUpperCase())
+      .maybeSingle();
 
     if (caseError || !caseData || !caseData.notifications_enabled) {
       return NextResponse.json(
@@ -133,6 +135,27 @@ export async function POST(req: NextRequest) {
       });
 
       console.log('Email sent:', info.messageId);
+
+      if (isWebPushConfigured()) {
+        const { data: subs } = await supabase
+          .from('push_subscriptions')
+          .select('endpoint, p256dh, auth')
+          .eq('user_id', user_id);
+
+        const pushTitle = 'USCIS case status updated';
+        const pushBody = new_status;
+        await Promise.allSettled(
+          (subs ?? []).map((sub) =>
+            sendCaseStatusPush(
+              {
+                endpoint: sub.endpoint,
+                keys: { p256dh: sub.p256dh, auth: sub.auth },
+              },
+              { title: pushTitle, body: pushBody }
+            )
+          )
+        );
+      }
 
       // Log successful email to email_queue for delivery tracking
       await supabase.from('email_queue').insert({

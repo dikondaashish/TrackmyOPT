@@ -147,7 +147,7 @@ COMMENT ON COLUMN public.employment_spans.end_date IS 'NULL means currently empl
 -- Stores receipt number and status history
 -- 
 -- Relationships:
---   - user_id → auth.users(id) [1:1]
+--   - user_id → auth.users(id) [1:N]
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS public.case_status (
   -- Primary Key
@@ -161,6 +161,8 @@ CREATE TABLE IF NOT EXISTS public.case_status (
   current_status TEXT,                        -- Latest case status from USCIS
   case_type TEXT,                             -- Type of case (I-765, I-129, etc.)
   received_date DATE,
+  is_primary BOOLEAN NOT NULL DEFAULT FALSE,  -- Dashboard primary case (one per user)
+  label TEXT,                                 -- Optional user label (e.g. OPT EAD)
   
   -- Status Tracking
   last_checked_at TIMESTAMPTZ,                -- Last time we checked USCIS
@@ -175,8 +177,12 @@ CREATE TABLE IF NOT EXISTS public.case_status (
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   
   -- Constraints
-  CONSTRAINT unique_user_case UNIQUE (user_id)
+  CONSTRAINT case_status_user_receipt_unique UNIQUE (user_id, receipt_number)
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS case_status_one_primary_per_user
+  ON public.case_status (user_id)
+  WHERE is_primary = true;
 
 -- Table Comment
 COMMENT ON TABLE public.case_status IS 'USCIS case status tracking information';
@@ -187,6 +193,28 @@ COMMENT ON COLUMN public.case_status.current_status IS 'Latest case status from 
 COMMENT ON COLUMN public.case_status.case_type IS 'Type of case (I-765, I-129, etc.)';
 COMMENT ON COLUMN public.case_status.status_history IS 'JSON array of historical status updates';
 COMMENT ON COLUMN public.case_status.notifications_enabled IS 'Whether user wants notifications for status changes';
+COMMENT ON COLUMN public.case_status.is_primary IS 'Primary case shown on dashboard summary; at most one per user';
+COMMENT ON COLUMN public.case_status.label IS 'Optional user label, e.g. OPT EAD or STEM extension';
+
+
+-- =============================================================================
+-- TABLE: push_subscriptions
+-- =============================================================================
+-- Web push endpoints for Pro case status browser alerts.
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS public.push_subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  endpoint TEXT NOT NULL,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  user_agent TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT push_subscriptions_user_endpoint_unique UNIQUE (user_id, endpoint)
+);
+
+COMMENT ON TABLE public.push_subscriptions IS 'Web push subscription endpoints per user device';
 
 
 -- =============================================================================

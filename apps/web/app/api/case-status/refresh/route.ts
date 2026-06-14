@@ -11,11 +11,9 @@ const corsHeaders = {
   'Cache-Control': 'no-store',
 };
 
-
-
 /**
  * POST /api/case-status/refresh
- * Manually trigger a status check for user's case
+ * Manually trigger a status check for one case (primary if omitted).
  */
 export async function POST(req: NextRequest) {
   try {
@@ -28,30 +26,56 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Use service role key for database access
+    const body = await req.json().catch(() => ({}));
+    const caseId = typeof body.case_id === 'string' ? body.case_id : null;
+
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // Fetch user's case status
-    const { data: caseStatus, error: dbError } = await supabase
-      .from('case_status')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+    let row: { receipt_number: string; last_checked_at: string | null } | null = null;
 
-    if (dbError || !caseStatus) {
+    if (caseId) {
+      const { data } = await supabase
+        .from('case_status')
+        .select('receipt_number, last_checked_at')
+        .eq('user_id', userId)
+        .eq('id', caseId)
+        .maybeSingle();
+      row = data;
+    } else {
+      const { data: primary } = await supabase
+        .from('case_status')
+        .select('receipt_number, last_checked_at')
+        .eq('user_id', userId)
+        .eq('is_primary', true)
+        .maybeSingle();
+      row = primary;
+    }
+
+    if (!row) {
+      const { data: fallback } = await supabase
+        .from('case_status')
+        .select('receipt_number, last_checked_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      row = fallback;
+    }
+
+    if (!row) {
       return NextResponse.json(
         { ok: false, error: 'No case status found' },
         { status: 404, headers: corsHeaders }
       );
     }
 
-    // Rate limit: 1 manual refresh per 5 minutes per user
-    const COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
-    if (caseStatus.last_checked_at) {
-      const lastChecked = new Date(caseStatus.last_checked_at).getTime();
+    const COOLDOWN_MS = 5 * 60 * 1000;
+
+    if (row.last_checked_at) {
+      const lastChecked = new Date(row.last_checked_at).getTime();
       const elapsed = Date.now() - lastChecked;
       if (elapsed < COOLDOWN_MS) {
         const remainingSec = Math.ceil((COOLDOWN_MS - elapsed) / 1000);
@@ -75,7 +99,7 @@ export async function POST(req: NextRequest) {
           'X-Internal-Secret': process.env.CRON_SECRET || '',
           'X-Force-Refresh': 'true',
         },
-        body: JSON.stringify({ receipt_number: caseStatus.receipt_number }),
+        body: JSON.stringify({ receipt_number: row.receipt_number }),
       }
     );
 
@@ -99,7 +123,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function OPTIONS(req: NextRequest) {
+export async function OPTIONS() {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
-
