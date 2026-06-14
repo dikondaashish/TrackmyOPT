@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, Crown, Shield, Sparkles, Star, Zap, Gift, Bell, Clock, FileCheck } from "lucide-react";
+import { ArrowRight, Check, Crown, Shield, Sparkles, Star, Zap, Gift, Bell, Clock, FileCheck, Mail, CalendarDays, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ import { getPlanCardFeatures } from "@/lib/pricing/plan-features";
 import {
   PLAN_SALES_META,
   PRICING_MODAL,
-  PRICING_VALUE_PILLARS,
   type PaidPlanId,
 } from "@/lib/pricing/sales-copy";
 import { PlanPickerGuide } from "@/components/pricing/PlanPickerGuide";
@@ -39,6 +38,56 @@ interface PricingModalProps {
 
 function isYearlyBillingDefault(interval: string | undefined): boolean {
   return interval !== "month";
+}
+
+const HEADER_BENEFITS: Array<{ icon: LucideIcon; title: string; sub: string }> = [
+  { icon: Bell, title: "Daily USCIS monitoring", sub: "Auto-checks + status email" },
+  { icon: Clock, title: "Unemployment alerts", sub: "Before 90 / 150-day limits" },
+  { icon: FileCheck, title: "Document vault", sub: "EAD & I-20 expiry reminders" },
+  { icon: CalendarDays, title: "STEM deadline tracking", sub: "Never miss a filing window" },
+  { icon: Mail, title: "9:00 AM ET reminders", sub: "Daily, per tracker" },
+  { icon: Shield, title: "Stay work-authorized", sub: "Compliance on autopilot" },
+];
+
+/**
+ * Decorative vertical marquee shown behind the header on the left/right edges.
+ * Purely visual — hidden from assistive tech and pointer events.
+ */
+function HeaderBenefitTicker({ reverse = false }: { reverse?: boolean }) {
+  return (
+    <div
+      className="flex flex-col gap-[var(--gap)] [--gap:0.6rem] [--duration:30s]"
+      style={reverse ? { animationDirection: "reverse" } : undefined}
+    >
+      {[0, 1].map((copy) => (
+        <div
+          key={copy}
+          className="flex shrink-0 flex-col gap-[var(--gap)] animate-marquee-vertical"
+          style={reverse ? { animationDirection: "reverse" } : undefined}
+        >
+          {HEADER_BENEFITS.map((b) => {
+            const Icon = b.icon;
+            return (
+              <div
+                key={b.title}
+                className="flex items-start gap-2 rounded-xl border border-border/40 bg-background/70 px-3 py-2 shadow-sm backdrop-blur-sm"
+              >
+                <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-500 dark:text-violet-400" />
+                <div className="min-w-0 text-left">
+                  <p className="text-[11px] font-semibold leading-tight text-foreground/80 truncate">
+                    {b.title}
+                  </p>
+                  <p className="text-[10px] leading-snug text-muted-foreground truncate">
+                    {b.sub}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function PricingModal({
@@ -308,9 +357,26 @@ export function PricingModal({
         )}
       >
         {/* Header Section */}
-        <div className="relative shrink-0 px-5 sm:px-6 md:px-5 pt-5 pb-3 sm:pb-4 md:pt-4 md:pb-2 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
+        <div className="relative shrink-0 overflow-hidden px-5 sm:px-6 md:px-5 pt-5 pb-3 sm:pb-4 md:pt-4 md:pb-2 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.08),transparent_50%)]" />
+
+          {/* Decorative scrolling benefit columns (left + right, behind content) */}
+          <div
+            className="pointer-events-none absolute inset-0 z-0 hidden select-none lg:block"
+            aria-hidden="true"
+          >
+            <div className="absolute inset-y-0 left-0 w-44 overflow-hidden opacity-60 [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)]">
+              <div className="px-3 py-2">
+                <HeaderBenefitTicker />
+              </div>
+            </div>
+            <div className="absolute inset-y-0 right-0 w-44 overflow-hidden opacity-60 [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)]">
+              <div className="px-3 py-2">
+                <HeaderBenefitTicker reverse />
+              </div>
+            </div>
+          </div>
 
           <div className="relative z-10">
             {/* Badge */}
@@ -384,30 +450,6 @@ export function PricingModal({
               </div>
             </div>
 
-          </div>
-        </div>
-
-        <div className="shrink-0 border-b border-border/30 bg-muted/20 px-4 py-3 md:px-5 md:py-2.5">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 max-w-4xl mx-auto">
-            {PRICING_VALUE_PILLARS.map((pillar, index) => {
-              const Icon = [Bell, Clock, FileCheck][index] ?? Bell;
-              return (
-                <div
-                  key={pillar.title}
-                  className="flex items-start gap-2 rounded-lg bg-background/80 border border-border/40 px-3 py-2"
-                >
-                  <Icon className="w-4 h-4 shrink-0 text-violet-600 dark:text-violet-400 mt-0.5" />
-                  <div className="text-left min-w-0">
-                    <p className="text-[11px] md:text-xs font-semibold text-foreground leading-tight">
-                      {pillar.title}
-                    </p>
-                    <p className="text-[10px] md:text-[11px] text-muted-foreground leading-snug">
-                      {pillar.description}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
 

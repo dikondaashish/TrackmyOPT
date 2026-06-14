@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Calendar as CalendarIcon, Mail, Crown, CheckCircle2, BellOff, Pencil, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,11 @@ import {
   buildOptDatesStatusSnapshot,
   type OptDatesFormData,
 } from "@/lib/immigration/optDatesPageUtils";
-import { OPT_TOOL_ICONS, type OptToolIconKey } from "@/lib/opt-tool-icons";
+import {
+  OptEmailRemindersPanel,
+  type ToolEmails,
+  type ToolName,
+} from "./OptEmailRemindersPanel";
 
 const PricingModal = dynamic(
   () => import("@/components/pricing/PricingModal").then((m) => ({ default: m.PricingModal })),
@@ -292,42 +296,6 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
 }
 
 // Tool email types
-interface ToolEmails {
-  opt_apply: string;
-  opt_clock: string;
-  stem_apply: string;
-  stem_clock: string;
-}
-
-type ToolName = keyof ToolEmails;
-
-const TOOL_INFO: Record<ToolName, { label: string; icon: OptToolIconKey; description: string; color: string }> = {
-  opt_apply: {
-    label: 'OPT Apply Dates',
-    icon: 'opt_apply',
-    description: 'Get reminders for OPT filing deadlines',
-    color: 'from-blue-500 to-blue-600',
-  },
-  opt_clock: {
-    label: 'OPT Clock Tracker',
-    icon: 'opt_clock',
-    description: 'Track unemployment days and get alerts',
-    color: 'from-amber-500 to-orange-500',
-  },
-  stem_apply: {
-    label: 'STEM Apply Dates',
-    icon: 'stem_apply',
-    description: 'STEM OPT extension deadline reminders',
-    color: 'from-green-500 to-emerald-600',
-  },
-  stem_clock: {
-    label: 'STEM Clock Tracker',
-    icon: 'stem_clock',
-    description: 'STEM unemployment tracking alerts',
-    color: 'from-purple-500 to-violet-600',
-  },
-};
-
 export function OptDatesSection() {
   const { toast } = useToast();
   const [dates, setDates] = useState<OptDatesData>({});
@@ -351,7 +319,6 @@ export function OptDatesSection() {
   const [employmentSpans, setEmploymentSpans] = useState<EmploymentSpan[]>([]);
   const [showEmploymentSetupModal, setShowEmploymentSetupModal] = useState(false);
   const [autoOpenEmploymentForm, setAutoOpenEmploymentForm] = useState(false);
-  const [remindersExpanded, setRemindersExpanded] = useState(false);
   const { setAck, ack } = useEmploymentSetupAck();
 
   // Load all data in parallel on mount
@@ -871,185 +838,18 @@ export function OptDatesSection() {
         }}
       />
 
-      {/* Tool Email Notifications — collapsed by default */}
-      <Card className="overflow-hidden border-purple-200 dark:border-purple-800">
-        <button
-          type="button"
-          onClick={() => setRemindersExpanded((v) => !v)}
-          className="flex w-full items-center justify-between gap-4 p-4 sm:p-5 text-left bg-gradient-to-br from-purple-50/80 to-blue-50/80 dark:from-purple-900/20 dark:to-blue-900/20 hover:from-purple-50 dark:hover:from-purple-900/30 transition-colors"
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-              {isPremium ? <Mail className="w-5 h-5 text-purple-600 dark:text-purple-400" /> : <Crown className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
-                Email reminders {isPremium ? "" : "(Premium)"}
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
-                Daily 9:00 AM ET — unemployment alerts, filing deadlines, STEM dates
-              </p>
-            </div>
-          </div>
-          <ChevronDown
-            className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${remindersExpanded ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        {remindersExpanded && (
-        <div className="p-6 pt-2 border-t border-purple-100 dark:border-purple-900/50">
-
-        {isPremium ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
-              const info = TOOL_INFO[tool];
-              const ToolIcon = OPT_TOOL_ICONS[info.icon];
-              const isEditing = editingTool === tool;
-              const isSaving = emailSaving === tool;
-              const hasEmail = !!toolEmails[tool];
-
-              return (
-                <div
-                  key={tool}
-                  className={`p-5 rounded-2xl bg-gradient-to-br ${info.color} text-white shadow-lg hover:shadow-xl transition-all duration-300`}
-                >
-                  {/* Top row: Tool info + Status badge */}
-                  <div className="flex flex-col items-start sm:flex-row sm:items-start justify-between gap-4 sm:gap-0 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/20">
-                        <ToolIcon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-base">{info.label}</h4>
-                        <p className="text-sm opacity-90">{info.description}</p>
-                      </div>
-                    </div>
-
-                    {/* Status Badge */}
-                    {hasEmail ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/30 backdrop-blur-sm text-white text-xs font-semibold shadow-sm">
-                        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                        Active
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-500/30 backdrop-blur-sm text-white/70 text-xs font-semibold">
-                        <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-                        Inactive
-                      </span>
-                    )}
-                  </div>
-
-                  {isEditing ? (
-                    <div className="space-y-3">
-                      <Input
-                        type="email"
-                        value={toolEmails[tool]}
-                        onChange={(e) => updateToolEmail(tool, e.target.value)}
-                        placeholder="your.email@example.com"
-                        className="bg-white/20 border-white/30 text-white placeholder:text-white/60 text-sm h-11"
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => handleToolEmailSave(tool)}
-                          size="sm"
-                          className="bg-white/25 hover:bg-white/35 text-white text-sm font-medium px-4 shadow-sm transition-all duration-200"
-                          disabled={isSaving}
-                        >
-                          {isSaving ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button
-                          onClick={() => setEditingTool(null)}
-                          size="sm"
-                          variant="ghost"
-                          className="text-white/80 hover:text-white hover:bg-white/15 text-sm transition-all duration-200"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Bottom row: Email + Action buttons */
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 pt-3 border-t border-white/15">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-5 h-5 opacity-80" />
-                        <span className="text-sm font-medium">
-                          {toolEmails[tool] || 'No email set'}
-                        </span>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex items-center gap-3">
-                        {hasEmail && (
-                          <button
-                            onClick={() => handleToolEmailStop(tool)}
-                            disabled={isSaving}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 hover:text-red-100 text-sm font-medium shadow-sm hover:shadow transition-all duration-200 disabled:opacity-50"
-                          >
-                            <BellOff className="w-4 h-4" />
-                            <span>{isSaving ? '...' : 'Stop'}</span>
-                          </button>
-                        )}
-                        <button
-                          onClick={() => setEditingTool(tool)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white/90 hover:text-white text-sm font-medium shadow-sm hover:shadow transition-all duration-200"
-                        >
-                          <Pencil className="w-4 h-4" />
-                          <span>Edit</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
-                const info = TOOL_INFO[tool];
-                const ToolIcon = OPT_TOOL_ICONS[info.icon];
-                return (
-                  <div
-                    key={tool}
-                    className={`p-3 rounded-lg bg-gradient-to-br ${info.color} text-white text-center`}
-                  >
-                    <ToolIcon className="mx-auto h-6 w-6" />
-                    <p className="text-xs font-medium mt-1">{info.label}</p>
-                  </div>
-                );
-              })}
-            </div>
-            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                Separate email for each tool
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                Daily 9:00 AM ET notifications
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                Chrome notifications + email
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                Customize alerts per tool
-              </li>
-            </ul>
-            <Button
-              onClick={() => setShowPremiumModal(true)}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              Upgrade to Premium
-            </Button>
-          </div>
-        )}
-        </div>
-        )}
-      </Card>
+      <OptEmailRemindersPanel
+        isPremium={isPremium}
+        toolEmails={toolEmails}
+        editingTool={editingTool}
+        emailSaving={emailSaving}
+        onEditTool={setEditingTool}
+        onCancelEdit={() => setEditingTool(null)}
+        onSaveTool={handleToolEmailSave}
+        onStopTool={handleToolEmailStop}
+        onUpdateEmail={updateToolEmail}
+        onComparePlans={() => setShowPremiumModal(true)}
+      />
 
       {/* Premium Modal */}
       <PricingModal
