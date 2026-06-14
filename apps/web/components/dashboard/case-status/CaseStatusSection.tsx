@@ -13,7 +13,6 @@ import {
   caseLimitMessage,
   getCaseTrackingLimit,
 } from "@/lib/case-status/case-limits";
-import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
 import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
@@ -25,6 +24,7 @@ import { ManualRefreshUpsellPrompt } from "@/components/dashboard/case-status/Ma
 import {
   formatDaysAgoLabel,
   formatStatusLabel,
+  getDaysSince,
   getServiceCenterLabel,
 } from "@/lib/case-status/case-status-display";
 import {
@@ -45,7 +45,12 @@ import {
   type CaseStatusHistoryEntry,
 } from "@/lib/case-status/normalize-status-history";
 import {
-  ClipboardCheck,
+  detectPpStart,
+  getPpClock,
+  isPremiumProcessingActive,
+} from "@/lib/case-status/premium-processing";
+import { cn } from "@/lib/utils";
+import {
   Bell,
   BellOff,
   CheckCircle2,
@@ -56,8 +61,58 @@ import {
   Crown,
   Info,
   Edit,
-  Trash2
+  Trash2,
+  RefreshCw,
+  Sparkles,
+  History,
+  ShieldCheck,
 } from "lucide-react";
+
+type TabId = "overview" | "lifecycle" | "insights" | "compliance";
+
+function getCaseFormName(caseType: string | null | undefined): string {
+  const t = (caseType ?? "").trim();
+  const map: Record<string, string> = {
+    "I-765": "Employment Authorization (OPT)",
+    "I-539": "Change of Status",
+    "I-140": "Immigrant Petition",
+    "I-129": "Nonimmigrant Worker",
+    "I-485": "Adjustment of Status",
+    "I-130": "Alien Relative Petition",
+  };
+  return map[t] ?? (t || "USCIS Case");
+}
+
+function maskReceipt(receipt: string): string {
+  if (receipt.length <= 3) return receipt;
+  return receipt.slice(0, 3) + "·".repeat(receipt.length - 3);
+}
+
+function getHeaderPill(status: string | null): { text: string; cls: string } {
+  const s = (status ?? "").toLowerCase();
+  if (s.includes("approved") || s.includes("produced") || s.includes("delivered"))
+    return { text: "Approved", cls: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" };
+  if (s.includes("denied"))
+    return { text: "Not approved", cls: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" };
+  if (s.includes("evidence") || s.includes("rfe"))
+    return { text: "Action required", cls: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" };
+  if (s.includes("premium processing"))
+    return { text: "Premium processing", cls: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300" };
+  if (!status)
+    return { text: "Loading…", cls: "bg-gray-100 text-gray-500" };
+  return { text: "In progress", cls: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" };
+}
+
+function formatLastCheckedCompact(iso: string | null): string {
+  if (!iso) return "never";
+  const days = getDaysSince(iso);
+  if (days === 0) {
+    const d = new Date(iso);
+    return `today, ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`;
+  }
+  if (days === 1) return "yesterday";
+  return `${days} days ago`;
+}
 
 interface CaseStatus {
   id: string;
@@ -117,6 +172,7 @@ export function CaseStatusSection() {
   const [isEditingReceipt, setIsEditingReceipt] = useState(false);
   const [filingDateInput, setFilingDateInput] = useState("");
   const [filingDateSaving, setFilingDateSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
 
   const showStatusChangeWedge = useMemo(() => {
     if (wedgeDismissed || isPremium !== false || !caseStatus) return false;
@@ -125,6 +181,22 @@ export function CaseStatusSection() {
 
   const caseLimit = getCaseTrackingLimit(isPremium === true);
   const canAddMoreCases = trackedCases.length < caseLimit;
+
+  const ppIsOverdue = useMemo(() => {
+    if (!caseStatus) return false;
+    if (!isPremiumProcessingActive({
+      statusHistory: caseStatus.status_history ?? [],
+      currentStatus: caseStatus.current_status,
+      manualPpStart: caseStatus.pp_start_date,
+    })) return false;
+    const start = detectPpStart({
+      statusHistory: caseStatus.status_history ?? [],
+      currentStatus: caseStatus.current_status,
+      manualPpStart: caseStatus.pp_start_date,
+    });
+    if (!start) return false;
+    return getPpClock(start).isOverdue;
+  }, [caseStatus]);
 
   const applyCasesToState = useCallback(
     (
@@ -613,9 +685,8 @@ export function CaseStatusSection() {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 animate-pulse">
-          <ClipboardCheck className="w-7 h-7 text-white" />
+          <Loader2 className="w-7 h-7 text-white animate-spin" />
         </div>
-        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
         <p className="text-sm text-muted-foreground font-medium">Loading your case status…</p>
       </div>
     );
@@ -629,30 +700,14 @@ export function CaseStatusSection() {
         hasStatus={Boolean(caseStatus?.current_status)}
         currentStatus={caseStatus?.current_status ?? null}
       />
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-4 mb-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
-            <ClipboardCheck className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">USCIS Case Status Tracker</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Free: track and refresh in-app.{' '}
-              <span className="font-semibold text-foreground">Pro:</span> daily auto-checks + email alerts on changes.
-            </p>
-          </div>
-        </div>
-        <UscisCaseStatusDisclaimer className="mt-4" />
-      </div>
-
       {caseStatus ? (
         <>
+          {/* ── Case switcher ──────────────────────────────── */}
           {trackedCases.length > 0 && (
             <CaseListSwitcher
               cases={trackedCases}
               selectedId={selectedCaseId ?? caseStatus.id}
-              onSelect={selectCase}
+              onSelect={(id) => { selectCase(id); setActiveTab("overview"); }}
               onSetPrimary={handleSetPrimary}
               onAddCase={handleStartAddCase}
               canAddMore={canAddMoreCases}
@@ -660,390 +715,459 @@ export function CaseStatusSection() {
             />
           )}
 
-          <CaseStatusOverview
-            receiptNumber={caseStatus.receipt_number}
-            currentStatus={caseStatus.current_status}
-            receivedDate={caseStatus.received_date}
-            lastCheckedAt={caseStatus.last_checked_at}
-            lastStatusChangeAt={caseStatus.last_status_change_at}
-            statusHistoryLength={caseStatus.status_history?.length ?? 0}
-            isPremium={isPremium}
-            isRefreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            onUpgrade={() => setShowPricingModal(true)}
-            formatDateTime={formatDate}
-          />
-
-          {caseStatus.last_check_failed_at && (caseStatus.consecutive_failures ?? 0) > 0 && (
-            <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" role="alert">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
-                    Last refresh failed: {formatDate(caseStatus.last_check_failed_at)}
-                  </p>
-                  <p className="text-xs text-amber-800 dark:text-amber-200 mt-1">
-                    USCIS may be temporarily unreachable. We&apos;ll keep retrying. The status above is from your most recent successful check.
-                    {caseStatus.last_check_error_message ? ` Reason: ${caseStatus.last_check_error_message}` : ''}
-                  </p>
+          {/* ── Clean page header ──────────────────────────── */}
+          {(() => {
+            const pill = getHeaderPill(caseStatus.current_status);
+            const daysSinceFiled = getDaysSince(caseStatus.received_date);
+            const serviceCenter = getServiceCenterLabel(caseStatus.receipt_number);
+            return (
+              <header className="flex items-start gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h1 className="text-2xl sm:text-[25px] font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                      {getCaseFormName(caseStatus.case_type)}
+                    </h1>
+                    <span className={cn("text-[12px] font-bold px-2.5 py-1 rounded-lg", pill.cls)}>
+                      {pill.text}
+                    </span>
+                  </div>
+                  <div className="text-[13px] text-[#86868B] mt-1.5 flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-[#48484A] dark:text-gray-300 font-mono ph-mask" data-ph-mask>
+                      {maskReceipt(caseStatus.receipt_number)}
+                    </span>
+                    <span className="text-[#C7C7CC]">·</span>
+                    <span>{serviceCenter}</span>
+                    {daysSinceFiled !== null && (
+                      <>
+                        <span className="text-[#C7C7CC]">·</span>
+                        <span>Day {daysSinceFiled}</span>
+                      </>
+                    )}
+                    <span className="text-[#C7C7CC]">·</span>
+                    <span>Last checked {formatLastCheckedCompact(caseStatus.last_checked_at)}</span>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          )}
-
-          {showStatusChangeWedge && caseStatus.status_last_changed_at && (
-            <StatusChangeUpgradeBanner
-              statusLastChangedAt={caseStatus.status_last_changed_at}
-              onAcknowledged={() => {
-                setWedgeDismissed(true);
-                setCaseStatus((prev) =>
-                  prev
-                    ? { ...prev, last_status_viewed_at: new Date().toISOString() }
-                    : prev
-                );
-              }}
-            />
-          )}
-
-          {showManualRefreshUpsell && (
-            <ManualRefreshUpsellPrompt
-              onDismiss={() => setShowManualRefreshUpsell(false)}
-            />
-          )}
-
-          {isEditingReceipt ? (
-            <CaseStatusReceiptPanel
-              mode="edit"
-              receiptNumber={receiptNumber}
-              onReceiptChange={setReceiptNumber}
-              onSave={handleSave}
-              isSaving={isSaving}
-              isPolling={isPolling}
-              error={error}
-              success={success}
-              onCancelEdit={() => {
-                setIsEditingReceipt(false);
-                setReceiptNumber(caseStatus.receipt_number);
-                setError(null);
-                setSuccess(false);
-              }}
-            />
-          ) : (
-            <CaseStatusReceiptPanel
-              mode="edit"
-              receiptNumber={receiptNumber}
-              onReceiptChange={setReceiptNumber}
-              onSave={handleSave}
-              isSaving={isSaving}
-              isPolling={isPolling}
-              error={error}
-              success={success}
-              collapsedSummary={caseStatus.receipt_number}
-              onExpandEdit={() => setIsEditingReceipt(true)}
-            />
-          )}
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              variant="outline"
-              onClick={toggleNotifications}
-              className="flex items-center justify-center gap-2 w-full sm:w-auto"
-            >
-              {isPremium === false ? (
-                <>
-                  <Crown className="w-4 h-4" />
-                  Email Alerts (Pro)
-                </>
-              ) : caseStatus.notifications_enabled ? (
-                <>
-                  <Bell className="w-4 h-4" />
-                  Email Alerts On
-                </>
-              ) : (
-                <>
-                  <BellOff className="w-4 h-4" />
-                  Email Alerts Off
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleRemove}
-              disabled={isRemoving}
-              className="flex items-center justify-center gap-2 w-full sm:w-auto text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-200 dark:border-red-900"
-            >
-              <Trash2 className="w-4 h-4" />
-              {isRemoving ? 'Removing...' : 'Stop Tracking'}
-            </Button>
-          </div>
-
-          {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' &&
-            process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' &&
-            process.env.NODE_ENV !== 'production' && (
-            <Card className="p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800" role="status">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-purple-900 dark:text-purple-100">USCIS Mock Mode Active</p>
-                  <p className="text-xs text-purple-800 dark:text-purple-200 mt-1">
-                    The values you see are simulated for testing. Set USCIS_MOCK=false in production env.
-                  </p>
+                <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                    className="flex items-center gap-2 bg-white dark:bg-gray-900 shadow-sm"
+                  >
+                    <RefreshCw className={cn("w-4 h-4 text-blue-500", isRefreshing && "animate-spin")} />
+                    {isRefreshing ? "Checking…" : "Refresh"}
+                  </Button>
                 </div>
-              </div>
-            </Card>
-          )}
+              </header>
+            );
+          })()}
 
-          <PremiumProcessingCountdown
-            caseId={caseStatus.id}
-            ppStartDate={caseStatus.pp_start_date ?? null}
-            currentStatus={caseStatus.current_status}
-            statusHistory={caseStatus.status_history ?? []}
-            onSaved={() => void loadCaseStatus()}
-          />
+          {/* ── Tab bar ────────────────────────────────────── */}
+          <nav className="flex items-center gap-1 p-1.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm w-fit flex-wrap">
+            {(
+              [
+                { id: "overview" as TabId, label: "Overview", icon: null },
+                { id: "lifecycle" as TabId, label: "Lifecycle", icon: <History className="w-3.5 h-3.5" /> },
+                { id: "insights" as TabId, label: "Insights", icon: <Sparkles className="w-3.5 h-3.5" /> },
+                { id: "compliance" as TabId, label: "Compliance", icon: <ShieldCheck className="w-3.5 h-3.5" />, badge: ppIsOverdue ? 1 : 0 },
+              ] satisfies Array<{ id: TabId; label: string; icon: React.ReactNode; badge?: number }>
+            ).map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13.5px] font-semibold transition-all",
+                  activeTab === tab.id
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "text-[#6E6E73] hover:bg-gray-50 dark:hover:bg-gray-800"
+                )}
+              >
+                {tab.icon}
+                {tab.label}
+                {tab.badge ? (
+                  <span className="w-[17px] h-[17px] rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center animate-pulse">
+                    {tab.badge}
+                  </span>
+                ) : null}
+              </button>
+            ))}
+          </nav>
 
-          {caseStatus.current_status && (
-            <Card className="p-6 sm:p-7 border-0 shadow-lg">
-              <h3 className="text-xs font-extrabold text-muted-foreground mb-5 uppercase tracking-widest">
-                Case Progress (Form I-765)
-              </h3>
-              <CaseProgressStepper
+          {/* ════════════════════════════════════════════════ */}
+          {/* ════════════ OVERVIEW TAB ══════════════════════ */}
+          {/* ════════════════════════════════════════════════ */}
+          {activeTab === "overview" && (
+            <div className="space-y-5">
+              {/* PP alert (if active) */}
+              <PremiumProcessingCountdown
+                caseId={caseStatus.id}
+                ppStartDate={caseStatus.pp_start_date ?? null}
                 currentStatus={caseStatus.current_status}
-                statusHistory={caseStatus.status_history}
+                statusHistory={caseStatus.status_history ?? []}
+                onSaved={() => void loadCaseStatus()}
               />
-            </Card>
+
+              {/* Check-failed alert */}
+              {caseStatus.last_check_failed_at && (caseStatus.consecutive_failures ?? 0) > 0 && (
+                <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" role="alert">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                        Last refresh failed: {formatDate(caseStatus.last_check_failed_at)}
+                      </p>
+                      <p className="text-xs text-amber-800 dark:text-amber-200 mt-1">
+                        USCIS may be temporarily unreachable. We&apos;ll keep retrying.
+                        {caseStatus.last_check_error_message ? ` Reason: ${caseStatus.last_check_error_message}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Status change wedge */}
+              {showStatusChangeWedge && caseStatus.status_last_changed_at && (
+                <StatusChangeUpgradeBanner
+                  statusLastChangedAt={caseStatus.status_last_changed_at}
+                  onAcknowledged={() => {
+                    setWedgeDismissed(true);
+                    setCaseStatus((prev) => prev ? { ...prev, last_status_viewed_at: new Date().toISOString() } : prev);
+                  }}
+                />
+              )}
+
+              {showManualRefreshUpsell && (
+                <ManualRefreshUpsellPrompt onDismiss={() => setShowManualRefreshUpsell(false)} />
+              )}
+
+              {/* 2-column hero card */}
+              <CaseStatusOverview
+                receiptNumber={caseStatus.receipt_number}
+                currentStatus={caseStatus.current_status}
+                receivedDate={caseStatus.received_date}
+                lastCheckedAt={caseStatus.last_checked_at}
+                lastStatusChangeAt={caseStatus.last_status_change_at}
+                statusHistoryLength={caseStatus.status_history?.length ?? 0}
+                statusHistory={caseStatus.status_history ?? []}
+                caseType={caseStatus.case_type}
+                isPremium={isPremium}
+                isRefreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                onUpgrade={() => setShowPricingModal(true)}
+                formatDateTime={formatDate}
+              />
+
+              {/* Receipt panel */}
+              {isEditingReceipt ? (
+                <CaseStatusReceiptPanel
+                  mode="edit"
+                  receiptNumber={receiptNumber}
+                  onReceiptChange={setReceiptNumber}
+                  onSave={handleSave}
+                  isSaving={isSaving}
+                  isPolling={isPolling}
+                  error={error}
+                  success={success}
+                  onCancelEdit={() => {
+                    setIsEditingReceipt(false);
+                    setReceiptNumber(caseStatus.receipt_number);
+                    setError(null);
+                    setSuccess(false);
+                  }}
+                />
+              ) : (
+                <CaseStatusReceiptPanel
+                  mode="edit"
+                  receiptNumber={receiptNumber}
+                  onReceiptChange={setReceiptNumber}
+                  onSave={handleSave}
+                  isSaving={isSaving}
+                  isPolling={isPolling}
+                  error={error}
+                  success={success}
+                  collapsedSummary={caseStatus.receipt_number}
+                  onExpandEdit={() => setIsEditingReceipt(true)}
+                />
+              )}
+
+              {/* Notification + Stop tracking buttons */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleNotifications}
+                  className="flex items-center gap-2"
+                >
+                  {isPremium === false ? (
+                    <><Crown className="w-4 h-4" />Email Alerts (Pro)</>
+                  ) : caseStatus.notifications_enabled ? (
+                    <><Bell className="w-4 h-4" />Email Alerts On</>
+                  ) : (
+                    <><BellOff className="w-4 h-4" />Email Alerts Off</>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRemove}
+                  disabled={isRemoving}
+                  className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-200 dark:border-red-900"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {isRemoving ? "Removing…" : "Stop Tracking"}
+                </Button>
+              </div>
+
+              {/* Mock mode */}
+              {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' &&
+                process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' &&
+                process.env.NODE_ENV !== 'production' && (
+                <Card className="p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800" role="status">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-purple-900 dark:text-purple-100">USCIS Mock Mode Active</p>
+                      <p className="text-xs text-purple-800 dark:text-purple-200 mt-1">Values are simulated for testing.</p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              <UscisCaseStatusDisclaimer className="mt-2" />
+            </div>
           )}
 
-          <div className="pt-4">
-            <div className="flex items-center gap-4 mb-6">
-              <span className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" aria-hidden />
-              <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                Insights &amp; predictions
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-              </span>
-              <span className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" aria-hidden />
-            </div>
-            <div className="space-y-7">
-              <CaseProcessingBenchmarks />
+          {/* ════════════════════════════════════════════════ */}
+          {/* ════════════ LIFECYCLE TAB ═════════════════════ */}
+          {/* ════════════════════════════════════════════════ */}
+          {activeTab === "lifecycle" && (
+            <div className="space-y-6">
+              {caseStatus.status_history && caseStatus.status_history.length > 0 ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Case Timeline — PRESERVED */}
+                  <Card className="p-6 sm:p-7 border border-gray-100 dark:border-gray-800 shadow-lg">
+                    <CaseHistoryTimeline
+                      statusHistory={caseStatus.status_history}
+                      defaultExpanded={false}
+                    />
+                  </Card>
 
+                  {/* Case Information — PRESERVED */}
+                  <Card className="p-6 sm:p-7 border border-gray-100 dark:border-gray-800 shadow-lg">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                        <Globe className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <h2 className="text-[17px] font-bold tracking-tight">Case Information</h2>
+                    </div>
+
+                    <div className="space-y-0">
+                      <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Case Type</span>
+                        <span className="text-sm font-semibold text-right">{caseStatus.case_type || 'Form I-765 (OPT)'}</span>
+                      </div>
+
+                      <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Receipt Number</span>
+                        <span className="text-sm font-semibold font-mono text-right ph-mask" data-ph-mask data-receipt-display>
+                          {caseStatus.receipt_number}
+                        </span>
+                      </div>
+
+                      <div className="flex max-md:flex-col max-md:items-start max-md:gap-2 items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Filing Date</span>
+                        {caseStatus.received_date ? (
+                          <span className="text-sm font-semibold text-right">{formatDateShort(caseStatus.received_date)}</span>
+                        ) : (
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                            <Input
+                              type="date"
+                              value={filingDateInput}
+                              onChange={(e) => setFilingDateInput(e.target.value)}
+                              className="h-8 text-sm"
+                              aria-label="Filing date"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => void handleSaveFilingDate()}
+                              disabled={filingDateSaving || !filingDateInput}
+                              className="shrink-0"
+                            >
+                              {filingDateSaving ? "Saving…" : "Add date"}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Service Center</span>
+                        <span className="text-sm font-semibold text-right ph-mask" data-ph-mask>
+                          {getServiceCenterLabel(caseStatus.receipt_number)}
+                        </span>
+                      </div>
+
+                      <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Current Status</span>
+                        <span className="text-sm font-semibold text-right max-w-[60%]">
+                          {formatStatusLabel(caseStatus.current_status, "Checking USCIS status…")}
+                        </span>
+                      </div>
+
+                      <div className="flex max-md:flex-col max-md:items-stretch max-md:gap-3 items-center justify-between pt-4">
+                        <div>
+                          <span className="text-xs font-medium text-gray-500">Time Since Filed</span>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-0.5">
+                            {formatDaysAgoLabel(caseStatus.received_date)}
+                          </p>
+                        </div>
+                        <div className="max-md:hidden w-px h-10 bg-gray-200 dark:bg-gray-700" />
+                        <div className="text-right max-md:text-left">
+                          <span className="text-xs font-medium text-gray-500">Last Status Change</span>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-0.5">
+                            {formatDaysAgoLabel(caseStatus.last_status_change_at)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              ) : (
+                <Card className="p-6 border border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                      <Globe className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <h2 className="text-[16px] font-bold">Case Information</h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Status history will appear here after USCIS posts updates.
+                  </p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                      <span className="text-sm text-muted-foreground">Receipt</span>
+                      <span className="text-sm font-mono font-semibold ph-mask" data-ph-mask>{caseStatus.receipt_number}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                      <span className="text-sm text-muted-foreground">Case Type</span>
+                      <span className="text-sm font-semibold">{caseStatus.case_type || 'Form I-765 (OPT)'}</span>
+                    </div>
+                    <div className="flex max-md:flex-col max-md:items-start max-md:gap-2 items-center justify-between py-2.5">
+                      <span className="text-sm text-muted-foreground">Filing Date</span>
+                      {caseStatus.received_date ? (
+                        <span className="text-sm font-semibold">{formatDateShort(caseStatus.received_date)}</span>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="date"
+                            value={filingDateInput}
+                            onChange={(e) => setFilingDateInput(e.target.value)}
+                            className="h-8 text-sm max-w-[160px]"
+                            aria-label="Filing date"
+                          />
+                          <Button type="button" size="sm" onClick={() => void handleSaveFilingDate()} disabled={filingDateSaving || !filingDateInput}>
+                            {filingDateSaving ? "Saving…" : "Add date"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════ */}
+          {/* ════════════ INSIGHTS TAB ══════════════════════ */}
+          {/* ════════════════════════════════════════════════ */}
+          {activeTab === "insights" && (
+            <div className="space-y-7">
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-blue-500" />
+                <div>
+                  <h2 className="text-[20px] font-bold tracking-tight">Insights &amp; predictions</h2>
+                  <p className="text-[13px] text-[#86868B] mt-0.5">
+                    How your case compares to similar cases filed near yours. Planning reference — not an official USCIS estimate.
+                  </p>
+                </div>
+              </div>
+              <CaseProcessingBenchmarks />
               <NearbyCasesCohort
                 receiptNumber={caseStatus.receipt_number}
                 isPremium={isPremium}
                 onUpgrade={() => setShowPricingModal(true)}
               />
             </div>
-          </div>
+          )}
 
-          <Card className="p-6 sm:p-7 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-0 shadow-lg shadow-purple-500/5">
-            <div className="flex flex-col sm:flex-row items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/20">
-                {isPremium ? <Mail className="w-6 h-6 text-white" /> : <Crown className="w-6 h-6 text-white" />}
-              </div>
-              <div className="flex-1">
-                {isPremium ? (
-                  <>
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Case Status Notifications</h3>
-                      {!isEditingEmail && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsEditingEmail(true)}
-                          className="flex items-center gap-2"
-                        >
-                          <Edit className="w-4 h-4" />
-                          Edit
-                        </Button>
-                      )}
-                    </div>
-                    {isEditingEmail ? (
-                      <div className="space-y-3">
-                        <Input
-                          type="email"
-                          value={notificationEmail}
-                          onChange={(e) => setNotificationEmail(e.target.value)}
-                          placeholder="your.email@example.com"
-                          className="bg-white dark:bg-gray-900"
-                          aria-label="Notification email address"
-                        />
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={handleEmailSave}
-                            size="sm"
-                            disabled={emailSaving}
-                            className="bg-purple-600 hover:bg-purple-700"
-                          >
-                            {emailSaving ? 'Saving...' : 'Save'}
-                          </Button>
-                          <Button onClick={() => setIsEditingEmail(false)} variant="outline" size="sm" disabled={emailSaving}>
-                            Cancel
-                          </Button>
+          {/* ════════════════════════════════════════════════ */}
+          {/* ═══════════ COMPLIANCE TAB ═════════════════════ */}
+          {/* ════════════════════════════════════════════════ */}
+          {activeTab === "compliance" && (
+            <div className="space-y-6">
+              {/* Email / push notifications */}
+              <Card className="p-6 sm:p-7 border border-gray-100 dark:border-gray-800 shadow-lg">
+                <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/20">
+                    {isPremium ? <Mail className="w-6 h-6 text-white" /> : <Crown className="w-6 h-6 text-white" />}
+                  </div>
+                  <div className="flex-1">
+                    {isPremium ? (
+                      <>
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-lg font-bold">Case Status Notifications</h3>
+                          {!isEditingEmail && (
+                            <Button variant="outline" size="sm" onClick={() => setIsEditingEmail(true)} className="flex items-center gap-2">
+                              <Edit className="w-4 h-4" />Edit
+                            </Button>
+                          )}
                         </div>
-                      </div>
+                        {isEditingEmail ? (
+                          <div className="space-y-3">
+                            <Input
+                              type="email"
+                              value={notificationEmail}
+                              onChange={(e) => setNotificationEmail(e.target.value)}
+                              placeholder="your.email@example.com"
+                              className="bg-white dark:bg-gray-900"
+                              aria-label="Notification email address"
+                            />
+                            <div className="flex gap-2">
+                              <Button onClick={handleEmailSave} size="sm" disabled={emailSaving} className="bg-purple-600 hover:bg-purple-700">
+                                {emailSaving ? 'Saving...' : 'Save'}
+                              </Button>
+                              <Button onClick={() => setIsEditingEmail(false)} variant="outline" size="sm" disabled={emailSaving}>Cancel</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-sm font-medium mb-1">{notificationEmail || 'No email set'}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">You will be notified when we detect a case status change.</p>
+                            <div className="mt-3"><WebPushEnableButton /></div>
+                            <UscisCaseStatusDisclaimer variant="compact" showAlertNote className="mt-3" />
+                          </div>
+                        )}
+                      </>
                     ) : (
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-                          {notificationEmail || 'No email set'}
-                        </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          You will be notified when we detect a case status change.
-                        </p>
-                        <div className="mt-3">
-                          <WebPushEnableButton />
-                        </div>
-                        <UscisCaseStatusDisclaimer variant="compact" showAlertNote className="mt-3" />
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                      {CASE_STATUS_MESSAGING.proFeatureTitle}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      {CASE_STATUS_MESSAGING.proFeatureBody}
-                    </p>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Email when USCIS posts a new status
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Daily automatic status checks (Pro)
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Full status history in one place
-                      </li>
-                    </ul>
-                    <Button
-                      onClick={() => setShowPricingModal(true)}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
-                    >
-                      <Crown className="w-4 h-4 mr-2" />
-                      {PRODUCT_CTAS.upgradeToPro}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </Card>
-
-          {caseStatus.status_history && caseStatus.status_history.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
-              <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
-                <CaseHistoryTimeline
-                  statusHistory={caseStatus.status_history}
-                  defaultExpanded={false}
-                />
-              </Card>
-
-              <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <Globe className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-lg font-extrabold">Case Information</h2>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Case Type</span>
-                    <span className="text-sm font-semibold max-md:text-left text-right">
-                      {caseStatus.case_type || 'Form I-765 (OPT)'}
-                    </span>
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Receipt Number</span>
-                    <span className="text-sm font-semibold font-mono max-md:text-left text-right ph-mask" data-ph-mask data-receipt-display>
-                      {caseStatus.receipt_number}
-                    </span>
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-2 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Filing Date</span>
-                    {caseStatus.received_date ? (
-                      <span className="text-sm font-semibold max-md:text-left text-right">
-                        {formatDateShort(caseStatus.received_date)}
-                      </span>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto max-md:w-full">
-                        <Input
-                          type="date"
-                          value={filingDateInput}
-                          onChange={(e) => setFilingDateInput(e.target.value)}
-                          className="h-9 text-sm max-md:w-full"
-                          aria-label="Filing date"
-                        />
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={() => void handleSaveFilingDate()}
-                          disabled={filingDateSaving || !filingDateInput}
-                          className="shrink-0"
-                        >
-                          {filingDateSaving ? "Saving…" : "Add date"}
+                      <>
+                        <h3 className="text-lg font-bold mb-2">{CASE_STATUS_MESSAGING.proFeatureTitle}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{CASE_STATUS_MESSAGING.proFeatureBody}</p>
+                        <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-600" />Email when USCIS posts a new status</li>
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-600" />Daily automatic status checks (Pro)</li>
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-600" />Full status history in one place</li>
+                        </ul>
+                        <Button onClick={() => setShowPricingModal(true)} className="bg-purple-600 hover:bg-purple-700 text-white">
+                          <Crown className="w-4 h-4 mr-2" />{PRODUCT_CTAS.upgradeToPro}
                         </Button>
-                      </div>
+                      </>
                     )}
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Service Center</span>
-                    <span className="text-sm font-semibold max-md:text-left text-right ph-mask" data-ph-mask>
-                      {getServiceCenterLabel(caseStatus.receipt_number)}
-                    </span>
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Current Status</span>
-                    <span className="text-sm font-semibold max-md:text-left max-md:max-w-full text-right max-w-[60%]">
-                      {formatStatusLabel(caseStatus.current_status, "Checking USCIS status…")}
-                    </span>
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-stretch max-md:gap-3 items-center justify-between pt-4 text-sm text-gray-500 dark:text-gray-400">
-                    <div>
-                      <span className="text-xs font-medium">Time Since Filed</span>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {formatDaysAgoLabel(caseStatus.received_date)}
-                      </p>
-                    </div>
-                    <div className="max-md:hidden w-px h-10 bg-gray-300 dark:bg-gray-700" />
-                    <div className="max-md:text-left text-right">
-                      <span className="text-xs font-medium">Last Status Change</span>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {formatDaysAgoLabel(caseStatus.last_status_change_at)}
-                      </p>
-                    </div>
                   </div>
                 </div>
               </Card>
             </div>
-          ) : (
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h2 className="text-lg font-bold">Case Information</h2>
-              </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Status history will appear here after USCIS posts updates.
-              </p>
-              <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-border">
-                  <span className="text-sm text-muted-foreground">Receipt</span>
-                  <span className="text-sm font-mono font-semibold ph-mask" data-ph-mask>{caseStatus.receipt_number}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="text-sm text-muted-foreground">Case Type</span>
-                  <span className="text-sm font-semibold">{caseStatus.case_type || 'Form I-765 (OPT)'}</span>
-                </div>
-              </div>
-            </Card>
           )}
         </>
       ) : (
