@@ -207,9 +207,9 @@ export function OptToolsSection() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
                 <CheckCircle2 className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Live Stats</h3>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Community Reports</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                See real-time community approval and processing data
+                Self-reported OPT/STEM timelines from students — a planning reference, not official USCIS data
               </p>
             </div>
           </div>
@@ -220,9 +220,9 @@ export function OptToolsSection() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mb-4 shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
                 <Zap className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Smart Alerts</h3>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Pro Reminders</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Get notified about approaching deadlines via email
+                9:00 AM ET emails before filing windows, unemployment limits, and STEM dates (Pro)
               </p>
             </div>
           </div>

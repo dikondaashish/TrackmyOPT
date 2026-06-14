@@ -45,7 +45,7 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-center mb-2">Plan Comparison</DialogTitle>
                         <p className="text-center text-gray-500 dark:text-gray-400 mb-6">
-                            Unlock your full potential with TrackMyOPT Premium
+                            Daily reminders, unemployment alerts, and case monitoring — built for OPT & STEM OPT students.
                         </p>
                     </DialogHeader>
 
@@ -56,7 +56,7 @@ export function PlanComparisonModal({ onUpgrade }: PlanComparisonModalProps) {
                                     <th className="py-3 md:py-4 px-3 md:px-6 w-1/3">Feature</th>
                                     <th className="py-3 md:py-4 px-3 md:px-6 w-1/3 text-center text-gray-600 dark:text-gray-400">Free</th>
                                     <th className="py-3 md:py-4 px-3 md:px-6 w-1/3 text-center text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10">
-                                        Premium
+                                        Pro
                                     </th>
                                 </tr>
                             </thead>

@@ -98,7 +98,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                             <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 animate-pulse rounded mt-1" />
                         ) : isPremium ? (
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                                Premium Member
+                                Pro Member
                             </span>
                         ) : (
                             <Link

@@ -31,6 +31,9 @@ import {
     Loader2,
     Code,
     Check,
+    Send,
+    GripVertical,
+    type LucideIcon,
 } from "lucide-react";
 
 // Animation variants
@@ -568,7 +571,10 @@ const CrmMockupWithConfetti = ({ onDragSuccess }: { onDragSuccess: () => void })
                     animate={{ scale: [1, 1.05, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                 >
-                    <span className="text-[10px] font-medium text-purple-700 dark:text-purple-300">✨ Try Drag & Drop!</span>
+                    <span className="text-[10px] font-medium text-purple-700 dark:text-purple-300 flex items-center gap-1">
+                        <GripVertical className="w-3 h-3" />
+                        Try Drag & Drop!
+                    </span>
                 </motion.div>
             </motion.div>
 
@@ -862,12 +868,11 @@ const tabsConfig = [
 ];
 
 // Toast messages per tab
-const toastMessages: Record<TabType, { icon: string; message: string }> = {
-    timeline: { icon: "🎉", message: "OPT start date optimized!" },
-    crm: { icon: "📤", message: "Application saved to tracker" },
-    docs: { icon: "🔔", message: "Passport expires in 6 months" },
-    resume: { icon: "✨", message: "AI suggestions ready!" },
-
+const toastMessages: Record<TabType, { icon: LucideIcon; message: string }> = {
+    timeline: { icon: CheckCircle, message: "OPT start date optimized!" },
+    crm: { icon: Send, message: "Application saved to tracker" },
+    docs: { icon: Bell, message: "Passport expires in 6 months" },
+    resume: { icon: Sparkles, message: "AI suggestions ready!" },
 };
 
 // Tooltip content
@@ -1106,7 +1111,10 @@ export function LandingHero() {
                                     exit={{ opacity: 0, y: -20, x: "-50%" }}
                                     className="absolute -top-4 left-1/2 z-50 bg-white dark:bg-zinc-800 px-4 py-2 rounded-full shadow-lg border border-border flex items-center gap-2"
                                 >
-                                    <span className="text-lg">{toastContent.icon}</span>
+                                    {(() => {
+                                        const ToastIcon = toastContent.icon;
+                                        return <ToastIcon className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" />;
+                                    })()}
                                     <span className="text-sm font-medium text-foreground">{toastContent.message}</span>
                                 </motion.div>
                             )}

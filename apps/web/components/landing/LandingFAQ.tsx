@@ -7,7 +7,7 @@ const faqs = [
     {
         question: "Is TrackMyOPT really free?",
         answer:
-            "Yes! The free plan includes OPT timeline tracking, unemployment clock, and 1 USCIS case tracking. You can use these features forever without paying anything. Premium adds advanced features like Document Vault and unlimited case tracking.",
+            "Yes! The free plan includes OPT timeline tracking, unemployment clock, and manual USCIS case checks — forever free. Pro adds daily 9:00 AM ET reminders, Document Vault, and automatic case monitoring.",
     },
     {
         question: "Is my data secure?",
@@ -17,12 +17,12 @@ const faqs = [
     {
         question: "What happens if I miss an OPT deadline?",
         answer:
-            "Missing an OPT deadline can have serious consequences, including falling out of F-1 status. According to USCIS, violating the terms of your OPT — such as exceeding the 90-day unemployment limit — can result in status termination. That's exactly why TrackMyOPT exists — we send you email alerts before every critical deadline so you never miss one.",
+            "Missing an OPT deadline can have serious consequences for your F-1 status. TrackMyOPT sends email reminders before filing windows, unemployment limits, and STEM dates — so you can stay organized and check with your DSO in time.",
     },
     {
         question: "Can I track multiple USCIS cases?",
         answer:
-            "Free users can track 1 case. Premium users get unlimited case tracking — perfect if you have pending OPT, STEM extension, and other applications simultaneously.",
+            "Free users can track one case with manual refresh. Pro adds daily automatic checks and email alerts when your status changes.",
     },
     {
         question: "How accurate is the unemployment clock?",

@@ -85,7 +85,7 @@ export function SmartContactForm() {
                         >
                             <CheckCircle className="w-10 h-10" />
                         </motion.div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">✅ Message sent!</h3>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Message sent!</h3>
                         <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-sm mx-auto">
                             Check your email for confirmation. We&apos;ll get back to you within 24–48 hours.
                         </p>

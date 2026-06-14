@@ -44,7 +44,7 @@ const HEADER_BENEFITS: Array<{ icon: LucideIcon; title: string; sub: string }> =
   { icon: Bell, title: "Daily USCIS monitoring", sub: "Auto-checks + status email" },
   { icon: Clock, title: "Unemployment alerts", sub: "Before 90 / 150-day limits" },
   { icon: FileCheck, title: "Document vault", sub: "EAD & I-20 expiry reminders" },
-  { icon: CalendarDays, title: "STEM deadline tracking", sub: "Never miss a filing window" },
+  { icon: CalendarDays, title: "STEM deadline tracking", sub: "Extension filing window reminders" },
   { icon: Mail, title: "9:00 AM ET reminders", sub: "Daily, per tracker" },
   { icon: Shield, title: "Stay work-authorized", sub: "Compliance on autopilot" },
 ];

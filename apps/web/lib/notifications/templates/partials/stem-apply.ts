@@ -16,18 +16,18 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#F5F3FF';
   let statusBorder = '#8B5CF6';
-  let statusEmoji = '✅';
+  let statusEmoji = '';
   let motivationalMessage = 'You have time to prepare your STEM OPT extension carefully. Start gathering documents now!';
 
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
-    statusEmoji = '🚨';
+    statusEmoji = '';
     motivationalMessage = 'URGENT! Your OPT expires soon. Submit your STEM extension application immediately!';
   } else if (percentRemaining <= 66) {
     statusBg = '#FFFBEB';
     statusBorder = '#F59E0B';
-    statusEmoji = '⚠️';
+    statusEmoji = '';
     motivationalMessage = 'Time is moving! Don\'t wait - apply for your STEM extension now.';
   }
 
@@ -37,7 +37,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border-radius: 12px 12px 0 0; padding: 20px; text-align: center;">
         <h2 style="margin: 0; color: white; font-size: 22px; font-weight: 700;">
-          🔬 STEM OPT Extension
+          � STEM OPT Extension
         </h2>
         <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
           24-Month STEM Extension Application
@@ -47,7 +47,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- Application Status Section -->
       <div style="background: ${statusBg}; border: 1px solid ${statusBorder}; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
-          ${statusEmoji} Your STEM Extension Status:
+          Your STEM Extension Status:
         </h3>
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
@@ -87,7 +87,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- STEM Extension Requirements -->
       <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
-          ✅ Key Requirements for STEM Extension:
+          Key Requirements for STEM Extension:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><strong>STEM Degree:</strong> Your degree must be on the STEM Designated Degree Program List</li>
@@ -101,7 +101,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- Required Documents Checklist -->
       <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
-          📄 Required Documents Checklist:
+          Required Documents Checklist:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li>☐ <strong>Form I-765</strong> - Application for Employment Authorization</li>
@@ -118,22 +118,22 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- Common Mistakes to Avoid -->
       <div style="background: #FEF2F2; border: 2px solid #DC2626; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #991B1B; font-size: 16px; font-weight: 700;">
-          🚨 Common STEM Extension Mistakes:
+          Common STEM Extension Mistakes:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #7F1D1D; font-size: 14px; line-height: 1.8;">
-          <li><strong>❌ Non-E-Verify Employer:</strong> Your employer MUST be enrolled in E-Verify - no exceptions!</li>
-          <li><strong>❌ Incomplete I-983:</strong> All sections must be completed and signed by both you and employer</li>
-          <li><strong>❌ Wrong Job Title:</strong> Job must be directly related to your STEM degree field</li>
-          <li><strong>❌ Missing DSO Endorsement:</strong> I-20 must be updated with STEM recommendation</li>
-          <li><strong>❌ Late Filing:</strong> Must file BEFORE your current OPT expires</li>
-          <li><strong>❌ Part-time Work:</strong> Must work at least 20 hours per week</li>
+          <li><strong>Avoid: Non-E-Verify Employer:</strong> Your employer MUST be enrolled in E-Verify - no exceptions!</li>
+          <li><strong>Avoid: Incomplete I-983:</strong> All sections must be completed and signed by both you and employer</li>
+          <li><strong>Avoid: Wrong Job Title:</strong> Job must be directly related to your STEM degree field</li>
+          <li><strong>Avoid: Missing DSO Endorsement:</strong> I-20 must be updated with STEM recommendation</li>
+          <li><strong>Avoid: Late Filing:</strong> Must file BEFORE your current OPT expires</li>
+          <li><strong>Avoid: Part-time Work:</strong> Must work at least 20 hours per week</li>
         </ul>
       </div>
 
       <!-- I-983 Form Tips -->
       <div style="background: #F5F3FF; border: 1px solid #8B5CF6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">
-          📝 I-983 Training Plan Tips:
+          I-983 Training Plan Tips:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><strong>Learning Goals:</strong> Be specific about skills you'll develop</li>
@@ -147,7 +147,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- E-Verify Check -->
       <div style="background: #FFFBEB; border: 1px solid #F59E0B; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #92400E; font-size: 16px; font-weight: 600;">
-          🔍 Verify Your Employer's E-Verify Status:
+          � Verify Your Employer's E-Verify Status:
         </h3>
         <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px; line-height: 1.6;">
           Before applying, confirm your employer is enrolled in E-Verify:
@@ -161,7 +161,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- Cap-Gap Information -->
       <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
-          🛡️ Cap-Gap Protection:
+          Cap-Gap Protection:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li>If you file before OPT expires, you get automatic <strong>180-day extension</strong></li>
@@ -174,7 +174,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- Helpful Resources -->
       <div style="background: #FDF2F8; border: 1px solid #EC4899; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #9D174D; font-size: 16px; font-weight: 600;">
-          🔗 Helpful Resources:
+          Helpful Resources:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><a href="https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-extension-for-stem-students-stem-opt" style="color: #3B82F6;">USCIS STEM OPT Page</a></li>
@@ -190,8 +190,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
           ${motivationalMessage}
         </p>
         <p style="margin: 0; color: #7C3AED; font-size: 14px; font-weight: 600;">
-          Your STEM skills are in demand - keep going! 🚀
-        </p>
+          Your STEM skills are in demand - keep going! </p>
       </div>
 
     </div>

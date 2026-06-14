@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AlertTriangle, CheckCircle2, Timer, TrendingDown, Briefcase, Rocket, Building2, Heart, Zap, Circle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Timer, TrendingDown, Briefcase, Rocket, Building2, Heart, Zap, Circle, Info } from "lucide-react";
 
 interface UnemploymentClockProps {
   daysUsed: number;
@@ -258,10 +258,13 @@ export function UnemploymentClock({
 
       {/* ISS-027 + ISS-028: not-legal-advice disclaimer near the clock */}
       <div className="relative z-10 mt-4 pt-3 border-t border-white/20">
-        <p className="text-[10px] sm:text-xs text-white/70 leading-relaxed">
-          ℹ️ Informational only — not legal advice. We do not currently model travel days outside
-          the US. Always confirm employment eligibility (volunteer/unpaid roles, contract work) with
-          your DSO before relying on this counter.
+        <p className="text-[10px] sm:text-xs text-white/70 leading-relaxed flex items-start gap-1.5">
+          <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" aria-hidden />
+          <span>
+            Informational only — not legal advice. We do not currently model travel days outside
+            the US. Always confirm employment eligibility (volunteer/unpaid roles, contract work) with
+            your DSO before relying on this counter.
+          </span>
         </p>
       </div>
 

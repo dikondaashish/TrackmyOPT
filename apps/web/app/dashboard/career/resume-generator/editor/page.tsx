@@ -16,6 +16,7 @@ import {
     Maximize2,
     Minimize2,
     Play,
+    Cog,
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -539,9 +540,9 @@ export default function ResumeEditorPage() {
                             </h1>
                             <div className="flex items-center justify-center gap-2 mt-0.5">
                                 {isGenerating ? (
-                                    <span className="text-xs text-blue-600 animate-pulse font-medium">✨ Generating with AI...</span>
+                                    <span className="text-xs text-blue-600 animate-pulse font-medium inline-flex items-center gap-1"><Sparkles className="w-3.5 h-3.5" /> Generating with AI...</span>
                                 ) : isCompiling ? (
-                                    <span className="text-xs text-amber-600 animate-pulse font-medium">⚙️ Compiling PDF...</span>
+                                    <span className="text-xs text-amber-600 animate-pulse font-medium inline-flex items-center gap-1"><Cog className="w-3.5 h-3.5" /> Compiling PDF...</span>
                                 ) : (
                                     <span className="text-xs text-green-600 font-medium">Ready</span>
                                 )}

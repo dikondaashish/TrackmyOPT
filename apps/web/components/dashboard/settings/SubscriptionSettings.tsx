@@ -84,7 +84,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
         {
             name: "Pro",
             id: "pro",
-            description: "Accelerate your job search & compliance.",
+            description: "Daily reminders, unemployment alerts, and unlimited job tracking.",
             price: { monthly: 4.99, yearly: 49.99 },
             originalPrice: { monthly: 7.99, yearly: 79.99 },
             features: getPlanBullets("pro"),
@@ -95,7 +95,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
         {
             name: "Dedicated",
             id: "dedicated",
-            description: "Ultimate peace of mind with legal backup.",
+            description: "Pro plus monthly attorney access for complex immigration questions.",
             price: { monthly: 14.99, yearly: 149.99 },
             originalPrice: { monthly: 19.99, yearly: 199.99 },
             features: getPlanBullets("dedicated"),

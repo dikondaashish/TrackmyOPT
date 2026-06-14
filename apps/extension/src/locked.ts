@@ -3,6 +3,7 @@
  */
 
 import { API_ENDPOINTS } from './config';
+import { icon, themeToggleIcon } from './icons';
 
 export async function renderLocked(root: HTMLElement): Promise<void> {
   const logoSrc = chrome.runtime.getURL('icons/icon48.png');
@@ -14,7 +15,7 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
       </div>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn-locked" title="Toggle theme" aria-label="Toggle theme">
-          <span id="theme-icon-locked">🌙</span>
+          <span id="theme-icon-locked">${icon('moon', 18)}</span>
         </button>
       </div>
       <h1 class="title" style="font-size: 22px; margin-bottom: 4px;">TrackMyOPT</h1>
@@ -25,7 +26,7 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
       <!-- Features List -->
       <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
         <div style="display: flex; align-items: start; gap: 12px;">
-          <div class="feature-tile-icon">🗓️</div>
+          <div class="feature-tile-icon">${icon('calendar', 20)}</div>
           <div style="flex: 1;">
             <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">Track Your Timeline</div>
             <div style="font-size: 12px; opacity: 0.7; line-height: 1.4;">Real-time countdown to critical OPT deadlines</div>
@@ -41,7 +42,7 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
         </div>
         
         <div style="display: flex; align-items: start; gap: 12px;">
-          <div class="feature-tile-icon">📊</div>
+          <div class="feature-tile-icon">${icon('barChart', 20)}</div>
           <div style="flex: 1;">
             <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">Unemployment Tracking</div>
             <div style="font-size: 12px; opacity: 0.7; line-height: 1.4;">Monitor and manage your 90/150 day limits</div>
@@ -49,7 +50,7 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
         </div>
         
         <div style="display: flex; align-items: start; gap: 12px;">
-          <div class="feature-tile-icon">🔔</div>
+          <div class="feature-tile-icon">${icon('bell', 20)}</div>
           <div style="flex: 1;">
             <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">Smart Reminders</div>
             <div style="font-size: 12px; opacity: 0.7; line-height: 1.4;">Never miss important dates and deadlines</div>
@@ -105,7 +106,7 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
   // Set initial icon based on current theme
   const { theme } = await chrome.storage.sync.get('theme');
   if (themeIconLocked) {
-    themeIconLocked.textContent = theme === 'dark' ? '☀️' : '🌙';
+    themeIconLocked.innerHTML = themeToggleIcon(theme === 'dark');
   }
   
   if (themeBtnLocked) {
@@ -116,11 +117,11 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
       if (isDarkMode) {
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
-        if (themeIconLocked) themeIconLocked.textContent = '🌙';
+        if (themeIconLocked) themeIconLocked.innerHTML = themeToggleIcon(false);
       } else {
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
-        if (themeIconLocked) themeIconLocked.textContent = '☀️';
+        if (themeIconLocked) themeIconLocked.innerHTML = themeToggleIcon(true);
       }
     });
   }

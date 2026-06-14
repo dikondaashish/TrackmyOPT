@@ -16,6 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { OPT_TOOL_ICONS, type OptToolIconKey } from "@/lib/opt-tool-icons";
 import { PLAN_SALES_META } from "@/lib/pricing/sales-copy";
+import {
+  PRODUCT_CTAS,
+  REMINDER_MESSAGING,
+} from "@/lib/messaging/product-copy";
 
 export interface ToolEmails {
   opt_apply: string;
@@ -79,14 +83,10 @@ function ReminderPreviewMock() {
         <span>Sample reminder · Today, 9:00 AM ET</span>
       </div>
       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-        TrackMyOPT — unemployment alert
+        {REMINDER_MESSAGING.sampleEmailSubject}
       </p>
       <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-        You have{" "}
-        <span className="font-semibold text-amber-600 dark:text-amber-400">
-          28 unemployment days
-        </span>{" "}
-        remaining on OPT. Log your job or update employment to stay compliant.
+        {REMINDER_MESSAGING.sampleEmailBody}
       </p>
       <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-purple-600 dark:text-purple-400">
         Open dashboard
@@ -109,13 +109,10 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
               Pro · Morning reminders
             </div>
             <h3 className="text-xl font-bold tracking-tight sm:text-2xl">
-              Never miss a critical OPT date
+              {REMINDER_MESSAGING.panelHeadline}
             </h3>
             <p className="text-sm text-white/90 sm:text-base">
-              Get a personal email every morning at{" "}
-              <span className="font-semibold">9:00 AM ET</span> — unemployment
-              limits, filing windows, and STEM deadlines before they become
-              emergencies.
+              {REMINDER_MESSAGING.panelSubhead}
             </p>
           </div>
           <div className="hidden shrink-0 sm:block">
@@ -198,12 +195,11 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
             onClick={onComparePlans}
             className="w-full text-purple-700 hover:bg-purple-50 hover:text-purple-800 dark:text-purple-300 dark:hover:bg-purple-950/40 sm:w-auto"
           >
-            Compare all plans
+            {PRODUCT_CTAS.comparePlans}
           </Button>
         </div>
         <p className="text-center text-xs text-muted-foreground sm:text-left">
-          7-day free trial · cancel anytime · unlock reminders for all four
-          trackers
+          {REMINDER_MESSAGING.footerNote}
         </p>
       </div>
     </Card>

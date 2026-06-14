@@ -275,6 +275,16 @@ body.dark-mode .logout-btn:hover {
   font-weight: 500;
 }
 
+.tile .icon svg,
+.notice .dot svg,
+.feature-tile-icon svg {
+  display: block;
+}
+
+.tmo-icon {
+  display: block;
+}
+
 .tile .icon {
   position: absolute;
   left: 16px;

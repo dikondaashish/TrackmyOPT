@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Database } from "@/types/supabase";
-import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, Lightbulb } from "lucide-react";
 import { FilingDetailModal } from "./FilingDetailModal";
 
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];
@@ -46,7 +46,7 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
                         Showing {filteredFilings.length} filings
                     </p>
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 text-xs text-amber-800 dark:text-amber-200">
-                        <span className="text-base">💡</span>
+                        <Lightbulb className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
                         <p><strong>Pro Tip:</strong> The <strong>Hiring Manager's</strong> name is often listed in <strong>Section J</strong> or "Employer Point of Contact".</p>
                     </div>
                 </div>

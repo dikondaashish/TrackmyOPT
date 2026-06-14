@@ -119,7 +119,7 @@ export default function ResumeAIPage() {
             {/* Hero */}
             <FeatureHero
                 badge="AI Powered"
-                headline="We cook your resume in 2 minutes — faster than Maggi. 🍜"
+                headline="We cook your resume in 2 minutes — faster than Maggi."
                 subheadline="Beat the ATS. Impress the Recruiter. Get 3x more callbacks."
                 ctaText="Analyze My Resume"
                 ctaHref="/dashboard/resume"

@@ -122,10 +122,10 @@ export function ResumeUsageStats({ compact = false }: { compact?: boolean }) {
                     {isLimitReached && (
                         <div className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/50">
                             <p className="text-xs text-red-600 dark:text-red-400 font-medium">
-                                Limit reached. Upgrade for more.
+                                Monthly resume limit reached. Upgrade to Pro for more ATS-optimized resumes.
                             </p>
                             <Button size="sm" variant="default" className="bg-red-600 hover:bg-red-700 text-white h-7 text-xs" asChild>
-                                <Link href="/dashboard/settings/billing">Upgrade Plan</Link>
+                                <Link href="/premium/checkout?planId=pro&interval=year">Upgrade to Pro</Link>
                             </Button>
                         </div>
                     )}

@@ -16,18 +16,18 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#ECFDF5';
   let statusBorder = '#10B981';
-  let statusEmoji = '✅';
+  let statusEmoji = '';
   let motivationalMessage = 'You have time to find the right opportunity! Focus on quality applications and networking.';
 
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
-    statusEmoji = '🚨';
+    statusEmoji = '';
     motivationalMessage = 'Time is critical! Intensify your job search immediately - consider all options including NGOs and internships.';
   } else if (percentRemaining <= 66) {
     statusBg = '#FFFBEB';
     statusBorder = '#F59E0B';
-    statusEmoji = '⚠️';
+    statusEmoji = '';
     motivationalMessage = 'Stay focused on your job search. Consistency is key - apply daily and follow up on applications.';
   }
 
@@ -37,7 +37,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); border-radius: 12px 12px 0 0; padding: 20px; text-align: center;">
         <h2 style="margin: 0; color: white; font-size: 22px; font-weight: 700;">
-          ⏱️ STEM Unemployment Clock
+          STEM Unemployment Clock
         </h2>
         <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
           Track Your 60-Day STEM Unemployment Limit
@@ -47,7 +47,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- STEM Status Section -->
       <div style="background: ${statusBg}; border: 1px solid ${statusBorder}; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
-          ${statusEmoji} Your STEM Unemployment Status:
+          Your STEM Unemployment Status:
         </h3>
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
@@ -80,7 +80,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- Strategic Approach -->
       <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
-          📋 Strategic Job Search Approach:
+          Strategic Job Search Approach:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li>Apply to <strong>10-15 quality jobs daily</strong> - focus on STEM roles matching your degree</li>
@@ -94,7 +94,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- Top Job Search Resources for STEM -->
       <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
-          🔍 STEM-Focused Job Resources:
+          � STEM-Focused Job Resources:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><a href="https://www.linkedin.com/jobs/" style="color: #3B82F6;">LinkedIn Jobs</a> - Filter for "Visa Sponsorship"</li>
@@ -123,7 +123,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- STEM Employment Rules -->
       <div style="background: #FEF2F2; border: 2px solid #DC2626; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #991B1B; font-size: 16px; font-weight: 700;">
-          🚨 Critical STEM OPT Employment Rules:
+          Critical STEM OPT Employment Rules:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #7F1D1D; font-size: 14px; line-height: 1.8;">
           <li><strong>60-Day Limit:</strong> Maximum unemployment during STEM period (separate from OPT's 90 days)</li>
@@ -138,7 +138,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- H-1B Planning -->
       <div style="background: #F5F3FF; border: 1px solid #8B5CF6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">
-          📅 H-1B Planning (Think Ahead):
+          H-1B Planning (Think Ahead):
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><strong>H-1B Cap Season:</strong> Registration typically in March for October start</li>
@@ -152,7 +152,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
       <!-- SEVP Portal Reminder -->
       <div style="background: #FFFBEB; border: 1px solid #F59E0B; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 12px 0; color: #92400E; font-size: 16px; font-weight: 700;">
-          ⚠️ Important SEVP Reminders:
+          Important SEVP Reminders:
         </h3>
         <ul style="margin: 0 0 16px 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><strong>Update within 10 days</strong> when starting new employment</li>
@@ -171,8 +171,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
           ${motivationalMessage}
         </p>
         <p style="margin: 0; color: #115E59; font-size: 14px; font-weight: 600;">
-          Your STEM expertise is valuable - the right opportunity is out there! 💼
-        </p>
+          Your STEM expertise is valuable - the right opportunity is out there! </p>
       </div>
 
     </div>

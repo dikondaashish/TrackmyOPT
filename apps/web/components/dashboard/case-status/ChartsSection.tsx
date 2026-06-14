@@ -1,5 +1,6 @@
 "use client";
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Shield } from "lucide-react";
 
 const pieData = [
   { name: "Active Days", value: 365, color: "#3b82f6" },
@@ -76,7 +77,7 @@ export function ChartsSection() {
 
       <div className="lg:col-span-2 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-900/30 rounded-xl p-6 transition-colors duration-200">
         <div className="flex items-start gap-3">
-          <span className="text-2xl">🛡️</span>
+          <Shield className="w-6 h-6 text-amber-700 dark:text-amber-300 shrink-0" aria-hidden />
           <div>
             <h3 className="mb-2 font-semibold text-lg text-amber-900 dark:text-amber-100">Stay Compliant</h3>
             <p className="text-sm text-amber-800 dark:text-amber-200/80">

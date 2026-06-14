@@ -28,6 +28,15 @@ import {
   Settings,
   Puzzle,
   DollarSign,
+  User,
+  MapPin,
+  FilePenLine,
+  CircleHelp,
+  Rocket,
+  Gift,
+  Timer,
+  Check,
+  BadgeCheck,
 } from "lucide-react";
 
 // Collapsible section component
@@ -586,10 +595,10 @@ export function HelpSection() {
                     </ul>
                   </div>
                   <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <h5 className="font-medium text-sm mb-1 text-green-700 dark:text-green-300">Premium Feature</h5>
+                    <h5 className="font-medium text-sm mb-1 text-green-700 dark:text-green-300">Pro feature</h5>
                     <p className="text-xs text-green-600 dark:text-green-400">
-                      Premium users get instant email notifications when their case status changes,
-                      so you never miss an important update.
+                      Pro members get email alerts when USCIS posts a new status on their case.
+                      Helpful for spotting RFEs and approvals early — confirm details with your DSO.
                     </p>
                   </div>
                 </div>
@@ -625,13 +634,13 @@ export function HelpSection() {
             </CollapsibleSection>
 
             <CollapsibleSection
-              title="Document Vault (Premium)"
+              title="Document Vault (Pro)"
               icon={<FileText className="w-5 h-5 text-purple-600" />}
             >
               <div className="pt-4 space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Crown className="w-4 h-4 text-amber-500" />
-                  <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Premium Feature</span>
+                  <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Pro feature</span>
                 </div>
 
                 <p className="text-sm text-muted-foreground">
@@ -685,10 +694,22 @@ export function HelpSection() {
                 <div className="space-y-3">
                   <h4 className="font-semibold">Notification Types:</h4>
                   <ul className="text-sm space-y-2 text-muted-foreground">
-                    <li>📧 <strong>Email Notifications</strong> - Receive updates to your email</li>
-                    <li>🔔 <strong>Case Status Alerts</strong> - Know when USCIS updates your case</li>
-                    <li>📄 <strong>Document Expiry Reminders</strong> - 30-day advance notice</li>
-                    <li>⏰ <strong>Deadline Reminders</strong> - Never miss filing windows</li>
+                    <li className="flex items-start gap-2">
+                      <Mail className="w-4 h-4 mt-0.5 shrink-0" />
+                      <span><strong>Email Notifications</strong> — Receive updates to your email</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Bell className="w-4 h-4 mt-0.5 shrink-0" />
+                      <span><strong>Case Status Alerts</strong> — Know when USCIS updates your case</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <FileText className="w-4 h-4 mt-0.5 shrink-0" />
+                      <span><strong>Document Expiry Reminders</strong> — 30-day advance notice</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Clock className="w-4 h-4 mt-0.5 shrink-0" />
+                      <span><strong>Deadline Reminders</strong> — 9:00 AM ET emails before filing windows and unemployment limits</span>
+                    </li>
                   </ul>
                 </div>
 
@@ -708,13 +729,13 @@ export function HelpSection() {
               <div className="pt-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <h5 className="font-medium text-sm mb-1">👤 Who Should Use This?</h5>
+                    <h5 className="font-medium text-sm mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5 shrink-0" /> Who Should Use This?</h5>
                     <p className="text-xs text-muted-foreground">
                       All F-1 students (including those on OPT) who were in the US for any part of the tax year.
                     </p>
                   </div>
                   <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <h5 className="font-medium text-sm mb-1">📍 Where To Find It?</h5>
+                    <h5 className="font-medium text-sm mb-1 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> Where To Find It?</h5>
                     <p className="text-xs text-muted-foreground">
                       Navigate to <strong>Tax Filing</strong> from the sidebar menu.
                     </p>
@@ -722,7 +743,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">📝 What Does This Feature Do?</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><FilePenLine className="w-4 h-4 shrink-0" /> What Does This Feature Do?</h4>
                   <p className="text-sm text-muted-foreground">
                     The Tax Filing Guide helps you navigate US tax requirements as an international student.
                     It connects you with trusted tax preparation partners who specialize in non-resident returns.
@@ -730,7 +751,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">⏰ When Should You Use It?</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><Clock className="w-4 h-4 shrink-0" /> When Should You Use It?</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
                     <li>• <strong>Tax Season:</strong> January 1 - April 15 each year</li>
                     <li>• <strong>Form 8843:</strong> Required even if you had no income</li>
@@ -739,7 +760,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">❓ Why Is This Important?</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><CircleHelp className="w-4 h-4 shrink-0" /> Why Is This Important?</h4>
                   <p className="text-sm text-muted-foreground">
                     Filing taxes correctly is a legal requirement. Using the wrong tax forms (like 1040 instead of 1040-NR)
                     can cause visa issues. USCIS checks tax compliance for green card applications.
@@ -747,7 +768,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2 text-emerald-700 dark:text-emerald-300">🚀 How To Use:</h5>
+                  <h5 className="font-medium text-sm mb-2 text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5"><Rocket className="w-3.5 h-3.5 shrink-0" /> How To Use:</h5>
                   <ol className="text-sm space-y-1 text-emerald-600 dark:text-emerald-400 list-decimal list-inside">
                     <li>Go to <strong>Tax Filing</strong> from the sidebar</li>
                     <li>Answer the tax status questions to determine your requirements</li>
@@ -766,13 +787,13 @@ export function HelpSection() {
               <div className="pt-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <h5 className="font-medium text-sm mb-1">👤 Who Should Use This?</h5>
+                    <h5 className="font-medium text-sm mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5 shrink-0" /> Who Should Use This?</h5>
                     <p className="text-xs text-muted-foreground">
                       OPT students who lost school-sponsored coverage or need affordable insurance during their work authorization period.
                     </p>
                   </div>
                   <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <h5 className="font-medium text-sm mb-1">📍 Where To Find It?</h5>
+                    <h5 className="font-medium text-sm mb-1 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> Where To Find It?</h5>
                     <p className="text-xs text-muted-foreground">
                       Navigate to <strong>Insurance Finder</strong> from the sidebar or go to <strong>/dashboard/opt-health-insurance-finder</strong>.
                     </p>
@@ -780,7 +801,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">📝 What Does This Feature Do?</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><FilePenLine className="w-4 h-4 shrink-0" /> What Does This Feature Do?</h4>
                   <p className="text-sm text-muted-foreground">
                     Helps you find health insurance plans suitable for international students on OPT.
                     Compare options ranging from short-term plans to ACA-compliant coverage.
@@ -788,7 +809,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">⏰ When Should You Use It?</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><Clock className="w-4 h-4 shrink-0" /> When Should You Use It?</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
                     <li>• <strong>After Graduation:</strong> When school insurance ends</li>
                     <li>• <strong>Before OPT Starts:</strong> To avoid coverage gaps</li>
@@ -797,7 +818,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">❓ Why Is This Important?</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><CircleHelp className="w-4 h-4 shrink-0" /> Why Is This Important?</h4>
                   <p className="text-sm text-muted-foreground">
                     Medical bills in the US can be financially devastating without insurance.
                     A single ER visit can cost $5,000+. Having coverage protects your finances and health.
@@ -805,7 +826,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2 text-pink-700 dark:text-pink-300">🚀 How To Use:</h5>
+                  <h5 className="font-medium text-sm mb-2 text-pink-700 dark:text-pink-300 flex items-center gap-1.5"><Rocket className="w-3.5 h-3.5 shrink-0" /> How To Use:</h5>
                   <ol className="text-sm space-y-1 text-pink-600 dark:text-pink-400 list-decimal list-inside">
                     <li>Go to <strong>Insurance Finder</strong></li>
                     <li>Enter your eligibility information (visa status, dates)</li>
@@ -824,13 +845,13 @@ export function HelpSection() {
               <div className="pt-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <h5 className="font-medium text-sm mb-1">👤 Who Should Use This?</h5>
+                    <h5 className="font-medium text-sm mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5 shrink-0" /> Who Should Use This?</h5>
                     <p className="text-xs text-muted-foreground">
                       All TrackMyOPT users who want to save money on services designed for international students.
                     </p>
                   </div>
                   <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <h5 className="font-medium text-sm mb-1">📍 Where To Find It?</h5>
+                    <h5 className="font-medium text-sm mb-1 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> Where To Find It?</h5>
                     <p className="text-xs text-muted-foreground">
                       Click <strong>Offers</strong> in the header or navigate via sidebar to <strong>/dashboard/offers</strong>.
                     </p>
@@ -838,7 +859,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">📝 What Does This Feature Do?</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><FilePenLine className="w-4 h-4 shrink-0" /> What Does This Feature Do?</h4>
                   <p className="text-sm text-muted-foreground">
                     Curates exclusive discounts and deals from our trusted partners. These offers are
                     specifically negotiated for TrackMyOPT users and may include tax services, insurance,
@@ -847,7 +868,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2 text-orange-700 dark:text-orange-300">🎁 Current Offer Categories:</h5>
+                  <h5 className="font-medium text-sm mb-2 text-orange-700 dark:text-orange-300 flex items-center gap-1.5"><Gift className="w-3.5 h-3.5 shrink-0" /> Current Offer Categories:</h5>
                   <ul className="text-sm text-orange-600 dark:text-orange-400 space-y-1">
                     <li>✓ Tax Preparation Services</li>
                     <li>✓ Health Insurance</li>
@@ -870,7 +891,7 @@ export function HelpSection() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <h5 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">📅 OPT Apply Date Calculator</h5>
+                    <h5 className="font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-1.5"><Calendar className="w-4 h-4 shrink-0" /> OPT Apply Date Calculator</h5>
                     <p className="text-xs text-blue-700 dark:text-blue-400 mb-2">
                       <strong>What:</strong> Calculates your OPT application window (90 days before to 60 days after program end).
                     </p>
@@ -880,7 +901,7 @@ export function HelpSection() {
                   </div>
 
                   <div className="p-4 border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                    <h5 className="font-semibold text-red-800 dark:text-red-300 mb-2">⏱️ OPT Clock Tracker</h5>
+                    <h5 className="font-semibold text-red-800 dark:text-red-300 mb-2 flex items-center gap-1.5"><Clock className="w-4 h-4 shrink-0" /> OPT Clock Tracker</h5>
                     <p className="text-xs text-red-700 dark:text-red-400 mb-2">
                       <strong>What:</strong> Tracks your 90-day unemployment limit during initial OPT.
                     </p>
@@ -890,7 +911,7 @@ export function HelpSection() {
                   </div>
 
                   <div className="p-4 border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <h5 className="font-semibold text-green-800 dark:text-green-300 mb-2">🎓 STEM Apply Date Calculator</h5>
+                    <h5 className="font-semibold text-green-800 dark:text-green-300 mb-2 flex items-center gap-1.5"><GraduationCap className="w-4 h-4 shrink-0" /> STEM Apply Date Calculator</h5>
                     <p className="text-xs text-green-700 dark:text-green-400 mb-2">
                       <strong>What:</strong> Calculates your STEM OPT extension application window.
                     </p>
@@ -900,7 +921,7 @@ export function HelpSection() {
                   </div>
 
                   <div className="p-4 border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                    <h5 className="font-semibold text-purple-800 dark:text-purple-300 mb-2">⏲️ STEM Clock Tracker</h5>
+                    <h5 className="font-semibold text-purple-800 dark:text-purple-300 mb-2 flex items-center gap-1.5"><Timer className="w-4 h-4 shrink-0" /> STEM Clock Tracker</h5>
                     <p className="text-xs text-purple-700 dark:text-purple-400 mb-2">
                       <strong>What:</strong> Tracks your separate 60-day unemployment limit during STEM OPT.
                     </p>
@@ -912,7 +933,7 @@ export function HelpSection() {
 
                 <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                   <p className="text-sm text-indigo-700 dark:text-indigo-300">
-                    <strong>🆓 Free Access:</strong> All OPT Tools are available without login. Use them directly from
+                    <strong className="inline-flex items-center gap-1"><BadgeCheck className="w-4 h-4 inline shrink-0" /> Free Access:</strong> All OPT Tools are available without login. Use them directly from
                     <strong> /dashboard/opt-tools</strong> or the Chrome extension.
                   </p>
                 </div>
@@ -926,13 +947,13 @@ export function HelpSection() {
               <div className="pt-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <h5 className="font-medium text-sm mb-1">👤 Who Should Use This?</h5>
+                    <h5 className="font-medium text-sm mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5 shrink-0" /> Who Should Use This?</h5>
                     <p className="text-xs text-muted-foreground">
                       Anyone who wants quick access to OPT tools and case status without visiting the full website.
                     </p>
                   </div>
                   <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <h5 className="font-medium text-sm mb-1">📍 Where To Get It?</h5>
+                    <h5 className="font-medium text-sm mb-1 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> Where To Get It?</h5>
                     <p className="text-xs text-muted-foreground">
                       Download from the Chrome Web Store (search "TrackMyOPT") or visit our homepage.
                     </p>
@@ -940,7 +961,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">📝 What Does The Extension Do?</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><FilePenLine className="w-4 h-4 shrink-0" /> What Does The Extension Do?</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
                     <li>✓ Quick access to all 4 OPT calculators</li>
                     <li>✓ View unemployment days at a glance</li>
@@ -951,7 +972,7 @@ export function HelpSection() {
                 </div>
 
                 <div className="p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2 text-cyan-700 dark:text-cyan-300">🚀 How To Install:</h5>
+                  <h5 className="font-medium text-sm mb-2 text-cyan-700 dark:text-cyan-300 flex items-center gap-1.5"><Rocket className="w-3.5 h-3.5 shrink-0" /> How To Install:</h5>
                   <ol className="text-sm space-y-1 text-cyan-600 dark:text-cyan-400 list-decimal list-inside">
                     <li>Visit Chrome Web Store and search "TrackMyOPT"</li>
                     <li>Click <strong>Add to Chrome</strong></li>
@@ -973,7 +994,7 @@ export function HelpSection() {
                 </p>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">⚙️ Available Settings:</h4>
+                  <h4 className="font-semibold flex items-center gap-2"><Settings className="w-4 h-4 shrink-0" /> Available Settings:</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="p-3 border border-border rounded-lg">
                       <h5 className="font-medium text-sm mb-1">Profile</h5>
@@ -1003,7 +1024,7 @@ export function HelpSection() {
                       <h5 className="font-medium text-sm mb-1">Subscription</h5>
                       <ul className="text-xs text-muted-foreground space-y-0.5">
                         <li>• View current plan</li>
-                        <li>• Upgrade to Premium</li>
+                        <li>• Upgrade to Pro</li>
                         <li>• Manage billing</li>
                       </ul>
                     </div>
@@ -1012,7 +1033,7 @@ export function HelpSection() {
 
                 <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                   <p className="text-sm text-slate-700 dark:text-slate-300">
-                    <strong>📍 Navigate to:</strong> Sidebar → <strong>Settings</strong> or go to <strong>/dashboard/settings</strong>
+                    <strong className="inline-flex items-center gap-1"><MapPin className="w-3.5 h-3.5 shrink-0" /> Navigate to:</strong> Sidebar → <strong>Settings</strong> or go to <strong>/dashboard/settings</strong>
                   </p>
                 </div>
               </div>
@@ -1178,7 +1199,7 @@ export function HelpSection() {
                 />
                 <FAQItem
                   question="Is the extension free?"
-                  answer="Yes! The Chrome extension is completely free. It provides quick access to all OPT tools and calculators. Premium features like Document Vault are available through your subscription."
+                  answer="Yes! The Chrome extension is free for OPT calculators and quick tools. Pro adds Document Vault, daily reminders, and case status email alerts."
                 />
                 <FAQItem
                   question="Does the extension work offline?"
@@ -1203,8 +1224,8 @@ export function HelpSection() {
                   answer="We check your case status directly from the USCIS website. When you enable notifications, we periodically check for updates and notify you via email when your status changes."
                 />
                 <FAQItem
-                  question="What's included in Premium?"
-                  answer="Premium includes: Document Vault with AI analysis, instant case status notifications, document expiry reminders, priority support, and all future premium features."
+                  question="What's included in Pro?"
+                  answer="Pro includes: 9:00 AM ET email reminders for all trackers, daily USCIS status checks, Document Vault with expiry reminders, unlimited job tracking, and AI resume tools."
                 />
                 <FAQItem
                   question="Can I use TrackMyOPT on my phone?"
@@ -1212,7 +1233,7 @@ export function HelpSection() {
                 />
                 <FAQItem
                   question="How do I contact support?"
-                  answer="You can reach our support team at support@trackmyopt.com. Premium users receive priority support with faster response times."
+                  answer="Email support@trackmyopt.com anytime. Pro members get priority responses during business hours."
                 />
               </div>
             </div>

@@ -17,18 +17,18 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#ECFDF5';
   let statusBorder = '#10B981';
-  let statusEmoji = '✅';
+  let statusEmoji = '';
   let motivationalMessage = 'You have time on your side! Stay consistent and you\'ll find the right opportunity.';
 
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
-    statusEmoji = '🚨';
+    statusEmoji = '';
     motivationalMessage = 'Time is running short! Intensify your job search efforts immediately.';
   } else if (percentRemaining <= 66) {
     statusBg = '#FFFBEB';
     statusBorder = '#F59E0B';
-    statusEmoji = '⚠️';
+    statusEmoji = '';
     motivationalMessage = 'You\'re making progress! Stay focused and consistent with your job search.';
   }
 
@@ -38,7 +38,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 12px 12px 0 0; padding: 20px; text-align: center;">
         <h2 style="margin: 0; color: white; font-size: 22px; font-weight: 700;">
-          ⏰ OPT Unemployment Clock
+          OPT Unemployment Clock
         </h2>
         <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
           Track Your 90-Day Unemployment Limit
@@ -48,7 +48,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- OPT Status Section -->
       <div style="background: ${statusBg}; border: 1px solid ${statusBorder}; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
-          ${statusEmoji} Your OPT Status:
+          Your OPT Status:
         </h3>
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
@@ -77,7 +77,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Strategic Approach -->
       <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #1E40AF; font-size: 16px; font-weight: 600;">
-          📋 Strategic Approach:
+          Strategic Approach:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li>Apply to 5-10 quality jobs daily (focus on fit)</li>
@@ -91,7 +91,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Top Job Search Resources -->
       <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
-          🔍 Top Job Search Resources:
+          � Top Job Search Resources:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li><a href="https://www.linkedin.com/jobs/" style="color: #3B82F6; text-decoration: none;">LinkedIn Jobs</a></li>
@@ -118,7 +118,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Skill Building -->
       <div style="background: #F5F3FF; border: 1px solid #8B5CF6; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">
-          📚 Skill Building:
+          � Skill Building:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
           <li>Take relevant online courses (Coursera, Udemy)</li>
@@ -130,7 +130,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
       <!-- Critical Reminder -->
       <div style="background: #FEF2F2; border: 2px solid #DC2626; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 12px 0; color: #991B1B; font-size: 16px; font-weight: 700;">
-          🚨 Critical Reminder:
+          Critical Reminder:
         </h3>
         <p style="margin: 0 0 16px 0; color: #991B1B; font-size: 14px; font-weight: 600;">
           Update SEVP portal within 10 days of starting work!
@@ -147,7 +147,7 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
           ${motivationalMessage}
         </p>
         <p style="margin: 0; color: #B45309; font-size: 14px; font-weight: 600;">
-          Stay strong and keep pushing forward! 💪
+          Stay strong and keep pushing forward! �
         </p>
       </div>
 

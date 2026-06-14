@@ -19,7 +19,7 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
     {
         type: "twitter",
-        content: "Just got my OPT approved in 30 days! The application guides on TrackMyOPT were a lifesaver. Avoided an RFE thanks to their checklist. 🚀",
+        content: "Just got my OPT approved in 30 days! The application guides on TrackMyOPT were a lifesaver. Avoided an RFE thanks to their checklist.",
         author: "Sarah Chen",
         role: "Software Engineer",
         handle: "@sarah_codes",

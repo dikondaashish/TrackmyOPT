@@ -52,7 +52,7 @@ export function SubscriptionUsage() {
                     </div>
                     {isNearLimit && (
                         <p className="text-xs text-amber-500 mt-2">
-                            You are reaching your free limit. Upgrade to track unlimited jobs.
+                            You're near the free job limit. Upgrade to Pro for unlimited tracking.
                         </p>
                     )}
                 </div>

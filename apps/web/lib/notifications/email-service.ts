@@ -32,6 +32,7 @@ import {
   getDailyReminderSubject,
   renderDailyReminderEmailHtml,
 } from './templates/daily-reminder-html';
+import { emailSectionHeading } from './email-icons';
 
 export interface ToolReminderDetail {
   name: string;
@@ -148,11 +149,11 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
       return {
         title: 'OPT Apply Dates',
         subtitle: 'Your Daily OPT Application Reminder',
-        icon: '📋',
+        icon: '',
         accent: EMAIL.accent.optApply,
         timelineHtml: data?.startDate && data?.endDate ? `
           <div style="background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #0369A1; font-size: 16px; font-weight: 600;">📅 Your OPT Filing Window</h3>
+            <h3 style="margin: 0 0 16px 0; color: #0369A1; font-size: 16px; font-weight: 600;">${emailSectionHeading('Your OPT Filing Window', 'calendar', '#0369A1')}</h3>
             <div style="display: flex; justify-content: space-between; gap: 16px;">
               <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
                 <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">Earliest Apply Date</p>
@@ -169,7 +170,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         ` : '',
         preparationHtml: `
           <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">📝 Documents to Prepare</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Documents to Prepare', 'fileText')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Form I-765</strong> - Application for Employment Authorization</li>
               <li style="${baseStyles.listItem}"><strong>2 Passport-Size Photos</strong> - Recent, with white background (2x2 inches)</li>
@@ -184,7 +185,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         `,
         tipsHtml: `
           <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">💡 Pro Tips for Faster Approval</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Pro Tips for Faster Approval', 'lightbulb')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Apply on Day 1:</strong> Submit your application as early as possible in your filing window for the best processing times</li>
               <li style="${baseStyles.listItem}"><strong>Schedule DSO Appointment Early:</strong> Request your OPT I-20 recommendation at least 2 weeks before your earliest filing date</li>
@@ -211,11 +212,11 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
       return {
         title: 'OPT Unemployment Clock',
         subtitle: 'Track Your 90-Day Unemployment Limit',
-        icon: '⏰',
+        icon: '',
         accent: EMAIL.accent.optClock,
         timelineHtml: data?.startDate ? `
           <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #92400E; font-size: 16px; font-weight: 600;">⏱️ Your Unemployment Clock</h3>
+            <h3 style="margin: 0 0 16px 0; color: #92400E; font-size: 16px; font-weight: 600;">${emailSectionHeading('Your Unemployment Clock', 'clock', '#92400E')}</h3>
             <div style="text-align: center;">
               <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 13px;">OPT Start Date</p>
               <p style="margin: 0 0 16px 0; color: #B45309; font-size: 18px; font-weight: 700;">${data.startDate}</p>
@@ -228,7 +229,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         ` : '',
         preparationHtml: `
           <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">🚨 Important Rules to Remember</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Important Rules to Remember', 'alertTriangle')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>90-Day Limit:</strong> You can only be unemployed for 90 cumulative days during your entire OPT period</li>
               <li style="${baseStyles.listItem}"><strong>Count Starts:</strong> Clock begins from your OPT start date, not EAD receipt date</li>
@@ -240,7 +241,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         `,
         tipsHtml: `
           <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">💼 Job Search Tips</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Job Search Tips', 'briefcase')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Start Early:</strong> Begin your job search before your program ends</li>
               <li style="${baseStyles.listItem}"><strong>Use OPT-Friendly Job Boards:</strong> MyVisaJobs, H1BGrader, Indeed with visa filter</li>
@@ -265,11 +266,11 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
       return {
         title: 'STEM OPT Extension',
         subtitle: 'Your 24-Month Extension Application Reminder',
-        icon: '🔬',
+        icon: '',
         accent: EMAIL.accent.stemApply,
         timelineHtml: data?.startDate && data?.endDate ? `
           <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">📅 Your STEM OPT Filing Window</h3>
+            <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">${emailSectionHeading('Your STEM OPT Filing Window', 'calendar', '#065F46')}</h3>
             <div style="display: flex; justify-content: space-between; gap: 16px;">
               <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
                 <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">Earliest Apply Date</p>
@@ -284,7 +285,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         ` : '',
         preparationHtml: `
           <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">📝 Documents Required for STEM Extension</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Documents Required for STEM Extension', 'fileText')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Form I-983</strong> - Training Plan (signed by you and employer)</li>
               <li style="${baseStyles.listItem}"><strong>Form I-765</strong> - Employment Authorization Application</li>
@@ -298,7 +299,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         `,
         tipsHtml: `
           <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">💡 STEM Extension Success Tips</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('STEM Extension Success Tips', 'lightbulb')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Verify E-Verify:</strong> Confirm your employer is enrolled in E-Verify before starting the process</li>
               <li style="${baseStyles.listItem}"><strong>I-983 Training Plan:</strong> Work with your employer to create a detailed, degree-related training plan</li>
@@ -323,11 +324,11 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
       return {
         title: 'STEM Unemployment Clock',
         subtitle: 'Track Your 60-Day STEM Unemployment Limit',
-        icon: '⏱️',
+        icon: '',
         accent: EMAIL.accent.stemClock,
         timelineHtml: data?.startDate ? `
           <div style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">⏱️ Your STEM Unemployment Clock</h3>
+            <h3 style="margin: 0 0 16px 0; color: #5B21B6; font-size: 16px; font-weight: 600;">${emailSectionHeading('Your STEM Unemployment Clock', 'timer', '#5B21B6')}</h3>
             <div style="text-align: center;">
               <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 13px;">STEM OPT Start Date</p>
               <p style="margin: 0 0 16px 0; color: #7C3AED; font-size: 18px; font-weight: 700;">${data.startDate}</p>
@@ -341,7 +342,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         ` : '',
         preparationHtml: `
           <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">🚨 STEM OPT Employment Rules</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('STEM OPT Employment Rules', 'alertTriangle')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>60-Day Limit:</strong> You have 60 additional unemployment days during your STEM OPT period (separate from the 90 days during initial OPT)</li>
               <li style="${baseStyles.listItem}"><strong>E-Verify Required:</strong> You can only work for E-Verify enrolled employers</li>
@@ -353,7 +354,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         `,
         tipsHtml: `
           <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">💼 Maintaining STEM OPT Status</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Maintaining STEM OPT Status', 'briefcase')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Keep I-983 Updated:</strong> Any material changes require a new training plan</li>
               <li style="${baseStyles.listItem}"><strong>Plan for H-1B:</strong> Start H-1B preparation early - lottery registration is in March</li>
@@ -377,12 +378,12 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
       return {
         title: 'Document Expiry Reminders',
         subtitle: 'Never Miss an Important Deadline',
-        icon: '📄',
+        icon: '',
         accent: EMAIL.accent.documents,
         timelineHtml: '',
         preparationHtml: `
           <div style="background: #FDF2F8; border: 1px solid #FBCFE8; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">📁 Documents We Help You Track</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Documents We Help You Track', 'folder')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Passport</strong> - Must be valid for at least 6 months</li>
               <li style="${baseStyles.listItem}"><strong>Visa</strong> - F-1/OPT visa stamp validity</li>
@@ -395,7 +396,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         `,
         tipsHtml: `
           <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">💡 Document Management Tips</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Document Management Tips', 'lightbulb')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Renew Early:</strong> Start renewal process 3-6 months before expiry</li>
               <li style="${baseStyles.listItem}"><strong>Keep Copies:</strong> Maintain digital copies of all documents</li>
@@ -416,11 +417,11 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
       return {
         title: 'Case Status Tracker',
         subtitle: 'Track Your USCIS Case Status Automatically',
-        icon: '🔔',
+        icon: '',
         accent: EMAIL.accent.caseStatus,
         timelineHtml: `
           <div style="background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 16px; font-weight: 600;">🎉 You're All Set!</h3>
+            <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 16px; font-weight: 600;">${emailSectionHeading("You're All Set!", 'checkCircle', '#166534')}</h3>
             <p style="margin: 0; color: #166534; font-size: 15px; line-height: 1.6;">
               Congratulations! You've successfully enrolled in <strong>Case Status Tracker</strong>. 
               We'll help you track and stay on top of your case status with timely reminders and instant notifications when your status changes.
@@ -429,7 +430,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         `,
         preparationHtml: `
           <div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">📋 How Case Tracking Works</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('How Case Tracking Works', 'fileText')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Automatic Checks:</strong> We check your case status daily</li>
               <li style="${baseStyles.listItem}"><strong>Instant Alerts:</strong> Get notified immediately when status changes</li>
@@ -440,7 +441,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         `,
         tipsHtml: `
           <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="${baseStyles.sectionTitle}">💡 Understanding Case Status</h3>
+            <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Understanding Case Status', 'lightbulb')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Case Received:</strong> USCIS has your application</li>
               <li style="${baseStyles.listItem}"><strong>Fingerprints Scheduled:</strong> Biometrics appointment coming</li>
@@ -464,7 +465,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
       return {
         title: 'OPT Daily Reminders',
         subtitle: 'Your OPT Timeline Assistant',
-        icon: '📧',
+        icon: '',
         accent: EMAIL.accent.default,
         timelineHtml: '',
         preparationHtml: '',

@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { Lock } from 'lucide-react';
 
 interface PasscodeSetupModalProps {
   open: boolean;
@@ -135,7 +136,10 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
 
           {/* Security Tips */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <h4 className="font-medium text-blue-900 text-sm mb-2">🔒 Security Tips:</h4>
+            <h4 className="font-medium text-blue-900 text-sm mb-2 flex items-center gap-1.5">
+              <Lock className="w-4 h-4 shrink-0" />
+              Security Tips:
+            </h4>
             <ul className="text-blue-700 text-xs space-y-1">
               <li>• Use a unique 6-digit code</li>
               <li>• Don't use obvious numbers (123456, birth year, etc.)</li>

@@ -6,10 +6,10 @@ export const PRICING_SOCIAL_PROOF =
   "Join 2,500+ international students who trust TrackMyOPT";
 
 export const PRICING_VALUE_ANCHOR =
-  "Pro costs less than one lunch per month. A single missed USCIS deadline or unemployment miscount can end your work authorization.";
+  "Pro costs less than one lunch per month. Daily reminders and trackers help you stay organized before OPT deadlines sneak up.";
 
 export const PRICING_MODAL = {
-  badge: "Protect your OPT status",
+  badge: "Stay on top of OPT deadlines",
   title: "Choose the plan that fits your journey",
   subtitle: PRICING_SOCIAL_PROOF,
   valueAnchor: PRICING_VALUE_ANCHOR,
@@ -45,11 +45,11 @@ export const PLAN_SALES_META: Record<
   }
 > = {
   pro: {
-    tagline: "Automated OPT compliance — deadlines, unemployment & USCIS",
+    tagline: "Daily reminders, deadline alerts, OPT/STEM trackers, and case monitoring",
     bestFor: "Most OPT & STEM OPT students",
     highlights: [
-      "Daily USCIS auto-checks + status alerts",
-      "9AM email reminders & unemployment tracking",
+      "9:00 AM ET email reminders for all four trackers",
+      "Daily USCIS status checks + change alerts",
       "Unlimited jobs, resumes & document vault",
     ],
     badge: "Most Popular",
@@ -57,12 +57,12 @@ export const PLAN_SALES_META: Record<
     ctaNoTrial: "Subscribe to Pro",
   },
   dedicated: {
-    tagline: "Everything in Pro + attorney access & white-glove support",
+    tagline: "Everything in Pro + attorney access & hands-on support",
     bestFor: "RFEs, complex cases, or H-1B/STEM planning",
     highlights: [
-      "1 hr/month with licensed immigration attorney",
+      "1 hr/month with a licensed immigration attorney",
       "Application completeness review",
-      "24/7 dedicated + priority support",
+      "Priority support for complex questions",
     ],
     badge: "Attorney-Backed",
     guarantee: "3-day money-back on your first paid month",
@@ -81,12 +81,12 @@ export const PLAN_PICKER_GUIDE = {
 
 export const LANDING_PLAN_COPY = {
   free: {
-    description: "Core OPT timelines & calculators — always free.",
+    description: "Basic tracking for one OPT timeline — calculators and clocks always free.",
     users: "Forever free",
     buttonLabel: "Create Free Account",
   },
   pro: {
-    description: "Never miss a USCIS deadline or unemployment day again.",
+    description: "Daily reminders, unemployment alerts, and USCIS status monitoring in one place.",
     users: "7-day free trial · cancel anytime",
     buttonLabel: "Start 7-Day Free Trial",
   },

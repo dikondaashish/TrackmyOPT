@@ -117,7 +117,7 @@ export function DashboardNextStepCard() {
           title: "Don't wait for a status change — get daily Pro alerts",
           description:
             "Your receipt is saved. Pro checks USCIS every morning and emails you when anything changes — before you find out by accident.",
-          cta: "Try Pro free for 7 days",
+          cta: "Start 7-Day Free Trial",
         };
       case "status_live":
         return {

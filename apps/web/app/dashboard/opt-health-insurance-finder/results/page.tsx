@@ -309,8 +309,9 @@ function ResultsContent() {
               </p>
 
               <div className="mt-3 p-2.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-                <p className="text-xs text-blue-700 dark:text-blue-300">
-                  ✨ Consider University SHIP ($1,400-$4,500/yr) or International Student Insurance ($372-$2,000/yr)
+                <p className="text-xs text-blue-700 dark:text-blue-300 flex items-start gap-1.5">
+                  <Lightbulb className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  <span>Consider University SHIP ($1,400-$4,500/yr) or International Student Insurance ($372-$2,000/yr)</span>
                 </p>
               </div>
             </div>

@@ -11,7 +11,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Clock, FolderOpen, Lock, ScanLine } from 'lucide-react';
+import { Clock, FolderOpen, Lock, ScanLine, Mail } from 'lucide-react';
 import { PasscodeSetupModal } from '../settings/PasscodeSetupModal';
 import { PasscodeVerifyModal } from '../security/PasscodeVerifyModal';
 import { DocumentUploadModal } from './DocumentUploadModal';
@@ -336,7 +336,7 @@ export function DocumentVaultClient() {
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
-          You can continue using the rest of your dashboard on the Free plan. Upgrade any time to unlock Document Vault.
+          Upgrade to Pro to unlock Document Vault — secure storage for EAD, I-20, and passport with expiry reminders.
         </p>
       </div>
     );
@@ -532,8 +532,9 @@ export function DocumentVaultClient() {
           ) : (
             <p className="text-sm text-gray-600 dark:text-muted-foreground">{notificationEmail}</p>
           )}
-          <p className="text-xs text-gray-500 dark:text-muted-foreground mt-2">
-            📬 Get notified at 60, 45, 30, 20, 15, 10, 5, 3, 2, and 1 day before your documents expire
+          <p className="text-xs text-gray-500 dark:text-muted-foreground mt-2 flex items-start gap-1.5">
+            <Mail className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+            <span>Get notified at 60, 45, 30, 20, 15, 10, 5, 3, 2, and 1 day before your documents expire</span>
           </p>
         </div>
       </div>

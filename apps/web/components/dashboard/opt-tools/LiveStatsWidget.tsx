@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { COMMUNITY_REPORTS_MESSAGING } from "@/lib/messaging/product-copy";
 import { TrendingUp, TrendingDown, Minus, Clock, CheckCircle2, AlertCircle, RefreshCw, ChevronDown, ChevronUp, Briefcase, FileText, Upload, BarChart3 } from "lucide-react";
 
 type ToolType = 'opt-apply' | 'opt-clock' | 'stem-apply' | 'stem-clock';
@@ -163,7 +164,7 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
           </div>
           <div>
             <h3 className="font-bold text-white">{config.title}</h3>
-            <p className="text-xs text-white/70">Community Data</p>
+            <p className="text-xs text-white/70">{COMMUNITY_REPORTS_MESSAGING.sectionSubhead}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -208,7 +209,12 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
 
             {/* Latest Reports */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Latest Community Reports</h4>
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                {COMMUNITY_REPORTS_MESSAGING.sectionTitle}
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                {COMMUNITY_REPORTS_MESSAGING.sourceNote}
+              </p>
               <div className="space-y-2">
                 {stats.recentReports.map((report, idx) => (
                   <div

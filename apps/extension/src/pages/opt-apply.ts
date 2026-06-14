@@ -1,5 +1,6 @@
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
+import { icon } from '../icons.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -631,7 +632,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   infoCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start;">
       <div style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 16px;">
-        ℹ️
+        ${icon('info', 16, 'white')}
       </div>
       <div>
         <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">Post-Completion OPT Filing Rules</div>
@@ -657,7 +658,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   programCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
       <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 18px;">
-        🗓️
+        ${icon('calendar', 20, 'white')}
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Program End Date</div>
@@ -701,7 +702,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
           place-items: center;
           transition: all 0.2s;
         "
-      >🗓️</button>
+      >${icon('calendar', 16, 'white')}</button>
     </div>
   `;
   content.appendChild(programCard);
@@ -720,7 +721,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   dsoCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
       <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 18px;">
-        🗓️
+        ${icon('calendar', 20, 'white')}
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">DSO Recommendation Date</div>
@@ -764,7 +765,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
           place-items: center;
           transition: all 0.2s;
         "
-      >🗓️</button>
+      >${icon('calendar', 16, 'white')}</button>
     </div>
   `;
   content.appendChild(dsoCard);
@@ -897,7 +898,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     if (!programEndDate) {
       resultsContainer.innerHTML = `
         <div style="padding: 12px; border-radius: 12px; background: #fef2f2; color: #991b1b; font-size: 13px; border: 1px solid #fecaca;">
-          ❌ Please enter a valid Program End Date (mm/dd/yyyy)
+          Please enter a valid Program End Date (mm/dd/yyyy)
         </div>
       `;
       return;
@@ -910,7 +911,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     if (dsoRecommendationInput.value.trim() && !dsoRecommendationDate) {
       resultsContainer.innerHTML = `
         <div style="padding: 12px; border-radius: 12px; background: #fef2f2; color: #991b1b; font-size: 13px; border: 1px solid #fecaca;">
-          ❌ Please enter a valid DSO Recommendation Date (mm/dd/yyyy)
+          Please enter a valid DSO Recommendation Date (mm/dd/yyyy)
         </div>
       `;
       return;

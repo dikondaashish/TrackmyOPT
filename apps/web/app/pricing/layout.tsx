@@ -3,34 +3,34 @@ import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export const metadata: Metadata = {
-    title: "TrackMyOPT Pricing — OPT Compliance Tracking Plans for F-1 Students",
+    title: "TrackMyOPT Pricing — OPT Deadline Tracking Plans for F-1 Students",
     description:
-        "TrackMyOPT Premium automates OPT unemployment tracking, USCIS deadline alerts, and STEM OPT compliance for F-1 students. Free plan available. Pro from $4.99/mo.",
+        "TrackMyOPT Pro adds daily 9:00 AM ET reminders, unemployment alerts, and USCIS case monitoring for OPT and STEM OPT students. Free plan available. Pro from $4.99/mo.",
     keywords: [
         "TrackMyOPT pricing",
-        "TrackMyOPT premium worth it",
+        "TrackMyOPT Pro worth it",
         "OPT tracker free",
         "OPT compliance tool",
         "STEM OPT tracking",
         "F-1 student tools pricing",
-        "is TrackMyOPT premium worth it",
+        "is TrackMyOPT Pro worth it",
     ],
     alternates: {
         canonical: "https://www.trackmyopt.com/pricing",
     },
     openGraph: {
-        title: "TrackMyOPT Premium — OPT Compliance Protection for F-1 Students",
+        title: "TrackMyOPT Pro — OPT Deadline Tracking for F-1 Students",
         description:
-            "One missed deadline can end your OPT. Premium automates unemployment tracking, USCIS alerts, and STEM OPT compliance. Trusted by 2,500+ students.",
+            "Daily reminders, unemployment alerts, and USCIS monitoring in one place. Trusted by 2,500+ international students.",
         url: "https://www.trackmyopt.com/pricing",
         siteName: "TrackMyOPT",
         type: "website",
     },
     twitter: {
         card: "summary_large_image",
-        title: "TrackMyOPT Premium — Built for F-1 Students Who Can't Afford a Mistake",
+        title: "TrackMyOPT Pro — Built for OPT & STEM OPT Students",
         description:
-            "Automated OPT unemployment tracking, USCIS deadline alerts, and STEM OPT compliance tools. Free plan available. Pro from $4.99/mo.",
+            "Track filing windows, unemployment days, and STEM deadlines with daily reminders. Free plan available. Pro from $4.99/mo.",
     },
 };
 

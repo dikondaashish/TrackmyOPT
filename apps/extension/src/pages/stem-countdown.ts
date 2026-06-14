@@ -1,5 +1,6 @@
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
+import { icon } from '../icons.js';
 
 /**
  * Get formatted date for card display
@@ -268,7 +269,7 @@ export async function renderStemCountdown(
       ` : ''}
       
       <div style="text-align: center; margin-bottom: 12px;">
-        <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">📧 Daily Reminders <span style="font-size: 13px; opacity: 0.9;">(9:00 AM ET)</span></div>
+        <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">${icon('mail', 18, 'white')} Daily Reminders <span style="font-size: 13px; opacity: 0.9;">(9:00 AM ET)</span></div>
         <div style="font-size: 11px; opacity: 0.9; line-height: 1.4;">
           We'll show a Chrome notification every morning. If you enter an email and connect the mailer, we'll also email you.
         </div>
@@ -329,12 +330,12 @@ export async function renderStemCountdown(
                 gap: 6px;
               "
             >
-              <span style="font-size: 14px;">🛑</span> Stop Reminders
+              ${icon('circleStop', 14, 'white')} Stop Reminders
             </button>
           ` : ''}
         ` : `
           <div style="text-align: center; padding: 16px;">
-            <div style="font-size: 24px; margin-bottom: 8px;">🔒</div>
+            <div style="margin-bottom: 8px; display: flex; justify-content: center;">${icon('lock', 28, 'white')}</div>
             <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Unlock Daily Email Reminders</div>
             <div style="font-size: 11px; opacity: 0.9; margin-bottom: 12px;">Get daily email notifications with Pro ($4.99/mo)</div>
             <button 
@@ -457,11 +458,11 @@ export async function renderStemCountdown(
       } else if (remaining.days > 30) {
         messageEl.textContent = 'Time is moving along, stay prepared';
       } else if (remaining.days > 14) {
-        messageEl.textContent = '⚠️ Getting closer to the deadline!';
+        messageEl.textContent = 'Getting closer to the deadline!';
       } else if (remaining.days > 7) {
-        messageEl.textContent = '⚠️ Less than two weeks remaining!';
+        messageEl.textContent = 'Less than two weeks remaining!';
       } else {
-        messageEl.textContent = '🚨 URGENT: Apply immediately!';
+        messageEl.textContent = 'URGENT: Apply immediately!';
       }
     }
 
@@ -520,12 +521,12 @@ export async function renderStemCountdown(
           chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
-            title: '✅ Email Saved!',
+            title: 'Email Saved!',
             message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
           });
 
           // Change button to checkmark
-          saveEmailBtn.innerHTML = '✅';
+          saveEmailBtn.innerHTML = icon('checkCircle', 18, 'white');
           saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
 
           // Reload the page after 1 second to show "Stop Reminders" button

@@ -17,6 +17,9 @@ import {
     HelpCircle,
     Loader2,
     Check,
+    CheckCircle2,
+    XCircle,
+    Lightbulb,
     BookOpen,
     ChevronRight,
     AlertCircle,
@@ -717,8 +720,8 @@ export default function ResumeGeneratorPage() {
                                     </Button>
                                     <div className="absolute bottom-full right-0 mb-2 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
                                         <div className="font-medium mb-1">Supported URLs:</div>
-                                        <div>✅ Google Drive, Dropbox</div>
-                                        <div>❌ LinkedIn (copy text manually)</div>
+                                        <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" /> Google Drive, Dropbox</div>
+                                        <div className="flex items-center gap-1.5"><XCircle className="w-3 h-3 text-red-400 shrink-0" /> LinkedIn (copy text manually)</div>
                                     </div>
                                 </div>
                             </div>
@@ -948,17 +951,18 @@ export default function ResumeGeneratorPage() {
                                 </Button>
                                 <div className="absolute bottom-full right-0 mb-2 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
                                     <div className="font-medium mb-1">Supported URLs:</div>
-                                    <div>✅ Indeed, Glassdoor, ZipRecruiter</div>
-                                    <div>✅ Company career pages</div>
-                                    <div>❌ LinkedIn (copy text manually)</div>
+                                    <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" /> Indeed, Glassdoor, ZipRecruiter</div>
+                                    <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" /> Company career pages</div>
+                                    <div className="flex items-center gap-1.5"><XCircle className="w-3 h-3 text-red-400 shrink-0" /> LinkedIn (copy text manually)</div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Tip */}
                         <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                            <p className="text-xs text-amber-700 dark:text-amber-300">
-                                💡 <strong>Tip:</strong> Include the full job requirements, skills, and qualifications for better AI matching.
+                            <p className="text-xs text-amber-700 dark:text-amber-300 flex items-start gap-1.5">
+                                <Lightbulb className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                                <span><strong>Tip:</strong> Include the full job requirements, skills, and qualifications for better AI matching.</span>
                             </p>
                         </div>
 
@@ -981,7 +985,7 @@ export default function ResumeGeneratorPage() {
                             className="px-8 py-6 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
                         >
                             <Sparkles className="w-5 h-5 mr-2" />
-                            Upgrade to Premium
+                            Upgrade to Pro
                             <ChevronRight className="w-5 h-5 ml-2" />
                         </Button>
                     ) : (
@@ -1005,7 +1009,7 @@ export default function ResumeGeneratorPage() {
                 )}
                 {isLimitReached && (
                     <p className="mt-4 text-center text-sm text-red-600 dark:text-red-400">
-                        You&apos;ve reached your monthly free resume limit. Upgrade to generate more ATS-optimized resumes.
+                        You&apos;ve reached your monthly free resume limit. Upgrade to Pro for more ATS-optimized resumes.
                     </p>
                 )}
 

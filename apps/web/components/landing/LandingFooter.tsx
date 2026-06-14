@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Heart } from "lucide-react";
 import { LEGAL_FOOTER_LINKS } from "@/lib/legal/legal-config";
 
 // Custom SVG Logos for Trust Signals
@@ -184,8 +185,8 @@ export function LandingFooter() {
 
                 {/* Bottom Bar */}
                 <div className="mt-12 pt-8 border-t border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        © {currentYear} TrackMyOPT. Made with ❤️ for international students.
+                    <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center md:justify-start gap-1">
+                        © {currentYear} TrackMyOPT. Made with <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" aria-hidden /> for international students.
                     </p>
 
                     <div className="flex flex-wrap justify-center items-center gap-4 opacity-90">

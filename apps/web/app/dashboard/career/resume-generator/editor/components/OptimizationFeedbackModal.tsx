@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2, Zap } from "lucide-react";
+import { Sparkles, Loader2, Zap, Scissors, Rocket, BarChart3, Cog, Target, Ruler, Link2, type LucideIcon } from "lucide-react";
 
 interface OptimizationFeedbackModalProps {
     isOpen: boolean;
@@ -12,14 +12,14 @@ interface OptimizationFeedbackModalProps {
     isGenerating: boolean;
 }
 
-const SUGGESTIONS = [
-    { label: "Make it more concise (1 page)", icon: "✂️" },
-    { label: "95% ATS score optimization", icon: "🚀" },
-    { label: "Stronger action verbs & metrics", icon: "📊" },
-    { label: "Emphasize technical skills", icon: "⚙️" },
-    { label: "Make the summary more punchy", icon: "🎯" },
-    { label: "Fix formatting & spacing", icon: "📐" },
-    { label: "Align closer to the JD", icon: "🔗" },
+const SUGGESTIONS: { label: string; icon: LucideIcon }[] = [
+    { label: "Make it more concise (1 page)", icon: Scissors },
+    { label: "95% ATS score optimization", icon: Rocket },
+    { label: "Stronger action verbs & metrics", icon: BarChart3 },
+    { label: "Emphasize technical skills", icon: Cog },
+    { label: "Make the summary more punchy", icon: Target },
+    { label: "Fix formatting & spacing", icon: Ruler },
+    { label: "Align closer to the JD", icon: Link2 },
 ];
 
 export function OptimizationFeedbackModal({
@@ -111,6 +111,7 @@ export function OptimizationFeedbackModal({
                         <div className="flex flex-wrap gap-1.5">
                             {SUGGESTIONS.map((s) => {
                                 const isSelected = selectedSuggestions.has(s.label);
+                                const SuggestionIcon = s.icon;
                                 return (
                                     <button
                                         key={s.label}
@@ -125,7 +126,7 @@ export function OptimizationFeedbackModal({
                                             }
                                         `}
                                     >
-                                        <span className="text-xs">{s.icon}</span>
+                                        <SuggestionIcon className="w-3.5 h-3.5 shrink-0" aria-hidden />
                                         {s.label}
                                     </button>
                                 );

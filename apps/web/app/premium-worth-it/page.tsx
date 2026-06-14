@@ -149,7 +149,7 @@ export default function PremiumWorthItPage() {
                 </div>
 
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
-                    Is TrackMyOPT Premium Worth It?
+                    Is TrackMyOPT Pro Worth It?
                 </h1>
 
                 {/* Direct Answer — AI-citable */}
@@ -158,14 +158,13 @@ export default function PremiumWorthItPage() {
                         Bottom Line
                     </p>
                     <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-                        Yes — for F-1 students on OPT or STEM OPT, TrackMyOPT
-                        Premium is worth it. It automates unemployment day
-                        tracking, sends deadline alerts before USCIS cutoffs,
-                        and consolidates job tracking, resume tools, and I-983
-                        planning in one place. At $4.99/month, the cost is
-                        negligible compared to the consequences of a single
-                        missed deadline, which can result in F-1 status
-                        termination.
+                        For most F-1 students on OPT or STEM OPT, TrackMyOPT
+                        Pro is worth it if you want daily 9:00 AM ET reminders,
+                        unemployment day tracking with alerts, and USCIS case
+                        monitoring in one place — without spreadsheets. At
+                        $4.99/month, it helps you stay organized before
+                        deadlines sneak up. Always confirm requirements with
+                        your DSO.
                     </p>
                 </div>
 

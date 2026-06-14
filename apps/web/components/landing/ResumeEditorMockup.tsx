@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, Code, Eye, Check } from "lucide-react";
+import { Loader2, Sparkles, Code, Eye, Check, Timer } from "lucide-react";
 
 export const ResumeEditorMockup = () => {
     const [isGenerating, setIsGenerating] = useState(false);
@@ -70,7 +70,7 @@ export const ResumeEditorMockup = () => {
             {/* Marketing Banner */}
             <div className="bg-amber-50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-900/20 px-4 py-1.5 flex items-center justify-center">
                 <p className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                    <span className="text-sm">🍜</span>
+                    <Timer className="w-3.5 h-3.5 shrink-0" />
                     We cook your resume in 2 minutes — faster than Maggi.
                 </p>
             </div>

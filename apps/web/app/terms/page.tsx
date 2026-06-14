@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { LEGAL_EFFECTIVE_DATE, LEGAL_VERSION_ID } from "@/lib/legal/legal-config";
 
@@ -317,8 +317,9 @@ export default function TermsPage() {
               <hr className="my-8" />
 
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 my-8 rounded-xl">
-                <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
-                  ⚠️ DISCLAIMER
+                <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  DISCLAIMER
                 </p>
                 <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-2 leading-relaxed">
                   TrackMyOPT is an independent tool and is NOT affiliated with, endorsed by, or associated with the U.S. Citizenship and Immigration Services (USCIS), Department of Homeland Security (DHS), or any educational institution. Always verify information with your DSO and official USCIS resources.

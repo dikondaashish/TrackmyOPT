@@ -703,7 +703,7 @@ ${emailTextP(
   `${escapeHtml(COMPANY.productName)} helps you stay on top of OPT &amp; STEM deadlines, unemployment days, USCIS case status, and your job search &mdash; including our ${emailTextStrong("AI Resume Generator")} for ATS-friendly resumes tailored to U.S. roles.`
 )}
 ${emailInfoCallout(`
-  <p class="tmo-force-info-text" style="margin:0 0 8px 0;color:${EMAIL.infoText} !important;font-size:14px;font-weight:600;">✨ AI Resume Generator</p>
+  <p class="tmo-force-info-text" style="margin:0 0 8px 0;color:${EMAIL.infoText} !important;font-size:14px;font-weight:600;">AI Resume Generator</p>
   <p class="tmo-force-light-text" style="margin:0 0 14px 0;color:${EMAIL.textSecondary} !important;font-size:14px;line-height:1.55;">
     Turn a rough draft or old CV into a polished, job-ready resume in minutes. Start free with ${emailTextStrong("5 AI generations per month")} &mdash; upgrade anytime for higher limits and unlimited ATS scans.
   </p>
@@ -1276,7 +1276,7 @@ Questions? ${LEGAL_CONTACT.support}
 © ${new Date().getFullYear()} ${COMPANY.legalName}`;
 
   return {
-    subject: "Welcome to TrackMyOPT Premium! 🚀",
+    subject: "Welcome to TrackMyOPT Pro!",
     html,
     text,
   };

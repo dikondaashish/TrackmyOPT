@@ -30,7 +30,7 @@ const faqs = [
     },
     {
         question: "What happens to my data if I cancel?",
-        answer: "You return to the free plan. Your account and basic data remain; premium features are locked."
+        answer: "You return to the free plan. Your account and basic data remain; Pro features like daily reminders and Document Vault are locked."
     }
 ];
 

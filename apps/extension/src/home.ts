@@ -1,5 +1,6 @@
 import { API_ENDPOINTS } from './config';
 import { performExtensionSignOut } from './signOut';
+import { icon, themeToggleIcon } from './icons';
 
 /**
  * Renders the signed-in home screen with tool tiles
@@ -57,7 +58,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       </div>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
-          <span id="theme-icon">🌙</span>
+          <span id="theme-icon">${icon('moon', 18)}</span>
         </button>
         <button class="logout-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
           <span>→</span>
@@ -76,32 +77,32 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
 
     <div class="grid" role="list">
       <div class="tile blue" role="button" tabindex="0" aria-label="OPT Apply Start Dates - Calculate when you can start applying for OPT" data-page="opt-apply">
-        <div class="icon">🗓️</div>
+        <div class="icon">${icon('calendar')}</div>
         <h3 class="t">OPT Apply Dates</h3>
         <p class="s">Calculate when you can apply for OPT</p>
       </div>
 
       <div class="tile purple" role="button" tabindex="0" aria-label="OPT Clock Tracker - Track your OPT unemployment days in real-time" data-page="clock">
-        <div class="icon">⏰</div>
+        <div class="icon">${icon('clock')}</div>
         <h3 class="t">OPT Clock Tracker</h3>
         <p class="s">Track your unemployment days</p>
       </div>
 
       <div class="tile green" role="button" tabindex="0" aria-label="STEM OPT Apply Start Dates - Calculate STEM OPT extension application dates" data-page="stem-apply">
-        <div class="icon">🎓</div>
+        <div class="icon">${icon('graduationCap')}</div>
         <h3 class="t">STEM Apply Dates</h3>
         <p class="s">Calculate STEM OPT dates</p>
       </div>
 
       <div class="tile orange" role="button" tabindex="0" aria-label="STEM OPT Clock Tracker - Track your STEM OPT unemployment days" data-page="stem-clock">
-        <div class="icon">⏲️</div>
+        <div class="icon">${icon('timer')}</div>
         <h3 class="t">STEM Clock Tracker</h3>
         <p class="s">Track STEM unemployment</p>
       </div>
     </div>
 
     <div class="notice">
-      <div class="dot">🛡️</div>
+      <div class="dot">${icon('shield', 18)}</div>
       <div>
         <div style="font-weight:800; margin-bottom: 4px;">Stay Compliant</div>
         <div>All tools are designed to help you track and manage your OPT requirements. Always consult with your DSO for official guidance.</div>
@@ -148,7 +149,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   // Set initial icon based on current theme
   const { theme } = await chrome.storage.sync.get('theme');
   if (themeIcon) {
-    themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    themeIcon.innerHTML = themeToggleIcon(theme === 'dark');
   }
 
   if (themeBtn) {
@@ -159,11 +160,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       if (isDarkMode) {
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
-        if (themeIcon) themeIcon.textContent = '🌙';
+        if (themeIcon) themeIcon.innerHTML = themeToggleIcon(false);
       } else {
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
-        if (themeIcon) themeIcon.textContent = '☀️';
+        if (themeIcon) themeIcon.innerHTML = themeToggleIcon(true);
       }
     });
   }

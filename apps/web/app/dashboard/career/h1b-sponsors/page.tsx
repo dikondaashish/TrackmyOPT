@@ -135,7 +135,7 @@ export default function H1BSponsorsPage() {
         // Show simplified Toast
         const toast = document.createElement("div");
         toast.className = "fixed bottom-5 right-5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-lg shadow-lg text-sm font-medium z-50 animate-fade-in-up";
-        toast.innerText = "Added to Job Tracker ✅";
+        toast.innerText = "Added to Job Tracker";
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     };

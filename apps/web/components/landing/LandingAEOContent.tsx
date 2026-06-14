@@ -1,5 +1,7 @@
 "use client";
 
+import { ClipboardList } from "lucide-react";
+
 /**
  * AEO (Answer Engine Optimization) Content Component
  * 
@@ -279,7 +281,8 @@ export function LandingAEOContent() {
                 {/* Key Takeaways - Summary Box for AI extraction (CORE-EEAT O02) */}
                 <div className="max-w-4xl mx-auto mb-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 rounded-2xl p-8 border border-blue-200/60 dark:border-blue-800/30">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <span className="text-xl">📋</span> Key Takeaways: OPT for F-1 Students
+                        <ClipboardList className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                        Key Takeaways: OPT for F-1 Students
                     </h3>
                     <ul className="space-y-3">
                         {keyTakeaways.map((takeaway, i) => (

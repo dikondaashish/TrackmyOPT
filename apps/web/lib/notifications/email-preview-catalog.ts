@@ -128,7 +128,7 @@ export function getAllEmailPreviews(firstName = SAMPLE_FIRST): EmailPreviewItem[
     `<h1>Ownership Transfer Notice</h1><p>Hi {{firstName}},</p><p>TrackMyOPT ownership transfer notice (admin bulk template).</p>`
   );
   const adminBreach = adminBulkHtml(
-    "🚨 Security Notice: TrackMyOPT Data Incident",
+    "Security Notice: TrackMyOPT Data Incident",
     `<h1 style="color:#DC2626;">Security Incident Notification</h1><p>Hi {{firstName}},</p><p>Security incident notice (admin bulk template).</p>`
   );
 
@@ -143,7 +143,7 @@ export function getAllEmailPreviews(firstName = SAMPLE_FIRST): EmailPreviewItem[
     {
       id: "document_expiry",
       category: "Cron",
-      subject: "⏰ Document Expiring Soon: Passport",
+      subject: "Document expiring soon: Passport",
       html: buildDocumentExpiryReminderEmail({
         filename: "passport-scan.pdf",
         expiry_date: expiry.toISOString().slice(0, 10),

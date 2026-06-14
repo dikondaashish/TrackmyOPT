@@ -3,12 +3,12 @@ import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export const metadata: Metadata = {
-    title: "Is TrackMyOPT Premium Worth It? Honest Answer for F-1 Students",
+    title: "Is TrackMyOPT Pro Worth It? Honest Answer for F-1 Students",
     description:
-        "Yes — TrackMyOPT Premium is worth it for F-1 students on OPT or STEM OPT. Automated unemployment tracking, USCIS deadline alerts, and compliance tools protect your status for $4.99/mo.",
+        "TrackMyOPT Pro adds daily reminders, unemployment alerts, and USCIS monitoring for OPT and STEM OPT students — from $4.99/mo. Free plan available.",
     keywords: [
-        "is TrackMyOPT premium worth it",
-        "TrackMyOPT premium review",
+        "is TrackMyOPT Pro worth it",
+        "TrackMyOPT Pro review",
         "OPT tracker premium",
         "TrackMyOPT pricing",
         "OPT compliance tool cost",
@@ -18,18 +18,18 @@ export const metadata: Metadata = {
         canonical: "https://www.trackmyopt.com/premium-worth-it",
     },
     openGraph: {
-        title: "Is TrackMyOPT Premium Worth It? — Honest Answer for F-1 Students",
+        title: "Is TrackMyOPT Pro Worth It? — Honest Answer for F-1 Students",
         description:
-            "TrackMyOPT Premium automates OPT unemployment day tracking, USCIS alerts, and STEM OPT compliance. Here's why 2,500+ students say it's worth it.",
+            "Daily reminders, unemployment tracking, and USCIS alerts in one place. Here's why 2,500+ students use Pro.",
         url: "https://www.trackmyopt.com/premium-worth-it",
         siteName: "TrackMyOPT",
         type: "article",
     },
     twitter: {
         card: "summary_large_image",
-        title: "Is TrackMyOPT Premium Worth It?",
+        title: "Is TrackMyOPT Pro Worth It?",
         description:
-            "Automated OPT compliance for $4.99/mo. One missed deadline costs infinitely more than a subscription.",
+            "Daily OPT reminders and trackers for $4.99/mo. Helps you stay organized before deadlines sneak up.",
     },
 };
 

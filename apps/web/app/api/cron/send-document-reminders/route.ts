@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
           await transporter.sendMail({
             from: getSmtpFromHeader(),
             to: userEmail,
-            subject: `⏰ Document Expiring Soon: ${subjectDocType}`,
+            subject: `Document expiring soon: ${subjectDocType}`,
             html: buildDocumentExpiryReminderEmail(reminder.document),
           });
         } catch (emailError) {

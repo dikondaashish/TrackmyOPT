@@ -28,7 +28,7 @@ export default function PricingPage() {
     const reviewSchema = {
         "@context": "https://schema.org",
         "@type": "Product",
-        name: "TrackMyOPT Premium",
+        name: "TrackMyOPT Pro",
         description:
             "Automated OPT compliance tracking, USCIS deadline alerts, and career tools for F-1 students.",
         brand: { "@type": "Organization", name: "TrackMyOPT" },
@@ -92,19 +92,18 @@ export default function PricingPage() {
                     <div className="max-w-4xl mx-auto px-4 text-center">
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-12 text-white">
                             <h2 className="text-3xl font-bold mb-4">
-                                Your OPT Status Is Too Important to Leave to Chance
+                                Track Every OPT Deadline Before It Becomes a Problem
                             </h2>
                             <p className="text-blue-100 mb-8 max-w-xl mx-auto">
-                                Join 2,500+ F-1 students who trust TrackMyOPT
-                                Premium to stay compliant, hit every deadline,
-                                and land H-1B sponsorship.
+                                Join 2,500+ F-1 students who use TrackMyOPT Pro for
+                                daily reminders, unemployment alerts, and case monitoring.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <Link
                                     href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear"
                                     className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-violet-700 rounded-xl font-semibold hover:bg-violet-50 transition-colors"
                                 >
-                                    Start Pro Free Trial{" "}
+                                    Start 7-Day Free Trial{" "}
                                     <ArrowRight className="w-4 h-4" />
                                 </Link>
                                 <Link

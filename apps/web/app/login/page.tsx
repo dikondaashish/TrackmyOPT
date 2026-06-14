@@ -429,7 +429,7 @@ function LoginPageContent() {
   const images = [
     {
       title: 'Track Your OPT Timeline',
-      description: 'Never miss a deadline with real-time countdown and alerts',
+      description: 'Track filing windows, unemployment days, and STEM deadlines with daily reminders',
       gradient: 'from-blue-500 to-cyan-500'
     },
     {

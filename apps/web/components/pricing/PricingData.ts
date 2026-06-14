@@ -15,20 +15,20 @@ export const pricingFaqs = [
         a: "Choose Pro if you want automated USCIS monitoring, unemployment alerts, document vault, and career tools — it covers most OPT and STEM OPT students. Choose Dedicated if you want monthly access to a licensed immigration attorney, hands-on application completeness review, or 24/7 priority support for a complex case (RFE, status issues, or H-1B planning).",
     },
     {
-        q: "Is TrackMyOPT premium worth it?",
-        a: "Yes — for F-1 students on OPT or STEM OPT, premium is worth it because it automates unemployment day tracking, sends deadline alerts before USCIS cutoffs, and consolidates job tracking, resume tools, and I-983 planning in one place. Missing an OPT deadline can result in status termination, making the cost of premium negligible compared to the risk.",
+        q: "Is TrackMyOPT Pro worth it?",
+        a: "For most OPT and STEM OPT students, Pro is worth it if you want daily 9:00 AM ET reminders, unemployment day tracking with alerts, and USCIS case monitoring in one place — without spreadsheets. It helps you stay organized before deadlines sneak up. Always confirm requirements with your DSO.",
     },
     {
-        q: "What does TrackMyOPT premium include that the free plan doesn't?",
-        a: "Premium adds automated deadline reminders, unemployment day alerts, daily USCIS case auto-checks, employer tracking, unlimited AI resume generation, secure document vault, STEM OPT extension planning, and priority support — all designed to eliminate manual USCIS monitoring and reduce compliance risk.",
+        q: "What does TrackMyOPT Pro include that the free plan doesn't?",
+        a: "Pro adds 9:00 AM ET email reminders for all four trackers, daily USCIS auto-checks with change alerts, Document Vault, unlimited job tracking, AI resume tools, and STEM OPT planning — designed to reduce the chance of missing deadlines.",
     },
     {
-        q: "Can I track OPT without TrackMyOPT premium?",
-        a: "You can track basic dates manually with the free plan, but premium removes the risk of human error for unemployment day counts, which directly affect your F-1 status. A single miscalculation could push you over the 90-day limit and trigger status termination.",
+        q: "Can I track OPT without TrackMyOPT Pro?",
+        a: "Yes. The free plan covers core OPT timelines, unemployment clocks, and manual case checks. Pro helps if you want automated reminders and daily USCIS monitoring so you spend less time tracking dates manually.",
     },
     {
         q: "Is TrackMyOPT free enough for OPT students?",
-        a: "The free plan is a solid starting point for basic OPT date tracking. However, OPT students managing unemployment limits, job transitions, or STEM OPT extensions benefit significantly from premium automation to stay compliant and avoid costly errors.",
+        a: "The free plan is a solid start for one OPT timeline. Students juggling unemployment limits, job changes, or STEM extensions often upgrade to Pro for daily reminders and alerts.",
     },
     {
         q: "Is TrackMyOPT really free?",
@@ -62,19 +62,19 @@ export const pricingFaqs = [
 
 export const testimonials = [
     {
-        quote: "I was manually tracking my unemployment days in a spreadsheet and almost missed the 90-day limit. Premium alerts saved my OPT status — I got a warning at day 75 and found a job in time.",
+        quote: "I tracked unemployment days in a spreadsheet and almost lost count. Pro emailed me at day 75 — I had time to log my new job and stay organized.",
         name: "Priya S.",
         role: "CS Graduate",
         university: "University of Illinois",
     },
     {
-        quote: "The daily USCIS auto-check caught my case status change the same morning it happened. Without premium, I wouldn't have known for days. Worth every penny for the peace of mind alone.",
+        quote: "Pro caught my USCIS status change the same morning it posted. I could review it and talk to my DSO right away instead of finding out days later.",
         name: "Wei L.",
         role: "ECE Graduate",
         university: "Georgia Tech",
     },
     {
-        quote: "As a STEM OPT student, tracking the 150-day unemployment limit across two employers was a nightmare. TrackMyOPT Premium handles it automatically and sends me weekly reports. I recommend it to every international student I know.",
+        quote: "On STEM OPT I had two employers to track. TrackMyOPT Pro keeps my unemployment days and reminders in one place — I recommend it to every international student I know.",
         name: "Ravi M.",
         role: "Data Science Graduate",
         university: "UC Berkeley",
@@ -84,20 +84,20 @@ export const testimonials = [
 export const whyPremiumReasons = [
     {
         icon: Bell,
-        title: "Automated Deadline Alerts",
-        description: "Daily 9AM email reminders before every USCIS cutoff. Never miss a filing window, reporting deadline, or unemployment limit.",
-        risk: "Missing a deadline can terminate your F-1 status",
+        title: "Daily OPT Deadline Reminders",
+        description: "9:00 AM ET emails before I-765 filing windows, unemployment limits, and STEM reporting dates.",
+        risk: "Missing a deadline can disrupt your OPT timeline — check with your DSO",
     },
     {
         icon: Clock,
-        title: "Automated Unemployment Tracking",
-        description: "Automatic counting of unemployment days with alerts at 60, 75, and 85 days. Tracks across job transitions and gaps.",
-        risk: "Exceeding 90 days ends your OPT authorization",
+        title: "Unemployment Day Tracking",
+        description: "Automatic counting with alerts as you approach the 90- or 150-day limits.",
+        risk: "Stay organized so you know when to log employment or talk to your DSO",
     },
     {
         icon: Shield,
         title: "Daily USCIS Case Monitoring",
-        description: "Your case status checked every morning. Email when we detect changes on scheduled daily checks — approvals, RFEs, or transfers.",
+        description: "Your case checked each morning. Email when we detect a status change on scheduled checks.",
         risk: "Delayed RFE response can result in case denial",
     },
     {

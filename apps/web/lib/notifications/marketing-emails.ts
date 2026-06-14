@@ -2,6 +2,7 @@ import {
   emailOuterClose,
   emailOuterOpen,
 } from './email-brand';
+import { emailIcon } from './email-icons';
 
 /**
  * Premium Re-engagement Email Template
@@ -122,8 +123,8 @@ export function generatePremiumReengagementEmail(firstName: string): string {
             <tr>
               <!-- Icon (Fallback-safe Unicode) -->
               <td style="width:48px;vertical-align:top;padding-right:16px;">
-                <div style="width:48px;height:48px;border-radius:12px;background:${BRAND.premiumPurple};text-align:center;line-height:48px;font-size:24px;color:#ffffff;">
-                  📄
+                <div style="width:48px;height:48px;border-radius:12px;background:${BRAND.premiumPurple};text-align:center;line-height:48px;color:#ffffff;">
+                  ${emailIcon('fileText', { size: 24, color: '#ffffff' })}
                 </div>
               </td>
               <!-- Content -->
@@ -218,7 +219,7 @@ export function generatePremiumReengagementEmail(firstName: string): string {
             href="${ctaUrl}"
             style="display:inline-block;background:${BRAND.applBlue};color:#ffffff!important;text-decoration:none;padding:14px 40px;border-radius:12px;font-weight:600;font-size:15px;"
           >
-            Upgrade to Premium
+            Upgrade to Pro
           </a>
         </div>
 
@@ -382,7 +383,7 @@ export function generateUscisTrackerEmail(firstName: string): string {
         </div>
 
         <div style="border-radius:14px;border:2px solid ${BRAND.premiumPurple};background:${BRAND.purpleAccent};padding:20px;margin-bottom:20px;">
-          <p style="margin:0 0 14px 0;font-size:15px;font-weight:700;color:${BRAND.purpleDeep};">Premium: Never miss an update</p>
+          <p style="margin:0 0 14px 0;font-size:15px;font-weight:700;color:${BRAND.purpleDeep};">Pro: Daily deadline reminders</p>
           <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:16px;">
             <tr>
               <td style="width:50%;vertical-align:top;padding-right:8px;">
@@ -425,7 +426,7 @@ export function generateUscisTrackerEmail(firstName: string): string {
           </p>
           <p style="margin:0 0 4px 0;font-size:13px;color:rgba(255,255,255,0.5);">USCIS tracking + AI resume + H-1B sponsor database + full suite</p>
           <p style="margin:0 0 18px 0;font-size:14px;color:rgba(255,255,255,0.55);">Use code&nbsp;<span style="background:${BRAND.premiumPurple};color:#ffffff;padding:3px 12px;border-radius:6px;font-weight:700;font-size:13px;">${couponCode}</span></p>
-          <a href="${ctaUrl}" style="display:inline-block;background:${BRAND.applBlue};color:#ffffff!important;text-decoration:none;padding:14px 44px;border-radius:12px;font-weight:700;font-size:15px;">Upgrade to Premium</a>
+          <a href="${ctaUrl}" style="display:inline-block;background:${BRAND.applBlue};color:#ffffff!important;text-decoration:none;padding:14px 44px;border-radius:12px;font-weight:700;font-size:15px;">Upgrade to Pro</a>
         </div>
 
         <p style="margin:0 0 16px 0;color:${BRAND.textMuted};font-size:14px;line-height:1.6;">

@@ -1,5 +1,6 @@
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
+import { icon } from '../icons.js';
 
 /**
  * Format date for card display (e.g., "13 OCTOBER 2025")
@@ -36,7 +37,7 @@ function calculateTimeRemaining(endDate: Date): {
       hours: 0,
       minutes: 0,
       seconds: 0,
-      message: "⚠️ Your OPT period has ended"
+      message: "Your OPT period has ended"
     };
   }
 
@@ -47,13 +48,13 @@ function calculateTimeRemaining(endDate: Date): {
 
   let message = '';
   if (days <= 7) {
-    message = '🚨 Urgent! Very little time left';
+    message = 'Urgent! Very little time left';
   } else if (days <= 30) {
-    message = '⚠️ Time is running short, act soon';
+    message = 'Time is running short, act soon';
   } else if (days <= 60) {
-    message = '⏰ Time is moving along, stay prepared';
+    message = 'Time is moving along, stay prepared';
   } else {
-    message = '✅ You have plenty of time remaining';
+    message = 'You have plenty of time remaining';
   }
 
   return { total, days, hours, minutes, seconds, message };
@@ -228,7 +229,7 @@ export function renderClockTracker(
   startCard.innerHTML = `
     <div style="margin-bottom: 8px; opacity: 0.9;">
       <div style="width: 36px; height: 36px; margin: 0 auto; background: rgba(255,255,255,0.25); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        🗓️
+        ${icon('calendar', 20, 'white')}
       </div>
     </div>
     <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${startFormatted.day}</div>
@@ -251,7 +252,7 @@ export function renderClockTracker(
   presentCard.innerHTML = `
     <div style="margin-bottom: 8px; opacity: 0.9;">
       <div style="width: 36px; height: 36px; margin: 0 auto; background: rgba(255,255,255,0.25); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        🗓️
+        ${icon('calendar', 20, 'white')}
       </div>
     </div>
     <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${todayFormatted.day}</div>
@@ -274,7 +275,7 @@ export function renderClockTracker(
   endCard.innerHTML = `
     <div style="margin-bottom: 8px; opacity: 0.9;">
       <div style="width: 36px; height: 36px; margin: 0 auto; background: rgba(255,255,255,0.25); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        🗓️
+        ${icon('calendar', 20, 'white')}
       </div>
     </div>
     <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${endFormatted.day}</div>
@@ -340,14 +341,14 @@ export function renderClockTracker(
 
   remindersCard.innerHTML = `
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-      <div style="font-size: 22px;">📧</div>
+      <div style="display: flex; justify-content: center; margin-bottom: 8px;">${icon('mail', 22, 'white')}</div>
       <div style="font-weight: 800; font-size: 16px;">Daily Reminders (9:00 AM ET)</div>
     </div>
     <div style="font-size: 12px; opacity: 0.95; margin-bottom: 14px; line-height: 1.5;">
       We'll show a Chrome notification every morning. If you enter an email and connect the mailer, we'll also email you.
     </div>
     <div id="premium-content" style="text-align: center; padding: 20px 10px;">
-      <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.95;">🔒 Unlock Daily Email Reminders</div>
+      <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.95; display: flex; align-items: center; justify-content: center; gap: 6px;">${icon('lock', 14, 'white')} Unlock Daily Email Reminders</div>
       <div style="font-size: 12px; margin-bottom: 14px; opacity: 0.9;">Get daily email notifications with Pro ($4.99/mo)</div>
       <button id="upgrade-btn" style="
         width: 100%;
@@ -542,7 +543,7 @@ export function renderClockTracker(
             gap: 6px;
             font-family: inherit;
           ">
-            <span style="font-size: 16px;">🔴</span>
+            ${icon('alertTriangle', 16, '#dc2626')}
             <span>Stop Reminders</span>
           </button>
         ` : ''}
@@ -588,13 +589,13 @@ export function renderClockTracker(
           chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
-            title: '✅ Email Saved!',
+            title: 'Email Saved!',
             message: `Daily reminders will be sent to ${email} at 9:00 AM ET`
           });
 
           // Change button to checkmark
           if (saveEmailBtn) {
-            saveEmailBtn.innerHTML = '✅';
+            saveEmailBtn.innerHTML = icon('checkCircle', 18, 'white');
             saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
 
             // Reload the page after 1 second to show "Stop Reminders" button

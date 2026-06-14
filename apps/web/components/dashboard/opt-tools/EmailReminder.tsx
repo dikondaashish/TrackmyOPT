@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Mail, Bell, Crown, Check, BellOff, Loader2, CheckCircle2, Pencil, Clock } from "lucide-react";
+import { Mail, Bell, Check, BellOff, Loader2, CheckCircle2, Pencil, Clock, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { OPT_TOOL_ICONS_BY_SLUG } from "@/lib/opt-tool-icons";
+import {
+  PRODUCT_CTAS,
+  REMINDER_MESSAGING,
+} from "@/lib/messaging/product-copy";
 
 interface EmailReminderProps {
   toolType: 'opt-apply' | 'opt-clock' | 'stem-apply' | 'stem-clock';
@@ -25,6 +30,13 @@ const TOOL_LABELS: Record<string, string> = {
   'stem-clock': 'STEM Clock Tracker',
 };
 
+const TOOL_ALERT_EXAMPLES: Record<string, string> = {
+  'opt-apply': 'I-765 filing window closes in 14 days',
+  'opt-clock': '28 unemployment days left on OPT',
+  'stem-apply': 'STEM extension deadline in 21 days',
+  'stem-clock': 'STEM unemployment days approaching limit',
+};
+
 const TOOL_SLUGS: Record<string, keyof typeof OPT_TOOL_ICONS_BY_SLUG> = {
   'opt-apply': 'opt-apply',
   'opt-clock': 'opt-clock',
@@ -39,6 +51,8 @@ const TOOL_COLORS: Record<string, string> = {
   'stem-clock': 'from-purple-500 to-violet-600',
 };
 
+const PRO_CHECKOUT = "/premium/checkout?planId=pro&interval=year";
+
 export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailReminderProps) {
   const [email, setEmail] = useState("");
   const [savedEmail, setSavedEmail] = useState<string | null>(null);
@@ -48,6 +62,7 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
 
   const gradient = TOOL_COLORS[toolType];
   const label = TOOL_LABELS[toolType];
+  const alertExample = TOOL_ALERT_EXAMPLES[toolType];
   const toolSlug = TOOL_SLUGS[toolType];
   const ToolIcon = OPT_TOOL_ICONS_BY_SLUG[toolSlug];
   const apiKey = TOOL_API_KEYS[toolType];
@@ -128,65 +143,85 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
     );
   }
 
-  // Non-premium users see upgrade prompt
   if (!isPremium) {
     return (
-      <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800 p-6">
-        <div className="flex items-start gap-4 mb-5">
-          <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-            <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
-              Daily Reminders (9:00 AM ET)
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Get daily Chrome notifications and email reminders for your {label.toLowerCase()}.
-            </p>
+      <div className="overflow-hidden rounded-2xl border border-purple-200/80 dark:border-purple-800/60">
+        <div className={`bg-gradient-to-br px-5 py-5 text-white ${gradient}`}>
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/20">
+              <Bell className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-white/80">Pro</p>
+              <h3 className="text-lg font-bold">{REMINDER_MESSAGING.toolUpsellHeadline}</h3>
+              <p className="mt-1 text-sm text-white/90">{REMINDER_MESSAGING.toolUpsellSubhead}</p>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className={`p-4 rounded-xl bg-gradient-to-br ${gradient} text-white text-center`}>
-            <ToolIcon className="w-6 h-6" />
-            <p className="text-sm font-medium mt-1">{label}</p>
+        <div className="space-y-4 bg-gradient-to-b from-purple-50/50 to-white p-5 dark:from-purple-950/20 dark:to-gray-950">
+          <div className={`rounded-xl border border-gray-200/80 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50`}>
+            <div className="flex gap-3">
+              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white ${gradient}`}>
+                <ToolIcon className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{label}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{alertExample}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-purple-200/80 bg-white/90 p-4 dark:border-purple-800/60 dark:bg-gray-950/80">
+            <p className="text-xs font-medium text-muted-foreground">Sample · 9:00 AM ET</p>
+            <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+              {REMINDER_MESSAGING.sampleEmailSubject}
+            </p>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              {REMINDER_MESSAGING.sampleEmailBody}
+            </p>
           </div>
 
           <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <li className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              Daily 9:00 AM ET notifications
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+              Daily 9:00 AM ET email for this tracker
             </li>
             <li className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              Chrome notifications + email
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+              Browser + inbox alerts
             </li>
             <li className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              Deadline & status alerts
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              Never miss important dates
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+              Customize reminders per tracker on Pro
             </li>
           </ul>
 
-          <button
-            onClick={onUpgradeClick}
-            className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors flex items-center justify-center gap-2"
-          >
-            <Crown className="w-4 h-4" />
-            Upgrade to Premium
-          </button>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link
+              href={PRO_CHECKOUT}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-purple-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-purple-700"
+            >
+              {PRODUCT_CTAS.startTrial}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            {onUpgradeClick && (
+              <button
+                type="button"
+                onClick={onUpgradeClick}
+                className="flex-1 rounded-xl border border-purple-200 py-3 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-50 dark:border-purple-800 dark:text-purple-300 dark:hover:bg-purple-950/40"
+              >
+                {PRODUCT_CTAS.comparePlans}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
   }
 
-  // Premium users - matching OptDatesSection style
   return (
     <div className={`rounded-2xl bg-gradient-to-br ${gradient} p-5 shadow-lg text-white`}>
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-4 sm:gap-0">
         <div className="flex items-center gap-3">
           <ToolIcon className="w-7 h-7" />
@@ -199,7 +234,6 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
           </div>
         </div>
 
-        {/* Status Badge */}
         {savedEmail ? (
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/30 backdrop-blur-sm text-white text-xs font-semibold shadow-sm self-start sm:self-auto">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
@@ -240,7 +274,6 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
           </div>
         </div>
       ) : (
-        /* Email display + Action buttons */
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 border-t border-white/15 gap-4 sm:gap-0">
           <div className="flex items-center gap-2">
             <Mail className="w-5 h-5 opacity-80" />
@@ -249,7 +282,6 @@ export function EmailReminder({ toolType, isPremium, onUpgradeClick }: EmailRemi
             </span>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex items-center gap-2 self-start sm:self-auto">
             {savedEmail && (
               <button

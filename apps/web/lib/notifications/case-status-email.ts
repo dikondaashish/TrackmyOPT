@@ -59,4 +59,4 @@ ${emailBodySectionClose()}`,
 }
 
 export const CASE_STATUS_CHANGE_SUBJECT_PREFIX =
-  "🔔 Your USCIS Case Status Has Changed - ";
+  "TrackMyOPT — USCIS case status update — ";

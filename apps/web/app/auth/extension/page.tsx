@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { AlertTriangle, Lightbulb } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { LoadingScreen } from '@/components/ui/loading-screen';
 
@@ -71,7 +72,9 @@ function ExtensionAuthContent() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background p-4">
         <div className="bg-white dark:bg-card rounded-2xl shadow-xl p-8 max-w-md w-full">
           <div className="text-center">
-            <div className="text-6xl mb-4">⚠️</div>
+            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <AlertTriangle className="w-7 h-7 text-amber-600 dark:text-amber-400" />
+            </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Invalid Login Link</h1>
             <p className="text-gray-600 dark:text-muted-foreground mb-4">
               This authentication page must be accessed from the OPT Hub extension.
@@ -504,8 +507,9 @@ function ExtensionAuthContent() {
                     </div>
 
                     <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-xs text-blue-900">
-                        💡 You can edit these dates later in the dashboard
+                      <p className="text-xs text-blue-900 flex items-start gap-1.5">
+                        <Lightbulb className="w-3.5 h-3.5 mt-0.5 shrink-0 text-blue-700" />
+                        <span>You can edit these dates later in the dashboard</span>
                       </p>
                     </div>
                   </div>

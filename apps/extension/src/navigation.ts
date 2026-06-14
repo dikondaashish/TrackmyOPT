@@ -3,6 +3,7 @@
  */
 
 import { performExtensionSignOut } from './signOut';
+import { icon, themeToggleIcon } from './icons';
 
 type Page = 'home' | 'opt-apply' | 'stem-apply' | 'clock' | 'opt-countdown' | 'stem-countdown' | 'clock-tracker' | 'stem-clock' | 'stem-clock-tracker';
 
@@ -71,7 +72,7 @@ export function renderPageHeader(root: HTMLElement, title: string, subtitle: str
       </div>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn-page" title="Toggle theme" aria-label="Toggle theme">
-          <span id="theme-icon-page">🌙</span>
+          <span id="theme-icon-page">${icon('moon', 18)}</span>
         </button>
         <button class="logout-btn" id="logout-btn-page" title="Sign out" aria-label="Sign out">
           <span>→</span>
@@ -91,7 +92,7 @@ export function renderPageHeader(root: HTMLElement, title: string, subtitle: str
 export function renderComingSoon(root: HTMLElement, message: string): void {
   const noticeHTML = `
     <div class="notice" style="margin-top:12px;">
-      <div class="dot">🛠️</div>
+      <div class="dot">${icon('wrench', 18)}</div>
       <div>
         <div style="font-weight:800; margin-bottom: 4px;">Coming soon</div>
         <div>${message}</div>
@@ -121,7 +122,7 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
   // Set initial icon based on current theme
   const { theme } = await chrome.storage.sync.get('theme');
   if (themeIconPage) {
-    themeIconPage.textContent = theme === 'dark' ? '☀️' : '🌙';
+    themeIconPage.innerHTML = themeToggleIcon(theme === 'dark');
   }
   
   if (themeBtn) {
@@ -132,11 +133,11 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
       if (isDarkMode) {
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
-        if (themeIconPage) themeIconPage.textContent = '🌙';
+        if (themeIconPage) themeIconPage.innerHTML = themeToggleIcon(false);
       } else {
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
-        if (themeIconPage) themeIconPage.textContent = '☀️';
+        if (themeIconPage) themeIconPage.innerHTML = themeToggleIcon(true);
       }
     });
   }

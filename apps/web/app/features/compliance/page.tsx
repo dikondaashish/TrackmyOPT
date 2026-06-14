@@ -147,8 +147,9 @@ export default function CompliancePage() {
                                         </div>
                                         <div className="h-2 w-full bg-gray-200 dark:bg-zinc-700 rounded mb-2" />
                                         <div className="h-2 w-3/4 bg-gray-200 dark:bg-zinc-700 rounded mb-4" />
-                                        <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-3 py-2 rounded text-sm font-medium border border-red-100 dark:border-red-900/30">
-                                            ⚠️ Action Required: 10 Days Remain
+                                        <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-3 py-2 rounded text-sm font-medium border border-red-100 dark:border-red-900/30 flex items-center gap-2">
+                                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                                            Action Required: 10 Days Remain
                                         </div>
                                     </div>
                                     {/* Mock SMS Alert */}

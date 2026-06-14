@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, Clock, Briefcase, GraduationCap } from "lucide-react";
+import { Calendar, Clock, Briefcase, GraduationCap, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/optCalculations";
 import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
@@ -384,8 +384,9 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
             </div>
           </div>
           {metrics.exceededInitialOptCap && (
-            <p className="text-xs text-red-700 dark:text-red-400" role="alert">
-              ⚠️ Initial OPT unemployment exceeded 90 days. STEM approval does not erase this — contact your DSO.
+            <p className="text-xs text-red-700 dark:text-red-400 flex items-start gap-1.5" role="alert">
+              <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+              <span>Initial OPT unemployment exceeded 90 days. STEM approval does not erase this — contact your DSO.</span>
             </p>
           )}
           {!metrics.exceededInitialOptCap && (

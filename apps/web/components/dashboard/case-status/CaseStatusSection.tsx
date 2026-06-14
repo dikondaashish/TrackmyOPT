@@ -21,6 +21,10 @@ import {
   CHECKOUT_UPSELL_TRIGGER,
 } from "@/lib/case-status/free-change-wedge";
 import { captureUpgradePromptShown } from "@/lib/posthog-client";
+import {
+  CASE_STATUS_MESSAGING,
+  PRODUCT_CTAS,
+} from "@/lib/messaging/product-copy";
 import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import {
   normalizeStatusHistory,
@@ -696,7 +700,7 @@ export function CaseStatusSection() {
                         onClick={() => setShowPricingModal(true)}
                         className="text-purple-600 dark:text-purple-400 hover:underline"
                       >
-                        Upgrade for auto-checks
+                        {CASE_STATUS_MESSAGING.upgradeForAutoChecks}
                       </button>
                     </p>
                   )}
@@ -778,23 +782,23 @@ export function CaseStatusSection() {
                 ) : (
                   <>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                      Premium Feature: Instant Notifications
+                      {CASE_STATUS_MESSAGING.proFeatureTitle}
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      Get notified via email the moment your case status changes. Never miss an important update.
+                      {CASE_STATUS_MESSAGING.proFeatureBody}
                     </p>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Instant email notifications
+                        Email when USCIS posts a new status
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Automatic daily status checks
+                        Daily automatic status checks (Pro)
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Detailed status history
+                        Full status history in one place
                       </li>
                     </ul>
                     <Button
@@ -802,7 +806,7 @@ export function CaseStatusSection() {
                       className="bg-purple-600 hover:bg-purple-700 text-white"
                     >
                       <Crown className="w-4 h-4 mr-2" />
-                      Upgrade to Premium
+                      {PRODUCT_CTAS.upgradeToPro}
                     </Button>
                   </>
                 )}
@@ -1014,11 +1018,11 @@ export function CaseStatusSection() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-600 dark:text-blue-400 font-medium">2.</span>
-              We automatically check your case status with USCIS daily
+              Pro members get daily automatic USCIS checks on saved cases
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-600 dark:text-blue-400 font-medium">3.</span>
-              Get notified via email when your status changes (Premium)
+              {CASE_STATUS_MESSAGING.howItWorksNotify}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-600 dark:text-blue-400 font-medium">4.</span>

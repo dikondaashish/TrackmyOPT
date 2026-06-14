@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Briefcase } from "lucide-react";
+import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Briefcase, Banknote, ClipboardList } from "lucide-react";
 import { useState } from "react";
 
 // Fuel deal popup content
@@ -297,8 +297,9 @@ export default function OffersPage() {
                                                 {deal.discount}
                                             </span>
                                             {deal.maxSavings && (
-                                                <span className="text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full mt-1">
-                                                    💰 {deal.maxSavings}
+                                                <span className="text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full mt-1 inline-flex items-center gap-1">
+                                                    <Banknote className="w-3 h-3 shrink-0" />
+                                                    {deal.maxSavings}
                                                 </span>
                                             )}
                                         </div>
@@ -446,7 +447,10 @@ export default function OffersPage() {
                                 </div>
                                 {selectedFuelDeal.maxSavings && (
                                     <div className="px-4 py-2 bg-white/30 rounded-full border border-white/40">
-                                        <span className="text-lg font-semibold">💰 {selectedFuelDeal.maxSavings}</span>
+                                        <span className="text-lg font-semibold inline-flex items-center gap-1.5">
+                                            <Banknote className="w-4 h-4 shrink-0" />
+                                            {selectedFuelDeal.maxSavings}
+                                        </span>
                                     </div>
                                 )}
                             </div>
@@ -490,7 +494,8 @@ export default function OffersPage() {
                                     className="w-full mb-4 px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all text-left flex items-center justify-between group"
                                 >
                                     <span className="text-sm font-medium text-blue-700 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-blue-300 flex items-center gap-2">
-                                        📋 Steps to Get This Offer
+                                        <ClipboardList className="w-4 h-4 shrink-0" />
+                                        Steps to Get This Offer
                                     </span>
                                     <span className="text-blue-400 dark:text-blue-500 group-hover:text-blue-600 dark:group-hover:text-blue-300">
                                         →
@@ -515,7 +520,8 @@ export default function OffersPage() {
                                                 <X className="w-4 h-4" />
                                             </button>
                                             <h3 className="text-lg font-bold flex items-center gap-2">
-                                                📋 Steps to Get This Offer
+                                                <ClipboardList className="w-5 h-5 shrink-0" />
+                                                Steps to Get This Offer
                                             </h3>
                                         </div>
 
