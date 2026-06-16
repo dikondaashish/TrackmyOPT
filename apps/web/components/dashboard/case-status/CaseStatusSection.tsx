@@ -827,7 +827,6 @@ export function CaseStatusSection() {
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           You will be notified when we detect a case status change.
                         </p>
-                        <UscisCaseStatusDisclaimer variant="compact" showAlertNote className="mt-3" />
                       </div>
                     )}
                   </>
