@@ -59,6 +59,8 @@ import { MonitorHealthStrip } from "@/components/dashboard/case-status/redesign/
 import { AnalyticsTabs } from "@/components/dashboard/case-status/redesign/AnalyticsTabs";
 import { ToolsAccordion } from "@/components/dashboard/case-status/redesign/ToolsAccordion";
 import { SmartNextSteps } from "@/components/dashboard/case-status/redesign/SmartNextSteps";
+import { OptJourneySection } from "@/components/dashboard/case-status/redesign/OptJourneySection";
+import { CaseInfoFooter } from "@/components/dashboard/case-status/redesign/CaseInfoFooter";
 
 interface CaseStatus {
   id: string;
@@ -832,10 +834,38 @@ export function CaseStatusSection() {
               receiptNumber={caseStatus.receipt_number}
               isPremium={isPremium}
               onUpgrade={() => setShowPricingModal(true)}
+              daysSinceFiled={
+                caseStatus.received_date
+                  ? Math.floor((Date.now() - new Date(caseStatus.received_date).getTime()) / 86_400_000)
+                  : 0
+              }
             />
           </Card>
 
-          {/* ── 6. CASE TIMELINE + CASE INFORMATION (original layout) ── */}
+          {/* ── 6. OPT JOURNEY SECTION ── */}
+          <OptJourneySection
+            optFiledDate={caseStatus.received_date ?? null}
+            eadProjected={
+              caseStatus.received_date
+                ? (() => {
+                    const d = new Date(caseStatus.received_date);
+                    d.setDate(d.getDate() + 115);
+                    return d.toISOString();
+                  })()
+                : null
+            }
+            stemWindowOpens={
+              caseStatus.received_date
+                ? (() => {
+                    const d = new Date(caseStatus.received_date);
+                    d.setDate(d.getDate() + 115 + 365 - 90);
+                    return d.toISOString();
+                  })()
+                : null
+            }
+          />
+
+          {/* ── 7. CASE TIMELINE + CASE INFORMATION (original layout) ── */}
           {caseStatus.status_history && caseStatus.status_history.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
               <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
@@ -995,7 +1025,11 @@ export function CaseStatusSection() {
             </Card>
           )}
 
-          <UscisCaseStatusDisclaimer className="mt-4" />
+          {/* ── 10. CASE INFO FOOTER (collapsed) ── */}
+          <CaseInfoFooter caseStatus={caseStatus} />
+
+          {/* ── 11. DISCLAIMER (single instance) ── */}
+          <UscisCaseStatusDisclaimer className="mt-2" />
         </>
       )}
 

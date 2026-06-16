@@ -50,6 +50,22 @@ function daysSince(dateString: string | null | undefined): number {
   } catch { return 0; }
 }
 
+function countBusinessDaysOverdue(deadlineIso: string | null): number {
+  if (!deadlineIso) return 0;
+  const deadline = new Date(deadlineIso);
+  const now = new Date();
+  if (now <= deadline) return 0;
+  let count = 0;
+  const cur = new Date(deadline);
+  cur.setDate(cur.getDate() + 1);
+  while (cur <= now) {
+    const day = cur.getDay();
+    if (day !== 0 && day !== 6) count++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+
 interface CaseHeroCardProps {
   caseStatus: {
     id: string;
@@ -88,7 +104,8 @@ export function CaseHeroCard({
   const serviceCenter = getServiceCenterLabel(caseStatus.receipt_number);
   const lastChangeDate = caseStatus.last_status_change_at
     ? formatDateShort(caseStatus.last_status_change_at)
-    : "—";
+    : "Not recorded";
+  const ppBusinessDaysOverdue = countBusinessDaysOverdue(ppDeadlineDate ?? null);
   const ppActive = Boolean(caseStatus.pp_start_date);
   const isUrgent = caseState === "urgent";
 
@@ -151,7 +168,7 @@ export function CaseHeroCard({
           <StatCard
             value={`${ppOverdueDays}d`}
             label="PP overdue"
-            sublabel="Deadline exceeded"
+            sublabel={ppBusinessDaysOverdue > 0 ? `${ppBusinessDaysOverdue} business days` : "Deadline exceeded"}
             urgent
           />
         ) : ppDeadlineDate ? (

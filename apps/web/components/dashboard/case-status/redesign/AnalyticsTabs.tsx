@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { BarChart3, Users2, Calendar, Search } from "lucide-react";
+import { BarChart3, Users2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CaseProcessingBenchmarks } from "@/components/dashboard/case-status/CaseProcessingBenchmarks";
 import { NearbyCasesCohort } from "@/components/dashboard/case-status/NearbyCasesCohort";
+import { PredictionPanel } from "@/components/dashboard/case-status/redesign/PredictionPanel";
 
 type TabId = "prediction" | "nearby" | "heatmap";
 
@@ -13,6 +14,17 @@ interface AnalyticsTabsProps {
   isPremium: boolean | null;
   onUpgrade: () => void;
   cohortSize?: number;
+  daysSinceFiled?: number;
+  prediction?: {
+    cohortSize: number;
+    approvalRate: number;
+    medianDays: number;
+    estimatedDecisionRange: [string, string];
+    distribution: { label: string; count: number }[];
+    cohortPosition: { behind: number; ahead: number; percentile: number };
+    fastestDays?: number;
+    approvalsLast24h?: number;
+  };
 }
 
 interface Tab {
@@ -26,22 +38,6 @@ const TABS: Tab[] = [
   { id: "nearby",     label: "Nearby Cases",   icon: <Users2 className="w-3.5 h-3.5" /> },
   { id: "heatmap",    label: "Heatmap",         icon: <Calendar className="w-3.5 h-3.5" /> },
 ];
-
-const MIN_COHORT = 20;
-
-function DataGate({ cohortSize = 0 }: { cohortSize: number }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
-      <Search className="w-8 h-8 text-muted-foreground" />
-      <p className="font-semibold text-foreground">Gathering data…</p>
-      <p className="text-sm text-muted-foreground max-w-xs">
-        Not enough nearby I-765 cases yet for reliable predictions.
-        We&apos;ll show estimates once we have {MIN_COHORT}+ similar cases.
-        {cohortSize > 0 && <span className="block mt-1 font-medium">{cohortSize} found so far</span>}
-      </p>
-    </div>
-  );
-}
 
 function ProcessingHeatmap() {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
@@ -107,9 +103,8 @@ function ProcessingHeatmap() {
   );
 }
 
-export function AnalyticsTabs({ receiptNumber, isPremium, onUpgrade, cohortSize = 0 }: AnalyticsTabsProps) {
+export function AnalyticsTabs({ receiptNumber, isPremium, onUpgrade, cohortSize = 0, daysSinceFiled = 0, prediction }: AnalyticsTabsProps) {
   const [active, setActive] = useState<TabId>("prediction");
-  const belowThreshold = cohortSize > 0 && cohortSize < MIN_COHORT;
 
   return (
     <div>
@@ -135,21 +130,26 @@ export function AnalyticsTabs({ receiptNumber, isPremium, onUpgrade, cohortSize 
       {/* Tab panels */}
       <div className="min-h-[200px]">
         {active === "prediction" && (
-          belowThreshold
-            ? <DataGate cohortSize={cohortSize} />
-            : <CaseProcessingBenchmarks />
+          <div className="space-y-5">
+            {/* Rich prediction summary (data-gated) */}
+            <PredictionPanel
+              daysSinceFiled={daysSinceFiled}
+              prediction={prediction}
+            />
+            {/* Community benchmarks below */}
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Community Reports</p>
+              <CaseProcessingBenchmarks />
+            </div>
+          </div>
         )}
 
         {active === "nearby" && (
-          belowThreshold
-            ? <DataGate cohortSize={cohortSize} />
-            : (
-              <NearbyCasesCohort
-                receiptNumber={receiptNumber}
-                isPremium={isPremium}
-                onUpgrade={onUpgrade}
-              />
-            )
+          <NearbyCasesCohort
+            receiptNumber={receiptNumber}
+            isPremium={isPremium}
+            onUpgrade={onUpgrade}
+          />
         )}
 
         {active === "heatmap" && <ProcessingHeatmap />}
