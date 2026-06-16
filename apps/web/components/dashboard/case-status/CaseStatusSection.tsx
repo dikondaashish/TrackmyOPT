@@ -5,6 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PricingModal } from "@/components/pricing/PricingModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { CaseProcessingBenchmarks } from "@/components/dashboard/case-status/CaseProcessingBenchmarks";
 import { NearbyCasesCohort } from "@/components/dashboard/case-status/NearbyCasesCohort";
 import { CaseListSwitcher } from "@/components/dashboard/case-status/CaseListSwitcher";
@@ -109,7 +119,12 @@ export function CaseStatusSection() {
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [emailSaving, setEmailSaving] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
-  const [isRemoving, setIsRemoving] = useState(false);
+  const [isRemoving, setIsRemoving] = useState<string | null>(null);
+  const [casePendingDelete, setCasePendingDelete] = useState<{
+    id: string;
+    receipt_number: string;
+  } | null>(null);
+  const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
   // ISS-030: explicit load error so UI can distinguish "no case" vs "couldn't load"
   const [loadError, setLoadError] = useState<string | null>(null);
   const [wedgeDismissed, setWedgeDismissed] = useState(false);
@@ -172,6 +187,12 @@ export function CaseStatusSection() {
     loadUserEmail();
      
   }, []);
+
+  useEffect(() => {
+    if (!deleteNotice) return;
+    const timer = setTimeout(() => setDeleteNotice(null), 4000);
+    return () => clearTimeout(timer);
+  }, [deleteNotice]);
 
   // ── Supabase Realtime: Instant UI updates when cron updates DB ──
   useEffect(() => {
@@ -262,7 +283,7 @@ export function CaseStatusSection() {
         if (cases.length > 0) {
           applyCasesToState(
             cases,
-            preferredId ?? selectedCaseId,
+            preferredId !== undefined ? preferredId : selectedCaseId,
             result.primaryCaseId
           );
           setLoadError(null);
@@ -426,36 +447,51 @@ export function CaseStatusSection() {
     }
   };
 
-  const handleRemove = async () => {
-    if (!caseStatus) return;
-    if (!confirm('Are you sure you want to stop tracking this case? This will remove the receipt number from your dashboard.')) {
-      return;
-    }
+  const requestDeleteCase = (caseId: string) => {
+    const target = trackedCases.find((c) => c.id === caseId);
+    if (!target) return;
+    setCasePendingDelete({
+      id: target.id,
+      receipt_number: target.receipt_number,
+    });
+  };
+
+  const confirmDeleteCase = async () => {
+    if (!casePendingDelete) return;
+    const { id: caseId, receipt_number: deletedReceipt } = casePendingDelete;
+    setCasePendingDelete(null);
+
+    const nextPreferred =
+      selectedCaseId && selectedCaseId !== caseId ? selectedCaseId : null;
 
     try {
-      setIsRemoving(true);
-      const response = await fetch(`/api/case-status?id=${encodeURIComponent(caseStatus.id)}`, {
-        method: 'DELETE',
-        credentials: 'include',
+      setIsRemoving(caseId);
+      const response = await fetch(`/api/case-status?id=${encodeURIComponent(caseId)}`, {
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (response.ok) {
-        const remaining = trackedCases.filter((c) => c.id !== caseStatus.id);
-        applyCasesToState(remaining);
-        if (remaining.length === 0) {
-          setReceiptNumber("");
-        }
+        await loadCaseStatus(false, nextPreferred);
+        setDeleteNotice(`Stopped tracking ${deletedReceipt}.`);
         setError(null);
         setSuccess(false);
+        setIsAddingCase(false);
+        setIsEditingReceipt(false);
       } else {
         const result = await response.json();
-        setError(result.error || 'Failed to remove case.');
+        setError(result.error || "Failed to remove case.");
       }
     } catch {
-      setError('An error occurred while removing the case.');
+      setError("An error occurred while removing the case.");
     } finally {
-      setIsRemoving(false);
+      setIsRemoving(null);
     }
+  };
+
+  const handleRemove = () => {
+    if (!caseStatus) return;
+    requestDeleteCase(caseStatus.id);
   };
 
   const handleSetPrimary = async (caseId: string) => {
@@ -645,6 +681,15 @@ export function CaseStatusSection() {
         </div>
       </div>
 
+      {deleteNotice && (
+        <Card className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800" role="status">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+            <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">{deleteNotice}</p>
+          </div>
+        </Card>
+      )}
+
       {caseStatus ? (
         <>
           {trackedCases.length > 0 && (
@@ -654,6 +699,8 @@ export function CaseStatusSection() {
               onSelect={selectCase}
               onSetPrimary={handleSetPrimary}
               onAddCase={handleStartAddCase}
+              onDelete={requestDeleteCase}
+              removingCaseId={isRemoving}
               canAddMore={canAddMoreCases}
               isPremium={isPremium}
             />
@@ -769,7 +816,7 @@ export function CaseStatusSection() {
             <Button
               variant="outline"
               onClick={handleRemove}
-              disabled={isRemoving}
+              disabled={Boolean(isRemoving)}
               className="flex items-center justify-center gap-2 w-full sm:w-auto text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-200 dark:border-red-900"
             >
               <Trash2 className="w-4 h-4" />
@@ -1085,6 +1132,46 @@ export function CaseStatusSection() {
       )}
 
       <UscisCaseStatusDisclaimer className="mt-8" />
+
+      <AlertDialog
+        open={casePendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !isRemoving) setCasePendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Stop tracking this case?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {casePendingDelete ? (
+                <>
+                  Remove{" "}
+                  <span className="font-mono font-semibold text-foreground">
+                    {casePendingDelete.receipt_number}
+                  </span>{" "}
+                  from your dashboard. You can add it again later with the same receipt
+                  number.
+                </>
+              ) : (
+                "This will remove the case from your dashboard."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={Boolean(isRemoving)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              disabled={Boolean(isRemoving)}
+              onClick={(e) => {
+                e.preventDefault();
+                void confirmDeleteCase();
+              }}
+            >
+              {isRemoving ? "Removing…" : "Stop tracking"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <PricingModal
         open={showPricingModal}

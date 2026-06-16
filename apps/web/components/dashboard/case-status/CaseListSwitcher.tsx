@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Plus, Star } from "lucide-react";
+import { Plus, Star, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getServiceCenterLabel } from "@/lib/case-status/case-status-display";
 import { getCurrentStatusDetail } from "@/lib/case-status/current-status-detail";
@@ -23,11 +23,12 @@ type CaseListSwitcherProps = {
   onSelect: (id: string) => void;
   onSetPrimary: (id: string) => void;
   onAddCase: () => void;
+  onDelete: (caseId: string) => void;
+  removingCaseId?: string | null;
   canAddMore: boolean;
   isPremium: boolean | null;
 };
 
-/* ── Status category → dot color ─────────────────────────────── */
 function getStatusDotColor(status: string | null): string {
   const s = (status ?? "").toLowerCase();
   if (s.includes("approved") || s.includes("produced")) return "bg-emerald-500";
@@ -43,9 +44,19 @@ export function CaseListSwitcher({
   onSelect,
   onSetPrimary,
   onAddCase,
+  onDelete,
+  removingCaseId = null,
   canAddMore,
 }: CaseListSwitcherProps) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const validIds = new Set(cases.map((c) => c.id));
+    setExpandedIds((prev) => {
+      const next = new Set([...prev].filter((id) => validIds.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [cases]);
 
   if (cases.length === 0) return null;
 
@@ -80,9 +91,11 @@ export function CaseListSwitcher({
             c.label?.trim() ||
             c.case_type ||
             getServiceCenterLabel(c.receipt_number);
-          
+
           const dotColor = getStatusDotColor(c.current_status);
           const isExpanded = expandedIds.has(c.id);
+          const isRemoving = removingCaseId === c.id;
+          const deleteDisabled = Boolean(removingCaseId);
 
           const statusDetail = getCurrentStatusDetail({
             currentStatus: c.current_status,
@@ -91,95 +104,125 @@ export function CaseListSwitcher({
           const hasDescription = Boolean(statusDetail.description);
 
           return (
-            <button
+            <div
               key={c.id}
-              type="button"
-              onClick={() => onSelect(c.id)}
               className={cn(
-                "shrink-0 min-w-[280px] max-w-[340px] text-left rounded-2xl border p-4 transition-all duration-300 relative group flex flex-col",
-                isSelected
-                  ? "border-blue-500/60 bg-blue-50/80 dark:bg-blue-950/30 ring-2 ring-blue-500/30 shadow-lg shadow-blue-500/10"
-                  : "border-border bg-card hover:border-blue-300 dark:hover:border-blue-700 hover-lift"
+                "relative shrink-0 min-w-[280px] max-w-[340px]",
+                isRemoving && "opacity-70"
               )}
             >
-              {/* Active indicator bar at top */}
-              {isSelected && (
-                <div className="absolute top-0 left-4 right-4 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" />
-              )}
-
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={cn("w-2 h-2 rounded-full shrink-0", dotColor)} />
-                    <p className="text-sm font-bold truncate">{title}</p>
-                  </div>
-                  <p className="text-xs font-mono text-muted-foreground truncate pl-4">
-                    {c.receipt_number}
-                  </p>
-                </div>
-                {c.is_primary && (
-                  <Star
-                    className="w-4 h-4 shrink-0 text-amber-500 fill-amber-500 drop-shadow-sm"
-                    aria-label="Primary case"
-                  />
+              <button
+                type="button"
+                onClick={() => onDelete(c.id)}
+                disabled={deleteDisabled}
+                className={cn(
+                  "absolute top-3 right-3 z-20 p-1.5 rounded-md border border-transparent",
+                  "text-muted-foreground hover:text-red-600 hover:bg-red-50 hover:border-red-200",
+                  "dark:hover:bg-red-950/40 dark:hover:border-red-900/50",
+                  "transition-colors disabled:opacity-40 disabled:pointer-events-none"
                 )}
-              </div>
+                aria-label={`Stop tracking ${c.receipt_number}`}
+              >
+                {isRemoving ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+              </button>
 
-              {/* Status Section */}
-              <div className="pl-4 mt-3 flex-1 flex flex-col">
-                <p className="text-xs font-bold text-foreground">
-                  {statusDetail.title}
-                </p>
-                
-                {hasDescription && (
-                  <div className="mt-1">
-                    <p
-                      className={cn(
-                        "text-[11.5px] text-muted-foreground leading-relaxed whitespace-pre-line",
-                        !isExpanded && "line-clamp-4"
-                      )}
-                    >
-                      {statusDetail.description}
+              <div
+                role="button"
+                tabIndex={isRemoving ? -1 : 0}
+                onClick={() => !isRemoving && onSelect(c.id)}
+                onKeyDown={(e) => {
+                  if (isRemoving) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelect(c.id);
+                  }
+                }}
+                aria-disabled={isRemoving}
+                className={cn(
+                  "text-left rounded-2xl border p-4 pr-11 transition-all duration-300 flex flex-col cursor-pointer",
+                  isSelected
+                    ? "border-blue-500/60 bg-blue-50/80 dark:bg-blue-950/30 ring-2 ring-blue-500/30 shadow-lg shadow-blue-500/10"
+                    : "border-border bg-card hover:border-blue-300 dark:hover:border-blue-700 hover-lift",
+                  isRemoving && "pointer-events-none"
+                )}
+              >
+                {isSelected && (
+                  <div className="absolute top-0 left-4 right-4 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" />
+                )}
+
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={cn("w-2 h-2 rounded-full shrink-0", dotColor)} />
+                      <p className="text-sm font-bold truncate">{title}</p>
+                    </div>
+                    <p className="text-xs font-mono text-muted-foreground truncate pl-4 ph-mask" data-ph-mask>
+                      {c.receipt_number}
                     </p>
-                    {(statusDetail.description?.length ?? 0) > 120 && (
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        onClick={(e) => toggleExpand(c.id, e)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            toggleExpand(c.id, e as unknown as React.MouseEvent);
-                          }
-                        }}
-                        className="text-[11.5px] text-blue-600 dark:text-blue-400 cursor-pointer font-medium hover:underline inline-flex items-center gap-0.5 mt-0.5"
-                      >
-                        {isExpanded ? "Show less" : "Show full USCIS text"}
-                      </span>
-                    )}
                   </div>
-                )}
+                  {c.is_primary && (
+                    <Star
+                      className="w-4 h-4 shrink-0 text-amber-500 fill-amber-500 drop-shadow-sm mt-0.5"
+                      aria-label="Primary case"
+                    />
+                  )}
+                </div>
 
-                {statusDetail.date && (
-                  <p className="text-[11px] text-muted-foreground/70 mt-2">
-                    {statusDetail.date}
-                  </p>
+                <div className="pl-4 mt-3 flex-1 flex flex-col">
+                  <p className="text-xs font-bold text-foreground">{statusDetail.title}</p>
+
+                  {hasDescription && (
+                    <div className="mt-1">
+                      <p
+                        className={cn(
+                          "text-[11.5px] text-muted-foreground leading-relaxed whitespace-pre-line",
+                          !isExpanded && "line-clamp-4"
+                        )}
+                      >
+                        {statusDetail.description}
+                      </p>
+                      {(statusDetail.description?.length ?? 0) > 120 && (
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => toggleExpand(c.id, e)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              toggleExpand(c.id, e as unknown as React.MouseEvent);
+                            }
+                          }}
+                          className="text-[11.5px] text-blue-600 dark:text-blue-400 cursor-pointer font-medium hover:underline inline-flex items-center gap-0.5 mt-0.5"
+                        >
+                          {isExpanded ? "Show less" : "Show full USCIS text"}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {statusDetail.date && (
+                    <p className="text-[11px] text-muted-foreground/70 mt-2">{statusDetail.date}</p>
+                  )}
+                </div>
+
+                {!c.is_primary && isSelected && (
+                  <button
+                    type="button"
+                    className="mt-3 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline pl-4 self-start"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSetPrimary(c.id);
+                    }}
+                  >
+                    Set as dashboard primary
+                  </button>
                 )}
               </div>
-
-              {!c.is_primary && isSelected && (
-                <button
-                  type="button"
-                  className="mt-3 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline pl-4 self-start"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSetPrimary(c.id);
-                  }}
-                >
-                  Set as dashboard primary
-                </button>
-              )}
-            </button>
+            </div>
           );
         })}
       </div>
