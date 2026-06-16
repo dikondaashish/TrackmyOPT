@@ -772,6 +772,102 @@ export function CaseStatusSection() {
             </Button>
           </div>
 
+          <Card className="p-6 sm:p-7 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-0 shadow-lg shadow-purple-500/5">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/20">
+                {isPremium ? <Mail className="w-6 h-6 text-white" /> : <Crown className="w-6 h-6 text-white" />}
+              </div>
+              <div className="flex-1">
+                {isPremium ? (
+                  <>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Case Status Notifications</h3>
+                      {!isEditingEmail && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditingEmail(true)}
+                          className="flex items-center gap-2"
+                        >
+                          <Edit className="w-4 h-4" />
+                          Edit
+                        </Button>
+                      )}
+                    </div>
+                    {isEditingEmail ? (
+                      <div className="space-y-3">
+                        <Input
+                          type="email"
+                          value={notificationEmail}
+                          onChange={(e) => setNotificationEmail(e.target.value)}
+                          placeholder="your.email@example.com"
+                          className="bg-white dark:bg-gray-900"
+                          aria-label="Notification email address"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handleEmailSave}
+                            size="sm"
+                            disabled={emailSaving}
+                            className="bg-purple-600 hover:bg-purple-700"
+                          >
+                            {emailSaving ? 'Saving...' : 'Save'}
+                          </Button>
+                          <Button onClick={() => setIsEditingEmail(false)} variant="outline" size="sm" disabled={emailSaving}>
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                          {notificationEmail || 'No email set'}
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          You will be notified when we detect a case status change.
+                        </p>
+                        <div className="mt-3">
+                          <WebPushEnableButton />
+                        </div>
+                        <UscisCaseStatusDisclaimer variant="compact" showAlertNote className="mt-3" />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                      {CASE_STATUS_MESSAGING.proFeatureTitle}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      {CASE_STATUS_MESSAGING.proFeatureBody}
+                    </p>
+                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        Email when USCIS posts a new status
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        Daily automatic status checks (Pro)
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        Full status history in one place
+                      </li>
+                    </ul>
+                    <Button
+                      onClick={() => setShowPricingModal(true)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      <Crown className="w-4 h-4 mr-2" />
+                      {PRODUCT_CTAS.upgradeToPro}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </Card>
+
           <CaseStatusOverview
             receiptNumber={caseStatus.receipt_number}
             currentStatus={caseStatus.current_status}
@@ -880,102 +976,6 @@ export function CaseStatusSection() {
               />
             </div>
           </div>
-
-          <Card className="p-6 sm:p-7 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-0 shadow-lg shadow-purple-500/5">
-            <div className="flex flex-col sm:flex-row items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/20">
-                {isPremium ? <Mail className="w-6 h-6 text-white" /> : <Crown className="w-6 h-6 text-white" />}
-              </div>
-              <div className="flex-1">
-                {isPremium ? (
-                  <>
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Case Status Notifications</h3>
-                      {!isEditingEmail && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsEditingEmail(true)}
-                          className="flex items-center gap-2"
-                        >
-                          <Edit className="w-4 h-4" />
-                          Edit
-                        </Button>
-                      )}
-                    </div>
-                    {isEditingEmail ? (
-                      <div className="space-y-3">
-                        <Input
-                          type="email"
-                          value={notificationEmail}
-                          onChange={(e) => setNotificationEmail(e.target.value)}
-                          placeholder="your.email@example.com"
-                          className="bg-white dark:bg-gray-900"
-                          aria-label="Notification email address"
-                        />
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={handleEmailSave}
-                            size="sm"
-                            disabled={emailSaving}
-                            className="bg-purple-600 hover:bg-purple-700"
-                          >
-                            {emailSaving ? 'Saving...' : 'Save'}
-                          </Button>
-                          <Button onClick={() => setIsEditingEmail(false)} variant="outline" size="sm" disabled={emailSaving}>
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-                          {notificationEmail || 'No email set'}
-                        </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          You will be notified when we detect a case status change.
-                        </p>
-                        <div className="mt-3">
-                          <WebPushEnableButton />
-                        </div>
-                        <UscisCaseStatusDisclaimer variant="compact" showAlertNote className="mt-3" />
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                      {CASE_STATUS_MESSAGING.proFeatureTitle}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      {CASE_STATUS_MESSAGING.proFeatureBody}
-                    </p>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Email when USCIS posts a new status
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Daily automatic status checks (Pro)
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        Full status history in one place
-                      </li>
-                    </ul>
-                    <Button
-                      onClick={() => setShowPricingModal(true)}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
-                    >
-                      <Crown className="w-4 h-4 mr-2" />
-                      {PRODUCT_CTAS.upgradeToPro}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </Card>
 
           {caseStatus.status_history && caseStatus.status_history.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
