@@ -665,6 +665,7 @@ export function CaseStatusSection() {
             receivedDate={caseStatus.received_date}
             lastCheckedAt={caseStatus.last_checked_at}
             lastStatusChangeAt={caseStatus.last_status_change_at}
+            statusHistory={caseStatus.status_history ?? []}
             statusHistoryLength={caseStatus.status_history?.length ?? 0}
             isPremium={isPremium}
             isRefreshing={isRefreshing}

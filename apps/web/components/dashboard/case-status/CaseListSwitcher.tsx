@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Plus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getServiceCenterLabel } from "@/lib/case-status/case-status-display";
+import { getCurrentStatusDetail } from "@/lib/case-status/current-status-detail";
 
 export type TrackedCaseSummary = {
   id: string;
@@ -83,8 +84,11 @@ export function CaseListSwitcher({
           const dotColor = getStatusDotColor(c.current_status);
           const isExpanded = expandedIds.has(c.id);
 
-          const latestHistory = c.status_history?.[0];
-          const hasDescription = !!latestHistory?.description;
+          const statusDetail = getCurrentStatusDetail({
+            currentStatus: c.current_status,
+            statusHistory: c.status_history ?? [],
+          });
+          const hasDescription = Boolean(statusDetail.description);
 
           return (
             <button
@@ -124,31 +128,41 @@ export function CaseListSwitcher({
               {/* Status Section */}
               <div className="pl-4 mt-3 flex-1 flex flex-col">
                 <p className="text-xs font-bold text-foreground">
-                  {c.current_status || "Pending"}
+                  {statusDetail.title}
                 </p>
                 
                 {hasDescription && (
                   <div className="mt-1">
                     <p
                       className={cn(
-                        "text-[11.5px] text-muted-foreground leading-relaxed",
-                        !isExpanded && "line-clamp-2"
+                        "text-[11.5px] text-muted-foreground leading-relaxed whitespace-pre-line",
+                        !isExpanded && "line-clamp-4"
                       )}
                     >
-                      {latestHistory.description}
+                      {statusDetail.description}
                     </p>
-                    <span
-                      onClick={(e) => toggleExpand(c.id, e)}
-                      className="text-[11.5px] text-blue-600 dark:text-blue-400 cursor-pointer font-medium hover:underline inline-flex items-center gap-0.5 mt-0.5"
-                    >
-                      {isExpanded ? "less ^" : "^ more"}
-                    </span>
+                    {(statusDetail.description?.length ?? 0) > 120 && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => toggleExpand(c.id, e)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            toggleExpand(c.id, e as unknown as React.MouseEvent);
+                          }
+                        }}
+                        className="text-[11.5px] text-blue-600 dark:text-blue-400 cursor-pointer font-medium hover:underline inline-flex items-center gap-0.5 mt-0.5"
+                      >
+                        {isExpanded ? "Show less" : "Show full USCIS text"}
+                      </span>
+                    )}
                   </div>
                 )}
 
-                {latestHistory?.date && (
-                  <p className="text-[11px] text-muted-foreground/70 mt-2 font-mono">
-                    {latestHistory.date}
+                {statusDetail.date && (
+                  <p className="text-[11px] text-muted-foreground/70 mt-2">
+                    {statusDetail.date}
                   </p>
                 )}
               </div>

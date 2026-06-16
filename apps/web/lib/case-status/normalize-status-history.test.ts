@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   normalizeStatusHistory,
   withNormalizedStatusHistory,
+  buildStatusHistoryFromUscis,
 } from "./normalize-status-history";
 
 describe("normalizeStatusHistory", () => {
@@ -31,5 +32,23 @@ describe("normalizeStatusHistory", () => {
         status_history: [null, { status: "Pending", date: "2026-03-01" }],
       }).status_history
     ).toEqual([{ status: "Pending", date: "2026-03-01" }]);
+  });
+
+  it("stores USCIS long description on the latest matching history entry", () => {
+    const history = buildStatusHistoryFromUscis(
+      "Case Was Changed To A Premium Processing Case",
+      "We changed your case, Receipt Number IOE9822487119, from a standard case to a premium-processing case. The premium-processing clock started on May 12, 2026.",
+      [
+        {
+          date: "May 12, 2026",
+          completedText: "Case Was Changed To A Premium Processing Case",
+        },
+        { date: "April 1, 2026", completedText: "Case Was Received" },
+      ]
+    );
+
+    expect(history[0]?.description).toContain("Receipt Number IOE9822487119");
+    expect(history[0]?.description).toContain("May 12, 2026");
+    expect(history[0]?.date).toBe("May 12, 2026");
   });
 });

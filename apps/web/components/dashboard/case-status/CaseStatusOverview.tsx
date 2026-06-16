@@ -13,6 +13,7 @@ import {
 } from "@/lib/case-status/case-status-display";
 import { getStatusNextSteps } from "@/lib/case-status/status-next-steps";
 import { getStatusExplainer, isPlaceholderStatus } from "@/lib/uscis/status-explainer";
+import type { CaseStatusHistoryEntry } from "@/lib/case-status/normalize-status-history";
 import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
 import {
   ChevronRight,
@@ -33,6 +34,7 @@ type CaseStatusOverviewProps = {
   receivedDate: string | null;
   lastCheckedAt: string | null;
   lastStatusChangeAt: string | null;
+  statusHistory: CaseStatusHistoryEntry[];
   statusHistoryLength: number;
   isPremium: boolean | null;
   isRefreshing: boolean;
@@ -107,6 +109,7 @@ export function CaseStatusOverview({
   receivedDate,
   lastCheckedAt,
   lastStatusChangeAt,
+  statusHistory,
   statusHistoryLength,
   isPremium,
   isRefreshing,
@@ -388,6 +391,7 @@ export function CaseStatusOverview({
           currentStatus={currentStatus}
           lastCheckedAt={lastCheckedAt}
           formatLastChecked={formatDateTime}
+          statusHistory={statusHistory}
         />
       )}
     </div>

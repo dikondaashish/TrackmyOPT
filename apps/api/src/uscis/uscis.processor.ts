@@ -5,6 +5,83 @@ import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { UscisService } from './uscis.service';
 
+type StatusHistoryEntry = { status: string; date: string; description: string };
+
+function normalizeStatusText(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function buildStatusHistoryFromUscis(
+  currentStatus: string,
+  currentDescription: string,
+  histCaseStatus: Array<{ date: string; completedText: string }>,
+): StatusHistoryEntry[] {
+  const sanitizedDescription = currentDescription.trim();
+
+  if (!histCaseStatus.length) {
+    if (!currentStatus.trim()) return [];
+    return [
+      {
+        status: currentStatus,
+        date: new Date().toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        }),
+        description: sanitizedDescription || currentStatus,
+      },
+    ];
+  }
+
+  const mapped = histCaseStatus.map((item, index) => {
+    const isLatest = index === 0;
+    const matchesCurrent =
+      item.completedText === currentStatus ||
+      normalizeStatusText(item.completedText) === normalizeStatusText(currentStatus);
+    const useFullDescription =
+      isLatest && matchesCurrent && Boolean(sanitizedDescription);
+
+    return {
+      status: item.completedText,
+      date: item.date,
+      description: useFullDescription ? sanitizedDescription : item.completedText,
+    };
+  });
+
+  const latest = mapped[0];
+  const latestMatchesCurrent =
+    latest &&
+    (latest.status === currentStatus ||
+      normalizeStatusText(latest.status) === normalizeStatusText(currentStatus));
+
+  if (currentStatus.trim() && !latestMatchesCurrent) {
+    return [
+      {
+        status: currentStatus,
+        date:
+          latest?.date ||
+          new Date().toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          }),
+        description: sanitizedDescription || currentStatus,
+      },
+      ...mapped,
+    ];
+  }
+
+  if (sanitizedDescription && mapped.length > 0) {
+    mapped[0] = {
+      ...mapped[0]!,
+      status: currentStatus || mapped[0]!.status,
+      description: sanitizedDescription,
+    };
+  }
+
+  return mapped;
+}
+
 /**
  * Final status keywords — cases in these states will never change again.
  * Skipping them avoids wasting USCIS API quota.
@@ -153,11 +230,11 @@ export class UscisProcessor {
         existingCase.current_status !== String(result.status);
 
       // ── Step 4: Transform history to match DB schema ──
-      const statusHistory = result.histCaseStatus.map((item) => ({
-        status: item.completedText,
-        date: item.date,
-        description: item.completedText,
-      }));
+      const statusHistory = buildStatusHistoryFromUscis(
+        String(result.status),
+        String(result.description),
+        result.histCaseStatus,
+      );
 
       // ── Step 5: Build change_log entry (our own changelog) ──
       const existingChangelog = (

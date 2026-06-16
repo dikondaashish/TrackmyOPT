@@ -15,11 +15,14 @@ import {
   ANALYTICS_CONSENT_CHANGE_EVENT,
 } from "@/lib/posthog-client";
 import { cn } from "@/lib/utils";
+import { getCurrentStatusDetail } from "@/lib/case-status/current-status-detail";
+import type { CaseStatusHistoryEntry } from "@/lib/case-status/normalize-status-history";
 
 type CaseStatusExplainerCardProps = {
   currentStatus: string | null | undefined;
   lastCheckedAt: string | null | undefined;
   formatLastChecked: (iso: string) => string;
+  statusHistory?: CaseStatusHistoryEntry[];
 };
 
 const TONE_STYLES = {
@@ -49,12 +52,17 @@ export function CaseStatusExplainerCard({
   currentStatus,
   lastCheckedAt,
   formatLastChecked,
+  statusHistory = [],
 }: CaseStatusExplainerCardProps) {
   const trackedKeyRef = useRef<string | null>(null);
 
   const explainer = getStatusExplainer(
     isPlaceholderStatus(currentStatus) ? null : currentStatus
   );
+  const officialDetail = getCurrentStatusDetail({
+    currentStatus,
+    statusHistory,
+  });
 
   useEffect(() => {
     if (!lastCheckedAt) return;
@@ -100,8 +108,24 @@ export function CaseStatusExplainerCard({
         </h2>
 
         <div className="mt-[14px] py-[13px] px-[15px] bg-[#F5F7FA] dark:bg-zinc-900 rounded-[13px] border border-black/5 dark:border-white/5">
-          <div className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.4px] mb-[5px]">What this means for you</div>
-          <div className="text-[13.5px] leading-[1.55] text-[#3A3A3C] dark:text-zinc-300">{explainer.meaning}</div>
+          {officialDetail.description ? (
+            <>
+              <div className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.4px] mb-[5px]">
+                Official USCIS notice
+              </div>
+              <div className="text-[13.5px] leading-[1.55] text-[#3A3A3C] dark:text-zinc-300 whitespace-pre-line">
+                {officialDetail.description}
+              </div>
+              {officialDetail.date && (
+                <p className="text-[11px] text-[#86868B] mt-3">{officialDetail.date}</p>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.4px] mb-[5px]">What this means for you</div>
+              <div className="text-[13.5px] leading-[1.55] text-[#3A3A3C] dark:text-zinc-300">{explainer.meaning}</div>
+            </>
+          )}
           
           <div className="mt-[13px] text-[11px] font-bold text-[#86868B] uppercase tracking-[0.4px] mb-[5px]">What to do next</div>
           <div className="text-[13.5px] leading-[1.55] text-[#3A3A3C] dark:text-zinc-300 font-medium">{explainer.nextStep}</div>
@@ -114,15 +138,17 @@ export function CaseStatusExplainerCard({
           </div>
         </div>
 
-        <details className="mt-[14px] group">
-          <summary className="cursor-pointer text-[12px] text-[#86868B] list-none flex items-center gap-[5px]">
-            View official USCIS text
-            <svg className="w-[13px] h-[13px] transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </summary>
-          <div className="mt-[8px] text-[12.5px] leading-[1.5] text-[#6E6E73] dark:text-zinc-400 italic py-[10px] px-[12px] bg-[#FAFAFB] dark:bg-zinc-900/50 rounded-[10px] border border-black/5 dark:border-white/5">
-            {!isPlaceholderStatus(currentStatus) ? `"${currentStatus}" — verify on USCIS.gov.` : "Status will be fetched shortly."}
-          </div>
-        </details>
+        {!isPlaceholderStatus(currentStatus) && (
+          <details className="mt-[14px] group">
+            <summary className="cursor-pointer text-[12px] text-[#86868B] list-none flex items-center gap-[5px]">
+              View status title
+              <svg className="w-[13px] h-[13px] transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </summary>
+            <div className="mt-[8px] text-[12.5px] leading-[1.5] text-[#6E6E73] dark:text-zinc-400 italic py-[10px] px-[12px] bg-[#FAFAFB] dark:bg-zinc-900/50 rounded-[10px] border border-black/5 dark:border-white/5">
+              &ldquo;{currentStatus}&rdquo; — verify on USCIS.gov.
+            </div>
+          </details>
+        )}
         
         {explainer.showUscisLink && (
           <div className="mt-[18px] pt-[14px] border-t border-black/5 dark:border-white/5">
