@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { Info, CheckCircle2, AlertTriangle, AlertCircle, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import {
   getStatusExplainer,
   isPlaceholderStatus,
@@ -24,32 +24,24 @@ type CaseStatusExplainerCardProps = {
 
 const TONE_STYLES = {
   neutral: {
-    card: "border-0 bg-gradient-to-br from-blue-50/80 to-cyan-50/60 dark:from-blue-900/20 dark:to-cyan-900/15 shadow-lg shadow-blue-500/5",
-    iconBg: "bg-blue-100 dark:bg-blue-900/40",
-    icon: "text-blue-600 dark:text-blue-400",
-    Icon: Info,
-    accentDot: "bg-blue-500",
+    accent: "text-[#0A84FF] dark:text-[#0A84FF]",
+    bg: "bg-[#0A84FF]",
+    soft: "shadow-[0_0_0_4px_rgba(10,132,255,0.2)]",
   },
   positive: {
-    card: "border-0 bg-gradient-to-br from-emerald-50/80 to-green-50/60 dark:from-emerald-900/20 dark:to-green-900/15 shadow-lg shadow-emerald-500/5",
-    iconBg: "bg-emerald-100 dark:bg-emerald-900/40",
-    icon: "text-emerald-600 dark:text-emerald-400",
-    Icon: CheckCircle2,
-    accentDot: "bg-emerald-500",
+    accent: "text-[#34C759] dark:text-[#34C759]",
+    bg: "bg-[#34C759]",
+    soft: "shadow-[0_0_0_4px_rgba(52,199,89,0.2)]",
   },
   caution: {
-    card: "border-0 bg-gradient-to-br from-amber-50/80 to-orange-50/60 dark:from-amber-900/20 dark:to-orange-900/15 shadow-lg shadow-amber-500/5",
-    iconBg: "bg-amber-100 dark:bg-amber-900/40",
-    icon: "text-amber-600 dark:text-amber-400",
-    Icon: AlertTriangle,
-    accentDot: "bg-amber-500",
+    accent: "text-[#FF9F0A] dark:text-[#FF9F0A]",
+    bg: "bg-[#FF9F0A]",
+    soft: "shadow-[0_0_0_4px_rgba(255,159,10,0.2)]",
   },
   urgent: {
-    card: "border-0 bg-gradient-to-br from-red-50/80 to-rose-50/60 dark:from-red-900/20 dark:to-rose-900/15 shadow-lg shadow-red-500/5",
-    iconBg: "bg-red-100 dark:bg-red-900/40",
-    icon: "text-red-600 dark:text-red-400",
-    Icon: AlertCircle,
-    accentDot: "bg-red-500",
+    accent: "text-[#FF3B30] dark:text-[#FF3B30]",
+    bg: "bg-[#FF3B30]",
+    soft: "shadow-[0_0_0_4px_rgba(255,59,48,0.2)]",
   },
 } as const;
 
@@ -94,55 +86,57 @@ export function CaseStatusExplainerCard({
   }
 
   const tone = TONE_STYLES[explainer.tone];
-  const ToneIcon = tone.Icon;
 
   return (
-    <Card className={cn("p-5 sm:p-7 animate-slide-in", tone.card)} role="status" aria-live="polite">
-      <div className="flex items-start gap-4">
-        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm", tone.iconBg)}>
-          <ToneIcon className={cn("w-5 h-5", tone.icon)} aria-hidden />
+    <Card className="bg-white dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-[22px] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_18px_40px_-28px_rgba(0,0,0,0.22)] overflow-hidden" role="status" aria-live="polite">
+      <div className="py-[26px] px-[28px]">
+        <div className={cn("flex items-center gap-[8px] text-[11.5px] font-bold tracking-[0.4px] uppercase", tone.accent)}>
+          <span className={cn("w-[8px] h-[8px] rounded-full", tone.bg, tone.soft)}></span>
+          Current status
         </div>
-        <div className="flex-1 min-w-0 space-y-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className={cn("w-2 h-2 rounded-full", tone.accentDot)} />
-              <h3 className="text-base font-extrabold text-foreground">{explainer.title}</h3>
-            </div>
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{explainer.meaning}</p>
-          </div>
+        
+        <h2 className="mt-[13px] mb-0 text-[27px] font-bold tracking-[-0.6px] leading-[1.15] text-[#1D1D1F] dark:text-white">
+          {explainer.title}
+        </h2>
 
-          <div className="rounded-xl bg-background/60 dark:bg-background/40 border border-border/50 px-4 py-3.5 hover-lift transition-all">
-            <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground mb-1.5">
-              What to do next
-            </p>
-            <p className="text-sm text-foreground leading-relaxed font-medium">{explainer.nextStep}</p>
-          </div>
+        <div className="mt-[14px] py-[13px] px-[15px] bg-[#F5F7FA] dark:bg-zinc-900 rounded-[13px] border border-black/5 dark:border-white/5">
+          <div className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.4px] mb-[5px]">What this means for you</div>
+          <div className="text-[13.5px] leading-[1.55] text-[#3A3A3C] dark:text-zinc-300">{explainer.meaning}</div>
+          
+          <div className="mt-[13px] text-[11px] font-bold text-[#86868B] uppercase tracking-[0.4px] mb-[5px]">What to do next</div>
+          <div className="text-[13.5px] leading-[1.55] text-[#3A3A3C] dark:text-zinc-300 font-medium">{explainer.nextStep}</div>
+        </div>
 
-          {!isPlaceholderStatus(currentStatus) && (
-            <p className="text-xs text-muted-foreground">
-              <span className="font-semibold text-foreground/80">Official USCIS status: </span>
-              {currentStatus}
-            </p>
-          )}
-
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <p className="text-xs text-muted-foreground">
-              Last checked: {formatLastChecked(lastCheckedAt)}
-            </p>
-
-            {explainer.showUscisLink && (
-              <Link
-                href={USCIS_CASE_STATUS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                View on USCIS.gov
-                <ExternalLink className="w-3.5 h-3.5" aria-hidden />
-              </Link>
-            )}
+        <div className="mt-[13px] flex items-center gap-[10px] flex-wrap">
+          <div className="flex items-center gap-[7px] text-[12.5px] text-[#3A3A3C] dark:text-zinc-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#34C759" strokeWidth="2"/><path d="M12 7.5V12l3 2" stroke="#34C759" strokeWidth="2" strokeLinecap="round"/></svg>
+            <span>Last checked: <b className="text-[#1D1D1F] dark:text-white">{formatLastChecked(lastCheckedAt)}</b></span>
           </div>
         </div>
+
+        <details className="mt-[14px] group">
+          <summary className="cursor-pointer text-[12px] text-[#86868B] list-none flex items-center gap-[5px]">
+            View official USCIS text
+            <svg className="w-[13px] h-[13px] transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </summary>
+          <div className="mt-[8px] text-[12.5px] leading-[1.5] text-[#6E6E73] dark:text-zinc-400 italic py-[10px] px-[12px] bg-[#FAFAFB] dark:bg-zinc-900/50 rounded-[10px] border border-black/5 dark:border-white/5">
+            {!isPlaceholderStatus(currentStatus) ? `"${currentStatus}" — verify on USCIS.gov.` : "Status will be fetched shortly."}
+          </div>
+        </details>
+        
+        {explainer.showUscisLink && (
+          <div className="mt-[18px] pt-[14px] border-t border-black/5 dark:border-white/5">
+            <Link
+              href={USCIS_CASE_STATUS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#0A84FF] hover:underline"
+            >
+              View on USCIS.gov
+              <ExternalLink className="w-3.5 h-3.5" aria-hidden />
+            </Link>
+          </div>
+        )}
       </div>
     </Card>
   );

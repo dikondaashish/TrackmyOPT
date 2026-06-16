@@ -11,7 +11,6 @@ import {
   FileText,
   Loader2,
   Pencil,
-  Sparkles,
 } from "lucide-react";
 import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
 import Link from "next/link";
@@ -45,13 +44,13 @@ export function CaseStatusReceiptPanel({
 }: CaseStatusReceiptPanelProps) {
   if (mode === "edit" && collapsedSummary && onExpandEdit) {
     return (
-      <Card className="p-4 border-0 shadow-md hover-lift transition-all">
+      <Card className="px-[24px] py-[22px] bg-white dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-[20px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">
+            <p className="text-[11px] font-bold uppercase tracking-[0.4px] text-[#86868B]">
               Tracked receipt
             </p>
-            <p className="font-mono text-sm font-bold ph-mask mt-1" data-ph-mask>
+            <p className="font-mono text-[15px] font-bold ph-mask mt-[6px]" data-ph-mask>
               {collapsedSummary}
             </p>
           </div>
@@ -60,9 +59,9 @@ export function CaseStatusReceiptPanel({
             variant="outline"
             size="sm"
             onClick={onExpandEdit}
-            className="w-full sm:w-auto gap-2 font-semibold"
+            className="w-full sm:w-auto gap-[8px] px-[16px] py-[10px] h-auto font-semibold bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-[11px] text-[12.5px] text-[#1D1D1F] dark:text-white"
           >
-            <Pencil className="w-4 h-4" />
+            <Pencil className="w-[14px] h-[14px]" />
             Change receipt
           </Button>
         </div>
@@ -73,37 +72,37 @@ export function CaseStatusReceiptPanel({
   const isOnboarding = mode === "onboarding";
 
   return (
-    <Card className="p-6 sm:p-7 border-0 shadow-lg">
-      <div className="flex items-start justify-between gap-3 mb-5">
+    <Card className="px-[24px] py-[22px] bg-white dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-[20px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <div className="flex items-start justify-between gap-[12px] mb-[24px]">
         <div>
-          <h2 className="text-xl font-extrabold tracking-tight">
+          <h2 className="text-[16.5px] font-bold tracking-[-0.3px] m-0 text-[#1D1D1F] dark:text-white">
             {isOnboarding ? "Add your receipt number" : "Update receipt number"}
           </h2>
           {isOnboarding && (
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-[12px] text-[#86868B] mt-[3px]">
               {CASE_STATUS_MESSAGING.subhead}
             </p>
           )}
         </div>
         {!isOnboarding && onCancelEdit && (
-          <Button type="button" variant="ghost" size="sm" onClick={onCancelEdit} className="font-semibold">
-            <ChevronUp className="w-4 h-4 mr-1" />
+          <Button type="button" variant="ghost" size="sm" onClick={onCancelEdit} className="font-semibold text-[#86868B] text-[12.5px] px-[12px]">
+            <ChevronUp className="w-[14px] h-[14px] mr-[4px]" />
             Cancel
           </Button>
         )}
       </div>
 
       {isOnboarding && (
-        <div className="mb-6 rounded-2xl border border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50/80 to-indigo-50/50 dark:from-blue-900/20 dark:to-indigo-900/15 p-5">
-          <div className="flex gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
-              <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+        <div className="mb-[24px] rounded-[14px] border border-black/5 dark:border-white/5 bg-[#FAFAFB] dark:bg-zinc-900 px-[16px] py-[15px]">
+          <div className="flex gap-[14px]">
+            <div className="w-[36px] h-[36px] rounded-[10px] bg-white dark:bg-zinc-800 border border-black/5 flex items-center justify-center shrink-0">
+              <FileText className="w-[18px] h-[18px] text-[#86868B]" />
             </div>
-            <div className="text-sm space-y-2">
-              <p className="font-bold text-foreground">Where to find it</p>
-              <ul className="text-muted-foreground space-y-2 list-disc pl-4">
+            <div className="text-[13px] space-y-[10px] pt-[2px]">
+              <p className="font-bold text-[#1D1D1F] dark:text-white">Where to find it</p>
+              <ul className="text-[#48484A] dark:text-zinc-400 space-y-[10px] list-disc pl-[16px]">
                 <li>
-                  On your <strong className="text-foreground">I-797C receipt notice</strong>{" "}
+                  On your <strong className="text-[#1D1D1F] dark:text-white font-semibold">I-797C receipt notice</strong>{" "}
                   — 13 characters at the top (e.g. IOE1234567890)
                 </li>
                 <li>
@@ -113,7 +112,7 @@ export function CaseStatusReceiptPanel({
                   Haven&apos;t filed yet?{" "}
                   <Link
                     href="/dashboard/opt-tools/opt-apply"
-                    className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                    className="text-[#0A84FF] font-semibold hover:underline"
                   >
                     Check your OPT filing window
                   </Link>
@@ -124,12 +123,12 @@ export function CaseStatusReceiptPanel({
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-[16px]">
         <div>
-          <label htmlFor="receipt-number-input" className="block text-sm font-bold mb-2">
+          <label htmlFor="receipt-number-input" className="block text-[13px] font-bold mb-[8px] text-[#1D1D1F] dark:text-white">
             USCIS Receipt Number
           </label>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-[12px]">
             <div className="relative w-full sm:flex-1">
               <Input
                 id="receipt-number-input"
@@ -137,7 +136,7 @@ export function CaseStatusReceiptPanel({
                 placeholder="e.g., IOE1234567890"
                 value={receiptNumber}
                 onChange={(e) => onReceiptChange(e.target.value.toUpperCase())}
-                className="w-full font-mono ph-mask text-base focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                className="w-full font-mono ph-mask text-[15px] h-[42px] px-[16px] rounded-[11px] border border-black/10 dark:border-white/10 focus:ring-[3px] focus:ring-[#0A84FF]/20 focus:border-[#0A84FF] transition-all bg-white dark:bg-zinc-950"
                 data-ph-mask
                 maxLength={13}
                 aria-label="Enter your USCIS receipt number"
@@ -146,7 +145,7 @@ export function CaseStatusReceiptPanel({
               />
               {/* Format hint overlay */}
               {!receiptNumber && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/50 font-mono pointer-events-none hidden sm:block">
+                <div className="absolute right-[14px] top-1/2 -translate-y-1/2 text-[11px] text-[#A1A1A6] font-mono pointer-events-none hidden sm:block">
                   XXX-XXXXXXXXXX
                 </div>
               )}
@@ -154,45 +153,44 @@ export function CaseStatusReceiptPanel({
             <Button
               onClick={onSave}
               disabled={isSaving}
-              className="w-full sm:w-auto min-w-[130px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20 font-semibold"
+              className="w-full sm:w-auto min-w-[130px] h-[42px] px-[16px] py-[10px] bg-[#0A84FF] hover:bg-[#0070E0] text-white rounded-[11px] font-bold text-[13px] border-none"
               aria-label="Save and track your receipt number"
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-[14px] h-[14px] mr-[8px] animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 mr-2" />
                   Save & Track
                 </>
               )}
             </Button>
           </div>
-          <p id="receipt-number-help" className="text-xs text-muted-foreground mt-2">
+          <p id="receipt-number-help" className="text-[12px] text-[#86868B] mt-[8px]">
             13 characters: 3-letter prefix + 10 digits
           </p>
         </div>
 
         {error && (
-          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3 animate-slide-in">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-700 dark:text-red-300 font-medium">{error}</p>
+          <div className="p-[16px] bg-[#FFF2F2] dark:bg-red-900/20 border border-[#FF3B30]/20 rounded-[12px] flex items-start gap-[12px]">
+            <AlertCircle className="w-[20px] h-[20px] text-[#FF3B30] flex-shrink-0 mt-[2px]" />
+            <p className="text-[13px] text-[#C22820] dark:text-red-300 font-medium">{error}</p>
           </div>
         )}
         {success && (
-          <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-start gap-3 animate-slide-in">
-            <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+          <div className="p-[16px] bg-[#EAF8EE] dark:bg-[#34C759]/10 border border-[#34C759]/20 rounded-[12px] flex items-start gap-[12px]">
+            <CheckCircle2 className="w-[20px] h-[20px] text-[#34C759] flex-shrink-0 mt-[2px]" />
+            <p className="text-[13px] text-[#1E9E4A] dark:text-[#34C759] font-medium">
               Receipt number saved successfully!
             </p>
           </div>
         )}
         {isPolling && (
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center gap-3 animate-slide-in">
-            <Loader2 className="w-5 h-5 animate-spin text-blue-600 dark:text-blue-400 flex-shrink-0" />
-            <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+          <div className="p-[16px] bg-[#EAF4FF] dark:bg-[#0A84FF]/10 border border-[#0A84FF]/20 rounded-[12px] flex items-center gap-[12px]">
+            <Loader2 className="w-[20px] h-[20px] animate-spin text-[#0A84FF] flex-shrink-0" />
+            <span className="text-[13px] text-[#0A6CE0] dark:text-[#0A84FF] font-medium">
               Fetching status from USCIS… This may take a few seconds.
             </span>
           </div>
@@ -200,22 +198,22 @@ export function CaseStatusReceiptPanel({
       </div>
 
       {isOnboarding && (
-        <details className="mt-6 group">
-          <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 list-none">
-            <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
+        <details className="mt-[32px] group">
+          <summary className="flex cursor-pointer items-center gap-[6px] text-[12.5px] font-semibold text-[#0A84FF] list-none">
+            <ChevronDown className="w-[14px] h-[14px] transition-transform group-open:rotate-180" />
             How tracking works
           </summary>
-          <ul className="mt-3 space-y-2.5 text-sm text-muted-foreground pl-6">
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
+          <ul className="mt-[14px] space-y-[12px] text-[13px] text-[#6E6E73] pl-[20px]">
+            <li className="flex items-start gap-[10px]">
+              <span className="w-[6px] h-[6px] rounded-full bg-[#34C759] mt-[7px] shrink-0" />
               Free: save your receipt and refresh status anytime in this dashboard
             </li>
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0" />
+            <li className="flex items-start gap-[10px]">
+              <span className="w-[6px] h-[6px] rounded-full bg-[#0A84FF] mt-[7px] shrink-0" />
               Pro: automatic daily USCIS checks + email when your status changes
             </li>
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-500 mt-2 shrink-0" />
+            <li className="flex items-start gap-[10px]">
+              <span className="w-[6px] h-[6px] rounded-full bg-[#FF9F0A] mt-[7px] shrink-0" />
               {CASE_STATUS_MESSAGING.howItWorksNotify}
             </li>
           </ul>
