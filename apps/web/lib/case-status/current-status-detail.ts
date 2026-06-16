@@ -3,6 +3,10 @@ import {
   formatUscisStatusDate,
 } from "@/lib/case-status/case-status-display";
 import type { CaseStatusHistoryEntry } from "@/lib/case-status/normalize-status-history";
+import {
+  normalizeStatusCompareText,
+  sanitizeUscisDescription,
+} from "@/lib/case-status/uscis-status-text";
 
 export type CurrentStatusDetail = {
   title: string;
@@ -24,17 +28,19 @@ export function getCurrentStatusDetail({
 
   if (latest) {
     const resolvedTitle = formatStatusLabel(currentStatus ?? latest.status, latest.status);
+    const rawDescription = latest.description?.trim() || null;
     const description =
-      latest.description &&
-      latest.description.trim() &&
-      latest.description.trim() !== latest.status
-        ? latest.description.trim()
+      rawDescription &&
+      normalizeStatusCompareText(rawDescription) !== normalizeStatusCompareText(latest.status)
+        ? sanitizeUscisDescription(rawDescription)
         : null;
 
     return {
       title: resolvedTitle,
-      description,
-      date: latest.date || formatUscisStatusDate(lastStatusChangeAt),
+      description: description || null,
+      date:
+        formatUscisStatusDate(latest.date) ??
+        formatUscisStatusDate(lastStatusChangeAt),
     };
   }
 

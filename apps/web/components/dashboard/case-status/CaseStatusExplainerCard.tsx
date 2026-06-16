@@ -112,7 +112,7 @@ export function CaseStatusExplainerCard({
         </h2>
 
         {(officialStatus.description || officialStatus.date) && (
-          <div className="mt-[14px] py-[13px] px-[15px] bg-[#FAFAFB] dark:bg-zinc-900/50 rounded-[13px] border border-black/5 dark:border-white/5">
+          <div className="mt-[14px]">
             <UscisOfficialStatusBlock
               title={officialStatus.title}
               description={officialStatus.description}

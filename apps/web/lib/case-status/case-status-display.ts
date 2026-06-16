@@ -61,14 +61,30 @@ export function formatStatusLabel(
 export function formatUscisStatusDate(value: string | null | undefined): string | null {
   if (!value?.trim()) return null;
   const trimmed = value.trim();
-  if (!/^\d{4}-\d{2}-\d{2}/.test(trimmed) && !trimmed.includes("T")) {
-    return trimmed;
+
+  const isoDateMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoDateMatch) {
+    const [, year, month, day] = isoDateMatch;
+    const parsed = new Date(Number(year), Number(month) - 1, Number(day));
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
   }
-  const parsed = new Date(trimmed);
-  if (Number.isNaN(parsed.getTime())) return trimmed;
-  return parsed.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+
+  if (trimmed.includes("T")) {
+    const parsed = new Date(trimmed);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+  }
+
+  return trimmed;
 }

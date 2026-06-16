@@ -29,7 +29,6 @@ type CaseListSwitcherProps = {
   isPremium: boolean | null;
 };
 
-/* ── Status category → dot color ─────────────────────────────── */
 function getStatusDotColor(status: string | null): string {
   const s = (status ?? "").toLowerCase();
   if (s.includes("approved") || s.includes("produced")) return "bg-emerald-500";
@@ -63,10 +62,10 @@ export function CaseListSwitcher({
         )}
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin">
+      <div className="grid gap-3 sm:grid-cols-2">
         {cases.map((c) => {
           const isSelected = c.id === selectedId;
-          const title =
+          const caseLabel =
             c.label?.trim() ||
             c.case_type ||
             getServiceCenterLabel(c.receipt_number);
@@ -83,23 +82,23 @@ export function CaseListSwitcher({
               type="button"
               onClick={() => onSelect(c.id)}
               className={cn(
-                "shrink-0 text-left rounded-2xl border p-4 transition-all duration-300 relative group",
+                "w-full text-left rounded-2xl border p-4 sm:p-5 transition-all duration-300 relative",
                 isSelected
-                  ? "min-w-[280px] max-w-[360px] border-blue-500/60 bg-blue-50/80 dark:bg-blue-950/30 ring-2 ring-blue-500/30 shadow-lg shadow-blue-500/10"
-                  : "min-w-[210px] max-w-[270px] border-border bg-card hover:border-blue-300 dark:hover:border-blue-700 hover-lift"
+                  ? "border-blue-500/60 bg-blue-50/80 dark:bg-blue-950/30 ring-2 ring-blue-500/30 shadow-lg shadow-blue-500/10 sm:col-span-2"
+                  : "border-border bg-card hover:border-blue-300 dark:hover:border-blue-700 hover-lift"
               )}
             >
               {isSelected && (
                 <div className="absolute top-0 left-4 right-4 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" />
               )}
 
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
                     <span className={cn("w-2 h-2 rounded-full shrink-0", dotColor)} />
-                    <p className="text-sm font-bold truncate">{title}</p>
+                    <p className="text-sm font-bold text-foreground">{caseLabel}</p>
                   </div>
-                  <p className="text-xs font-mono text-muted-foreground truncate pl-4">
+                  <p className="text-xs font-mono text-muted-foreground mt-1 pl-4">
                     {c.receipt_number}
                   </p>
                 </div>
@@ -111,24 +110,23 @@ export function CaseListSwitcher({
                 )}
               </div>
 
-              <div className="mt-2.5 pl-4">
+              <div className="mt-4 pl-4 border-t border-border/50 pt-4">
                 {isSelected ? (
                   <UscisOfficialStatusBlock
                     title={statusDetail.title}
                     description={statusDetail.description}
                     date={statusDetail.date}
-                    compact
                     defaultExpanded
                   />
                 ) : (
-                  <p className="text-xs text-muted-foreground line-clamp-2">{statusDetail.title}</p>
+                  <p className="text-sm text-muted-foreground">{statusDetail.title}</p>
                 )}
               </div>
 
               {!c.is_primary && isSelected && (
                 <button
                   type="button"
-                  className="mt-2.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline pl-4"
+                  className="mt-4 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline pl-4"
                   onClick={(e) => {
                     e.stopPropagation();
                     onSetPrimary(c.id);

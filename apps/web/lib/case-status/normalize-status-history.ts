@@ -69,6 +69,14 @@ export function buildStatusHistoryFromUscis(
     ];
   }
 
+  if (currentDescription.trim() && mapped.length > 0) {
+    mapped[0] = {
+      ...mapped[0]!,
+      status: currentStatus || mapped[0]!.status,
+      description: currentDescription.trim(),
+    };
+  }
+
   return mapped;
 }
 
