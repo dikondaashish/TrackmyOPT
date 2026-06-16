@@ -706,58 +706,6 @@ export function CaseStatusSection() {
             />
           )}
 
-          <CaseStatusOverview
-            receiptNumber={caseStatus.receipt_number}
-            currentStatus={caseStatus.current_status}
-            receivedDate={caseStatus.received_date}
-            lastCheckedAt={caseStatus.last_checked_at}
-            lastStatusChangeAt={caseStatus.last_status_change_at}
-            statusHistory={caseStatus.status_history ?? []}
-            statusHistoryLength={caseStatus.status_history?.length ?? 0}
-            isPremium={isPremium}
-            isRefreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            onUpgrade={() => setShowPricingModal(true)}
-            formatDateTime={formatDate}
-          />
-
-          {caseStatus.last_check_failed_at && (caseStatus.consecutive_failures ?? 0) > 0 && (
-            <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" role="alert">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
-                    Last refresh failed: {formatDate(caseStatus.last_check_failed_at)}
-                  </p>
-                  <p className="text-xs text-amber-800 dark:text-amber-200 mt-1">
-                    USCIS may be temporarily unreachable. We&apos;ll keep retrying. The status above is from your most recent successful check.
-                    {caseStatus.last_check_error_message ? ` Reason: ${caseStatus.last_check_error_message}` : ''}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {showStatusChangeWedge && caseStatus.status_last_changed_at && (
-            <StatusChangeUpgradeBanner
-              statusLastChangedAt={caseStatus.status_last_changed_at}
-              onAcknowledged={() => {
-                setWedgeDismissed(true);
-                setCaseStatus((prev) =>
-                  prev
-                    ? { ...prev, last_status_viewed_at: new Date().toISOString() }
-                    : prev
-                );
-              }}
-            />
-          )}
-
-          {showManualRefreshUpsell && (
-            <ManualRefreshUpsellPrompt
-              onDismiss={() => setShowManualRefreshUpsell(false)}
-            />
-          )}
-
           {isEditingReceipt ? (
             <CaseStatusReceiptPanel
               mode="edit"
@@ -823,6 +771,58 @@ export function CaseStatusSection() {
               {isRemoving ? 'Removing...' : 'Stop Tracking'}
             </Button>
           </div>
+
+          <CaseStatusOverview
+            receiptNumber={caseStatus.receipt_number}
+            currentStatus={caseStatus.current_status}
+            receivedDate={caseStatus.received_date}
+            lastCheckedAt={caseStatus.last_checked_at}
+            lastStatusChangeAt={caseStatus.last_status_change_at}
+            statusHistory={caseStatus.status_history ?? []}
+            statusHistoryLength={caseStatus.status_history?.length ?? 0}
+            isPremium={isPremium}
+            isRefreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            onUpgrade={() => setShowPricingModal(true)}
+            formatDateTime={formatDate}
+          />
+
+          {caseStatus.last_check_failed_at && (caseStatus.consecutive_failures ?? 0) > 0 && (
+            <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" role="alert">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                    Last refresh failed: {formatDate(caseStatus.last_check_failed_at)}
+                  </p>
+                  <p className="text-xs text-amber-800 dark:text-amber-200 mt-1">
+                    USCIS may be temporarily unreachable. We&apos;ll keep retrying. The status above is from your most recent successful check.
+                    {caseStatus.last_check_error_message ? ` Reason: ${caseStatus.last_check_error_message}` : ''}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {showStatusChangeWedge && caseStatus.status_last_changed_at && (
+            <StatusChangeUpgradeBanner
+              statusLastChangedAt={caseStatus.status_last_changed_at}
+              onAcknowledged={() => {
+                setWedgeDismissed(true);
+                setCaseStatus((prev) =>
+                  prev
+                    ? { ...prev, last_status_viewed_at: new Date().toISOString() }
+                    : prev
+                );
+              }}
+            />
+          )}
+
+          {showManualRefreshUpsell && (
+            <ManualRefreshUpsellPrompt
+              onDismiss={() => setShowManualRefreshUpsell(false)}
+            />
+          )}
 
           {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' &&
             process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' &&
