@@ -26,13 +26,15 @@ import {
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { CaseStatusHistoryEntry } from "@/lib/case-status/normalize-status-history";
 
 type CaseStatusOverviewProps = {
   receiptNumber: string;
   currentStatus: string | null;
+  statusHistory: CaseStatusHistoryEntry[];
+  lastStatusChangeAt: string | null;
   receivedDate: string | null;
   lastCheckedAt: string | null;
-  lastStatusChangeAt: string | null;
   statusHistoryLength: number;
   isPremium: boolean | null;
   isRefreshing: boolean;
@@ -104,6 +106,7 @@ function QuickStat({
 export function CaseStatusOverview({
   receiptNumber,
   currentStatus,
+  statusHistory,
   receivedDate,
   lastCheckedAt,
   lastStatusChangeAt,
@@ -122,7 +125,6 @@ export function CaseStatusOverview({
   const daysSinceChange = getDaysSince(lastStatusChangeAt);
   const nextSteps = getStatusNextSteps(explainer.category, daysSinceFiled);
   const serviceCenter = getServiceCenterLabel(receiptNumber);
-  const receiptPrefix = receiptNumber.slice(0, 3);
   const hasLiveStatus = !isPlaceholderStatus(currentStatus);
   const gradient = getStatusGradient(explainer.category);
 
@@ -204,9 +206,9 @@ export function CaseStatusOverview({
 
                 {/* Receipt & metadata chips */}
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-white/70">
-                  <span className="font-mono ph-mask inline-flex items-center gap-1.5" data-ph-mask>
+                  <span className="font-mono inline-flex items-center gap-1.5">
                     <FileText className="w-3.5 h-3.5" />
-                    {receiptPrefix}••••••••••
+                    {receiptNumber}
                   </span>
                   <span className="w-1 h-1 rounded-full bg-white/30" aria-hidden />
                   <span className="inline-flex items-center gap-1">
@@ -386,6 +388,8 @@ export function CaseStatusOverview({
       {lastCheckedAt && (
         <CaseStatusExplainerCard
           currentStatus={currentStatus}
+          statusHistory={statusHistory}
+          lastStatusChangeAt={lastStatusChangeAt}
           lastCheckedAt={lastCheckedAt}
           formatLastChecked={formatDateTime}
         />

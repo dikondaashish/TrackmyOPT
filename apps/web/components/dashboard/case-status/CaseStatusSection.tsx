@@ -643,7 +643,6 @@ export function CaseStatusSection() {
             </p>
           </div>
         </div>
-        <UscisCaseStatusDisclaimer className="mt-4" />
       </div>
 
       {caseStatus ? (
@@ -663,6 +662,7 @@ export function CaseStatusSection() {
           <CaseStatusOverview
             receiptNumber={caseStatus.receipt_number}
             currentStatus={caseStatus.current_status}
+            statusHistory={caseStatus.status_history ?? []}
             receivedDate={caseStatus.received_date}
             lastCheckedAt={caseStatus.last_checked_at}
             lastStatusChangeAt={caseStatus.last_status_change_at}
@@ -1083,6 +1083,8 @@ export function CaseStatusSection() {
           </div>
         </Card>
       )}
+
+      <UscisCaseStatusDisclaimer className="mt-8" />
 
       <PricingModal
         open={showPricingModal}

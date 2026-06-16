@@ -14,10 +14,15 @@ import {
   captureCaseStatusExplainerViewed,
   ANALYTICS_CONSENT_CHANGE_EVENT,
 } from "@/lib/posthog-client";
+import { UscisOfficialStatusBlock } from "@/components/dashboard/case-status/UscisOfficialStatusBlock";
+import { getCurrentStatusDetail } from "@/lib/case-status/current-status-detail";
+import type { CaseStatusHistoryEntry } from "@/lib/case-status/normalize-status-history";
 import { cn } from "@/lib/utils";
 
 type CaseStatusExplainerCardProps = {
   currentStatus: string | null | undefined;
+  statusHistory?: CaseStatusHistoryEntry[];
+  lastStatusChangeAt?: string | null;
   lastCheckedAt: string | null | undefined;
   formatLastChecked: (iso: string) => string;
 };
@@ -47,6 +52,8 @@ const TONE_STYLES = {
 
 export function CaseStatusExplainerCard({
   currentStatus,
+  statusHistory = [],
+  lastStatusChangeAt,
   lastCheckedAt,
   formatLastChecked,
 }: CaseStatusExplainerCardProps) {
@@ -55,6 +62,11 @@ export function CaseStatusExplainerCard({
   const explainer = getStatusExplainer(
     isPlaceholderStatus(currentStatus) ? null : currentStatus
   );
+  const officialStatus = getCurrentStatusDetail({
+    currentStatus,
+    statusHistory,
+    lastStatusChangeAt,
+  });
 
   useEffect(() => {
     if (!lastCheckedAt) return;
@@ -96,8 +108,20 @@ export function CaseStatusExplainerCard({
         </div>
         
         <h2 className="mt-[13px] mb-0 text-[27px] font-bold tracking-[-0.6px] leading-[1.15] text-[#1D1D1F] dark:text-white">
-          {explainer.title}
+          {officialStatus.title}
         </h2>
+
+        {(officialStatus.description || officialStatus.date) && (
+          <div className="mt-[14px] py-[13px] px-[15px] bg-[#FAFAFB] dark:bg-zinc-900/50 rounded-[13px] border border-black/5 dark:border-white/5">
+            <UscisOfficialStatusBlock
+              title={officialStatus.title}
+              description={officialStatus.description}
+              date={officialStatus.date}
+              defaultExpanded
+              showTitle={false}
+            />
+          </div>
+        )}
 
         <div className="mt-[14px] py-[13px] px-[15px] bg-[#F5F7FA] dark:bg-zinc-900 rounded-[13px] border border-black/5 dark:border-white/5">
           <div className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.4px] mb-[5px]">What this means for you</div>
@@ -114,16 +138,17 @@ export function CaseStatusExplainerCard({
           </div>
         </div>
 
-        <details className="mt-[14px] group">
-          <summary className="cursor-pointer text-[12px] text-[#86868B] list-none flex items-center gap-[5px]">
-            View official USCIS text
-            <svg className="w-[13px] h-[13px] transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </summary>
-          <div className="mt-[8px] text-[12.5px] leading-[1.5] text-[#6E6E73] dark:text-zinc-400 italic py-[10px] px-[12px] bg-[#FAFAFB] dark:bg-zinc-900/50 rounded-[10px] border border-black/5 dark:border-white/5">
-            {!isPlaceholderStatus(currentStatus) ? `"${currentStatus}" — verify on USCIS.gov.` : "Status will be fetched shortly."}
-          </div>
-        </details>
-        
+        {!officialStatus.description && (
+          <details className="mt-[14px] group">
+            <summary className="cursor-pointer text-[12px] text-[#86868B] list-none flex items-center gap-[5px]">
+              View official USCIS text
+              <svg className="w-[13px] h-[13px] transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </summary>
+            <div className="mt-[8px] text-[12.5px] leading-[1.5] text-[#6E6E73] dark:text-zinc-400 italic py-[10px] px-[12px] bg-[#FAFAFB] dark:bg-zinc-900/50 rounded-[10px] border border-black/5 dark:border-white/5">
+              {!isPlaceholderStatus(currentStatus) ? `"${currentStatus}" — verify on USCIS.gov.` : "Status will be fetched shortly."}
+            </div>
+          </details>
+        )}
         {explainer.showUscisLink && (
           <div className="mt-[18px] pt-[14px] border-t border-black/5 dark:border-white/5">
             <Link
