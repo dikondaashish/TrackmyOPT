@@ -1,9 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Plus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatStatusLabel } from "@/lib/case-status/case-status-display";
 import { getServiceCenterLabel } from "@/lib/case-status/case-status-display";
 
 export type TrackedCaseSummary = {
@@ -13,6 +13,7 @@ export type TrackedCaseSummary = {
   label?: string | null;
   is_primary?: boolean | null;
   case_type?: string | null;
+  status_history?: { date: string; status: string; description?: string }[];
 };
 
 type CaseListSwitcherProps = {
@@ -43,7 +44,19 @@ export function CaseListSwitcher({
   onAddCase,
   canAddMore,
 }: CaseListSwitcherProps) {
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
   if (cases.length === 0) return null;
+
+  const toggleExpand = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-3">
@@ -66,8 +79,12 @@ export function CaseListSwitcher({
             c.label?.trim() ||
             c.case_type ||
             getServiceCenterLabel(c.receipt_number);
-          const status = formatStatusLabel(c.current_status, "Pending");
+          
           const dotColor = getStatusDotColor(c.current_status);
+          const isExpanded = expandedIds.has(c.id);
+
+          const latestHistory = c.status_history?.[0];
+          const hasDescription = !!latestHistory?.description;
 
           return (
             <button
@@ -75,7 +92,7 @@ export function CaseListSwitcher({
               type="button"
               onClick={() => onSelect(c.id)}
               className={cn(
-                "shrink-0 min-w-[210px] max-w-[270px] text-left rounded-2xl border p-4 transition-all duration-300 relative group",
+                "shrink-0 min-w-[280px] max-w-[340px] text-left rounded-2xl border p-4 transition-all duration-300 relative group flex flex-col",
                 isSelected
                   ? "border-blue-500/60 bg-blue-50/80 dark:bg-blue-950/30 ring-2 ring-blue-500/30 shadow-lg shadow-blue-500/10"
                   : "border-border bg-card hover:border-blue-300 dark:hover:border-blue-700 hover-lift"
@@ -92,8 +109,8 @@ export function CaseListSwitcher({
                     <span className={cn("w-2 h-2 rounded-full shrink-0", dotColor)} />
                     <p className="text-sm font-bold truncate">{title}</p>
                   </div>
-                  <p className="text-xs font-mono text-muted-foreground truncate ph-mask pl-4" data-ph-mask>
-                    {c.receipt_number.slice(0, 3)}••••••••••
+                  <p className="text-xs font-mono text-muted-foreground truncate pl-4">
+                    {c.receipt_number}
                   </p>
                 </div>
                 {c.is_primary && (
@@ -104,12 +121,42 @@ export function CaseListSwitcher({
                 )}
               </div>
 
-              <p className="text-xs text-muted-foreground mt-2.5 line-clamp-2 pl-4">{status}</p>
+              {/* Status Section */}
+              <div className="pl-4 mt-3 flex-1 flex flex-col">
+                <p className="text-xs font-bold text-foreground">
+                  {c.current_status || "Pending"}
+                </p>
+                
+                {hasDescription && (
+                  <div className="mt-1">
+                    <p
+                      className={cn(
+                        "text-[11.5px] text-muted-foreground leading-relaxed",
+                        !isExpanded && "line-clamp-2"
+                      )}
+                    >
+                      {latestHistory.description}
+                    </p>
+                    <span
+                      onClick={(e) => toggleExpand(c.id, e)}
+                      className="text-[11.5px] text-blue-600 dark:text-blue-400 cursor-pointer font-medium hover:underline inline-flex items-center gap-0.5 mt-0.5"
+                    >
+                      {isExpanded ? "less ^" : "^ more"}
+                    </span>
+                  </div>
+                )}
+
+                {latestHistory?.date && (
+                  <p className="text-[11px] text-muted-foreground/70 mt-2 font-mono">
+                    {latestHistory.date}
+                  </p>
+                )}
+              </div>
 
               {!c.is_primary && isSelected && (
                 <button
                   type="button"
-                  className="mt-2.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline pl-4"
+                  className="mt-3 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline pl-4 self-start"
                   onClick={(e) => {
                     e.stopPropagation();
                     onSetPrimary(c.id);
