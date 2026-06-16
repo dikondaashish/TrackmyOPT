@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { checkUSCISStatus, mockUSCISStatus } from '@/lib/immigration/uscis-checker';
-import { buildStatusHistoryFromUscis } from '@/lib/case-status/normalize-status-history';
 import {
   resolveCaseCheckSource,
   resolveCaseCheckTrigger,
@@ -196,11 +195,11 @@ export async function POST(req: NextRequest) {
     if (useMock) {
       const mockStatus = mockUSCISStatus(receipt_number);
       // Mock always succeeds - use the mock data directly
-      const statusHistory = buildStatusHistoryFromUscis(
-        mockStatus.status,
-        mockStatus.description,
-        mockStatus.histCaseStatus
-      );
+      const statusHistory = mockStatus.histCaseStatus.map((item: { completedText: string; date: string }) => ({
+        status: item.completedText,
+        date: item.date,
+        description: item.completedText,
+      }));
 
       // Get current case for comparison
       const { data: currentCase } = await supabase
@@ -363,11 +362,11 @@ export async function POST(req: NextRequest) {
 
     // Use USCIS-provided history timeline as the primary source
     // Transform histCaseStatus to our status_history format
-    const statusHistory = buildStatusHistoryFromUscis(
-      uscisStatus.status,
-      uscisStatus.description,
-      uscisStatus.histCaseStatus
-    );
+    const statusHistory = uscisStatus.histCaseStatus.map(item => ({
+      status: item.completedText,
+      date: item.date,
+      description: item.completedText,
+    }));
 
 
     // Build change_log entry (our own changelog)

@@ -662,7 +662,6 @@ export function CaseStatusSection() {
           <CaseStatusOverview
             receiptNumber={caseStatus.receipt_number}
             currentStatus={caseStatus.current_status}
-            statusHistory={caseStatus.status_history ?? []}
             receivedDate={caseStatus.received_date}
             lastCheckedAt={caseStatus.last_checked_at}
             lastStatusChangeAt={caseStatus.last_status_change_at}
