@@ -738,7 +738,7 @@ export function CaseStatusSection() {
             />
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3">
             <Button
               variant="outline"
               onClick={toggleNotifications}
@@ -761,6 +761,7 @@ export function CaseStatusSection() {
                 </>
               )}
             </Button>
+            <WebPushEnableButton />
             <Button
               variant="outline"
               onClick={handleRemove}
@@ -826,9 +827,6 @@ export function CaseStatusSection() {
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           You will be notified when we detect a case status change.
                         </p>
-                        <div className="mt-3">
-                          <WebPushEnableButton />
-                        </div>
                         <UscisCaseStatusDisclaimer variant="compact" showAlertNote className="mt-3" />
                       </div>
                     )}

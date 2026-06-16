@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -17,9 +18,10 @@ function urlBase64ToUint8Array(base64String: string) {
 
 type WebPushEnableButtonProps = {
   disabled?: boolean;
+  className?: string;
 };
 
-export function WebPushEnableButton({ disabled }: WebPushEnableButtonProps) {
+export function WebPushEnableButton({ disabled, className }: WebPushEnableButtonProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "enabled" | "unsupported" | "error">(
     "idle"
   );
@@ -74,17 +76,35 @@ export function WebPushEnableButton({ disabled }: WebPushEnableButtonProps) {
 
   if (status === "enabled") {
     return (
-      <p className="text-xs text-emerald-600 dark:text-emerald-400">
-        Browser notifications enabled for this device.
-      </p>
+      <Button
+        type="button"
+        variant="outline"
+        disabled
+        className={cn(
+          "flex items-center justify-center gap-2 w-full sm:w-auto",
+          className
+        )}
+      >
+        <BellRing className="w-4 h-4" />
+        Browser Alerts On
+      </Button>
     );
   }
 
   if (status === "unsupported") {
     return (
-      <p className="text-xs text-muted-foreground">
-        Browser push is not supported on this device.
-      </p>
+      <Button
+        type="button"
+        variant="outline"
+        disabled
+        className={cn(
+          "flex items-center justify-center gap-2 w-full sm:w-auto opacity-60",
+          className
+        )}
+      >
+        <BellRing className="w-4 h-4" />
+        Browser alerts unavailable
+      </Button>
     );
   }
 
@@ -92,10 +112,12 @@ export function WebPushEnableButton({ disabled }: WebPushEnableButtonProps) {
     <Button
       type="button"
       variant="outline"
-      size="sm"
       disabled={disabled || status === "loading"}
       onClick={enablePush}
-      className="gap-2"
+      className={cn(
+        "flex items-center justify-center gap-2 w-full sm:w-auto",
+        className
+      )}
     >
       <BellRing className="w-4 h-4" />
       {status === "loading" ? "Enabling…" : "Enable browser alerts"}
