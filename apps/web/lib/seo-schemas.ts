@@ -1,6 +1,8 @@
 // Comprehensive SEO Structured Data for TrackMyOPT
 // This file contains all JSON-LD schemas for AI models, search engines, and crawlers
 
+import { safeSerializeJsonLd } from "./safe-json-ld";
+
 export const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -620,9 +622,6 @@ export function getAllSchemas() {
 
 // Get schemas as script tags — uses safe serializer (try/catch + @context guard)
 export function getSchemaScripts() {
-    // Inline import to avoid circular dependency; tree-shaken in production.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { safeSerializeJsonLd } = require("./safe-json-ld") as typeof import("./safe-json-ld");
     return getAllSchemas()
         .map((schema, index) => {
             const content = safeSerializeJsonLd(schema);

@@ -133,6 +133,18 @@ export function CaseStatusSection() {
     return shouldShowStatusChangeWedge(caseStatus, isPremium);
   }, [wedgeDismissed, isPremium, caseStatus]);
 
+  // Client-only date — null during SSR/hydration to prevent error #418.
+  const clientNow = useClientDate();
+  const clientNowMs = clientNow ? clientNow.getTime() : null;
+
+  const safeStatusHistory = useMemo(
+    () =>
+      Array.isArray(caseStatus?.status_history)
+        ? caseStatus.status_history
+        : normalizeStatusHistory(caseStatus?.status_history),
+    [caseStatus?.status_history]
+  );
+
   const caseLimit = getCaseTrackingLimit(isPremium === true);
   const canAddMoreCases = trackedCases.length < caseLimit;
 
@@ -653,19 +665,7 @@ export function CaseStatusSection() {
   }
 
   // ── Derived state for new layout ──────────────────────────────────────────
-  // Client-only date — null during SSR/hydration to prevent error #418.
-  const clientNow = useClientDate();
-  const clientNowMs = clientNow ? clientNow.getTime() : null;
-
   const caseState = deriveCaseState(caseStatus?.current_status);
-
-  const safeStatusHistory = useMemo(
-    () =>
-      Array.isArray(caseStatus?.status_history)
-        ? caseStatus.status_history
-        : normalizeStatusHistory(caseStatus?.status_history),
-    [caseStatus?.status_history]
-  );
 
   // PP overdue calculation — 0 until clientNow is available (post-hydration).
   const ppStartDate = caseStatus?.pp_start_date ?? null;
