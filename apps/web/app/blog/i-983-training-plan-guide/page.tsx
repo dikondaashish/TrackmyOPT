@@ -3,16 +3,17 @@ import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText, BookOpen } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "I-983 Training Plan for STEM OPT: Complete Guide (2026)",
-    description: "How to complete Form I-983 for STEM OPT. Step-by-step guide to each section, employer requirements, E-Verify enrollment, and common mistakes that cause rejections.",
-    keywords: ["I-983 training plan", "STEM OPT I-983", "I-983 form guide", "STEM OPT training plan", "E-Verify STEM OPT", "I-983 employer requirements"],
+    title: "Form I-983 STEM OPT Training Plan (2026): Step-by-Step + E-Verify Guide",
+    description: "Complete Form I-983 for STEM OPT: every section explained, employer E-Verify requirements, DSO submission steps, and common mistakes that delay your 24-month extension.",
+    keywords: ["Form I-983", "I-983 training plan", "STEM OPT I-983", "STEM OPT training plan", "I-983 employer requirements", "E-Verify STEM OPT", "I-983 how to fill"],
     openGraph: {
-        title: "I-983 Training Plan Guide for STEM OPT | TrackMyOPT",
-        description: "Complete I-983 guide. Every section explained with employer requirements and common mistakes.",
+        title: "Form I-983 STEM OPT Training Plan Guide (2026) | TrackMyOPT",
+        description: "Step-by-step I-983 for STEM OPT: employer requirements, training plan sections, and E-Verify checklist.",
         url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide",
         type: "article",
         images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "I-983 Training Plan for STEM OPT: Complete Guide (2026)" }],
@@ -59,6 +60,11 @@ export default function I983Article() {
                     The I-983 Training Plan is a required document for STEM OPT that outlines your training goals, employer&apos;s supervision plan, and how the position relates to your STEM degree. Both you and your employer must sign it, and it must be submitted to your DSO before starting STEM OPT employment.
                 </p>
             </div>
+
+            <BlogProductCTA
+                variant="opt-timeline"
+                sourcePage="/blog/i-983-training-plan-guide"
+            />
 
             <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-purple-900 dark:text-purple-100 mb-3 flex items-center gap-2">

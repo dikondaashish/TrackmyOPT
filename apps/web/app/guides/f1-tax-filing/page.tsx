@@ -17,8 +17,15 @@ import {
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
-    title: "The Ultimate F-1 Student Tax Guide (2026) | TrackMyOPT",
-    description: "Complete step-by-step guide to US tax filing for international F-1 students. Covers forms, deadlines, FICA refunds, tax treaties, and strategies to maximize refunds.",
+    title: "F-1 Student Tax Filing Guide 2026 — 1040-NR, FICA Refund & Deadlines",
+    description: "File US taxes as an F-1 student: Form 1040-NR, FICA refund steps, tax treaty countries, state returns, April 15 deadline, and common mistakes that cost international students money.",
+    keywords: ["F-1 student taxes", "1040-NR", "FICA refund F-1", "international student tax filing 2026", "tax treaty F-1", "Form 8843"],
+    openGraph: {
+        title: "F-1 Student Tax Filing Guide 2026 | TrackMyOPT",
+        description: "Step-by-step US tax guide for F-1 students: 1040-NR, FICA refunds, treaties, and deadlines.",
+        url: "https://www.trackmyopt.com/guides/f1-tax-filing",
+        type: "article",
+    },
     alternates: {
         canonical: "https://www.trackmyopt.com/guides/f1-tax-filing",
     },

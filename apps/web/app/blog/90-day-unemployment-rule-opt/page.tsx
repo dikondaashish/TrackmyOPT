@@ -3,15 +3,16 @@ import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen, ExternalLink } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "The 90-Day OPT Unemployment Rule: Everything You Need to Know (2026)",
-    description: "Understand the 90-day unemployment limit during OPT. Learn how unemployment days are counted, what counts as employment, and how to avoid violating your F-1 status. Source: USCIS 8 CFR § 214.2(f).",
-    keywords: ["90 day rule OPT", "OPT unemployment days", "OPT unemployment limit", "OPT unemployment tracker", "how many unemployment days OPT", "F-1 status violation"],
+    title: "OPT 90-Day Unemployment Rule (2026): How Days Are Counted + Free Tracker",
+    description: "OPT 90-day unemployment limit explained: calendar vs business days, what counts as employment, STEM 150-day rule, and how to track remaining days free on TrackMyOPT. Source: 8 CFR § 214.2(f).",
+    keywords: ["90 day rule OPT", "OPT unemployment days", "how many unemployment days OPT", "OPT unemployment tracker", "STEM OPT 150 days unemployment", "F-1 status violation"],
     openGraph: {
-        title: "The 90-Day OPT Unemployment Rule Explained | TrackMyOPT",
-        description: "Complete guide to the 90-day OPT unemployment limit. How days are counted, what qualifies as employment, and how to stay compliant.",
+        title: "OPT 90-Day Unemployment Rule (2026) — Days Counter | TrackMyOPT",
+        description: "How OPT unemployment days are counted, STEM 150-day limit, and free tracker to stay compliant before SEVIS termination.",
         url: "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt",
         type: "article",
         images: [
@@ -80,6 +81,11 @@ export default function NinetyDayRuleArticle() {
                     F-1 students on post-completion OPT are limited to 90 cumulative days of unemployment. Exceeding this limit can result in loss of F-1 status and potential deportation proceedings.
                 </p>
             </div>
+
+            <BlogProductCTA
+                variant="unemployment"
+                sourcePage="/blog/90-day-unemployment-rule-opt"
+            />
 
             {/* Key Takeaway Box */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">

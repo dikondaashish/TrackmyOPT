@@ -489,7 +489,7 @@ export default function USCISCaseStatusArticle() {
                     <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>
                     <Link href="/blog/opt-ead-card-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT EAD Card Guide 2026</Link>
                     <Link href="/blog/what-happens-if-opt-expires" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ What Happens if OPT Expires?</Link>
-                    <Link href="/blog/opt-application-denied-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Denied Guide</Link>
+                    <Link href="/blog/opt-application-denied" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Denied Guide</Link>
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
                     <Link href="/features/case-status" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">USCIS Case Tracker →</Link>

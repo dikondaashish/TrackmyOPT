@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Clock, ArrowRight, BookOpen, TrendingUp, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
@@ -61,9 +62,18 @@ export default function OPTProcessingTimeArticle() {
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-                    OPT processing times typically range from 3 to 5 months from the date USCIS receives your I-765 application. You can track your case status online using your receipt number at egov.uscis.gov.
+                    OPT processing times typically range from 3 to 5 months from the date USCIS receives your I-765 application. Track your case with your receipt number — see our{" "}
+                    <Link href="/blog/uscis-case-status-tracking-guide" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                        USCIS case status check guide
+                    </Link>{" "}
+                    or use TrackMyOPT&apos;s free auto-tracker.
                 </p>
             </div>
+
+            <BlogProductCTA
+                variant="case-status"
+                sourcePage="/blog/opt-processing-time-2026"
+            />
 
             {/* Key Stat Box */}
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-6 mb-10">

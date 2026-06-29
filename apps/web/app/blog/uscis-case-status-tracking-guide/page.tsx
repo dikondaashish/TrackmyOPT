@@ -3,15 +3,16 @@ import Link from "next/link";
 import { Search, CheckCircle2, Clock, ArrowRight, BookOpen, AlertTriangle, Bell, FileText } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "How to Track Your USCIS Case Status Online: Complete Guide (2026)",
-    description: "Learn how to check your USCIS case status online using your receipt number. Understand status messages like 'Case Was Received' and 'New Card Is Being Produced,' plus how TrackMyOPT automates daily tracking for OPT and EAD applications.",
-    keywords: ["USCIS case status", "track OPT application", "I-765 case status", "EAD case tracker", "receipt number tracker", "USCIS case checker"],
+    title: "USCIS Case Status Check Online (2026) — Track by Receipt Number",
+    description: "Check USCIS case status with your receipt number (IOE/MSC/LIN). What each status message means for OPT & I-765, plus free daily auto-tracking with email alerts on TrackMyOPT.",
+    keywords: ["USCIS case status online", "USCIS case status check", "USCIS case status tracker", "check case status with receipt number", "I-765 case status", "EAD case tracker", "OPT case tracking", "egov.uscis.gov"],
     openGraph: {
-        title: "How to Track Your USCIS Case Status Online | TrackMyOPT",
-        description: "Complete guide to checking USCIS case status. Understand receipt numbers, status messages, and how to track your OPT/EAD application in real time.",
+        title: "USCIS Case Status Check Online (2026) | TrackMyOPT",
+        description: "Check USCIS case status by receipt number. Status message decoder + free auto-tracker with email alerts for OPT and EAD.",
         url: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide",
         type: "article",
         images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "How to Track Your USCIS Case Status Online: Complete Guide (2026)" }],
@@ -51,7 +52,7 @@ export default function USCISCaseStatusTrackingGuide() {
                     </span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                    How to Track Your USCIS Case Status Online: Complete Guide (2026)
+                    USCIS Case Status Check Online (2026): Track by Receipt Number
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Whether you've filed for OPT, a STEM extension, or any other immigration benefit, knowing how to check your USCIS case status is essential. This guide covers receipt numbers, status messages, processing times, and how to automate your tracking.
@@ -73,6 +74,11 @@ export default function USCISCaseStatusTrackingGuide() {
                     You can track your USCIS case status online at egov.uscis.gov using your 13-character receipt number (e.g., IOE0123456789). TrackMyOPT provides automated tracking with plain-English status explanations and alerts for status changes.
                 </p>
             </div>
+
+            <BlogProductCTA
+                variant="case-status"
+                sourcePage="/blog/uscis-case-status-tracking-guide"
+            />
 
             {/* Key Takeaway Box */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">

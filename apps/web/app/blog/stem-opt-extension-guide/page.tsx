@@ -3,16 +3,17 @@ import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, Shield, FileText, Briefcase } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "Complete STEM OPT Guide 2026: Extension, Eligibility & Application",
-    description: "Everything about STEM OPT in 2026: eligible CIP codes, 24-month extension timeline, I-983 form, E-Verify requirement, employer obligations, and unemployment rules. Updated with latest USCIS data.",
-    keywords: ["STEM OPT", "STEM OPT extension", "STEM OPT guide 2026", "STEM OPT eligible degrees", "STEM OPT CIP codes", "STEM OPT 24 month extension", "STEM OPT requirements"],
+    title: "STEM OPT Timeline & Processing Time 2026 — 24-Month Extension Guide",
+    description: "STEM OPT timeline for 2026: current processing times, 24-month extension steps, I-983 & E-Verify requirements, unemployment limits, and free timeline tracker for F-1 students.",
+    keywords: ["STEM OPT timeline", "STEM OPT processing time 2026", "STEM OPT extension", "STEM OPT guide 2026", "STEM OPT CIP codes", "STEM OPT 24 month extension", "STEM OPT wait time"],
     openGraph: {
-        title: "Complete STEM OPT Extension Guide 2026 | TrackMyOPT",
-        description: "24-month STEM OPT extension guide: eligibility, timeline, I-983, E-Verify, and unemployment rules.",
+        title: "STEM OPT Timeline & Processing Time 2026 | TrackMyOPT",
+        description: "24-month STEM OPT extension timeline: eligibility, I-983, processing times, and free tracker.",
         url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide",
         type: "article",
         images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Complete STEM OPT Guide 2026: Extension, Eligibility & Application" }],
@@ -42,7 +43,7 @@ export default function STEMOPTGuideArticle() {
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />15 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                    Complete STEM OPT Guide 2026: Extension, Eligibility & Application
+                    STEM OPT Timeline & Processing Time 2026: 24-Month Extension Guide
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     The definitive guide to the 24-month STEM OPT extension. From eligibility and CIP codes to the I-983 training plan and employer requirements — everything you need in one place.
@@ -60,6 +61,11 @@ export default function STEMOPTGuideArticle() {
                     The STEM OPT extension gives F-1 graduates with STEM degrees an additional 24 months of work authorization beyond the initial 12-month OPT period. Your employer must be E-Verify enrolled and you must complete a Form I-983 Training Plan.
                 </p>
             </div>
+
+            <BlogProductCTA
+                variant="opt-timeline"
+                sourcePage="/blog/stem-opt-extension-guide"
+            />
 
             <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-purple-900 dark:text-purple-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>

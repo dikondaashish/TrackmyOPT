@@ -203,11 +203,11 @@ export default function CommunityPage() {
                 subheadline="Don't apply alone. Join thousands of international students helping each other secure their American Dream."
                 primaryCTA={{
                     text: "Join Community Free",
-                    href: "/signup",
+                    href: "/login",
                 }}
                 secondaryCTA={{
                     text: "Browse Mentors",
-                    href: "/community",
+                    href: "/features/community",
                 }}
                 gradient="purple"
                 icon={<Users className="w-12 h-12 text-white" />}

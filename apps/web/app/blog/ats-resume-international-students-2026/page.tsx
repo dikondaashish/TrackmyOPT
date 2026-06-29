@@ -419,14 +419,14 @@ Relevant Coursework: Algorithms, Database Systems, Cloud Computing, Machine Lear
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
-                    <Link href="/blog/top-h1b-sponsor-companies-2026-rankings" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Top H-1B Sponsors 2026</Link>
+                    <Link href="/blog/top-h1b-sponsor-companies-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Top H-1B Sponsors 2026</Link>
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition</Link>
                     <Link href="/blog/what-happens-if-opt-expires" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ What If OPT Expires?</Link>
                     <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist</Link>
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
                     <Link href="/features/job-tracker" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Job Tracker →</Link>
-                    <Link href="/guides/career" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Career Resources →</Link>
+                    <Link href="/guides/opt-career" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Career Resources →</Link>
                 </div>
             </div>
 

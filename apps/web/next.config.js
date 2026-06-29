@@ -82,11 +82,72 @@ const nextConfig = {
       },
 
       // ── Old search URL → answers ─────────────────────────────────────────────
-      // /search was indexed by Google from an old schema.org SearchAction.
-      // The site uses /answers, so redirect the 404 /search path.
+      // /search was indexed by Google from schema.org SearchAction (including
+      // literal ?q={search_term_string}). The site uses /answers.
       {
         source: '/search',
         destination: '/answers',
+        permanent: true,
+      },
+
+      // ── GSC 404 drilldown (2026-06-29): stale slugs & broken internal links ─
+      {
+        source: '/community',
+        destination: '/features/community',
+        permanent: true,
+      },
+      {
+        source: '/signup',
+        destination: '/login',
+        permanent: true,
+      },
+      {
+        source: '/help',
+        destination: '/dashboard/help',
+        permanent: true,
+      },
+      {
+        source: '/blog/opt-application-denied-guide-2026',
+        destination: '/blog/opt-application-denied',
+        permanent: true,
+      },
+      {
+        source: '/guides/travel',
+        destination: '/blog/can-you-travel-on-opt-complete-guide',
+        permanent: true,
+      },
+      {
+        source: '/guides/career',
+        destination: '/guides/opt-career',
+        permanent: true,
+      },
+      {
+        source: '/resources/h1b-guide',
+        destination: '/blog/top-h1b-sponsor-companies-2026',
+        permanent: true,
+      },
+      {
+        source: '/blog/top-h1b-sponsor-companies-2026-rankings',
+        destination: '/blog/top-h1b-sponsor-companies-2026',
+        permanent: true,
+      },
+      // Malformed URLs from old SearchAction / crawler noise
+      {
+        source: '/&',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/\\$',
+        destination: '/',
+        permanent: true,
+      },
+
+      // ── Consolidate duplicate USCIS tracking guides ───────────────────────
+      // Primary URL (35k+ GSC impressions): uscis-case-status-tracking-guide
+      {
+        source: '/blog/how-to-track-uscis-case-status-guide',
+        destination: '/blog/uscis-case-status-tracking-guide',
         permanent: true,
       },
     ];

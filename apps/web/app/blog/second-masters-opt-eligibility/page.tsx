@@ -227,7 +227,7 @@ export default function BlogPost() {
                             </ul>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <Link 
-                                    href="/signup" 
+                                    href="/login" 
                                     className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors shadow-lg"
                                 >
                                     Create Free Account <ArrowRight className="w-5 h-5 ml-2" />

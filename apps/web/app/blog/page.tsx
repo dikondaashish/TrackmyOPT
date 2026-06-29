@@ -343,7 +343,7 @@ const blogPosts = [
         featured: true,
     },
     {
-        slug: "how-to-track-uscis-case-status-guide",
+        slug: "uscis-case-status-tracking-guide",
         title: "How to Track Your USCIS Case Status Online: Complete Guide",
         description: "Step-by-step guide to tracking your USCIS I-765 OPT EAD case status. Learn what status messages mean, processing times, RFE explanations, and what to do if delayed.",
         category: "USCIS",

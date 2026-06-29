@@ -546,17 +546,18 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
             { question: "What Is OPT?", slug: "what-is-opt" }
         ],
         metadata: {
-            title: "How to Track Your USCIS Case Status Online: Complete Guide | TrackMyOPT",
+            title: "USCIS Case Status Check Online (2026) — Receipt Number Guide | TrackMyOPT",
             description:
-                "Learn how to track your USCIS case status using your receipt number, set up notifications via myUSCIS, and understand common status messages.",
+                "Check USCIS case status online with your 13-character receipt number (IOE, MSC, LIN). Step-by-step guide for OPT/I-765 plus free auto-tracking with email alerts.",
             keywords: [
                 "USCIS case status",
-                "track USCIS application",
-                "receipt number lookup",
-                "egov.uscis.gov",
-                "OPT case tracking",
-                "myUSCIS account",
-                "USCIS status check"
+                "USCIS case status online",
+                "check USCIS case status with receipt number",
+                "USCIS case status tracker",
+                "track OPT application",
+                "I-765 case status",
+                "myUSCIS",
+                "egov.uscis.gov case status",
             ]
         }
     },

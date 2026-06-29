@@ -394,7 +394,7 @@ export default function SponsorsPage() {
                 }}
                 secondaryCTA={{
                     text: "Learn About H-1B",
-                    href: "/resources/h1b-guide",
+                    href: "/blog/top-h1b-sponsor-companies-2026",
                 }}
                 gradient="emerald"
                 icon={<Building2 className="w-12 h-12 text-white" />}

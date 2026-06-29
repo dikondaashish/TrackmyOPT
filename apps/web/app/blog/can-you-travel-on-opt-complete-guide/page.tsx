@@ -464,7 +464,7 @@ export default function CanYouTravelOnOPTArticle() {
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
                     <Link href="/features/compliance" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Compliance Tracker →</Link>
-                    <Link href="/guides/travel" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Travel Resources →</Link>
+                    <Link href="/blog/can-you-travel-on-opt-complete-guide" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Travel Resources →</Link>
                 </div>
             </div>
 

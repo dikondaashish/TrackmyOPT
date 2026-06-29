@@ -20,17 +20,27 @@ export async function generateStaticParams() {
     return getAllAnswers().map((a) => ({ slug: a.slug }));
 }
 
+/** Answers that duplicate a pillar blog post — canonical points to the blog URL. */
+const ANSWER_CANONICAL_OVERRIDES: Record<string, string> = {
+  "how-to-track-uscis-case-status":
+    "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide",
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const answer = getAnswerBySlug(slug);
     if (!answer) return {};
+
+    const canonical =
+        ANSWER_CANONICAL_OVERRIDES[slug] ??
+        `https://www.trackmyopt.com/answers/${answer.slug}`;
 
     return {
         title: answer.metadata.title,
         description: answer.metadata.description,
         keywords: answer.metadata.keywords,
         alternates: {
-            canonical: `https://www.trackmyopt.com/answers/${answer.slug}`,
+            canonical,
         },
         openGraph: {
             title: answer.metadata.title,
