@@ -24,6 +24,7 @@
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { CRAWLER_NOINDEX_HEADERS, isSearchCrawler } from '@/lib/is-search-crawler';
 
 // Routes that require authentication (redirect to home if not logged in)
 const protectedRoutes = ['/dashboard'];
@@ -59,6 +60,22 @@ export async function middleware(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+
+  // Private API routes must never be indexed. Crawlers get 403 (not 401) so GSC
+  // stops reporting "Blocked due to unauthorized request" for /api/me etc.
+  if (pathname.startsWith('/api/')) {
+    const userAgent = request.headers.get('user-agent');
+    if (isSearchCrawler(userAgent)) {
+      return new NextResponse('Forbidden', {
+        status: 403,
+        headers: {
+          ...CRAWLER_NOINDEX_HEADERS,
+          'Content-Type': 'text/plain; charset=utf-8',
+        },
+      });
+    }
+    return NextResponse.next();
+  }
 
   // Check if current path is a public route (exceptions)
   const isPublicRoute = publicRoutes.some(route =>
@@ -158,15 +175,7 @@ export async function middleware(request: NextRequest) {
 // Configure which routes the middleware runs on
 export const config = {
   matcher: [
-    /*
-     * Match all routes under /dashboard
-     * Excludes:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - public files (images, etc.)
-     * - API routes (they handle their own auth)
-     */
+    '/api/:path*',
     '/dashboard/:path*',
     '/login',
   ],

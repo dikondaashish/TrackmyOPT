@@ -87,6 +87,22 @@ async function checkRobots() {
   return { ok, googleBlock: googleBlock.trim().slice(0, 120) };
 }
 
+async function checkApiCrawlerBlock() {
+  const res = await fetch(`${BASE}/api/me`, {
+    redirect: "manual",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    },
+  });
+  const tag = res.headers.get("x-robots-tag") ?? "";
+  return {
+    status: res.status,
+    tag,
+    ok: res.status === 403 && /noindex/i.test(tag),
+  };
+}
+
 async function checkApiNoindex() {
   const res = await fetch(`${BASE}/api/me`, { redirect: "manual" });
   const tag = res.headers.get("x-robots-tag") ?? "";
@@ -142,10 +158,22 @@ try {
 }
 
 try {
+  const crawler = await checkApiCrawlerBlock();
+  const mark = crawler.ok ? "OK" : "FAIL";
+  if (!crawler.ok) failed += 1;
+  console.log(
+    `[${mark}] /api/me blocks Googlebot — HTTP ${crawler.status}, tag: ${crawler.tag || "(none)"}`
+  );
+} catch (e) {
+  failed += 1;
+  console.log(`[FAIL] /api/me Googlebot block — ${e.message}`);
+}
+
+try {
   const api = await checkApiNoindex();
   const mark = api.ok ? "OK" : "WARN";
   console.log(
-    `[${mark}] /api/me X-Robots-Tag — HTTP ${api.status}, tag: ${api.tag || "(none)"}`
+    `[${mark}] /api/me X-Robots-Tag (browser) — HTTP ${api.status}, tag: ${api.tag || "(none)"}`
   );
 } catch (e) {
   console.log(`[WARN] /api/me — ${e.message}`);
