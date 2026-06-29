@@ -38,7 +38,7 @@ export default function ResumeEditorPage() {
     // Store
     const {
         // Data
-        resumeText, jobDescription, selectedTemplateId,
+        resumeText, jobDescription, selectedTemplateId, jobTitle,
         generatedLatex, compiledPdfUrl, atsAnalysis,
         // Setters
         setGeneratedLatex, setCompiledPdfUrl, setAtsAnalysis,
@@ -435,12 +435,51 @@ export default function ResumeEditorPage() {
         toast({ description: "LaTeX code copied to clipboard" });
     }, [generatedLatex, toast]);
 
+    /** Extract the candidate's full name from the generated LaTeX source. */
+    const extractNameFromLatex = useCallback((latex: string): string => {
+        // Try common LaTeX resume name patterns
+        const patterns = [
+            /\\name\{([^}]+)\}\{([^}]+)\}/,              // \name{First}{Last}
+            /\\name\{([^}]+)\}/,                           // \name{Full Name}
+            /\\textbf\{\\Huge\s+([^}]+)\}/,               // \textbf{\Huge Full Name}
+            /\\textbf\{\\huge\s+([^}]+)\}/,               // \textbf{\huge Full Name}
+            /\\begin\{center\}\s*\\textbf\{([^}]+)\}/,    // \begin{center}\textbf{Name}
+            /\\section\*?\{([^}]+)\}\s*%\s*name/i,        // \section*{Name} % name
+        ];
+        for (const pattern of patterns) {
+            const m = latex.match(pattern);
+            if (m) {
+                // If two capture groups (first + last), combine them
+                const name = m[2] ? `${m[1].trim()} ${m[2].trim()}` : m[1].trim();
+                if (name.length > 1) return name;
+            }
+        }
+        return "";
+    }, []);
+
+    /** Sanitize a string to be safe for a filename (replace spaces/special chars with underscores). */
+    const toFilenameSegment = (s: string) =>
+        s.trim().replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+
+    const buildPdfFilename = useCallback((): string => {
+        const personName = extractNameFromLatex(generatedLatex);
+        const role = jobTitle ?? "";
+
+        const namePart = toFilenameSegment(personName);
+        const rolePart = toFilenameSegment(role);
+
+        if (namePart && rolePart) return `resume_${namePart}_${rolePart}.pdf`;
+        if (namePart)             return `resume_${namePart}.pdf`;
+        if (rolePart)             return `resume_${rolePart}.pdf`;
+        return `resume_${selectedTemplateId ?? "generated"}.pdf`;
+    }, [extractNameFromLatex, generatedLatex, jobTitle, selectedTemplateId]);
+
     const handleDownload = useCallback(() => {
         // If we have a compiled PDF, download that
         if (compiledPdfUrl) {
             const a = document.createElement("a");
             a.href = compiledPdfUrl;
-            a.download = `resume_${selectedTemplateId}.pdf`;
+            a.download = buildPdfFilename();
             a.rel = "noopener";
             a.style.display = "none";
             document.body.appendChild(a);
@@ -452,7 +491,7 @@ export default function ResumeEditorPage() {
             toast({ description: "Compiling PDF... click download again when ready." });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [compiledPdfUrl, generatedLatex, selectedTemplateId, toast]);
+    }, [buildPdfFilename, compiledPdfUrl, generatedLatex, toast]);
 
     // Handle Save Generated Resume
     const [isSaving, setIsSaving] = useState(false);
