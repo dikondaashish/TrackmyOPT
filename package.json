@@ -17,7 +17,8 @@
     "format": "turbo run format --filter=web",
     "format:check": "turbo run format:check --filter=web",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
-    "submit:indexnow": "pnpm --filter web submit:indexnow"
+    "submit:indexnow": "pnpm --filter web submit:indexnow",
+    "submit:indexnow:url": "node scripts/submit-urls-indexnow.js"
   },
   "devDependencies": {
     "turbo": "^2.5.6"
