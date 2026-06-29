@@ -19,7 +19,7 @@
     "analyze": "ANALYZE=true next build",
     "knip": "knip",
     "knip:fix": "knip --fix",
-    "submit:indexnow": "node ../scripts/submit-to-indexnow.js",
+    "submit:indexnow": "node ../../scripts/submit-to-indexnow.js",
     "policy-notice:dry-run": "npx tsx scripts/send-policy-update-notice.ts --dry-run",
     "policy-notice:send-test": "npx tsx scripts/send-policy-update-notice.ts --test-email support@trackmyopt.com --send",
     "email-previews:dry-run": "npx tsx scripts/send-all-email-previews.ts --dry-run",

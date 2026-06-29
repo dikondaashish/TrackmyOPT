@@ -16,7 +16,8 @@
     "test:e2e": "turbo run test:e2e --filter=web",
     "format": "turbo run format --filter=web",
     "format:check": "turbo run format:check --filter=web",
-    "clean": "turbo run clean && rm -rf node_modules .turbo"
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "submit:indexnow": "pnpm --filter web submit:indexnow"
   },
   "devDependencies": {
     "turbo": "^2.5.6"

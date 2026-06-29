@@ -64,7 +64,7 @@ const otherPages = [
 ];
 
 // Build full URL list
-const baseUrl = 'https://trackmyopt.com';
+const baseUrl = 'https://www.trackmyopt.com';
 const urlList = [
   ...blogArticles.map((slug) => `${baseUrl}/blog/${slug}`),
   ...featurePages.map((slug) => `${baseUrl}/features/${slug}`),
@@ -84,10 +84,11 @@ console.log('');
 // Submit in batches of 10,000 (IndexNow limit)
 async function submitBatch(batch, batchNumber) {
   return new Promise((resolve, reject) => {
+    const indexNowKey = process.env.INDEXNOW_KEY || 'trackmyopt2026indexnow';
     const payload = JSON.stringify({
-      host: 'trackmyopt.com',
-      key: process.env.INDEXNOW_KEY,
-      keyLocation: 'https://trackmyopt.com/300fa2533a6f482aa589db8617927d1c.txt',
+      host: 'www.trackmyopt.com',
+      key: indexNowKey,
+      keyLocation: 'https://www.trackmyopt.com/indexnow-key.txt',
       urlList: batch,
     });
 
@@ -133,9 +134,9 @@ async function submitBatch(batch, batchNumber) {
 
 // Main function
 async function main() {
-  if (!process.env.INDEXNOW_KEY) {
+  const indexNowKey = process.env.INDEXNOW_KEY || 'trackmyopt2026indexnow';
+  if (!indexNowKey) {
     console.error('❌ INDEXNOW_KEY environment variable not set');
-    console.error('   Add INDEXNOW_KEY to your .env.local file');
     process.exit(1);
   }
 
