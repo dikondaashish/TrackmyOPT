@@ -11,7 +11,7 @@ export function AuthorBio({ compact = false }: AuthorBioProps) {
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold">T</div>
                 <div>
                     <span className="text-sm font-medium text-gray-900 dark:text-white">TrackMyOPT Team</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">Former F-1 Students &amp; Immigration Experts</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">Former F-1 Students</span>
                 </div>
             </div>
         );
@@ -33,9 +33,6 @@ export function AuthorBio({ compact = false }: AuthorBioProps) {
                     <div className="flex flex-wrap items-center gap-3 mt-3">
                         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
                             Former F-1 Students
-                        </span>
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
-                            USCIS Data Verified
                         </span>
                         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
                             2,500+ Students Trust Us

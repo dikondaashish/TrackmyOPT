@@ -66,16 +66,8 @@ export const softwareApplicationSchema = {
                 "Everything in Free + Priority Alerts, H-1B Data, AI Resume Parser",
         },
     ],
-    aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.9",
-        bestRating: "5",
-        worstRating: "1",
-        ratingCount: "1500",
-        reviewCount: "1200",
-    },
     description:
-        "TrackMyOPT helps F-1 international students track their OPT timeline, monitor the 90-day unemployment limit, check USCIS case status, store immigration documents securely, and find H-1B sponsor companies. Trusted by 15,000+ students from 100+ countries.",
+        "TrackMyOPT helps F-1 international students track their OPT timeline, monitor the 90-day unemployment limit, check USCIS case status, store immigration documents securely, and find H-1B sponsor companies. Trusted by 2,500+ students from 100+ countries.",
     featureList: [
         "OPT Timeline Dashboard with real-time countdown",
         "Unemployment Clock (90-day OPT limit + additional 60-day STEM OPT allowance)",

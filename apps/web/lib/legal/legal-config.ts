@@ -124,6 +124,16 @@ export const THIRD_PARTY_SERVICES = [
     privacyUrl: "https://posthog.com/privacy",
   },
   {
+    name: "Google Analytics (GA4)",
+    purpose: "Website analytics when you accept analytics cookies in the cookie banner",
+    privacyUrl: "https://policies.google.com/privacy",
+  },
+  {
+    name: "Google AdSense",
+    purpose: "Advertising on free content pages when you accept cookies in the cookie banner",
+    privacyUrl: "https://policies.google.com/privacy",
+  },
+  {
     name: "Vercel Analytics & Speed Insights",
     purpose: "Aggregated site performance and usage metrics",
     privacyUrl: "https://vercel.com/legal/privacy-policy",

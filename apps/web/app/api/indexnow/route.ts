@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { verifyAdminAuth } from "@/lib/api/verify-admin-auth";
 
 /**
  * IndexNow API Endpoint
@@ -16,7 +17,10 @@ import { NextResponse } from 'next/server';
  * https://trackmyopt.com/{INDEXNOW_KEY}.txt
  */
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const adminAuthError = verifyAdminAuth(request);
+  if (adminAuthError) return adminAuthError;
+
   try {
     const body = await request.json();
     const { urlList } = body;

@@ -9,6 +9,8 @@ interface BlogPostSchemaProps {
   publishedDate: string;
   modifiedDate: string;
   author?: string;
+  /** Full canonical URL for this blog post (enables url + mainEntityOfPage in schema). */
+  canonicalUrl?: string;
   faqItems?: Array<{
     question: string;
     answer: string;
@@ -26,7 +28,8 @@ export function BlogPostSchema({
   description = "Read our latest insights on OPT, H-1B, and F-1 visa information",
   publishedDate,
   modifiedDate,
-  author = "TrackMyOPT",
+  author = "TrackMyOPT Team",
+  canonicalUrl,
   faqItems = [],
   howToItems = [],
 }: BlogPostSchemaProps) {
@@ -45,11 +48,18 @@ export function BlogPostSchema({
     "@type": "BlogPosting",
     headline: safeTitle,
     description: safeDescription,
+    ...(canonicalUrl
+      ? {
+          url: canonicalUrl,
+          mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
+          image: "https://www.trackmyopt.com/og-image.png",
+        }
+      : {}),
     datePublished: publishedDate,
     dateModified: modifiedDate,
     author: {
       "@type": "Organization",
-      name: author,
+      name: "TrackMyOPT",
       logo: {
         "@type": "ImageObject",
         url: "https://www.trackmyopt.com/logo.png",

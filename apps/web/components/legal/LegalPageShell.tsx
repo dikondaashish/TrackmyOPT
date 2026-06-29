@@ -44,7 +44,6 @@ export function LegalPageShell({ title, policyType, children }: LegalPageShellPr
             </p>
             <p className="text-xs text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-10">
               {COMPANY.productName} is operated by {COMPANY.legalName}. This page is not legal advice.
-              U.S. counsel should review before launch.
             </p>
 
             <div

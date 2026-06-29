@@ -5,10 +5,10 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 export const metadata: Metadata = {
     title: {
         template: "%s | TrackMyOPT Answers",
-        default: "OPT & F-1 Visa Answers — Expert Q&A | TrackMyOPT",
+        default: "OPT & F-1 Visa Answers — Educational Q&A | TrackMyOPT",
     },
     description:
-        "Clear, expert answers to the most common questions about OPT, STEM OPT, F-1 visa, H-1B, taxes, and US immigration for international students.",
+        "Clear, educational answers to the most common questions about OPT, STEM OPT, F-1 visa, H-1B, taxes, and US immigration for international students.",
     keywords: [
         "OPT questions",
         "F-1 visa FAQ",
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
         canonical: "https://www.trackmyopt.com/answers",
     },
     openGraph: {
-        title: "OPT & F-1 Visa Answers — Expert Q&A | TrackMyOPT",
+        title: "OPT & F-1 Visa Answers — Educational Q&A | TrackMyOPT",
         description:
-            "Clear, expert answers to 50+ common questions about OPT, STEM OPT, F-1 visa, H-1B, and US immigration.",
+            "Clear, educational answers to 50+ common questions about OPT, STEM OPT, F-1 visa, H-1B, and US immigration.",
         url: "https://www.trackmyopt.com/answers",
         siteName: "TrackMyOPT",
         type: "website",

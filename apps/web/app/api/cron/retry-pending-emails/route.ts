@@ -10,6 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendMailWithRetry } from "@/lib/notifications/email-smtp";
 import {
@@ -114,13 +115,8 @@ async function resolveBodiesForRetry(
 }
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-
-  if (!expectedAuth || authHeader !== expectedAuth) {
-    secureLog.warn("retry-pending-emails: unauthorized");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const cronAuthError = verifyCronAuth(req);
+  if (cronAuthError) return cronAuthError;
 
   const cutoffIso = new Date(Date.now() - STALE_MINUTES * 60 * 1000).toISOString();
 

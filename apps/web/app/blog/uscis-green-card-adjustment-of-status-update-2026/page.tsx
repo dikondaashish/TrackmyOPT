@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, Download, CheckCircle, Scale } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "USCIS Adjustment of Status Policy Shift: Discretionary Grace Explained (2026)",
@@ -172,6 +173,8 @@ export default function GreenCardUpdateArticle() {
                         <strong>Next Step:</strong> Contact your company's immigration counsel immediately to discuss renewing your H-1B visa indefinitely to maintain a dual-intent safety net while your Green Card processes.
                     </p>
                 </section>
+
+                <AuthorBio />
             </div>
         </article>
     );

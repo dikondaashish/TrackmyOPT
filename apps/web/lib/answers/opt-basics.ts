@@ -54,7 +54,7 @@ export const optBasicsAnswers: AnswerEntry[] = [
         relatedLinks: [
             {
                 text: "OPT Application Checklist",
-                href: "/blog/opt-application-checklist",
+                href: "/blog/opt-application-checklist-2026",
             },
             {
                 text: "STEM OPT Extension Guide",
@@ -154,7 +154,7 @@ export const optBasicsAnswers: AnswerEntry[] = [
             },
             {
                 text: "OPT Processing Time",
-                href: "/blog/opt-processing-time",
+                href: "/blog/opt-processing-time-2026",
             },
             {
                 text: "OPT to H-1B Transition",
@@ -248,11 +248,11 @@ export const optBasicsAnswers: AnswerEntry[] = [
         relatedLinks: [
             {
                 text: "OPT Application Checklist",
-                href: "/blog/opt-application-checklist",
+                href: "/blog/opt-application-checklist-2026",
             },
             {
                 text: "OPT Processing Time",
-                href: "/blog/opt-processing-time",
+                href: "/blog/opt-processing-time-2026",
             },
             { text: "Case Status Tracker", href: "/features/case-status" },
             { text: "Free OPT Tools", href: "/tools" },
@@ -340,11 +340,11 @@ export const optBasicsAnswers: AnswerEntry[] = [
         relatedLinks: [
             {
                 text: "OPT Application Checklist",
-                href: "/blog/opt-application-checklist",
+                href: "/blog/opt-application-checklist-2026",
             },
             {
                 text: "OPT Processing Time",
-                href: "/blog/opt-processing-time",
+                href: "/blog/opt-processing-time-2026",
             },
             { text: "Case Status Tracker", href: "/features/case-status" },
             { text: "Immigration Glossary", href: "/glossary" },
@@ -436,7 +436,7 @@ export const optBasicsAnswers: AnswerEntry[] = [
         relatedLinks: [
             {
                 text: "OPT Application Checklist",
-                href: "/blog/opt-application-checklist",
+                href: "/blog/opt-application-checklist-2026",
             },
             {
                 text: "90-Day Unemployment Rule",

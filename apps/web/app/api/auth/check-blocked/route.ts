@@ -1,17 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import {
+  checkRateLimitByIP,
+  rateLimitResponse,
+  AUTH_RATE_LIMIT,
+} from '@/lib/auth/api-rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+  const rateLimitResult = checkRateLimitByIP(request, AUTH_RATE_LIMIT);
+  if (!rateLimitResult.success) {
+    return rateLimitResponse(rateLimitResult, 'Too many requests. Please try again later.');
+  }
+
   try {
     const { email } = await request.json();
 
-    if (!email) {
+    if (!email || typeof email !== 'string') {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    // Use service role to check blocked_emails table
+    const normalized = email.trim().toLowerCase();
+
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -19,24 +30,24 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from('blocked_emails')
-      .select('email, deleted_at')
-      .eq('email', email.toLowerCase())
-      .single();
+      .select('email')
+      .eq('email', normalized)
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') {
-      // PGRST116 means no rows returned, which is expected for non-blocked emails
+    if (error) {
       console.error('Error checking blocked email:', error);
+      return NextResponse.json({ blocked: false });
     }
 
     if (data) {
       return NextResponse.json({
         blocked: true,
-        message: 'This email has been permanently blocked. Previously deleted accounts cannot be recreated.',
+        message:
+          'This email has been permanently blocked. Previously deleted accounts cannot be recreated.',
       });
     }
 
     return NextResponse.json({ blocked: false });
-
   } catch (error) {
     console.error('Check blocked email error:', error);
     return NextResponse.json(

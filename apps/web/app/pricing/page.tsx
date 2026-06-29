@@ -52,12 +52,6 @@ export default function PricingPage() {
                 bestRating: "5",
             },
         })),
-        aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: "4.9",
-            reviewCount: "127",
-            bestRating: "5",
-        },
     };
 
     return (

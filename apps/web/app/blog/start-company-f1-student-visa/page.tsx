@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, Download, CheckCircle, Lightbulb } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "How to Start a Company on an F-1 Student Visa (Without Violating Your Status)",
@@ -191,6 +192,8 @@ export default function F1StartupArticle() {
                 </section>
             </div>
             
+            <AuthorBio />
+
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Read The Rest of the Series</h2>
                 <div className="grid sm:grid-cols-2 gap-3">

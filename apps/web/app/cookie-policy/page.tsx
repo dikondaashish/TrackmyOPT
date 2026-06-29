@@ -34,20 +34,20 @@ export default function CookiePolicyPage() {
       </ul>
 
       <h3>2.3 Analytics (optional)</h3>
-      <p>When enabled in our environment:</p>
+      <p>When you click &quot;Accept All&quot; in our cookie banner:</p>
       <ul>
         <li><strong>PostHog</strong> — product analytics (events, feature usage)</li>
-        <li><strong>Vercel Analytics / Speed Insights</strong> — aggregated page performance metrics</li>
+        <li><strong>Google Analytics (GA4)</strong> — aggregated website traffic and usage metrics</li>
+        <li><strong>Vercel Analytics / Speed Insights</strong> — aggregated page performance metrics (loaded on all visits; privacy-preserving, no advertising)</li>
       </ul>
-      <p>We do not use advertising or retargeting cookies on the core web app.</p>
       <p>
-        Analytics tools, when enabled, are used for product improvement and performance measurement, not advertising retargeting. You may contact{" "}
-        <a href={`mailto:${LEGAL_CONTACT.privacy}`}>{LEGAL_CONTACT.privacy}</a> to request opt-out.
+        Analytics tools are used for product improvement and performance measurement, not advertising retargeting. You may contact{" "}
+        <a href={`mailto:${LEGAL_CONTACT.privacy}`}>{LEGAL_CONTACT.privacy}</a> to request opt-out, or choose &quot;Essential Only&quot; in the cookie banner.
       </p>
 
-      <h3>2.4 Marketing cookies</h3>
+      <h3>2.4 Advertising cookies</h3>
       <p>
-        We do <strong>not</strong> currently use Facebook Pixel, Google Ads remarketing, or similar ad-tracking cookies on {`TrackMyOPT`}. If that changes, we will update this policy.
+        When you click &quot;Accept All&quot; in our cookie banner, we load <strong>Google AdSense</strong> to display ads that help support free educational content. AdSense may set cookies for ad delivery and measurement. We do not use Facebook Pixel, Google Ads remarketing, or similar ad-tracking beyond AdSense.
       </p>
 
       <h2>3. Third-party cookies</h2>

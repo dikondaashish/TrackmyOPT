@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, Download, CheckCircle, Scale } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "Is 'Duration of Status' Ending for F-1 Students? What the New 2026 Rule Means",
@@ -175,6 +176,8 @@ export default function DurationOfStatusArticle() {
                         <strong>Next Step:</strong> Keep a close eye on updates from your university's International Student Services (ISSS) office. If you are planning to transition to OPT or a higher degree program in late 2026 or 2027, prepare to submit your applications far earlier than historically required to account for Extension of Stay processing.
                     </p>
                 </section>
+
+                <AuthorBio />
             </div>
         </article>
     );

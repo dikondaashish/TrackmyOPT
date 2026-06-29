@@ -26,3 +26,4 @@ export function getAnswersByCategory(category: string): AnswerEntry[] {
 }
 
 export type { AnswerEntry, AnswerSection } from "./types";
+export { ANSWER_CANONICAL_OVERRIDES } from "./canonical-overrides";

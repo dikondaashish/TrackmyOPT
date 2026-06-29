@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import rateLimit from "@/lib/auth/rate-limit";
 import { sendInternalPartnershipNotification } from "@/lib/notifications/transactional-emails";
+
+const partnershipLimiter = rateLimit({ interval: 3_600_000 });
 
 const bodySchema = z.object({
   name: z.string().min(1).max(120),
@@ -13,6 +16,15 @@ const bodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const { isRateLimited } = partnershipLimiter.check(req, 5, `partnerships:${ip}`);
+    if (isRateLimited) {
+      return NextResponse.json(
+        { success: false, error: "Too many submissions. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     let json: unknown;
     try {
       json = await req.json();

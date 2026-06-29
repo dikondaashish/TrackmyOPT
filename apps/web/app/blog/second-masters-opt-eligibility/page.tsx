@@ -3,10 +3,12 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, Download, CheckCircle, GraduationCap } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "Can I Apply for OPT Again After a Second Master's Degree? (2026 Guide)",
     description: "Discover the USCIS rules on OPT eligibility when pursuing a second Master's degree. Learn about the 'once per higher degree level' rule and what it means for F-1 students.",
+    alternates: { canonical: "https://www.trackmyopt.com/blog/second-masters-opt-eligibility" },
     openGraph: {
         title: "Can I Apply for OPT Again After a Second Master's Degree? (2026 Guide)",
         description: "Discover the USCIS rules on OPT eligibility when pursuing a second Master's degree. Learn about the 'once per higher degree level' rule and what it means for F-1 students.",
@@ -57,12 +59,12 @@ export default function BlogPost() {
                 modifiedDate="2026-06-12"
                 faqItems={jsonLd.mainEntity.map((q: { name: string; acceptedAnswer: { text: string } }) => ({ question: q.name, answer: q.acceptedAnswer.text }))}
             />
-            <BreadcrumbSchema 
+            <BreadcrumbSchema
                 items={[
-                    { name: 'Home', url: '/' },
-                    { name: 'Blog', url: '/blog' },
-                    { name: 'Second Masters OPT Eligibility', url: '/blog/second-masters-opt-eligibility' }
-                ]} 
+                    { name: 'Home', url: 'https://www.trackmyopt.com/' },
+                    { name: 'Blog', url: 'https://www.trackmyopt.com/blog' },
+                    { name: 'Second Masters OPT Eligibility', url: 'https://www.trackmyopt.com/blog/second-masters-opt-eligibility' }
+                ]}
             />
 
 
@@ -256,6 +258,8 @@ export default function BlogPost() {
                             </div>
                         </div>
                     </div>
+
+                    <AuthorBio />
                 </div>
             </div>
         </article>

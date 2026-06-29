@@ -16,6 +16,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { createClient } from "@supabase/supabase-js";
 import { findCheckoutAbandoners } from "@/lib/billing/checkout-recovery";
 import { sendCheckoutRecoveryEmail } from "@/lib/notifications/transactional-emails";
@@ -33,13 +34,8 @@ const supabase = createClient(
 export async function GET(req: NextRequest) {
   const startTime = Date.now();
 
-  const authHeader = req.headers.get("authorization");
-  const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-
-  if (!expectedAuth || authHeader !== expectedAuth) {
-    secureLog.warn("Unauthorized checkout-recovery-emails cron attempt");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const cronAuthError = verifyCronAuth(req);
+  if (cronAuthError) return cronAuthError;
 
   let processed = 0;
   let sent = 0;

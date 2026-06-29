@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, Download, ShieldCheck, BookOpen } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "Form I-983 Complete Guide: STEM OPT Training Plan Explained (2026)",
@@ -354,6 +355,8 @@ export default function FormI983GuidePage() {
                     ))}
                 </div>
             </section>
+
+            <AuthorBio />
 
             {/* CTA */}
             <div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-2xl p-8 text-white text-center">

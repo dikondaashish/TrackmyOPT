@@ -47,7 +47,7 @@ export const workEmploymentAnswers: AnswerEntry[] = [
         ],
         relatedLinks: [
             { text: "90-Day Unemployment Rule", href: "/blog/90-day-unemployment-rule-opt" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Free OPT Tools", href: "/tools" },
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" }
         ],
@@ -119,7 +119,7 @@ export const workEmploymentAnswers: AnswerEntry[] = [
         ],
         relatedLinks: [
             { text: "STEM OPT Employer Requirements", href: "/blog/stem-opt-employer-requirements" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "90-Day Unemployment Rule", href: "/blog/90-day-unemployment-rule-opt" },
             { text: "Immigration Glossary", href: "/glossary" }
         ],
@@ -262,7 +262,7 @@ export const workEmploymentAnswers: AnswerEntry[] = [
             { text: "90-Day Unemployment Rule", href: "/blog/90-day-unemployment-rule-opt" },
             { text: "STEM OPT Employer Requirements", href: "/blog/stem-opt-employer-requirements" },
             { text: "Free OPT Tools", href: "/tools" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" }
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" }
         ],
         relatedQuestions: [
             { question: "Can You Work Part-Time on OPT?", slug: "can-i-work-part-time-on-opt" },
@@ -331,8 +331,8 @@ export const workEmploymentAnswers: AnswerEntry[] = [
             }
         ],
         relatedLinks: [
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
-            { text: "Travel on OPT Guide", href: "/blog/can-you-travel-on-opt" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
+            { text: "Travel on OPT Guide", href: "/blog/can-you-travel-on-opt-complete-guide" },
             { text: "STEM OPT Employer Requirements", href: "/blog/stem-opt-employer-requirements" },
             { text: "Free OPT Tools", href: "/tools" }
         ],
@@ -403,7 +403,7 @@ export const workEmploymentAnswers: AnswerEntry[] = [
         ],
         relatedLinks: [
             { text: "90-Day Unemployment Rule", href: "/blog/90-day-unemployment-rule-opt" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Free OPT Tools", href: "/tools" },
             { text: "Immigration Glossary", href: "/glossary" }
         ],
@@ -625,9 +625,9 @@ export const workEmploymentAnswers: AnswerEntry[] = [
             }
         ],
         relatedLinks: [
-            { text: "Travel on OPT Guide", href: "/blog/can-you-travel-on-opt" },
+            { text: "Travel on OPT Guide", href: "/blog/can-you-travel-on-opt-complete-guide" },
             { text: "Case Status Tracker", href: "/features/case-status" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "90-Day Unemployment Rule", href: "/blog/90-day-unemployment-rule-opt" }
         ],
         relatedQuestions: [

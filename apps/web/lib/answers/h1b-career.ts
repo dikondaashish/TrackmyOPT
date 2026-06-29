@@ -207,7 +207,7 @@ export const h1bCareerAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Day-1 CPT vs OPT", href: "/blog/day-1-cpt-vs-opt" },
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
             { text: "OPT Career Guide", href: "/guides/opt-career" },
@@ -366,7 +366,7 @@ export const h1bCareerAnswers: AnswerEntry[] = [
         relatedLinks: [
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
             { text: "STEM OPT Employer Requirements", href: "/blog/stem-opt-employer-requirements" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
         ],
         relatedQuestions: [
@@ -596,7 +596,7 @@ export const h1bCareerAnswers: AnswerEntry[] = [
         relatedLinks: [
             { text: "Day-1 CPT vs OPT", href: "/blog/day-1-cpt-vs-opt" },
             { text: "OPT to H-1B Transition Guide", href: "/blog/opt-to-h1b-transition" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
         ],
         relatedQuestions: [
@@ -761,7 +761,7 @@ export const h1bCareerAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
             { text: "Case Status Tracker", href: "/features/case-status" },
             { text: "STEM OPT Employer Requirements", href: "/blog/stem-opt-employer-requirements" },

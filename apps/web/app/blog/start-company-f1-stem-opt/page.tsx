@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, Download, CheckCircle, Target } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "Can You Run a Startup on STEM OPT? The E-Verify Rules Explained (2026)",
@@ -173,6 +174,8 @@ export default function STEMOPTStartupArticle() {
                     </p>
                 </section>
             </div>
+
+            <AuthorBio />
 
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Read The Rest of the Series</h2>

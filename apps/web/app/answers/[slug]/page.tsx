@@ -3,6 +3,7 @@ import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllAnswers, getAnswerBySlug } from "@/lib/answers";
+import { ANSWER_CANONICAL_OVERRIDES } from "@/lib/answers/canonical-overrides";
 import {
     ArrowRight,
     BookOpen,
@@ -11,6 +12,7 @@ import {
     Lightbulb,
     Shield,
 } from "lucide-react";
+import { ImmigrationContentDisclaimer } from "@/components/legal/ImmigrationContentDisclaimer";
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -19,12 +21,6 @@ type Props = {
 export async function generateStaticParams() {
     return getAllAnswers().map((a) => ({ slug: a.slug }));
 }
-
-/** Answers that duplicate a pillar blog post — canonical points to the blog URL. */
-const ANSWER_CANONICAL_OVERRIDES: Record<string, string> = {
-  "how-to-track-uscis-case-status":
-    "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide",
-};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
@@ -45,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
             title: answer.metadata.title,
             description: answer.metadata.description,
-            url: `https://www.trackmyopt.com/answers/${answer.slug}`,
+            url: canonical,
             siteName: "TrackMyOPT",
             type: "article",
         },
@@ -248,6 +244,8 @@ export default async function AnswerPage({ params }: Props) {
                         </section>
                     ))}
                 </div>
+
+                <ImmigrationContentDisclaimer className="border-t border-gray-200 dark:border-zinc-800 pt-6 mt-10" />
 
                 {answer.relatedLinks.length > 0 && (
                     <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-8 mt-12 mb-10">

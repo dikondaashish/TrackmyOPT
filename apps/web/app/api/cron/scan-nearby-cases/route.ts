@@ -14,6 +14,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
 import { buildReceiptRange } from "@/lib/case-status/receipt-cohort";
@@ -26,10 +27,8 @@ export const maxDuration = 300;
 
 export async function GET(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-    }
+    const cronAuthError = verifyCronAuth(req);
+    if (cronAuthError) return cronAuthError;
 
     if (!process.env.USCIS_CLIENT_ID || !process.env.USCIS_CLIENT_SECRET) {
       return NextResponse.json(

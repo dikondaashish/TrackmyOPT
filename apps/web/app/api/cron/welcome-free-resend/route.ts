@@ -17,6 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { createClient } from "@supabase/supabase-js";
 import {
   countWelcomeFreeResendEligible,
@@ -57,13 +58,8 @@ function sleep(ms: number): Promise<void> {
 export async function GET(req: NextRequest) {
   const startTime = Date.now();
 
-  const authHeader = req.headers.get("authorization");
-  const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-
-  if (!expectedAuth || authHeader !== expectedAuth) {
-    secureLog.warn("Unauthorized welcome-free-resend attempt");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const cronAuthError = verifyCronAuth(req);
+  if (cronAuthError) return cronAuthError;
 
   const dryRun = isDryRun(req);
 

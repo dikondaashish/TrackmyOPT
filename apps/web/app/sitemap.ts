@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getAllAnswers } from '@/lib/answers';
+import { ANSWER_CANONICAL_OVERRIDES } from '@/lib/answers/canonical-overrides';
 import { getPublicBlogRoutes } from '@/lib/blog-routes';
 
 export const revalidate = 3600;
@@ -30,8 +31,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { route: '/success-stories', changeFrequency: 'weekly' as const, priority: 0.7 },
     ];
 
-    // Q&A answer pages — dynamically generated from data
-    const answerPages = getAllAnswers().map((a) => `/answers/${a.slug}`);
+    // Q&A answer pages — dynamically generated from data (exclude canonical overrides)
+    const answerPages = getAllAnswers()
+        .filter((a) => !(a.slug in ANSWER_CANONICAL_OVERRIDES))
+        .map((a) => `/answers/${a.slug}`);
 
     // Feature pages — high priority, updated periodically
     const featurePages = [

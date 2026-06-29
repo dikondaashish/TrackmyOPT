@@ -21,6 +21,13 @@ export const metadata: Metadata = {
         siteName: "TrackMyOPT",
         type: "website",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "Immigration Status Comparison Tables | TrackMyOPT",
+        description:
+            "Side-by-side comparisons: OPT vs CPT, OPT vs H-1B, Regular vs STEM OPT, Resident vs Non-Resident taxes.",
+        images: ["/og-image.png"],
+    },
 };
 
 export default function CompareLayout({

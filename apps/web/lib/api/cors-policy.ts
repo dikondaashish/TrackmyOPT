@@ -60,7 +60,10 @@ export function corsHeadersWebAndExtension(req: NextRequest): Record<string, str
     };
   }
 
-  if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+  if (
+    process.env.NODE_ENV === "development" &&
+    (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:"))
+  ) {
     return {
       ...base,
       'Access-Control-Allow-Origin': origin,

@@ -51,6 +51,18 @@ const nextConfig = {
         destination: 'https://www.trackmyopt.com/:path*',
         permanent: true,
       },
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'zyene.com' }],
+        destination: 'https://www.trackmyopt.com/:path*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.zyene.com' }],
+        destination: 'https://www.trackmyopt.com/:path*',
+        permanent: true,
+      },
 
       // ── Stale indexed URLs (404 / old slugs) ────────────────────────────────
       // These were indexed by Google before pages were renamed; 301 to correct slug.
@@ -152,6 +164,16 @@ const nextConfig = {
       {
         source: '/blog/how-to-track-uscis-case-status-guide',
         destination: '/blog/uscis-case-status-tracking-guide',
+        permanent: true,
+      },
+      {
+        source: '/blog/can-you-travel-on-opt',
+        destination: '/blog/can-you-travel-on-opt-complete-guide',
+        permanent: true,
+      },
+      {
+        source: '/blog/form-i983-stem-opt-training-plan-guide',
+        destination: '/blog/i-983-training-plan-guide',
         permanent: true,
       },
     ];

@@ -32,17 +32,6 @@ const blogPosts = [
         image: "/blog/form-i765.png"
     },
     {
-        slug: "form-i983-stem-opt-training-plan-guide",
-        title: "Form I-983: The Complete STEM OPT Training Plan Guide (2026)",
-        description: "Everything students and employers need to know about Form I-983 — all 6 sections explained, E-Verify requirements, 12-month reporting rules, and why self-employment is prohibited.",
-        category: "STEM OPT",
-        readTime: "14 min read",
-        date: "June 12, 2026",
-        tags: ["Form I-983", "STEM OPT", "Training Plan", "E-Verify"],
-        featured: true,
-        image: "/blog/form-i983.png"
-    },
-    {
         slug: "second-masters-opt-eligibility",
         title: "Can I Apply for OPT Again After a Second Master's Degree? (2026 Guide)",
         description: "Discover the USCIS rules on OPT eligibility when pursuing a second Master's degree. Learn about the 'once per higher degree level' rule.",
@@ -323,15 +312,6 @@ const blogPosts = [
         date: "March 20, 2026",
         tags: ["USCIS", "Case Status", "I-765"],
         featured: true,
-    },
-    {
-        slug: "can-you-travel-on-opt",
-        title: "Can You Travel on OPT? Complete F-1 Travel Guide (2026)",
-        description: "Everything about traveling while on OPT. Required documents, re-entry rules, pending OPT risks, and STEM OPT travel considerations.",
-        category: "OPT Basics",
-        readTime: "10 min read",
-        date: "March 12, 2026",
-        tags: ["OPT", "Travel", "Re-entry"],
     },
     {
         slug: "can-you-travel-on-opt-complete-guide",

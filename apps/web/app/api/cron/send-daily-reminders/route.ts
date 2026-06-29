@@ -23,6 +23,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { createClient } from '@supabase/supabase-js';
 import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/notifications/email-service';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
@@ -62,15 +63,9 @@ interface UserToolEmails {
  */
 export async function GET(req: NextRequest) {
   const startTime = Date.now();
-  
-  // Verify cron secret
-  const authHeader = req.headers.get('authorization');
-  const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-  
-  if (authHeader !== expectedAuth) {
-    secureLog.warn('Unauthorized cron job attempt (send-daily-reminders)');
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+
+  const cronAuthError = verifyCronAuth(req);
+  if (cronAuthError) return cronAuthError;
 
   try {
     secureLog.info('Starting daily reminder job');

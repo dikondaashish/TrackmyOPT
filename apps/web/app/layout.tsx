@@ -1,13 +1,10 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { ThemeProvider } from '@/components/layout/theme-provider';
 import { CookieConsent } from '@/components/CookieConsent';
 import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
-
-const GA_ID = 'G-LD9XN0RHXH';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com'),
@@ -87,15 +84,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://randomuser.me" />
       </head>
       <body className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-        {/* Google Analytics (GA4) — loaded after interactive so it doesn't block LCP */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-        />
-        <Script id="ga4-init" strategy="afterInteractive">
-          {`try{window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');}catch(e){console.warn('Third-party init failed: GA4',e);}`}
-        </Script>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -118,7 +106,7 @@ export default function RootLayout({
                 "name": "TrackMyOPT",
                 "alternateName": "Track My OPT",
                 "url": "https://www.trackmyopt.com",
-                "logo": "https://www.trackmyopt.com/TrackMyOPT Logo/Favicon.png",
+                "logo": "https://www.trackmyopt.com/logo.png",
                 "description": "The #1 OPT timeline tracker and H-1B sponsor finder for F-1 international students in the United States.",
                 "foundingDate": "2025",
                 "contactPoint": {
@@ -157,12 +145,6 @@ export default function RootLayout({
                   "@type": "Offer",
                   "price": "0",
                   "priceCurrency": "USD"
-                },
-                "aggregateRating": {
-                  "@type": "AggregateRating",
-                  "ratingValue": "4.8",
-                  "ratingCount": "127",
-                  "bestRating": "5"
                 }
               }
               ],

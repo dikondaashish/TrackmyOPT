@@ -25,6 +25,8 @@ const REDIRECT_CHECKS = [
   ["/help", "/dashboard/help"],
   ["/blog/opt-processing-time", "/blog/opt-processing-time-2026"],
   ["/blog/how-to-track-uscis-case-status-guide", "/blog/uscis-case-status-tracking-guide"],
+  ["/blog/can-you-travel-on-opt", "/blog/can-you-travel-on-opt-complete-guide"],
+  ["/blog/form-i983-stem-opt-training-plan-guide", "/blog/i-983-training-plan-guide"],
   ["/blog/f1-student-tax-filing-guide", "/blog/f1-student-tax-filing-guide-2026"],
   ["/search", "/answers"],
 ];

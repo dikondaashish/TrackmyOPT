@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
@@ -48,14 +49,8 @@ interface ReminderWithDocument {
 export async function GET(request: NextRequest) {
 
   try {
-    // Security: Verify cron secret
-    const authHeader = request.headers.get('authorization');
-    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-
-    if (authHeader !== expectedAuth) {
-      secureLog.warn('Unauthorized cron request (send-document-reminders)');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const cronAuthError = verifyCronAuth(request);
+    if (cronAuthError) return cronAuthError;
 
     // Use service role client for database access
     const supabase = createClient(

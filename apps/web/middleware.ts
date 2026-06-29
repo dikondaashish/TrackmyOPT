@@ -26,8 +26,8 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { CRAWLER_NOINDEX_HEADERS, isSearchCrawler } from '@/lib/is-search-crawler';
 
-// Routes that require authentication (redirect to home if not logged in)
-const protectedRoutes = ['/dashboard'];
+// Routes that require authentication (redirect to login if not logged in)
+const protectedRoutes = ['/dashboard', '/admin'];
 
 // Public routes that don't require authentication (exceptions within protected routes)
 // These pages are accessible without login
@@ -177,6 +177,12 @@ export const config = {
   matcher: [
     '/api/:path*',
     '/dashboard/:path*',
+    '/admin/:path*',
     '/login',
+    /*
+     * Host canonicalization (zyene.com, trackmyopt.com → www.trackmyopt.com)
+     * must run on marketing pages too — not only dashboard/API.
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)',
   ],
 };

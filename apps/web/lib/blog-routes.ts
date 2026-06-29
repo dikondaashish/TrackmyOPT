@@ -10,6 +10,8 @@ export const BLOG_REDIRECT_SLUGS = new Set([
     "f1-student-tax-filing-guide",
     "opt-health-insurance-guide",
     "ats-resume-international-students",
+    "can-you-travel-on-opt",
+    "form-i983-stem-opt-training-plan-guide",
 ]);
 
 /** Discover live blog post routes from the app directory. */

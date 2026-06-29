@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import rateLimit from '@/lib/auth/rate-limit';
 
 export const dynamic = 'force-dynamic';
+
+const feedbackLimiter = rateLimit({ interval: 3_600_000 });
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,6 +23,18 @@ const getAdminClient = () => createClient(
 
 export async function POST(req: NextRequest) {
   try {
+    const ip =
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      req.headers.get('x-real-ip') ||
+      'unknown';
+    const { isRateLimited } = feedbackLimiter.check(req, 10, `uninstall-feedback:${ip}`);
+    if (isRateLimited) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please try again later.' },
+        { status: 429, headers: corsHeaders }
+      );
+    }
+
     const body = await req.json();
 
     const { reasons, subOptions, followUpAnswers, additionalFeedback, timestamp } = body;
@@ -30,10 +45,6 @@ export async function POST(req: NextRequest) {
         { status: 400, headers: corsHeaders }
       );
     }
-
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ||
-               req.headers.get('x-real-ip') ||
-               'Unknown';
 
     const userAgent = req.headers.get('user-agent') || 'Unknown';
 

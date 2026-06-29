@@ -19,10 +19,7 @@ const LandingTestimonials = dynamic(() => import("../components/landing/LandingT
 const LandingEngine = dynamic(() => import("../components/landing/LandingEngine").then(mod => mod.LandingEngine));
 const LandingToolkit = dynamic(() => import("../components/landing/LandingToolkit").then(mod => mod.LandingToolkit));
 import {
-    softwareApplicationSchema,
     faqSchema,
-    websiteSchema,
-    organizationSchema,
     breadcrumbSchema,
     serviceSchemas,
     howToSchemas,
@@ -43,9 +40,6 @@ export const metadata: Metadata = {
 
 // Combine relevant schemas for the landing page
 const landingPageSchemas = [
-    organizationSchema,
-    websiteSchema,
-    softwareApplicationSchema,
     faqSchema,
     breadcrumbSchema,
     ...serviceSchemas,

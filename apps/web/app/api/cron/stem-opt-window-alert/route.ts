@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendStemOptWindowEmail } from "@/lib/notifications/transactional-emails";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
@@ -42,13 +43,8 @@ function resolveStemOptTargetEmail(p: {
 export async function GET(req: NextRequest) {
   const startTime = Date.now();
 
-  const authHeader = req.headers.get("authorization");
-  const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-
-  if (authHeader !== expectedAuth) {
-    secureLog.warn("Unauthorized stem-opt-window-alert cron attempt");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const cronAuthError = verifyCronAuth(req);
+  if (cronAuthError) return cronAuthError;
 
   const minEad = utcDatePlusDays(89);
   const maxEad = utcDatePlusDays(91);

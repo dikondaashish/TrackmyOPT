@@ -55,8 +55,8 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
             }
         ],
         relatedLinks: [
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
-            { text: "OPT Processing Time", href: "/blog/opt-processing-time" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
+            { text: "OPT Processing Time", href: "/blog/opt-processing-time-2026" },
             { text: "Case Status Tracker", href: "/features/case-status" },
             { text: "Immigration Glossary", href: "/glossary" }
         ],
@@ -136,8 +136,8 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
             }
         ],
         relatedLinks: [
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
-            { text: "OPT Processing Time", href: "/blog/opt-processing-time" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
+            { text: "OPT Processing Time", href: "/blog/opt-processing-time-2026" },
             { text: "USCIS Case Status Guide", href: "/blog/uscis-case-status-tracking-guide" },
             { text: "Free OPT Tools", href: "/tools" }
         ],
@@ -217,7 +217,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
             }
         ],
         relatedLinks: [
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
             { text: "Immigration Glossary", href: "/glossary" },
             { text: "Free OPT Tools", href: "/tools" }
@@ -290,7 +290,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
             }
         ],
         relatedLinks: [
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Immigration Glossary", href: "/glossary" },
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
             { text: "Case Status Tracker", href: "/features/case-status" }
@@ -373,7 +373,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
             }
         ],
         relatedLinks: [
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
             { text: "Immigration Glossary", href: "/glossary" },
             { text: "Free OPT Tools", href: "/tools" }
@@ -454,7 +454,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
         ],
         relatedLinks: [
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Immigration Glossary", href: "/glossary" },
             { text: "Free OPT Tools", href: "/tools" }
         ],
@@ -536,7 +536,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
         relatedLinks: [
             { text: "USCIS Case Status Guide", href: "/blog/uscis-case-status-tracking-guide" },
             { text: "Case Status Tracker", href: "/features/case-status" },
-            { text: "OPT Processing Time", href: "/blog/opt-processing-time" },
+            { text: "OPT Processing Time", href: "/blog/opt-processing-time-2026" },
             { text: "Free OPT Tools", href: "/tools" }
         ],
         relatedQuestions: [
@@ -617,9 +617,9 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
         ],
         relatedLinks: [
             { text: "USCIS Case Status Guide", href: "/blog/uscis-case-status-tracking-guide" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Case Status Tracker", href: "/features/case-status" },
-            { text: "OPT Processing Time", href: "/blog/opt-processing-time" }
+            { text: "OPT Processing Time", href: "/blog/opt-processing-time-2026" }
         ],
         relatedQuestions: [
             { question: "What Is a NOID from USCIS?", slug: "what-is-noid-uscis" },
@@ -696,7 +696,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
         ],
         relatedLinks: [
             { text: "USCIS Case Status Guide", href: "/blog/uscis-case-status-tracking-guide" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Case Status Tracker", href: "/features/case-status" },
             { text: "Immigration Glossary", href: "/glossary" }
         ],
@@ -776,7 +776,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
         relatedLinks: [
             { text: "USCIS Case Status Guide", href: "/blog/uscis-case-status-tracking-guide" },
             { text: "Case Status Tracker", href: "/features/case-status" },
-            { text: "OPT Processing Time", href: "/blog/opt-processing-time" },
+            { text: "OPT Processing Time", href: "/blog/opt-processing-time-2026" },
             { text: "Immigration Glossary", href: "/glossary" }
         ],
         relatedQuestions: [

@@ -1,5 +1,4 @@
 "use client";
-import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -147,23 +146,6 @@ function SubmitStory() {
 export default function SuccessStoriesPage() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: safeSerializeJsonLd({
-                        "@context": "https://schema.org/",
-                        "@type": "AggregateRating",
-                        "name": "TrackMyOPT Success Stories",
-                        "ratingValue": 4.9,
-                        "bestRating": 5,
-                        "worstRating": 1,
-                        "ratingCount": 2500,
-                        "reviewCount": 2500,
-                        "url": "https://www.trackmyopt.com/success-stories",
-                        "description": "Real success stories from international students who landed jobs using TrackMyOPT guidance"
-                    })
-                }}
-            />
             <LandingNavbar />
 
             {/* Hero */}

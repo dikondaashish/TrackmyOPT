@@ -69,6 +69,14 @@ export default function PrivacyPage() {
           Optional analytics (PostHog) when enabled in our deployment. PostHog analytics, when enabled, may collect usage events such as feature interactions and page visits to help us improve the product. PostHog does not use this data for advertising targeting. You may contact{" "}
           <a href={`mailto:${LEGAL_CONTACT.privacy}`}>{LEGAL_CONTACT.privacy}</a> to request opt-out.
         </li>
+        <li>
+          <strong>Google Analytics (GA4)</strong> — when you accept cookies in our banner, we load GA4 to collect aggregated website traffic and usage data (e.g. pages visited, session duration). See{" "}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google&apos;s Privacy Policy</a>.
+        </li>
+        <li>
+          <strong>Google AdSense</strong> — when you accept cookies in our banner, we may display ads via AdSense on free content pages. AdSense may use cookies for ad delivery and measurement. See{" "}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google&apos;s Privacy Policy</a>.
+        </li>
         <li>Aggregated performance metrics (Vercel Analytics / Speed Insights) on our website</li>
         <li>Chrome extension: version, timezone, and sync storage for sign-in state (see extension permissions)</li>
       </ul>

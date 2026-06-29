@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
@@ -14,14 +15,8 @@ export const maxDuration = 60;
  */
 export async function GET(req: NextRequest) {
   try {
-    const authHeader = req.headers.get('authorization');
-
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const cronAuthError = verifyCronAuth(req);
+    if (cronAuthError) return cronAuthError;
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const apiKey = process.env.API_SECRET_KEY;

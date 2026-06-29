@@ -2,6 +2,8 @@
 
 Protected routes use **`Authorization: Bearer <CRON_SECRET>`** (same secret as `CRON_SECRET` in Vercel).
 
+**Security:** If `CRON_SECRET` is not set in the environment, all cron routes return **503 Cron not configured** (fail-closed). Auth is centralized in `lib/api/verify-cron-auth.ts`.
+
 ---
 
 ## STEM OPT Window Alert

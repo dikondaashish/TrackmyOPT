@@ -71,7 +71,20 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
             {config.description}
           </p>
           <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            Also see{" "}
+            {variant === "case-status" ? (
+              <>
+                Case status information is for convenience only — not legal advice.{" "}
+                <Link
+                  href="/disclaimer"
+                  className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"
+                >
+                  Read disclaimer
+                </Link>
+                . Also see{" "}
+              </>
+            ) : (
+              <>Also see </>
+            )}
             <Link
               href="/features/case-status"
               className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"

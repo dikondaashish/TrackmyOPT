@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { checkUSCISStatus, mockUSCISStatus } from '@/lib/immigration/uscis-checker';
 import { buildStatusHistoryFromUscis } from '@/lib/case-status/normalize-status-history';
@@ -84,16 +85,18 @@ export async function POST(req: NextRequest) {
 
   try {
     // Verify internal request or cron authorization
-    const authHeader = req.headers.get('authorization');
     const internalSecret = req.headers.get('X-Internal-Secret');
     const expectedSecret = process.env.CRON_SECRET;
+    const isInternalRequest = Boolean(expectedSecret && internalSecret === expectedSecret);
 
-    // Check if this is a cron job request or internal request with shared secret
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && internalSecret !== expectedSecret) {
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
+    if (!isInternalRequest) {
+      const cronAuthError = verifyCronAuth(req);
+      if (cronAuthError) {
+        return NextResponse.json(
+          { ok: false, error: 'Unauthorized' },
+          { status: cronAuthError.status, headers: corsHeaders }
+        );
+      }
     }
 
     const body = await req.json();

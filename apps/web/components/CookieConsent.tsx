@@ -10,6 +10,26 @@ import {
 } from "@/lib/cookie-consent";
 import { setPostHogAnalyticsConsent } from "@/lib/posthog/posthog-browser";
 
+const GA_ID = "G-LD9XN0RHXH";
+
+function loadGA4() {
+  try {
+    if (document.getElementById("ga4-script")) return;
+    const script = document.createElement("script");
+    script.id = "ga4-script";
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    script.crossOrigin = "anonymous";
+    document.head.appendChild(script);
+    const init = document.createElement("script");
+    init.id = "ga4-init";
+    init.textContent = `try{window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');}catch(e){console.warn('Third-party init failed: GA4',e);}`;
+    document.head.appendChild(init);
+  } catch (error) {
+    console.warn("Third-party init failed: GA4", error);
+  }
+}
+
 function loadAdSense() {
   try {
     if (document.getElementById("adsense-script")) return;
@@ -39,6 +59,7 @@ export function CookieConsent() {
         console.warn("Third-party init failed: PostHog consent", error);
       }
       loadAdSense();
+      loadGA4();
     } else if (stored === "declined") {
       try {
         setPostHogAnalyticsConsent(false);
@@ -62,6 +83,7 @@ export function CookieConsent() {
       console.warn("Third-party init failed: PostHog consent", error);
     }
     loadAdSense();
+    loadGA4();
   }, []);
 
   const handleDecline = useCallback(() => {
@@ -86,7 +108,7 @@ export function CookieConsent() {
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
               We use essential cookies to keep TrackMyOPT running. With your
-              consent, we also use product analytics (PostHog) to improve the app
+              consent, we also use product analytics (PostHog, Google Analytics),
               and advertising cookies (AdSense) to support free content. Choose
               Essential Only to skip analytics and ads.{" "}
               <Link

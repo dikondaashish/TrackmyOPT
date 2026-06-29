@@ -60,7 +60,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
         relatedLinks: [
             { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
         ],
         relatedQuestions: [
@@ -289,7 +289,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
         relatedLinks: [
             { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
         ],
         relatedQuestions: [
@@ -443,7 +443,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
         relatedLinks: [
             { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "TrackMyOPT Pricing", href: "/pricing" },
         ],
         relatedQuestions: [
@@ -518,7 +518,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "What Is an EAD Card?", href: "/features/case-status" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
@@ -751,7 +751,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
         relatedLinks: [
             { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
+            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
             { text: "TrackMyOPT Tools", href: "/tools" },
         ],
         relatedQuestions: [

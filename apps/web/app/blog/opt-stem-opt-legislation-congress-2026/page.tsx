@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, Download, CheckCircle, Scale } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "Dueling Congress Bills Target OPT & STEM OPT: What You Need to Know (2026)",
@@ -171,6 +172,8 @@ export default function OPTCongressArticle() {
                         <strong>Next Step:</strong> Use our Advocacy Toolkit to email your local representative and urge them to co-sponsor the Protect OPT Act, ensuring the U.S. remains the top destination for global talent.
                     </p>
                 </section>
+
+                <AuthorBio />
             </div>
         </article>
     );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, Download, ShieldCheck, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "Form I-9 Complete Guide: What It Is, Who Needs It & How to Fill It Out (2026)",
@@ -359,6 +360,8 @@ export default function FormI9GuidePage() {
                     ))}
                 </div>
             </section>
+
+            <AuthorBio />
 
             {/* CTA */}
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white text-center">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, Download, CheckCircle, TrendingUp } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
+import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
     title: "DOL Proposes Massive Prevailing Wage Hikes for H-1B: What It Means (2026)",
@@ -174,6 +175,8 @@ export default function PrevailingWageArticle() {
                         <strong>Next Step:</strong> Talk to your HR department now. Ask if your company has a policy on using private wage surveys (like Radford or Willis Towers Watson) for H-1B LCAs in the event that OES prevailing wages spike.
                     </p>
                 </section>
+
+                <AuthorBio />
             </div>
         </article>
     );
