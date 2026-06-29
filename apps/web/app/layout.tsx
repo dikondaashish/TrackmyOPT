@@ -91,9 +91,10 @@ export default function RootLayout({
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
+          crossOrigin="anonymous"
         />
         <Script id="ga4-init" strategy="afterInteractive">
-          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
+          {`try{window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');}catch(e){console.warn('Third-party init failed: GA4',e);}`}
         </Script>
         <ThemeProvider
           attribute="class"

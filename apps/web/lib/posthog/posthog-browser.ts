@@ -50,25 +50,29 @@ export function setPostHogAnalyticsConsent(accepted: boolean): void {
  * - Server-side PostHog (API routes) is unaffected.
  */
 export function initPostHogBrowser(): void {
-  const posthogToken = resolvePostHogToken();
-  if (!posthogToken || typeof window === "undefined") return;
+  try {
+    const posthogToken = resolvePostHogToken();
+    if (!posthogToken || typeof window === "undefined") return;
 
-  const alreadyLoaded = Boolean((posthog as { __loaded?: boolean }).__loaded);
-  if (alreadyLoaded) {
-    applyPostHogConsentFromStorage();
-    return;
-  }
-
-  posthog.init(posthogToken, {
-    api_host: "/ingest",
-    ui_host: "https://us.posthog.com",
-    defaults: "2026-01-30",
-    capture_exceptions: true,
-    debug: process.env.NODE_ENV === "development",
-    opt_out_capturing_by_default: true,
-    session_recording: POSTHOG_SESSION_RECORDING,
-    loaded: () => {
+    const alreadyLoaded = Boolean((posthog as { __loaded?: boolean }).__loaded);
+    if (alreadyLoaded) {
       applyPostHogConsentFromStorage();
-    },
-  });
+      return;
+    }
+
+    posthog.init(posthogToken, {
+      api_host: "/ingest",
+      ui_host: "https://us.posthog.com",
+      defaults: "2026-01-30",
+      capture_exceptions: true,
+      debug: process.env.NODE_ENV === "development",
+      opt_out_capturing_by_default: true,
+      session_recording: POSTHOG_SESSION_RECORDING,
+      loaded: () => {
+        applyPostHogConsentFromStorage();
+      },
+    });
+  } catch (error) {
+    console.warn("Third-party init failed: PostHog", error);
+  }
 }

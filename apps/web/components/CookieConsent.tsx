@@ -11,14 +11,18 @@ import {
 import { setPostHogAnalyticsConsent } from "@/lib/posthog/posthog-browser";
 
 function loadAdSense() {
-  if (document.getElementById("adsense-script")) return;
-  const script = document.createElement("script");
-  script.id = "adsense-script";
-  script.async = true;
-  script.src =
-    "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4262248775973692";
-  script.crossOrigin = "anonymous";
-  document.head.appendChild(script);
+  try {
+    if (document.getElementById("adsense-script")) return;
+    const script = document.createElement("script");
+    script.id = "adsense-script";
+    script.async = true;
+    script.src =
+      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4262248775973692";
+    script.crossOrigin = "anonymous";
+    document.head.appendChild(script);
+  } catch (error) {
+    console.warn("Third-party init failed: AdSense", error);
+  }
 }
 
 export function CookieConsent() {
@@ -29,10 +33,18 @@ export function CookieConsent() {
     const stored = getStoredCookieConsent();
     setConsent(stored);
     if (stored === "accepted") {
-      setPostHogAnalyticsConsent(true);
+      try {
+        setPostHogAnalyticsConsent(true);
+      } catch (error) {
+        console.warn("Third-party init failed: PostHog consent", error);
+      }
       loadAdSense();
     } else if (stored === "declined") {
-      setPostHogAnalyticsConsent(false);
+      try {
+        setPostHogAnalyticsConsent(false);
+      } catch (error) {
+        console.warn("Third-party init failed: PostHog consent", error);
+      }
     }
     if (stored === null) {
       const timer = setTimeout(() => setVisible(true), 1500);
@@ -44,7 +56,11 @@ export function CookieConsent() {
     setStoredCookieConsent("accepted");
     setConsent("accepted");
     setVisible(false);
-    setPostHogAnalyticsConsent(true);
+    try {
+      setPostHogAnalyticsConsent(true);
+    } catch (error) {
+      console.warn("Third-party init failed: PostHog consent", error);
+    }
     loadAdSense();
   }, []);
 
