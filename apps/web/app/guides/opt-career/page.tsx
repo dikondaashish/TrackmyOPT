@@ -348,7 +348,7 @@ export default function OPTCareerPillarGuide() {
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-3">
-                        <Link href="/blog/ats-resume-international-students" className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                        <Link href="/blog/ats-resume-international-students-2026" className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
                             Complete ATS Resume Guide for F-1 Students <ChevronRight className="w-3.5 h-3.5" />
                         </Link>
                         <Link href="/features/resume-ai" className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
@@ -834,7 +834,7 @@ export default function OPTCareerPillarGuide() {
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
-                    <Link href="/blog/ats-resume-international-students" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ ATS Resume Guide for International Students</Link>
+                    <Link href="/blog/ats-resume-international-students-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ ATS Resume Guide for International Students</Link>
                     <Link href="/blog/top-h1b-sponsor-companies-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Top H-1B Sponsor Companies 2026</Link>
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
                     <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company</Link>

@@ -12,7 +12,7 @@ const PUBLIC_DASHBOARD_ALLOW = [
     "/dashboard/opt-tools/stem-clock",
 ] as const;
 
-function botRule(userAgent: string): MetadataRoute.Robots["rules"][number] {
+function botRule(userAgent: string) {
     return {
         userAgent,
         allow: ["/", ...PUBLIC_DASHBOARD_ALLOW],

@@ -517,7 +517,7 @@ const relatedLinks = [
         category: "Blog",
     },
     {
-        href: "/blog/f1-student-tax-filing-guide",
+        href: "/blog/f1-student-tax-filing-guide-2026",
         label: "F-1 Student Tax Filing Guide",
         category: "Blog",
     },

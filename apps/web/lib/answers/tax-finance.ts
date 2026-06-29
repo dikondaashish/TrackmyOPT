@@ -58,7 +58,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide" },
+            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
             { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
@@ -135,7 +135,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide" },
+            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
             { text: "STEM OPT Employer Requirements", href: "/blog/stem-opt-employer-requirements" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
@@ -212,7 +212,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
         ],
         relatedLinks: [
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
-            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide" },
+            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "TrackMyOPT Tools", href: "/tools" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
         ],
@@ -287,7 +287,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide" },
+            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
             { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
@@ -365,7 +365,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
         ],
         relatedLinks: [
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
-            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide" },
+            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "STEM OPT Extension Guide", href: "/blog/stem-opt-extension-guide" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
         ],
@@ -441,7 +441,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide" },
+            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
             { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
             { text: "TrackMyOPT Pricing", href: "/pricing" },
@@ -598,7 +598,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide" },
+            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
             { text: "TrackMyOPT Tools", href: "/tools" },
             { text: "TrackMyOPT Pricing", href: "/pricing" },
@@ -674,7 +674,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide" },
+            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
             { text: "Glossary of Immigration Terms", href: "/glossary" },
             { text: "TrackMyOPT Tools", href: "/tools" },
@@ -749,7 +749,7 @@ export const taxFinanceAnswers: AnswerEntry[] = [
             },
         ],
         relatedLinks: [
-            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide" },
+            { text: "F-1 Student Tax Filing Guide", href: "/blog/f1-student-tax-filing-guide-2026" },
             { text: "F-1 Tax Filing Walkthrough", href: "/guides/f1-tax-filing" },
             { text: "OPT Application Checklist", href: "/blog/opt-application-checklist" },
             { text: "TrackMyOPT Tools", href: "/tools" },

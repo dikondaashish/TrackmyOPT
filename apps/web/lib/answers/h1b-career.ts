@@ -520,7 +520,7 @@ export const h1bCareerAnswers: AnswerEntry[] = [
         relatedLinks: [
             { text: "Top H-1B Sponsor Companies 2026", href: "/blog/top-h1b-sponsor-companies-2026" },
             { text: "OPT to H-1B Transition Guide", href: "/blog/opt-to-h1b-transition" },
-            { text: "ATS Resume for International Students", href: "/blog/ats-resume-international-students" },
+            { text: "ATS Resume for International Students", href: "/blog/ats-resume-international-students-2026" },
             { text: "OPT Career Guide", href: "/guides/opt-career" },
         ],
         relatedQuestions: [
@@ -673,7 +673,7 @@ export const h1bCareerAnswers: AnswerEntry[] = [
         ],
         relatedLinks: [
             { text: "Top H-1B Sponsor Companies 2026", href: "/blog/top-h1b-sponsor-companies-2026" },
-            { text: "ATS Resume for International Students", href: "/blog/ats-resume-international-students" },
+            { text: "ATS Resume for International Students", href: "/blog/ats-resume-international-students-2026" },
             { text: "OPT to H-1B Transition Guide", href: "/blog/opt-to-h1b-transition" },
             { text: "OPT Career Guide", href: "/guides/opt-career" },
         ],

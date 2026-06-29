@@ -239,7 +239,7 @@ export default function F1TaxFilingPillarGuide() {
                     </div>
 
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                        For a quick overview, see our <Link href="/blog/f1-student-tax-filing-guide" className="text-blue-600 dark:text-blue-400 underline">F-1 Tax Filing Blog Post</Link>. For automated form determination, use the <Link href="/features/tax-filing" className="text-blue-600 dark:text-blue-400 underline">TrackMyOPT Tax Filing Assistant</Link>.
+                        For a quick overview, see our <Link href="/blog/f1-student-tax-filing-guide-2026" className="text-blue-600 dark:text-blue-400 underline">F-1 Tax Filing Blog Post</Link>. For automated form determination, use the <Link href="/features/tax-filing" className="text-blue-600 dark:text-blue-400 underline">TrackMyOPT Tax Filing Assistant</Link>.
                     </p>
                 </section>
 
@@ -975,12 +975,12 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides & Resources</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
-                    <Link href="/blog/f1-student-tax-filing-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ F-1 Tax Filing Quick-Start Guide (Blog)</Link>
+                    <Link href="/blog/f1-student-tax-filing-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ F-1 Tax Filing Quick-Start Guide (Blog)</Link>
                     <Link href="/blog/what-happens-if-opt-expires" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ What Happens If Your OPT Expires?</Link>
                     <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day Unemployment Rule Explained</Link>
                     <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>
                     <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ STEM OPT Extension Guide</Link>
-                    <Link href="/blog/opt-health-insurance-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Health Insurance for OPT Students</Link>
+                    <Link href="/blog/opt-health-insurance-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Health Insurance for OPT Students</Link>
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
                     <Link href="/features/tax-filing" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Tax Filing Assistant →</Link>

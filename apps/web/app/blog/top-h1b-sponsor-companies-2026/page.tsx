@@ -482,7 +482,7 @@ export default function TopH1BSponsorArticle() {
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Transition Guide</Link>
                     <Link href="/blog/h1b-cap-gap-extension" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Cap-Gap Extension Explained</Link>
                     <Link href="/blog/f1-visa-jobs-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ F-1 Visa Jobs Guide 2026</Link>
-                    <Link href="/blog/ats-resume-international-students" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ ATS Resume for International Students</Link>
+                    <Link href="/blog/ats-resume-international-students-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ ATS Resume for International Students</Link>
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-800 flex flex-wrap gap-4">
                     <Link href="/features/sponsors" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">H-1B Sponsor Database →</Link>

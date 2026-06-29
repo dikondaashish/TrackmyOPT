@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getAllAnswers } from '@/lib/answers';
+import { getPublicBlogRoutes } from '@/lib/blog-routes';
 
 export const revalidate = 3600;
 
@@ -66,50 +67,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/resources/report-fraud',
     ];
 
-    // Blog content — high SEO value, updated regularly
-    const blogPages = [
-        '/blog',
-        '/blog/90-day-unemployment-rule-opt',
-        '/blog/opt-processing-time-2026',
-        '/blog/stem-opt-unemployment-limit',
-        '/blog/opt-application-checklist-2026',
-        '/blog/opt-to-h1b-transition',
-        '/blog/i-983-training-plan-guide',
-        '/blog/what-happens-if-opt-expires',
-        '/blog/h1b-approval-rates-by-company',
-        '/blog/stem-opt-extension-guide',
-        '/blog/opt-extension-guide',
-        '/blog/f1-visa-jobs-guide',
-        '/blog/opt-ead-card-guide',
-        '/blog/h1b-cap-gap-extension',
-        '/blog/day-1-cpt-vs-opt',
-        // Old versions canonicalized to 2026 equivalents (not in sitemap)
-        '/blog/uscis-case-status-tracking-guide',
-        // Old versions canonicalized to 2026 equivalents (not in sitemap)
-        '/blog/top-h1b-sponsor-companies-2026',
-        '/blog/stem-opt-employer-requirements',
-        '/blog/opt-application-denied',
-        '/blog/opt-stem-opt-job-offer-verification-checklist',
-        '/blog/f1-student-tax-filing-guide-2026',
-        '/blog/opt-health-insurance-guide-2026',
-        '/blog/ats-resume-international-students-2026',
-        '/blog/can-you-travel-on-opt-complete-guide',
-        '/blog/leverage-job-search-trackmyopt-resume-generator',
-        '/blog/f1-opt-stem-opt-tax-filing-mistakes',
-        // /blog/can-you-travel-on-opt is a real page (no redirect), safe to include
-        '/blog/can-you-travel-on-opt',
-        // NOTE: f1-student-tax-filing-guide, opt-health-insurance-guide,
-        // ats-resume-international-students are permanent 301 redirects in
-        // next.config.js → their 2026 versions are already in the sitemap above.
-        // Including redirect sources causes "Page with redirect" in Search Console.
-
-        // ── New posts added May 2026 ──
-        '/blog/indian-bank-account-nro-opt-students',
-        '/blog/hsi-opt-fraud-crackdown-legitimate-students-guide',
-        '/blog/is-opt-ending-dhs-rule-2026',
-        '/blog/spring-graduates-opt-application-timing-2026',
-        '/blog/opt-ead-pending-processing-delays-2026',
-    ];
+    // Blog content — auto-discovered from app/blog (excludes 301 redirect sources)
+    const blogPages = ['/blog', ...getPublicBlogRoutes()];
 
     return [
         ...corePages.map(({ route, changeFrequency, priority }) => ({

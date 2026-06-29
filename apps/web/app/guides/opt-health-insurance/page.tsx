@@ -864,10 +864,10 @@ export default function OPTHealthInsurancePillarGuide() {
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
-                    <Link href="/blog/opt-health-insurance-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-1">
+                    <Link href="/blog/opt-health-insurance-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-1">
                         <ArrowRight className="w-3 h-3" /> OPT Health Insurance Overview (Blog)
                     </Link>
-                    <Link href="/blog/f1-student-tax-filing-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-1">
+                    <Link href="/blog/f1-student-tax-filing-guide-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-1">
                         <ArrowRight className="w-3 h-3" /> F-1 Student Tax Filing Guide 2026
                     </Link>
                     <Link href="/blog/what-happens-if-opt-expires" className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-1">
