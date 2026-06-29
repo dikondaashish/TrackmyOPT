@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminAuth } from "@/lib/api/verify-admin-auth";
+import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 
 /**
  * IndexNow API Endpoint
@@ -12,14 +12,15 @@ import { verifyAdminAuth } from "@/lib/api/verify-admin-auth";
  * 
  * Environment variables required:
  * - INDEXNOW_KEY: Your IndexNow API key
+ * - CRON_SECRET: Bearer token for POST (same secret as cron routes)
  * 
  * Bing will verify ownership by checking:
  * https://trackmyopt.com/{INDEXNOW_KEY}.txt
  */
 
 export async function POST(request: NextRequest) {
-  const adminAuthError = verifyAdminAuth(request);
-  if (adminAuthError) return adminAuthError;
+  const cronAuthError = verifyCronAuth(request);
+  if (cronAuthError) return cronAuthError;
 
   try {
     const body = await request.json();
@@ -113,6 +114,7 @@ export async function GET() {
     usage: {
       method: 'POST',
       endpoint: '/api/indexnow',
+      headers: { Authorization: 'Bearer <CRON_SECRET>' },
       body: {
         urlList: ['https://trackmyopt.com/page1', 'https://trackmyopt.com/page2'],
       },

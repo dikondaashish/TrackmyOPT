@@ -24,7 +24,7 @@
 
 | Phase | Code status | Manual / external remaining |
 |-------|-------------|----------------------------|
-| **Phase 1** Security | ✅ Implemented | Confirm `CRON_SECRET` + `ADMIN_SECRET` in Vercel |
+| **Phase 1** Security | ✅ Implemented | Confirm `CRON_SECRET` in Vercel (IndexNow + crons use this) |
 | **Phase 2** Legal | ✅ Implemented | External legal counsel review of updated policies |
 | **Phase 3** SEO | ✅ Implemented | GSC validate fix; Rich Results Test after deploy |
 | **Phase 4** Polish | ✅ Mostly implemented | Delete redirect-source blog dirs after 30 days; verify `referrals` RLS in prod |
@@ -127,8 +127,19 @@ node apps/web/scripts/verify-post-deploy-seo.mjs
 
 **Tasks:**
 
-- [ ] Require `ADMIN_SECRET` or restrict to server-side only (remove public POST)
-- [ ] Add rate limiting if endpoint must stay public
+- [x] Require `CRON_SECRET` Bearer auth (same secret as cron routes — no separate `ADMIN_SECRET` needed)
+- [x] Add rate limiting if endpoint must stay public — N/A; auth required
+
+**Manual submit:**
+
+```bash
+curl -X POST "https://www.trackmyopt.com/api/indexnow" \
+  -H "Authorization: Bearer YOUR_CRON_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"urlList":["https://www.trackmyopt.com/blog/opt-processing-time-2026"]}'
+```
+
+Or use `npm run submit:indexnow` (calls IndexNow API directly with `INDEXNOW_KEY`).
 
 ### 1.5 Auth endpoint hardening
 
