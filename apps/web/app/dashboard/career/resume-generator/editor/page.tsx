@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import { triggerBrowserDownload } from "@/lib/browser-download";
+import { triggerBrowserDownload, triggerUrlDownload } from "@/lib/browser-download";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -475,20 +475,19 @@ export default function ResumeEditorPage() {
     }, [extractNameFromLatex, generatedLatex, jobTitle, selectedTemplateId]);
 
     const handleDownload = useCallback(() => {
-        // If we have a compiled PDF, download that
-        if (compiledPdfUrl) {
-            const a = document.createElement("a");
-            a.href = compiledPdfUrl;
-            a.download = buildPdfFilename();
-            a.rel = "noopener";
-            a.style.display = "none";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        } else {
-            // Fallback: Compile and download
-            compilePdf(generatedLatex);
-            toast({ description: "Compiling PDF... click download again when ready." });
+        try {
+            if (compiledPdfUrl) {
+                // Use the central safe download helper — defers anchor removal
+                // and guards parentNode so removeChild never throws.
+                triggerUrlDownload(compiledPdfUrl, buildPdfFilename());
+            } else {
+                // Fallback: compile first, then user clicks download again.
+                compilePdf(generatedLatex);
+                toast({ description: "Compiling PDF... click download again when ready." });
+            }
+        } catch (err) {
+            console.error("[handleDownload] failed:", err);
+            toast({ description: "Download failed. Please try again.", variant: "destructive" });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [buildPdfFilename, compiledPdfUrl, generatedLatex, toast]);

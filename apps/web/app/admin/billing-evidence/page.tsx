@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { triggerTextDownload } from "@/lib/browser-download";
 
 /**
  * Internal dispute evidence lookup. Requires ADMIN_SECRET in the form (not stored).
@@ -32,13 +33,13 @@ export default function AdminBillingEvidencePage() {
   }
 
   function downloadJson() {
-    const blob = new Blob([result], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `billing-evidence-${email || "export"}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // Uses the central safe download helper — defers anchor removal and
+    // URL revocation, and wraps everything in try/catch.
+    triggerTextDownload(
+      result,
+      `billing-evidence-${email || "export"}.json`,
+      "application/json"
+    );
   }
 
   return (
