@@ -20,6 +20,7 @@ import {
   getCaseTrackingLimit,
 } from "@/lib/case-status/case-limits";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
+import { CaseTimelineErrorBoundary } from "@/components/dashboard/case-status/CaseTimelineErrorBoundary";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
 import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
 import {
@@ -658,6 +659,14 @@ export function CaseStatusSection() {
 
   const caseState = deriveCaseState(caseStatus?.current_status);
 
+  const safeStatusHistory = useMemo(
+    () =>
+      Array.isArray(caseStatus?.status_history)
+        ? caseStatus.status_history
+        : normalizeStatusHistory(caseStatus?.status_history),
+    [caseStatus?.status_history]
+  );
+
   // PP overdue calculation — 0 until clientNow is available (post-hydration).
   const ppStartDate = caseStatus?.pp_start_date ?? null;
   const ppOverdueDays: number = (() => {
@@ -680,8 +689,11 @@ export function CaseStatusSection() {
   })();
 
   const rfeDate: string | null = (() => {
-    const h = caseStatus?.status_history ?? [];
-    const rfe = h.find((e) => e.status?.toLowerCase().includes("request for evidence"));
+    const rfe = safeStatusHistory.find(
+      (e) =>
+        typeof e.status === "string" &&
+        e.status.toLowerCase().includes("request for evidence")
+    );
     return rfe?.date ?? null;
   })();
 
@@ -791,11 +803,11 @@ export function CaseStatusSection() {
             />
           ) : (
             <CaseHeroCard
-              caseStatus={caseStatus}
+              caseStatus={{ ...caseStatus, status_history: safeStatusHistory }}
               caseState={caseState}
               ppOverdueDays={ppOverdueDays}
               ppDeadlineDate={ppDeadlineDate}
-              updateCount={caseStatus.status_history?.length ?? 0}
+              updateCount={safeStatusHistory.length}
               isRefreshing={isRefreshing}
               onRefresh={handleRefresh}
               onManageCase={() => setIsEditingReceipt(true)}
@@ -829,7 +841,7 @@ export function CaseStatusSection() {
             caseId={caseStatus.id}
             ppStartDate={caseStatus.pp_start_date ?? null}
             currentStatus={caseStatus.current_status}
-            statusHistory={caseStatus.status_history ?? []}
+            statusHistory={safeStatusHistory}
             onSaved={() => void loadCaseStatus()}
           />
 
@@ -871,13 +883,15 @@ export function CaseStatusSection() {
           />
 
           {/* ── 7. CASE TIMELINE + CASE INFORMATION (original layout) ── */}
-          {caseStatus.status_history && caseStatus.status_history.length > 0 ? (
+          {safeStatusHistory.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
               <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
-                <CaseHistoryTimeline
-                  statusHistory={caseStatus.status_history}
-                  defaultExpanded={false}
-                />
+                <CaseTimelineErrorBoundary>
+                  <CaseHistoryTimeline
+                    statusHistory={safeStatusHistory}
+                    defaultExpanded={false}
+                  />
+                </CaseTimelineErrorBoundary>
               </Card>
 
               <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">

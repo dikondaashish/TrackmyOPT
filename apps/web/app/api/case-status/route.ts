@@ -4,6 +4,7 @@ import { getUserId } from '@/lib/auth/getUserId';
 import { sendEnrollmentEmail } from '@/lib/notifications/email-service';
 import { caseLimitMessage, getCaseTrackingLimit } from '@/lib/case-status/case-limits';
 import { pickPrimaryCase } from '@/lib/case-status/select-primary-case';
+import { withNormalizedStatusHistory } from '@/lib/case-status/normalize-status-history';
 import { captureServerEvent, normalizePlanTier } from '@/lib/posthog-server';
 import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
 import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
@@ -86,7 +87,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const sorted = sortCases(cases ?? []);
+    const sorted = sortCases(cases ?? []).map((row) => withNormalizedStatusHistory(row));
     const primary = pickPrimaryCase(sorted);
 
     return NextResponse.json(

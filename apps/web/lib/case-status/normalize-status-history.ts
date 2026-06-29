@@ -82,34 +82,66 @@ export function buildStatusHistoryFromUscis(
   return mapped;
 }
 
+function resolveStatusString(record: Record<string, unknown>): string | null {
+  if (typeof record.status === "string" && record.status.trim()) {
+    return record.status.trim();
+  }
+  if (typeof record.completedText === "string" && record.completedText.trim()) {
+    return record.completedText.trim();
+  }
+  return null;
+}
+
+function resolveDateString(record: Record<string, unknown>): string {
+  if (typeof record.date === "string" && record.date.trim()) {
+    return record.date.trim();
+  }
+  if (typeof record.timestamp === "string" && record.timestamp.trim()) {
+    return record.timestamp.trim();
+  }
+  if (record.timestamp != null && typeof record.timestamp !== "object") {
+    return String(record.timestamp);
+  }
+  return "";
+}
+
+function resolveDescription(
+  record: Record<string, unknown>,
+  status: string
+): string | undefined {
+  if (typeof record.description === "string" && record.description.trim()) {
+    return record.description.trim();
+  }
+  if (typeof record.label === "string" && record.label.trim()) {
+    return record.label.trim();
+  }
+  return status;
+}
+
 /** Coerce Supabase/realtime JSON into a safe timeline array for rendering. */
 export function normalizeStatusHistory(value: unknown): CaseStatusHistoryEntry[] {
-  if (!Array.isArray(value)) return [];
+  if (value == null || !Array.isArray(value)) return [];
 
-  return value.flatMap((item) => {
-    if (item == null || typeof item !== "object") return [];
+  const normalized: CaseStatusHistoryEntry[] = [];
+
+  for (const item of value) {
+    if (item == null || typeof item !== "object") continue;
 
     const record = item as Record<string, unknown>;
-    const status =
-      typeof record.status === "string"
-        ? record.status
-        : typeof record.completedText === "string"
-          ? record.completedText
-          : "";
-    const date = typeof record.date === "string" ? record.date : "";
-    const description =
-      typeof record.description === "string" ? record.description : undefined;
+    const status = resolveStatusString(record);
+    if (!status) continue;
 
-    if (!status && !date && !description) return [];
+    const date = resolveDateString(record);
+    const description = resolveDescription(record, status);
 
-    return [
-      {
-        status,
-        date,
-        ...(description ? { description } : {}),
-      },
-    ];
-  });
+    normalized.push({
+      status,
+      date,
+      ...(description !== status ? { description } : {}),
+    });
+  }
+
+  return normalized;
 }
 
 export function withNormalizedStatusHistory<T extends { status_history?: unknown }>(

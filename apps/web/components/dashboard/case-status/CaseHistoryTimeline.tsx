@@ -48,7 +48,10 @@ function getRelativeTime(dateString: string, now: Date | null): string {
 }
 
 // Determine icon based on status text
-function getStatusIcon(status: string, isFirst: boolean) {
+function getStatusIcon(status: string | null | undefined, isFirst: boolean) {
+    if (typeof status !== "string" || !status.trim()) {
+        return <Clock className={`w-4 h-4 ${isFirst ? "text-white" : "text-blue-500"}`} />;
+    }
     const lower = status.toLowerCase();
     if (lower.includes("approved") || lower.includes("produced")) {
         return <CheckCircle2 className={`w-4 h-4 ${isFirst ? "text-white" : "text-emerald-500"}`} />;
@@ -70,14 +73,15 @@ export function CaseHistoryTimeline({
     const [isExpanded, setIsExpanded] = useState(defaultExpanded);
     // Client-only date — null during SSR, set after hydration to avoid error #418.
     const clientNow = useClientDate();
+    const safeHistory = Array.isArray(statusHistory) ? statusHistory : [];
 
-    if (!statusHistory || statusHistory.length === 0) {
+    if (safeHistory.length === 0) {
         return null;
     }
 
     // Show only most recent event when collapsed, all when expanded
-    const visibleHistory = isExpanded ? statusHistory : statusHistory.slice(0, 1);
-    const hasMoreEvents = statusHistory.length > 1;
+    const visibleHistory = isExpanded ? safeHistory : safeHistory.slice(0, 1);
+    const hasMoreEvents = safeHistory.length > 1;
 
     return (
         <div className={`${className}`}>
@@ -90,7 +94,7 @@ export function CaseHistoryTimeline({
                     <div>
                         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Case Timeline</h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {statusHistory.length} update{statusHistory.length !== 1 ? 's' : ''} from USCIS
+                            {safeHistory.length} update{safeHistory.length !== 1 ? 's' : ''} from USCIS
                         </p>
                     </div>
                 </div>
@@ -111,7 +115,7 @@ export function CaseHistoryTimeline({
                         ) : (
                             <>
                                 <ChevronDown className="w-4 h-4 mr-1" />
-                                View Full History ({statusHistory.length - 1} more)
+                                View Full History ({safeHistory.length - 1} more)
                             </>
                         )}
                     </Button>
@@ -215,7 +219,7 @@ export function CaseHistoryTimeline({
                             className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                         >
                             <div className="flex -space-x-2">
-                                {[...Array(Math.min(3, statusHistory.length - 1))].map((_, i) => (
+                                {[...Array(Math.min(3, safeHistory.length - 1))].map((_, i) => (
                                     <div
                                         key={i}
                                         className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 border-2 border-white dark:border-gray-900 flex items-center justify-center group-hover:scale-110 transition-transform"
@@ -227,7 +231,7 @@ export function CaseHistoryTimeline({
                                     </div>
                                 ))}
                             </div>
-                            <span className="font-medium">+{statusHistory.length - 1} earlier updates</span>
+                            <span className="font-medium">+{safeHistory.length - 1} earlier updates</span>
                         </button>
                     </div>
                 )}

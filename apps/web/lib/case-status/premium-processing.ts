@@ -40,7 +40,10 @@ function historyEntries(
   if (!Array.isArray(history)) return [];
   return history.filter(
     (e): e is CaseStatusHistoryEntry =>
-      e != null && typeof e === "object" && typeof (e as CaseStatusHistoryEntry).date === "string"
+      e != null &&
+      typeof e === "object" &&
+      typeof (e as CaseStatusHistoryEntry).status === "string" &&
+      (e as CaseStatusHistoryEntry).status.trim().length > 0
   );
 }
 

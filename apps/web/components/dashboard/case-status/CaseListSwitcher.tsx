@@ -6,6 +6,7 @@ import { Plus, Star, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getServiceCenterLabel } from "@/lib/case-status/case-status-display";
 import { getCurrentStatusDetail } from "@/lib/case-status/current-status-detail";
+import { normalizeStatusHistory } from "@/lib/case-status/normalize-status-history";
 
 export type TrackedCaseSummary = {
   id: string;
@@ -99,7 +100,7 @@ export function CaseListSwitcher({
 
           const statusDetail = getCurrentStatusDetail({
             currentStatus: c.current_status,
-            statusHistory: c.status_history ?? [],
+            statusHistory: normalizeStatusHistory(c.status_history),
           });
           const hasDescription = Boolean(statusDetail.description);
 
