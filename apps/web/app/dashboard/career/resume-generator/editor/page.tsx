@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import { triggerBrowserDownload, triggerUrlDownload } from "@/lib/browser-download";
+import { useSearchParams } from "next/navigation";
+import { triggerUrlDownload } from "@/lib/browser-download";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
     ArrowLeft,
     Download,
@@ -13,10 +13,9 @@ import {
     Code,
     Loader2,
     Check,
-    Maximize2,
-    Minimize2,
     Play,
     Cog,
+    FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -24,33 +23,45 @@ import { useResumeStore } from "@/store/resume-store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OptimizationFeedbackModal } from "./components/OptimizationFeedbackModal";
 import { AtsScorePanel } from "./components/AtsScorePanel";
+import { ApplyReadinessChecklist } from "./components/ApplyReadinessChecklist";
+import { DownloadGateModal } from "./components/DownloadGateModal";
 import { GeneratingOverlay } from "./components/GeneratingOverlay";
 import { LatexToolbar, EditorViewMode } from "./components/LatexToolbar";
 import { useEditorHistory } from "@/hooks/use-editor-history";
 import { useStreamingEffect } from "@/hooks/use-streaming-effect";
 import { supabase } from "@/lib/supabaseClient";
 import { Save } from "lucide-react";
+import { buildResumePdfFilename, extractNameFromLatex } from "@/lib/resume/build-resume-filename";
+import { latexToPlainText } from "@/lib/resume/latex-to-plain-text";
+import { extractPdfTextFromBlob } from "@/lib/resume/pdf-text-extract-client";
+import { isDownloadGateRequired } from "@/lib/resume/apply-readiness";
+import { ATS_PASS_SCORE, buildAutoRegenFeedback, type AtsAnalysis } from "@/lib/resume/ats-analysis-types";
+import { captureClientEvent } from "@/lib/posthog-client";
 
 export default function ResumeEditorPage() {
     const { toast } = useToast();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const searchParams = useSearchParams();
+    const autoRegenAttempts = useRef(0);
+    const skipNextAutoRegen = useRef(false);
 
     // Store
     const {
-        // Data
-        resumeText, jobDescription, selectedTemplateId, jobTitle,
+        resumeText, jobDescription, selectedTemplateId, jobTitle, applicationId,
         generatedLatex, compiledPdfUrl, atsAnalysis,
-        // Setters
-        setGeneratedLatex, setCompiledPdfUrl, setAtsAnalysis,
-        // Status
+        setGeneratedLatex, setCompiledPdfUrl, setAtsAnalysis, setApplicationId,
         isGenerating, setIsGenerating,
         isCompiling, setIsCompiling
     } = useResumeStore();
 
     // Local UI State
     const [isCopied, setIsCopied] = useState(false);
+    const [isPlainCopied, setIsPlainCopied] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [showDownloadGate, setShowDownloadGate] = useState(false);
+    const [pdfParseOk, setPdfParseOk] = useState<boolean | null>(null);
+    const [isAutoFixing, setIsAutoFixing] = useState(false);
 
     // View Mode State
     const [viewMode, setViewMode] = useState<EditorViewMode>('split');
@@ -136,10 +147,14 @@ export default function ResumeEditorPage() {
     }, []);
 
     useEffect(() => {
+        const appId = searchParams.get("applicationId");
+        if (appId) setApplicationId(appId);
+    }, [searchParams, setApplicationId]);
+
+    useEffect(() => {
         if (resumeText && jobDescription && selectedTemplateId && !generatedLatex && !isGenerating) {
             generateResume(resumeText, jobDescription, selectedTemplateId);
         } else if (generatedLatex && !compiledPdfUrl && !isCompiling) {
-            // Auto-compile persisted latex on page reload (blob URLs don't persist)
             compilePdf(generatedLatex);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,9 +189,178 @@ export default function ResumeEditorPage() {
         }, 0);
     };
 
+    const buildPdfFilename = useCallback((): string => {
+        return buildResumePdfFilename({
+            latex: generatedLatex,
+            jobDescription,
+            jobTitle,
+            templateId: selectedTemplateId,
+        });
+    }, [generatedLatex, jobDescription, jobTitle, selectedTemplateId]);
+
+    const saveResumeToHistory = useCallback(
+        async (latex: string, analysis: AtsAnalysis | null) => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+
+                const filename = buildResumePdfFilename({
+                    latex,
+                    jobDescription,
+                    jobTitle,
+                    templateId: selectedTemplateId,
+                });
+
+                await fetch(`/api/proxy/resume/save`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        userId: user.id,
+                        filename,
+                        content: resumeText,
+                        structuredData: {
+                            latexCode: latex,
+                            jobDescription,
+                            jobTitle,
+                            applicationId,
+                            atsAnalysis: analysis,
+                            atsScore: analysis?.score ?? null,
+                            templateId: selectedTemplateId,
+                            resumeStatus: (analysis?.score ?? 0) >= ATS_PASS_SCORE ? "ready" : "draft",
+                            type: "generated",
+                        },
+                    }),
+                });
+            } catch (error) {
+                console.error("Auto-save failed:", error);
+            }
+        },
+        [applicationId, jobDescription, jobTitle, resumeText, selectedTemplateId]
+    );
+
+    const runDeepScan = useCallback(
+        async (latex: string, silent = false): Promise<AtsAnalysis | null> => {
+            if (!jobDescription || !latex) return null;
+
+            setIsScanning(true);
+            try {
+                const generatedText = latexToPlainText(latex);
+                const response = await fetch("/api/resume-generator/scan", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        resumeText: generatedText,
+                        generatedText,
+                        jobDescription,
+                        latexCode: latex,
+                    }),
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "Scan failed");
+
+                setAtsAnalysis(data);
+                if (!silent) {
+                    toast({
+                        title: "Analysis complete",
+                        description: `ATS score: ${data.score ?? "—"}/100`,
+                    });
+                }
+                return data as AtsAnalysis;
+            } catch (error) {
+                console.error(error);
+                if (!silent) {
+                    toast({
+                        title: "Scan Failed",
+                        description: "Could not perform deep analysis.",
+                        variant: "destructive",
+                    });
+                }
+                return null;
+            } finally {
+                setIsScanning(false);
+            }
+        },
+        [jobDescription, setAtsAnalysis, toast]
+    );
+
+    const runAutoRegenerate = useCallback(
+        async (analysis: AtsAnalysis | null) => {
+            if (autoRegenAttempts.current >= 2) return;
+            if (!analysis || (analysis.score ?? 0) >= ATS_PASS_SCORE) return;
+            if (!(analysis.keywordMatch?.missing?.length ?? 0)) return;
+
+            autoRegenAttempts.current += 1;
+            setIsAutoFixing(true);
+            skipNextAutoRegen.current = true;
+
+            try {
+                const feedback = buildAutoRegenFeedback(analysis);
+                const response = await fetch("/api/resume-generator/regenerate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        resumeText,
+                        jobDescription,
+                        templateId: selectedTemplateId || "professional",
+                        previousLatex: generatedLatex,
+                        userFeedback: feedback,
+                        atsAnalysis: analysis,
+                    }),
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "Regenerate failed");
+
+                updateText(data.latex, false);
+                setIsStreamingEnabled(true);
+                if (data.atsCheck) setAtsAnalysis(data.atsCheck);
+
+                toast({
+                    title: "Auto-improving resume",
+                    description: `Attempt ${autoRegenAttempts.current}/2 — targeting missing keywords.`,
+                });
+
+                if (data.latex) await compilePdf(data.latex, 0, true);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsAutoFixing(false);
+            }
+        },
+        [generatedLatex, jobDescription, resumeText, selectedTemplateId, setAtsAnalysis, toast, updateText]
+    );
+
+    const postCompilePipeline = useCallback(
+        async (latex: string, blob: Blob, options?: { allowAutoRegen?: boolean }) => {
+            const allowAutoRegen = options?.allowAutoRegen !== false;
+            const name = extractNameFromLatex(latex);
+            const pdfResult = await extractPdfTextFromBlob(blob, name);
+            setPdfParseOk(pdfResult.ok);
+            if (!pdfResult.ok && pdfResult.warning) {
+                toast({
+                    title: "ATS parse risk",
+                    description: pdfResult.warning,
+                    variant: "destructive",
+                });
+            }
+
+            const analysis = await runDeepScan(latex, true);
+            if (analysis) {
+                await saveResumeToHistory(latex, analysis);
+                if (allowAutoRegen && !skipNextAutoRegen.current) {
+                    await runAutoRegenerate(analysis);
+                }
+                skipNextAutoRegen.current = false;
+            }
+        },
+        [runDeepScan, runAutoRegenerate, saveResumeToHistory, toast]
+    );
+
     // API: Generate Resume
     const generateResume = async (resume: string, job: string, template: string) => {
         setIsGenerating(true);
+        autoRegenAttempts.current = 0;
 
         try {
             const response = await fetch('/api/resume-generator/generate', {
@@ -195,22 +379,21 @@ export default function ResumeEditorPage() {
                 throw new Error(data.error || 'Failed to generate resume');
             }
 
-            // Start streaming the new text
-            updateText(data.latex, false); // Update history/store without saving a new step yet? Or just update.
+            updateText(data.latex, false);
             setIsStreamingEnabled(true);
 
-            // Auto-compile after generation
+            if (data.atsCheck) {
+                setAtsAnalysis({ ...data.atsCheck, score: data.atsCheck.score ?? 0 });
+            }
+
             if (data.latex) {
-                compilePdf(data.latex);
+                await compilePdf(data.latex);
             }
 
             toast({
                 title: "Resume Generated",
                 description: "AI has tailored your resume to the job description.",
             });
-
-            // Auto-save
-            autoSaveResume(data.latex, atsAnalysis);
 
         } catch (error: unknown) {
             console.error(error);
@@ -225,42 +408,13 @@ export default function ResumeEditorPage() {
         }
     };
 
-    // Auto-save function (silent)
-    const autoSaveResume = async (latex: string, analysis: any) => {
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
-
-            const response = await fetch(`/api/proxy/resume/save`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    userId: user.id,
-                    filename: `Generated Resume - ${selectedTemplateId} #${Math.floor(1000 + Math.random() * 9000)}`,
-                    content: resumeText,
-                    structuredData: {
-                        latexCode: latex,
-                        jobDescription: jobDescription,
-                        atsAnalysis: analysis,
-                        templateId: selectedTemplateId,
-                        type: 'generated'
-                    },
-                }),
-            });
-
-            toast({
-                title: "Auto-saved",
-                description: "Resume saved to history.",
-            });
-        } catch (error) {
-            console.error("Auto-save failed:", error);
-        }
-    };
-
     // API: Compile PDF
-    const compilePdf = async (code: string, retryCount = 0) => {
+    const compilePdf = async (
+        code: string,
+        retryCount = 0,
+        fromAutoRegen = false,
+        allowAutoRegen = true
+    ) => {
         if (!code) return;
         setIsCompiling(true);
         try {
@@ -274,7 +428,6 @@ export default function ResumeEditorPage() {
                 const errorData = await response.json().catch(() => ({}));
                 const errorMessage = errorData.error || 'Compilation failed';
 
-                // Auto-Fix Logic (Try once)
                 if (retryCount === 0) {
                     toast({
                         title: "Syntax Error Detected",
@@ -282,7 +435,6 @@ export default function ResumeEditorPage() {
                         variant: "default",
                     });
 
-                    // Call Fix Endpoint
                     const fixResponse = await fetch('/api/resume-generator/fix-latex', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -295,9 +447,8 @@ export default function ResumeEditorPage() {
                     const fixData = await fixResponse.json();
 
                     if (fixResponse.ok && fixData.latex) {
-                        // Apply fix and retry
                         updateText(fixData.latex, false);
-                        await compilePdf(fixData.latex, 1); // Retry once
+                        await compilePdf(fixData.latex, 1, fromAutoRegen, allowAutoRegen);
                         return;
                     }
                 }
@@ -307,10 +458,14 @@ export default function ResumeEditorPage() {
 
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
-            // Revoke previous blob URL to prevent memory leak
             const prevUrl = useResumeStore.getState().compiledPdfUrl;
             if (prevUrl) URL.revokeObjectURL(prevUrl);
             setCompiledPdfUrl(url);
+
+            if (!fromAutoRegen) {
+                skipNextAutoRegen.current = false;
+            }
+            await postCompilePipeline(code, blob, { allowAutoRegen });
 
         } catch (error: unknown) {
             console.error(error);
@@ -324,7 +479,6 @@ export default function ResumeEditorPage() {
         }
     };
 
-    // Cleanup blob URL on unmount
     useEffect(() => {
         return () => {
             const currentUrl = useResumeStore.getState().compiledPdfUrl;
@@ -332,45 +486,9 @@ export default function ResumeEditorPage() {
         };
     }, []);
 
-    // API: Deep ATS Scan
     const handleDeepScan = async () => {
-        if (!resumeText || !jobDescription || !generatedLatex) return;
-
-        setIsScanning(true);
-        try {
-            const response = await fetch('/api/resume-generator/scan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    resumeText,          // Original text (for content comparison)
-                    jobDescription,
-                    latexCode: generatedLatex // For formatting check
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Scan failed');
-            }
-
-            setAtsAnalysis(data);
-
-            toast({
-                title: "Analysis complete",
-                description: "Your resume was compared to the job description for keywords, gaps, and fit.",
-            });
-
-        } catch (error: unknown) {
-            console.error(error);
-            toast({
-                title: "Scan Failed",
-                description: "Could not perform deep analysis.",
-                variant: "destructive",
-            });
-        } finally {
-            setIsScanning(false);
-        }
+        if (!generatedLatex) return;
+        await runDeepScan(generatedLatex);
     };
 
     // Handle Manual Regenerate
@@ -385,7 +503,7 @@ export default function ResumeEditorPage() {
                 body: JSON.stringify({
                     resumeText,
                     jobDescription,
-                    templateId: selectedTemplateId || "modern",
+                    templateId: selectedTemplateId || "professional",
                     previousLatex: generatedLatex,
                     userFeedback: feedback,
                     atsAnalysis // Pass ATS data to backend
@@ -435,107 +553,77 @@ export default function ResumeEditorPage() {
         toast({ description: "LaTeX code copied to clipboard" });
     }, [generatedLatex, toast]);
 
-    /** Extract the candidate's full name from the generated LaTeX source. */
-    const extractNameFromLatex = useCallback((latex: string): string => {
-        // Try common LaTeX resume name patterns
-        const patterns = [
-            /\\name\{([^}]+)\}\{([^}]+)\}/,              // \name{First}{Last}
-            /\\name\{([^}]+)\}/,                           // \name{Full Name}
-            /\\textbf\{\\Huge\s+([^}]+)\}/,               // \textbf{\Huge Full Name}
-            /\\textbf\{\\huge\s+([^}]+)\}/,               // \textbf{\huge Full Name}
-            /\\begin\{center\}\s*\\textbf\{([^}]+)\}/,    // \begin{center}\textbf{Name}
-            /\\section\*?\{([^}]+)\}\s*%\s*name/i,        // \section*{Name} % name
-        ];
-        for (const pattern of patterns) {
-            const m = latex.match(pattern);
-            if (m) {
-                // If two capture groups (first + last), combine them
-                const name = m[2] ? `${m[1].trim()} ${m[2].trim()}` : m[1].trim();
-                if (name.length > 1) return name;
-            }
-        }
-        return "";
-    }, []);
+    const handleCopyPlainText = useCallback(() => {
+        const plain = latexToPlainText(generatedLatex);
+        navigator.clipboard.writeText(plain);
+        setIsPlainCopied(true);
+        setTimeout(() => setIsPlainCopied(false), 2000);
+        toast({ description: "Plain text copied — paste into job portals" });
+    }, [generatedLatex, toast]);
 
-    /** Sanitize a string to be safe for a filename (replace spaces/special chars with underscores). */
-    const toFilenameSegment = (s: string) =>
-        s.trim().replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    const performDownload = useCallback(() => {
+        if (!compiledPdfUrl) return;
+        triggerUrlDownload(compiledPdfUrl, buildPdfFilename());
+    }, [buildPdfFilename, compiledPdfUrl]);
 
-    const buildPdfFilename = useCallback((): string => {
-        const personName = extractNameFromLatex(generatedLatex);
-        const role = jobTitle ?? "";
-
-        const namePart = toFilenameSegment(personName);
-        const rolePart = toFilenameSegment(role);
-
-        if (namePart && rolePart) return `resume_${namePart}_${rolePart}.pdf`;
-        if (namePart)             return `resume_${namePart}.pdf`;
-        if (rolePart)             return `resume_${rolePart}.pdf`;
-        return `resume_${selectedTemplateId ?? "generated"}.pdf`;
-    }, [extractNameFromLatex, generatedLatex, jobTitle, selectedTemplateId]);
+    const handleDownloadAnyway = useCallback(() => {
+        captureClientEvent("resume_download_anyway", {
+            ats_score: atsAnalysis?.score ?? null,
+            application_id: applicationId,
+        });
+        setShowDownloadGate(false);
+        performDownload();
+    }, [applicationId, atsAnalysis?.score, performDownload]);
 
     const handleDownload = useCallback(() => {
         try {
-            if (compiledPdfUrl) {
-                // Use the central safe download helper — defers anchor removal
-                // and guards parentNode so removeChild never throws.
-                triggerUrlDownload(compiledPdfUrl, buildPdfFilename());
-            } else {
-                // Fallback: compile first, then user clicks download again.
+            if (!compiledPdfUrl) {
                 compilePdf(generatedLatex);
                 toast({ description: "Compiling PDF... click download again when ready." });
+                return;
             }
+
+            const needsGate = isDownloadGateRequired({
+                latex: generatedLatex,
+                jobDescription,
+                jobTitle,
+                templateId: selectedTemplateId,
+                atsAnalysis,
+                pdfParseOk,
+            });
+
+            if (needsGate) {
+                setShowDownloadGate(true);
+                return;
+            }
+
+            performDownload();
         } catch (err) {
             console.error("[handleDownload] failed:", err);
             toast({ description: "Download failed. Please try again.", variant: "destructive" });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [buildPdfFilename, compiledPdfUrl, generatedLatex, toast]);
+    }, [atsAnalysis, generatedLatex, compilePdf, jobDescription, jobTitle, pdfParseOk, performDownload, compiledPdfUrl, selectedTemplateId, toast]);
 
-    // Handle Save Generated Resume
+    const handleFixAndDownload = useCallback(async () => {
+        setShowDownloadGate(false);
+        if (atsAnalysis) {
+            await runAutoRegenerate(atsAnalysis);
+        } else if (generatedLatex) {
+            await runDeepScan(generatedLatex, true);
+        }
+    }, [atsAnalysis, generatedLatex, runAutoRegenerate, runDeepScan]);
+
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSave = async () => {
         if (!generatedLatex) return;
-
         setIsSaving(true);
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                toast({
-                    title: "Authentication Error",
-                    description: "You must be logged in to save resumes.",
-                    variant: "destructive",
-                });
-                return;
-            }
-
-            const response = await fetch(`/api/proxy/resume/save`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    userId: user.id,
-                    filename: `Generated Resume - ${selectedTemplateId} #${Math.floor(1000 + Math.random() * 9000)}`,
-                    content: resumeText, // Source content for reference
-                    structuredData: {
-                        latexCode: generatedLatex,
-                        jobDescription: jobDescription,
-                        atsAnalysis: atsAnalysis,
-                        templateId: selectedTemplateId,
-                        type: 'generated'
-                    },
-                }),
-            });
-
-            if (!response.ok) throw new Error("Failed to save resume");
-
+            await saveResumeToHistory(generatedLatex, atsAnalysis);
             toast({
                 title: "Resume Saved",
-                description: "Your generated resume and analysis have been saved to history.",
+                description: "Saved with smart filename and ATS score.",
             });
-
         } catch (error) {
             console.error("Save error:", error);
             toast({
@@ -556,6 +644,14 @@ export default function ResumeEditorPage() {
                 onClose={() => setShowFeedbackModal(false)}
                 onConfirm={handleRegenerate}
                 isGenerating={isGenerating}
+            />
+            <DownloadGateModal
+                open={showDownloadGate}
+                onOpenChange={setShowDownloadGate}
+                score={atsAnalysis?.score ?? 0}
+                onFixAutomatically={handleFixAndDownload}
+                onDownloadAnyway={handleDownloadAnyway}
+                isFixing={isAutoFixing || isGenerating}
             />
 
             {/* Header */}
@@ -614,7 +710,7 @@ export default function ResumeEditorPage() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => compilePdf(generatedLatex)}
+                                onClick={() => compilePdf(generatedLatex, 0, false, false)}
                                 disabled={isCompiling || !generatedLatex}
                                 className="hidden sm:flex items-center gap-1 text-gray-600"
                             >
@@ -641,12 +737,26 @@ export default function ResumeEditorPage() {
                                 {isCopied ? "Copied" : "Copy Source"}
                             </Button>
                             <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleCopyPlainText}
+                                disabled={!generatedLatex}
+                                className="hidden lg:flex items-center gap-1"
+                            >
+                                {isPlainCopied ? <Check className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                                {isPlainCopied ? "Copied" : "Copy plain text"}
+                            </Button>
+                            <Button
                                 size="sm"
                                 onClick={handleDownload}
-                                disabled={!compiledPdfUrl && !generatedLatex}
+                                disabled={(!compiledPdfUrl && !generatedLatex) || isScanning || isAutoFixing}
                                 className="bg-blue-600 hover:bg-blue-700 text-white"
                             >
-                                <Download className="w-4 h-4 mr-1" />
+                                {(isScanning || isAutoFixing) ? (
+                                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                ) : (
+                                    <Download className="w-4 h-4 mr-1" />
+                                )}
                                 Download PDF
                             </Button>
                         </div>
@@ -756,7 +866,7 @@ export default function ResumeEditorPage() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => compilePdf(generatedLatex)}
+                                onClick={() => compilePdf(generatedLatex, 0, false, false)}
                                 disabled={isCompiling}
                             >
                                 <RefreshCw className={`w-4 h-4 ${isCompiling ? 'animate-spin' : ''}`} />
@@ -802,12 +912,22 @@ export default function ResumeEditorPage() {
                         </TabsContent>
 
                         <TabsContent value="ats" className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 m-0 data-[state=inactive]:hidden">
-                            <div className="max-w-2xl mx-auto">
-                                <div className="mb-4 flex justify-end">
+                            <div className="max-w-2xl mx-auto space-y-4">
+                                <ApplyReadinessChecklist
+                                    input={{
+                                        latex: generatedLatex,
+                                        jobDescription,
+                                        jobTitle,
+                                        templateId: selectedTemplateId,
+                                        atsAnalysis,
+                                        pdfParseOk,
+                                    }}
+                                />
+                                <div className="flex justify-end">
                                     <Button
                                         size="sm"
                                         onClick={handleDeepScan}
-                                        disabled={isScanning || isGenerating}
+                                        disabled={isScanning || isGenerating || !generatedLatex}
                                         className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                     >
                                         {isScanning ? (
@@ -818,7 +938,7 @@ export default function ResumeEditorPage() {
                                         ) : (
                                             <>
                                                 <Sparkles className="w-4 h-4 mr-2" />
-                                                Run full ATS analysis
+                                                Re-run ATS analysis
                                             </>
                                         )}
                                     </Button>

@@ -50,7 +50,7 @@ export function FoundersNote() {
                             <GlobalTalentGlobe />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-900 dark:text-white">Ashish & Team</h4>
+                            <h4 className="font-bold text-gray-900 dark:text-white">Karthik & Team</h4>
                             <p className="text-sm text-gray-500 uppercase tracking-wider font-semibold mt-1">Founders, TrackMyOPT</p>
 
                             {/* Signatures */}

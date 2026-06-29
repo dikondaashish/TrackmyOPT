@@ -5,8 +5,13 @@ import json
 from collections import defaultdict
 from datetime import datetime
 
-INPUT_FILE = '/Users/ashishdikonda/Documents/Office/ZYENE/TrackMyOPT/TrackMyOPT/ITContractorsUnion-Main/Jobs/New_H1B_Tech_Jobs.csv'
-OUTPUT_SQL = 'supabase/seed_h1b.sql'
+import os
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+repo_root = os.path.abspath(os.path.join(script_dir, '../../../..'))
+
+INPUT_FILE = os.path.join(repo_root, 'ITContractorsUnion-Main/Jobs/New_H1B_Tech_Jobs.csv')
+OUTPUT_SQL = os.path.join(repo_root, 'supabase/seed_h1b.sql')
 
 def slugify(text):
     text = text.lower()

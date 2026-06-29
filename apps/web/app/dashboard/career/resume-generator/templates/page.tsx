@@ -24,6 +24,7 @@ export default function TemplateSelectionPage() {
     const {
         selectedTemplateId, setSelectedTemplateId,
         resumeText, jobDescription,
+        applicationId,
         setSelectedColor,
         setGeneratedLatex,
         setCompiledPdfUrl,
@@ -57,7 +58,10 @@ export default function TemplateSelectionPage() {
         setCompiledPdfUrl('');
         setAtsAnalysis(null);
 
-        router.push("/dashboard/career/resume-generator/editor");
+        const editorPath = applicationId
+            ? `/dashboard/career/resume-generator/editor?applicationId=${encodeURIComponent(applicationId)}`
+            : "/dashboard/career/resume-generator/editor";
+        router.push(editorPath);
     };
 
     return (
@@ -151,6 +155,15 @@ export default function TemplateSelectionPage() {
                                 </div>
 
                                 {/* Premium Badge */}
+                                {template.atsRating === "safe" ? (
+                                    <div className="absolute top-2 left-2 px-2 py-1 bg-green-600 text-white text-xs font-semibold rounded-full shadow-md z-10">
+                                        ATS-Safe
+                                    </div>
+                                ) : (
+                                    <div className="absolute top-2 left-2 px-2 py-1 bg-amber-600 text-white text-xs font-semibold rounded-full shadow-md z-10">
+                                        Design
+                                    </div>
+                                )}
                                 {template.isPremium && (
                                     <div className="absolute top-2 right-2 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full flex items-center gap-1 shadow-md z-10">
                                         <Crown className="w-3 h-3" />

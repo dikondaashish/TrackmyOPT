@@ -4,6 +4,8 @@ import { GoogleGenAI } from '@google/genai';
 import { buildAtsScanPrompt } from '@/lib/ai/prompts/ats-scan';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 import { getUserId } from '@/lib/auth/getUserId';
+import { latexToPlainText } from '@/lib/resume/latex-to-plain-text';
+import { computeKeywordPlacement } from '@/lib/resume/keyword-placement';
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com',
@@ -25,11 +27,25 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { resumeText, jobDescription, latexCode } = body;
+        const { resumeText, jobDescription, latexCode, generatedText } = body;
 
-        if (!resumeText || !jobDescription) {
+        if (!jobDescription) {
             return NextResponse.json(
-                { error: 'Missing resume text or job description' },
+                { error: 'Missing job description' },
+                { status: 400, headers: corsHeaders }
+            );
+        }
+
+        // Prefer extracted generated resume text for keyword matching (Phase 1.1)
+        const scanResumeText =
+            (typeof generatedText === 'string' && generatedText.trim()) ||
+            (latexCode ? latexToPlainText(latexCode) : '') ||
+            resumeText ||
+            '';
+
+        if (!scanResumeText.trim()) {
+            return NextResponse.json(
+                { error: 'Missing resume text to scan' },
                 { status: 400, headers: corsHeaders }
             );
         }
@@ -39,7 +55,7 @@ export async function POST(req: NextRequest) {
         const basicCheck = checkAtsCompliance(latexCode || '');
 
         // 2. AI Deep Analysis
-        const prompt = buildAtsScanPrompt(resumeText, jobDescription);
+        const prompt = buildAtsScanPrompt(scanResumeText, jobDescription);
 
         let response;
         try {
@@ -80,6 +96,9 @@ export async function POST(req: NextRequest) {
         const aiScore = aiAnalysis.overallScore ?? aiAnalysis.keywordMatch?.score ?? 0;
         const finalScore = Math.max(0, Math.min(100, Math.round(aiScore - formatPenalty)));
 
+        const foundKeywords = aiAnalysis.keywordMatch?.found ?? [];
+        const keywordPlacement = computeKeywordPlacement(scanResumeText, foundKeywords);
+
         const finalAnalysis = {
             passed: basicCheck.passed && finalScore >= 75,
             issues: basicCheck.issues,
@@ -88,6 +107,7 @@ export async function POST(req: NextRequest) {
             bulletAnalysis: aiAnalysis.bulletAnalysis,
             improvements: aiAnalysis.improvements,
             missingKeywordsByCategory: aiAnalysis.missingKeywordsByCategory,
+            keywordPlacement,
             score: finalScore,
         };
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { JobApplication, JobFollowup, JobInterview, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES } from "@/lib/career/job-tracker/constants";
-import { X, Calendar, MapPin, ExternalLink, Trash2, CheckCircle, Clock, Archive, FileText } from "lucide-react";
+import { X, Calendar, MapPin, ExternalLink, Trash2, CheckCircle, Clock, Archive, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +13,15 @@ import { format, parseISO } from "date-fns";
 import { updateApplicationDetails, updateApplicationStatus, deleteApplication, archiveApplication, addInterview, addFollowup, markFollowupDone } from "@/app/dashboard/career/job-tracker/actions";
 import { useRouter } from "next/navigation";
 import { OfferDetailsSection } from "./OfferDetailsSection";
+import { supabase } from "@/lib/supabaseClient";
+
+interface LinkedResume {
+    id: string;
+    filename: string;
+    atsScore: number | null;
+    resumeStatus: string | null;
+    created_at: string;
+}
 
 interface ExtendedJobApplication extends JobApplication {
     offer_salary?: number | null;
@@ -44,6 +53,17 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
 
     const [isAddingFollowup, setIsAddingFollowup] = useState(false);
     const [newFollowup, setNewFollowup] = useState({ date: "", type: "Email" });
+    const [linkedResume, setLinkedResume] = useState<LinkedResume | null>(null);
+    const [loadingLinkedResume, setLoadingLinkedResume] = useState(false);
+
+    const buildResumeGeneratorUrl = (app: ExtendedJobApplication) => {
+        const params = new URLSearchParams({
+            company: app.company_name,
+            role: app.role_title,
+            applicationId: app.id,
+        });
+        return `/dashboard/career/resume-generator?${params.toString()}`;
+    };
 
     // Sync local state when app changes
     useEffect(() => {
@@ -51,6 +71,55 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
             setStatus(application.status);
             setNotes(application.notes || "");
         }
+    }, [application]);
+
+    useEffect(() => {
+        if (!application) {
+            setLinkedResume(null);
+            return;
+        }
+
+        let cancelled = false;
+
+        async function fetchLinkedResume() {
+            setLoadingLinkedResume(true);
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user || cancelled) return;
+
+                const response = await fetch(`/api/proxy/resume/list?userId=${user.id}&limit=50`);
+                if (!response.ok || cancelled) return;
+
+                const data = await response.json();
+                const resumes = Array.isArray(data) ? data : (data.data || []);
+
+                const match = resumes.find(
+                    (r: { structuredData?: { applicationId?: string } }) =>
+                        r.structuredData?.applicationId === application!.id
+                );
+
+                if (match && !cancelled) {
+                    setLinkedResume({
+                        id: match.id,
+                        filename: match.filename,
+                        atsScore: match.structuredData?.atsScore ?? match.structuredData?.atsAnalysis?.score ?? null,
+                        resumeStatus: match.structuredData?.resumeStatus ?? null,
+                        created_at: match.created_at,
+                    });
+                } else if (!cancelled) {
+                    setLinkedResume(null);
+                }
+            } catch {
+                if (!cancelled) setLinkedResume(null);
+            } finally {
+                if (!cancelled) setLoadingLinkedResume(false);
+            }
+        }
+
+        fetchLinkedResume();
+        return () => {
+            cancelled = true;
+        };
     }, [application]);
 
     if (!application) return null;
@@ -216,12 +285,52 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                                 size="sm"
                                 className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400 gap-2 h-9"
                                 onClick={() => {
-                                    window.location.href = `/dashboard/career/resume-generator?company=${encodeURIComponent(application.company_name)}&role=${encodeURIComponent(application.role_title)}`;
+                                    window.location.href = buildResumeGeneratorUrl(application);
                                 }}
                             >
                                 <FileText className="w-4 h-4" />
-                                Tailor Resume with AI
+                                {linkedResume ? "Update tailored resume" : "Tailor Resume with AI"}
                             </Button>
+
+                            {loadingLinkedResume && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Checking for linked resume…</p>
+                            )}
+
+                            {linkedResume && (
+                                <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 space-y-2">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="text-xs font-medium text-emerald-800 dark:text-emerald-300">
+                                            Linked resume
+                                        </span>
+                                        {linkedResume.resumeStatus === "ready" ? (
+                                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                                                Ready to apply
+                                            </span>
+                                        ) : (
+                                            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+                                                Draft
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={linkedResume.filename}>
+                                        {linkedResume.filename}
+                                    </p>
+                                    {linkedResume.atsScore != null && (
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                                            ATS score: <span className="font-semibold">{linkedResume.atsScore}%</span>
+                                        </p>
+                                    )}
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="w-full h-8 text-xs gap-1.5"
+                                        onClick={() => router.push("/dashboard/career/history")}
+                                    >
+                                        <Download className="w-3.5 h-3.5" />
+                                        View in resume history
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
 

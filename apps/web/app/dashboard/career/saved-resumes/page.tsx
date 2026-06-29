@@ -132,7 +132,7 @@ export default function HistoryPage() {
         }
     };
 
-    const { setResumeText, setGeneratedLatex, setJobDescription, setAtsAnalysis } = useResumeStore();
+    const { setResumeText, setGeneratedLatex, setJobDescription, setAtsAnalysis, setApplicationId } = useResumeStore();
 
     const handleLoadResume = async (resume: SavedResume) => {
         setLoadingId(resume.id);
@@ -158,7 +158,8 @@ export default function HistoryPage() {
             }
 
             const fullResume = await response.json();
-            const structuredData = fullResume.structuredData || {};
+            const structuredData =
+                fullResume.structuredData || fullResume.structured_data || {};
 
             // Check if we have generated LaTeX content
             if (structuredData.generatedLatex || structuredData.latexCode) {
@@ -169,7 +170,14 @@ export default function HistoryPage() {
                 setResumeText(resume.content, resume.filename); // Keep source text too
 
                 if (structuredData.jobDescription) {
-                    setJobDescription(structuredData.jobDescription);
+                    setJobDescription(
+                        structuredData.jobDescription,
+                        structuredData.jobTitle
+                    );
+                }
+
+                if (structuredData.applicationId) {
+                    setApplicationId(structuredData.applicationId as string);
                 }
 
                 if (structuredData.atsAnalysis) {

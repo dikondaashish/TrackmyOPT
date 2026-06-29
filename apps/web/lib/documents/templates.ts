@@ -4,6 +4,8 @@ export type TemplateColor = {
     ring: string;
 };
 
+export type AtsRating = "safe" | "design";
+
 export interface Template {
     id: string;
     name: string;
@@ -15,6 +17,8 @@ export interface Template {
     colors: TemplateColor[];
     category: string;
     isPremium: boolean;
+    /** ATS-safe templates parse reliably in Workday/Greenhouse. */
+    atsRating: AtsRating;
 }
 
 export const RESUME_TEMPLATES: Template[] = [
@@ -28,6 +32,7 @@ export const RESUME_TEMPLATES: Template[] = [
         tags: ["Engineering", "Developer", "Startups"],
         category: "Technical",
         isPremium: true,
+        atsRating: "safe",
         colors: [
             { name: "Dark", class: "bg-neutral-900", ring: "ring-neutral-900" },
             { name: "Cyan", class: "bg-cyan-600", ring: "ring-cyan-600" }
@@ -43,6 +48,7 @@ export const RESUME_TEMPLATES: Template[] = [
         tags: ["Executive", "Finance", "Standard"],
         category: "Professional",
         isPremium: true,
+        atsRating: "safe",
         colors: [
             { name: "Navy", class: "bg-indigo-900", ring: "ring-indigo-900" },
             { name: "Charcoal", class: "bg-gray-800", ring: "ring-gray-800" },
@@ -59,6 +65,7 @@ export const RESUME_TEMPLATES: Template[] = [
         tags: ["ATS-Friendly", "Tech", "Corporate"],
         category: "General",
         isPremium: false,
+        atsRating: "design",
         colors: [
             { name: "Slate", class: "bg-slate-900", ring: "ring-slate-900" },
             { name: "Blue", class: "bg-blue-600", ring: "ring-blue-600" },
@@ -75,6 +82,7 @@ export const RESUME_TEMPLATES: Template[] = [
         tags: ["Academic", "Research", "Education"],
         category: "Academic",
         isPremium: false,
+        atsRating: "design",
         colors: [
             { name: "Default", class: "bg-gray-900", ring: "ring-gray-900" }
         ]
@@ -89,6 +97,7 @@ export const RESUME_TEMPLATES: Template[] = [
         tags: ["Management", "Leadership", "Brief"],
         category: "Executive",
         isPremium: true,
+        atsRating: "safe",
         colors: [
             { name: "Royal", class: "bg-blue-800", ring: "ring-blue-800" },
             { name: "Gold", class: "bg-yellow-600", ring: "ring-yellow-600" }
@@ -104,6 +113,7 @@ export const RESUME_TEMPLATES: Template[] = [
         tags: ["Creative", "Design", "Marketing"],
         category: "Creative",
         isPremium: true,
+        atsRating: "design",
         colors: [
             { name: "Black", class: "bg-black", ring: "ring-black" },
             { name: "Purple", class: "bg-purple-600", ring: "ring-purple-600" },

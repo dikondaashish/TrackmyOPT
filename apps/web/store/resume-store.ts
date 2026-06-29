@@ -1,23 +1,16 @@
 
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
+import { extractJobTitle, isLikelyFilename, normalizeRoleTitle } from '@/lib/resume/extract-job-title';
+import type { AtsAnalysis } from '@/lib/resume/ats-analysis-types';
 
-interface AtsAnalysis {
-    passed: boolean;
-    score: number;
-    issues: string[];
-    // Enterprise-grade additions
-    keywordMatch?: {
-        found: string[];
-        missing: string[];
-        score: number; // 0-100
-    };
-    sectionScores?: {
-        impact: number;
-        brevity: number;
-        relevance: number;
-    };
-    improvements?: string[]; // Actionable advice
+export type { AtsAnalysis };
+
+function resolveStoredJobTitle(title: string | undefined, text: string): string | null {
+    if (title === undefined) return null;
+    if (!title.trim()) return null;
+    if (isLikelyFilename(title)) return extractJobTitle(text);
+    return normalizeRoleTitle(title);
 }
 
 interface ResumeState {
@@ -25,6 +18,7 @@ interface ResumeState {
     resumeFilename: string | null;
     jobDescription: string;
     jobTitle: string | null;
+    applicationId: string | null;
     selectedTemplateId: string | null;
     selectedColor: { name: string; class: string; ring: string } | null;
     generatedLatex: string;
@@ -35,6 +29,7 @@ interface ResumeState {
 
     setResumeText: (text: string, filename?: string) => void;
     setJobDescription: (text: string, title?: string) => void;
+    setApplicationId: (id: string | null) => void;
     setSelectedTemplateId: (id: string) => void;
     setSelectedColor: (color: { name: string; class: string; ring: string } | null) => void;
     setGeneratedLatex: (latex: string) => void;
@@ -52,7 +47,8 @@ export const useResumeStore = create<ResumeState>()(
             resumeFilename: null,
             jobDescription: '',
             jobTitle: null,
-            selectedTemplateId: 'modern',
+            applicationId: null,
+            selectedTemplateId: 'professional',
             selectedColor: null,
             generatedLatex: '',
             compiledPdfUrl: null,
@@ -61,7 +57,26 @@ export const useResumeStore = create<ResumeState>()(
             isCompiling: false,
 
             setResumeText: (text: string, filename?: string) => set({ resumeText: text, resumeFilename: filename || null }),
-            setJobDescription: (text: string, title?: string) => set({ jobDescription: text, jobTitle: title || null }),
+            setJobDescription: (text: string, title?: string) =>
+                set((state) => {
+                    const trimmed = text.trim();
+                    if (!trimmed) {
+                        return { jobDescription: text, jobTitle: null };
+                    }
+
+                    if (title !== undefined) {
+                        return {
+                            jobDescription: text,
+                            jobTitle: resolveStoredJobTitle(title, text),
+                        };
+                    }
+
+                    return {
+                        jobDescription: text,
+                        jobTitle: extractJobTitle(text) ?? state.jobTitle,
+                    };
+                }),
+            setApplicationId: (id: string | null) => set({ applicationId: id }),
             setSelectedTemplateId: (id: string) => set({ selectedTemplateId: id }),
             setSelectedColor: (color: { name: string; class: string; ring: string } | null) => set({ selectedColor: color }),
             setGeneratedLatex: (latex: string) => set({ generatedLatex: latex }),
@@ -74,7 +89,8 @@ export const useResumeStore = create<ResumeState>()(
                 resumeFilename: null,
                 jobDescription: '',
                 jobTitle: null,
-                selectedTemplateId: 'modern',
+                applicationId: null,
+                selectedTemplateId: 'professional',
                 selectedColor: null,
                 generatedLatex: '',
                 compiledPdfUrl: null,
@@ -90,6 +106,7 @@ export const useResumeStore = create<ResumeState>()(
                 resumeFilename: state.resumeFilename,
                 jobDescription: state.jobDescription,
                 jobTitle: state.jobTitle,
+                applicationId: state.applicationId,
                 selectedTemplateId: state.selectedTemplateId,
                 selectedColor: state.selectedColor,
                 generatedLatex: state.generatedLatex,

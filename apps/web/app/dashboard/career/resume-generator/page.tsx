@@ -30,10 +30,12 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useResumeStore } from "@/store/resume-store";
+import { extractJobTitle } from "@/lib/resume/extract-job-title";
 import { useToast } from "@/hooks/use-toast";
 
 import { ResumeUsageStats } from "@/components/dashboard/resume/ResumeUsageStats";
 import { PricingModal } from "@/components/pricing/PricingModal";
+import { GapAnalysisPanel } from "./components/GapAnalysisPanel";
 
 interface OcrStatus {
     show: boolean;
@@ -53,7 +55,8 @@ export default function ResumeGeneratorPage() {
     // Resume state from store
     const {
         resumeText, resumeFilename, setResumeText,
-        jobDescription, jobTitle, setJobDescription
+        jobDescription, jobTitle, setJobDescription,
+        setApplicationId,
     } = useResumeStore();
 
     const [resumeUrl, setResumeUrl] = useState("");
@@ -132,6 +135,14 @@ export default function ResumeGeneratorPage() {
     const searchParams = useSearchParams();
     const companyParam = searchParams.get("company");
     const roleParam = searchParams.get("role");
+    const applicationIdParam = searchParams.get("applicationId");
+
+    // Link resume flow to a Job Tracker application when opened from drawer
+    useEffect(() => {
+        if (applicationIdParam) {
+            setApplicationId(applicationIdParam);
+        }
+    }, [applicationIdParam, setApplicationId]);
 
     // Handle pre-filled job via query params
     useEffect(() => {
@@ -172,8 +183,7 @@ export default function ResumeGeneratorPage() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    // Backend returns array directly, not { resumes: [] }
-                    const resumes = Array.isArray(data) ? data : (data.resumes || []);
+                    const resumes = Array.isArray(data) ? data : (data.data ?? []);
                     
                     if (resumes.length > 0) {
                         const lastResume = resumes[0];
@@ -773,6 +783,13 @@ export default function ResumeGeneratorPage() {
                             <textarea
                                 value={jobDescription}
                                 onChange={(e) => setJobDescription(e.target.value)}
+                                onBlur={() => {
+                                    if (!jobDescription.trim()) return;
+                                    const extracted = extractJobTitle(jobDescription);
+                                    if (extracted) {
+                                        setJobDescription(jobDescription, extracted);
+                                    }
+                                }}
                                 placeholder="Copy and paste the full job description here..."
                                 className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 transition-all resize-none text-sm"
                             />
@@ -975,6 +992,12 @@ export default function ResumeGeneratorPage() {
                         </div>
                     </Card>
                 </div>
+
+                <GapAnalysisPanel
+                    resumeText={resumeText}
+                    jobDescription={jobDescription}
+                    disabled={isLimitReached}
+                />
 
                 {/* CTA Button */}
                 <div className="mt-8 flex justify-center">

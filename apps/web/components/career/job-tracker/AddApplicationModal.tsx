@@ -26,6 +26,7 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [createdApplicationId, setCreatedApplicationId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         company_name: "",
         role_title: "",
@@ -50,20 +51,11 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                 applied_at: formData.applied_at || undefined,
             });
 
-            setOpen(false);
-            setFormData({
-                company_name: "",
-                role_title: "",
-                location: "",
-                job_url: "",
-                status: "Wishlist",
-                applied_at: ""
-            });
-
             if (onAdd && newApp) {
                 onAdd(newApp);
             }
 
+            setCreatedApplicationId(newApp?.id ?? null);
             setIsSuccess(true);
         } catch (err) {
             console.error(err);
@@ -76,7 +68,11 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
     return (
         <>
             <Button 
-                onClick={() => setOpen(true)} 
+                onClick={() => {
+                    setIsSuccess(false);
+                    setCreatedApplicationId(null);
+                    setOpen(true);
+                }} 
                 className={cn(
                     "bg-emerald-600 hover:bg-emerald-700 text-white gap-2 transition-all duration-500",
                     isPrimaryEmptyState && "animate-pulse ring-4 ring-emerald-500/40 ring-offset-2 ring-offset-background shadow-lg shadow-emerald-500/20"
@@ -86,7 +82,23 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                 Add Application
             </Button>
 
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog open={open} onOpenChange={(next) => {
+                setOpen(next);
+                if (!next) {
+                    setTimeout(() => {
+                        setIsSuccess(false);
+                        setCreatedApplicationId(null);
+                        setFormData({
+                            company_name: "",
+                            role_title: "",
+                            location: "",
+                            job_url: "",
+                            status: "Wishlist",
+                            applied_at: "",
+                        });
+                    }, 300);
+                }
+            }}>
                 <DialogContent
                     className={cn(
                         "p-0 gap-0 overflow-hidden rounded-xl border-border bg-card text-card-foreground shadow-2xl",
@@ -122,7 +134,14 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                                 <Button 
                                     className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 py-6 text-base shadow-lg shadow-blue-500/20"
                                     onClick={() => {
-                                        window.location.href = `/dashboard/career/resume-generator?company=${encodeURIComponent(formData.company_name)}&role=${encodeURIComponent(formData.role_title)}`;
+                                        const params = new URLSearchParams({
+                                            company: formData.company_name,
+                                            role: formData.role_title,
+                                        });
+                                        if (createdApplicationId) {
+                                            params.set("applicationId", createdApplicationId);
+                                        }
+                                        window.location.href = `/dashboard/career/resume-generator?${params.toString()}`;
                                     }}
                                 >
                                     <FileText className="w-5 h-5" />

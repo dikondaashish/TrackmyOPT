@@ -12,6 +12,7 @@ interface ResumeListRow {
   created_at: string;
   file_path: string | null;
   is_parsed: boolean | null;
+  structuredData: Record<string, unknown> | null;
 }
 
 function unknownToString(value: unknown): string {
@@ -44,6 +45,12 @@ function mapUnknownToResumeListRow(item: unknown): ResumeListRow {
         ? null
         : null;
 
+  const structuredRaw = record.structured_data ?? record.structuredData;
+  const structuredData =
+    typeof structuredRaw === 'object' && structuredRaw !== null
+      ? (structuredRaw as Record<string, unknown>)
+      : null;
+
   return {
     id,
     filename,
@@ -51,6 +58,7 @@ function mapUnknownToResumeListRow(item: unknown): ResumeListRow {
     created_at,
     file_path: file_path === '' ? null : file_path,
     is_parsed,
+    structuredData,
   };
 }
 
@@ -94,6 +102,52 @@ export class ResumeService {
   ) {
     if (!userId) throw new Error('User ID is required');
 
+    const applicationId = data.structuredData?.applicationId;
+    const appId =
+      typeof applicationId === 'string' && applicationId.trim()
+        ? applicationId.trim()
+        : null;
+
+    // Upsert: one resume version per job application (Phase 2.5)
+    if (appId) {
+      const { data: existingRows, error: findError } = await this.supabase
+        .from('resumes')
+        .select('id')
+        .eq('user_id', userId)
+        .contains('structured_data', { applicationId: appId })
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (findError) {
+        this.logger.error(`Failed to find linked resume: ${findError.message}`);
+      } else if (existingRows?.[0]?.id) {
+        const updateResponse = (await this.supabase
+          .from('resumes')
+          .update({
+            filename: data.filename,
+            content: data.content,
+            structured_data: data.structuredData,
+            is_parsed: true,
+            file_path: data.filePath || null,
+          })
+          .eq('id', existingRows[0].id)
+          .eq('user_id', userId)
+          .select()
+          .single()) as unknown as {
+          data: Record<string, unknown>;
+          error: Error | null;
+        };
+
+        if (updateResponse.error) {
+          this.logger.error(
+            `Failed to update linked resume: ${updateResponse.error.message}`,
+          );
+          throw new Error(updateResponse.error.message);
+        }
+        return updateResponse.data;
+      }
+    }
+
     const response = (await this.supabase
       .from('resumes')
       .insert({
@@ -103,7 +157,7 @@ export class ResumeService {
         structured_data: data.structuredData,
         is_parsed: true,
         created_at: new Date(),
-        file_path: data.filePath || null, // Store S3 key
+        file_path: data.filePath || null,
       })
       .single()) as unknown as {
       data: Record<string, unknown>;
@@ -126,9 +180,10 @@ export class ResumeService {
   ) {
     let query = this.supabase
       .from('resumes')
-      .select('id, filename, content, created_at, file_path, is_parsed', {
-        count: 'exact',
-      })
+      .select(
+        'id, filename, content, created_at, file_path, is_parsed, structured_data',
+        { count: 'exact' },
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 

@@ -56,7 +56,7 @@ SET
   stripe_payment_intent_id = NULL,
   stripe_customer_id = NULL
 WHERE user_id IN (
-  'f4b3efb4-ca86-4908-87d8-9fe4ba32111a',  -- dikondaashish@gmail.com — cs_test_, no live Stripe customer
+  'f4b3efb4-ca86-4908-87d8-9fe4ba32111a',  -- test user — cs_test_, no live Stripe customer
   '6c03d215-3c8a-4bfc-ad73-3220685ee810',  -- heartbreakers — Stripe customer no longer exists
   '1b40f580-0777-48e7-a578-d129ce22d8c3',  -- cs_test_
   '732bf6d5-fb8e-4ffa-8e9e-0d10dafbd940',  -- cs_test_
