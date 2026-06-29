@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import {
     Heart,
@@ -92,7 +93,7 @@ export default function OPTHealthInsurancePillarGuide() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Schema Markup */}
-            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
+            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
                 "@type": "Article",
                 "headline": "OPT Health Insurance Guide 2026: Everything You Need to Know",
@@ -117,7 +118,7 @@ export default function OPTHealthInsurancePillarGuide() {
                 "articleBody": "Comprehensive guide to health insurance options for F-1 students on OPT, including ACA marketplace, employer plans, COBRA, and state-specific resources."
             })}} />
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
+            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
                 "@type": "HowTo",
                 "name": "How to Get Health Insurance on OPT",
@@ -914,7 +915,7 @@ export default function OPTHealthInsurancePillarGuide() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
+                    __html: safeSerializeJsonLd({
                         "@context": "https://schema.org",
                         "@type": "Article",
                         "headline": "OPT Health Insurance Guide 2026: Everything You Need to Know",
@@ -940,7 +941,7 @@ export default function OPTHealthInsurancePillarGuide() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
+                    __html: safeSerializeJsonLd({
                         "@context": "https://schema.org",
                         "@type": "FAQPage",
                         "mainEntity": faqItems.map((faq) => ({

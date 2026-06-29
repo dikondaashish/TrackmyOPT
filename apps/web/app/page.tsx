@@ -31,6 +31,7 @@ import {
     articleSchema,
     knowledgeGraphSchema,
 } from "@/lib/seo-schemas";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 const LandingGlobalReach = dynamic(() => import("../components/landing/LandingGlobalReach").then(mod => mod.LandingGlobalReach));
 import { Metadata } from "next";
@@ -99,13 +100,17 @@ export default function LandingPage() {
             </div>
 
             {/* Comprehensive JSON-LD Schemas for SEO and AEO */}
-            {landingPageSchemas.map((schema, index) => (
-                <script
-                    key={`schema-${index}`}
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-                />
-            ))}
+            {landingPageSchemas.map((schema, index) => {
+                const serialized = safeSerializeJsonLd(schema);
+                if (!serialized) return null;
+                return (
+                    <script
+                        key={`schema-${index}`}
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: serialized }}
+                    />
+                );
+            })}
         </main>
     );
 }

@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { ThemeProvider } from '@/components/layout/theme-provider';
 import { CookieConsent } from '@/components/CookieConsent';
+import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
 
 const GA_ID = 'G-LD9XN0RHXH';
 
@@ -108,7 +109,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: safeSerializeJsonLd({
               "@context": "https://schema.org",
               "@graph": [
               {

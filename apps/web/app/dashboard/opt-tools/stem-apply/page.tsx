@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { StemApplyTool } from "@/components/dashboard/opt-tools/tools/StemApplyTool";
 
 // Comprehensive SEO for STEM OPT Extension Application Guide
@@ -118,7 +119,7 @@ export default function StemApplyPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(jsonLd) }}
       />
       <StemApplyTool />
     </>

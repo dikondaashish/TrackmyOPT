@@ -1,4 +1,8 @@
 // Blog Post Schema Component with FAQ + HowTo + Article schemas
+// Uses safeSerializeJsonLd — malformed props never crash SSR or client render.
+
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
+
 interface BlogPostSchemaProps {
   title?: string | null | { toString(): string };
   description?: string | null | { toString(): string };
@@ -26,8 +30,16 @@ export function BlogPostSchema({
   faqItems = [],
   howToItems = [],
 }: BlogPostSchemaProps) {
-  const safeTitle = typeof title === 'string' || (title && typeof title.toString === 'function') ? String(title) : "TrackMyOPT Blog";
-  const safeDescription = typeof description === 'string' || (description && typeof description.toString === 'function') ? String(description) : "Read our latest insights on OPT, H-1B, and F-1 visa information";
+  const safeTitle =
+    typeof title === "string" || (title && typeof title.toString === "function")
+      ? String(title)
+      : "TrackMyOPT Blog";
+  const safeDescription =
+    typeof description === "string" ||
+    (description && typeof description.toString === "function")
+      ? String(description)
+      : "Read our latest insights on OPT, H-1B, and F-1 visa information";
+
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -96,22 +108,28 @@ export function BlogPostSchema({
         }
       : null;
 
+  const articleSerialized = safeSerializeJsonLd(articleSchema);
+  const faqSerialized = faqSchema ? safeSerializeJsonLd(faqSchema) : null;
+  const howToSerialized = howToSchema ? safeSerializeJsonLd(howToSchema) : null;
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
-      {faqSchema && (
+      {articleSerialized && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          dangerouslySetInnerHTML={{ __html: articleSerialized }}
         />
       )}
-      {howToSchema && (
+      {faqSerialized && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+          dangerouslySetInnerHTML={{ __html: faqSerialized }}
+        />
+      )}
+      {howToSerialized && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: howToSerialized }}
         />
       )}
     </>

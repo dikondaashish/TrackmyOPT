@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import {
     Calculator,
     Clock,
@@ -310,7 +311,7 @@ export default function ToolsPage() {
             {/* JSON-LD ItemList Schema */}
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+                dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(itemListSchema) }}
             />
         </main>
         </>

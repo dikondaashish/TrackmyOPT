@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { OptClockTool } from "@/components/dashboard/opt-tools/tools/OptClockTool";
 
 // Comprehensive SEO for OPT Unemployment Calculator
@@ -112,7 +113,7 @@ export default function OptClockPage() {
         <script
           key={index}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(schema) }}
         />
       ))}
       <OptClockTool />

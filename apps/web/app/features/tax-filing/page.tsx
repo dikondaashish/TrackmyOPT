@@ -1,4 +1,5 @@
 "use client";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 import { motion } from "framer-motion";
 import { CanonicalURL } from "@/components/CanonicalURL";
@@ -338,7 +339,7 @@ export default function TaxFilingPage() {
                 type="application/ld+json"
                 suppressHydrationWarning
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
+                    __html: safeSerializeJsonLd({
                         "@context": "https://schema.org",
                         "@type": "FAQPage",
                         mainEntity: faqItems.map((item) => ({

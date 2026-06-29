@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { howToSchemas } from "@/lib/seo-schemas";
 
 export const metadata: Metadata = {
@@ -44,7 +45,7 @@ export default function HowItWorksLayout({
         <>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+                dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(howToSchema) }}
             />
             {children}
         </>

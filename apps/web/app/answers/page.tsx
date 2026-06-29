@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { getAllAnswers, getAnswersByCategory } from "@/lib/answers";
 import {
     ArrowRight,
@@ -104,7 +105,7 @@ export default function AnswersIndexPage() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(answersSchema),
+                    __html: safeSerializeJsonLd(answersSchema),
                 }}
             />
 

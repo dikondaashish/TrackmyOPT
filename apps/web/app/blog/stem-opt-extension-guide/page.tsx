@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, Shield, FileText, Briefcase } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -274,7 +275,7 @@ export default function STEMOPTGuideArticle() {
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
             </div>
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "What is STEM OPT?", "acceptedAnswer": { "@type": "Answer", "text": "STEM OPT is a 24-month extension of OPT for F-1 students with STEM degrees, allowing up to 36 months total work authorization." } }, { "@type": "Question", "name": "How long is the STEM OPT extension?", "acceptedAnswer": { "@type": "Answer", "text": "24 months, for a total of 36 months with initial OPT." } }, { "@type": "Question", "name": "Does my employer need E-Verify?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. E-Verify enrollment is mandatory for STEM OPT employers." } }, { "@type": "Question", "name": "Can I apply for STEM OPT twice?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, if you earn a second qualifying STEM degree at a higher education level." } }] }) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "What is STEM OPT?", "acceptedAnswer": { "@type": "Answer", "text": "STEM OPT is a 24-month extension of OPT for F-1 students with STEM degrees, allowing up to 36 months total work authorization." } }, { "@type": "Question", "name": "How long is the STEM OPT extension?", "acceptedAnswer": { "@type": "Answer", "text": "24 months, for a total of 36 months with initial OPT." } }, { "@type": "Question", "name": "Does my employer need E-Verify?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. E-Verify enrollment is mandatory for STEM OPT employers." } }, { "@type": "Question", "name": "Can I apply for STEM OPT twice?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, if you earn a second qualifying STEM degree at a higher education level." } }] }) }} />
         </article>
     );
 }

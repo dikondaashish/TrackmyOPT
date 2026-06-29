@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllAnswers, getAnswerBySlug } from "@/lib/answers";
@@ -119,19 +120,19 @@ export default async function AnswerPage({ params }: Props) {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(faqSchema),
+                    __html: safeSerializeJsonLd(faqSchema),
                 }}
             />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(speakableSchema),
+                    __html: safeSerializeJsonLd(speakableSchema),
                 }}
             />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(breadcrumbSchema),
+                    __html: safeSerializeJsonLd(breadcrumbSchema),
                 }}
             />
 

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import {
     Clock, ArrowRight, CheckCircle2, AlertTriangle, Briefcase, BookOpen,
@@ -49,7 +50,7 @@ export default function OPTCareerPillarGuide() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Schema Markup */}
-            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
+            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
                 "@type": "Article",
                 "headline": "F-1 Career Guide 2026: From OPT Application to H-1B and Beyond",
@@ -74,7 +75,7 @@ export default function OPTCareerPillarGuide() {
                 "articleBody": "Complete career guide for F-1 students covering job search, OPT, H-1B sponsorship, salary negotiation, and immigration pathways."
             })}} />
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
+            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
                 "@type": "HowTo",
                 "name": "How to Build an F-1 Career and Secure H-1B Sponsorship",
@@ -133,7 +134,7 @@ export default function OPTCareerPillarGuide() {
                 ]
             })}} />
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
+            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
                 "@type": "FAQPage",
                 "mainEntity": [
@@ -867,7 +868,7 @@ export default function OPTCareerPillarGuide() {
 
             {/* JSON-LD: Article */}
             <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
+                __html: safeSerializeJsonLd({
                     "@context": "https://schema.org",
                     "@type": "Article",
                     "headline": "F-1 Career Guide 2026: From OPT to H-1B and Beyond",
@@ -885,7 +886,7 @@ export default function OPTCareerPillarGuide() {
 
             {/* JSON-LD: FAQPage */}
             <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
+                __html: safeSerializeJsonLd({
                     "@context": "https://schema.org",
                     "@type": "FAQPage",
                     "mainEntity": faqItems.map(faq => ({

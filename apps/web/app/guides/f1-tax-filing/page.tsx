@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import {
     BookOpen,
@@ -27,7 +28,7 @@ export default function F1TaxFilingPillarGuide() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Schema Markup */}
-            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
+            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
                 "@type": "Article",
                 "headline": "The Ultimate F-1 Student Tax Guide (2026)",
@@ -52,7 +53,7 @@ export default function F1TaxFilingPillarGuide() {
                 "articleBody": "Complete guide to F-1 student tax filing, including forms, strategies, and compliance requirements."
             })}} />
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
+            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: safeSerializeJsonLd({
                 "@context": "https://schema.org",
                 "@type": "HowTo",
                 "name": "How to File Taxes as an F-1 Student",
@@ -1004,7 +1005,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
+                    __html: safeSerializeJsonLd({
                         "@context": "https://schema.org",
                         "@type": "FAQPage",
                         "mainEntity": [
@@ -1027,7 +1028,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
+                    __html: safeSerializeJsonLd({
                         "@context": "https://schema.org",
                         "@type": "Article",
                         "headline": "The Ultimate F-1 Student Tax Guide 2026",

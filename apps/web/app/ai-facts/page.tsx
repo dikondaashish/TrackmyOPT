@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import {
     GraduationCap,
     FlaskConical,
@@ -312,13 +313,13 @@ export default function AIFactsPage() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(datasetSchema),
+                    __html: safeSerializeJsonLd(datasetSchema),
                 }}
             />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(speakableSchema),
+                    __html: safeSerializeJsonLd(speakableSchema),
                 }}
             />
 

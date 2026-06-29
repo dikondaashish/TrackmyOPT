@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { OptApplyTool } from "@/components/dashboard/opt-tools/tools/OptApplyTool";
 
 // Comprehensive SEO for OPT Application Guide
@@ -113,7 +114,7 @@ export default function OptApplyPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(jsonLd) }}
       />
       <OptApplyTool />
     </>

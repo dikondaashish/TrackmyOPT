@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import { Clock, AlertTriangle, CheckCircle2, ArrowRight, Building2, FileCheck, MapPin } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -249,7 +250,7 @@ export default function OPTSTEMOfferChecklistPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeSerializeJsonLd({
             "@context": "https://schema.org",
             "@type": "FAQPage",
             mainEntity: [

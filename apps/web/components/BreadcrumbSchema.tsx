@@ -1,8 +1,10 @@
 /**
  * BreadcrumbSchema Component
- * Renders JSON-LD BreadcrumbList schema for SEO
- * Use this to add breadcrumb schema to any page
+ * Renders JSON-LD BreadcrumbList schema for SEO.
+ * Uses safeSerializeJsonLd so malformed props never crash the page.
  */
+
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 interface BreadcrumbItem {
   name: string;
@@ -14,7 +16,7 @@ interface BreadcrumbSchemaProps {
 }
 
 export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
-  const breadcrumbSchema = {
+  const schema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: items.map((item, index) => ({
@@ -25,10 +27,13 @@ export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
     })),
   };
 
+  const serialized = safeSerializeJsonLd(schema);
+  if (!serialized) return null;
+
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      dangerouslySetInnerHTML={{ __html: serialized }}
     />
   );
 }

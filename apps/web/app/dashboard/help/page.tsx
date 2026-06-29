@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import dynamic from "next/dynamic";
 
 const HelpSection = dynamic(
@@ -118,7 +119,7 @@ export default function HelpPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(jsonLd) }}
       />
       <HelpSection />
     </>

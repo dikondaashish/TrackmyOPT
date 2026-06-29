@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Calendar, BookOpen } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -170,7 +171,7 @@ export default function CapGapArticle() {
                 <p className="text-orange-100 mb-6 max-w-lg mx-auto">TrackMyOPT monitors your H-1B registration, lottery results, and cap-gap dates — all in one dashboard.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-orange-600 rounded-xl font-semibold hover:bg-orange-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
             </div>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "What is the H-1B cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "An automatic extension of F-1 status and OPT work authorization bridging OPT expiration and October 1 H-1B start date." } }, { "@type": "Question", "name": "Can I travel during cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "Travel is risky. If you leave the US, re-entry on F-1 may not be possible. Most attorneys recommend not traveling." } }, { "@type": "Question", "name": "Do I need a new EAD for cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "No. Your existing EAD is automatically extended. Keep your original EAD and updated I-20 together." } }] }) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd({ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "What is the H-1B cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "An automatic extension of F-1 status and OPT work authorization bridging OPT expiration and October 1 H-1B start date." } }, { "@type": "Question", "name": "Can I travel during cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "Travel is risky. If you leave the US, re-entry on F-1 may not be possible. Most attorneys recommend not traveling." } }, { "@type": "Question", "name": "Do I need a new EAD for cap-gap?", "acceptedAnswer": { "@type": "Answer", "text": "No. Your existing EAD is automatically extended. Keep your original EAD and updated I-20 together." } }] }) }} />
         </article>
     );
 }

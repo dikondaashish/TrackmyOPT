@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import {
     ArrowRight,
     Shield,
@@ -98,18 +99,18 @@ export default function PremiumWorthItPage() {
         <>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+                dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(faqSchema) }}
             />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(speakableSchema),
+                    __html: safeSerializeJsonLd(speakableSchema),
                 }}
             />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(breadcrumbSchema),
+                    __html: safeSerializeJsonLd(breadcrumbSchema),
                 }}
             />
 

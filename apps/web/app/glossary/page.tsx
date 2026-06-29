@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -566,7 +567,7 @@ export default function GlossaryPage() {
             {/* JSON-LD Schema */}
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(jsonLd) }}
             />
         </>
     );

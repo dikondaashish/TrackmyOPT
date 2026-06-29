@@ -1,4 +1,5 @@
 "use client";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -149,7 +150,7 @@ export default function SuccessStoriesPage() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
+                    __html: safeSerializeJsonLd({
                         "@context": "https://schema.org/",
                         "@type": "AggregateRating",
                         "name": "TrackMyOPT Success Stories",

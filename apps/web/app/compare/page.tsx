@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import {
     ArrowRight,
     BookOpen,
@@ -548,7 +549,7 @@ export default function ComparePage() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(faqSchema),
+                    __html: safeSerializeJsonLd(faqSchema),
                 }}
             />
 

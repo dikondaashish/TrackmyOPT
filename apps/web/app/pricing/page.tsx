@@ -1,4 +1,5 @@
 "use client";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 import dynamic from "next/dynamic";
 import { ArrowRight } from "lucide-react";
@@ -64,11 +65,11 @@ export default function PricingPage() {
             <CanonicalURL url="https://www.trackmyopt.com/pricing" />
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+                dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(faqSchema) }}
             />
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewSchema) }}
+                dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(reviewSchema) }}
             />
 
             <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">

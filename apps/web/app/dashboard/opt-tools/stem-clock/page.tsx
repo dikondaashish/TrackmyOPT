@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { StemClockTool } from "@/components/dashboard/opt-tools/tools/StemClockTool";
 
 // Comprehensive SEO for STEM OPT Unemployment Calculator
@@ -111,7 +112,7 @@ export default function StemClockPage() {
         <script
           key={index}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(schema) }}
         />
       ))}
       <StemClockTool />

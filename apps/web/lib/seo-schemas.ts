@@ -626,12 +626,17 @@ export function getAllSchemas() {
     ];
 }
 
-// Get schemas as script tags
+// Get schemas as script tags — uses safe serializer (try/catch + @context guard)
 export function getSchemaScripts() {
-    return getAllSchemas().map((schema, index) => ({
-        key: `schema-${index}`,
-        type: "application/ld+json",
-        content: JSON.stringify(schema),
-    }));
+    // Inline import to avoid circular dependency; tree-shaken in production.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { safeSerializeJsonLd } = require("./safe-json-ld") as typeof import("./safe-json-ld");
+    return getAllSchemas()
+        .map((schema, index) => {
+            const content = safeSerializeJsonLd(schema);
+            if (!content) return null;
+            return { key: `schema-${index}`, type: "application/ld+json", content };
+        })
+        .filter(Boolean) as { key: string; type: string; content: string }[];
 }
 

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText, BookOpen } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -190,7 +191,7 @@ export default function I983Article() {
             </div>
 
             <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
+                __html: safeSerializeJsonLd({
                     "@context": "https://schema.org", "@type": "FAQPage",
                     "mainEntity": [
                         { "@type": "Question", "name": "What is the I-983 form?", "acceptedAnswer": { "@type": "Answer", "text": "Form I-983 is the Training Plan for STEM OPT Students, a formal agreement between you and your employer describing how your employment provides practical training in your STEM field." } },

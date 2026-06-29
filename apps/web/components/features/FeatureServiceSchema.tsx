@@ -1,4 +1,8 @@
 // Feature Page Service Schema Component with FAQ + Service schemas
+// Uses safeSerializeJsonLd — malformed props never crash SSR or client render.
+
+import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
+
 interface FeatureServiceSchemaProps {
   name: string;
   description: string;
@@ -15,11 +19,13 @@ export function FeatureServiceSchema({
   faqItems = [],
   featurePath = "/features",
 }: FeatureServiceSchemaProps) {
+  void featurePath; // reserved for future use
+
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: name,
-    description: description,
+    name,
+    description,
     provider: {
       "@type": "Organization",
       name: "TrackMyOPT",
@@ -64,16 +70,21 @@ export function FeatureServiceSchema({
         }
       : null;
 
+  const serviceSerialized = safeSerializeJsonLd(serviceSchema);
+  const faqSerialized = faqSchema ? safeSerializeJsonLd(faqSchema) : null;
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
-      />
-      {faqSchema && (
+      {serviceSerialized && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          dangerouslySetInnerHTML={{ __html: serviceSerialized }}
+        />
+      )}
+      {faqSerialized && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: faqSerialized }}
         />
       )}
     </>
