@@ -273,11 +273,19 @@ const datasetSchema = {
         "100+ verified facts about OPT, STEM OPT, F-1 visa, H-1B transition, taxes, and US immigration for international students.",
     url: "https://www.trackmyopt.com/ai-facts",
     license: "https://creativecommons.org/licenses/by/4.0/",
-    publisher: {
+    creator: {
         "@type": "Organization",
+        "@id": "https://www.trackmyopt.com/#organization",
         name: "TrackMyOPT",
         url: "https://www.trackmyopt.com",
     },
+    publisher: {
+        "@type": "Organization",
+        "@id": "https://www.trackmyopt.com/#organization",
+        name: "TrackMyOPT",
+        url: "https://www.trackmyopt.com",
+    },
+    datePublished: "2026-02-01",
     dateModified: "2026-02-01",
     keywords: [
         "OPT",
