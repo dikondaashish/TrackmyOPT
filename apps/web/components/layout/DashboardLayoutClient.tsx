@@ -26,7 +26,15 @@ export function DashboardLayoutClient(props: DashboardLayoutClientProps) {
 }
 
 function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    // Hydration fix: start as `null` (unknown) instead of `false`.
+    // The sidebar collapse state is stored in localStorage and is only readable
+    // on the client. If we default to `false` on the server and `true` on the
+    // client (because localStorage said so), React sees a CSS-class mismatch on
+    // the <main> element → hydration error #418.
+    // By staying `null` until the useEffect fires we ensure the server HTML and
+    // the first client paint are identical (both render the expanded layout),
+    // and only then apply the stored preference.
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<{
@@ -68,16 +76,17 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
         fetchUser();
     }, []);
 
-    // Load collapsed state from localStorage
+    // Load collapsed state from localStorage — runs only on the client.
+    // Sets the resolved boolean so the layout can apply the correct CSS class
+    // without any server/client mismatch.
     useEffect(() => {
         const saved = localStorage.getItem("trackmyopt_sidebar_collapsed");
-        if (saved === "true") {
-            setIsSidebarCollapsed(true);
-        }
+        setIsSidebarCollapsed(saved === "true");
     }, []);
 
     const handleToggleCollapse = () => {
-        const newState = !isSidebarCollapsed;
+        // Treat null (not-yet-resolved) as expanded (false) for the first toggle.
+        const newState = !(isSidebarCollapsed ?? false);
         setIsSidebarCollapsed(newState);
         localStorage.setItem("trackmyopt_sidebar_collapsed", String(newState));
     };
@@ -105,7 +114,7 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
 
             {/* Fixed Sidebar */}
             <Sidebar
-                isCollapsed={isSidebarCollapsed}
+                isCollapsed={isSidebarCollapsed ?? false}
                 onToggleCollapse={handleToggleCollapse}
                 isMobileOpen={isMobileMenuOpen}
                 onMobileClose={handleMobileMenuClose}
@@ -115,13 +124,16 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
                 isLoading={isLoading || premium.isLoading}
             />
 
-            {/* Main Content Area - This is the only scrollable section */}
+            {/* Main Content Area - This is the only scrollable section.
+                When isSidebarCollapsed is still null (pre-hydration) we render
+                the expanded position (lg:left-[230px]) — the same value the
+                server produces — so there is no HTML mismatch. */}
             <main
                 className={cn(
                     "fixed bottom-0 right-0 transition-all duration-300 overflow-hidden",
                     "top-[calc(3.5rem+var(--tmopt-dashboard-promo,0px))]",
-                    // Desktop: adjust for sidebar
-                    isSidebarCollapsed ? "lg:left-16" : "lg:left-[230px]",
+                    // Desktop: adjust for sidebar (null treated as expanded)
+                    isSidebarCollapsed === true ? "lg:left-16" : "lg:left-[230px]",
                     // Mobile: full width
                     "left-0"
                 )}

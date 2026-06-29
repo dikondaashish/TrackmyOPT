@@ -37,9 +37,16 @@ export function NotificationBanner({
 }: NotificationBannerProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
+  // Hydration fix: render nothing until the client has loaded dismissedIds
+  // from localStorage. Without this guard the server renders all banners
+  // and the client immediately hides some → hydration error #418.
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Load dismissed notifications from localStorage
+    // Load dismissed notifications from localStorage and mark as mounted.
+    // Both happen together so there is exactly one render cycle with the real
+    // dismissed list — the server-rendered HTML (no banners visible) stays
+    // consistent with the initial client paint.
     const stored = localStorage.getItem("dismissed-notifications");
     if (stored) {
       try {
@@ -53,6 +60,7 @@ export function NotificationBanner({
         setDismissedIds([]);
       }
     }
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -174,6 +182,10 @@ export function NotificationBanner({
     existing.push({ id, timestamp: Date.now() });
     localStorage.setItem("dismissed-notifications", JSON.stringify(existing));
   };
+
+  // Render nothing until localStorage has been read on the client.
+  // This keeps the server HTML (null) identical to the first client render.
+  if (!mounted) return null;
 
   const visibleNotifications = notifications.filter((n) => !dismissedIds.includes(n.id));
 

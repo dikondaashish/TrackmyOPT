@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Bell, Crown } from "lucide-react";
@@ -24,6 +24,16 @@ export function StatusChangeUpgradeBanner({
 }: StatusChangeUpgradeBannerProps) {
   const promptCapturedRef = useRef(false);
 
+  // Hydration fix: formatStatusChangedDaysAgo calls new Date() by default.
+  // Initialise to "" (renders nothing in the sentence) so server and client
+  // produce identical HTML on first paint; update after mount with real value.
+  const [daysAgoLabel, setDaysAgoLabel] = useState<string>("");
+
+  useEffect(() => {
+    // Set the real label once we're on the client (post-hydration).
+    setDaysAgoLabel(formatStatusChangedDaysAgo(statusLastChangedAt));
+  }, [statusLastChangedAt]);
+
   useEffect(() => {
     if (promptCapturedRef.current) return;
     promptCapturedRef.current = true;
@@ -32,7 +42,9 @@ export function StatusChangeUpgradeBanner({
     });
   }, []);
 
-  const daysAgoLabel = formatStatusChangedDaysAgo(statusLastChangedAt);
+  // Don't render at all until the client label is ready — prevents a flash
+  // of "Your case status changed ." with an empty daysAgoLabel.
+  if (!daysAgoLabel) return null;
 
   const handleCheckoutClick = async () => {
     captureCheckoutStarted({
