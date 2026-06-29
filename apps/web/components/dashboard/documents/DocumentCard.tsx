@@ -19,6 +19,7 @@ import {
   Info,
   type LucideIcon,
 } from 'lucide-react';
+import { useClientDate } from '@/hooks/useClientDate';
 
 interface Document {
   id: string;
@@ -42,7 +43,10 @@ interface DocumentCardProps {
 }
 
 export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownload }: DocumentCardProps) {
-  const expiryStatus = getExpiryStatus(document.expiryDate);
+  // useClientDate returns null during SSR/hydration so server and client render
+  // identical HTML, avoiding hydration error #418.
+  const clientNow = useClientDate();
+  const expiryStatus = clientNow ? getExpiryStatus(document.expiryDate, clientNow) : 'no_expiry';
   // Use category first (which holds the updated type), fall back to documentType
   const displayType = document.category || document.documentType || 'other';
   const DocIcon = getDocumentTypeIcon(displayType);
@@ -75,7 +79,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
                 const ExpiryIcon = getExpiryIcon(expiryStatus);
                 return <ExpiryIcon className="w-3.5 h-3.5 shrink-0" aria-hidden />;
               })()}
-              <span>{Math.ceil((new Date(document.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}d</span>
+              <span>{clientNow ? `${Math.ceil((new Date(document.expiryDate).getTime() - clientNow.getTime()) / (1000 * 60 * 60 * 24))}d` : '—'}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-full px-2.5 py-1 font-medium">
@@ -170,11 +174,11 @@ function isValidDate(dateString: string | null): boolean {
   return date instanceof Date && !isNaN(date.getTime());
 }
 
-function getExpiryStatus(expiryDate: string | null): 'good' | 'attention' | 'warning' | 'critical' | 'expired' | 'no_expiry' {
+function getExpiryStatus(expiryDate: string | null, now: Date = new Date()): 'good' | 'attention' | 'warning' | 'critical' | 'expired' | 'no_expiry' {
   if (!expiryDate) return 'no_expiry';
 
   const days = Math.ceil(
-    (new Date(expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    (new Date(expiryDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
   );
 
   if (days < 0) return 'expired';
@@ -208,9 +212,9 @@ function getExpiryTextColor(status: string): string {
   return colors[status] || 'text-gray-600 dark:text-gray-400';
 }
 
-function getExpiryBadge(status: string, expiryDate: string) {
+function getExpiryBadge(status: string, expiryDate: string, now: Date = new Date()) {
   const days = Math.ceil(
-    (new Date(expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    (new Date(expiryDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
   );
 
   const badges: Record<string, { icon: LucideIcon; label: string; class: string }> = {

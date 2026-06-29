@@ -53,6 +53,7 @@ import {
   Info,
 } from "lucide-react";
 import { StickyCaseSwitcher, deriveCaseState } from "@/components/dashboard/case-status/redesign/StickyCaseSwitcher";
+import { useClientDate } from "@/hooks/useClientDate";
 import { UrgentActionBanner } from "@/components/dashboard/case-status/redesign/UrgentActionBanner";
 import { CaseHeroCard } from "@/components/dashboard/case-status/redesign/CaseHeroCard";
 import { MonitorHealthStrip } from "@/components/dashboard/case-status/redesign/MonitorHealthStrip";
@@ -651,16 +652,20 @@ export function CaseStatusSection() {
   }
 
   // ── Derived state for new layout ──────────────────────────────────────────
+  // Client-only date — null during SSR/hydration to prevent error #418.
+  const clientNow = useClientDate();
+  const clientNowMs = clientNow ? clientNow.getTime() : null;
+
   const caseState = deriveCaseState(caseStatus?.current_status);
 
-  // PP overdue calculation
+  // PP overdue calculation — 0 until clientNow is available (post-hydration).
   const ppStartDate = caseStatus?.pp_start_date ?? null;
   const ppOverdueDays: number = (() => {
-    if (!ppStartDate) return 0;
+    if (!ppStartDate || clientNowMs === null) return 0;
     const start = new Date(ppStartDate);
     const deadline = new Date(start);
     deadline.setDate(deadline.getDate() + 15 * 7 / 5); // ~15 business days approx
-    const diff = Date.now() - deadline.getTime();
+    const diff = clientNowMs - deadline.getTime();
     if (diff <= 0) return 0;
     return Math.floor(diff / 86_400_000);
   })();
@@ -835,8 +840,8 @@ export function CaseStatusSection() {
               isPremium={isPremium}
               onUpgrade={() => setShowPricingModal(true)}
               daysSinceFiled={
-                caseStatus.received_date
-                  ? Math.floor((Date.now() - new Date(caseStatus.received_date).getTime()) / 86_400_000)
+                caseStatus.received_date && clientNowMs !== null
+                  ? Math.floor((clientNowMs - new Date(caseStatus.received_date).getTime()) / 86_400_000)
                   : 0
               }
             />

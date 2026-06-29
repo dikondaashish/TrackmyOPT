@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { CheckCircle2, ChevronDown, ChevronUp, History, Clock, AlertCircle, FileCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useClientDate } from "@/hooks/useClientDate";
 
 interface HistoryEvent {
     status: string;
@@ -29,10 +30,12 @@ function formatDateShort(dateString: string): string {
     }
 }
 
-// Get relative time label
-function getRelativeTime(dateString: string): string {
+// Get relative time label — accepts explicit `now` to avoid hydration mismatch.
+// Returns "" when now is null (server / first hydration render).
+function getRelativeTime(dateString: string, now: Date | null): string {
+    if (!now) return "";
     try {
-        const diff = Date.now() - new Date(dateString).getTime();
+        const diff = now.getTime() - new Date(dateString).getTime();
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         if (days === 0) return "Today";
         if (days === 1) return "Yesterday";
@@ -65,6 +68,8 @@ export function CaseHistoryTimeline({
     className = ""
 }: CaseHistoryTimelineProps) {
     const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+    // Client-only date — null during SSR, set after hydration to avoid error #418.
+    const clientNow = useClientDate();
 
     if (!statusHistory || statusHistory.length === 0) {
         return null;
@@ -124,7 +129,7 @@ export function CaseHistoryTimeline({
                 <div className="space-y-4">
                     {visibleHistory.map((event, index) => {
                         const isFirst = index === 0;
-                        const relativeTime = getRelativeTime(event.date);
+                        const relativeTime = getRelativeTime(event.date, clientNow);
 
                         return (
                             <div

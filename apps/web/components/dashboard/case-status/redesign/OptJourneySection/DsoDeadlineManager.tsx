@@ -92,9 +92,9 @@ export function DsoDeadlineManager({ tasks }: DsoDeadlineManagerProps) {
   );
 }
 
-export function buildDefaultDsoTasks(filedDate: string | null): DsoTask[] {
-  const now = new Date();
-
+// `now` is passed explicitly so the caller can use a client-only Date,
+// preventing hydration mismatch #418. When null (SSR), no task is overdue.
+export function buildDefaultDsoTasks(filedDate: string | null, now: Date | null = null): DsoTask[] {
   function addDays(iso: string | null, days: number): string | undefined {
     if (!iso) return undefined;
     try {
@@ -107,7 +107,7 @@ export function buildDefaultDsoTasks(filedDate: string | null): DsoTask[] {
   const employerDue = addDays(filedDate, 10);
   const evalDue = addDays(filedDate, 180);
 
-  const isOverdue = (iso?: string) => iso ? new Date(iso) < now : false;
+  const isOverdue = (iso?: string) => (iso && now) ? new Date(iso) < now : false;
 
   return [
     {

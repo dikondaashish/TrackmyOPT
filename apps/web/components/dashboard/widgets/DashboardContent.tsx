@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { useClientYear } from "@/hooks/useClientDate";
 import { User } from "@supabase/supabase-js";
 import { MetricCards } from "./MetricCards";
 import { OnboardingCard } from "./OnboardingCard";
@@ -43,17 +44,20 @@ const UpcomingDeadlinesPanel = dynamic(
   () => import("../opt/UpcomingDeadlinesPanel").then((m) => ({ default: m.UpcomingDeadlinesPanel })),
   { loading: () => <WidgetSkeleton /> }
 );
+// ssr:false — reads localStorage on mount; SSR would produce a different
+// empty list than the client, causing hydration error #418.
 const ActionableReminders = dynamic(
   () => import("./ActionableReminders").then((m) => ({ default: m.ActionableReminders })),
-  { loading: () => <WidgetSkeleton /> }
+  { loading: () => <WidgetSkeleton />, ssr: false }
 );
 const ResourceCenter = dynamic(
   () => import("./ResourceCenter").then((m) => ({ default: m.ResourceCenter })),
   { loading: () => <WidgetSkeleton /> }
 );
+// ssr:false — reads localStorage (dismissed tips) on mount; avoids hydration #418.
 const PersonalizedTips = dynamic(
   () => import("./PersonalizedTips").then((m) => ({ default: m.PersonalizedTips })),
-  { loading: () => <WidgetSkeleton /> }
+  { loading: () => <WidgetSkeleton />, ssr: false }
 );
 const ToolsGrid = dynamic(
   () => import("./ToolsGrid").then((m) => ({ default: m.ToolsGrid })),
@@ -105,6 +109,7 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ user }: DashboardContentProps) {
+  const currentYear = useClientYear();
   const displayName =
     (user.user_metadata as any)?.fullName ||
     [ (user.user_metadata as any)?.firstName, (user.user_metadata as any)?.lastName ]
@@ -398,7 +403,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
           <span>·</span>
           <a href="/dashboard/help" className="hover:text-foreground transition-colors">Help</a>
         </div>
-        <p suppressHydrationWarning>© {new Date().getFullYear()} TrackMyOPT by Zyene, Inc. All rights reserved.</p>
+        <p>© {currentYear ?? new Date().getFullYear()} TrackMyOPT by Zyene, Inc. All rights reserved.</p>
       </footer>
 
       {/* Settings Modal */}

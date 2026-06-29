@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { getServiceCenterLabel, formatDaysAgoLabel, formatStatusLabel } from "@/lib/case-status/case-status-display";
 import { CASE_STATUS_DISCLAIMER } from "@/lib/legal/legal-config";
 import { cn } from "@/lib/utils";
+import { useClientDate } from "@/hooks/useClientDate";
 
 interface CaseInfoFooterProps {
   caseStatus: {
@@ -23,14 +24,16 @@ function formatDate(s: string | null | undefined): string {
   } catch { return "—"; }
 }
 
-function daysSince(s: string | null | undefined): number {
-  if (!s) return 0;
-  try { return Math.floor((Date.now() - new Date(s).getTime()) / 86_400_000); } catch { return 0; }
+function daysSince(s: string | null | undefined, now: Date | null): number | null {
+  if (!s || !now) return null;
+  try { return Math.floor((now.getTime() - new Date(s).getTime()) / 86_400_000); } catch { return null; }
 }
 
 export function CaseInfoFooter({ caseStatus }: CaseInfoFooterProps) {
   const [open, setOpen] = useState(false);
-  const days = daysSince(caseStatus.received_date);
+  // Client-only date — null during SSR/hydration to prevent error #418.
+  const clientNow = useClientDate();
+  const days = daysSince(caseStatus.received_date, clientNow);
 
   return (
     <div className="mt-4 space-y-3">
@@ -51,7 +54,7 @@ export function CaseInfoFooter({ caseStatus }: CaseInfoFooterProps) {
             <Row label="Filed" value={formatDate(caseStatus.received_date)} />
             <Row label="Service Center" value={getServiceCenterLabel(caseStatus.receipt_number)} />
             <Row label="Current Status" value={formatStatusLabel(caseStatus.current_status, "Pending")} />
-            {days > 0 && <Row label="Days Since Filed" value={`${days} days`} />}
+            {days !== null && days > 0 && <Row label="Days Since Filed" value={`${days} days`} />}
           </div>
         )}
       </div>

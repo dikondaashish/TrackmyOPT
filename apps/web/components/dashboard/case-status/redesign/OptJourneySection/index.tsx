@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { MilestoneTimeline, buildMilestones } from "./MilestoneTimeline";
 import { EadStemCards } from "./EadStemCards";
 import { DsoDeadlineManager, buildDefaultDsoTasks } from "./DsoDeadlineManager";
+import { useClientDate } from "@/hooks/useClientDate";
 
 interface OptJourneySectionProps {
   optFiledDate: string | null;
@@ -30,8 +31,10 @@ export function OptJourneySection({
   capGapActive = false,
   dsoTasks,
 }: OptJourneySectionProps) {
-  const milestones = buildMilestones(optFiledDate, eadProjected, stemWindowOpens, stemFiled);
-  const tasks = dsoTasks ?? buildDefaultDsoTasks(optFiledDate);
+  // Client-only date — null during SSR/hydration to avoid error #418.
+  const clientNow = useClientDate();
+  const milestones = buildMilestones(optFiledDate, eadProjected, stemWindowOpens, stemFiled, clientNow);
+  const tasks = dsoTasks ?? buildDefaultDsoTasks(optFiledDate, clientNow);
 
   return (
     <Card className="p-5 sm:p-6 border-0 shadow-lg">

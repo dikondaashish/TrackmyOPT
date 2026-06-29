@@ -105,14 +105,17 @@ export function MilestoneTimeline({ milestones }: MilestoneTimelineProps) {
   );
 }
 
+// `now` is passed explicitly so callers can use a client-side Date, preventing
+// hydration mismatch #418. Pass `null` to treat all milestones as upcoming.
 export function buildMilestones(
   optFiledDate: string | null,
   eadProjected: string | null,
   stemWindowOpens: string | null,
-  stemFiled?: string | null
+  stemFiled?: string | null,
+  now: Date | null = null
 ): Milestone[] {
-  const now = Date.now();
-  const isPast = (iso: string | null) => iso ? new Date(iso).getTime() < now : false;
+  const nowMs = now ? now.getTime() : null;
+  const isPast = (iso: string | null) => (iso && nowMs !== null) ? new Date(iso).getTime() < nowMs : false;
 
   return [
     {
