@@ -12,6 +12,10 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 const PRIMARY_MODEL = 'gemini-3.1-pro-preview';
 const FALLBACK_MODEL = 'gemini-2.5-pro';
 
+/** Lightweight models for pre-generation job fit preview (analyze-gap). */
+const GAP_ANALYSIS_PRIMARY_MODEL = 'gemini-3.5-flash';
+const GAP_ANALYSIS_FALLBACK_MODEL = 'gemini-3.1-flash-lite';
+
 // Document types we support
 export type DocumentType =
   | 'passport'
@@ -311,6 +315,7 @@ Respond in strict JSON array format only (no markdown):
 
 /**
  * Analyze Resume vs Job Description Gap (ATS Simulator)
+ * Uses Flash models — fast/cheap pre-check before full resume generation.
  */
 export async function analyzeAtsGap(
   resumeText: string,
@@ -350,12 +355,12 @@ Output JSON ONLY (no markdown fences):
     let result;
     try {
       result = await ai.models.generateContent({
-        model: PRIMARY_MODEL,
+        model: GAP_ANALYSIS_PRIMARY_MODEL,
         contents: prompt,
       });
     } catch {
       result = await ai.models.generateContent({
-        model: FALLBACK_MODEL,
+        model: GAP_ANALYSIS_FALLBACK_MODEL,
         contents: prompt,
       });
     }
