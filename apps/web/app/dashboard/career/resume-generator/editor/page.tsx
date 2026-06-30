@@ -25,6 +25,7 @@ import { OptimizationFeedbackModal } from "./components/OptimizationFeedbackModa
 import { AtsScorePanel } from "./components/AtsScorePanel";
 import { ApplyReadinessChecklist } from "./components/ApplyReadinessChecklist";
 import { DownloadGateModal } from "./components/DownloadGateModal";
+import { PdfSelectablePreview } from "./components/PdfSelectablePreview";
 import { GeneratingOverlay } from "./components/GeneratingOverlay";
 import { LatexToolbar, EditorViewMode } from "./components/LatexToolbar";
 import { useEditorHistory } from "@/hooks/use-editor-history";
@@ -37,6 +38,11 @@ import { extractPdfTextFromBlob } from "@/lib/resume/pdf-text-extract-client";
 import { isDownloadGateRequired } from "@/lib/resume/apply-readiness";
 import { ATS_PASS_SCORE, buildAutoRegenFeedback, type AtsAnalysis } from "@/lib/resume/ats-analysis-types";
 import { captureClientEvent } from "@/lib/posthog-client";
+import {
+    findTextInLatex,
+    getTextareaSelection,
+    scrollTextareaToMatch,
+} from "@/lib/resume/latex-text-sync";
 
 export default function ResumeEditorPage() {
     const { toast } = useToast();
@@ -62,6 +68,8 @@ export default function ResumeEditorPage() {
     const [showDownloadGate, setShowDownloadGate] = useState(false);
     const [pdfParseOk, setPdfParseOk] = useState<boolean | null>(null);
     const [isAutoFixing, setIsAutoFixing] = useState(false);
+    const [compiledPdfBlob, setCompiledPdfBlob] = useState<Blob | null>(null);
+    const [pdfHighlightQuery, setPdfHighlightQuery] = useState<string | null>(null);
 
     // View Mode State
     const [viewMode, setViewMode] = useState<EditorViewMode>('split');
@@ -417,6 +425,8 @@ export default function ResumeEditorPage() {
     ) => {
         if (!code) return;
         setIsCompiling(true);
+        setCompiledPdfBlob(null);
+        setPdfHighlightQuery(null);
         try {
             const response = await fetch('/api/resume-generator/compile', {
                 method: 'POST',
@@ -461,6 +471,8 @@ export default function ResumeEditorPage() {
             const prevUrl = useResumeStore.getState().compiledPdfUrl;
             if (prevUrl) URL.revokeObjectURL(prevUrl);
             setCompiledPdfUrl(url);
+            setCompiledPdfBlob(blob);
+            setPdfHighlightQuery(null);
 
             if (!fromAutoRegen) {
                 skipNextAutoRegen.current = false;
@@ -545,6 +557,27 @@ export default function ResumeEditorPage() {
             setIsGenerating(false);
         }
     };
+
+    const handleLatexSelectionSync = useCallback(() => {
+        const textarea = textareaRef.current;
+        if (!textarea || isStreaming) return;
+
+        const selected = getTextareaSelection(textarea);
+        if (selected) {
+            setPdfHighlightQuery(selected);
+        }
+    }, [isStreaming]);
+
+    const handlePdfTextSelect = useCallback(
+        (text: string) => {
+            const latex = textareaRef.current?.value ?? generatedLatex;
+            const match = findTextInLatex(latex, text);
+            if (match && textareaRef.current) {
+                scrollTextareaToMatch(textareaRef.current, match.index, match.length);
+            }
+        },
+        [generatedLatex]
+    );
 
     const handleCopy = useCallback(() => {
         navigator.clipboard.writeText(generatedLatex);
@@ -790,6 +823,7 @@ export default function ResumeEditorPage() {
                         <div className="flex items-center gap-2">
                             <Code className="w-4 h-4 text-gray-500" />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">LaTeX Editor</span>
+                            <span className="hidden lg:inline text-xs text-gray-400">Select text to locate in PDF →</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Button
@@ -816,6 +850,8 @@ export default function ResumeEditorPage() {
                             onChange={(e) => {
                                 if (!isStreaming) updateText(e.target.value);
                             }}
+                            onMouseUp={handleLatexSelectionSync}
+                            onKeyUp={handleLatexSelectionSync}
                             readOnly={isStreaming}
                             className={`w-full h-full p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none ${isStreaming ? 'cursor-not-allowed opacity-90' : ''}`}
                             spellCheck={false}
@@ -873,20 +909,20 @@ export default function ResumeEditorPage() {
                             </Button>
                         </div>
 
-                        <TabsContent value="preview" className="flex-1 overflow-hidden flex justify-center bg-gray-200/50 dark:bg-gray-900/50 p-4 m-0 data-[state=inactive]:hidden">
-                            {compiledPdfUrl ? (
-                                <object
-                                    data={`${compiledPdfUrl}#toolbar=0&view=FitH`}
-                                    type="application/pdf"
-                                    className="w-full h-full max-w-[8.5in] bg-white shadow-2xl rounded-lg"
-                                >
-                                    {/* Fallback: iframe for browsers that don't support object */}
-                                    <iframe
-                                        src={`${compiledPdfUrl}#toolbar=0&view=FitH`}
-                                        className="w-full h-full max-w-[8.5in] bg-white shadow-2xl rounded-lg"
-                                        title="Resume Preview"
+                        <TabsContent value="preview" className="flex-1 overflow-hidden flex justify-center bg-gray-200/50 dark:bg-gray-900/50 m-0 data-[state=inactive]:hidden">
+                            {isGenerating || isCompiling ? (
+                                <div className="flex flex-col items-center justify-center p-8 text-gray-500 w-full h-full">
+                                    <Loader2 className="w-10 h-10 animate-spin mb-4 text-blue-500" />
+                                    <p>{isGenerating ? "Generating tailored resume…" : "Compiling PDF…"}</p>
+                                </div>
+                            ) : compiledPdfBlob ? (
+                                <div className="w-full h-full max-w-[8.5in]">
+                                    <PdfSelectablePreview
+                                        blob={compiledPdfBlob}
+                                        onTextSelect={handlePdfTextSelect}
+                                        highlightQuery={pdfHighlightQuery}
                                     />
-                                </object>
+                                </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center p-8 text-gray-500 w-full h-full">
                                     {isGenerating ? (
