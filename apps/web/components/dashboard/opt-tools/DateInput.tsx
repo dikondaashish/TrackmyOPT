@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { createPortal } from "react-dom";
+import { getPortalRoot } from "@/lib/portal-root";
 
 interface DateInputProps {
   label: React.ReactNode;
@@ -197,7 +198,7 @@ export function DateInput({ label, value, onChange, description, error, required
               }} 
             />
           </div>,
-          document.body
+          getPortalRoot()
         )}
       </div>
       {error && <p className="text-xs text-red-500">{error}</p>}

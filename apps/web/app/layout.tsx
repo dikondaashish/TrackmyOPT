@@ -5,6 +5,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/layout/theme-provider';
 import { CookieConsent } from '@/components/CookieConsent';
 import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
+import { PORTAL_ROOT_ID } from '@/lib/portal-root';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com'),
@@ -95,6 +96,7 @@ export default function RootLayout({
           <SpeedInsights />
           <CookieConsent />
         </ThemeProvider>
+        <div id={PORTAL_ROOT_ID} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

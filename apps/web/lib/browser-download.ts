@@ -4,9 +4,8 @@
  * Safe, cross-browser download helpers.
  *
  * Key guarantees:
- *  1. The anchor element is removed through its parentNode reference, not
- *     through a bare .remove() call — prevents "Cannot read properties of null"
- *     when the element was never appended or was already removed.
+ *  1. Download anchors are removed with element.remove() inside try/catch so a
+ *     stale parentNode never throws during deferred cleanup.
  *  2. URL.revokeObjectURL is deferred with setTimeout so the browser has time
  *     to start reading the blob before we revoke the URL.
  *  3. Every helper is wrapped in try/catch so a DOM error never surfaces as
@@ -34,8 +33,10 @@ export function triggerBrowserDownload(blob: Blob, filename: string): void {
     // Defer removal — guarantees the element is still in the DOM when we
     // remove it, and gives the browser time to initiate the download.
     setTimeout(() => {
-      if (anchor.parentNode) {
-        anchor.parentNode.removeChild(anchor);
+      try {
+        anchor.remove();
+      } catch {
+        /* element may already be gone */
       }
       URL.revokeObjectURL(url);
     }, REMOVE_DELAY_MS);
@@ -58,8 +59,10 @@ export function triggerUrlDownload(href: string, filename: string): void {
     anchor.click();
 
     setTimeout(() => {
-      if (anchor.parentNode) {
-        anchor.parentNode.removeChild(anchor);
+      try {
+        anchor.remove();
+      } catch {
+        /* element may already be gone */
       }
     }, REMOVE_DELAY_MS);
   } catch (err) {

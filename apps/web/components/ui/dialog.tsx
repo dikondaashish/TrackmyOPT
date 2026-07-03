@@ -2,33 +2,28 @@
 
 import * as React from "react"
 import { X } from "lucide-react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { getPortalRoot } from "@/lib/portal-root"
 
-// Simple dialog without radix-ui dependency
 interface DialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   children: React.ReactNode;
 }
 
-import { createPortal } from "react-dom";
-
 const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
   }, []);
 
   React.useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    if (!open) return;
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [open]);
 
@@ -42,7 +37,7 @@ const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
       />
       {children}
     </div>,
-    document.body
+    getPortalRoot()
   );
 };
 

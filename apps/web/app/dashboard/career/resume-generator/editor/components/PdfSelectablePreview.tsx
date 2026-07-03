@@ -33,7 +33,7 @@ type PdfDocHandle = {
             viewport: { width: number; height: number };
             transform?: readonly number[];
             canvas: HTMLCanvasElement;
-        }) => { promise: Promise<void> };
+        }) => { promise: Promise<void>; cancel?: () => void };
         getTextContent: () => Promise<{ items: unknown[] }>;
     }>;
     destroy: () => Promise<void>;
@@ -69,6 +69,7 @@ function PdfPageView({
 
     useEffect(() => {
         let cancelled = false;
+        let renderTask: { promise: Promise<void>; cancel?: () => void } | null = null;
 
         async function paint() {
             const canvas = canvasRef.current;
@@ -92,18 +93,30 @@ function PdfPageView({
                     ? ([outputScale, 0, 0, outputScale, 0, 0] as const)
                     : undefined;
 
-            await pdfPage.render({
+            renderTask = pdfPage.render({
                 canvasContext: ctx,
                 viewport,
                 transform,
                 canvas,
-            }).promise;
+            });
+            await renderTask.promise;
         }
 
-        paint().catch((e) => console.error("[PdfPageView] render failed:", e));
+        paint().catch((e) => {
+            // pdf.js rejects with RenderingCancelledException when cancel() runs.
+            if (cancelled) return;
+            const name = e && typeof e === "object" && "name" in e ? String(e.name) : "";
+            if (name === "RenderingCancelledException") return;
+            console.error("[PdfPageView] render failed:", e);
+        });
 
         return () => {
             cancelled = true;
+            try {
+                renderTask?.cancel?.();
+            } catch {
+                /* cancel is best-effort */
+            }
         };
     }, [pdfDoc, page.pageNumber, fitScale, page.displayWidth, page.displayHeight]);
 

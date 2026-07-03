@@ -3,6 +3,56 @@ import { getStoredCookieConsent } from "@/lib/cookie-consent";
 import { ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/posthog-client";
 import { POSTHOG_SESSION_RECORDING } from "@/lib/posthog/session-replay-privacy";
 
+/** Benign React DOM teardown races (fast navigation, extensions, portal cleanup). */
+export function isBenignReactDomTeardownError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("removechild") &&
+    (lower.includes("null") ||
+      lower.includes("undefined") ||
+      lower.includes("not an object"))
+  );
+}
+
+/** Pull exception text from every shape posthog-js may emit. */
+export function extractExceptionMessages(
+  properties: Record<string, unknown> | undefined
+): string {
+  if (!properties) return "";
+
+  const parts: string[] = [];
+
+  const values = properties.$exception_values;
+  if (Array.isArray(values)) {
+    for (const v of values) parts.push(String(v));
+  } else if (values != null) {
+    parts.push(String(values));
+  }
+
+  if (properties.$exception_message != null) {
+    parts.push(String(properties.$exception_message));
+  }
+
+  const list = properties.$exception_list;
+  if (Array.isArray(list)) {
+    for (const item of list) {
+      if (item && typeof item === "object") {
+        const row = item as { value?: unknown; type?: unknown };
+        if (row.value != null) parts.push(String(row.value));
+        if (row.type != null) parts.push(String(row.type));
+      }
+    }
+  }
+
+  return parts.join(" ");
+}
+
+export function shouldDropExceptionEvent(
+  properties: Record<string, unknown> | undefined
+): boolean {
+  return isBenignReactDomTeardownError(extractExceptionMessages(properties));
+}
+
 function resolvePostHogToken(): string | undefined {
   return (
     process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN?.trim() ||
@@ -68,6 +118,12 @@ export function initPostHogBrowser(): void {
       debug: process.env.NODE_ENV === "development",
       opt_out_capturing_by_default: true,
       session_recording: POSTHOG_SESSION_RECORDING,
+      before_send: (event) => {
+        if (event?.event === "$exception" && shouldDropExceptionEvent(event.properties)) {
+          return null;
+        }
+        return event;
+      },
       loaded: () => {
         applyPostHogConsentFromStorage();
       },
