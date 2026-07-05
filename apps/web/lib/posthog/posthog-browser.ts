@@ -53,6 +53,20 @@ export function shouldDropExceptionEvent(
   return isBenignReactDomTeardownError(extractExceptionMessages(properties));
 }
 
+/** Routes where autocapture adds noise without product value. */
+const AUTOCAPTURE_BLOCKED_PREFIXES = ["/dashboard", "/api"];
+
+function isAutocaptureBlockedPath(pathname: string): boolean {
+  return AUTOCAPTURE_BLOCKED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+export function shouldDropAutocaptureOnPath(pathname: string, eventName: string): boolean {
+  if (eventName !== "$autocapture" && eventName !== "$rageclick" && eventName !== "$dead_click") {
+    return false;
+  }
+  return isAutocaptureBlockedPath(pathname);
+}
+
 function resolvePostHogToken(): string | undefined {
   return (
     process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN?.trim() ||
@@ -119,6 +133,13 @@ export function initPostHogBrowser(): void {
       opt_out_capturing_by_default: true,
       session_recording: POSTHOG_SESSION_RECORDING,
       before_send: (event) => {
+        if (
+          typeof window !== "undefined" &&
+          event?.event &&
+          shouldDropAutocaptureOnPath(window.location.pathname, event.event)
+        ) {
+          return null;
+        }
         if (event?.event === "$exception" && shouldDropExceptionEvent(event.properties)) {
           return null;
         }

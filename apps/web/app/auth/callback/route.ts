@@ -156,7 +156,14 @@ export async function GET(req: NextRequest) {
     const authProvider = sessionData.user.app_metadata?.provider ?? 'oauth';
     const referredBy = url.searchParams.get('ref') ?? undefined;
 
-    await identifyServerUser(userId, { provider: authProvider });
+    await identifyServerUser(userId, {
+      provider: authProvider,
+      signup_date: sessionData.user.created_at?.slice(0, 10),
+      plan_tier: "free",
+      premium_status: false,
+      onboarding_completed: false,
+      ...(isNewUser ? { activation_state: "onboarding_incomplete" } : {}),
+    });
 
     if (isNewUser) {
       await captureServerEvent(userId, 'user_signed_up', {

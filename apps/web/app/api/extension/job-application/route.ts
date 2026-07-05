@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/auth/jwt';
-import { withPostHogClient } from '@/lib/posthog-server';
+import { captureServerEvent } from '@/lib/posthog-server';
 import rateLimit from '@/lib/auth/rate-limit';
 
 export const dynamic = 'force-dynamic';
@@ -108,18 +108,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: message }, { status: 500, headers: corsHeaders });
     }
 
-    await withPostHogClient((posthog) => {
-      posthog.capture({
-        distinctId: userId as string,
-        event: 'extension_job_added',
-        properties: {
-          company_name: String(company_name).trim(),
-          role_title: String(role_title).trim(),
-          status: status === 'Applied' ? 'Applied' : 'Wishlist',
-          source: 'chrome_extension',
-          has_job_url: !!job_url,
-        },
-      });
+    await captureServerEvent(userId as string, "extension_job_added", {
+      company_name: String(company_name).trim(),
+      role_title: String(role_title).trim(),
+      status: status === 'Applied' ? 'Applied' : 'Wishlist',
+      source: 'chrome_extension',
+      has_job_url: !!job_url,
     });
 
     return NextResponse.json(

@@ -5,6 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
 import { getServiceCenterLabel } from "@/lib/case-status/case-status-display";
+import {
+  countBusinessDaysOverdue,
+  daysSinceNow,
+  formatDisplayDateShort,
+} from "@/lib/case-status/safe-dates";
 import { cn } from "@/lib/utils";
 import type { CaseState } from "./StickyCaseSwitcher";
 import type { CaseStatusHistoryEntry } from "@/lib/case-status/normalize-status-history";
@@ -34,36 +39,6 @@ function StatCard({ value, label, sublabel, urgent }: StatCardProps) {
       {sublabel && <p className={cn("text-[10px] mt-0.5 font-medium", urgent ? "text-red-500" : "text-muted-foreground")}>{sublabel}</p>}
     </div>
   );
-}
-
-function formatDateShort(dateString: string | null | undefined): string {
-  if (!dateString) return "—";
-  try {
-    return new Date(dateString).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  } catch { return "—"; }
-}
-
-function daysSince(dateString: string | null | undefined): number {
-  if (!dateString) return 0;
-  try {
-    return Math.floor((Date.now() - new Date(dateString).getTime()) / 86_400_000);
-  } catch { return 0; }
-}
-
-function countBusinessDaysOverdue(deadlineIso: string | null): number {
-  if (!deadlineIso) return 0;
-  const deadline = new Date(deadlineIso);
-  const now = new Date();
-  if (now <= deadline) return 0;
-  let count = 0;
-  const cur = new Date(deadline);
-  cur.setDate(cur.getDate() + 1);
-  while (cur <= now) {
-    const day = cur.getDay();
-    if (day !== 0 && day !== 6) count++;
-    cur.setDate(cur.getDate() + 1);
-  }
-  return count;
 }
 
 interface CaseHeroCardProps {
@@ -100,10 +75,10 @@ export function CaseHeroCard({
 }: CaseHeroCardProps) {
   const [copied, setCopied] = useState(false);
 
-  const days = daysSince(caseStatus.received_date);
+  const days = daysSinceNow(caseStatus.received_date);
   const serviceCenter = getServiceCenterLabel(caseStatus.receipt_number);
   const lastChangeDate = caseStatus.last_status_change_at
-    ? formatDateShort(caseStatus.last_status_change_at)
+    ? formatDisplayDateShort(caseStatus.last_status_change_at)
     : "Not recorded";
   const ppBusinessDaysOverdue = countBusinessDaysOverdue(ppDeadlineDate ?? null);
   const ppActive = Boolean(caseStatus.pp_start_date);
@@ -129,7 +104,7 @@ export function CaseHeroCard({
           </div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-muted-foreground">
             {caseStatus.received_date && (
-              <span>Filed: {formatDateShort(caseStatus.received_date)}</span>
+              <span>Filed: {formatDisplayDateShort(caseStatus.received_date)}</span>
             )}
             {days > 0 && (
               <>
@@ -172,7 +147,7 @@ export function CaseHeroCard({
             urgent
           />
         ) : ppDeadlineDate ? (
-          <StatCard value={formatDateShort(ppDeadlineDate)} label="PP deadline" />
+          <StatCard value={formatDisplayDateShort(ppDeadlineDate)} label="PP deadline" />
         ) : null}
       </div>
 

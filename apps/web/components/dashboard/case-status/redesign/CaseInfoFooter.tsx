@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { getServiceCenterLabel, formatDaysAgoLabel, formatStatusLabel } from "@/lib/case-status/case-status-display";
+import { daysSinceEpochMs, formatDisplayDateShort } from "@/lib/case-status/safe-dates";
 import { CASE_STATUS_DISCLAIMER } from "@/lib/legal/legal-config";
 import { cn } from "@/lib/utils";
 import { useClientDate } from "@/hooks/useClientDate";
@@ -17,23 +18,14 @@ interface CaseInfoFooterProps {
   };
 }
 
-function formatDate(s: string | null | undefined): string {
-  if (!s) return "—";
-  try {
-    return new Date(s).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  } catch { return "—"; }
-}
-
-function daysSince(s: string | null | undefined, now: Date | null): number | null {
-  if (!s || !now) return null;
-  try { return Math.floor((now.getTime() - new Date(s).getTime()) / 86_400_000); } catch { return null; }
-}
-
 export function CaseInfoFooter({ caseStatus }: CaseInfoFooterProps) {
   const [open, setOpen] = useState(false);
   // Client-only date — null during SSR/hydration to prevent error #418.
   const clientNow = useClientDate();
-  const days = daysSince(caseStatus.received_date, clientNow);
+  const days =
+    clientNow != null
+      ? daysSinceEpochMs(caseStatus.received_date, clientNow.getTime())
+      : null;
 
   return (
     <div className="mt-4 space-y-3">
@@ -51,7 +43,7 @@ export function CaseInfoFooter({ caseStatus }: CaseInfoFooterProps) {
           <div className="px-4 pb-4 text-xs border-t border-border space-y-2 pt-3">
             <Row label="Receipt" value={<span className="font-mono ph-mask" data-ph-mask>{caseStatus.receipt_number}</span>} />
             <Row label="Type" value={caseStatus.case_type || "Form I-765"} />
-            <Row label="Filed" value={formatDate(caseStatus.received_date)} />
+            <Row label="Filed" value={formatDisplayDateShort(caseStatus.received_date)} />
             <Row label="Service Center" value={getServiceCenterLabel(caseStatus.receipt_number)} />
             <Row label="Current Status" value={formatStatusLabel(caseStatus.current_status, "Pending")} />
             {days !== null && days > 0 && <Row label="Days Since Filed" value={`${days} days`} />}

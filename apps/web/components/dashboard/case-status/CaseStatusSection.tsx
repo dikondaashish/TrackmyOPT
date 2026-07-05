@@ -24,7 +24,7 @@ import {
   CaseStatusPanelErrorBoundary,
   CaseTimelineErrorBoundary,
 } from "@/components/dashboard/case-status/CaseTimelineErrorBoundary";
-import { addDaysIso, daysSinceEpochMs, parseValidDate } from "@/lib/case-status/safe-dates";
+import { addDaysIso, daysSinceEpochMs, formatDisplayDateShort, formatDisplayDateTime, parseValidDate } from "@/lib/case-status/safe-dates";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
 import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
 import {
@@ -43,7 +43,11 @@ import {
   MANUAL_REFRESH_UPSELL_SESSION_KEY,
   CHECKOUT_UPSELL_TRIGGER,
 } from "@/lib/case-status/free-change-wedge";
-import { captureUpgradePromptShown } from "@/lib/posthog-client";
+import {
+  captureCaseStatusCheckCompletedClient,
+  captureUpgradePromptShown,
+} from "@/lib/posthog-client";
+import { getReceiptPrefix } from "@/lib/posthog/uscis-status-category";
 import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import {
   normalizeStatusHistory,
@@ -427,6 +431,10 @@ export function CaseStatusSection() {
       if (response.ok && result.ok) {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
+        captureCaseStatusCheckCompletedClient({
+          trigger: "manual",
+          receipt_prefix: getReceiptPrefix(caseStatus.receipt_number),
+        });
         await loadCaseStatus();
 
         if (isPremium === false && typeof window !== "undefined") {
@@ -563,26 +571,11 @@ export function CaseStatusSection() {
     }
   };
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return '—';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const formatDate = (dateString: string | null) =>
+    formatDisplayDateTime(dateString);
 
-  const formatDateShort = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
+  const formatDateShort = (dateString: string) =>
+    formatDisplayDateShort(dateString);
 
   const handleSaveFilingDate = async () => {
     if (!caseStatus || !filingDateInput) {
@@ -677,7 +670,7 @@ export function CaseStatusSection() {
     if (!ppStartDate || clientNowMs === null) return 0;
     const start = parseValidDate(ppStartDate);
     if (!start) return 0;
-    const deadline = new Date(start);
+    const deadline = new Date(start.getTime());
     deadline.setDate(deadline.getDate() + 15 * 7 / 5); // ~15 business days approx
     const diff = clientNowMs - deadline.getTime();
     if (!Number.isFinite(diff) || diff <= 0) return 0;
@@ -831,22 +824,26 @@ export function CaseStatusSection() {
           )}
 
           {/* ── 4. MONITOR HEALTH STRIP ── */}
-          <MonitorHealthStrip
-            monitorActive={isPremium === true}
-            lastCheckedAt={caseStatus.last_checked_at}
-            emailAlertsEnabled={caseStatus.notifications_enabled}
-            emailAddress={notificationEmail}
-            onEditEmail={() => setIsEditingEmail(true)}
-          />
+          <CaseStatusPanelErrorBoundary area="monitor_health">
+            <MonitorHealthStrip
+              monitorActive={isPremium === true}
+              lastCheckedAt={caseStatus.last_checked_at}
+              emailAlertsEnabled={caseStatus.notifications_enabled}
+              emailAddress={notificationEmail}
+              onEditEmail={() => setIsEditingEmail(true)}
+            />
+          </CaseStatusPanelErrorBoundary>
 
           {/* ── 4b. PP Countdown (keep existing component) ── */}
-          <PremiumProcessingCountdown
-            caseId={caseStatus.id}
-            ppStartDate={caseStatus.pp_start_date ?? null}
-            currentStatus={caseStatus.current_status}
-            statusHistory={safeStatusHistory}
-            onSaved={() => void loadCaseStatus()}
-          />
+          <CaseStatusPanelErrorBoundary area="pp_countdown">
+            <PremiumProcessingCountdown
+              caseId={caseStatus.id}
+              ppStartDate={caseStatus.pp_start_date ?? null}
+              currentStatus={caseStatus.current_status}
+              statusHistory={safeStatusHistory}
+              onSaved={() => void loadCaseStatus()}
+            />
+          </CaseStatusPanelErrorBoundary>
 
           {/* ── 5. ANALYTICS SECTION ── */}
           <Card className="p-5 sm:p-6 border-0 shadow-lg">
@@ -1040,7 +1037,9 @@ export function CaseStatusSection() {
           )}
 
           {/* ── 10. CASE INFO FOOTER (collapsed) ── */}
-          <CaseInfoFooter caseStatus={caseStatus} />
+          <CaseStatusPanelErrorBoundary area="case_info_footer">
+            <CaseInfoFooter caseStatus={caseStatus} />
+          </CaseStatusPanelErrorBoundary>
 
           {/* ── 11. DISCLAIMER (single instance) ── */}
           <UscisCaseStatusDisclaimer className="mt-2" />

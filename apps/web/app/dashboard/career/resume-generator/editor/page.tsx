@@ -212,6 +212,7 @@ export default function ResumeEditorPage() {
             scanSource: "deep_scan" | "generate" | "regenerate" | "auto_regenerate"
         ) => {
             captureClientEvent("resume_ats_scored", {
+                score: analysis.score ?? null,
                 ats_score: analysis.score ?? null,
                 template_id: selectedTemplateId,
                 application_id: applicationId,

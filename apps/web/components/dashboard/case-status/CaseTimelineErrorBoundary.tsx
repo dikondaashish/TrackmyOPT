@@ -2,6 +2,7 @@
 
 import { Component, type ReactNode } from "react";
 import { AlertCircle } from "lucide-react";
+import { captureErrorBoundaryTriggered } from "@/lib/posthog-client";
 
 type Props = {
   children: ReactNode;
@@ -36,6 +37,12 @@ export class CaseStatusPanelErrorBoundary extends Component<Props, State> {
       `Case status panel render failed${this.props.area ? ` (${this.props.area})` : ""}:`,
       error
     );
+    captureErrorBoundaryTriggered({
+      route:
+        typeof window !== "undefined" ? window.location.pathname : "/dashboard/case-status",
+      component_area: "case_status",
+      error_message: error.message?.slice(0, 200),
+    });
   }
 
   render() {
@@ -64,6 +71,12 @@ export class CaseTimelineErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error): void {
     console.warn("Case timeline render failed:", error);
+    captureErrorBoundaryTriggered({
+      route:
+        typeof window !== "undefined" ? window.location.pathname : "/dashboard/case-status",
+      component_area: "case_status",
+      error_message: error.message?.slice(0, 200),
+    });
   }
 
   render() {

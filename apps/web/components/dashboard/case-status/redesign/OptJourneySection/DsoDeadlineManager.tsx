@@ -1,6 +1,11 @@
 "use client";
 
 import { CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import {
+  addDaysIso,
+  formatDisplayDateMonthDay,
+  isDateBeforeMs,
+} from "@/lib/case-status/safe-dates";
 import { cn } from "@/lib/utils";
 
 type TaskStatus = "open" | "done" | "overdue";
@@ -15,13 +20,6 @@ interface DsoTask {
 
 interface DsoDeadlineManagerProps {
   tasks: DsoTask[];
-}
-
-function fmt(iso: string | undefined): string {
-  if (!iso) return "";
-  try {
-    return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  } catch { return ""; }
 }
 
 const STATUS_ICON: Record<TaskStatus, React.ReactNode> = {
@@ -76,7 +74,7 @@ export function DsoDeadlineManager({ tasks }: DsoDeadlineManagerProps) {
                   "text-xs font-semibold",
                   task.status === "overdue" ? "text-red-600 dark:text-red-400" : "text-muted-foreground"
                 )}>
-                  Due {fmt(task.dueDate)}
+                  Due {formatDisplayDateMonthDay(task.dueDate)}
                 </p>
               )}
               {task.status === "done" && (
@@ -95,19 +93,11 @@ export function DsoDeadlineManager({ tasks }: DsoDeadlineManagerProps) {
 // `now` is passed explicitly so the caller can use a client-only Date,
 // preventing hydration mismatch #418. When null (SSR), no task is overdue.
 export function buildDefaultDsoTasks(filedDate: string | null, now: Date | null = null): DsoTask[] {
-  function addDays(iso: string | null, days: number): string | undefined {
-    if (!iso) return undefined;
-    try {
-      const d = new Date(iso);
-      d.setDate(d.getDate() + days);
-      return d.toISOString();
-    } catch { return undefined; }
-  }
+  const employerDue = addDaysIso(filedDate, 10) ?? undefined;
+  const evalDue = addDaysIso(filedDate, 180) ?? undefined;
 
-  const employerDue = addDays(filedDate, 10);
-  const evalDue = addDays(filedDate, 180);
-
-  const isOverdue = (iso?: string) => (iso && now) ? new Date(iso) < now : false;
+  const isOverdue = (iso?: string) =>
+    iso && now ? isDateBeforeMs(iso, now.getTime()) : false;
 
   return [
     {

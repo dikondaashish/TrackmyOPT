@@ -17,6 +17,7 @@ import {
   buildWelcomeFreeEmailBodies,
   buildCheckoutRecoveryEmailBodies,
   buildFreeReceiptReengagementEmailBodies,
+  buildAtRiskReengagementEmailBodies,
   getTransactionalEmailFromHeader,
 } from "@/lib/notifications/transactional-emails";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
@@ -108,6 +109,18 @@ async function resolveBodiesForRetry(
       .maybeSingle();
     firstName = profile?.first_name ?? null;
     const bodies = buildFreeReceiptReengagementEmailBodies(firstName);
+    return { subject: bodies.subject, html: bodies.html, text: bodies.text };
+  }
+
+  if (row.email_type === "at_risk_reengagement" && row.user_id) {
+    let firstName: string | null = null;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("first_name")
+      .eq("user_id", row.user_id)
+      .maybeSingle();
+    firstName = profile?.first_name ?? null;
+    const bodies = buildAtRiskReengagementEmailBodies(firstName);
     return { subject: bodies.subject, html: bodies.html, text: bodies.text };
   }
 

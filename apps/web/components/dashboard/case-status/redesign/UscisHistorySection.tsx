@@ -4,6 +4,7 @@ import { useState } from "react";
 import { History, ChevronDown, ChevronUp, Clock, CheckCircle2, AlertCircle, FileCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { formatDisplayDateLong } from "@/lib/case-status/safe-dates";
 import type { CaseStatusHistoryEntry } from "@/lib/case-status/normalize-status-history";
 
 interface UscisHistorySectionProps {
@@ -11,12 +12,6 @@ interface UscisHistorySectionProps {
 }
 
 const INITIAL_SHOW = 2;
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  } catch { return iso; }
-}
 
 function getIcon(status: string) {
   const s = status.toLowerCase();
@@ -125,7 +120,7 @@ function EntryRow({ entry, isFirst }: { entry: CaseStatusHistoryEntry; isFirst: 
                 : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
             )}
           >
-            {formatDate(entry.date)}
+            {formatDisplayDateLong(entry.date)}
           </span>
           {isFirst && (
             <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">

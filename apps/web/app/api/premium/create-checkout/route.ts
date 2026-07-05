@@ -29,6 +29,7 @@ import {
   normalizeBillingInterval,
   normalizePlanTier,
 } from "@/lib/posthog-server";
+import { billingInsertId } from "@/lib/posthog/billing-analytics";
 
 // Initialize Stripe
 const getStripe = () => {
@@ -256,6 +257,7 @@ export async function POST(req: NextRequest) {
         });
 
         await captureServerEvent(userId, "checkout_started", {
+          $insert_id: billingInsertId("checkout_started", `${bestExisting.id}:dedicated-upgrade`),
           plan_tier: "dedicated",
           interval: normalizeBillingInterval(interval),
           is_upgrade: true,
@@ -396,6 +398,7 @@ export async function POST(req: NextRequest) {
         ) {
           console.log(`Reusing open checkout session ${existingSession.id} for ${planId}/${interval}`);
           await captureServerEvent(userId, "checkout_started", {
+            $insert_id: billingInsertId("checkout_started", existingSession.id),
             plan_tier: normalizePlanTier(planId),
             interval: normalizeBillingInterval(interval),
             is_upgrade: false,
@@ -474,6 +477,7 @@ export async function POST(req: NextRequest) {
 
     console.log(`Checkout session created: ${session.id}`);
     await captureServerEvent(userId, "checkout_started", {
+      $insert_id: billingInsertId("checkout_started", session.id),
       plan_tier: normalizePlanTier(planId),
       interval: normalizeBillingInterval(interval),
       is_upgrade: false,

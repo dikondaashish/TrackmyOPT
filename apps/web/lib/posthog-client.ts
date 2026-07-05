@@ -10,7 +10,14 @@ export type TrackMyOptPersonProperties = {
   is_stem_eligible?: boolean;
   has_receipt?: boolean;
   activation_state?: string;
+  signup_date?: string;
   provider?: string;
+  lifetime_revenue_cents?: number;
+  lifetime_payment_count?: number;
+  first_payment_date?: string | null;
+  last_payment_date?: string | null;
+  ltv_currency?: string;
+  referred_by?: string | null;
 };
 
 function isBrowserPostHogReady(): boolean {
@@ -35,8 +42,49 @@ export function identifyTrackMyOptUser(
     ...(properties.activation_state
       ? { activation_state: properties.activation_state }
       : {}),
+    ...(properties.signup_date ? { signup_date: properties.signup_date } : {}),
     ...(properties.provider ? { provider: properties.provider } : {}),
   });
+}
+
+type AuthUserLike = {
+  id: string;
+  created_at?: string;
+  app_metadata?: Record<string, unknown>;
+};
+
+function resolveAuthProvider(user: AuthUserLike): string {
+  const provider = user.app_metadata?.provider;
+  return typeof provider === "string" ? provider : "email";
+}
+
+function resolveSignupDate(createdAt?: string): string | undefined {
+  if (!createdAt) return undefined;
+  const date = createdAt.slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined;
+}
+
+/** Identify on login / post-auth before dashboard shell mounts. */
+export function identifyLoginSessionUser(user: AuthUserLike): void {
+  identifyTrackMyOptUser(user.id, {
+    plan_tier: "free",
+    premium_status: false,
+    onboarding_completed: false,
+    activation_state: "onboarding_incomplete",
+    signup_date: resolveSignupDate(user.created_at),
+    provider: resolveAuthProvider(user),
+  });
+}
+
+export function captureUserSignedUp(properties: {
+  provider: string;
+  referred_by?: string;
+}): void {
+  captureClientEvent("user_signed_up", properties);
+}
+
+export function captureUserSignedIn(properties: { provider: string }): void {
+  captureClientEvent("user_signed_in", properties);
 }
 
 export function captureClientEvent(
@@ -45,9 +93,26 @@ export function captureClientEvent(
 ): void {
   if (!isBrowserPostHogReady()) return;
   posthog.capture(event, {
-    capture_source: "client",
     ...properties,
+    capture_source: "client",
   });
+}
+
+export function captureInsuranceEligibilityChecked(properties: {
+  state: string;
+  visa_type: string;
+  income_bucket: string;
+}): void {
+  captureClientEvent("insurance_eligibility_checked", properties);
+}
+
+export function captureInsurancePlanClicked(properties: {
+  partner: string;
+  state: string;
+  visa_type: string;
+  destination_url: string;
+}): void {
+  captureClientEvent("insurance_plan_clicked", properties);
 }
 
 export type OnboardingCompletedProperties = {
@@ -85,6 +150,70 @@ export function captureOnboardingReceiptSkipped(
     ...properties,
     source: "onboarding_wizard",
   });
+}
+
+export function captureOnboardingReceiptVariantExposed(properties: {
+  variant: string;
+}): void {
+  captureClientEvent("onboarding_receipt_variant_exposed", {
+    ...properties,
+    source: "onboarding_wizard",
+  });
+}
+
+export type CaseStatusCheckCompletedClientProperties = {
+  trigger: "manual" | "initial" | "cron" | "unknown";
+  receipt_prefix?: string | null;
+};
+
+/** Client mirror of server `case_status_check_completed` for in-app surveys. */
+export function captureCaseStatusCheckCompletedClient(
+  properties: CaseStatusCheckCompletedClientProperties
+): void {
+  captureClientEvent("case_status_check_completed", {
+    ...properties,
+    source: "case_status_page",
+  });
+}
+
+export type UniversityPartnerGroupProperties = {
+  partner_name: string;
+  referral_clicks?: number;
+  referral_signups?: number;
+  premium_conversions?: number;
+  is_active?: boolean;
+};
+
+/** Associate the logged-in user with a university partner group (B2B2C). */
+export function associateUniversityPartnerGroup(
+  groupKey: string,
+  properties: UniversityPartnerGroupProperties
+): void {
+  if (!isBrowserPostHogReady()) return;
+
+  const client = posthog as typeof posthog & {
+    group?: (
+      groupType: string,
+      groupKey: string,
+      groupProperties?: Record<string, string | number | boolean>
+    ) => void;
+  };
+
+  if (typeof client.group === "function") {
+    client.group("university_partner", groupKey, {
+      partner_name: properties.partner_name,
+      ...(properties.referral_clicks !== undefined
+        ? { referral_clicks: properties.referral_clicks }
+        : {}),
+      ...(properties.referral_signups !== undefined
+        ? { referral_signups: properties.referral_signups }
+        : {}),
+      ...(properties.premium_conversions !== undefined
+        ? { premium_conversions: properties.premium_conversions }
+        : {}),
+      ...(properties.is_active !== undefined ? { is_active: properties.is_active } : {}),
+    });
+  }
 }
 
 export type CaseStatusExplainerViewedProperties = {
@@ -141,7 +270,7 @@ const SIGN_OUT_FLUSH_MS = 250;
 export async function captureSignOut(source: SignOutSource): Promise<void> {
   if (!isBrowserPostHogReady()) return;
   try {
-    posthog.capture("user_signed_out", { source });
+    captureClientEvent("user_signed_out", { source });
     await new Promise<void>((resolve) => {
       window.setTimeout(resolve, SIGN_OUT_FLUSH_MS);
     });
@@ -234,5 +363,51 @@ export type ErrorBoundaryTriggeredProperties = {
 export function captureErrorBoundaryTriggered(
   properties: ErrorBoundaryTriggeredProperties
 ): void {
-  captureClientEvent("error_boundary_triggered", properties);
+  if (!isBrowserPostHogReady()) return;
+
+  const sessionId =
+    typeof posthog.get_session_id === "function" ? posthog.get_session_id() : undefined;
+
+  captureClientEvent("error_boundary_triggered", {
+    ...properties,
+    ...(sessionId ? { $session_id: sessionId } : {}),
+  });
+}
+
+export function capturePremiumCheckoutViewed(properties: {
+  plan_id?: string | null;
+  interval?: string | null;
+}): void {
+  captureClientEvent("premium_checkout_viewed", {
+    plan_id: properties.plan_id ?? null,
+    interval: properties.interval ?? null,
+    source: "checkout_page",
+  });
+}
+
+export function captureExtensionDetected(properties: { version: string | null }): void {
+  captureClientEvent("extension_detected", {
+    version: properties.version,
+    source: "dashboard",
+  });
+}
+
+export function captureActivationCompleted(properties: {
+  days_since_signup: number | null;
+}): void {
+  captureClientEvent("activation_completed", {
+    days_since_signup: properties.days_since_signup,
+    source: "dashboard",
+  });
+}
+
+export function capturePremiumCheckoutCompleted(properties: {
+  plan_tier?: string | null;
+  session_id?: string | null;
+}): void {
+  captureClientEvent("premium_checkout_completed", {
+    plan_tier: properties.plan_tier ?? null,
+    stripe_session_id: properties.session_id ?? null,
+    source: "success_page",
+  });
 }

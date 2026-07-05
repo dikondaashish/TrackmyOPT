@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { PremiumStatusProvider, usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { PolicyUpdateConsentModal } from "@/components/compliance/PolicyUpdateConsentModal";
 import { PostHogIdentify } from "@/components/analytics/PostHogIdentify";
+import { ExtensionAnalyticsTracker } from "@/components/analytics/ExtensionAnalyticsTracker";
+import { ActivationCompletedTracker } from "@/components/analytics/ActivationCompletedTracker";
 
 interface DashboardLayoutClientProps {
     children: React.ReactNode;
@@ -102,6 +104,8 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
     return (
         <div className="h-screen overflow-hidden bg-[#e8edf5] dark:bg-gray-950">
             <PostHogIdentify />
+            <ExtensionAnalyticsTracker />
+            <ActivationCompletedTracker />
             <PolicyUpdateConsentModal />
             <ResumePromoBanner variant="dashboard" />
             {/* Fixed Header — below promo banner */}

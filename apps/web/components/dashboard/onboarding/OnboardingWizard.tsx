@@ -21,7 +21,13 @@ import {
   captureOnboardingCompleted,
   captureOnboardingReceiptPromptShown,
   captureOnboardingReceiptSkipped,
+  captureCaseStatusCheckCompletedClient,
 } from "@/lib/posthog-client";
+import { useOnboardingReceiptVariant } from "@/hooks/useOnboardingReceiptVariant";
+import {
+  isReceiptStepSkippable,
+  shouldDeferReceiptStep,
+} from "@/lib/posthog/onboarding-receipt-variant";
 import { saveReceiptAndPoll, type CaseStatusRecord } from "@/lib/case-status/save-receipt-and-poll";
 import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import { getReceiptPrefix } from "@/lib/posthog/uscis-status-category";
@@ -61,6 +67,7 @@ interface OnboardingWizardProps {
 
 export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizardProps) {
   const { toast } = useToast();
+  const { variant: receiptVariant } = useOnboardingReceiptVariant(isOpen);
   
   const [step, setStep] = useState<WizardStep>('welcome');
   const [status, setStatus] = useState<JourneyStatus>(null);
@@ -248,6 +255,11 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       const result = await response.json();
 
       if (response.ok && result.ok) {
+        if (shouldDeferReceiptStep(receiptVariant)) {
+          setStep("finishing");
+          await finishOnboarding(false);
+          return;
+        }
         setStep("receipt");
       } else {
         throw new Error(result.error || "Failed to save dates");
@@ -286,6 +298,12 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       }
 
       setSavedCaseStatus(saveResult.data);
+      if (saveResult.statusResolved) {
+        captureCaseStatusCheckCompletedClient({
+          trigger: "initial",
+          receipt_prefix: getReceiptPrefix(validation.normalized),
+        });
+      }
       if (!saveResult.statusResolved) {
         setReceiptError(
           "Status check is taking longer than expected. Your receipt is saved — we'll update it shortly."
@@ -326,6 +344,16 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   // wizard doesn't reappear, but DO NOT mark as completed. Dashboard will show a checklist
   // nudge instead.
   const handleSkip = async () => {
+    if (step === "receipt" && !isReceiptStepSkippable(receiptVariant)) {
+      toast({
+        title: "Receipt required to continue",
+        description:
+          "Add your USCIS receipt number to finish setup. You can find it on your I-797 notice.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Avoid duplicate skip events when finishOnboarding closes the dialog after explicit skip.
     if (
       step === "receipt" &&
@@ -679,14 +707,16 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                   <Button variant="ghost" onClick={() => setStep("dates")} disabled={isReceiptSaving}>
                     Back
                   </Button>
-                  <button
-                    type="button"
-                    onClick={handleReceiptSkip}
-                    disabled={isReceiptSaving}
-                    className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline text-left"
-                  >
-                    I don&apos;t have one yet / skip
-                  </button>
+                  {isReceiptStepSkippable(receiptVariant) && (
+                    <button
+                      type="button"
+                      onClick={handleReceiptSkip}
+                      disabled={isReceiptSaving}
+                      className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline text-left"
+                    >
+                      I don&apos;t have one yet / skip
+                    </button>
+                  )}
                 </div>
                 {savedCaseStatus ? (
                   <Button onClick={handleReceiptFinish} className="px-8">

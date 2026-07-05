@@ -14,6 +14,7 @@ import {
   PP_BUSINESS_DAY_LIMIT,
   PP_CONTACT,
 } from "@/lib/case-status/premium-processing";
+import { formatDisplayDateNoon } from "@/lib/case-status/safe-dates";
 
 type PremiumProcessingCountdownProps = {
   caseId: string;
@@ -22,14 +23,6 @@ type PremiumProcessingCountdownProps = {
   statusHistory: CaseStatusHistoryEntry[];
   onSaved: () => void | Promise<void>;
 };
-
-function formatDisplayDate(iso: string): string {
-  return new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 export function PremiumProcessingCountdown({
   caseId,
@@ -134,11 +127,11 @@ export function PremiumProcessingCountdown({
             {clock && (
               <p className="text-sm text-white/90 mt-1">
                 Deadline:{" "}
-                <span className="font-bold">{formatDisplayDate(clock.deadline)}</span>
+                <span className="font-bold">{formatDisplayDateNoon(clock.deadline)}</span>
                 <span className="text-white/70">
                   {" "}
                   ({PP_BUSINESS_DAY_LIMIT} business days from{" "}
-                  {formatDisplayDate(clock.ppStart)})
+                  {formatDisplayDateNoon(clock.ppStart)})
                 </span>
               </p>
             )}

@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { identifyTrackMyOptUser } from "@/lib/posthog-client";
+import { identifyTrackMyOptUser, associateUniversityPartnerGroup } from "@/lib/posthog-client";
+import { normalizePartnerGroupKey } from "@/lib/posthog/university-partner-groups";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 
 function resolvePlanTier(
@@ -48,7 +49,7 @@ export function PostHogIdentify() {
       const [{ data: profile }, caseRes] = await Promise.all([
         supabase
           .from("profiles")
-          .select("onboarding_completed, is_stem_eligible")
+          .select("onboarding_completed, is_stem_eligible, referred_by")
           .eq("user_id", user.id)
           .maybeSingle(),
         fetch("/api/case-status", { credentials: "include", cache: "no-store" }),
@@ -85,11 +86,28 @@ export function PostHogIdentify() {
           hasReceipt,
           hasStatus,
         }),
+        signup_date: user.created_at?.slice(0, 10),
         provider:
           typeof user.app_metadata?.provider === "string"
             ? user.app_metadata.provider
             : undefined,
+        referred_by: profile?.referred_by ?? null,
       });
+
+      const referralCode = profile?.referred_by
+        ? normalizePartnerGroupKey(profile.referred_by)
+        : "";
+      if (referralCode) {
+        associateUniversityPartnerGroup(referralCode, {
+          partner_name: referralCode,
+        });
+        fetch("/api/analytics/partner-group", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ referralCode }),
+        }).catch(() => undefined);
+      }
     })();
 
     return () => {

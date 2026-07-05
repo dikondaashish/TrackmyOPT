@@ -3,6 +3,7 @@
 import { AlertTriangle, Phone, Globe, FileText, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { formatDisplayDateShort } from "@/lib/case-status/safe-dates";
 import type { CaseState } from "./StickyCaseSwitcher";
 
 interface PremiumProcessingInfo {
@@ -14,12 +15,6 @@ interface UrgentActionBannerProps {
   caseState: CaseState;
   premiumProcessing?: PremiumProcessingInfo;
   rfeDate?: string | null;
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  } catch { return iso; }
 }
 
 export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: UrgentActionBannerProps) {
@@ -52,7 +47,7 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
                 Premium Processing Overdue — {premiumProcessing.overdueBusinessDays} business day{premiumProcessing.overdueBusinessDays !== 1 ? "s" : ""} past deadline
               </p>
               <p className="text-sm text-red-800 dark:text-red-200 mb-3">
-                USCIS committed to a decision by {formatDate(premiumProcessing.deadlineDate)}.
+                USCIS committed to a decision by {formatDisplayDateShort(premiumProcessing.deadlineDate)}.
                 You are entitled to contact the Premium Processing unit directly.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -83,7 +78,7 @@ export function UrgentActionBanner({ caseState, premiumProcessing, rfeDate }: Ur
           ) : caseState === "actionNeeded" ? (
             <>
               <p className="text-sm font-extrabold uppercase tracking-wide mb-1 text-amber-700 dark:text-amber-300">
-                Request for Evidence {rfeDate ? `— Received ${formatDate(rfeDate)}` : "Received"}
+                Request for Evidence {rfeDate ? `— Received ${formatDisplayDateShort(rfeDate)}` : "Received"}
               </p>
               <p className="text-sm text-amber-800 dark:text-amber-200 mb-3">
                 USCIS needs additional documents. Respond before the RFE deadline or your case may be denied.

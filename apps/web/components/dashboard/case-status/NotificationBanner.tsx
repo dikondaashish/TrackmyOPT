@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, AlertTriangle, Bell, Clock, CheckCircle, Info, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { addDaysIso, parseValidDate, startOfLocalDayMs } from "@/lib/case-status/safe-dates";
 
 interface Notification {
   id: string;
@@ -65,8 +66,14 @@ export function NotificationBanner({
 
   useEffect(() => {
     const newNotifications: Notification[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayMs = Date.now();
+    const todayStartMs = startOfLocalDayMs(todayMs);
+
+    const daysUntil = (iso: string) => {
+      const end = parseValidDate(iso);
+      if (!end) return null;
+      return Math.ceil((end.getTime() - todayStartMs) / 86_400_000);
+    };
 
     // Check unemployment days (only when employment history exists)
     if (hasEmployment && unemploymentDays >= maxUnemploymentDays * 0.9) {
@@ -96,11 +103,10 @@ export function NotificationBanner({
     }
 
     if (optStatus) {
-      const optEndDate = new Date(optStatus.opt_ead_end_date);
-      const daysUntilEnd = Math.ceil((optEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const daysUntilEnd = daysUntil(optStatus.opt_ead_end_date);
 
       // OPT ending soon
-      if (daysUntilEnd <= 30 && daysUntilEnd > 0) {
+      if (daysUntilEnd != null && daysUntilEnd <= 30 && daysUntilEnd > 0) {
         newNotifications.push({
           id: "opt-ending-soon",
           type: "urgent",
@@ -112,7 +118,7 @@ export function NotificationBanner({
           },
           dismissible: false,
         });
-      } else if (daysUntilEnd <= 90 && daysUntilEnd > 30) {
+      } else if (daysUntilEnd != null && daysUntilEnd <= 90 && daysUntilEnd > 30) {
         newNotifications.push({
           id: "opt-ending-warning",
           type: "warning",
@@ -127,12 +133,11 @@ export function NotificationBanner({
       }
 
       // Filing deadline approaching
-      const programEnd = new Date(optStatus.program_end_date);
-      const mustArriveBy = new Date(programEnd);
-      mustArriveBy.setDate(mustArriveBy.getDate() + 60);
-      const daysUntilDeadline = Math.ceil((mustArriveBy.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const mustArriveBy = addDaysIso(optStatus.program_end_date, 60);
+      const daysUntilDeadline =
+        mustArriveBy != null ? daysUntil(mustArriveBy) : null;
 
-      if (daysUntilDeadline <= 14 && daysUntilDeadline > 0) {
+      if (daysUntilDeadline != null && daysUntilDeadline <= 14 && daysUntilDeadline > 0) {
         newNotifications.push({
           id: "filing-deadline-urgent",
           type: "urgent",

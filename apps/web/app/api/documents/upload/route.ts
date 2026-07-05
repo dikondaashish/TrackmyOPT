@@ -22,7 +22,7 @@ import { analyzeDocument, normalizeText } from '@/lib/ai/gemini-ai';
 import { generateRemindersForDocument } from '@/lib/notifications/reminders';
 import { checkDocumentUploadRateLimit, getTimeUntilReset } from '@/lib/auth/rate-limit';
 import { scanFileForViruses, checkSuspiciousFileType } from '@/lib/aws/virus-scan';
-import { withPostHogClient } from '@/lib/posthog-server';
+import { captureServerEvent } from '@/lib/posthog-server';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -190,18 +190,12 @@ export async function POST(request: NextRequest) {
     }
 
 
-    await withPostHogClient((posthog) => {
-      posthog.capture({
-        distinctId: user.id,
-        event: 'document_uploaded',
-        properties: {
-          document_type: document.document_type || analysis.documentType || 'other',
-          file_type: file.type,
-          file_size_bytes: file.size,
-          ai_confidence: analysis.confidence,
-          has_expiry_date: !!analysis.expiryDate,
-        },
-      });
+    await captureServerEvent(user.id, "document_uploaded", {
+      document_type: document.document_type || analysis.documentType || 'other',
+      file_type: file.type,
+      file_size_bytes: file.size,
+      ai_confidence: analysis.confidence,
+      has_expiry_date: !!analysis.expiryDate,
     });
 
     // ISS-016: signal when AI couldn't detect an expiry so client can prompt

@@ -2,6 +2,7 @@
 
 import { Search, TrendingUp, Users2, Clock, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDisplayDateShort } from "@/lib/case-status/safe-dates";
 
 interface Distribution {
   label: string;
@@ -33,18 +34,6 @@ interface PredictionPanelProps {
 }
 
 const MIN_COHORT_DEFAULT = 20;
-
-function fmtDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  } catch { return iso; }
-}
-
-function fmtDateShort(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  } catch { return iso; }
-}
 
 function Bar({ count, max, isCurrentBucket }: { count: number; max: number; isCurrentBucket: boolean }) {
   const pct = max > 0 ? Math.round((count / max) * 100) : 0;
@@ -121,7 +110,7 @@ export function PredictionPanel({ daysSinceFiled, prediction, minCohort = MIN_CO
             <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-400">Estimated Decision</p>
           </div>
           <p className="text-sm font-bold text-foreground">
-            {fmtDateShort(estimatedDecisionRange[0])} – {fmtDate(estimatedDecisionRange[1])}
+            {formatDisplayDateShort(estimatedDecisionRange[0])} – {formatDisplayDateShort(estimatedDecisionRange[1])}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">
             Median {medianDays}d · You are on day {daysSinceFiled}

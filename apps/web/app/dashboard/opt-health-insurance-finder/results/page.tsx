@@ -9,7 +9,7 @@ import {
   getInsuranceResultsPayload,
   type InsuranceResultsPayload,
 } from "@/lib/insurance/insurance-results-session";
-import posthog from "posthog-js";
+import { captureInsurancePlanClicked } from "@/lib/posthog-client";
 
 // Age-based pricing for insurance partners
 function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {
@@ -89,7 +89,7 @@ function ResultsContent() {
   const kimberPriceForNY = isNYEssentialPlan ? 0 : pricing.kimberPrice;
 
   const handleApply = (url: string, partnerName: string) => {
-    posthog.capture('insurance_plan_clicked', {
+    captureInsurancePlanClicked({
       partner: partnerName,
       state,
       visa_type: visa,

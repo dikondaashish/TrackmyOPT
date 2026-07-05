@@ -88,7 +88,6 @@ export async function POST(req: NextRequest) {
                 status: onboardingAnalytics.onboarding_status ?? null,
                 is_stem_eligible: onboardingAnalytics.is_stem_eligible ?? null,
                 degree_level: onboardingAnalytics.degree_level ?? null,
-                capture_source: 'server',
             });
         }
 

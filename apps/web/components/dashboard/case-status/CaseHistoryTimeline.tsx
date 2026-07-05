@@ -3,6 +3,7 @@ import { useState } from "react";
 import { CheckCircle2, ChevronDown, ChevronUp, History, Clock, AlertCircle, FileCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useClientDate } from "@/hooks/useClientDate";
+import { daysSinceEpochMs, formatDisplayDateShort } from "@/lib/case-status/safe-dates";
 
 interface HistoryEvent {
     status: string;
@@ -16,35 +17,15 @@ interface CaseHistoryTimelineProps {
     className?: string;
 }
 
-// Format date for display
-function formatDateShort(dateString: string): string {
-    try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-        });
-    } catch {
-        return dateString;
-    }
-}
-
 // Get relative time label — accepts explicit `now` to avoid hydration mismatch.
-// Returns "" when now is null (server / first hydration render).
 function getRelativeTime(dateString: string, now: Date | null): string {
     if (!now) return "";
-    try {
-        const diff = now.getTime() - new Date(dateString).getTime();
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        if (days === 0) return "Today";
-        if (days === 1) return "Yesterday";
-        if (days < 7) return `${days} days ago`;
-        if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
-        return `${Math.floor(days / 30)} months ago`;
-    } catch {
-        return "";
-    }
+    const days = daysSinceEpochMs(dateString, now.getTime());
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
+    return `${Math.floor(days / 30)} months ago`;
 }
 
 // Determine icon based on status text
@@ -178,7 +159,7 @@ export function CaseHistoryTimeline({
                                                 }
                                             `}
                                         >
-                                            {formatDateShort(event.date)}
+                                            {formatDisplayDateShort(event.date)}
                                         </span>
                                         {relativeTime && (
                                             <span className="text-[10px] text-muted-foreground">

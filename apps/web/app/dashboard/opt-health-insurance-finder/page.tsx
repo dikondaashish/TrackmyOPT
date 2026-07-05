@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Shield, ChevronDown, ChevronRight, CreditCard, Clock, CheckCircle2 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
-import posthog from "posthog-js";
 import { setInsuranceResultsPayload } from "@/lib/insurance/insurance-results-session";
 import { bucketMonthlyIncome } from "@/lib/posthog/income-bucket";
+import { captureInsuranceEligibilityChecked } from "@/lib/posthog-client";
 
 // US States
 const US_STATES = [
@@ -120,7 +120,7 @@ export default function HealthInsuranceFinderPage() {
     }
 
     try {
-      posthog.capture('insurance_eligibility_checked', {
+      captureInsuranceEligibilityChecked({
         state,
         visa_type: visaType,
         income_bucket: bucketMonthlyIncome(monthlyIncome),

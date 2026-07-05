@@ -27,6 +27,7 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  productionBrowserSourceMaps: process.env.POSTHOG_SOURCEMAPS_ENABLED === "true",
   async headers() {
     return [
       {
@@ -223,7 +224,32 @@ const nextConfig = {
 // Wrap with @next/bundle-analyzer when ANALYZE=true so `pnpm build` can produce
 // an interactive client.html / server.html report under .next/analyze/.
 let wrappedConfig = nextConfig;
-if (process.env.ANALYZE === 'true') {
+
+if (
+  process.env.POSTHOG_SOURCEMAPS_ENABLED === "true" &&
+  process.env.POSTHOG_PERSONAL_API_KEY &&
+  process.env.POSTHOG_PROJECT_ID
+) {
+  try {
+    const { withPostHogConfig } = require("@posthog/nextjs-config");
+    wrappedConfig = withPostHogConfig(nextConfig, {
+      personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
+      envId: process.env.POSTHOG_PROJECT_ID,
+      host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.posthog.com",
+      sourcemaps: {
+        enabled: true,
+        deleteAfterUpload: true,
+      },
+    });
+  } catch (error) {
+    console.warn(
+      "[next.config] POSTHOG_SOURCEMAPS_ENABLED but @posthog/nextjs-config failed:",
+      error instanceof Error ? error.message : error
+    );
+  }
+}
+
+if (process.env.ANALYZE === "true") {
   try {
      
     const withBundleAnalyzer = require('@next/bundle-analyzer')({ enabled: true });

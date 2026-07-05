@@ -44,15 +44,16 @@ import {
   normalizeBillingInterval,
   normalizePlanTier,
 } from '@/lib/posthog-server';
+import {
+  billingInsertId,
+  buildPaymentSucceededCapture,
+} from '@/lib/posthog/billing-analytics';
+import { syncUserLtvToPostHog } from '@/lib/posthog/ltv-sync';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-
-function billingInsertId(event: string, id: string): string {
-  return `${event}:${id}`;
-}
 
 function getStripe(): Stripe {
   requireLiveStripeKeyInProduction();
@@ -62,6 +63,14 @@ function getStripe(): Stripe {
   return new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2025-09-30.clover',
   });
+}
+
+async function refreshPostHogLtv(userId: string): Promise<void> {
+  try {
+    await syncUserLtvToPostHog(supabase, userId);
+  } catch (error) {
+    secureLog.warn('posthog ltv sync failed', sanitizeError(error));
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -272,14 +281,17 @@ async function handleCheckoutCompleted(
             is_upgrade: false,
           });
         } else {
-          await captureServerEvent(userId, 'payment_succeeded', {
-            $insert_id: billingInsertId('payment_succeeded', stripeEventId),
-            plan_tier: planTier,
-            interval,
-            amount_cents: session.amount_total ?? 0,
-            currency: session.currency || 'usd',
-            is_upgrade: false,
-          });
+          await captureServerEvent(
+            userId,
+            'payment_succeeded',
+            buildPaymentSucceededCapture({
+              stripeEventId,
+              planTier,
+              interval,
+              amountCents: session.amount_total ?? 0,
+              currency: session.currency || 'usd',
+            })
+          );
           await captureServerEvent(userId, 'subscription_started', {
             $insert_id: billingInsertId('subscription_started', `${stripeEventId}:sub`),
             plan_tier: planTier,
@@ -288,18 +300,23 @@ async function handleCheckoutCompleted(
             is_upgrade: false,
           });
         }
+        await refreshPostHogLtv(userId);
       } catch (e) {
         secureLog.warn('post-checkout billing analytics failed', sanitizeError(e));
       }
     } else if ((session.amount_total ?? 0) > 0) {
-      await captureServerEvent(userId, 'payment_succeeded', {
-        $insert_id: billingInsertId('payment_succeeded', stripeEventId),
-        plan_tier: planTier,
-        interval,
-        amount_cents: session.amount_total ?? 0,
-        currency: session.currency || 'usd',
-        is_upgrade: false,
-      });
+      await captureServerEvent(
+        userId,
+        'payment_succeeded',
+        buildPaymentSucceededCapture({
+          stripeEventId,
+          planTier,
+          interval,
+          amountCents: session.amount_total ?? 0,
+          currency: session.currency || 'usd',
+        })
+      );
+      await refreshPostHogLtv(userId);
     }
 
     if (subId) {
@@ -918,14 +935,18 @@ async function handleInvoicePaid(
     const interval = normalizeBillingInterval(subscription.metadata?.interval);
     const amountCents = inv.amount_paid ?? inv.total ?? 0;
     if (amountCents > 0) {
-      await captureServerEvent(user.userId, 'payment_succeeded', {
-        $insert_id: billingInsertId('payment_succeeded', stripeEventId),
-        plan_tier: planTier,
-        interval,
-        amount_cents: amountCents,
-        currency: inv.currency || 'usd',
-        is_upgrade: false,
-      });
+      await captureServerEvent(
+        user.userId,
+        'payment_succeeded',
+        buildPaymentSucceededCapture({
+          stripeEventId,
+          planTier,
+          interval,
+          amountCents,
+          currency: inv.currency || 'usd',
+        })
+      );
+      await refreshPostHogLtv(user.userId);
     }
 
     const result = await reconcileCustomerBilling({

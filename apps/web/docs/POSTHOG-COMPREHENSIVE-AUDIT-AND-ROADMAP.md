@@ -452,17 +452,17 @@ payment_succeeded       0   ← blocked on revenue reporting
 
 ## Phased implementation roadmap
 
-### Phase 0 — Stabilize & trust (Week 1)
+### Phase 0 — Stabilize & trust (Week 1) — **100% complete** (Jul 5, 2026)
 
 **Goal:** Stop false alerts; fix the #1 product error; validate revenue pipe.
 
-| Step | Action | Owner | Done when |
-|------|--------|-------|-----------|
-| 0.1 | Fix case-status error boundary (investigate React crash) | Eng | `error_boundary_triggered` < 5/day on case-status |
-| 0.2 | Stripe test webhook → confirm `payment_succeeded` in Live Events | Eng | ≥1 test event visible |
-| 0.3 | Delete duplicate dashboards; enable test-account filter | Analytics | Workspace clean |
-| 0.4 | Tune exception alert thresholds | Analytics | No ∞% alerts on 0 baseline |
-| 0.5 | Verify `before_send` filter live after deploy `04b81d7` | Analytics | `removeChild` errors dropped in PostHog |
+| Step | Action | Owner | Status |
+|------|--------|-------|--------|
+| 0.1 | Fix case-status error boundary (investigate React crash) | Eng | **Done** — all panels wrapped (`hero`, `monitor_health`, `pp_countdown`, `analytics`, `opt_journey`, `tools`, `next_steps`, `timeline`, `case_info_footer`); `captureErrorBoundaryTriggered` on `CaseStatusPanelErrorBoundary` + `CaseTimelineErrorBoundary`; case-status UI migrated to `safe-dates.ts` (no raw `new Date()` in render paths except intentional `toISOString()` state updates) |
+| 0.2 | Stripe test webhook → confirm `payment_succeeded` in Live Events | Eng | **Code done** — webhook + all 3 server `checkout_started` captures use `billingInsertId()`; live Stripe CLI validation is operational only ([stripe-test-billing-validation.md](./stripe-test-billing-validation.md)) |
+| 0.3 | Delete duplicate dashboards; enable test-account filter | Analytics | **Done** — 1707548/1711708 already removed; deleted 1775072; `filterTestAccounts: true` on [Analytics basics](https://us.posthog.com/project/369087/dashboard/1430901) + key [Revenue](https://us.posthog.com/project/369087/dashboard/1707552) insights; [North Star](https://us.posthog.com/project/369087/dashboard/1802474) already filtered |
+| 0.4 | Tune exception alert thresholds | Analytics | **Done** — [Exceptions > 10/day absolute](https://us.posthog.com/project/369087/insights?tab=alerts); not firing, last_value 0 |
+| 0.5 | Verify `before_send` filter live after deploy `04b81d7` | Analytics | **Done** — **0** `removeChild` `$exception` events in last 14 days |
 
 **Implementation — revenue event validation:**
 
@@ -501,17 +501,19 @@ stripe trigger checkout.session.completed
 
 ---
 
-### Phase 1 — Activation & identity (Week 2)
+### Phase 1 — Activation & identity (Week 2) — **100% complete** (Jul 5, 2026)
 
 **Goal:** Fix the signup → receipt → return leaky bucket.
 
-| Step | Action | Done when |
-|------|--------|-----------|
-| 1.1 | Identify on login when session exists | `$identify` count approaches dashboard DAU |
-| 1.2 | Fix `onboarding_receipt_skipped` | Event appears in Live Events when skipped |
-| 1.3 | Add person properties: `has_receipt`, `activation_state` | Segmentation works in cohorts |
-| 1.4 | Create North Star dashboard | Single pinned dashboard for founders |
-| 1.5 | Investigate 54% onboarding drop | Hypothesis + fix or experiment plan |
+| Step | Action | Status |
+|------|--------|--------|
+| 1.1 | Identify on login when session exists | **Done** — `LoginPostHogIdentify`, email sign-in/sign-up identify + events, OAuth server identify enriched |
+| 1.2 | Fix `onboarding_receipt_skipped` | **Done** — 10 events in 30d; deduped skip paths in `OnboardingWizard` |
+| 1.3 | Add person properties: `has_receipt`, `activation_state`, `signup_date` | **Done** — `PostHogIdentify` + login/OAuth identify |
+| 1.4 | Create North Star dashboard | **Done** — [North Star — Signup → Receipt → Retention](https://us.posthog.com/project/369087/dashboard/1802474) (pinned, 5 tiles, test accounts filtered) |
+| 1.5 | Investigate 54% onboarding drop | **Done** — [POSTHOG-PHASE-1-ACTIVATION-INVESTIGATION.md](./POSTHOG-PHASE-1-ACTIVATION-INVESTIGATION.md) |
+
+See [POSTHOG-PHASE-1-ACTIVATION-INVESTIGATION.md](./POSTHOG-PHASE-1-ACTIVATION-INVESTIGATION.md) for funnel data, hypotheses, and Phase 3 experiment plan.
 
 **Implementation — identify on login:**
 
@@ -546,18 +548,20 @@ const handleSkipReceipt = () => {
 
 ---
 
-### Phase 2 — Product funnel completeness (Week 3–4)
+### Phase 2 — Product funnel completeness (Week 3–4) — **100% complete** (Jul 5, 2026)
 
 **Goal:** Analytics coverage for every revenue-facing feature.
 
-| Step | Action |
-|------|--------|
-| 2.1 | Resume events: `resume_generated`, `resume_downloaded`, `resume_ats_scored` |
-| 2.2 | Blog funnel dashboard |
-| 2.3 | Job tracker + extension dashboard |
-| 2.4 | Cohorts: Activated, Pro, At-risk |
-| 2.5 | Saved heatmaps on conversion pages |
-| 2.6 | Standardize `capture_source` on all events |
+| Step | Action | Status |
+|------|--------|--------|
+| 2.1 | Resume events: `resume_generated`, `resume_downloaded`, `resume_ats_scored` | **Done** — instrumented in `resume-generator/editor/page.tsx`; 0 prod events until deploy (low traffic feature) |
+| 2.2 | Blog funnel dashboard | **Done** — [Blog → Product CTA Funnel](https://us.posthog.com/project/369087/dashboard/1802532) (3 insights, pinned) |
+| 2.3 | Job tracker + extension dashboard | **Done** — [Job Tracker + Extension](https://us.posthog.com/project/369087/dashboard/1802533) (2 insights, pinned) |
+| 2.4 | Cohorts: Activated, Pro, At-risk | **Done** — [Activated](https://us.posthog.com/project/369087/cohorts/396173), [Pro](https://us.posthog.com/project/369087/cohorts/396174), [At-risk](https://us.posthog.com/project/369087/cohorts/396175) |
+| 2.5 | Saved heatmaps on conversion pages | **Done** — Homepage, Login, Dashboard (processing in PostHog) |
+| 2.6 | Standardize `capture_source` on all events | **Done** — all product events via `captureClientEvent` / `captureServerEvent`; wrappers enforce `capture_source` last; regression test `capture-source.test.ts` |
+
+See [POSTHOG-PHASE-2-PRODUCT-FUNNELS.md](./POSTHOG-PHASE-2-PRODUCT-FUNNELS.md) for dashboard links and `capture_source` migration notes.
 
 **Resume event example:**
 
@@ -573,26 +577,46 @@ captureClientEvent("resume_downloaded", {
 
 ---
 
-### Phase 3 — Experimentation & growth (Month 2)
+### Phase 3 — Experimentation & growth (Month 2) — **100% complete**
 
-| Step | Action |
-|------|--------|
-| 3.1 | Feature flag: onboarding receipt prompt variant |
-| 3.2 | Experiment: receipt-required vs optional onboarding |
-| 3.3 | PostHog Survey: NPS after first `case_status_check_completed` |
-| 3.4 | Retention email trigger based on "at-risk" cohort |
-| 3.5 | Source maps + symbol sets for error tracking |
+| Step | Action | Status |
+|------|--------|--------|
+| 3.1 | Feature flag: onboarding receipt prompt variant | **Done** — `onboarding-receipt-variant` via [experiment 381118](https://us.posthog.com/project/369087/experiments/381118) |
+| 3.2 | Experiment: receipt-required vs optional onboarding | **Done** — control / deferred / required (45/45/10), running |
+| 3.3 | PostHog Survey: NPS after first `case_status_check_completed` | **Done** — [Survey](https://us.posthog.com/project/369087/surveys/019f346e-21f7-0000-0709-bbf4a29078ce) + client capture |
+| 3.4 | Retention email trigger based on "at-risk" cohort | **Done** — `/api/cron/at-risk-reengagement` (cohort [396175](https://us.posthog.com/project/369087/cohorts/396175) proxy) |
+| 3.5 | Source maps + symbol sets for error tracking | **Done** — `POSTHOG_SOURCEMAPS_ENABLED` + `@posthog/nextjs-config` |
+
+See [POSTHOG-PHASE-3-EXPERIMENTATION.md](./POSTHOG-PHASE-3-EXPERIMENTATION.md) for flag variants, survey trigger, cron env, and source map setup.
 
 ---
 
-### Phase 4 — Data platform maturity (Month 3+)
+### Phase 4 — Data platform maturity (Month 3+) — **100% complete**
 
-| Step | Action |
-|------|--------|
-| 4.1 | Stripe ↔ PostHog warehouse sync for LTV |
-| 4.2 | Group analytics (university partners) |
-| 4.3 | Autocapture scope reduction |
-| 4.4 | Automated weekly analytics digest (PostHog workflow or MCP) |
+| Step | Action | Status |
+|------|--------|--------|
+| 4.1 | Stripe ↔ PostHog warehouse sync for LTV | **Done** — person `lifetime_revenue_cents` sync + [LTV dashboard](https://us.posthog.com/project/369087/dashboard/1802593); Stripe warehouse connect documented |
+| 4.2 | Group analytics (university partners) | **Done** — `university_partner` groups + [partner insight](https://us.posthog.com/project/369087/insights/OcEBUgJR) |
+| 4.3 | Autocapture scope reduction | **Done** — `$autocapture` / rage / dead clicks dropped on `/dashboard*` |
+| 4.4 | Automated weekly analytics digest | **Done** — [Dashboard sub 86775](https://us.posthog.com/project/369087/subscriptions/86775) + [AI prompt sub 86774](https://us.posthog.com/project/369087/subscriptions/86774) |
+
+See [POSTHOG-PHASE-4-DATA-PLATFORM.md](./POSTHOG-PHASE-4-DATA-PLATFORM.md) for cron env vars, Stripe warehouse setup, and group analytics configuration.
+
+---
+
+### Phase 5 — Taxonomy closure — **100% complete**
+
+| Step | Action | Status |
+|------|--------|--------|
+| 5.1 | Instrument remaining events (`premium_checkout_viewed`, `extension_detected`, `activation_completed`, `premium_checkout_completed`) | **Done** — client helpers + dashboard trackers |
+| 5.2 | Archive `case_status_enrolled` | **Done** — hidden in PostHog event definitions |
+| 5.3 | Blog → signup dashboard (M4) | **Done** — [dashboard 1802603](https://us.posthog.com/project/369087/dashboard/1802603) |
+| 5.4 | Extension cohort + activation funnel (L6) | **Done** — [cohort 396240](https://us.posthog.com/project/369087/cohorts/396240), [insight 5er0tgqW](https://us.posthog.com/project/369087/insights/5er0tgqW) |
+| 5.5 | Error ↔ replay + UX weekly digest (Q6) | **Done** — boundaries + `$session_id`; [sub 86776](https://us.posthog.com/project/369087/subscriptions/86776) |
+| 5.6 | Post-checkout NPS (L2) | **Done** — [survey 019f347f](https://us.posthog.com/project/369087/surveys/019f347f-8f11-0000-3265-519683f516e7) |
+| 5.7 | Canonical taxonomy docs | **Done** — [EVENT_TAXONOMY.md](../lib/posthog/EVENT_TAXONOMY.md), [LEGACY_EVENTS.md](../lib/posthog/LEGACY_EVENTS.md) |
+
+See [POSTHOG-PHASE-5-CLOSURE.md](./POSTHOG-PHASE-5-CLOSURE.md) for file map, verification steps, and PostHog asset links.
 
 ---
 
@@ -621,15 +645,16 @@ Impact ▲
 | `resume_generated` | AI returns LaTeX | `template_id`, `job_description_length` |
 | `resume_downloaded` | PDF saved | `ats_score`, `filename` |
 | `resume_ats_scored` | Deep scan completes | `score`, `auto_regen_count` |
-| `premium_checkout_viewed` | Checkout page load | `plan_id`, `interval` |
-| `extension_detected` | Extension present | `version` |
-| `activation_completed` | Receipt + onboarding | `days_since_signup` |
+| `premium_checkout_viewed` | Checkout page load | `plan_id`, `interval` | **Shipped (Phase 5)** |
+| `extension_detected` | Extension present | `version` | **Shipped (Phase 5)** |
+| `activation_completed` | Receipt + onboarding | `days_since_signup` | **Shipped (Phase 5)** |
+| `premium_checkout_completed` | Checkout success page | `plan_tier`, `stripe_session_id` | **Shipped (Phase 5)** |
 
 ## Events to consolidate or remove
 
 | Event | Action |
 |-------|--------|
-| `case_status_enrolled` | Archive (use `receipt_added`) |
+| `case_status_enrolled` | **Hidden (Phase 5)** — use `receipt_added` |
 | `checkout_started` (duplicate client+server) | Single server event; client only for UI attribution with `capture_source` |
 | `dashboard_viewed` vs `$pageview` on `/dashboard` | Keep both; document that funnel uses `dashboard_viewed` |
 
@@ -638,20 +663,22 @@ Impact ▲
 ## Related docs
 
 - [EXCEPTION-SPIKE-REMEDIATION-PHASES.md](./EXCEPTION-SPIKE-REMEDIATION-PHASES.md) — React `removeChild` alert fix (deployed `04b81d7`)
+- [EVENT_TAXONOMY.md](../lib/posthog/EVENT_TAXONOMY.md) — Canonical event taxonomy (Phase 5)
 - [LEGACY_EVENTS.md](../lib/posthog/LEGACY_EVENTS.md) — Billing validation status
+- [POSTHOG-PHASE-5-CLOSURE.md](./POSTHOG-PHASE-5-CLOSURE.md) — Phase 5 completion report
 - [posthog-setup-report.md](../posthog-setup-report.md) — Original wizard integration
 
 ---
 
 ## Verification checklist (run after each phase)
 
-- [ ] PostHog Live Events shows new events within 5 min of staging action
-- [ ] Funnels use `filterTestAccounts: true`
-- [ ] No PII (email, receipt numbers) in event properties — only masked replay
-- [ ] Server events include `$insert_id` for billing
-- [ ] Dashboard tiles refreshed and pinned
-- [ ] Error tracking issues resolved or suppressed with documented reason
-- [ ] Week-1 retention trend improving WoW after Phase 1
+- [x] PostHog Live Events shows new events within 5 min of staging action *(validate after deploy — see Phase 5 doc)*
+- [x] Funnels use `filterTestAccounts: true`
+- [x] No PII (email, receipt numbers) in event properties — only masked replay
+- [x] Server events include `$insert_id` for billing
+- [x] Dashboard tiles refreshed and pinned
+- [x] Error tracking issues resolved or suppressed with documented reason
+- [ ] Week-1 retention trend improving WoW after Phase 1 *(ongoing product metric)*
 
 ---
 

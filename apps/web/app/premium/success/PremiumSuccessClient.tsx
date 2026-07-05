@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { capturePremiumCheckoutCompleted } from "@/lib/posthog-client";
 
 const CONFETTI = [
   { tx: "28px", ty: "-52px", rot: "18deg", delay: "0s" },
@@ -143,6 +144,14 @@ export function PremiumSuccessClient() {
 
   const isDedicated = planId === "dedicated";
   const variant = isDedicated ? "dedicated" : "pro";
+
+  useEffect(() => {
+    if (!sessionId) return;
+    capturePremiumCheckoutCompleted({
+      plan_tier: variant,
+      session_id: sessionId,
+    });
+  }, [sessionId, variant]);
 
   useEffect(() => {
     if (!sessionId) return;

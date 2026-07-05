@@ -10,6 +10,11 @@ export function resolvePostHogApiKey(): string | undefined {
   );
 }
 
+/** True when server-side PostHog capture can run (API key present). */
+export function isPostHogServerConfigured(): boolean {
+  return Boolean(resolvePostHogApiKey());
+}
+
 // Creates a fresh client per call — required because we always call shutdown()
 // after each event to ensure flush in serverless / edge environments.
 export function getPostHogClient(): PostHog | null {
@@ -41,8 +46,8 @@ function withServerDefaults(
   props?: PostHogEventProperties
 ): PostHogEventProperties | undefined {
   const merged = stripUndefined({
-    capture_source: "server",
     ...props,
+    capture_source: "server",
   });
   return Object.keys(merged).length > 0 ? merged : undefined;
 }
@@ -86,6 +91,70 @@ export async function identifyServerUser(
     posthog.identify({
       distinctId,
       properties: withServerDefaults(properties),
+    });
+  });
+}
+
+type PostHogGroupClient = PostHog & {
+  groupIdentify?: (args: {
+    groupType: string;
+    groupKey: string;
+    properties?: Record<string, unknown>;
+  }) => void;
+};
+
+/** Upsert a B2B2C partner group (university / campus ambassador). */
+export async function identifyServerGroup(
+  groupType: string,
+  groupKey: string,
+  properties?: PostHogEventProperties
+): Promise<void> {
+  const props = stripUndefined(properties);
+
+  await withPostHogClient((posthog) => {
+    const client = posthog as PostHogGroupClient;
+    if (typeof client.groupIdentify === "function") {
+      client.groupIdentify({ groupType, groupKey, properties: props });
+      return;
+    }
+
+    client.capture({
+      distinctId: groupKey,
+      event: "$groupidentify",
+      properties: {
+        $group_type: groupType,
+        $group_key: groupKey,
+        $group_set: props,
+        capture_source: "server",
+      },
+    });
+  });
+}
+
+/** Link a user to a partner group for group-level analytics. */
+export async function associateUserWithServerGroup(
+  userId: string,
+  groupType: string,
+  groupKey: string
+): Promise<void> {
+  await withPostHogClient((posthog) => {
+    const client = posthog as PostHogGroupClient & {
+      capture: (args: {
+        distinctId: string;
+        event: string;
+        properties?: Record<string, unknown>;
+        groups?: Record<string, string>;
+      }) => void;
+    };
+
+    client.capture({
+      distinctId: userId,
+      event: "partner_group_associated",
+      groups: { [groupType]: groupKey },
+      properties: withServerDefaults({
+        partner_group_type: groupType,
+        partner_group_key: groupKey,
+      }),
     });
   });
 }

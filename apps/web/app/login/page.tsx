@@ -6,6 +6,11 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { LoadingScreen } from '@/components/ui/loading-screen';
 import { LoginPostHogIdentify } from '@/components/analytics/LoginPostHogIdentify';
+import {
+  captureUserSignedIn,
+  captureUserSignedUp,
+  identifyLoginSessionUser,
+} from '@/lib/posthog-client';
 
 type Mode = 'signin' | 'signup';
 
@@ -214,6 +219,10 @@ function LoginPageContent() {
         throw signInError;
       }
 
+      if (data.user) {
+        identifyLoginSessionUser(data.user);
+        captureUserSignedIn({ provider: 'email' });
+      }
 
       // Save email if remember me
       if (rememberMe) {
@@ -320,8 +329,17 @@ function LoginPageContent() {
 
       if (error) throw error;
 
-      // Track referral signup if we have a code
       const refCode = localStorage.getItem('trackmyopt_ref');
+
+      if (data.user) {
+        identifyLoginSessionUser(data.user);
+        captureUserSignedUp({
+          provider: 'email',
+          ...(refCode ? { referred_by: refCode } : {}),
+        });
+      }
+
+      // Track referral signup if we have a code
       if (refCode) {
         fetch('/api/referral/signup', {
           method: 'POST',

@@ -125,6 +125,14 @@ async function shouldSkipFreeReceiptReengagement(
   return rows.length > 0;
 }
 
+async function shouldSkipAtRiskReengagement(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<boolean> {
+  const rows = await fetchExistingTypeRows(supabase, userId, "at_risk_reengagement");
+  return rows.length > 0;
+}
+
 async function shouldSkipWelcomeFreeResend(
   supabase: SupabaseClient,
   userId: string
@@ -173,6 +181,7 @@ type DedupeMode =
   | { kind: "premium_welcome" }
   | { kind: "checkout_recovery" }
   | { kind: "free_receipt_reengagement" }
+  | { kind: "at_risk_reengagement" }
   | { kind: "welcome_free_resend" }
   | { kind: "stem_opt_window" }
   | { kind: "none" };
@@ -228,6 +237,13 @@ export async function queueTransactionalEmailSend(args: {
       return { ok: false, error: "user_id required for free_receipt_reengagement" };
     }
     if (await shouldSkipFreeReceiptReengagement(supabase, userId)) {
+      return { ok: true, skipped: "deduped" };
+    }
+  } else if (dedupe.kind === "at_risk_reengagement") {
+    if (!userId) {
+      return { ok: false, error: "user_id required for at_risk_reengagement" };
+    }
+    if (await shouldSkipAtRiskReengagement(supabase, userId)) {
       return { ok: true, skipped: "deduped" };
     }
   } else if (dedupe.kind === "welcome_free_resend") {
@@ -1001,6 +1017,82 @@ export async function sendFreeReceiptReengagementEmail(args: {
     text,
     emailData: { reengagement_email_sent: true },
     dedupe: { kind: "free_receipt_reengagement" },
+  });
+}
+
+/** HTML + plain text for at-risk users (signed up recently, inactive 14d+). */
+export function buildAtRiskReengagementEmailBodies(firstName: string | null): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const dashboardUrl = `${getAppBaseUrl()}/dashboard`;
+  const caseStatusUrl = `${getAppBaseUrl()}/dashboard/case-status`;
+  const greeting = firstName?.trim() ? `Hi ${escapeHtml(firstName.trim())},` : "Hi,";
+  const greetingText = firstName?.trim() ? `Hi ${firstName.trim()},` : "Hi,";
+
+  const html = buildTransactionalEmail({
+    headerTitle: "Your OPT dashboard is waiting",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("Pick up where you left off")}
+${emailTextP(greeting)}
+${emailTextP(
+  "It&rsquo;s been a little while since your last visit. Your TrackMyOPT account is still active &mdash; here&rsquo;s a quick way to get value in under a minute."
+)}
+${emailTextList(
+  [
+    "Check your USCIS case status (free)",
+    "Review OPT countdowns and unemployment days",
+    "Finish onboarding if you skipped the receipt step",
+  ],
+  { ordered: false }
+)}
+${emailPrimaryButton(caseStatusUrl, "Check case status")}
+${emailTextMuted(`You can also open your dashboard anytime: ${escapeHtml(dashboardUrl)}`)}
+${emailBodySectionClose()}
+`,
+  });
+
+  const text = [
+    greetingText,
+    "",
+    "It's been a little while since your last visit. Your TrackMyOPT account is still active.",
+    "",
+    "- Check your USCIS case status (free)",
+    "- Review OPT countdowns and unemployment days",
+    "- Finish onboarding if you skipped the receipt step",
+    "",
+    `Check case status: ${caseStatusUrl}`,
+    `Dashboard: ${dashboardUrl}`,
+  ].join("\n");
+
+  return {
+    subject: "Your OPT tools are still here when you need them",
+    html,
+    text,
+  };
+}
+
+export async function sendAtRiskReengagementEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName } = args;
+  const { subject, html, text } = buildAtRiskReengagementEmailBodies(firstName);
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "at_risk_reengagement",
+    subject,
+    html,
+    text,
+    emailData: { at_risk_reengagement_sent: true },
+    dedupe: { kind: "at_risk_reengagement" },
   });
 }
 

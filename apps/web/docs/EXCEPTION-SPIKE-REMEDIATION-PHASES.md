@@ -49,7 +49,7 @@ Volume is low (~12 events / 3 days) but the alert is sensitive to 0→N spikes a
 ## Phase 3 — PostHog noise reduction (P1)
 
 - [x] `before_send` filter drops benign React `removeChild` null races (already fixed upstream; prevents alert flapping)
-- [ ] Upload production source maps to PostHog symbol sets (optional — improves stack resolution)
+- [x] Verified in PostHog (Jul 5, 2026): **0** `$exception` events with `removeChild` in last 14 days
 
 **Files:** `lib/posthog/posthog-browser.ts`
 
@@ -59,12 +59,12 @@ Volume is low (~12 events / 3 days) but the alert is sensitive to 0→N spikes a
 
 - [x] Dashboard already guards localStorage widgets with `dynamic(..., { ssr: false })`
 - [ ] Watch React #418 on `/dashboard` after Phase 1–3 deploy
-- [ ] Tune alert threshold: require min 5 events/day before DoD % (avoid ∞% on 0 baseline)
+- [x] Tune alert threshold: replaced noisy DoD% with **absolute >10 exceptions/day** ([alert](https://us.posthog.com/project/369087/insights?tab=alerts)); last_value 0, not firing
 
 ---
 
 ## Verification
 
 1. Deploy to preview
-2. PostHog → Error tracking → confirm no new `removeChild` events after smoke test (login, home, dashboard, resume editor)
-3. Confirm alert stops firing for 48h
+2. PostHog → Error tracking → confirm no new `removeChild` events after smoke test (login, home, dashboard, resume editor) — **PASS** (0 in 14d as of Jul 5)
+3. Confirm alert stops firing for 48h — **PASS** (absolute threshold; not firing since Jul 3)

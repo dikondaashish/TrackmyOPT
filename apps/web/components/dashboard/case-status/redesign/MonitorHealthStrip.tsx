@@ -1,6 +1,11 @@
 "use client";
 
 import { CheckCircle2, XCircle, Mail, Pencil } from "lucide-react";
+import {
+  formatCheckedAt,
+  formatRelativePast,
+  formatUntilFuture,
+} from "@/lib/case-status/safe-dates";
 import { cn } from "@/lib/utils";
 
 interface MonitorHealthStripProps {
@@ -10,40 +15,6 @@ interface MonitorHealthStripProps {
   emailAlertsEnabled: boolean;
   emailAddress?: string;
   onEditEmail?: () => void;
-}
-
-function formatRelative(iso: string | null): string {
-  if (!iso) return "—";
-  try {
-    const diff = Date.now() - new Date(iso).getTime();
-    const mins = Math.floor(diff / 60_000);
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins} min ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  } catch { return "—"; }
-}
-
-function formatNextCheck(iso: string | null): string {
-  if (!iso) return "—";
-  try {
-    const diff = new Date(iso).getTime() - Date.now();
-    if (diff <= 0) return "soon";
-    const hrs = Math.floor(diff / 3_600_000);
-    const mins = Math.floor((diff % 3_600_000) / 60_000);
-    if (hrs > 0) return `${hrs}h ${String(mins).padStart(2, "0")}m`;
-    return `${mins}m`;
-  } catch { return "—"; }
-}
-
-function formatCheckedAt(iso: string | null): string {
-  if (!iso) return "—";
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) +
-      " @ " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-  } catch { return "—"; }
 }
 
 const Dot = () => <span className="text-gray-300 dark:text-gray-700 mx-1.5">·</span>;
@@ -75,7 +46,7 @@ export function MonitorHealthStrip({
           <Dot />
           <span>
             Last checked {formatCheckedAt(lastCheckedAt)}{" "}
-            <span className="text-gray-400">({formatRelative(lastCheckedAt)})</span>
+            <span className="text-gray-400">({formatRelativePast(lastCheckedAt)})</span>
           </span>
         </>
       )}
@@ -83,7 +54,7 @@ export function MonitorHealthStrip({
       {nextCheckAt && monitorActive && (
         <>
           <Dot />
-          <span>Next check in {formatNextCheck(nextCheckAt)}</span>
+          <span>Next check in {formatUntilFuture(nextCheckAt)}</span>
         </>
       )}
 

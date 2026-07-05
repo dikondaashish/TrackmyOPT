@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { withPostHogClient } from '@/lib/posthog-server';
+import { captureServerEvent } from '@/lib/posthog-server';
 
 async function signOut(request: Request) {
   const cookieStore = await cookies();
@@ -36,9 +36,7 @@ async function signOut(request: Request) {
   // Capture sign-out event before ending the session
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    await withPostHogClient((posthog) => {
-      posthog.capture({ distinctId: user.id, event: 'user_signed_out', properties: { source: 'unknown' } });
-    });
+    await captureServerEvent(user.id, 'user_signed_out', { source: 'server_signout' });
   }
 
   // Sign out from Supabase

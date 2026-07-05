@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { FileCheck, Clock, AlertCircle, CheckCircle2, RefreshCw, ExternalLink, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { formatDisplayDateTime } from "@/lib/case-status/safe-dates";
 
 interface CaseStatus {
   id?: string;
@@ -110,12 +111,7 @@ export function CaseStatusSummary() {
 
   const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return "Not yet checked";
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
+    return formatDisplayDateTime(dateStr);
   };
 
   if (isLoading) {

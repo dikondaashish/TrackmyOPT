@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2, Circle, Loader2 } from "lucide-react";
+import { formatDisplayMonthYear, isDateBeforeMs } from "@/lib/case-status/safe-dates";
 import { cn } from "@/lib/utils";
 
 type MilestoneStatus = "done" | "active" | "upcoming";
@@ -14,13 +15,6 @@ interface Milestone {
 
 interface MilestoneTimelineProps {
   milestones: Milestone[];
-}
-
-function formatShort(iso: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-  } catch { return "—"; }
 }
 
 export function MilestoneTimeline({ milestones }: MilestoneTimelineProps) {
@@ -55,7 +49,7 @@ export function MilestoneTimeline({ milestones }: MilestoneTimelineProps) {
                 </span>
                 {/* Date */}
                 <span className="mt-0.5 text-[9px] text-muted-foreground text-center">
-                  {formatShort(m.date)}
+                  {formatDisplayMonthYear(m.date)}
                 </span>
               </div>
               {/* Connector */}
@@ -96,7 +90,7 @@ export function MilestoneTimeline({ milestones }: MilestoneTimelineProps) {
                 m.status === "active"  && "text-blue-600 dark:text-blue-400",
                 m.status === "upcoming"&& "text-muted-foreground"
               )}>{m.label}</p>
-              <p className="text-[10px] text-muted-foreground">{formatShort(m.date)}</p>
+              <p className="text-[10px] text-muted-foreground">{formatDisplayMonthYear(m.date)}</p>
             </div>
           </div>
         ))}
@@ -115,7 +109,8 @@ export function buildMilestones(
   now: Date | null = null
 ): Milestone[] {
   const nowMs = now ? now.getTime() : null;
-  const isPast = (iso: string | null) => (iso && nowMs !== null) ? new Date(iso).getTime() < nowMs : false;
+  const isPast = (iso: string | null) =>
+    iso && nowMs !== null ? isDateBeforeMs(iso, nowMs) : false;
 
   return [
     {

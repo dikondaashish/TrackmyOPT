@@ -14,8 +14,19 @@
 
 | Event | Status | Migration |
 |-------|--------|-----------|
-| `case_status_enrolled` | **Removed (2026-06-13)** | Historical data only. Use `receipt_added` / `receipt_updated`. |
+| `case_status_enrolled` | **Hidden in PostHog (Phase 5)** | Historical data only. Use `receipt_added` / `receipt_updated`. |
 | `receipt_added` | **Preferred** | First save of a receipt for the user |
 | `receipt_updated` | **Preferred** | Subsequent receipt or notification changes |
 
-**New dashboards and funnels:** use `receipt_added` / `receipt_updated` only.
+**New dashboards and funnels:** use `receipt_added` / `receipt_updated` only. `case_status_enrolled` is marked **hidden** in PostHog event definitions (Phase 5).
+
+## Phase 5 client events (taxonomy closure)
+
+| Event | Status |
+|-------|--------|
+| `premium_checkout_viewed` | Shipped — `CheckoutModalClient.tsx` |
+| `premium_checkout_completed` | Shipped — `PremiumSuccessClient.tsx` (NPS trigger) |
+| `extension_detected` | Shipped — `ExtensionAnalyticsTracker.tsx` |
+| `activation_completed` | Shipped — `ActivationCompletedTracker.tsx` |
+
+See [EVENT_TAXONOMY.md](./EVENT_TAXONOMY.md) for the full canonical list.
