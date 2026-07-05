@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withPostHogClient } from '@/lib/posthog-server';
+import { captureServerEvent } from '@/lib/posthog-server';
 import { getUserId } from '@/lib/auth/getUserId';
 
 // CORS headers (restricted to same-origin; extension uses Bearer auth)
@@ -84,13 +84,10 @@ export async function POST(req: NextRequest) {
                 pdfBuffer = await response.arrayBuffer();
                 console.log(`Success with ${compiler.name}!`);
 
-                const userId = req.headers.get('x-user-id') || 'anonymous';
-                await withPostHogClient((posthog) => {
-                    posthog.capture({
-                        distinctId: userId,
-                        event: 'resume_compiled',
-                        properties: { compiler: compiler.name, latex_size_bytes: latexCode.length },
-                    });
+                const distinctId = userId;
+                await captureServerEvent(distinctId, 'resume_compiled', {
+                    compiler: compiler.name,
+                    latex_size_bytes: latexCode.length,
                 });
 
                 break; // Stop loop on success

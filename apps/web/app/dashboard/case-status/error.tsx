@@ -12,10 +12,12 @@ export default function CaseStatusError({
   reset: () => void;
 }) {
   useEffect(() => {
+    const message = error.message?.trim();
     captureErrorBoundaryTriggered({
       route: '/dashboard/case-status',
       component_area: 'case_status',
       ...(error.digest ? { error_digest: error.digest } : {}),
+      ...(message ? { error_message: message.slice(0, 500) } : {}),
     });
   }, [error]);
 

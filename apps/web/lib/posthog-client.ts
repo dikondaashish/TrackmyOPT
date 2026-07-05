@@ -8,6 +8,8 @@ export type TrackMyOptPersonProperties = {
   premium_status?: boolean;
   onboarding_completed?: boolean;
   is_stem_eligible?: boolean;
+  has_receipt?: boolean;
+  activation_state?: string;
   provider?: string;
 };
 
@@ -27,6 +29,12 @@ export function identifyTrackMyOptUser(
     premium_status: properties.premium_status ?? false,
     onboarding_completed: properties.onboarding_completed ?? false,
     is_stem_eligible: properties.is_stem_eligible ?? false,
+    ...(properties.has_receipt !== undefined
+      ? { has_receipt: properties.has_receipt }
+      : {}),
+    ...(properties.activation_state
+      ? { activation_state: properties.activation_state }
+      : {}),
     ...(properties.provider ? { provider: properties.provider } : {}),
   });
 }
@@ -36,7 +44,10 @@ export function captureClientEvent(
   properties?: Record<string, string | number | boolean | null | undefined>
 ): void {
   if (!isBrowserPostHogReady()) return;
-  posthog.capture(event, properties);
+  posthog.capture(event, {
+    capture_source: "client",
+    ...properties,
+  });
 }
 
 export type OnboardingCompletedProperties = {
@@ -64,6 +75,7 @@ export function captureOnboardingReceiptPromptShown(): void {
 
 export type OnboardingReceiptSkippedProperties = {
   receipt_prefix: string | null;
+  skip_reason?: "explicit_skip" | "wizard_dismissed";
 };
 
 export function captureOnboardingReceiptSkipped(
@@ -71,7 +83,6 @@ export function captureOnboardingReceiptSkipped(
 ): void {
   captureClientEvent("onboarding_receipt_skipped", {
     ...properties,
-    capture_source: "client",
     source: "onboarding_wizard",
   });
 }
@@ -217,6 +228,7 @@ export type ErrorBoundaryTriggeredProperties = {
   route: string;
   component_area: ErrorBoundaryArea;
   error_digest?: string;
+  error_message?: string;
 };
 
 export function captureErrorBoundaryTriggered(

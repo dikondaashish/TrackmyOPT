@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { LoadingScreen } from '@/components/ui/loading-screen';
+import { LoginPostHogIdentify } from '@/components/analytics/LoginPostHogIdentify';
 
 type Mode = 'signin' | 'signup';
 
@@ -1100,6 +1101,7 @@ function LoginPageContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={<LoadingScreen />}>
+      <LoginPostHogIdentify />
       <LoginPageContent />
     </Suspense>
   );

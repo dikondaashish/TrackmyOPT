@@ -20,7 +20,11 @@ import {
   getCaseTrackingLimit,
 } from "@/lib/case-status/case-limits";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
-import { CaseTimelineErrorBoundary } from "@/components/dashboard/case-status/CaseTimelineErrorBoundary";
+import {
+  CaseStatusPanelErrorBoundary,
+  CaseTimelineErrorBoundary,
+} from "@/components/dashboard/case-status/CaseTimelineErrorBoundary";
+import { addDaysIso, daysSinceEpochMs, parseValidDate } from "@/lib/case-status/safe-dates";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
 import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
 import {
@@ -671,22 +675,19 @@ export function CaseStatusSection() {
   const ppStartDate = caseStatus?.pp_start_date ?? null;
   const ppOverdueDays: number = (() => {
     if (!ppStartDate || clientNowMs === null) return 0;
-    const start = new Date(ppStartDate);
+    const start = parseValidDate(ppStartDate);
+    if (!start) return 0;
     const deadline = new Date(start);
     deadline.setDate(deadline.getDate() + 15 * 7 / 5); // ~15 business days approx
     const diff = clientNowMs - deadline.getTime();
-    if (diff <= 0) return 0;
+    if (!Number.isFinite(diff) || diff <= 0) return 0;
     return Math.floor(diff / 86_400_000);
   })();
 
-  const ppDeadlineDate: string | null = (() => {
-    if (!ppStartDate) return null;
-    try {
-      const d = new Date(ppStartDate);
-      d.setDate(d.getDate() + 21); // ~15 business days
-      return d.toISOString();
-    } catch { return null; }
-  })();
+  const ppDeadlineDate: string | null = addDaysIso(ppStartDate, 21);
+
+  const eadProjectedDate = addDaysIso(caseStatus?.received_date ?? null, 115);
+  const stemWindowOpensDate = addDaysIso(caseStatus?.received_date ?? null, 115 + 365 - 90);
 
   const rfeDate: string | null = (() => {
     const rfe = safeStatusHistory.find(
@@ -802,17 +803,19 @@ export function CaseStatusSection() {
               onCancelEdit={() => { setIsEditingReceipt(false); setReceiptNumber(caseStatus.receipt_number); setError(null); setSuccess(false); }}
             />
           ) : (
-            <CaseHeroCard
-              caseStatus={{ ...caseStatus, status_history: safeStatusHistory }}
-              caseState={caseState}
-              ppOverdueDays={ppOverdueDays}
-              ppDeadlineDate={ppDeadlineDate}
-              updateCount={safeStatusHistory.length}
-              isRefreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              onManageCase={() => setIsEditingReceipt(true)}
-              refreshError={error}
-            />
+            <CaseStatusPanelErrorBoundary area="hero">
+              <CaseHeroCard
+                caseStatus={{ ...caseStatus, status_history: safeStatusHistory }}
+                caseState={caseState}
+                ppOverdueDays={ppOverdueDays}
+                ppDeadlineDate={ppDeadlineDate}
+                updateCount={safeStatusHistory.length}
+                isRefreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                onManageCase={() => setIsEditingReceipt(true)}
+                refreshError={error}
+              />
+            </CaseStatusPanelErrorBoundary>
           )}
 
           {/* ── 3b. Refresh failed inline warning ── */}
@@ -847,40 +850,28 @@ export function CaseStatusSection() {
 
           {/* ── 5. ANALYTICS SECTION ── */}
           <Card className="p-5 sm:p-6 border-0 shadow-lg">
-            <AnalyticsTabs
-              receiptNumber={caseStatus.receipt_number}
-              isPremium={isPremium}
-              onUpgrade={() => setShowPricingModal(true)}
-              daysSinceFiled={
-                caseStatus.received_date && clientNowMs !== null
-                  ? Math.floor((clientNowMs - new Date(caseStatus.received_date).getTime()) / 86_400_000)
-                  : 0
-              }
-            />
+            <CaseStatusPanelErrorBoundary area="analytics">
+              <AnalyticsTabs
+                receiptNumber={caseStatus.receipt_number}
+                isPremium={isPremium}
+                onUpgrade={() => setShowPricingModal(true)}
+                daysSinceFiled={
+                  clientNowMs !== null
+                    ? daysSinceEpochMs(caseStatus.received_date, clientNowMs)
+                    : 0
+                }
+              />
+            </CaseStatusPanelErrorBoundary>
           </Card>
 
           {/* ── 6. OPT JOURNEY SECTION ── */}
-          <OptJourneySection
-            optFiledDate={caseStatus.received_date ?? null}
-            eadProjected={
-              caseStatus.received_date
-                ? (() => {
-                    const d = new Date(caseStatus.received_date);
-                    d.setDate(d.getDate() + 115);
-                    return d.toISOString();
-                  })()
-                : null
-            }
-            stemWindowOpens={
-              caseStatus.received_date
-                ? (() => {
-                    const d = new Date(caseStatus.received_date);
-                    d.setDate(d.getDate() + 115 + 365 - 90);
-                    return d.toISOString();
-                  })()
-                : null
-            }
-          />
+          <CaseStatusPanelErrorBoundary area="opt_journey">
+            <OptJourneySection
+              optFiledDate={caseStatus.received_date ?? null}
+              eadProjected={eadProjectedDate}
+              stemWindowOpens={stemWindowOpensDate}
+            />
+          </CaseStatusPanelErrorBoundary>
 
           {/* ── 7. CASE TIMELINE + CASE INFORMATION (original layout) ── */}
           {safeStatusHistory.length > 0 ? (
@@ -1002,27 +993,31 @@ export function CaseStatusSection() {
           )}
 
           {/* ── 7. TOOLS ACCORDION ── */}
-          <ToolsAccordion
-            notifications={{
-              isPremium,
-              emailAlertsOn: caseStatus.notifications_enabled,
-              emailAddress: notificationEmail,
-              isEditingEmail,
-              emailSaving,
-              onToggleEmail: toggleNotifications,
-              onStartEditEmail: () => setIsEditingEmail(true),
-              onCancelEditEmail: () => setIsEditingEmail(false),
-              onSaveEmail: handleEmailSave,
-              onEmailChange: setNotificationEmail,
-              onUpgrade: () => setShowPricingModal(true),
-            }}
-          />
+          <CaseStatusPanelErrorBoundary area="tools">
+            <ToolsAccordion
+              notifications={{
+                isPremium,
+                emailAlertsOn: caseStatus.notifications_enabled,
+                emailAddress: notificationEmail,
+                isEditingEmail,
+                emailSaving,
+                onToggleEmail: toggleNotifications,
+                onStartEditEmail: () => setIsEditingEmail(true),
+                onCancelEditEmail: () => setIsEditingEmail(false),
+                onSaveEmail: handleEmailSave,
+                onEmailChange: setNotificationEmail,
+                onUpgrade: () => setShowPricingModal(true),
+              }}
+            />
+          </CaseStatusPanelErrorBoundary>
 
           {/* ── 8. SMART NEXT STEPS ── */}
-          <SmartNextSteps
-            caseState={caseState}
-            ppOverdueDays={ppOverdueDays}
-          />
+          <CaseStatusPanelErrorBoundary area="next_steps">
+            <SmartNextSteps
+              caseState={caseState}
+              ppOverdueDays={ppOverdueDays}
+            />
+          </CaseStatusPanelErrorBoundary>
 
           {/* ── 8b. Manual refresh upsell ── */}
           {showManualRefreshUpsell && (

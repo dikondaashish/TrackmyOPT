@@ -1,8 +1,9 @@
 import { PostHog } from "posthog-node";
 
-/** Supports both env names used across deploy configs. */
+/** Supports server-only and public env names used across deploy configs. */
 export function resolvePostHogApiKey(): string | undefined {
   return (
+    process.env.POSTHOG_PROJECT_API_KEY?.trim() ||
     process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN?.trim() ||
     process.env.NEXT_PUBLIC_POSTHOG_KEY?.trim() ||
     undefined
@@ -25,15 +26,25 @@ export function getPostHogClient(): PostHog | null {
 export type PostHogEventProperties = Record<
   string,
   string | number | boolean | null | undefined
->;
+> & { $insert_id?: string };
 
-function stripUndefined(props?: PostHogEventProperties): PostHogEventProperties | undefined {
-  if (!props) return undefined;
+function stripUndefined(props?: PostHogEventProperties): PostHogEventProperties {
+  if (!props) return {};
   const out: PostHogEventProperties = {};
   for (const [key, value] of Object.entries(props)) {
     if (value !== undefined) out[key] = value;
   }
-  return Object.keys(out).length > 0 ? out : undefined;
+  return out;
+}
+
+function withServerDefaults(
+  props?: PostHogEventProperties
+): PostHogEventProperties | undefined {
+  const merged = stripUndefined({
+    capture_source: "server",
+    ...props,
+  });
+  return Object.keys(merged).length > 0 ? merged : undefined;
 }
 
 /**
@@ -62,7 +73,7 @@ export async function captureServerEvent(
     posthog.capture({
       distinctId,
       event,
-      properties: stripUndefined(properties),
+      properties: withServerDefaults(properties),
     });
   });
 }
@@ -74,7 +85,7 @@ export async function identifyServerUser(
   await withPostHogClient((posthog) => {
     posthog.identify({
       distinctId,
-      properties: stripUndefined(properties),
+      properties: withServerDefaults(properties),
     });
   });
 }

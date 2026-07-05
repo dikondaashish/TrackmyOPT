@@ -87,6 +87,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   const [showDropdown, setShowDropdown] = useState(false);
   const onboardingTrackedRef = useRef(false);
   const receiptPromptTrackedRef = useRef(false);
+  const receiptSkipTrackedRef = useRef(false);
   const filteredMajors = majorName
     ? COMMON_MAJORS.filter(m => m.toLowerCase().includes(majorName.toLowerCase()))
     : COMMON_MAJORS;
@@ -299,10 +300,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   };
 
   const handleReceiptSkip = async () => {
-    const trimmed = receiptNumber.trim().toUpperCase();
-    captureOnboardingReceiptSkipped({
-      receipt_prefix: trimmed.length >= 3 ? getReceiptPrefix(trimmed) : null,
-    });
+    trackReceiptSkipped("explicit_skip");
     setStep("finishing");
     await finishOnboarding(false);
   };
@@ -312,10 +310,30 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     await finishOnboarding(false);
   };
 
+  const trackReceiptSkipped = (
+    skipReason: "explicit_skip" | "wizard_dismissed" = "explicit_skip"
+  ) => {
+    if (receiptSkipTrackedRef.current) return;
+    receiptSkipTrackedRef.current = true;
+    const trimmed = receiptNumber.trim().toUpperCase();
+    captureOnboardingReceiptSkipped({
+      receipt_prefix: trimmed.length >= 3 ? getReceiptPrefix(trimmed) : null,
+      skip_reason: skipReason,
+    });
+  };
+
   // ISS-006: explicit "skip with checklist" — mark onboarding dismissed server-side so the
   // wizard doesn't reappear, but DO NOT mark as completed. Dashboard will show a checklist
   // nudge instead.
   const handleSkip = async () => {
+    // Avoid duplicate skip events when finishOnboarding closes the dialog after explicit skip.
+    if (
+      step === "receipt" &&
+      !onboardingTrackedRef.current &&
+      !receiptSkipTrackedRef.current
+    ) {
+      trackReceiptSkipped("wizard_dismissed");
+    }
     if (!markOnboardingTrackedOnce()) return;
     try {
       await persistOnboardingFlags(true);

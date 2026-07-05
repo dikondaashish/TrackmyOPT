@@ -206,6 +206,23 @@ export default function ResumeEditorPage() {
         });
     }, [generatedLatex, jobDescription, jobTitle, selectedTemplateId]);
 
+    const trackAtsScored = useCallback(
+        (
+            analysis: { score?: number | null },
+            scanSource: "deep_scan" | "generate" | "regenerate" | "auto_regenerate"
+        ) => {
+            captureClientEvent("resume_ats_scored", {
+                ats_score: analysis.score ?? null,
+                template_id: selectedTemplateId,
+                application_id: applicationId,
+                auto_regen_count: autoRegenAttempts.current,
+                scan_source: scanSource,
+                source: "resume_editor",
+            });
+        },
+        [applicationId, selectedTemplateId]
+    );
+
     const saveResumeToHistory = useCallback(
         async (latex: string, analysis: AtsAnalysis | null) => {
             try {
@@ -268,6 +285,7 @@ export default function ResumeEditorPage() {
                 if (!response.ok) throw new Error(data.error || "Scan failed");
 
                 setAtsAnalysis(data);
+                trackAtsScored(data, "deep_scan");
                 if (!silent) {
                     toast({
                         title: "Analysis complete",
@@ -289,7 +307,7 @@ export default function ResumeEditorPage() {
                 setIsScanning(false);
             }
         },
-        [jobDescription, setAtsAnalysis, toast]
+        [jobDescription, setAtsAnalysis, toast, trackAtsScored]
     );
 
     const runAutoRegenerate = useCallback(
@@ -322,7 +340,10 @@ export default function ResumeEditorPage() {
 
                 updateText(data.latex, false);
                 setIsStreamingEnabled(true);
-                if (data.atsCheck) setAtsAnalysis(data.atsCheck);
+                if (data.atsCheck) {
+                    setAtsAnalysis(data.atsCheck);
+                    trackAtsScored(data.atsCheck, "auto_regenerate");
+                }
 
                 toast({
                     title: "Auto-improving resume",
@@ -336,7 +357,7 @@ export default function ResumeEditorPage() {
                 setIsAutoFixing(false);
             }
         },
-        [generatedLatex, jobDescription, resumeText, selectedTemplateId, setAtsAnalysis, toast, updateText]
+        [generatedLatex, jobDescription, resumeText, selectedTemplateId, setAtsAnalysis, toast, trackAtsScored, updateText]
     );
 
     const postCompilePipeline = useCallback(
@@ -392,10 +413,17 @@ export default function ResumeEditorPage() {
 
             if (data.atsCheck) {
                 setAtsAnalysis({ ...data.atsCheck, score: data.atsCheck.score ?? 0 });
+                trackAtsScored(data.atsCheck, "generate");
             }
 
             if (data.latex) {
                 await compilePdf(data.latex);
+                captureClientEvent("resume_generated", {
+                    template_id: template,
+                    job_description_length: job.length,
+                    application_id: applicationId,
+                    source: "resume_editor",
+                });
             }
 
             toast({
@@ -532,6 +560,7 @@ export default function ResumeEditorPage() {
             setIsStreamingEnabled(true);
             if (data.atsCheck) {
                 setAtsAnalysis(data.atsCheck);
+                trackAtsScored(data.atsCheck, "regenerate");
             }
 
             // Show toast
@@ -594,19 +623,32 @@ export default function ResumeEditorPage() {
         toast({ description: "Plain text copied — paste into job portals" });
     }, [generatedLatex, toast]);
 
-    const performDownload = useCallback(() => {
-        if (!compiledPdfUrl) return;
-        triggerUrlDownload(compiledPdfUrl, buildPdfFilename());
-    }, [buildPdfFilename, compiledPdfUrl]);
+    const performDownload = useCallback(
+        (options?: { had_gate_warning?: boolean }) => {
+            if (!compiledPdfUrl) return;
+            captureClientEvent("resume_downloaded", {
+                ats_score: atsAnalysis?.score ?? null,
+                template_id: selectedTemplateId,
+                application_id: applicationId,
+                had_gate_warning: options?.had_gate_warning ?? false,
+                filename: buildPdfFilename(),
+                source: "resume_editor",
+            });
+            triggerUrlDownload(compiledPdfUrl, buildPdfFilename());
+        },
+        [
+            applicationId,
+            atsAnalysis?.score,
+            buildPdfFilename,
+            compiledPdfUrl,
+            selectedTemplateId,
+        ]
+    );
 
     const handleDownloadAnyway = useCallback(() => {
-        captureClientEvent("resume_download_anyway", {
-            ats_score: atsAnalysis?.score ?? null,
-            application_id: applicationId,
-        });
         setShowDownloadGate(false);
-        performDownload();
-    }, [applicationId, atsAnalysis?.score, performDownload]);
+        performDownload({ had_gate_warning: true });
+    }, [performDownload]);
 
     const handleDownload = useCallback(() => {
         try {

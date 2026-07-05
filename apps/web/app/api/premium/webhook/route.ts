@@ -50,6 +50,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+function billingInsertId(event: string, id: string): string {
+  return `${event}:${id}`;
+}
+
 function getStripe(): Stripe {
   requireLiveStripeKeyInProduction();
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -88,13 +92,13 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutCompleted(stripe, session);
+        await handleCheckoutCompleted(stripe, session, event.id);
         break;
       }
 
       case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutCompleted(stripe, session);
+        await handleCheckoutCompleted(stripe, session, event.id);
         break;
       }
 
@@ -131,7 +135,7 @@ export async function POST(req: NextRequest) {
       case 'invoice.paid':
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
-        await handleInvoicePaid(stripe, invoice);
+        await handleInvoicePaid(stripe, invoice, event.id);
         break;
       }
 
@@ -196,7 +200,11 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ received: true });
 }
 
-async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.Session) {
+async function handleCheckoutCompleted(
+  stripe: Stripe,
+  session: Stripe.Checkout.Session,
+  stripeEventId: string
+) {
   try {
     const result = await applyStripeCheckoutSession({ stripe, supabase, session });
     if (!result.ok) {
@@ -244,19 +252,20 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     );
     const planTier = normalizePlanTier(planId);
     const hadTrialFromCheckout = session.metadata?.include_pro_trial === 'true';
-    const eventId = `checkout_${session.id}`;
 
     if (subId) {
       try {
         const sub = await stripe.subscriptions.retrieve(subId);
         if (sub.status === 'trialing') {
           await captureServerEvent(userId, 'trial_started', {
+            $insert_id: billingInsertId('trial_started', stripeEventId),
             plan_tier: planTier,
             interval,
             had_trial: true,
             currency: session.currency || 'usd',
           });
           await captureServerEvent(userId, 'subscription_started', {
+            $insert_id: billingInsertId('subscription_started', stripeEventId),
             plan_tier: planTier,
             interval,
             had_trial: true,
@@ -264,6 +273,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
           });
         } else {
           await captureServerEvent(userId, 'payment_succeeded', {
+            $insert_id: billingInsertId('payment_succeeded', stripeEventId),
             plan_tier: planTier,
             interval,
             amount_cents: session.amount_total ?? 0,
@@ -271,6 +281,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
             is_upgrade: false,
           });
           await captureServerEvent(userId, 'subscription_started', {
+            $insert_id: billingInsertId('subscription_started', `${stripeEventId}:sub`),
             plan_tier: planTier,
             interval,
             had_trial: hadTrialFromCheckout,
@@ -280,6 +291,15 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
       } catch (e) {
         secureLog.warn('post-checkout billing analytics failed', sanitizeError(e));
       }
+    } else if ((session.amount_total ?? 0) > 0) {
+      await captureServerEvent(userId, 'payment_succeeded', {
+        $insert_id: billingInsertId('payment_succeeded', stripeEventId),
+        plan_tier: planTier,
+        interval,
+        amount_cents: session.amount_total ?? 0,
+        currency: session.currency || 'usd',
+        is_upgrade: false,
+      });
     }
 
     if (subId) {
@@ -327,7 +347,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
             toEmail: email,
             firstName,
             trialEndDate: trialEnd,
-            stripeEventId: eventId,
+            stripeEventId: stripeEventId,
           });
         } else {
           const amountCents = session.amount_total ?? 0;
@@ -344,7 +364,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
             amountFormatted,
             billingInterval: billingIntervalLabel,
             periodEndDate: periodEndLabel,
-            stripeEventId: eventId,
+            stripeEventId: stripeEventId,
           });
         }
       } catch (e) {
@@ -411,6 +431,7 @@ async function handleAsyncCheckoutPaymentFailed(session: Stripe.Checkout.Session
     const currency = session.currency || 'usd';
 
     await captureServerEvent(userId, 'payment_failed', {
+      $insert_id: billingInsertId('payment_failed', eventId),
       plan_tier: normalizePlanTier(planId),
       amount_cents: amountCents,
       currency,
@@ -515,6 +536,7 @@ async function handlePaymentIntentPaymentFailed(
     const failureCode = full.last_payment_error?.code ?? undefined;
 
     await captureServerEvent(resolved.userId, 'payment_failed', {
+      $insert_id: billingInsertId('payment_failed', eventId),
       plan_tier: planTier,
       amount_cents: amountCents,
       currency,
@@ -635,6 +657,7 @@ async function handleInvoicePaymentFailed(
         : undefined;
 
     await captureServerEvent(user.userId, 'payment_failed', {
+      $insert_id: billingInsertId('payment_failed', eventId),
       plan_tier: planTier,
       amount_cents: amountCents,
       currency,
@@ -865,7 +888,11 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
  * Refreshes subscription_expires_at from the associated subscription so the DB
  * stays in sync even if customer.subscription.updated is delayed or misconfigured.
  */
-async function handleInvoicePaid(stripe: Stripe, invoice: Stripe.Invoice) {
+async function handleInvoicePaid(
+  stripe: Stripe,
+  invoice: Stripe.Invoice,
+  stripeEventId: string
+) {
   try {
     const inv = invoice as Stripe.Invoice & {
       subscription?: string | Stripe.Subscription | null;
@@ -892,6 +919,7 @@ async function handleInvoicePaid(stripe: Stripe, invoice: Stripe.Invoice) {
     const amountCents = inv.amount_paid ?? inv.total ?? 0;
     if (amountCents > 0) {
       await captureServerEvent(user.userId, 'payment_succeeded', {
+        $insert_id: billingInsertId('payment_succeeded', stripeEventId),
         plan_tier: planTier,
         interval,
         amount_cents: amountCents,
@@ -1048,6 +1076,7 @@ async function handleSubscriptionDeleted(
     if (result.action !== 'revoked') return;
 
     await captureServerEvent(user.userId, 'subscription_canceled', {
+      $insert_id: billingInsertId('subscription_canceled', eventId),
       plan_tier: normalizePlanTier(getPlanFromSubscription(subscription) ?? undefined),
     });
 
@@ -1099,6 +1128,7 @@ async function handleSubscriptionPendingUpdateApplied(
 
     if (plan === 'dedicated') {
       await captureServerEvent(user.userId, 'subscription_upgraded', {
+        $insert_id: billingInsertId('subscription_upgraded', subscription.id),
         from_plan: 'pro',
         to_plan: 'dedicated',
         plan_tier: 'dedicated',
