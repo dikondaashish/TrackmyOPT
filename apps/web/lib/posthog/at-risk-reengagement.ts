@@ -20,6 +20,41 @@ function daysAgoIso(days: number): string {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 }
 
+const PROFILE_LOOKUP_CHUNK = 50;
+
+type ProfileRow = {
+  user_id: string;
+  email: string | null;
+  first_name: string | null;
+  plan_tier: string | null;
+};
+
+async function fetchProfilesByUserIds(
+  supabase: SupabaseClient,
+  userIds: string[]
+): Promise<Map<string, ProfileRow>> {
+  const profileById = new Map<string, ProfileRow>();
+  if (userIds.length === 0) return profileById;
+
+  for (let i = 0; i < userIds.length; i += PROFILE_LOOKUP_CHUNK) {
+    const chunk = userIds.slice(i, i + PROFILE_LOOKUP_CHUNK);
+    const { data: profiles, error: profileErr } = await supabase
+      .from("profiles")
+      .select("user_id, email, first_name, plan_tier")
+      .in("user_id", chunk);
+
+    if (profileErr) {
+      throw new Error(profileErr.message);
+    }
+
+    for (const profile of profiles || []) {
+      profileById.set(profile.user_id, profile);
+    }
+  }
+
+  return profileById;
+}
+
 /**
  * Free and paid users who signed up in the last 90 days and have not signed in
  * (or had any session activity) in the last 14 days. Excludes users already
@@ -74,16 +109,7 @@ export async function findAtRiskReengagementCandidates(
     }
 
     if (eligibleIds.length > 0) {
-      const { data: profiles, error: profileErr } = await supabase
-        .from("profiles")
-        .select("user_id, email, first_name, plan_tier")
-        .in("user_id", eligibleIds);
-
-      if (profileErr) {
-        throw new Error(profileErr.message);
-      }
-
-      const profileById = new Map((profiles || []).map((p) => [p.user_id, p]));
+      const profileById = await fetchProfilesByUserIds(supabase, eligibleIds);
 
       for (const userId of eligibleIds) {
         const authUser = users.find((u) => u.id === userId);
@@ -101,12 +127,13 @@ export async function findAtRiskReengagementCandidates(
       }
     }
 
+    if (candidates.length >= limit) break;
     if (users.length < perPage) break;
     page += 1;
   }
 
   candidates.sort((a, b) => a.userId.localeCompare(b.userId));
-  return candidates.slice(0, Math.max(1, limit));
+  return candidates.slice(0, limit);
 }
 
 /** Dry-run helper for cron reporting without listing all auth users. */
