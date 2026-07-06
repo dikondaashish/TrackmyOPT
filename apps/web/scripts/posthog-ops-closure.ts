@@ -11,11 +11,11 @@
 
 import * as dotenv from "dotenv";
 import path from "path";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
 import {
   findLtvSyncCandidates,
   syncLtvBatch,
-  LTV_SYNC_DEFAULT_BATCH,
 } from "../lib/posthog/ltv-sync";
 import {
   listActiveUniversityPartners,
@@ -36,6 +36,8 @@ dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
 
 const dryRun = process.argv.includes("--dry-run");
 
+type AdminSupabase = SupabaseClient<Database>;
+
 function requireEnv(name: string): string {
   const value = process.env[name]?.trim();
   if (!value) throw new Error(`Missing ${name} in .env.local`);
@@ -43,7 +45,7 @@ function requireEnv(name: string): string {
 }
 
 async function runLtvBackfill(
-  supabase: ReturnType<typeof createClient>
+  supabase: AdminSupabase
 ): Promise<{ processed: number; synced: number }> {
   let offset = 0;
   let processed = 0;
@@ -75,7 +77,7 @@ async function runLtvBackfill(
 }
 
 async function runPartnerGroupSync(
-  supabase: ReturnType<typeof createClient>
+  supabase: AdminSupabase
 ): Promise<number> {
   const partners = await listActiveUniversityPartners(supabase, { limit: 200 });
   if (dryRun) {
@@ -95,7 +97,7 @@ async function runPartnerGroupSync(
 }
 
 async function runBillingBackfill(
-  supabase: ReturnType<typeof createClient>
+  supabase: AdminSupabase
 ): Promise<{ payments: number; subscriptions: number }> {
   const { data: payments, error: payErr } = await supabase
     .from("payment_transactions")
@@ -177,7 +179,7 @@ async function main(): Promise<void> {
   requireEnv("SUPABASE_SERVICE_ROLE_KEY");
   requireEnv("NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN");
 
-  const supabase = createClient(
+  const supabase = createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
