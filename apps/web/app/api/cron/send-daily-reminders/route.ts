@@ -58,6 +58,40 @@ interface UserToolEmails {
   stem_clock_email: string | null;
 }
 
+/** UTC midnight today → midnight tomorrow (for same-day dedupe). */
+function getUtcDayBounds(): { start: string; end: string } {
+  const now = new Date();
+  const start = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  );
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 1);
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
+async function hasDailyReminderSentToday(userId: string): Promise<boolean> {
+  const { start, end } = getUtcDayBounds();
+  const { data, error } = await supabase
+    .from('email_queue')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('email_type', 'daily_reminder')
+    .eq('status', 'sent')
+    .gte('created_at', start)
+    .lt('created_at', end)
+    .limit(1);
+
+  if (error) {
+    secureLog.error(
+      'daily-reminder dedupe check failed:',
+      { user: logIdPrefix(userId), err: sanitizeError(error) }
+    );
+    return false;
+  }
+
+  return Boolean(data && data.length > 0);
+}
+
 /**
  * GET - Send daily reminders to all eligible users
  */
@@ -111,6 +145,7 @@ export async function GET(req: NextRequest) {
       total: usersWithEmails.length,
       sent: 0,
       skipped: 0,
+      skipped_dedup: 0,
       failed: 0,
       errors: [] as string[],
     };
@@ -167,6 +202,12 @@ export async function GET(req: NextRequest) {
         const targetEmail = profile.opt_apply_email || profile.opt_clock_email || 
                           profile.stem_apply_email || profile.stem_clock_email;
 
+        if (await hasDailyReminderSentToday(profile.user_id)) {
+          secureLog.info(`Daily reminder dedup skip for user ${logIdPrefix(profile.user_id)}`);
+          results.skipped_dedup++;
+          continue;
+        }
+
         // Send email
         const emailData: EmailReminderData = {
           userId: profile.user_id,
@@ -212,7 +253,7 @@ export async function GET(req: NextRequest) {
 
     const duration = Date.now() - startTime;
     secureLog.info(
-      `Daily reminder job completed in ${duration}ms — sent=${results.sent} skipped=${results.skipped} failed=${results.failed}`,
+      `Daily reminder job completed in ${duration}ms — sent=${results.sent} skipped=${results.skipped} skipped_dedup=${results.skipped_dedup} failed=${results.failed}`,
     );
 
     return NextResponse.json({
