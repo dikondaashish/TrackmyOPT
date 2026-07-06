@@ -35,6 +35,11 @@ import { Save } from "lucide-react";
 import { buildResumePdfFilename, extractNameFromLatex } from "@/lib/resume/build-resume-filename";
 import { latexToPlainText } from "@/lib/resume/latex-to-plain-text";
 import { extractPdfTextFromBlob } from "@/lib/resume/pdf-text-extract-client";
+import {
+    JOB_DESCRIPTION_MAX_CHARS,
+    prepareResumeText,
+    RESUME_TEXT_MAX_CHARS,
+} from "@/lib/resume/resume-text-limits";
 import { isDownloadGateRequired } from "@/lib/resume/apply-readiness";
 import { ATS_PASS_SCORE, buildAutoRegenFeedback, type AtsAnalysis } from "@/lib/resume/ats-analysis-types";
 import { captureClientEvent } from "@/lib/posthog-client";
@@ -172,10 +177,25 @@ export default function ResumeEditorPage() {
 
     useEffect(() => {
         if (!storeHydrated) return;
-        const trimmedResume = resumeText.trim();
-        const trimmedJob = jobDescription.trim();
-        if (trimmedResume && trimmedJob && selectedTemplateId && !generatedLatex && !isGenerating) {
-            generateResume(trimmedResume, trimmedJob, selectedTemplateId);
+        const resumePrep = prepareResumeText(resumeText.trim());
+        const jobPrep = prepareResumeText(jobDescription.trim(), JOB_DESCRIPTION_MAX_CHARS);
+        if (resumePrep.truncated || jobPrep.truncated) {
+            toast({
+                title: "Resume trimmed for AI",
+                description: [
+                    resumePrep.truncated
+                        ? `Resume shortened from ${resumePrep.originalLength.toLocaleString()} to ${resumePrep.text.length.toLocaleString()} characters (max ${RESUME_TEXT_MAX_CHARS.toLocaleString()}).`
+                        : null,
+                    jobPrep.truncated
+                        ? `Job description shortened to ${jobPrep.text.length.toLocaleString()} characters.`
+                        : null,
+                ]
+                    .filter(Boolean)
+                    .join(" "),
+            });
+        }
+        if (resumePrep.text && jobPrep.text && selectedTemplateId && !generatedLatex && !isGenerating) {
+            generateResume(resumePrep.text, jobPrep.text, selectedTemplateId);
         } else if (generatedLatex && !compiledPdfUrl && !isCompiling) {
             compilePdf(generatedLatex);
         }
@@ -451,6 +471,13 @@ export default function ResumeEditorPage() {
                     job_description_length: job.length,
                     application_id: applicationId,
                     source: "resume_editor",
+                });
+            }
+
+            if (Array.isArray(data.warnings) && data.warnings.length > 0) {
+                toast({
+                    title: "Content trimmed",
+                    description: data.warnings.join(" "),
                 });
             }
 

@@ -10,6 +10,11 @@ import rateLimit from '@/lib/auth/rate-limit';
 import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import {
+    JOB_DESCRIPTION_MAX_CHARS,
+    prepareResumeText,
+    RESUME_TEXT_MAX_CHARS,
+} from '@/lib/resume/resume-text-limits';
 
 // Rate Limiter: 10 requests per minute per IP
 const limiter = rateLimit({
@@ -18,8 +23,8 @@ const limiter = rateLimit({
 
 // Input Validation Schema
 const RegenerateSchema = z.object({
-    resumeText: z.string().min(1).max(25000, "Resume text too long"),
-    jobDescription: z.string().min(1).max(15000, "Job description too long"),
+    resumeText: z.string().min(1).max(RESUME_TEXT_MAX_CHARS, "Resume text too long"),
+    jobDescription: z.string().min(1).max(JOB_DESCRIPTION_MAX_CHARS, "Job description too long"),
     templateId: z.string().min(1).max(50),
     previousLatex: z.string().min(1).max(50000, "Previous LaTeX too long"),
     userFeedback: z.string().optional().refine(val => !val || val.length <= 1000, {
@@ -77,8 +82,18 @@ export async function POST(req: NextRequest) {
 
         const body = await req.json();
 
+        const resumePrep = prepareResumeText(String(body.resumeText ?? ""));
+        const jobPrep = prepareResumeText(
+            String(body.jobDescription ?? ""),
+            JOB_DESCRIPTION_MAX_CHARS
+        );
+
         // 3. Input Validation
-        const validation = RegenerateSchema.safeParse(body);
+        const validation = RegenerateSchema.safeParse({
+            ...body,
+            resumeText: resumePrep.text,
+            jobDescription: jobPrep.text,
+        });
         if (!validation.success) {
             return NextResponse.json(
                 { error: 'Invalid input', details: validation.error.format() },
@@ -158,7 +173,19 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({
             latex,
-            atsCheck
+            atsCheck,
+            ...(resumePrep.truncated || jobPrep.truncated
+                ? {
+                      warnings: [
+                          resumePrep.truncated
+                              ? `Resume trimmed from ${resumePrep.originalLength.toLocaleString()} to ${resumePrep.text.length.toLocaleString()} characters.`
+                              : null,
+                          jobPrep.truncated
+                              ? `Job description trimmed from ${jobPrep.originalLength.toLocaleString()} to ${jobPrep.text.length.toLocaleString()} characters.`
+                              : null,
+                      ].filter(Boolean),
+                  }
+                : {}),
         });
 
     } catch (error: any) {

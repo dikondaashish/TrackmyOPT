@@ -12,6 +12,11 @@ import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
+import {
+    JOB_DESCRIPTION_MAX_CHARS,
+    prepareResumeText,
+    RESUME_TEXT_MAX_CHARS,
+} from '@/lib/resume/resume-text-limits';
 
 // Rate Limiter: 10 requests per minute per IP using Upstash
 const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN 
@@ -24,8 +29,8 @@ const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDI
 
 // Input Validation Schema
 const GenerateSchema = z.object({
-    resumeText: z.string().trim().min(1).max(25000, "Resume text too long (max 25k chars)"),
-    jobDescription: z.string().trim().min(1).max(15000, "Job description too long (max 15k chars)"),
+    resumeText: z.string().trim().min(1).max(RESUME_TEXT_MAX_CHARS, "Resume text too long (max 25k chars)"),
+    jobDescription: z.string().trim().min(1).max(JOB_DESCRIPTION_MAX_CHARS, "Job description too long (max 15k chars)"),
     templateId: z.string().trim().min(1).max(50),
 });
 
@@ -85,8 +90,18 @@ export async function POST(req: NextRequest) {
 
         const body = await req.json();
 
+        const resumePrep = prepareResumeText(String(body.resumeText ?? ""));
+        const jobPrep = prepareResumeText(
+            String(body.jobDescription ?? ""),
+            JOB_DESCRIPTION_MAX_CHARS
+        );
+
         // 3. Input Validation
-        const validation = GenerateSchema.safeParse(body);
+        const validation = GenerateSchema.safeParse({
+            ...body,
+            resumeText: resumePrep.text,
+            jobDescription: jobPrep.text,
+        });
         if (!validation.success) {
             return NextResponse.json(
                 { error: 'Invalid input', details: validation.error.format() },
@@ -159,7 +174,23 @@ export async function POST(req: NextRequest) {
         await trackResumeGeneration(user.id, 'generate');
 
         return NextResponse.json(
-            { success: true, latex, atsCheck },
+            {
+                success: true,
+                latex,
+                atsCheck,
+                ...(resumePrep.truncated || jobPrep.truncated
+                    ? {
+                          warnings: [
+                              resumePrep.truncated
+                                  ? `Resume trimmed from ${resumePrep.originalLength.toLocaleString()} to ${resumePrep.text.length.toLocaleString()} characters for AI processing.`
+                                  : null,
+                              jobPrep.truncated
+                                  ? `Job description trimmed from ${jobPrep.originalLength.toLocaleString()} to ${jobPrep.text.length.toLocaleString()} characters.`
+                                  : null,
+                          ].filter(Boolean),
+                      }
+                    : {}),
+            },
             { status: 200, headers: corsHeaders }
         );
 

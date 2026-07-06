@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
+import { normalizeResumeText, prepareResumeText } from '@/lib/resume/resume-text-limits';
 
 const corsHeaders = corsHeadersConfiguredWebApp();
 
@@ -126,10 +127,7 @@ export async function POST(req: NextRequest) {
                 );
             }
 
-            extractedText = extractedText
-                .replace(/\r\n/g, '\n')
-                .replace(/\0/g, '')
-                .trim();
+            extractedText = normalizeResumeText(extractedText);
 
             if (!extractedText || extractedText.length < 50) {
                 return NextResponse.json(
@@ -138,12 +136,16 @@ export async function POST(req: NextRequest) {
                 );
             }
 
+            const prepared = prepareResumeText(extractedText);
+
             return NextResponse.json(
                 {
                     success: true,
-                    text: extractedText,
+                    text: prepared.text,
                     filename: file.name,
-                    length: extractedText.length,
+                    length: prepared.text.length,
+                    originalLength: prepared.originalLength,
+                    truncated: prepared.truncated,
                     s3Key: s3Key
                 },
                 { status: 200, headers: corsHeaders }

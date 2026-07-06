@@ -279,6 +279,13 @@ export default function ResumeGeneratorPage() {
                     setResumeName(result.filename);
                     setResumeOcr({ show: false, running: false });
 
+                    if (result.truncated) {
+                        toast({
+                            title: "Resume trimmed",
+                            description: `Extracted text was shortened from ${Number(result.originalLength || result.length).toLocaleString()} to ${Number(result.length).toLocaleString()} characters for AI processing.`,
+                        });
+                    }
+
                     // Auto-save if checked
                     if (saveResume) {
                         if (saveResume) {
