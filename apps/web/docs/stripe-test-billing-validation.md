@@ -374,3 +374,21 @@ After flows complete, refresh [Revenue dashboard 1707552](https://us.posthog.com
 - Checkout: `app/api/premium/create-checkout/route.ts`
 - Webhook + analytics: `app/api/premium/webhook/route.ts`
 - Key safety: `lib/stripe/requireLiveKeyInProduction.ts` (`guardStripeKeyForBilling`)
+
+---
+
+## Operational closure checklist (2026-07-06)
+
+Stripe CLI was **not available** in the audit environment (`stripe` / `brew` missing). Live checkout validation was **not run** this pass.
+
+| Event | Verified in PostHog | `$insert_id` | `capture_source: server` | Result |
+|-------|---------------------|--------------|--------------------------|--------|
+| `checkout_started` | 8 all-time (last 2026-06-26) | **FAIL** — 0/8 historical rows | **FAIL** — 0/8 | **PENDING** — re-test after Stripe CLI checkout |
+| `payment_succeeded` | 0 in taxonomy | — | — | **PENDING** — never observed |
+| `subscription_started` | 0 in taxonomy | — | — | **PENDING** — never observed |
+| `trial_started` | 0 in taxonomy | — | — | **PENDING** — never observed |
+| `payment_failed` | 16 (30d) | **PASS** — latest row has `$insert_id` | **PASS** — latest row `server` | **PASS** (partial — pre-Jul-5 rows lack dedupe) |
+
+**Code audit (same date):** All 3 `checkout_started` paths in `create-checkout/route.ts` include `billingInsertId()` + `captureServerEvent` ✅
+
+**Next action:** Install [Stripe CLI](https://docs.stripe.com/stripe-cli/install), run §C–D locally per this guide, complete test checkout with `4242…`, confirm the three success events in [Live Events](https://us.posthog.com/project/369087/activity/explore).

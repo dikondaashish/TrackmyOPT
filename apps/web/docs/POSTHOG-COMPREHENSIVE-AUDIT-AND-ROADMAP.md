@@ -672,13 +672,15 @@ Impact ▲
 
 ## Verification checklist (run after each phase)
 
-- [x] PostHog Live Events shows new events within 5 min of staging action *(validate after deploy — see Phase 5 doc)*
-- [x] Funnels use `filterTestAccounts: true`
-- [x] No PII (email, receipt numbers) in event properties — only masked replay
-- [x] Server events include `$insert_id` for billing
-- [x] Dashboard tiles refreshed and pinned
-- [x] Error tracking issues resolved or suppressed with documented reason
-- [ ] Week-1 retention trend improving WoW after Phase 1 *(ongoing product metric)*
+| Check | Last verified | Result |
+|-------|---------------|--------|
+| PostHog Live Events shows new events within 5 min of staging action | 2026-07-06 | **PASS** — `activation_completed`, `resume_*`, `onboarding_receipt_variant_exposed` firing |
+| Funnels use `filterTestAccounts: true` | 2026-07-05 | **PASS** |
+| No PII in event properties | 2026-07-06 | **PASS** — billing privacy SQL unchanged |
+| Server billing events include `$insert_id` | 2026-07-06 | **PARTIAL** — `payment_failed` yes; `checkout_started`/`payment_succeeded` pending live checkout |
+| Dashboard tiles refreshed and pinned | 2026-07-06 | **PASS** — dashboards 1802474, 1802532, 1802533, 1802593, 1802603 exist |
+| Error tracking issues resolved or documented | 2026-07-06 | **PASS** on case-status `removeChild`; 23 site-wide remain |
+| Week-1 retention trend improving WoW | — | **ONGOING** product metric |
 
 ---
 

@@ -28,9 +28,9 @@
 
 | Page | Short ID | Status |
 |------|----------|--------|
-| [Homepage](https://www.trackmyopt.com/) | `2XzojNQl` | Processing |
-| [Login](https://www.trackmyopt.com/login) | `xXmSkk23` | Processing |
-| [Dashboard](https://www.trackmyopt.com/dashboard) | `ZKnOobEA` | Processing |
+| [Homepage](https://www.trackmyopt.com/) | `2XzojNQl` | Completed (2026-07-06) |
+| [Login](https://www.trackmyopt.com/login) | `xXmSkk23` | Completed (2026-07-06) |
+| [Dashboard](https://www.trackmyopt.com/dashboard) | `ZKnOobEA` | Completed (2026-07-06) |
 
 Heatmaps render asynchronously in PostHog → Web analytics → Heatmaps.
 
@@ -47,7 +47,23 @@ Instrumented in `app/dashboard/career/resume-generator/editor/page.tsx`:
 | `resume_downloaded` | PDF download | `ats_score`, `filename`, `had_gate_warning` |
 | `resume_compiled` | Server PDF compile | `capture_source: server` in `compile/route.ts` |
 
-**Note:** 0 events in last 30d — code not yet deployed to production; validate after next deploy.
+**Note:** `resume_generated` / `resume_ats_scored` firing in prod (Jul 6, 2026); `resume_downloaded` still 0 — low traffic.
+
+---
+
+## Operational verification (2026-07-06)
+
+| Check | Result |
+|-------|--------|
+| Raw `posthog.capture` outside wrappers | **PASS** — only `lib/posthog-client.ts`, `lib/posthog-server.ts`, tests |
+| `pnpm --filter web typecheck` | **PASS** |
+| `pnpm --filter web test` | **PASS** (270 tests; `feature-phases.test.ts` updated for phase 5 `in_progress`) |
+| Case-status panel boundaries | **PASS** — 8 `CaseStatusPanelErrorBoundary` areas in `CaseStatusSection.tsx` |
+| `captureErrorBoundaryTriggered` | **PASS** — `error.tsx`, `case-status/error.tsx`, `CaseTimelineErrorBoundary.tsx` |
+| `checkout_started` `$insert_id` (code) | **PASS** — 3 paths in `create-checkout/route.ts` |
+| `checkout_started` live dedupe | **PENDING** — no post-deploy checkouts yet |
+| `$exception` `removeChild` on `/dashboard/case-status` (14d) | **PASS** — 0 |
+| `$exception` `removeChild` site-wide (14d) | **WARN** — 23 (other routes) |
 
 ---
 

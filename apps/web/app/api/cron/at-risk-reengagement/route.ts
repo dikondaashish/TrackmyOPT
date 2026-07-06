@@ -57,7 +57,10 @@ export async function GET(req: NextRequest) {
   const cronAuthError = verifyCronAuth(req);
   if (cronAuthError) return cronAuthError;
 
-  if (process.env.AT_RISK_REENGAGEMENT_ENABLED !== "true") {
+  const limit = parseBatchLimit(req);
+  const dryRun = isDryRun(req);
+
+  if (process.env.AT_RISK_REENGAGEMENT_ENABLED !== "true" && !dryRun) {
     return NextResponse.json({
       ok: true,
       skipped: true,
@@ -65,9 +68,6 @@ export async function GET(req: NextRequest) {
         "AT_RISK_REENGAGEMENT_ENABLED is not true — set it to enable the weekly at-risk retention cron.",
     });
   }
-
-  const limit = parseBatchLimit(req);
-  const dryRun = isDryRun(req);
 
   try {
     const candidates = await findAtRiskReengagementCandidates(supabase, { limit });
