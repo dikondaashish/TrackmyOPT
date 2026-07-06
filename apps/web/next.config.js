@@ -240,6 +240,8 @@ if (
       sourcemaps: {
         enabled: true,
         deleteAfterUpload: true,
+        // Default CLI batch is 50; smaller batches avoid S3 503 SlowDown on large builds.
+        batchSize: Number(process.env.POSTHOG_SOURCEMAPS_BATCH_SIZE) || 15,
       },
     });
   } catch (error) {
