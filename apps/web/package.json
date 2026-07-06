@@ -24,7 +24,9 @@
     "policy-notice:dry-run": "npx tsx scripts/send-policy-update-notice.ts --dry-run",
     "policy-notice:send-test": "npx tsx scripts/send-policy-update-notice.ts --test-email support@trackmyopt.com --send",
     "email-previews:dry-run": "npx tsx scripts/send-all-email-previews.ts --dry-run",
-    "email-previews:send": "npx tsx scripts/send-all-email-previews.ts --to support@trackmyopt.com"
+    "email-previews:send": "npx tsx scripts/send-all-email-previews.ts --to support@trackmyopt.com",
+    "posthog:ops-closure": "npx tsx scripts/posthog-ops-closure.ts",
+    "posthog:ops-closure:dry-run": "npx tsx scripts/posthog-ops-closure.ts --dry-run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.937.0",

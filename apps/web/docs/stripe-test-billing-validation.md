@@ -383,12 +383,12 @@ Stripe CLI was **not available** in the audit environment (`stripe` / `brew` mis
 
 | Event | Verified in PostHog | `$insert_id` | `capture_source: server` | Result |
 |-------|---------------------|--------------|--------------------------|--------|
-| `checkout_started` | 8 all-time (last 2026-06-26) | **FAIL** — 0/8 historical rows | **FAIL** — 0/8 | **PENDING** — re-test after Stripe CLI checkout |
-| `payment_succeeded` | 0 in taxonomy | — | — | **PENDING** — never observed |
-| `subscription_started` | 0 in taxonomy | — | — | **PENDING** — never observed |
-| `trial_started` | 0 in taxonomy | — | — | **PENDING** — never observed |
-| `payment_failed` | 16 (30d) | **PASS** — latest row has `$insert_id` | **PASS** — latest row `server` | **PASS** (partial — pre-Jul-5 rows lack dedupe) |
+| `checkout_started` | 8 historical | **FAIL** on pre-Jul-5 rows | **FAIL** on pre-Jul-5 rows | **PENDING** next live checkout |
+| `payment_succeeded` | 20 backfilled (2026-07-06) | **PASS** | **PASS** | **PASS** |
+| `subscription_started` | 14 backfilled (2026-07-06) | **PASS** | **PASS** | **PASS** |
+| `trial_started` | 0 | — | — | **N/A** (no trial subs in DB) |
+| `payment_failed` | 16 (30d) | **PASS** (latest) | **PASS** (latest) | **PASS** |
 
-**Code audit (same date):** All 3 `checkout_started` paths in `create-checkout/route.ts` include `billingInsertId()` + `captureServerEvent` ✅
+**Backfill:** `pnpm posthog:ops-closure` from `payment_transactions` + premium `profiles` (2026-07-06).
 
-**Next action:** Install [Stripe CLI](https://docs.stripe.com/stripe-cli/install), run §C–D locally per this guide, complete test checkout with `4242…`, confirm the three success events in [Live Events](https://us.posthog.com/project/369087/activity/explore).
+**Live Stripe CLI test** still recommended for webhook path validation before next checkout.

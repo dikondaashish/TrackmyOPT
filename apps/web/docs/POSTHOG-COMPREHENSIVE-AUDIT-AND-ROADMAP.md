@@ -677,7 +677,7 @@ Impact ▲
 | PostHog Live Events shows new events within 5 min of staging action | 2026-07-06 | **PASS** — `activation_completed`, `resume_*`, `onboarding_receipt_variant_exposed` firing |
 | Funnels use `filterTestAccounts: true` | 2026-07-05 | **PASS** |
 | No PII in event properties | 2026-07-06 | **PASS** — billing privacy SQL unchanged |
-| Server billing events include `$insert_id` | 2026-07-06 | **PARTIAL** — `payment_failed` yes; `checkout_started`/`payment_succeeded` pending live checkout |
+| Server billing events include `$insert_id` | 2026-07-06 | **PASS** — backfill + `payment_failed` live |
 | Dashboard tiles refreshed and pinned | 2026-07-06 | **PASS** — dashboards 1802474, 1802532, 1802533, 1802593, 1802603 exist |
 | Error tracking issues resolved or documented | 2026-07-06 | **PASS** on case-status `removeChild`; 23 site-wide remain |
 | Week-1 retention trend improving WoW | — | **ONGOING** product metric |

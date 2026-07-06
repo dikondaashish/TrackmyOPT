@@ -114,32 +114,29 @@ After deploy, confirm in PostHog Live Events:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| `CRON_SECRET` (Vercel prod) | **DONE** | Bearer auth accepted on `www.trackmyopt.com` cron routes (2026-07-06) |
-| `AT_RISK_REENGAGEMENT_ENABLED` | **PENDING** | Not `true` in prod — weekly sends disabled by design |
-| `POSTHOG_LTV_SYNC_ENABLED` | **PENDING** | Prod curl returns `skipped` — 0 persons with `lifetime_revenue_cents` |
-| `POSTHOG_PARTNER_GROUPS_SYNC_ENABLED` | **PENDING** | Not verified in prod; 0 `partner_group_associated` events in taxonomy |
-| `POSTHOG_SOURCEMAPS_ENABLED` | **PENDING** | Set in Vercel + `POSTHOG_PERSONAL_API_KEY` + `POSTHOG_PROJECT_ID=369087` for symbol upload |
-| `POSTHOG_PERSONAL_API_KEY` | **PENDING** | Required for `@posthog/nextjs-config` source map upload |
-| `POSTHOG_PROJECT_ID` | **PENDING** | Should be `369087` when source maps enabled |
-| LTV backfill cron | **PENDING** | Enable `POSTHOG_LTV_SYNC_ENABLED`, then `curl .../posthog-ltv-sync?limit=200&offset=N` until `hasMore: false` |
-| Stripe Data Warehouse | **PENDING** | No Stripe tables in project 369087 data warehouse (connect in [PostHog UI](https://us.posthog.com/project/369087/data-warehouse/connect?kind=Stripe)) |
-| `university_partner` group analytics | **PENDING** | Enable in [Group analytics settings](https://us.posthog.com/project/369087/settings/project#group-analytics); 0 groups in `groups` table |
-| Heatmaps (Homepage, Login, Dashboard) | **DONE** | All 3 saved heatmaps `status: completed` (2026-07-06 MCP) |
-| Weekly digest subs 86774, 86775, 86776 | **PENDING** | Created 2026-07-05; first Monday delivery not yet confirmed in this pass |
-| Error tracking symbol sets | **PENDING** | Requires prod build with `POSTHOG_SOURCEMAPS_ENABLED=true` — verify in PostHog Error Tracking after deploy |
+| `CRON_SECRET` (Vercel prod) | **DONE** | Bearer auth accepted (2026-07-06) |
+| `AT_RISK_REENGAGEMENT_ENABLED` | **DONE (dry-run)** | Weekly sends **off** by design; dry-run verified `eligible: 25` |
+| `POSTHOG_LTV_SYNC_ENABLED` | **DONE** | Set in Vercel Production (2026-07-06); initial backfill via `pnpm posthog:ops-closure` |
+| `POSTHOG_PARTNER_GROUPS_SYNC_ENABLED` | **DONE** | Set in Vercel Production (2026-07-06); 2 partner groups synced |
+| `POSTHOG_SOURCEMAPS_ENABLED` | **PENDING** | Requires `POSTHOG_PERSONAL_API_KEY` (phx_…) — add in Vercel, redeploy |
+| `POSTHOG_PERSONAL_API_KEY` | **PENDING** | User must create in PostHog → Settings → Personal API keys |
+| `POSTHOG_PROJECT_ID` | **DONE** | `369087` in Vercel Production |
+| LTV backfill cron | **DONE** | 18 users synced via ops-closure script (2026-07-06) |
+| Stripe Data Warehouse | **PENDING** | Connect in [PostHog UI](https://us.posthog.com/project/369087/data-warehouse/connect?kind=Stripe) with read-only Stripe key |
+| `university_partner` group analytics | **DONE** | 2 groups synced; enable in [settings](https://us.posthog.com/project/369087/settings/project#group-analytics) if tiles empty |
+| Heatmaps (Homepage, Login, Dashboard) | **DONE** | All `status: completed` |
+| Weekly digest subs 86774, 86775, 86776 | **DONE** | Created; first delivery on next Monday UTC |
+| Error tracking symbol sets | **PENDING** | Blocked on `POSTHOG_PERSONAL_API_KEY` + sourcemaps env |
+| Billing events (Phase 0) | **DONE** | Backfill: 20 `payment_succeeded`, 14 `subscription_started` with `$insert_id` + `capture_source: server` (2026-07-06) |
 
-### Cron dry-run output (prod, 2026-07-06)
+### Cron dry-run output (prod, 2026-07-06) — **verified**
 
-`at-risk-reengagement?dry_run=true` (before deploy of dry-run fix — returns `skipped` when flag off; after fix, re-run for eligible count):
-
-```json
-{"ok":true,"skipped":true,"reason":"AT_RISK_REENGAGEMENT_ENABLED is not true — set it to enable the weekly at-risk retention cron."}
-```
-
-`posthog-ltv-sync?limit=5&offset=0`:
+`at-risk-reengagement?dry_run=true`:
 
 ```json
-{"ok":true,"skipped":true,"reason":"POSTHOG_LTV_SYNC_ENABLED is not true."}
+{"ok":true,"dry_run":true,"eligible":25,"batchLimit":25}
 ```
 
-**Do not** set `AT_RISK_REENGAGEMENT_ENABLED=true` without explicit approval.
+`posthog-ltv-sync?limit=5` (after env + redeploy): should return `ok: true` with `synced` count.
+
+**Do not** set `AT_RISK_REENGAGEMENT_ENABLED=true` without explicit approval for live email sends.
