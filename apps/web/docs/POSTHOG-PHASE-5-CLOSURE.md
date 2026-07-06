@@ -118,15 +118,15 @@ After deploy, confirm in PostHog Live Events:
 | `AT_RISK_REENGAGEMENT_ENABLED` | **DONE (dry-run)** | Weekly sends **off** by design; dry-run verified `eligible: 25` |
 | `POSTHOG_LTV_SYNC_ENABLED` | **DONE** | Set in Vercel Production (2026-07-06); initial backfill via `pnpm posthog:ops-closure` |
 | `POSTHOG_PARTNER_GROUPS_SYNC_ENABLED` | **DONE** | Set in Vercel Production (2026-07-06); 2 partner groups synced |
-| `POSTHOG_SOURCEMAPS_ENABLED` | **PENDING** | Requires `POSTHOG_PERSONAL_API_KEY` (phx_…) — add in Vercel, redeploy |
-| `POSTHOG_PERSONAL_API_KEY` | **PENDING** | User must create in PostHog → Settings → Personal API keys |
+| `POSTHOG_SOURCEMAPS_ENABLED` | **DONE** | `true` in Vercel Production (2026-07-06) |
+| `POSTHOG_PERSONAL_API_KEY` | **DONE** | Set in Vercel Production (2026-07-06) — not in repo |
 | `POSTHOG_PROJECT_ID` | **DONE** | `369087` in Vercel Production |
 | LTV backfill cron | **DONE** | 18 users synced via ops-closure script (2026-07-06) |
 | Stripe Data Warehouse | **PENDING** | Connect in [PostHog UI](https://us.posthog.com/project/369087/data-warehouse/connect?kind=Stripe) with read-only Stripe key |
 | `university_partner` group analytics | **DONE** | 2 groups synced; enable in [settings](https://us.posthog.com/project/369087/settings/project#group-analytics) if tiles empty |
 | Heatmaps (Homepage, Login, Dashboard) | **DONE** | All `status: completed` |
 | Weekly digest subs 86774, 86775, 86776 | **DONE** | Created; first delivery on next Monday UTC |
-| Error tracking symbol sets | **PENDING** | Blocked on `POSTHOG_PERSONAL_API_KEY` + sourcemaps env |
+| Error tracking symbol sets | **PENDING** | Verify after next production deploy — PostHog → Error tracking → Symbol sets |
 | Billing events (Phase 0) | **DONE** | Backfill: 20 `payment_succeeded`, 14 `subscription_started` with `$insert_id` + `capture_source: server` (2026-07-06) |
 
 ### Cron dry-run output (prod, 2026-07-06) — **verified**
