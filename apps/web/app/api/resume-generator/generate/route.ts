@@ -24,9 +24,9 @@ const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDI
 
 // Input Validation Schema
 const GenerateSchema = z.object({
-    resumeText: z.string().min(1).max(25000, "Resume text too long (max 25k chars)"),
-    jobDescription: z.string().min(1).max(15000, "Job description too long (max 15k chars)"),
-    templateId: z.string().min(1).max(50),
+    resumeText: z.string().trim().min(1).max(25000, "Resume text too long (max 25k chars)"),
+    jobDescription: z.string().trim().min(1).max(15000, "Job description too long (max 15k chars)"),
+    templateId: z.string().trim().min(1).max(50),
 });
 
 const corsHeaders = corsHeadersConfiguredWebApp();

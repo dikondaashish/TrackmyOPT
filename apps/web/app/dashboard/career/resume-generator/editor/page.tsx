@@ -145,7 +145,7 @@ export default function ResumeEditorPage() {
         }
     };
 
-    // 1. Load data & Generate on Mount (run once)
+    // 1. Load data & Generate on Mount (after persisted store rehydrates)
     useEffect(() => {
         if (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches) {
             setViewMode("visual");
@@ -159,14 +159,28 @@ export default function ResumeEditorPage() {
         if (appId) setApplicationId(appId);
     }, [searchParams, setApplicationId]);
 
+    const [storeHydrated, setStoreHydrated] = useState(
+        () => useResumeStore.persist.hasHydrated()
+    );
+
     useEffect(() => {
-        if (resumeText && jobDescription && selectedTemplateId && !generatedLatex && !isGenerating) {
-            generateResume(resumeText, jobDescription, selectedTemplateId);
+        if (storeHydrated) return;
+        return useResumeStore.persist.onFinishHydration(() => {
+            setStoreHydrated(true);
+        });
+    }, [storeHydrated]);
+
+    useEffect(() => {
+        if (!storeHydrated) return;
+        const trimmedResume = resumeText.trim();
+        const trimmedJob = jobDescription.trim();
+        if (trimmedResume && trimmedJob && selectedTemplateId && !generatedLatex && !isGenerating) {
+            generateResume(trimmedResume, trimmedJob, selectedTemplateId);
         } else if (generatedLatex && !compiledPdfUrl && !isCompiling) {
             compilePdf(generatedLatex);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [storeHydrated]);
 
     // Handle Text Insertion from Toolbar
     const handleInsert = (startTag: string, endTag: string = '') => {
@@ -406,7 +420,20 @@ export default function ResumeEditorPage() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to generate resume');
+                const detail =
+                    typeof data.details === "object" && data.details !== null
+                        ? Object.entries(data.details as Record<string, unknown>)
+                              .filter(([key]) => key !== "_errors")
+                              .map(([field, issue]) => {
+                                  const errors = (issue as { _errors?: string[] })?._errors;
+                                  return errors?.length ? `${field}: ${errors.join(", ")}` : null;
+                              })
+                              .filter(Boolean)
+                              .join("; ")
+                        : "";
+                throw new Error(
+                    detail ? `${data.error || "Failed to generate resume"} (${detail})` : data.error || "Failed to generate resume"
+                );
             }
 
             updateText(data.latex, false);
