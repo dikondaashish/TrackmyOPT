@@ -21,40 +21,29 @@
 
 ## API Usage
 
-### Submit Single URL
-```typescript
-import { submitToIndexNow } from '@/lib/indexnow';
+Submit URLs via the authenticated API route (`POST /api/indexnow` with `Authorization: Bearer $CRON_SECRET`):
 
-// Client-side or server-side
-const result = await submitToIndexNow('https://trackmyopt.com/blog/my-article');
-console.log(result.success); // true if submitted
+```bash
+curl -X POST "https://www.trackmyopt.com/api/indexnow" \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"urlList":["https://www.trackmyopt.com/blog/my-article"]}'
 ```
 
 ### Submit Multiple URLs (Batch)
-```typescript
-import { submitToIndexNowBatch } from '@/lib/indexnow';
 
-const urls = [
-  'https://trackmyopt.com/blog/article-1',
-  'https://trackmyopt.com/blog/article-2',
-  'https://trackmyopt.com/features/case-status',
-];
-
-const result = await submitToIndexNowBatch(urls);
+```bash
+curl -X POST "https://www.trackmyopt.com/api/indexnow" \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"urlList":[
+    "https://www.trackmyopt.com/blog/article-1",
+    "https://www.trackmyopt.com/blog/article-2",
+    "https://www.trackmyopt.com/features/case-status"
+  ]}'
 ```
 
-### Submit Blog Category
-```typescript
-import { submitBlogCategoryToIndexNow } from '@/lib/indexnow';
-
-const articles = [
-  '90-day-unemployment-rule-opt',
-  'ats-resume-international-students',
-  'can-you-travel-on-opt',
-];
-
-const result = await submitBlogCategoryToIndexNow('opt-basics', articles);
-```
+Implementation: `apps/web/app/api/indexnow/route.ts`
 
 ## Endpoint Details
 

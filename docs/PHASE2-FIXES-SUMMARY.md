@@ -24,7 +24,7 @@ All blog post files in `/app/blog/**/page.tsx` have been fixed:
 
 ### 2. Answer Pages Infrastructure
 - ✅ Created `/app/answers/[slug]/page.tsx` with full dynamic routing
-- ✅ Created `/app/answers/data.ts` with 50 complete Q&A entries
+- ✅ Answer content lives in `@/lib/answers` (50 Q&A entries)
 - ✅ Fixed imports and type annotations in answer page components
 - ✅ Created `/app/answers/layout.tsx` for page layout
 

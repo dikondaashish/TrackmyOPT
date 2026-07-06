@@ -21,7 +21,7 @@
 #### 1. Content Infrastructure (5 New Files)
 | Item | Details |
 |------|---------|
-| Data Layer | `/app/answers/data.ts` - 50 Q&A definitions, all categories |
+| Data Layer | `@/lib/answers` — 50 Q&A definitions, all categories |
 | Layout | `/app/answers/layout.tsx` - Shared metadata + styling |
 | Dynamic Route | `/app/answers/[slug]/page.tsx` - Generates all 50 pages |
 | Blog Schema | `/components/blog/BlogPostSchema.tsx` - Reusable for 22 posts |

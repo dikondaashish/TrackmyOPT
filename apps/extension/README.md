@@ -47,9 +47,10 @@ extension/
 ├── src/
 │   ├── background.ts    # OAuth flow & message handling
 │   ├── popup.ts         # Popup logic
-│   ├── popup.html       # Popup UI
 │   └── config.ts        # Configuration (website URL)
 ├── public/
+│   ├── popup.html       # Popup shell (copied to dist/)
+│   ├── popup.css
 │   └── icons/           # Extension icons (16, 48, 128)
 ├── dist/                # Built extension (load this in Chrome)
 ├── manifest.json        # Extension manifest (MV3)
