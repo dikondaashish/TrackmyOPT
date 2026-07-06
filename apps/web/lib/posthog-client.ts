@@ -161,6 +161,36 @@ export function captureOnboardingReceiptVariantExposed(properties: {
   });
 }
 
+export function capturePricingCtaViewed(properties: { variant: string }): void {
+  captureClientEvent("pricing_cta_viewed", {
+    variant: properties.variant,
+    [`$feature/pricing-cta-experiment`]: properties.variant,
+    source: "pricing_page",
+  });
+}
+
+export function captureNpsSubmitted(properties: {
+  score: number;
+  feedback?: string;
+  category: "detractor" | "passive" | "promoter";
+}): void {
+  captureClientEvent("nps_submitted", {
+    score: properties.score,
+    ...(properties.feedback ? { feedback: properties.feedback } : {}),
+    category: properties.category,
+    source: "dashboard_nps",
+  });
+}
+
+export function captureNpsDismissed(): void {
+  captureClientEvent("nps_dismissed", { source: "dashboard_nps" });
+}
+
+export function setNpsLastShownPersonProperty(isoTimestamp: string): void {
+  if (!isBrowserPostHogReady()) return;
+  posthog.people.set({ nps_last_shown: isoTimestamp });
+}
+
 export type CaseStatusCheckCompletedClientProperties = {
   trigger: "manual" | "initial" | "cron" | "unknown";
   receipt_prefix?: string | null;

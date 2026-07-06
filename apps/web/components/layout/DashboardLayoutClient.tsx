@@ -11,6 +11,7 @@ import { PolicyUpdateConsentModal } from "@/components/compliance/PolicyUpdateCo
 import { PostHogIdentify } from "@/components/analytics/PostHogIdentify";
 import { ExtensionAnalyticsTracker } from "@/components/analytics/ExtensionAnalyticsTracker";
 import { ActivationCompletedTracker } from "@/components/analytics/ActivationCompletedTracker";
+import { NpsSurvey } from "@/components/dashboard/NpsSurvey";
 
 interface DashboardLayoutClientProps {
     children: React.ReactNode;
@@ -106,6 +107,7 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
             <PostHogIdentify />
             <ExtensionAnalyticsTracker />
             <ActivationCompletedTracker />
+            <NpsSurvey />
             <PolicyUpdateConsentModal />
             <ResumePromoBanner variant="dashboard" />
             {/* Fixed Header — below promo banner */}
