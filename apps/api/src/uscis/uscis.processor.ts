@@ -37,14 +37,17 @@ function buildStatusHistoryFromUscis(
     const isLatest = index === 0;
     const matchesCurrent =
       item.completedText === currentStatus ||
-      normalizeStatusText(item.completedText) === normalizeStatusText(currentStatus);
+      normalizeStatusText(item.completedText) ===
+        normalizeStatusText(currentStatus);
     const useFullDescription =
       isLatest && matchesCurrent && Boolean(sanitizedDescription);
 
     return {
       status: item.completedText,
       date: item.date,
-      description: useFullDescription ? sanitizedDescription : item.completedText,
+      description: useFullDescription
+        ? sanitizedDescription
+        : item.completedText,
     };
   });
 
@@ -52,7 +55,8 @@ function buildStatusHistoryFromUscis(
   const latestMatchesCurrent =
     latest &&
     (latest.status === currentStatus ||
-      normalizeStatusText(latest.status) === normalizeStatusText(currentStatus));
+      normalizeStatusText(latest.status) ===
+        normalizeStatusText(currentStatus));
 
   if (currentStatus.trim() && !latestMatchesCurrent) {
     return [
@@ -73,8 +77,8 @@ function buildStatusHistoryFromUscis(
 
   if (sanitizedDescription && mapped.length > 0) {
     mapped[0] = {
-      ...mapped[0]!,
-      status: currentStatus || mapped[0]!.status,
+      ...mapped[0],
+      status: currentStatus || mapped[0].status,
       description: sanitizedDescription,
     };
   }
