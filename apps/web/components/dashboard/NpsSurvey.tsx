@@ -56,19 +56,23 @@ export function NpsSurvey() {
     let cancelled = false;
 
     const evaluateEligibility = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user?.created_at || cancelled) return;
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user?.created_at || cancelled) return;
 
-      if (!isAccountOldEnough(user.created_at, NPS_MIN_ACCOUNT_AGE_DAYS)) return;
+        if (!isAccountOldEnough(user.created_at, NPS_MIN_ACCOUNT_AGE_DAYS)) return;
 
-      const lastShown = readNpsLastShown();
-      if (isWithinNpsCooldown(lastShown, NPS_COOLDOWN_DAYS)) return;
+        const lastShown = readNpsLastShown();
+        if (isWithinNpsCooldown(lastShown, NPS_COOLDOWN_DAYS)) return;
 
-      showTimer = setTimeout(() => {
-        if (!cancelled) setVisible(true);
-      }, NPS_SHOW_DELAY_MS);
+        showTimer = setTimeout(() => {
+          if (!cancelled) setVisible(true);
+        }, NPS_SHOW_DELAY_MS);
+      } catch {
+        // Fail silent — NPS must not affect dashboard UX
+      }
     };
 
     void evaluateEligibility();

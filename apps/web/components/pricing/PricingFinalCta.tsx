@@ -3,22 +3,25 @@
 import { useEffect, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { capturePricingCtaViewed } from "@/lib/posthog-client";
 import { useFeatureFlag } from "@/lib/posthog/use-feature-flag";
 import {
   getPricingCtaCopy,
   normalizePricingCtaVariant,
   PRICING_CTA_EXPERIMENT_FLAG,
+  type PricingCtaVariant,
 } from "@/lib/posthog/pricing-cta-experiment";
 
 const PRO_CHECKOUT_HREF =
   "/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear";
 const DEDICATED_CHECKOUT_HREF =
   "/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Ddedicated%26interval%3Dyear";
+const EXPOSURE_FALLBACK_MS = 3_000;
 
 /**
  * Final pricing-page CTA block with `pricing-cta-experiment` copy variants.
- * Fires `pricing_cta_viewed` once when the flag resolves.
+ * Fires `pricing_cta_viewed` once when flags load or after a control fallback timeout.
  */
 export function PricingFinalCta() {
   const rawVariant = useFeatureFlag(PRICING_CTA_EXPERIMENT_FLAG);
@@ -29,10 +32,44 @@ export function PricingFinalCta() {
   const exposedRef = useRef(false);
 
   useEffect(() => {
-    if (exposedRef.current || rawVariant == null || rawVariant === false) return;
-    exposedRef.current = true;
-    capturePricingCtaViewed({ variant });
-  }, [rawVariant, variant]);
+    const fireExposure = (resolved: PricingCtaVariant) => {
+      if (exposedRef.current) return;
+      exposedRef.current = true;
+      capturePricingCtaViewed({ variant: resolved });
+    };
+
+    const resolveFromPostHog = (): PricingCtaVariant | null => {
+      if (typeof posthog?.getFeatureFlag !== "function") return null;
+      const raw = posthog.getFeatureFlag(PRICING_CTA_EXPERIMENT_FLAG);
+      if (raw == null || raw === false) return null;
+      return normalizePricingCtaVariant(typeof raw === "string" ? raw : undefined);
+    };
+
+    const resolved = resolveFromPostHog();
+    if (resolved) {
+      fireExposure(resolved);
+    }
+
+    const fallbackTimer = setTimeout(() => {
+      fireExposure("control");
+    }, EXPOSURE_FALLBACK_MS);
+
+    let unsubscribe: (() => void) | undefined;
+    if (typeof posthog?.onFeatureFlags === "function") {
+      unsubscribe = posthog.onFeatureFlags(() => {
+        const next = resolveFromPostHog();
+        if (next) {
+          fireExposure(next);
+          clearTimeout(fallbackTimer);
+        }
+      });
+    }
+
+    return () => {
+      clearTimeout(fallbackTimer);
+      unsubscribe?.();
+    };
+  }, []);
 
   return (
     <section className="py-24">
