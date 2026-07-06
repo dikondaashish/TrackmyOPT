@@ -58,38 +58,49 @@ interface UserToolEmails {
   stem_clock_email: string | null;
 }
 
-/** UTC midnight today → midnight tomorrow (for same-day dedupe). */
-function getUtcDayBounds(): { start: string; end: string } {
-  const now = new Date();
-  const start = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-  );
-  const end = new Date(start);
-  end.setUTCDate(end.getUTCDate() + 1);
-  return { start: start.toISOString(), end: end.toISOString() };
-}
+type DailyReminderClaimResult =
+  | { status: 'claimed'; queueId: string }
+  | { status: 'dedup' }
+  | { status: 'error' };
 
-async function hasDailyReminderSentToday(userId: string): Promise<boolean> {
-  const { start, end } = getUtcDayBounds();
+/**
+ * Reserve a send slot for today (UTC). Unique index rejects concurrent duplicates.
+ */
+async function claimDailyReminderSlot(
+  userId: string,
+  targetEmail: string,
+  subject: string,
+  emailData: EmailReminderData['tools']
+): Promise<DailyReminderClaimResult> {
   const { data, error } = await supabase
     .from('email_queue')
+    .insert({
+      user_id: userId,
+      email_address: targetEmail,
+      email_type: 'daily_reminder',
+      email_subject: subject,
+      email_data: emailData,
+      status: 'pending',
+    })
     .select('id')
-    .eq('user_id', userId)
-    .eq('email_type', 'daily_reminder')
-    .eq('status', 'sent')
-    .gte('created_at', start)
-    .lt('created_at', end)
-    .limit(1);
+    .maybeSingle();
 
   if (error) {
-    secureLog.error(
-      'daily-reminder dedupe check failed:',
-      { user: logIdPrefix(userId), err: sanitizeError(error) }
-    );
-    return false;
+    if (error.code === '23505') {
+      return { status: 'dedup' };
+    }
+    secureLog.error('daily-reminder claim failed:', {
+      user: logIdPrefix(userId),
+      err: sanitizeError(error),
+    });
+    return { status: 'error' };
   }
 
-  return Boolean(data && data.length > 0);
+  if (!data?.id) {
+    return { status: 'error' };
+  }
+
+  return { status: 'claimed', queueId: data.id };
 }
 
 /**
@@ -146,6 +157,7 @@ export async function GET(req: NextRequest) {
       sent: 0,
       skipped: 0,
       skipped_dedup: 0,
+      skipped_error: 0,
       failed: 0,
       errors: [] as string[],
     };
@@ -202,13 +214,27 @@ export async function GET(req: NextRequest) {
         const targetEmail = profile.opt_apply_email || profile.opt_clock_email || 
                           profile.stem_apply_email || profile.stem_clock_email;
 
-        if (await hasDailyReminderSentToday(profile.user_id)) {
+        const subject = `Daily OPT Reminder - ${tools.length} active`;
+        const claim = await claimDailyReminderSlot(
+          profile.user_id,
+          targetEmail!,
+          subject,
+          tools
+        );
+
+        if (claim.status === 'dedup') {
           secureLog.info(`Daily reminder dedup skip for user ${logIdPrefix(profile.user_id)}`);
           results.skipped_dedup++;
           continue;
         }
 
-        // Send email
+        if (claim.status === 'error') {
+          secureLog.info(`Daily reminder claim error skip for user ${logIdPrefix(profile.user_id)}`);
+          results.skipped_error++;
+          continue;
+        }
+
+        // Send email (queue row reserved with status pending)
         const emailData: EmailReminderData = {
           userId: profile.user_id,
           userEmail: targetEmail,
@@ -222,23 +248,33 @@ export async function GET(req: NextRequest) {
           results.sent++;
           secureLog.info('Daily reminder sent', { user: logIdPrefix(profile.user_id) });
 
-          // Log to email_queue (optional - don't fail if this errors)
-          try {
-            await supabase.from('email_queue').insert({
-              user_id: profile.user_id,
-              email_address: targetEmail,
-              email_type: 'daily_reminder',
-              email_subject: `Daily OPT Reminder - ${tools.length} active`,
-              email_data: tools,
+          const { error: updateError } = await supabase
+            .from('email_queue')
+            .update({
               sent_at: new Date().toISOString(),
               status: 'sent',
               provider_message_id: result.messageId,
+            })
+            .eq('id', claim.queueId);
+
+          if (updateError) {
+            secureLog.error('daily-reminder queue update failed:', {
+              user: logIdPrefix(profile.user_id),
+              err: sanitizeError(updateError),
             });
-          } catch { /* ignore logging errors */ }
+          }
         } else {
           results.failed++;
           results.errors.push(`${logIdPrefix(profile.user_id)}: ${result.error}`);
           secureLog.error('Daily reminder send failed', { user: logIdPrefix(profile.user_id) });
+
+          await supabase
+            .from('email_queue')
+            .update({
+              status: 'failed',
+              error_message: result.error ?? 'send failed',
+            })
+            .eq('id', claim.queueId);
         }
 
         // Rate limiting delay
@@ -253,7 +289,7 @@ export async function GET(req: NextRequest) {
 
     const duration = Date.now() - startTime;
     secureLog.info(
-      `Daily reminder job completed in ${duration}ms — sent=${results.sent} skipped=${results.skipped} skipped_dedup=${results.skipped_dedup} failed=${results.failed}`,
+      `Daily reminder job completed in ${duration}ms — sent=${results.sent} skipped=${results.skipped} skipped_dedup=${results.skipped_dedup} skipped_error=${results.skipped_error} failed=${results.failed}`,
     );
 
     return NextResponse.json({
