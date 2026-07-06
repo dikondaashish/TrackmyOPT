@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { ThemeProvider } from '@/components/layout/theme-provider';
 import { CookieConsent } from '@/components/CookieConsent';
+import { Toaster } from '@/components/ui/toaster';
 import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
 import { PORTAL_ROOT_ID } from '@/lib/portal-root';
 
@@ -95,6 +96,7 @@ export default function RootLayout({
           <Analytics />
           <SpeedInsights />
           <CookieConsent />
+          <Toaster />
         </ThemeProvider>
         <div id={PORTAL_ROOT_ID} />
         <script
