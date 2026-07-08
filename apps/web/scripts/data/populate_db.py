@@ -7,6 +7,8 @@ from datetime import datetime
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
+from h1b_data_paths import require_h1b_raw_data_dir
+
 # Load from web/.env.local relative to this script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(script_dir, '../.env.local')
@@ -23,7 +25,7 @@ if not url or not key:
 supabase: Client = create_client(url, key)
 
 
-CSV_PATH = "/Users/ashishdikonda/Documents/Office/ZYENE/TrackMyOPT/TrackMyOPT/ITContractorsUnion-Main/Data/LCA_Disclosure_Data_FY2025_Q4.csv"
+CSV_PATH = str(require_h1b_raw_data_dir() / "Data" / "LCA_Disclosure_Data_FY2025_Q4.csv")
 BATCH_SIZE = 100
 
 # Columns from types/supabase.ts

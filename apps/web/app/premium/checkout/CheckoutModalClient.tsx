@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { supabase } from "@/lib/supabaseClient";
-import { capturePremiumCheckoutViewed } from "@/lib/posthog-client";
 import type { User } from "@supabase/supabase-js";
 
 interface CheckoutModalClientProps {
@@ -37,13 +36,6 @@ export function CheckoutModalClient({ user }: CheckoutModalClientProps) {
 
         checkPremiumStatus();
     }, [user]);
-
-    useEffect(() => {
-        capturePremiumCheckoutViewed({
-            plan_id: planId ?? null,
-            interval: interval ?? null,
-        });
-    }, [planId, interval]);
 
     const handleClose = () => {
         setOpen(false);

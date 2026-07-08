@@ -42,7 +42,9 @@ import {
 } from "@/lib/resume/resume-text-limits";
 import { isDownloadGateRequired } from "@/lib/resume/apply-readiness";
 import { ATS_PASS_SCORE, buildAutoRegenFeedback, type AtsAnalysis } from "@/lib/resume/ats-analysis-types";
-import { captureClientEvent } from "@/lib/posthog-client";
+import { captureClientEvent, captureUpgradePromptShown } from "@/lib/posthog-client";
+import { PricingModal } from "@/components/pricing/PricingModal";
+import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import {
     findTextInLatex,
     getTextareaSelection,
@@ -51,6 +53,7 @@ import {
 
 export default function ResumeEditorPage() {
     const { toast } = useToast();
+    const premium = usePremiumStatus();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const searchParams = useSearchParams();
     const autoRegenAttempts = useRef(0);
@@ -71,6 +74,7 @@ export default function ResumeEditorPage() {
     const [isScanning, setIsScanning] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showDownloadGate, setShowDownloadGate] = useState(false);
+    const [showPricingModal, setShowPricingModal] = useState(false);
     const [pdfParseOk, setPdfParseOk] = useState<boolean | null>(null);
     const [isAutoFixing, setIsAutoFixing] = useState(false);
     const [compiledPdfBlob, setCompiledPdfBlob] = useState<Blob | null>(null);
@@ -317,6 +321,18 @@ export default function ResumeEditorPage() {
                 });
 
                 const data = await response.json();
+                if (response.status === 402) {
+                    captureUpgradePromptShown({ source: "ats_limit" });
+                    setShowPricingModal(true);
+                    if (!silent) {
+                        toast({
+                            title: "ATS scan limit reached",
+                            description: `Free plan includes ${data.limit ?? 3} deep scans per month. Upgrade for unlimited scans.`,
+                            variant: "destructive",
+                        });
+                    }
+                    return null;
+                }
                 if (!response.ok) throw new Error(data.error || "Scan failed");
 
                 setAtsAnalysis(data);
@@ -782,6 +798,12 @@ export default function ResumeEditorPage() {
                 onFixAutomatically={handleFixAndDownload}
                 onDownloadAnyway={handleDownloadAnyway}
                 isFixing={isAutoFixing || isGenerating}
+            />
+
+            <PricingModal
+                open={showPricingModal}
+                onClose={() => setShowPricingModal(false)}
+                isPremium={premium.isPremium === true}
             />
 
             {/* Header */}

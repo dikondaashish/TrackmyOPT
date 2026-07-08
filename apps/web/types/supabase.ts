@@ -1516,6 +1516,8 @@ export type Database = {
           major_name: string | null
           notification_email: string | null
           onboarding_completed: boolean
+          onboarding_completed_at: string | null
+          first_dashboard_viewed_at: string | null
           opt_apply_email: string | null
           opt_clock_email: string | null
           plan_tier: string | null
@@ -1540,6 +1542,8 @@ export type Database = {
           major_name?: string | null
           notification_email?: string | null
           onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          first_dashboard_viewed_at?: string | null
           opt_apply_email?: string | null
           opt_clock_email?: string | null
           plan_tier?: string | null
@@ -1564,6 +1568,8 @@ export type Database = {
           major_name?: string | null
           notification_email?: string | null
           onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          first_dashboard_viewed_at?: string | null
           opt_apply_email?: string | null
           opt_clock_email?: string | null
           plan_tier?: string | null

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { isSupabaseRealtimeSupported } from "@/lib/supabase/realtime-supported";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -211,34 +212,48 @@ export function CaseStatusSection() {
 
   // ── Supabase Realtime: Instant UI updates when cron updates DB ──
   useEffect(() => {
-    if (!caseStatus?.receipt_number) return;
+    if (!caseStatus?.receipt_number || !isSupabaseRealtimeSupported()) return;
 
-    const channel = supabase
-      .channel('case-status-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'case_status',
-          filter: `receipt_number=eq.${caseStatus.receipt_number}`,
-        },
-        (payload) => {
-          // Realtime Case status updated
-          // Merge the Realtime payload directly into state for instant UI refresh
-          setCaseStatus((prev) => {
-            if (!prev) return prev;
-            return withNormalizedStatusHistory({
-              ...prev,
-              ...(payload.new as Partial<CaseStatus>),
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    try {
+      channel = supabase
+        .channel(`case-status-realtime-${caseStatus.receipt_number}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "case_status",
+            filter: `receipt_number=eq.${caseStatus.receipt_number}`,
+          },
+          (payload) => {
+            setCaseStatus((prev) => {
+              if (!prev) return prev;
+              return withNormalizedStatusHistory({
+                ...prev,
+                ...(payload.new as Partial<CaseStatus>),
+              });
             });
-          });
-        }
-      )
-      .subscribe();
+          }
+        )
+        .subscribe((status) => {
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            console.warn("Case status realtime unavailable:", status);
+          }
+        });
+    } catch (error) {
+      console.warn("Case status realtime subscription skipped:", error);
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        try {
+          supabase.removeChannel(channel);
+        } catch {
+          /* non-blocking */
+        }
+      }
     };
   }, [caseStatus?.receipt_number]);
 

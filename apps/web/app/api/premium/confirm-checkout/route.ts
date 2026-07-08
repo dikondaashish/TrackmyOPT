@@ -1,10 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getUserId } from "@/lib/auth/getUserId";
 import { applyStripeCheckoutSession } from "@/lib/premium/applyStripeCheckoutSession";
 import { sanitizeError } from "@/lib/secure-logger";
 import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
+import { billingInsertId } from "@/lib/posthog/billing-analytics";
+import {
+  captureServerEvent,
+  normalizePlanTier,
+} from "@/lib/posthog-server";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +66,17 @@ export async function POST(req: NextRequest) {
 
     if (!result.ok) {
       return NextResponse.json({ ok: false, error: result.reason }, { status: 500 });
+    }
+
+    if (!result.alreadyRecorded) {
+      after(() => {
+        void captureServerEvent(userId, "premium_checkout_completed", {
+          plan_tier: normalizePlanTier(session.metadata?.planId),
+          stripe_session_id: sessionId,
+          source: "confirm_checkout_api",
+          $insert_id: billingInsertId("premium_checkout_completed", sessionId),
+        });
+      });
     }
 
     return NextResponse.json({

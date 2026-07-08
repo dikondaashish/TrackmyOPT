@@ -4,9 +4,11 @@ import json
 import os
 from collections import defaultdict
 
+from h1b_data_paths import repo_root, require_h1b_raw_data_dir
+
 # Configuration
-INVESTIGATION_DIR = "/Users/ashishdikonda/Documents/Office/ZYENE/TrackMyOPT/TrackMyOPT/ITContractorsUnion-Main/Investigation"
-OUTPUT_FILE = "/Users/ashishdikonda/Documents/Office/ZYENE/TrackMyOPT/TrackMyOPT/apps/web/data/suspicious_addresses.json"
+INVESTIGATION_DIR = require_h1b_raw_data_dir() / "Investigation"
+OUTPUT_FILE = repo_root() / "apps" / "web" / "data" / "suspicious_addresses.json"
 MIN_COMPANY_COUNT = 15  # Minimum companies at one address to flag as "Virtual/Cluster"
 
 def normalize_address(addr):
@@ -25,7 +27,7 @@ def analyze_addresses():
     address_samples = defaultdict(list)
     
     # Get all State CSVs
-    csv_files = glob.glob(os.path.join(INVESTIGATION_DIR, "*_Desi_Consultancy.csv"))
+    csv_files = glob.glob(os.path.join(str(INVESTIGATION_DIR), "*_Desi_Consultancy.csv"))
     print(f"Found {len(csv_files)} investigation files.")
 
     for file_path in csv_files:

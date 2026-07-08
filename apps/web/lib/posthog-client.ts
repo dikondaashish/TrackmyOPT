@@ -1,4 +1,7 @@
 import posthog from "posthog-js";
+import { captureOnceWhenConsented } from "@/lib/posthog/capture-with-consent";
+import { isNonFatalBoundaryError } from "@/lib/posthog/error-boundary-report";
+import { billingInsertId } from "@/lib/posthog/billing-analytics";
 
 /** Dispatched when the user accepts/declines analytics cookies (see posthog-browser). */
 export const ANALYTICS_CONSENT_CHANGE_EVENT = "trackmyopt:analytics-consent";
@@ -23,6 +26,8 @@ export type TrackMyOptPersonProperties = {
 function isBrowserPostHogReady(): boolean {
   return typeof window !== "undefined" && typeof posthog?.capture === "function";
 }
+
+export { isBrowserPostHogReady };
 
 /** Link anonymous PostHog activity to the Supabase user id (no email / PII). */
 export function identifyTrackMyOptUser(
@@ -131,6 +136,41 @@ export function captureOnboardingCompleted(
   });
 }
 
+export type OnboardingWizardStep =
+  | "welcome"
+  | "course"
+  | "status"
+  | "dates"
+  | "receipt"
+  | "finishing";
+
+export function captureOnboardingStepViewed(properties: {
+  step: OnboardingWizardStep;
+}): void {
+  captureClientEvent("onboarding_step_viewed", {
+    step: properties.step,
+    source: "onboarding_wizard",
+  });
+}
+
+export function captureOnboardingStepCompleted(properties: {
+  step: OnboardingWizardStep;
+}): void {
+  captureClientEvent("onboarding_step_completed", {
+    step: properties.step,
+    source: "onboarding_wizard",
+  });
+}
+
+export function captureOnboardingSkipped(properties: {
+  step: OnboardingWizardStep;
+}): void {
+  captureClientEvent("onboarding_skipped", {
+    step: properties.step,
+    source: "onboarding_wizard",
+  });
+}
+
 export function captureOnboardingReceiptPromptShown(): void {
   captureClientEvent("onboarding_receipt_prompt_shown", {
     capture_source: "client",
@@ -162,10 +202,12 @@ export function captureOnboardingReceiptVariantExposed(properties: {
 }
 
 export function capturePricingCtaViewed(properties: { variant: string }): void {
-  captureClientEvent("pricing_cta_viewed", {
-    variant: properties.variant,
-    [`$feature/pricing-cta-experiment`]: properties.variant,
-    source: "pricing_page",
+  captureOnceWhenConsented(() => {
+    captureClientEvent("pricing_cta_viewed", {
+      variant: properties.variant,
+      [`$feature/pricing-cta-experiment`]: properties.variant,
+      source: "pricing_page",
+    });
   });
 }
 
@@ -262,10 +304,13 @@ export function captureCaseStatusExplainerViewed(
 
 export type UpgradePromptTrigger =
   | "status_change_wedge"
-  | "second_manual_refresh";
+  | "second_manual_refresh"
+  | "h1b_limit"
+  | "ats_limit";
 
 export type UpgradePromptShownProperties = {
-  trigger: UpgradePromptTrigger;
+  trigger?: UpgradePromptTrigger;
+  source?: string;
 };
 
 export function captureUpgradePromptShown(
@@ -273,8 +318,8 @@ export function captureUpgradePromptShown(
 ): void {
   captureClientEvent("upgrade_prompt_shown", {
     ...properties,
+    source: properties.source ?? properties.trigger ?? "case_status_page",
     capture_source: "client",
-    source: "case_status_page",
   });
 }
 
@@ -386,6 +431,8 @@ export type ErrorBoundaryArea =
 export type ErrorBoundaryTriggeredProperties = {
   route: string;
   component_area: ErrorBoundaryArea;
+  /** Case-status panel id when caught by CaseStatusPanelErrorBoundary. */
+  panel_area?: string;
   error_digest?: string;
   error_message?: string;
 };
@@ -395,30 +442,46 @@ export function captureErrorBoundaryTriggered(
 ): void {
   if (!isBrowserPostHogReady()) return;
 
+  const message = properties.error_message?.trim();
+  if (message && isNonFatalBoundaryError(message)) return;
+
   const sessionId =
     typeof posthog.get_session_id === "function" ? posthog.get_session_id() : undefined;
 
   captureClientEvent("error_boundary_triggered", {
     ...properties,
+    ...(message ? { error_message: message } : {}),
     ...(sessionId ? { $session_id: sessionId } : {}),
   });
 }
 
-export function capturePremiumCheckoutViewed(properties: {
-  plan_id?: string | null;
-  interval?: string | null;
+export function capturePremiumCheckoutCompleted(properties: {
+  plan_tier?: string | null;
+  session_id?: string | null;
 }): void {
-  captureClientEvent("premium_checkout_viewed", {
-    plan_id: properties.plan_id ?? null,
-    interval: properties.interval ?? null,
-    source: "checkout_page",
+  if (!properties.session_id) return;
+
+  const insertId = billingInsertId(
+    "premium_checkout_completed",
+    properties.session_id
+  );
+
+  captureOnceWhenConsented(() => {
+    captureClientEvent("premium_checkout_completed", {
+      plan_tier: properties.plan_tier ?? null,
+      stripe_session_id: properties.session_id ?? null,
+      source: "success_page",
+      $insert_id: insertId,
+    });
   });
 }
 
 export function captureExtensionDetected(properties: { version: string | null }): void {
-  captureClientEvent("extension_detected", {
-    version: properties.version,
-    source: "dashboard",
+  captureOnceWhenConsented(() => {
+    captureClientEvent("extension_detected", {
+      version: properties.version,
+      source: "dashboard",
+    });
   });
 }
 
@@ -428,16 +491,5 @@ export function captureActivationCompleted(properties: {
   captureClientEvent("activation_completed", {
     days_since_signup: properties.days_since_signup,
     source: "dashboard",
-  });
-}
-
-export function capturePremiumCheckoutCompleted(properties: {
-  plan_tier?: string | null;
-  session_id?: string | null;
-}): void {
-  captureClientEvent("premium_checkout_completed", {
-    plan_tier: properties.plan_tier ?? null,
-    stripe_session_id: properties.session_id ?? null,
-    source: "success_page",
   });
 }

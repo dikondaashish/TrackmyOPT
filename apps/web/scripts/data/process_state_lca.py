@@ -8,11 +8,13 @@ import urllib.request
 import urllib.error
 from dotenv import load_dotenv
 
+from h1b_data_paths import require_h1b_raw_data_dir
+
 # Load env variables from .env.local
 load_dotenv("web/.env.local")
 
 # Configuration
-DATA_DIR = "ITContractorsUnion-Main/State_H1B_Jobs"
+DATA_DIR = require_h1b_raw_data_dir() / "State_H1B_Jobs"
 SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 

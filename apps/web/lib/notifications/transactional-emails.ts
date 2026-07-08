@@ -168,6 +168,20 @@ async function shouldSkipStemOptWindowWithin60Days(
   return Boolean(data && data.length > 0);
 }
 
+async function shouldSkipD1ActivationNudge(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("email_queue")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("email_type", "d1_activation_nudge")
+    .in("status", ["sent", "pending"])
+    .limit(1);
+  return Boolean(data?.length);
+}
+
 export type QueueTransactionalResult =
   | { ok: true; skipped: "blocked" | "deduped" }
   | { ok: true; skipped: false; queueId: string }
@@ -184,6 +198,7 @@ type DedupeMode =
   | { kind: "at_risk_reengagement" }
   | { kind: "welcome_free_resend" }
   | { kind: "stem_opt_window" }
+  | { kind: "d1_activation_nudge" }
   | { kind: "none" };
 
 /**
@@ -260,6 +275,13 @@ export async function queueTransactionalEmailSend(args: {
     if (await shouldSkipStemOptWindowWithin60Days(supabase, userId)) {
       return { ok: true, skipped: "deduped" };
     }
+  } else if (dedupe.kind === "d1_activation_nudge") {
+    if (!userId) {
+      return { ok: false, error: "user_id required for d1_activation_nudge" };
+    }
+    if (await shouldSkipD1ActivationNudge(supabase, userId)) {
+      return { ok: true, skipped: "deduped" };
+    }
   } else if (dedupe.kind === "payment_failed") {
     if (!userId) {
       return { ok: false, error: "user_id required for payment_failed" };
@@ -319,6 +341,13 @@ export async function queueTransactionalEmailSend(args: {
     .single();
 
   if (insErr || !inserted?.id) {
+    const pgCode =
+      insErr && typeof insErr === "object" && "code" in insErr
+        ? String((insErr as { code?: string }).code)
+        : "";
+    if (pgCode === "23505" && dedupe.kind === "d1_activation_nudge") {
+      return { ok: true, skipped: "deduped" };
+    }
     console.error("queueTransactionalEmailSend insert:", insErr);
     return { ok: false, error: insErr?.message || "insert_failed" };
   }
@@ -1093,6 +1122,94 @@ export async function sendAtRiskReengagementEmail(args: {
     text,
     emailData: { at_risk_reengagement_sent: true },
     dedupe: { kind: "at_risk_reengagement" },
+  });
+}
+
+export function buildD1ActivationNudgeEmailBodies(args: {
+  firstName: string | null;
+  hasCaseStatus: boolean;
+  caseStatusText: string | null;
+  optHeadline: string | null;
+}): { subject: string; html: string; text: string } {
+  const dashboardUrl = `${getAppBaseUrl()}/dashboard`;
+  const greeting = args.firstName?.trim()
+    ? `Hi ${escapeHtml(args.firstName.trim())},`
+    : "Hi,";
+  const greetingText = args.firstName?.trim()
+    ? `Hi ${args.firstName.trim()},`
+    : "Hi,";
+
+  const headline = args.hasCaseStatus && args.caseStatusText
+    ? `Your USCIS status: ${escapeHtml(args.caseStatusText.slice(0, 120))}`
+    : args.optHeadline
+      ? escapeHtml(args.optHeadline)
+      : "Your OPT dashboard is ready";
+
+  const lead = args.hasCaseStatus
+    ? "We saved your case — open your dashboard to see the full timeline and countdowns."
+    : args.optHeadline
+      ? "Your OPT dates are set — see your unemployment clock and filing windows in one place."
+      : "Finish setting up your dashboard — case tracking, OPT clocks, and reminders are waiting.";
+
+  const subject = args.hasCaseStatus
+    ? "Your case status is waiting on your dashboard"
+    : args.optHeadline
+      ? "Your OPT countdown is live — open your dashboard"
+      : "Your TrackMyOPT dashboard is ready";
+
+  const html = buildTransactionalEmail({
+    headerTitle: "Open your dashboard",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextLead(headline)}
+${emailTextP(lead)}
+${emailPrimaryButton(dashboardUrl, "Open dashboard")}
+${emailTextMuted("You completed onboarding yesterday — this is your day-one nudge to come back.")}
+${emailBodySectionClose()}
+`,
+  });
+
+  const text = [
+    greetingText,
+    "",
+    headline.replace(/<[^>]+>/g, ""),
+    lead,
+    "",
+    `Open dashboard: ${dashboardUrl}`,
+  ].join("\n");
+
+  return { subject, html, text };
+}
+
+export async function sendD1ActivationNudgeEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+  hasCaseStatus: boolean;
+  caseStatusText: string | null;
+  optHeadline: string | null;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName, hasCaseStatus, caseStatusText, optHeadline } =
+    args;
+  const { subject, html, text } = buildD1ActivationNudgeEmailBodies({
+    firstName,
+    hasCaseStatus,
+    caseStatusText,
+    optHeadline,
+  });
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "d1_activation_nudge",
+    subject,
+    html,
+    text,
+    emailData: { d1_activation_nudge: true },
+    dedupe: { kind: "d1_activation_nudge" },
   });
 }
 

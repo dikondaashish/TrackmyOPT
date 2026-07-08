@@ -9,11 +9,13 @@ import time
 
 from dotenv import load_dotenv
 
+from h1b_data_paths import require_h1b_raw_data_dir
+
 # Load env variables from .env.local
 load_dotenv(".env.local")
 
 # Configuration
-INPUT_FILE = "ITContractorsUnion-Main/Data/LCA_Disclosure_Data_FY2025_Q4.csv"
+INPUT_FILE = require_h1b_raw_data_dir() / "Data" / "LCA_Disclosure_Data_FY2025_Q4.csv"
 SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL", "https://deknauqkqqzwuvopqott.supabase.co")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 

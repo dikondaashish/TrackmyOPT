@@ -1,10 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import {
   captureErrorBoundaryTriggered,
 } from '@/lib/posthog-client';
+import {
+  formatBoundaryErrorMessage,
+  shouldReportBoundaryError,
+} from '@/lib/posthog/error-boundary-report';
 
 export default function ErrorBoundary({
   error,
@@ -14,12 +18,17 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   const pathname = usePathname();
+  const reportedRef = useRef(false);
 
   useEffect(() => {
+    if (reportedRef.current || !shouldReportBoundaryError(error)) return;
+    reportedRef.current = true;
+
     captureErrorBoundaryTriggered({
       route: pathname || 'unknown',
       component_area: 'global',
       ...(error.digest ? { error_digest: error.digest } : {}),
+      error_message: formatBoundaryErrorMessage(error),
     });
   }, [error, pathname]);
 

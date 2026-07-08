@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { captureErrorBoundaryTriggered } from '@/lib/posthog-client';
+import {
+  formatBoundaryErrorMessage,
+  shouldReportBoundaryError,
+} from '@/lib/posthog/error-boundary-report';
 
 export default function CaseStatusError({
   error,
@@ -11,13 +15,17 @@ export default function CaseStatusError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const reportedRef = useRef(false);
+
   useEffect(() => {
-    const message = error.message?.trim();
+    if (reportedRef.current || !shouldReportBoundaryError(error)) return;
+    reportedRef.current = true;
+
     captureErrorBoundaryTriggered({
       route: '/dashboard/case-status',
       component_area: 'case_status',
       ...(error.digest ? { error_digest: error.digest } : {}),
-      ...(message ? { error_message: message.slice(0, 500) } : {}),
+      error_message: formatBoundaryErrorMessage(error),
     });
   }, [error]);
 

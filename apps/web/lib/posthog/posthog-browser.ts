@@ -14,6 +14,19 @@ export function isBenignReactDomTeardownError(message: string): boolean {
   );
 }
 
+/** Supabase Realtime WebSocket blocked by browser privacy settings — not a product bug. */
+export function isBenignWebSocketError(message: string): boolean {
+  const lower = message.toLowerCase();
+  if (lower.includes("websocket not available")) return true;
+  if (lower.includes("operation is insecure") && lower.includes("websocket")) return true;
+  return false;
+}
+
+/** @deprecated Use isBenignWebSocketError */
+export function isBenignWebSocketUnavailableError(message: string): boolean {
+  return isBenignWebSocketError(message);
+}
+
 /** Pull exception text from every shape posthog-js may emit. */
 export function extractExceptionMessages(
   properties: Record<string, unknown> | undefined
@@ -50,7 +63,10 @@ export function extractExceptionMessages(
 export function shouldDropExceptionEvent(
   properties: Record<string, unknown> | undefined
 ): boolean {
-  return isBenignReactDomTeardownError(extractExceptionMessages(properties));
+  const text = extractExceptionMessages(properties);
+  return (
+    isBenignReactDomTeardownError(text) || isBenignWebSocketError(text)
+  );
 }
 
 /** Routes where autocapture adds noise without product value. */

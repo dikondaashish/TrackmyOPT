@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import {
     ArrowLeft, Building2, MapPin, Globe, Bookmark, ExternalLink, Linkedin, Star, Check,
-    Scale, AlertTriangle, DollarSign
+    Scale, DollarSign, Lock
 } from "lucide-react";
 import { Database } from "@/types/supabase";
 import type { H1BSponsor } from "@/lib/mock/h1bSponsors";
@@ -14,14 +13,12 @@ import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
 import { AnalyticsDashboard } from "@/components/career/h1b/profile/analytics/AnalyticsDashboard";
 import { LCAFilingsTable } from "@/components/career/h1b/profile/LCAExplorer/LCAFilingsTable";
 import { getLogoUrl, handleLogoError } from "@/lib/documents/imageUtils";
+import { Button } from "@/components/ui/button";
+import { captureUpgradePromptShown } from "@/lib/posthog-client";
+import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
 
 type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 // Get score color based on value
 const getScoreColor = (score: number) => {
@@ -39,66 +36,35 @@ export default function CompanyProfilePage() {
     const [filings, setFilings] = useState<H1BFilingRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaved, setIsSaved] = useState(false);
+    const [isLocked, setIsLocked] = useState(false);
 
     useEffect(() => {
         async function fetchData() {
             setIsLoading(true);
+            setIsLocked(false);
             try {
-                // Fetch sponsor details
-                const { data: sponsorData, error: sponsorError } = await supabase
-                    .from('h1b_sponsors')
-                    .select('*')
-                    .eq('id', sponsorId)
-                    .single();
+                const response = await fetch(`/api/career/h1b-sponsors/${sponsorId}`, {
+                    credentials: "include",
+                });
 
-                if (sponsorError) {
-                    console.error("Error fetching sponsor:", sponsorError);
+                if (response.status === 402) {
+                    setIsLocked(true);
+                    setSponsor(null);
+                    setFilings([]);
+                    captureUpgradePromptShown({ source: "h1b_limit" });
                     return;
                 }
-                setSponsor(sponsorData);
 
-                // Fetch related LCA filings
-                let filingsData: H1BFilingRow[] = [];
-
-                // 1. Try by sponsor_id
-                const { data: byId, error: byIdError } = await supabase
-                    .from('h1b_filings')
-                    .select('*')
-                    .eq('sponsor_id', sponsorId)
-                    .order('received_date', { ascending: false })
-                    .limit(500);
-
-                if (byId && byId.length > 0) {
-                    filingsData = byId;
-                } else {
-                    // 2. Fallback: Try by employer name (exact match)
-                    if (sponsorData.name) {
-                        const { data: byName, error: byNameError } = await supabase
-                            .from('h1b_filings')
-                            .select('*')
-                            .eq('employer_name', sponsorData.name)
-                            .order('received_date', { ascending: false })
-                            .limit(500);
-
-                        if (byName && byName.length > 0) {
-                            filingsData = byName;
-                        } else {
-                            // 3. Fallback: Case-insensitive search
-                            const { data: byNameLike, error: byNameLikeError } = await supabase
-                                .from('h1b_filings')
-                                .select('*')
-                                .ilike('employer_name', sponsorData.name)
-                                .order('received_date', { ascending: false })
-                                .limit(500);
-
-                            if (byNameLike) filingsData = byNameLike;
-                        }
-                    }
+                if (!response.ok) {
+                    console.error("Error fetching sponsor:", response.status);
+                    setSponsor(null);
+                    return;
                 }
 
-                setFilings(filingsData || []);
+                const payload = await response.json();
+                setSponsor(payload.sponsor as H1BSponsorRow);
+                setFilings((payload.filings ?? []) as H1BFilingRow[]);
 
-                // Check if saved
                 const saved = localStorage.getItem("trackmyopt_saved_sponsors");
                 if (saved) {
                     const savedSet = new Set(JSON.parse(saved));
@@ -140,6 +106,32 @@ export default function CompanyProfilePage() {
                     {[...Array(4)].map((_, i) => (
                         <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl" />
                     ))}
+                </div>
+            </div>
+        );
+    }
+
+    if (isLocked) {
+        return (
+            <div className="text-center py-20 space-y-6">
+                <div className="inline-flex p-4 rounded-2xl bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
+                    <Lock className="w-10 h-10" />
+                </div>
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        Pro unlocks full sponsor profiles
+                    </h2>
+                    <p className="text-gray-500 max-w-md mx-auto">
+                        Free includes the top {FREE_H1B_SPONSOR_LIMIT} sponsors by approval volume. Upgrade to browse every company profile and LCA history.
+                    </p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <Button asChild>
+                        <Link href="/premium/checkout?planId=pro&interval=year">Upgrade to Pro</Link>
+                    </Button>
+                    <Link href="/dashboard/career/h1b-sponsors" className="text-blue-600 hover:underline text-sm">
+                        ← Back to top sponsors
+                    </Link>
                 </div>
             </div>
         );

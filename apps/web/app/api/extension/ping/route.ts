@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/auth/jwt';
+import { billingInsertId } from '@/lib/posthog/billing-analytics';
+import { captureServerEvent } from '@/lib/posthog-server';
 
 export const dynamic = 'force-dynamic';
 
@@ -89,6 +91,12 @@ export async function POST(req: NextRequest) {
           last_active_at: new Date().toISOString(),
           is_active: true,
         });
+
+      void captureServerEvent(userId, 'extension_detected', {
+        version: String(version),
+        source: 'extension_ping',
+        $insert_id: billingInsertId('extension_detected', userId),
+      });
     }
 
     return NextResponse.json({ 

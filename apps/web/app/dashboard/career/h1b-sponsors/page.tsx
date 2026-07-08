@@ -1,25 +1,37 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { Briefcase, Search } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
 import { H1BSponsor } from "@/lib/mock/h1bSponsors";
-import { Database } from "@/types/supabase";
-
-type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 import { H1BSponsorCard } from "@/components/career/h1b/H1BSponsorCard";
 import { H1BSponsorTabs } from "@/components/career/h1b/H1BSponsorTabs";
 import { H1BSponsorSearchFilters } from "@/components/career/h1b/H1BSponsorSearchFilters";
 import { H1BSponsorStatsRow } from "@/components/career/h1b/H1BSponsorStatsRow";
+import { H1BSponsorLimitBanner } from "@/components/career/h1b/H1BSponsorLimitBanner";
 import { AddToTrackerModal, JobTrackerItem } from "@/components/career/h1b/AddToTrackerModal";
 import { FilterOptions, filterSponsors } from "@/lib/career/h1b/filterSponsors";
-import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
+import { Search } from "lucide-react";
 
-// Initialize Supabase client
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+function mapSponsorRow(row: Record<string, unknown>): H1BSponsor {
+    return {
+        id: String(row.id),
+        name: String(row.name),
+        industry: String(row.industry),
+        size: row.size as H1BSponsor["size"],
+        location: String(row.location),
+        website: String(row.website ?? ""),
+        approvals_2021: Number(row.approvals_2021 ?? 0),
+        approvals_2022: Number(row.approvals_2022 ?? 0),
+        approvals_2023: Number(row.approvals_2023 ?? 0),
+        approvals_2024: Number(row.approvals_2024 ?? 0),
+        approvals_2025: Number(row.approvals_2025 ?? 0),
+        sponsorship_strength: row.sponsorship_strength as H1BSponsor["sponsorship_strength"],
+        common_roles: [],
+        careers_url: (row.careers_url as string | null) ?? null,
+        is_virtual_office: Boolean(row.is_virtual_office),
+        top_law_firm: (row.top_law_firm as string | null) ?? null,
+        entry_level_percent: (row.entry_level_percent as number | null) ?? null,
+    };
+}
 
 export default function H1BSponsorsPage() {
     // Consolidated Filter State
@@ -40,6 +52,7 @@ export default function H1BSponsorsPage() {
     const [savedSponsors, setSavedSponsors] = useState<Set<string>>(new Set());
     const [totalSponsorCount, setTotalSponsorCount] = useState(0);
     const [highSponsorCount, setHighSponsorCount] = useState(0);
+    const [isPremium, setIsPremium] = useState(false);
 
     // Modal State
     const [isTrackerModalOpen, setIsTrackerModalOpen] = useState(false);
@@ -50,49 +63,22 @@ export default function H1BSponsorsPage() {
         async function fetchSponsors() {
             setIsLoading(true);
             try {
-                // Get total count first
-                const { count: totalCount } = await supabase
-                    .from('h1b_sponsors')
-                    .select('*', { count: 'exact', head: true });
-
-                setTotalSponsorCount(totalCount || 0);
-
-                // Fetch sponsors with increased range (Supabase default is 1000)
-                const { data, error } = await supabase
-                    .from('h1b_sponsors')
-                    .select('id, name, industry, size, location, website, approvals_2021, approvals_2022, approvals_2023, approvals_2024, approvals_2025, total_approvals, sponsorship_strength, careers_url, is_virtual_office, top_law_firm, entry_level_percent')
-                    .order('total_approvals', { ascending: false })
-                    .range(0, 9999); // Load up to 10,000 sponsors
-
-                if (error) {
-                    console.error("Error fetching sponsors:", error);
-                } else if (data) {
-                    const mappedSponsors: H1BSponsor[] = data.map((row: any) => ({
-                        id: row.id,
-                        name: row.name,
-                        industry: row.industry,
-                        size: row.size as H1BSponsor['size'],
-                        location: row.location,
-                        website: row.website,
-
-                        approvals_2021: row.approvals_2021,
-                        approvals_2022: row.approvals_2022,
-                        approvals_2023: row.approvals_2023,
-                        approvals_2024: row.approvals_2024 ?? 0,
-                        approvals_2025: row.approvals_2025 ?? 0,
-                        sponsorship_strength: row.sponsorship_strength as H1BSponsor['sponsorship_strength'],
-                        common_roles: [], // Excluded from payload for performance
-                        careers_url: row.careers_url || null,
-                        is_virtual_office: row.is_virtual_office ?? false,
-                        top_law_firm: row.top_law_firm || null,
-                        entry_level_percent: row.entry_level_percent ?? null,
-                    }));
-                    setSponsors(mappedSponsors);
-
-                    // Calculate high sponsors count (Strong rating)
-                    const highCount = mappedSponsors.filter(s => calculateSponsorScore(s).label === "Strong").length;
-                    setHighSponsorCount(highCount);
+                const response = await fetch("/api/career/h1b-sponsors", {
+                    credentials: "include",
+                });
+                if (!response.ok) {
+                    console.error("Error fetching sponsors:", response.status);
+                    return;
                 }
+                const payload = await response.json();
+                setTotalSponsorCount(payload.totalCount || 0);
+                setHighSponsorCount(payload.highSponsorCount || 0);
+                setIsPremium(payload.isPremium === true);
+
+                const mappedSponsors: H1BSponsor[] = (payload.sponsors || []).map(
+                    (row: Record<string, unknown>) => mapSponsorRow(row)
+                );
+                setSponsors(mappedSponsors);
             } catch (err) {
                 console.error("Unexpected error:", err);
             } finally {
@@ -190,6 +176,11 @@ export default function H1BSponsorsPage() {
                     totalSponsors={totalSponsorCount}
                     highSponsors={highSponsorCount}
                     savedSponsors={savedSponsors.size}
+                />
+
+                <H1BSponsorLimitBanner
+                    totalCount={totalSponsorCount}
+                    isPremium={isPremium}
                 />
             </div>
 

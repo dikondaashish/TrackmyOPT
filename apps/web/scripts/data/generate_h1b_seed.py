@@ -7,11 +7,13 @@ from datetime import datetime
 
 import os
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-repo_root = os.path.abspath(os.path.join(script_dir, '../../../..'))
+from h1b_data_paths import repo_root, require_h1b_raw_data_dir
 
-INPUT_FILE = os.path.join(repo_root, 'ITContractorsUnion-Main/Jobs/New_H1B_Tech_Jobs.csv')
-OUTPUT_SQL = os.path.join(repo_root, 'supabase/seed_h1b.sql')
+script_dir = os.path.dirname(os.path.abspath(__file__))
+repo_root_path = repo_root()
+
+INPUT_FILE = require_h1b_raw_data_dir() / "Jobs" / "New_H1B_Tech_Jobs.csv"
+OUTPUT_SQL = repo_root_path / "supabase" / "seed_h1b.sql"
 
 def slugify(text):
     text = text.lower()

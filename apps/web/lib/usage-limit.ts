@@ -100,3 +100,83 @@ export async function trackResumeGeneration(
     }
     return { ok: true };
 }
+
+const FREE_ATS_SCAN_LIMIT = 3;
+const PRO_ATS_SCAN_LIMIT = 10_000;
+
+export async function checkAtsScanLimit(userId: string) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) {
+                    return cookieStore.get(name)?.value;
+                },
+            },
+        }
+    );
+
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('plan_tier, premium_status')
+        .eq('user_id', userId)
+        .single();
+
+    if (profileError) {
+        console.error('Error fetching profile for ATS limit check:', profileError);
+    }
+
+    const tier = profile?.plan_tier || 'free';
+    let limit = FREE_ATS_SCAN_LIMIT;
+    if (tier === 'pro') limit = PRO_ATS_SCAN_LIMIT;
+    if (tier === 'dedicated') limit = PRO_ATS_SCAN_LIMIT;
+    if (profile?.premium_status && limit < PRO_ATS_SCAN_LIMIT) limit = PRO_ATS_SCAN_LIMIT;
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    const { data: usageData, error: usageError } = await supabase
+        .from('resume_generations')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('generation_type', 'ats_scan')
+        .gte('created_at', startOfMonth);
+
+    if (usageError) {
+        console.error('Error fetching ATS scan usage:', usageError);
+        throw new Error('Failed to check ATS scan limits');
+    }
+
+    const usage = usageData?.length ?? 0;
+    const allowed = usage < limit;
+
+    return { allowed, limit, usage, tier };
+}
+
+export async function trackAtsScan(userId: string): Promise<{ ok: boolean; error?: string }> {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) {
+                    return cookieStore.get(name)?.value;
+                },
+            },
+        }
+    );
+
+    const { error } = await supabase.from('resume_generations').insert({
+        user_id: userId,
+        generation_type: 'ats_scan',
+    });
+
+    if (error) {
+        console.error('Failed to log ATS scan:', error);
+        return { ok: false, error: error.message };
+    }
+    return { ok: true };
+}

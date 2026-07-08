@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { buildAtsScanPrompt } from '@/lib/ai/prompts/ats-scan';
@@ -6,6 +5,7 @@ import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 import { getUserId } from '@/lib/auth/getUserId';
 import { latexToPlainText } from '@/lib/resume/latex-to-plain-text';
 import { computeKeywordPlacement } from '@/lib/resume/keyword-placement';
+import { checkAtsScanLimit, trackAtsScan } from '@/lib/usage-limit';
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com',
@@ -47,6 +47,27 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(
                 { error: 'Missing resume text to scan' },
                 { status: 400, headers: corsHeaders }
+            );
+        }
+
+        const { allowed, limit, usage } = await checkAtsScanLimit(userId);
+        if (!allowed) {
+            return NextResponse.json(
+                {
+                    error: 'Monthly ATS scan limit reached',
+                    code: 'ats_scan_limit_reached',
+                    limit,
+                    usage,
+                },
+                { status: 402, headers: corsHeaders }
+            );
+        }
+
+        const reserved = await trackAtsScan(userId);
+        if (!reserved.ok) {
+            return NextResponse.json(
+                { error: 'Failed to reserve ATS scan quota' },
+                { status: 500, headers: corsHeaders }
             );
         }
 

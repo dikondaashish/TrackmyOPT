@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractExceptionMessages,
   isBenignReactDomTeardownError,
+  isBenignWebSocketUnavailableError,
   shouldDropExceptionEvent,
 } from "@/lib/posthog/posthog-browser";
 
@@ -73,5 +74,23 @@ describe("shouldDropExceptionEvent", () => {
   it("handles empty properties", () => {
     expect(shouldDropExceptionEvent(undefined)).toBe(false);
     expect(extractExceptionMessages(undefined)).toBe("");
+  });
+
+  it("drops Supabase Realtime WebSocket unavailable", () => {
+    expect(isBenignWebSocketUnavailableError("WebSocket not available")).toBe(
+      true
+    );
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: ["WebSocket not available"],
+      })
+    ).toBe(true);
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: [
+          "The operation is insecure. WebSocket connection failed",
+        ],
+      })
+    ).toBe(true);
   });
 });

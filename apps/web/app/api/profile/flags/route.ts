@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 
         const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
         const onboardingAnalytics = parseOnboardingAnalytics(body);
-        const updates: Record<string, boolean> = {};
+        const updates: Record<string, boolean | string> = {};
         for (const [key, value] of Object.entries(body)) {
             if (!ALLOWED_FLAGS.has(key)) continue;
             if (typeof value !== 'boolean') continue;
@@ -73,6 +73,18 @@ export async function POST(req: NextRequest) {
 
         if (Object.keys(updates).length === 0) {
             return apiFail('No valid fields provided', { code: 'no_valid_fields' });
+        }
+
+        if (updates.onboarding_completed === true) {
+            const { data: existing } = await supabase
+                .from('profiles')
+                .select('onboarding_completed_at')
+                .eq('user_id', user.id)
+                .maybeSingle();
+
+            if (!existing?.onboarding_completed_at) {
+                updates.onboarding_completed_at = new Date().toISOString();
+            }
         }
 
         const { error } = await supabase.from('profiles').update(updates).eq('user_id', user.id);

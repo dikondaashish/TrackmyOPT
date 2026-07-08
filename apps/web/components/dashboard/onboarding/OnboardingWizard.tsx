@@ -18,10 +18,13 @@ import { useToast } from "@/hooks/use-toast";
 import { DateInput } from "../opt-tools/DateInput";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 import {
-  captureOnboardingCompleted,
   captureOnboardingReceiptPromptShown,
   captureOnboardingReceiptSkipped,
   captureCaseStatusCheckCompletedClient,
+  captureOnboardingStepViewed,
+  captureOnboardingStepCompleted,
+  captureOnboardingSkipped,
+  type OnboardingWizardStep,
 } from "@/lib/posthog-client";
 import { useOnboardingReceiptVariant } from "@/hooks/useOnboardingReceiptVariant";
 import {
@@ -111,12 +114,16 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   };
 
   const handleNext = () => {
-    if (step === 'welcome') setStep('course');
+    if (step === 'welcome') {
+      captureOnboardingStepCompleted({ step: 'welcome' });
+      setStep('course');
+    }
     else if (step === 'course') {
       if (!majorName.trim()) {
         toast({ title: "Please enter your major", variant: "destructive" });
         return;
       }
+      captureOnboardingStepCompleted({ step: 'course' });
       setStep('status');
     }
     else if (step === 'status') {
@@ -124,6 +131,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         toast({ title: "Please select an option", variant: "destructive" });
         return;
       }
+      captureOnboardingStepCompleted({ step: 'status' });
       setStep('dates');
     }
     else if (step === 'dates') {
@@ -132,10 +140,47 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
   };
 
   useEffect(() => {
+    if (!isOpen || step === "finishing") return;
+    captureOnboardingStepViewed({ step: step as OnboardingWizardStep });
+  }, [isOpen, step]);
+
+  useEffect(() => {
     if (step !== "receipt" || receiptPromptTrackedRef.current) return;
     receiptPromptTrackedRef.current = true;
     captureOnboardingReceiptPromptShown();
   }, [step]);
+
+  const skipForNowClassName =
+    "text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:outline-offset-2";
+
+  const handleSkipForNow = async () => {
+    captureOnboardingSkipped({ step: step as OnboardingWizardStep });
+    if (!markOnboardingTrackedOnce()) {
+      (onSkip ?? onComplete)();
+      return;
+    }
+    try {
+      const saved = await persistOnboardingFlags(true);
+      if (!saved) {
+        onboardingTrackedRef.current = false;
+        toast({
+          title: "Could not save onboarding",
+          description: "Please try again or refresh the page.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch {
+      onboardingTrackedRef.current = false;
+      toast({
+        title: "Could not save onboarding",
+        description: "Please check your connection and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    (onSkip ?? onComplete)();
+  };
 
   const calculateAutoDates = (field: string, value: string) => {
     // If OPT start is filled, we can auto-suggest OPT End
@@ -167,28 +212,20 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     degree_level: degreeLevel,
   });
 
-  const trackOnboardingCompleted = (skipped: boolean) => {
-    captureOnboardingCompleted({
-      skipped,
-      status,
-      is_stem_eligible: isStemEligible,
-      degree_level: degreeLevel,
-    });
-  };
-
   const markOnboardingTrackedOnce = (): boolean => {
     if (onboardingTrackedRef.current) return false;
     onboardingTrackedRef.current = true;
     return true;
   };
 
-  const persistOnboardingFlags = async (skipped: boolean) => {
-    await fetch('/api/profile/flags', {
+  const persistOnboardingFlags = async (skipped: boolean): Promise<boolean> => {
+    const response = await fetch('/api/profile/flags', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(buildOnboardingFlagsBody(skipped)),
     });
+    return response.ok;
   };
 
   const finishOnboarding = async (skipped: boolean) => {
@@ -197,11 +234,25 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       return;
     }
     try {
-      await persistOnboardingFlags(skipped);
+      const saved = await persistOnboardingFlags(skipped);
+      if (!saved) {
+        onboardingTrackedRef.current = false;
+        toast({
+          title: "Could not save onboarding",
+          description: "Please try again or refresh the page.",
+          variant: "destructive",
+        });
+        return;
+      }
     } catch {
-      /* non-blocking */
+      onboardingTrackedRef.current = false;
+      toast({
+        title: "Could not save onboarding",
+        description: "Please check your connection and try again.",
+        variant: "destructive",
+      });
+      return;
     }
-    trackOnboardingCompleted(skipped);
     if (!skipped) {
       toast({
         title: "Profile Configured!",
@@ -255,6 +306,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       const result = await response.json();
 
       if (response.ok && result.ok) {
+        captureOnboardingStepCompleted({ step: "dates" });
         if (shouldDeferReceiptStep(receiptVariant)) {
           setStep("finishing");
           await finishOnboarding(false);
@@ -298,6 +350,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       }
 
       setSavedCaseStatus(saveResult.data);
+      captureOnboardingStepCompleted({ step: "receipt" });
       if (saveResult.statusResolved) {
         captureCaseStatusCheckCompletedClient({
           trigger: "initial",
@@ -364,9 +417,15 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     }
     if (!markOnboardingTrackedOnce()) return;
     try {
-      await persistOnboardingFlags(true);
-    } catch { /* non-blocking; fall back to localStorage dismiss in parent */ }
-    trackOnboardingCompleted(true);
+      const saved = await persistOnboardingFlags(true);
+      if (!saved) {
+        onboardingTrackedRef.current = false;
+        return;
+      }
+    } catch {
+      onboardingTrackedRef.current = false;
+      return;
+    }
     (onSkip ?? onComplete)();
   };
 
@@ -413,10 +472,18 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
               <p className="text-lg text-muted-foreground max-w-sm mx-auto">
                 Let's set up your profile so we can track your legal deadlines, countdowns, and unemployment days accurately.
               </p>
-              <div className="pt-8">
+              <div className="pt-8 flex flex-col items-center gap-3">
                 <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-lg rounded-full" onClick={handleNext}>
                   Get Started <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
+                <button
+                  type="button"
+                  onClick={handleSkipForNow}
+                  className={skipForNowClassName}
+                  aria-label="Skip onboarding for now"
+                >
+                  Skip for now
+                </button>
               </div>
             </div>
           )}
@@ -513,7 +580,17 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
               </div>
               
               <div className="pt-6 flex justify-between mt-auto">
-                <Button variant="ghost" onClick={() => setStep('welcome')}>Back</Button>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <Button variant="ghost" onClick={() => setStep('welcome')}>Back</Button>
+                  <button
+                    type="button"
+                    onClick={handleSkipForNow}
+                    className={skipForNowClassName}
+                    aria-label="Skip onboarding for now"
+                  >
+                    Skip for now
+                  </button>
+                </div>
                 <Button onClick={handleNext} disabled={!majorName.trim()} className="px-8">
                   Continue <ChevronRight className="ml-2 w-4 h-4" />
                 </Button>
@@ -553,7 +630,17 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
               </div>
               
               <div className="pt-6 flex justify-between mt-auto">
-                <Button variant="ghost" onClick={() => setStep('course')}>Back</Button>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <Button variant="ghost" onClick={() => setStep('course')}>Back</Button>
+                  <button
+                    type="button"
+                    onClick={handleSkipForNow}
+                    className={skipForNowClassName}
+                    aria-label="Skip onboarding for now"
+                  >
+                    Skip for now
+                  </button>
+                </div>
                 <Button onClick={handleNext} disabled={!status} className="px-8">
                   Continue <ChevronRight className="ml-2 w-4 h-4" />
                 </Button>
@@ -616,9 +703,9 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                   <Button variant="ghost" onClick={() => setStep('status')}>Back</Button>
                   <button
                     type="button"
-                    onClick={handleSkip}
+                    onClick={handleSkipForNow}
                     aria-label="Skip onboarding and continue to dashboard"
-                    className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:outline-offset-2"
+                    className={skipForNowClassName}
                   >
                     Skip for now
                   </button>
@@ -717,6 +804,15 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                       I don&apos;t have one yet / skip
                     </button>
                   )}
+                  <button
+                    type="button"
+                    onClick={handleSkipForNow}
+                    disabled={isReceiptSaving}
+                    className={skipForNowClassName}
+                    aria-label="Skip onboarding for now"
+                  >
+                    Skip for now
+                  </button>
                 </div>
                 {savedCaseStatus ? (
                   <Button onClick={handleReceiptFinish} className="px-8">

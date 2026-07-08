@@ -22,7 +22,7 @@ export function getPostHogClient(): PostHog | null {
   if (!apiKey) return null;
 
   return new PostHog(apiKey, {
-    host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
     flushAt: 1,
     flushInterval: 0,
   });

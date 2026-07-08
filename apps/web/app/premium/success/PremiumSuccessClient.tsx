@@ -146,12 +146,12 @@ export function PremiumSuccessClient() {
   const variant = isDedicated ? "dedicated" : "pro";
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId || syncState !== "synced") return;
     capturePremiumCheckoutCompleted({
       plan_tier: variant,
       session_id: sessionId,
     });
-  }, [sessionId, variant]);
+  }, [sessionId, variant, syncState]);
 
   useEffect(() => {
     if (!sessionId) return;
