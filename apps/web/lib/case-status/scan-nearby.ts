@@ -7,6 +7,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { checkUSCISStatus } from "@/lib/immigration/uscis-checker";
 import { parseReceipt } from "@/lib/case-status/receipt-cohort";
+import { assertNearbyScanEnabled } from "@/lib/uscis/nearby-scan";
 
 /** Max receipts scanned per background invocation (USCIS is 10 TPS / 400k/day). */
 export const SCAN_BATCH_LIMIT = 20;
@@ -43,6 +44,7 @@ export async function scanNearbyReceipts(
   supabase: SupabaseClient,
   receipts: string[]
 ): Promise<ScanResult> {
+  assertNearbyScanEnabled();
   if (!process.env.USCIS_CLIENT_ID || !process.env.USCIS_CLIENT_SECRET) {
     return { scanned: 0, valid: 0, invalid: 0 };
   }

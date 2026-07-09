@@ -1,7 +1,12 @@
 /**
  * Receipt number parsing and range generation for nearby-case cohort analysis.
  * USCIS receipts are a 3-letter prefix + 10-digit serial (e.g. IOE9822487119).
+ *
+ * buildReceiptRange is disabled by default (NEARBY_SCAN_ENABLED). Dead code retained
+ * for auditability — do not call without explicit compliance review.
  */
+
+import { assertNearbyScanEnabled } from "@/lib/uscis/nearby-scan";
 
 export type ParsedReceipt = { prefix: string; serial: number };
 
@@ -32,6 +37,7 @@ export function buildReceiptRange(
   before: number,
   after: number
 ): { center: ParsedReceipt; receipts: string[] } | null {
+  assertNearbyScanEnabled();
   const parsed = parseReceipt(receipt);
   if (!parsed) return null;
 
