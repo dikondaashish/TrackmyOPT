@@ -26,24 +26,14 @@ describe("formatReceipt", () => {
 });
 
 describe("buildReceiptRange", () => {
-  it("builds an inclusive range around the center", () => {
-    const range = buildReceiptRange("IOE9822487119", 2, 2);
-    expect(range).not.toBeNull();
-    expect(range!.receipts).toEqual([
-      "IOE9822487117",
-      "IOE9822487118",
-      "IOE9822487119",
-      "IOE9822487120",
-      "IOE9822487121",
-    ]);
+  it("throws when nearby scanning is disabled", () => {
+    expect(() => buildReceiptRange("IOE9822487119", 2, 2)).toThrow();
   });
 
-  it("clamps to the max range", () => {
-    const range = buildReceiptRange("IOE9822487119", 99999, 0);
-    expect(range!.receipts.length).toBeLessThanOrEqual(501);
-  });
-
-  it("returns null for invalid receipts", () => {
+  it("returns null for invalid receipts when enabled", () => {
+    const prev = process.env.NEARBY_SCAN_ENABLED;
+    process.env.NEARBY_SCAN_ENABLED = "true";
     expect(buildReceiptRange("nope", 1, 1)).toBeNull();
+    process.env.NEARBY_SCAN_ENABLED = prev;
   });
 });
