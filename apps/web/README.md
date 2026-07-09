@@ -236,10 +236,9 @@ For faster development, disable email confirmations:
 ### 3. Run Database Migration
 
 1. Open **Supabase Dashboard → SQL Editor**
-2. Click **New Query**
-3. Copy contents from `web/supabase/migrations/001_initial_schema.sql`
-4. Paste and click **Run**
-5. Verify tables in **Table Editor**:
+2. Apply migrations from the repo root: `supabase/migrations/` (see `supabase/README.md`)
+3. Or use Supabase CLI: `supabase db push`
+4. Verify tables in **Table Editor**:
    - ✅ `profiles`
    - ✅ `opt_status`
    - ✅ `employment_spans`

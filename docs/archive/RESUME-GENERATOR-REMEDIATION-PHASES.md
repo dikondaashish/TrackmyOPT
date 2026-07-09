@@ -341,4 +341,4 @@ Save version linked to job application → "Ready to apply"
 - `apps/web/lib/ai/prompts/generate.ts` — generation system prompt
 - `apps/web/lib/ai/prompts/ats-scan.ts` — deep scan prompt
 - `apps/web/lib/validators/ats-checker.ts` — static format checks
-- `apps/web/docs/FULL-AUDIT-REMEDIATION-PHASES.md` — site-wide SEO/security phases
+- `docs/archive/FULL-AUDIT-REMEDIATION-PHASES.md` — site-wide SEO/security phases

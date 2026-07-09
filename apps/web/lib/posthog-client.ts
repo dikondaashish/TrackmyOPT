@@ -288,20 +288,6 @@ export function associateUniversityPartnerGroup(
   }
 }
 
-export type CaseStatusExplainerViewedProperties = {
-  status_category: string;
-};
-
-export function captureCaseStatusExplainerViewed(
-  properties: CaseStatusExplainerViewedProperties
-): void {
-  captureClientEvent("case_status_explainer_viewed", {
-    ...properties,
-    capture_source: "client",
-    source: "case_status_page",
-  });
-}
-
 export type UpgradePromptTrigger =
   | "status_change_wedge"
   | "second_manual_refresh"

@@ -1,6 +1,8 @@
 /**
  * Nightly LTV sync — pushes Supabase payment totals to PostHog person properties.
  *
+ * Schedule on cron-job.org (not Vercel Cron). Suggested: daily 6:00 AM UTC.
+ *
  * Env: POSTHOG_LTV_SYNC_ENABLED=true
  *
  * Query params:

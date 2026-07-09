@@ -666,7 +666,7 @@ Impact ▲
 - [EVENT_TAXONOMY.md](../lib/posthog/EVENT_TAXONOMY.md) — Canonical event taxonomy (Phase 5)
 - [LEGACY_EVENTS.md](../lib/posthog/LEGACY_EVENTS.md) — Billing validation status
 - [POSTHOG-PHASE-5-CLOSURE.md](./POSTHOG-PHASE-5-CLOSURE.md) — Phase 5 completion report
-- [posthog-setup-report.md](../posthog-setup-report.md) — Original wizard integration
+- Event taxonomy and setup notes: [`docs/posthog/`](../docs/posthog/) and [`lib/posthog/EVENT_TAXONOMY.md`](./lib/posthog/EVENT_TAXONOMY.md)
 
 ---
 

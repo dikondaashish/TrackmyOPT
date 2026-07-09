@@ -16,7 +16,7 @@ A SaaS platform that helps F-1 students manage their OPT, STEM OPT, and US immig
 - **Email**: SMTP (Resend) + custom queue
 - **Analytics**: PostHog
 - **Hosting**: Vercel (web), Render (Nest API)
-- **Background jobs**: Vercel Cron + cron-job.org
+- **Background jobs**: Vercel Cron (case status batch only) + cron-job.org (everything else)
 
 ---
 
@@ -28,13 +28,13 @@ A SaaS platform that helps F-1 students manage their OPT, STEM OPT, and US immig
 │   ├── web/                Next.js App Router (the SaaS frontend + APIs)
 │   ├── extension/          Chrome extension (job tracker, case status checker)
 │   └── api/                NestJS backend on Render (USCIS batch scrape)
-├── docs/                   Architecture decisions & playbooks
-├── supabase/               Top-level migrations + RLS policies
+├── docs/                   Architecture, ops, compliance, PostHog playbooks
+├── supabase/               Top-level migrations + RLS policies (source of truth)
 ├── scripts/                Repo-wide tooling (IndexNow submitter, etc.)
-└── vercel.json             Vercel cron + build config
+└── apps/web/vercel.json    Vercel case-status cron only (all other crons → cron-job.org)
 ```
 
-For internal-only structure inside `apps/web`, see [`apps/web/ARCHITECTURE.md`](./apps/web/ARCHITECTURE.md).
+For architecture details, see [`docs/architecture/ARCHITECTURE.md`](./docs/architecture/ARCHITECTURE.md).
 
 ---
 
@@ -91,7 +91,7 @@ Validation lives in [`apps/web/lib/env.ts`](./apps/web/lib/env.ts) using zod sch
 - Document Vault + OCR: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`
 - AI resume generator: `GEMINI_API_KEY`
 - Email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
-- Cron protection: `CRON_SECRET` (Vercel Cron + cron-job.org auth header)
+- Cron protection: `CRON_SECRET` (cron-job.org auth header; also used by Vercel case-status cron)
 - Admin bulk notifications API: `ADMIN_SECRET` (server only; never `NEXT_PUBLIC_*`)
 
 > **Note** — `lib/env.ts` validates these lazily so partial preview deployments still boot.
@@ -145,13 +145,16 @@ Migrations live in `supabase/migrations/`. Apply via the Supabase CLI or MCP.
 
 | Job | Trigger | Schedule |
 |---|---|---|
-| USCIS case status batch | Vercel Cron | `0 14 * * *` (daily 14:00 UTC / 9 AM ET) |
+| USCIS case status batch | **Vercel Cron only** | `0 14 * * *` (daily 14:00 UTC / 9 AM ET) |
 | Daily reminders | cron-job.org | 9 AM ET |
 | Document expiry reminders | cron-job.org | daily |
 | STEM OPT window alert | cron-job.org | daily |
+| D1 activation nudge | cron-job.org | hourly |
+| At-risk reengagement | cron-job.org | weekly |
+| PostHog LTV / partner sync | cron-job.org | daily / weekly |
 | Retry pending emails | cron-job.org | every 30 min |
 
-All cron-triggered routes require `Authorization: Bearer ${CRON_SECRET}`.
+All cron-triggered routes require `Authorization: Bearer ${CRON_SECRET}`. Full setup: [`docs/ops/CRON_SETUP.md`](./docs/ops/CRON_SETUP.md).
 
 ---
 

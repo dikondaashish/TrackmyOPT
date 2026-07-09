@@ -1,6 +1,8 @@
 /**
  * Weekly partner group sync — refreshes university_partner group properties in PostHog.
  *
+ * Schedule on cron-job.org (not Vercel Cron). Suggested: weekly Monday 7:00 AM UTC.
+ *
  * Env: POSTHOG_PARTNER_GROUPS_SYNC_ENABLED=true
  *
  * Manual test:

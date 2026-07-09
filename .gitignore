@@ -59,8 +59,12 @@ extension/dist/
 PROJECT_OVERVIEW.md
 USCIS_API_DEMO_DOCUMENTATION.md
 
-# Large Data Sets
+# Large / generated data (not tracked)
 ITContractorsUnion-Main/
+supabase/seed_h1b.sql
+
+# Agent skill install artifacts
+.agent_tmp_skills/
 
 
 # Python venv

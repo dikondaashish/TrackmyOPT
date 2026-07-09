@@ -2,6 +2,8 @@
  * Weekly at-risk retention email — users in PostHog cohort 396175 proxy:
  * signed up in 90d, no sign-in in 14d.
  *
+ * Schedule on cron-job.org (not Vercel Cron).
+ *
  * Env (required to send):
  *   AT_RISK_REENGAGEMENT_ENABLED=true
  *
