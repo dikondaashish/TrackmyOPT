@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
           'X-Internal-Secret': process.env.CRON_SECRET || '',
           'X-Force-Refresh': 'true',
         },
-        body: JSON.stringify({ receipt_number: row.receipt_number }),
+        body: JSON.stringify({ receipt_number: row.receipt_number, user_id: userId }),
       }
     );
 

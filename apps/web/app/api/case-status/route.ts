@@ -269,7 +269,7 @@ export async function POST(req: NextRequest) {
         'X-Internal-Secret': process.env.CRON_SECRET || '',
         'X-Check-Trigger': 'initial',
       },
-      body: JSON.stringify({ receipt_number: normalizedReceipt }),
+      body: JSON.stringify({ receipt_number: normalizedReceipt, user_id: userId }),
     }).catch((err) => {
       console.error('Failed to trigger initial status check:', err);
     });

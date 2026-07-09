@@ -220,7 +220,10 @@ export class UscisProcessor {
       }
 
       // ── Step 2: Call USCIS API ──
-      const result = await this.uscisService.checkUSCISStatus(receiptNumber);
+      const result = await this.uscisService.checkUSCISStatus(
+        receiptNumber,
+        userId,
+      );
 
       // ✅ Reset circuit breaker on success
       this.consecutiveFailures = 0;

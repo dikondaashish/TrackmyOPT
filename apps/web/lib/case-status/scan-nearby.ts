@@ -5,7 +5,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { checkUSCISStatus } from "@/lib/immigration/uscis-checker";
+import { fetchCaseStatus } from "@/lib/uscis/client";
 import { parseReceipt } from "@/lib/case-status/receipt-cohort";
 import { assertNearbyScanEnabled } from "@/lib/uscis/nearby-scan";
 
@@ -42,7 +42,8 @@ export type ScanResult = { scanned: number; valid: number; invalid: number };
  */
 export async function scanNearbyReceipts(
   supabase: SupabaseClient,
-  receipts: string[]
+  receipts: string[],
+  centerUserId: string
 ): Promise<ScanResult> {
   assertNearbyScanEnabled();
   if (!process.env.USCIS_CLIENT_ID || !process.env.USCIS_CLIENT_SECRET) {
@@ -67,7 +68,12 @@ export async function scanNearbyReceipts(
     const parsed = parseReceipt(receipt);
     if (!parsed) continue;
 
-    const result = await checkUSCISStatus(receipt);
+    const result = await fetchCaseStatus({
+      receiptNumber: receipt,
+      userId: centerUserId,
+      callSite: "scan-nearby",
+      supabase,
+    });
     const nowIso = new Date().toISOString();
 
     if (result.success) {

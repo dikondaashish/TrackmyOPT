@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { checkUSCISStatus, mockUSCISStatus } from '@/lib/immigration/uscis-checker';
+import { mockUSCISStatus } from '@/lib/immigration/uscis-checker';
+import { fetchCaseStatus } from '@/lib/uscis/client';
+import { UnauthorizedReceiptLookupError } from '@/lib/uscis/errors';
 import { buildStatusHistoryFromUscis } from '@/lib/case-status/normalize-status-history';
 import {
   resolveCaseCheckSource,
@@ -100,7 +102,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { receipt_number } = body;
+    const { receipt_number, user_id: bodyUserId } = body;
     receiptNumberForLog = receipt_number || null;
 
     if (!receipt_number) {
@@ -110,8 +112,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!bodyUserId || typeof bodyUserId !== 'string') {
+      return NextResponse.json(
+        { ok: false, error: 'user_id is required for USCIS lookups' },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
     const normalizedReceipt = receipt_number.toUpperCase();
     analyticsReceiptNumber = normalizedReceipt;
+    analyticsUserId = bodyUserId;
     analyticsTrigger = resolveCaseCheckTrigger(req);
     analyticsSource = resolveCaseCheckSource(analyticsTrigger);
 
@@ -125,8 +135,16 @@ export async function POST(req: NextRequest) {
       .from('case_status')
       .select('user_id, current_status')
       .eq('receipt_number', normalizedReceipt)
+      .eq('user_id', bodyUserId)
       .maybeSingle();
-    analyticsUserId = caseMeta?.user_id ?? null;
+
+    if (!caseMeta) {
+      await finishFailed(403, 'unauthorized_receipt');
+      return NextResponse.json(
+        { ok: false, error: 'Receipt is not enrolled for this user' },
+        { status: 403, headers: corsHeaders }
+      );
+    }
 
     await trackCaseStatusCheckStarted({
       userId: analyticsUserId,
@@ -280,8 +298,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Production: Call USCIS API
-    const uscisResult = await checkUSCISStatus(receipt_number);
+    // Production: Call USCIS API (enrollment guard inside fetchCaseStatus)
+    let uscisResult;
+    try {
+      uscisResult = await fetchCaseStatus({
+        receiptNumber: receipt_number,
+        userId: bodyUserId,
+        callSite: 'case-status/check',
+        supabase,
+      });
+    } catch (error) {
+      if (error instanceof UnauthorizedReceiptLookupError) {
+        await finishFailed(403, 'unauthorized_receipt');
+        return NextResponse.json(
+          { ok: false, error: error.message },
+          { status: 403, headers: corsHeaders }
+        );
+      }
+      throw error;
+    }
 
     // Handle USCIS API errors (ISS-012: persist failure + observability log)
     if (!uscisResult.success) {
