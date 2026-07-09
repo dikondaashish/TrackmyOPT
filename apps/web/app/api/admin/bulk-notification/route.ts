@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 import { sanitizeError } from '@/lib/secure-logger';
+import { safeEqual } from '@/lib/api/secure-compare';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('Authorization');
     const adminSecret = process.env.ADMIN_SECRET;
 
-    if (!adminSecret || authHeader !== `Bearer ${adminSecret}`) {
+    if (!adminSecret || !authHeader || !safeEqual(authHeader, `Bearer ${adminSecret}`)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

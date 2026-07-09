@@ -6,9 +6,9 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Check authentication
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    // Check authentication (getUser revalidates the token server-side)
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // First fetch existing profile to merge non-provided fields
     const { data: existingProfile } = await supabase

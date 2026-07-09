@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { safeEqual } from "@/lib/api/secure-compare";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");
   const adminSecret = process.env.ADMIN_SECRET;
-  if (!adminSecret || auth !== `Bearer ${adminSecret}`) {
+  if (!adminSecret || !auth || !safeEqual(auth, `Bearer ${adminSecret}`)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

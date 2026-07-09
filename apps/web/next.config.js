@@ -1,9 +1,26 @@
 /** @type {import('next').NextConfig} */
+// 'unsafe-eval' is only needed in dev (Next.js HMR / eval source maps). Drop it
+// in production to shrink the XSS attack surface. 'unsafe-inline' stays for now
+// because GTM/AdSense and Next's inline bootstrap need it; migrating to nonces
+// is a larger follow-up. ponytail: known ceiling — nonce-based script-src.
+const isProd = process.env.NODE_ENV === 'production';
+const scriptSrc = [
+  "script-src 'self' 'unsafe-inline'",
+  isProd ? '' : "'unsafe-eval'",
+  'https://pagead2.googlesyndication.com https://www.googletagmanager.com https://va.vercel-scripts.com https://api.indexnow.org',
+]
+  .filter(Boolean)
+  .join(' ');
+
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'X-XSS-Protection', value: '1; mode=block' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=63072000; includeSubDomains; preload',
+  },
   {
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=()',
@@ -12,7 +29,7 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://va.vercel-scripts.com https://api.indexnow.org",
+      scriptSrc,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https: http:",
       "font-src 'self' https://fonts.gstatic.com",

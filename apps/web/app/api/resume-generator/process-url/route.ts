@@ -36,6 +36,41 @@ function isPrivateIp(ip: string): boolean {
 }
 
 /**
+ * Validate that a URL is safe to fetch: well-formed, HTTPS, and resolves to a
+ * public address. Resolves ALL DNS records and rejects if any is private
+ * (defends against multi-record answers). Reused per redirect hop so a redirect
+ * cannot bounce the fetch to an internal/metadata address.
+ *
+ * ponytail: known ceiling — a single-hop DNS-rebinding TOCTOU remains between
+ * this lookup and fetch's own resolution. Closing it fully needs the request
+ * pinned to the validated IP via a custom undici dispatcher (connect-time
+ * check). Manual redirect re-validation below covers the practical SSRF path.
+ */
+async function validatePublicHttpsUrl(
+    raw: string
+): Promise<{ ok: true; parsed: URL } | { ok: false; error: string }> {
+    let parsed: URL;
+    try {
+        parsed = new URL(raw);
+    } catch {
+        return { ok: false, error: 'Invalid URL format' };
+    }
+    if (parsed.protocol !== 'https:') {
+        return { ok: false, error: 'Only HTTPS URLs are supported.' };
+    }
+    let addresses: { address: string }[];
+    try {
+        addresses = await dns.lookup(parsed.hostname, { all: true });
+    } catch {
+        return { ok: false, error: 'Could not resolve URL hostname.' };
+    }
+    if (addresses.length === 0 || addresses.some((a) => isPrivateIp(a.address))) {
+        return { ok: false, error: 'URL resolves to a private or reserved address.' };
+    }
+    return { ok: true, parsed };
+}
+
+/**
  * POST /api/resume-generator/process-url
  * Extract content from a URL (job posting, cloud resume link)
  */
@@ -56,36 +91,11 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Validate URL format and enforce HTTPS
-        let parsedUrl: URL;
-        try {
-            parsedUrl = new URL(url);
-        } catch {
+        // Validate URL format, enforce HTTPS, and reject private/internal IPs (SSRF).
+        const initialCheck = await validatePublicHttpsUrl(url);
+        if (!initialCheck.ok) {
             return NextResponse.json(
-                { success: false, error: 'Invalid URL format' },
-                { status: 400, headers: corsHeaders }
-            );
-        }
-
-        if (parsedUrl.protocol !== 'https:') {
-            return NextResponse.json(
-                { success: false, error: 'Only HTTPS URLs are supported.' },
-                { status: 400, headers: corsHeaders }
-            );
-        }
-
-        // SSRF protection: resolve hostname and reject private/internal IPs
-        try {
-            const resolved = await dns.lookup(parsedUrl.hostname);
-            if (isPrivateIp(resolved.address)) {
-                return NextResponse.json(
-                    { success: false, error: 'URL resolves to a private or reserved address.' },
-                    { status: 400, headers: corsHeaders }
-                );
-            }
-        } catch {
-            return NextResponse.json(
-                { success: false, error: 'Could not resolve URL hostname.' },
+                { success: false, error: initialCheck.error },
                 { status: 400, headers: corsHeaders }
             );
         }
@@ -101,16 +111,47 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Fetch the URL content
+        // Fetch the URL content. Follow redirects MANUALLY, re-validating each
+        // hop's target so a redirect can't send us to an internal/metadata
+        // address (SSRF). Bounded to a few hops.
         try {
-            const response = await fetch(url, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-US,en;q=0.5',
-                },
-                signal: AbortSignal.timeout(15000), // 15 second timeout
-            });
+            let currentUrl = initialCheck.parsed.toString();
+            let response: Response | null = null;
+
+            for (let hop = 0; hop < 4; hop++) {
+                response = await fetch(currentUrl, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'en-US,en;q=0.5',
+                    },
+                    redirect: 'manual',
+                    signal: AbortSignal.timeout(15000), // 15 second timeout
+                });
+
+                if (response.status >= 300 && response.status < 400) {
+                    const location = response.headers.get('location');
+                    if (!location) break;
+                    const nextUrl = new URL(location, currentUrl).toString();
+                    const hopCheck = await validatePublicHttpsUrl(nextUrl);
+                    if (!hopCheck.ok) {
+                        return NextResponse.json(
+                            { success: false, error: hopCheck.error },
+                            { status: 400, headers: corsHeaders }
+                        );
+                    }
+                    currentUrl = hopCheck.parsed.toString();
+                    continue;
+                }
+                break;
+            }
+
+            if (!response || (response.status >= 300 && response.status < 400)) {
+                return NextResponse.json(
+                    { success: false, error: 'Too many redirects.' },
+                    { status: 400, headers: corsHeaders }
+                );
+            }
 
             if (!response.ok) {
                 return NextResponse.json(

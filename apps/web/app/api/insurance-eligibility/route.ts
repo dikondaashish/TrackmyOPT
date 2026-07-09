@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
       visa_type,
       date_of_birth,
       has_employer_insurance,
-      user_id: bodyUserId,
     } = body;
 
     if (!state || !visa_type) {
@@ -78,8 +77,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sessionUserId = await getSessionUserId();
-    const userId = sessionUserId ?? bodyUserId ?? null;
+    // Derive user_id ONLY from the verified session. Anonymous submissions
+    // (lead-gen) are allowed and stored with user_id = null. A client can never
+    // attribute a check to another user by supplying user_id in the body.
+    const userId = await getSessionUserId();
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
