@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { BarChart3, Users2, Calendar } from "lucide-react";
+import { BarChart3, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CaseProcessingBenchmarks } from "@/components/dashboard/case-status/CaseProcessingBenchmarks";
-import { NearbyCasesCohort } from "@/components/dashboard/case-status/NearbyCasesCohort";
 import { PredictionPanel } from "@/components/dashboard/case-status/redesign/PredictionPanel";
 
-type TabId = "prediction" | "nearby" | "heatmap";
+type TabId = "prediction" | "heatmap";
 
 interface AnalyticsTabsProps {
   receiptNumber: string;
@@ -34,16 +33,14 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
-  { id: "prediction", label: "Prediction",     icon: <BarChart3 className="w-3.5 h-3.5" /> },
-  { id: "nearby",     label: "Nearby Cases",   icon: <Users2 className="w-3.5 h-3.5" /> },
-  { id: "heatmap",    label: "Heatmap",         icon: <Calendar className="w-3.5 h-3.5" /> },
+  { id: "prediction", label: "Prediction", icon: <BarChart3 className="w-3.5 h-3.5" /> },
+  { id: "heatmap", label: "Heatmap", icon: <Calendar className="w-3.5 h-3.5" /> },
 ];
 
 function ProcessingHeatmap() {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
   const buckets = ["<60d", "60–75d", "75–90d", "90–105d", "105–120d", "120d+"];
 
-  // Mock relative heat values (0–10); will replace with real data
   const heat: number[][] = [
     [8, 12, 18, 22, 14, 9],
     [6, 11, 21, 28, 17, 7],
@@ -103,12 +100,16 @@ function ProcessingHeatmap() {
   );
 }
 
-export function AnalyticsTabs({ receiptNumber, isPremium, onUpgrade, cohortSize = 0, daysSinceFiled = 0, prediction }: AnalyticsTabsProps) {
+export function AnalyticsTabs({
+  isPremium: _isPremium,
+  onUpgrade: _onUpgrade,
+  daysSinceFiled = 0,
+  prediction,
+}: AnalyticsTabsProps) {
   const [active, setActive] = useState<TabId>("prediction");
 
   return (
     <div>
-      {/* Tab bar */}
       <div className="flex gap-1 mb-4 border-b border-border overflow-x-auto">
         {TABS.map((tab) => (
           <button
@@ -127,29 +128,17 @@ export function AnalyticsTabs({ receiptNumber, isPremium, onUpgrade, cohortSize 
         ))}
       </div>
 
-      {/* Tab panels */}
       <div className="min-h-[200px]">
         {active === "prediction" && (
           <div className="space-y-5">
-            {/* Rich prediction summary (data-gated) */}
-            <PredictionPanel
-              daysSinceFiled={daysSinceFiled}
-              prediction={prediction}
-            />
-            {/* Community benchmarks below */}
+            <PredictionPanel daysSinceFiled={daysSinceFiled} prediction={prediction} />
             <div className="border-t border-border pt-4">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Community Reports</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                Community Reports
+              </p>
               <CaseProcessingBenchmarks />
             </div>
           </div>
-        )}
-
-        {active === "nearby" && (
-          <NearbyCasesCohort
-            receiptNumber={receiptNumber}
-            isPremium={isPremium}
-            onUpgrade={onUpgrade}
-          />
         )}
 
         {active === "heatmap" && <ProcessingHeatmap />}

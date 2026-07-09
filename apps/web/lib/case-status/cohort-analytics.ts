@@ -17,7 +17,14 @@ export type CohortCase = {
   isValid: boolean;
   category: CohortCaseCategory;
   isCenter: boolean;
+  /** When true, row came from quarantined neighbor-scan cache — exclude from analytics. */
+  quarantined?: boolean;
 };
+
+/** Exclude quarantined neighbor-scan cache rows from cohort analytics. */
+export function excludeQuarantinedCases(cases: CohortCase[]): CohortCase[] {
+  return cases.filter((c) => c.quarantined !== true);
+}
 
 export type DistributionItem = { label: string; count: number; pct: number };
 
@@ -97,9 +104,10 @@ export type CohortInput = {
 };
 
 export function computeCohortAnalytics({
-  cases,
+  cases: inputCases,
   totalRequested,
 }: CohortInput): CohortAnalytics {
+  const cases = excludeQuarantinedCases(inputCases);
   const valid = cases.filter((c) => c.category !== "invalid");
   const totalScanned = cases.length;
   const totalValid = valid.length;

@@ -52,16 +52,14 @@ function Bar({ count, max, isCurrentBucket }: { count: number; max: number; isCu
   );
 }
 
-function DataGate({ cohortSize, minCohort }: { cohortSize: number; minCohort: number }) {
+function DataGate({ minCohort }: { minCohort: number }) {
   return (
     <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
       <Search className="w-8 h-8 text-muted-foreground" />
       <p className="font-semibold text-foreground text-sm">Not enough data yet</p>
       <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
-        We need {minCohort}+ similar cases for reliable predictions.
-        {cohortSize > 0
-          ? ` Currently tracking ${cohortSize} nearby cases — check back soon.`
-          : " We'll update this as more cases are processed."}
+        We need {minCohort}+ completed community reports for reliable predictions.
+        Check back as more anonymized outcomes are shared.
       </p>
     </div>
   );
@@ -69,7 +67,7 @@ function DataGate({ cohortSize, minCohort }: { cohortSize: number; minCohort: nu
 
 export function PredictionPanel({ daysSinceFiled, prediction, minCohort = MIN_COHORT_DEFAULT }: PredictionPanelProps) {
   if (!prediction || prediction.cohortSize < minCohort) {
-    return <DataGate cohortSize={prediction?.cohortSize ?? 0} minCohort={minCohort} />;
+    return <DataGate minCohort={minCohort} />;
   }
 
   const { approvalRate, medianDays, estimatedDecisionRange, distribution, cohortPosition, cohortSize, fastestDays, approvalsLast24h } = prediction;
@@ -122,12 +120,12 @@ export function PredictionPanel({ daysSinceFiled, prediction, minCohort = MIN_CO
       <div className="flex flex-wrap gap-4 text-xs text-muted-foreground px-1">
         <span className="flex items-center gap-1.5">
           <Users2 className="w-3.5 h-3.5" />
-          {cohortSize} cases within ±100 receipts
+          {cohortSize} completed community reports
         </span>
         {fastestDays && (
           <span className="flex items-center gap-1.5">
             <Trophy className="w-3.5 h-3.5 text-amber-500" />
-            Fastest nearby: {fastestDays}d
+            Fastest reported: {fastestDays}d
           </span>
         )}
         {approvalsLast24h !== undefined && (
