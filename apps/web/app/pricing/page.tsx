@@ -25,6 +25,25 @@ export default function PricingPage() {
         })),
     };
 
+    const reviews = testimonials.map((t) => ({
+        "@type": "Review",
+        reviewBody: t.quote,
+        author: {
+            "@type": "Person",
+            name: t.name,
+            jobTitle: t.role,
+            affiliation: {
+                "@type": "EducationalOrganization",
+                name: t.university,
+            },
+        },
+        reviewRating: {
+            "@type": "Rating",
+            ratingValue: "5",
+            bestRating: "5",
+        },
+    }));
+
     const reviewSchema = {
         "@context": "https://schema.org",
         "@type": "Product",
@@ -33,24 +52,16 @@ export default function PricingPage() {
             "Automated OPT compliance tracking, USCIS deadline alerts, and career tools for F-1 students.",
         brand: { "@type": "Organization", name: "TrackMyOPT" },
         url: "https://www.trackmyopt.com/pricing",
-        review: testimonials.map((t) => ({
-            "@type": "Review",
-            reviewBody: t.quote,
-            author: {
-                "@type": "Person",
-                name: t.name,
-                jobTitle: t.role,
-                affiliation: {
-                    "@type": "EducationalOrganization",
-                    name: t.university,
-                },
-            },
-            reviewRating: {
-                "@type": "Rating",
-                ratingValue: "5",
-                bestRating: "5",
-            },
-        })),
+        review: reviews,
+        // Required by Google when a Product carries more than one Review,
+        // otherwise the review snippets are invalid ("Multiple reviews without
+        // aggregateRating object"). All testimonials are rated 5.
+        aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: "5",
+            reviewCount: reviews.length,
+            bestRating: "5",
+        },
     };
 
     return (
