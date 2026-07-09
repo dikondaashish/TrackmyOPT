@@ -96,11 +96,11 @@ await supabase.auth.signIn({ email, password });
 ```
 
 #### JWT Utilities (`lib/jwt.ts`)
-Mint and verify short-lived JWTs for extension auth:
+Mint and verify short-lived JWTs for extension auth. `mintToken` issues a **5-minute** service JWT bridging the web session cookie to the Chrome extension (the extension caches it for ≤5 min and refreshes on focus); `signToken` is a 10-minute alias. Both enforce `iss: trackmyopt-web` / `aud: trackmyopt-extension`, so tokens minted elsewhere won't validate.
 ```typescript
 import { mintToken, verifyToken } from '@/lib/auth/jwt';
 
-// Mint a token (5 min expiry)
+// Mint a short-lived (5 min) extension token
 const token = await mintToken({ userId, email });
 
 // Verify a token

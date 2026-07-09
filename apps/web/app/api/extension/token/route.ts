@@ -1,18 +1,17 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { signToken } from '@/lib/auth/jwt';
+import { mintToken } from '@/lib/auth/jwt';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
+import { secureLog } from '@/lib/secure-logger';
+import type { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const corsHeaders = (req: NextRequest) => corsHeadersWebAndExtension(req);
 
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+  return NextResponse.json({}, { headers: corsHeaders(req) });
 }
 
 /**
@@ -22,7 +21,7 @@ export async function OPTIONS() {
  * background/content flows that require Bearer auth still work without the
  * extension-only OAuth redirect.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -59,24 +58,25 @@ export async function GET() {
     if (error || !user) {
       return NextResponse.json(
         { error: 'Not authenticated' },
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: corsHeaders(req) }
       );
     }
 
-    const token = await signToken(
-      { userId: user.id, email: user.email ?? '' },
-      '10m'
-    );
+    // Short-lived (5 min) service JWT bridging the web session cookie to the
+    // extension. The extension already caches for <=5 min and refreshes on
+    // focus, so a 5-min expiry matches its refresh window and minimizes the
+    // window a leaked token is usable.
+    const token = await mintToken({ userId: user.id, email: user.email ?? '' });
 
     return NextResponse.json(
       { token },
-      { headers: { ...corsHeaders, 'Cache-Control': 'no-store' } }
+      { headers: { ...corsHeaders(req), 'Cache-Control': 'no-store' } }
     );
   } catch (e) {
-    console.error('extension token error:', e);
+    secureLog.error('extension token error', e);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: corsHeaders(req) }
     );
   }
 }

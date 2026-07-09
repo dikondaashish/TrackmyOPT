@@ -2,8 +2,8 @@ import { API_ENDPOINTS, WEBSITE_URL } from './config';
 import { performExtensionSignOut, EXTENSION_LOCAL_SIGNOUT_KEY } from './signOut';
 
 // ISS-039: cap the cached token TTL at 5 minutes and refresh on tab focus.
-// The web side issues 10-minute JWTs, so this gives us a quick check window
-// without re-hitting the token endpoint on every API call.
+// The web side now issues 5-minute JWTs (mintToken), matching this window so
+// the cached token never outlives the issued token.
 const TOKEN_TTL_MS = 5 * 60 * 1000;
 
 interface CachedTokenEntry {
