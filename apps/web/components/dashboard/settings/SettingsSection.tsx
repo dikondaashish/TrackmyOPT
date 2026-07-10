@@ -42,6 +42,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { SubscriptionSettings } from "./SubscriptionSettings";
+import { ApplicationProfileSection } from "./ApplicationProfileSection";
 import { OPT_TOOL_ICONS, type OptToolIconKey } from "@/lib/opt-tool-icons";
 
 const STEM_KEYWORDS = [
@@ -1455,6 +1456,7 @@ export function SettingsSection() {
                 </div>
               )}
 
+              <ApplicationProfileSection />
 
             </div>
           </div>

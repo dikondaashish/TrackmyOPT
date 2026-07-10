@@ -222,6 +222,13 @@ export async function GET(request: NextRequest) {
       console.error('Employment spans query error:', spansError);
     }
 
+    // Application profile (autofill data) — non-sensitive; null when not set yet.
+    const { data: applicationProfile } = await supabase
+      .from('application_profile')
+      .select('phone, city, state, years_experience, linkedin_url, portfolio_url')
+      .eq('user_id', userId)
+      .maybeSingle();
+
     // Calculate unemployment days if we have OPT status
     // Uses merged employment intervals to avoid overlap/double-count issues.
     let unemploymentDays = 0;
@@ -289,6 +296,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
           user: currentUser,
           profile,
+          applicationProfile: applicationProfile ?? null,
           optStatus: null,
           employmentSpans: employmentSpans || [],
           unemploymentDays: 0,
@@ -309,6 +317,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       user: currentUser,
       profile,
+      applicationProfile: applicationProfile ?? null,
       optStatus: status,
       employmentSpans: employmentSpans || [],
       unemploymentDays,

@@ -1,3 +1,5 @@
+import { clearIdToken, purgeLegacySyncToken } from './token-store';
+
 /** When true, the user chose extension-only sign-out; do not treat web cookies as extension auth. */
 export const EXTENSION_LOCAL_SIGNOUT_KEY = 'extensionLocalSignedOut';
 
@@ -7,12 +9,9 @@ export const EXTENSION_LOCAL_SIGNOUT_KEY = 'extensionLocalSignedOut';
  */
 export async function clearExtensionAuthStorage(): Promise<void> {
   const { theme } = await chrome.storage.sync.get('theme');
-  await chrome.storage.sync.remove([
-    'idToken',
-    'idTokenIssuedAt',
-    'idTokenUserId',
-    'signedIn',
-  ]);
+  await chrome.storage.sync.remove(['signedIn']);
+  await purgeLegacySyncToken(); // drop any legacy token that older builds put in sync
+  await clearIdToken(); // token now lives in local
   await chrome.storage.local.remove(['authToken', 'lastPage']);
   await chrome.storage.session.clear();
   await chrome.storage.sync.set({

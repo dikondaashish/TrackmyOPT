@@ -1,38 +1,17 @@
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
 import { performExtensionSignOut, EXTENSION_LOCAL_SIGNOUT_KEY } from './signOut';
+import { readCachedToken, setIdToken, clearIdToken, purgeLegacySyncToken } from './token-store';
+
+// One-time migration: older builds stored the JWT in chrome.storage.sync.
+// Purge any leftover so no credential material remains in synced storage.
+chrome.runtime.onInstalled.addListener(() => {
+  purgeLegacySyncToken().catch(() => {});
+});
 
 // ISS-039: cap the cached token TTL at 5 minutes and refresh on tab focus.
 // The web side now issues 5-minute JWTs (mintToken), matching this window so
 // the cached token never outlives the issued token.
 const TOKEN_TTL_MS = 5 * 60 * 1000;
-
-interface CachedTokenEntry {
-  token: string;
-  issuedAt: number;
-  userId?: string;
-}
-
-async function readCachedToken(): Promise<CachedTokenEntry | null> {
-  const { idToken, idTokenIssuedAt, idTokenUserId } = await chrome.storage.sync.get([
-    'idToken',
-    'idTokenIssuedAt',
-    'idTokenUserId',
-  ]);
-  if (typeof idToken !== 'string' || !idToken) return null;
-  return {
-    token: idToken,
-    issuedAt: typeof idTokenIssuedAt === 'number' ? idTokenIssuedAt : 0,
-    userId: typeof idTokenUserId === 'string' ? idTokenUserId : undefined,
-  };
-}
-
-async function writeCachedToken(token: string, userId?: string) {
-  await chrome.storage.sync.set({
-    idToken: token,
-    idTokenIssuedAt: Date.now(),
-    idTokenUserId: userId || null,
-  });
-}
 
 /** True if JWT `exp` is more than 60s in the future (matches popup refresh heuristic). */
 function isJwtNotExpired(token: string): boolean {
@@ -51,7 +30,7 @@ async function getExtensionBearerToken(forceRefresh = false): Promise<string | n
   const sync = await chrome.storage.sync.get(['signedIn', EXTENSION_LOCAL_SIGNOUT_KEY]);
   // Only extension-initiated disconnect blocks minting; `signedIn` alone may be stale after web re-login.
   if (sync[EXTENSION_LOCAL_SIGNOUT_KEY] === true) {
-    await chrome.storage.sync.remove(['idToken', 'idTokenIssuedAt', 'idTokenUserId']);
+    await clearIdToken();
     return null;
   }
 
@@ -77,7 +56,7 @@ async function getExtensionBearerToken(forceRefresh = false): Promise<string | n
     if (res.ok) {
       const data = (await res.json()) as { token?: string; userId?: string };
       if (!data.token) return null;
-      await writeCachedToken(data.token, data.userId);
+      await setIdToken(data.token, data.userId);
       await chrome.storage.sync.set({ signedIn: true });
       return data.token;
     }
@@ -90,7 +69,7 @@ async function getExtensionBearerToken(forceRefresh = false): Promise<string | n
     return cached.token;
   }
 
-  await chrome.storage.sync.remove(['idToken', 'idTokenIssuedAt', 'idTokenUserId']);
+  await clearIdToken();
   return null;
 }
 
@@ -122,7 +101,90 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       .catch((e) => sendResponse({ ok: false as const, error: e instanceof Error ? e.message : String(e) }));
     return true;
   }
+  if (msg.type === 'GET_AUTOFILL_PROFILE') {
+    // Resolve the user's name/email for Easy Apply prefill. The bearer token
+    // stays here — only these non-sensitive fields are returned to the content
+    // script running on linkedin.com.
+    getAutofillProfile()
+      .then((profile) => sendResponse(profile))
+      .catch(() => sendResponse({ ok: false as const, error: 'error' }));
+    return true;
+  }
 });
+
+interface AutofillProfile {
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  // application_profile fields (non-sensitive). Empty string when unset.
+  phone: string;
+  city: string;
+  state: string;
+  yearsExperience: string;
+  linkedinUrl: string;
+  portfolioUrl: string;
+}
+
+interface AutofillProfileResult {
+  ok: boolean;
+  error?: string;
+  profile?: AutofillProfile;
+}
+
+async function getAutofillProfile(): Promise<AutofillProfileResult> {
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+
+  const res = await fetch(API_ENDPOINTS.ME, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` },
+  });
+  if (!res.ok) return { ok: false, error: 'fetch_failed' };
+
+  const data = (await res.json()) as {
+    user?: { email?: string; user_metadata?: Record<string, unknown> };
+    profile?: { first_name?: string; last_name?: string; email?: string };
+    applicationProfile?: {
+      phone?: string | null;
+      city?: string | null;
+      state?: string | null;
+      years_experience?: number | null;
+      linkedin_url?: string | null;
+      portfolio_url?: string | null;
+    } | null;
+  };
+  const user = data.user ?? {};
+  const profile = data.profile ?? {};
+  const ap = data.applicationProfile ?? {};
+  const meta = (user.user_metadata ?? {}) as {
+    firstName?: string;
+    first_name?: string;
+    full_name?: string;
+  };
+
+  const fullNameMeta = (meta.full_name ?? '').trim();
+  const firstName = (profile.first_name || meta.firstName || meta.first_name || fullNameMeta.split(/\s+/)[0] || '').trim();
+  const lastName = (profile.last_name || fullNameMeta.split(/\s+/).slice(1).join(' ') || '').trim();
+  const fullName = fullNameMeta || [firstName, lastName].filter(Boolean).join(' ');
+  const email = (user.email || profile.email || '').trim();
+
+  return {
+    ok: true,
+    profile: {
+      firstName,
+      lastName,
+      fullName,
+      email,
+      phone: (ap.phone ?? '').trim(),
+      city: (ap.city ?? '').trim(),
+      state: (ap.state ?? '').trim(),
+      yearsExperience: ap.years_experience != null ? String(ap.years_experience) : '',
+      linkedinUrl: (ap.linkedin_url ?? '').trim(),
+      portfolioUrl: (ap.portfolio_url ?? '').trim(),
+    },
+  };
+}
 
 // External message listener (from web app)
 chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
@@ -285,14 +347,16 @@ async function beginAuth(){
                 [EXTENSION_LOCAL_SIGNOUT_KEY]: false,
               });
               
-              // Register extension session with server
-              const token = await chrome.storage.local.get('authToken');
-              if (token.authToken) {
+              // Register extension session with server. Use the real bearer
+              // token (minted into storage.local); the old 'authToken' key was
+              // never written, so this call previously never fired.
+              const bearer = await getExtensionBearerToken();
+              if (bearer) {
                 fetch(`${API_ENDPOINTS.ME.replace('/api/me', '/api/extension/ping')}`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.authToken}`,
+                    'Authorization': `Bearer ${bearer}`,
                   },
                   body: JSON.stringify({ version: chrome.runtime.getManifest().version }),
                 }).catch(() => {}); // Silently fail

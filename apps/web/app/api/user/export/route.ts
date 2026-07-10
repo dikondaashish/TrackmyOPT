@@ -50,6 +50,13 @@ export async function GET(request: NextRequest) {
       .eq('user_id', user.id)
       .order('start_date', { ascending: false });
 
+    // 5. Get application profile (autofill data)
+    const { data: applicationProfile } = await supabase
+      .from('application_profile')
+      .select('phone, city, state, years_experience, linkedin_url, portfolio_url')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
     if (format === 'csv') {
       // Create CSV
       const csvRows = [
@@ -100,6 +107,14 @@ export async function GET(request: NextRequest) {
         receiptNumber: caseStatus?.receipt_number || null,
         currentStatus: caseStatus?.current_status || null,
         lastCheckedAt: caseStatus?.last_checked_at || null,
+      },
+      applicationProfile: {
+        phone: applicationProfile?.phone || null,
+        city: applicationProfile?.city || null,
+        state: applicationProfile?.state || null,
+        yearsExperience: applicationProfile?.years_experience ?? null,
+        linkedinUrl: applicationProfile?.linkedin_url || null,
+        portfolioUrl: applicationProfile?.portfolio_url || null,
       },
       employmentSpans: employmentSpans || [],
     };

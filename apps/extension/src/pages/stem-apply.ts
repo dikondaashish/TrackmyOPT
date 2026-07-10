@@ -1,3 +1,4 @@
+import { getIdToken } from '../token-store';
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 import { icon } from '../icons.js';
@@ -368,7 +369,7 @@ async function loadSavedData(): Promise<any> {
 
     // If session cookies failed, try JWT token
     if (!response.ok) {
-      const { idToken } = await chrome.storage.sync.get('idToken');
+      const idToken = await getIdToken();
       if (idToken) {
         response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
           method: 'GET',
@@ -408,7 +409,7 @@ async function saveOptEadEndDate(optEadEndDate: string | null): Promise<boolean>
     };
 
     // Use JWT token for extension → website communication (more reliable than cookies)
-    const { idToken } = await chrome.storage.sync.get('idToken');
+    const idToken = await getIdToken();
     if (idToken) {
       const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
         method: 'POST',

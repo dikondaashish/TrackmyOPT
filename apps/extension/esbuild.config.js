@@ -41,6 +41,7 @@ const buildOptions = {
     'src/popup.ts',
     'src/content.ts',
     'src/content-job-portal.ts',
+    'src/easy-apply-fill.ts',
   ],
   bundle: true,
   outdir: 'dist',

@@ -1,3 +1,4 @@
+import { getIdToken } from '../token-store';
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
 import { icon } from '../icons.js';
@@ -47,7 +48,7 @@ function calculateTimeRemaining(targetDate: Date): {
  */
 async function checkPremiumStatus(): Promise<boolean> {
   try {
-    const { idToken } = await chrome.storage.sync.get('idToken');
+    const idToken = await getIdToken();
 
     // Try with idToken first (extension auth)
     if (idToken) {
@@ -100,7 +101,7 @@ async function loadToolEmail(tool: string): Promise<string | null> {
 
     // If session cookies failed, try JWT token
     if (!response.ok) {
-      const { idToken } = await chrome.storage.sync.get('idToken');
+      const idToken = await getIdToken();
       if (idToken) {
         response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
           method: 'GET',
@@ -138,7 +139,7 @@ async function saveToolEmail(tool: string, email: string): Promise<boolean> {
 
     // If session cookies failed, try JWT token
     if (!response.ok) {
-      const { idToken } = await chrome.storage.sync.get('idToken');
+      const idToken = await getIdToken();
       if (idToken) {
         response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
           method: 'POST',

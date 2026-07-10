@@ -1,5 +1,6 @@
 import { API_ENDPOINTS } from './config.js';
 import { EXTENSION_LOCAL_SIGNOUT_KEY } from './signOut.js';
+import { getIdToken, setIdToken } from './token-store.js';
 import { renderHome } from './home.js';
 import { renderLocked } from './locked.js';
 import { renderOptApply } from './pages/opt-apply.js';
@@ -39,7 +40,7 @@ async function isSignedIn(): Promise<boolean> {
       return false;
     }
 
-    const { idToken } = await chrome.storage.sync.get('idToken');
+    const idToken = await getIdToken();
 
     if (typeof idToken === 'string' && idToken.length > 0) {
       const bearerRes = await fetch(API_ENDPOINTS.ME, {
@@ -61,7 +62,7 @@ async function isSignedIn(): Promise<boolean> {
             if (tokenRes.ok) {
               const body = (await tokenRes.json()) as { token?: string };
               if (typeof body.token === 'string' && body.token.length > 0) {
-                await chrome.storage.sync.set({ idToken: body.token });
+                await setIdToken(body.token);
               }
             }
           }
@@ -81,7 +82,7 @@ async function isSignedIn(): Promise<boolean> {
     if (response.ok) {
       await chrome.storage.sync.set({ signedIn: true });
       try {
-        const { idToken: stored } = await chrome.storage.sync.get('idToken');
+        const stored = await getIdToken();
         const needsRefresh = typeof stored !== 'string' || !isTokenStillValid(stored);
         if (needsRefresh) {
           const tokenRes = await fetch(API_ENDPOINTS.EXTENSION_TOKEN, {

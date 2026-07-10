@@ -1,11 +1,11 @@
 {
   "name": "extension",
-  "version": "1.0.0",
+  "version": "0.1.11",
   "private": true,
   "description": "TrackMyOPT Chrome Extension",
   "scripts": {
     "dev": "node esbuild.config.js --watch",
-    "build": "node esbuild.config.js"
+    "build": "NODE_ENV=production node esbuild.config.js"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.254",

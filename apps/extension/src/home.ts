@@ -1,6 +1,15 @@
 import { API_ENDPOINTS } from './config';
 import { performExtensionSignOut } from './signOut';
 import { icon, themeToggleIcon } from './icons';
+import { getIdToken } from './token-store';
+
+/** Escape untrusted values before interpolating them into innerHTML. */
+function escapeHtml(value: unknown): string {
+  return String(value ?? '').replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string
+  );
+}
 
 /**
  * Renders the signed-in home screen with tool tiles
@@ -14,9 +23,9 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     if (res.ok) {
       const data = await res.json();
       if (data.isPremium && data.planName) {
-        const plan = data.planName.toUpperCase();
+        const plan = String(data.planName).toUpperCase();
         const badgeClass = plan === 'DEDICATED' ? 'badge-dedicated' : 'badge-pro';
-        planBadge = `<span class="plan-badge ${badgeClass}">${plan}</span>`;
+        planBadge = `<span class="plan-badge ${badgeClass}">${escapeHtml(plan)}</span>`;
       }
     }
   } catch (err) {
@@ -24,7 +33,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   }
 
   try {
-    const { idToken } = await chrome.storage.sync.get('idToken');
+    const idToken = await getIdToken();
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (typeof idToken === 'string' && idToken.length > 0) {
       headers.Authorization = `Bearer ${idToken}`;
@@ -47,8 +56,8 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
               <span class="case-status-label">${icon('fileText', 16)} Case Status</span>
               ${moreCases}
             </div>
-            <p class="case-status-receipt">${primary.receipt_number}</p>
-            <p class="case-status-text">${statusText}</p>
+            <p class="case-status-receipt">${escapeHtml(primary.receipt_number)}</p>
+            <p class="case-status-text">${escapeHtml(statusText)}</p>
           </a>
         `;
       }
@@ -188,6 +197,14 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       </div>
     </div>
 
+    <button id="scan-page-btn" type="button" title="Detect a job posting on the current tab and add it to your tracker" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
+      ${icon('fileText', 16)} Add a job from this page
+    </button>
+
+    <button id="prefill-easy-apply-btn" type="button" title="Prefill the open LinkedIn Easy Apply form — you review and submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
+      ${icon('checkCircle', 16)} Prefill LinkedIn Easy Apply
+    </button>
+
     <div class="notice">
       <div class="dot">${icon('shield', 18)}</div>
       <div>
@@ -227,6 +244,51 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         navigate();
       }
     });
+  });
+
+  // Manual job-detect trigger: inject the job-portal content script into the
+  // current tab on demand (activeTab). Covers career pages not in the static
+  // matches list now that the broad URL wildcards were removed.
+  const scanBtn = root.querySelector<HTMLButtonElement>('#scan-page-btn');
+  scanBtn?.addEventListener('click', async () => {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab?.id) return;
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['content-job-portal.js'],
+      });
+      window.close(); // close popup so the injected widget is visible
+    } catch {
+      /* restricted page (chrome://, Web Store, etc.) — injection not allowed */
+    }
+  });
+
+  // LinkedIn Easy Apply prefill (fill-only). Injects the prefill script into the
+  // current tab via activeTab. Only runs on linkedin.com; it fills the open
+  // Easy Apply form's identity fields and never submits.
+  const prefillBtn = root.querySelector<HTMLButtonElement>('#prefill-easy-apply-btn');
+  prefillBtn?.addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    let host = '';
+    try {
+      host = new URL(tab?.url ?? '').hostname;
+    } catch {
+      /* no URL */
+    }
+    if (!tab?.id || !/(^|\.)linkedin\.com$/.test(host)) {
+      prefillBtn.textContent = 'Open a LinkedIn Easy Apply page first';
+      return;
+    }
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['easy-apply-fill.js'],
+      });
+      window.close();
+    } catch {
+      prefillBtn.textContent = 'Cannot prefill on this page';
+    }
   });
 
   // Theme button - toggle between light and dark mode

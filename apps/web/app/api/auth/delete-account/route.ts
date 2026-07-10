@@ -158,7 +158,10 @@ export async function DELETE() {
     
     // Insurance eligibility data (table name: insurance_eligibility_checks)
     await supabaseAdmin.from('insurance_eligibility_checks').delete().eq('user_id', userId);
-    
+
+    // Application profile (autofill data)
+    await supabaseAdmin.from('application_profile').delete().eq('user_id', userId);
+
     // Policy consent records
     await supabaseAdmin.from('policy_consents').delete().eq('user_id', userId);
 
