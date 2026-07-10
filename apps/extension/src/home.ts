@@ -201,8 +201,8 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       ${icon('fileText', 16)} Add a job from this page
     </button>
 
-    <button id="prefill-easy-apply-btn" type="button" title="Prefill the open LinkedIn Easy Apply form — you review and submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
-      ${icon('checkCircle', 16)} Prefill LinkedIn Easy Apply
+    <button id="prefill-easy-apply-btn" type="button" title="Prefill the open application form (LinkedIn Easy Apply or Greenhouse) — you review and submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
+      ${icon('checkCircle', 16)} Prefill this application
     </button>
 
     <div class="notice">
@@ -264,9 +264,10 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     }
   });
 
-  // LinkedIn Easy Apply prefill (fill-only). Injects the prefill script into the
-  // current tab via activeTab. Only runs on linkedin.com; it fills the open
-  // Easy Apply form's identity fields and never submits.
+  // Application prefill (fill-only). Injects the prefill script into the current
+  // tab via activeTab on a supported ATS host; it fills the open form's identity
+  // fields and never submits. Supported: LinkedIn, Greenhouse.
+  const SUPPORTED_PREFILL_HOST = /(^|\.)(linkedin\.com|greenhouse\.io)$/;
   const prefillBtn = root.querySelector<HTMLButtonElement>('#prefill-easy-apply-btn');
   prefillBtn?.addEventListener('click', async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -276,8 +277,8 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     } catch {
       /* no URL */
     }
-    if (!tab?.id || !/(^|\.)linkedin\.com$/.test(host)) {
-      prefillBtn.textContent = 'Open a LinkedIn Easy Apply page first';
+    if (!tab?.id || !SUPPORTED_PREFILL_HOST.test(host)) {
+      prefillBtn.textContent = 'Open a LinkedIn or Greenhouse application page';
       return;
     }
     try {

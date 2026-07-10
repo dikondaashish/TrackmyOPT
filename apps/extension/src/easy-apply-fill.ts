@@ -1,20 +1,25 @@
 /**
- * TrackMyOPT — LinkedIn Easy Apply prefill (FILL-ONLY, slice 1).
+ * TrackMyOPT — job application prefill (FILL-ONLY).
  *
- * Injected on demand via activeTab when the user clicks "Prefill Easy Apply" in
- * the popup. It fills the visible identity text fields of the OPEN Easy Apply
- * modal from the user's TrackMyOPT profile, then stops and gets out of the way.
+ * Injected on demand via activeTab when the user clicks "Prefill this
+ * application" in the popup. It fills the visible identity text fields of a
+ * supported, OPEN application form from the user's TrackMyOPT profile, then
+ * stops and gets out of the way. Supported platforms: LinkedIn Easy Apply,
+ * Greenhouse. All platform logic shares ONE set of matchers + safety rules.
  *
- * HARD INVARIANTS — do not change without product + compliance sign-off:
+ * HARD INVARIANTS — do not change without product + compliance sign-off. These
+ * apply to EVERY platform, no exceptions:
  *  1. NEVER clicks any button. No Submit / Next / Review / Done automation.
  *     (There is intentionally not a single button-click or .click() in here.)
  *  2. NEVER fills work-authorization / visa / sponsorship / EEO / salary / DOB /
  *     SSN fields. Those are the user's to answer (see SENSITIVE_FIELD_RE).
  *  3. NEVER overwrites a value the user already entered.
- *  4. No timers/delays for evasion, no job-card loop. One open modal, once.
+ *  4. NEVER fills combobox / autocomplete / typeahead widgets (see
+ *     isComboboxLike) — the user picks those from the dropdown.
+ *  5. No timers/delays for evasion, no loop. One open form, once.
  *
  * The JWT never reaches this script: it asks the background worker for the
- * resolved profile (name/email only); the token stays in the background.
+ * resolved profile; the token stays in the background.
  */
 
 import { classifyField, type FieldKind } from './easy-apply-matchers';
@@ -24,10 +29,16 @@ interface AutofillProfile {
   lastName: string;
   fullName: string;
   email: string;
+  phone: string;
+  city: string;
+  state: string;
+  yearsExperience: string;
+  linkedinUrl: string;
+  portfolioUrl: string;
 }
 
 const TOAST_ID = 'tmo-easy-apply-toast';
-const FILLABLE_INPUT_TYPES = new Set(['text', 'email']);
+const FILLABLE_INPUT_TYPES = new Set(['text', 'email', 'tel', 'url', 'number']);
 
 /** Build a lowercased label string for a control from every nearby signal. */
 function getLabelText(el: HTMLElement): string {
@@ -54,8 +65,24 @@ function getLabelText(el: HTMLElement): string {
   return parts.join(' ');
 }
 
-/** A control is fillable only if visible, enabled, empty, and a text/email input or textarea. */
+/**
+ * True for react-select / autocomplete / typeahead widgets. Their visible
+ * <input> is a combobox: setting .value shows text but does NOT register a
+ * real selection, so filling one is misleading. Never fill these — the user
+ * picks from the dropdown themselves. (Greenhouse Country/EEO dropdowns, a
+ * LinkedIn location typeahead, etc.)
+ */
+function isComboboxLike(el: HTMLElement): boolean {
+  return (
+    el.getAttribute('role') === 'combobox' ||
+    el.hasAttribute('aria-autocomplete') ||
+    el.classList.contains('select__input')
+  );
+}
+
+/** A control is fillable only if visible, enabled, empty, a text-like input or textarea, and not a combobox. */
 function isFillable(el: HTMLElement): el is HTMLInputElement | HTMLTextAreaElement {
+  if (isComboboxLike(el)) return false;
   if (el instanceof HTMLTextAreaElement) {
     return isVisibleEditableEmpty(el);
   }
@@ -85,6 +112,20 @@ function valueForKind(kind: FieldKind, p: AutofillProfile): string {
       return p.lastName;
     case 'fullName':
       return p.fullName || [p.firstName, p.lastName].filter(Boolean).join(' ');
+    case 'phone':
+      return p.phone;
+    case 'city':
+      return p.city;
+    case 'state':
+      return p.state;
+    case 'location':
+      return [p.city, p.state].filter(Boolean).join(', ');
+    case 'yearsExperience':
+      return p.yearsExperience;
+    case 'linkedinUrl':
+      return p.linkedinUrl;
+    case 'portfolioUrl':
+      return p.portfolioUrl;
   }
 }
 
@@ -119,12 +160,30 @@ function showToast(message: string): void {
   setTimeout(() => el.remove(), 8000);
 }
 
-(async function run(): Promise<void> {
-  const modal = document.querySelector<HTMLElement>(
+/**
+ * Locate the application form to scope filling to. Supported platforms:
+ *  - LinkedIn Easy Apply modal
+ *  - Greenhouse application form (job-boards.greenhouse.io / boards.greenhouse.io)
+ * Returns null when no supported form is present on the page.
+ */
+function findApplicationForm(): HTMLElement | null {
+  const linkedin = document.querySelector<HTMLElement>(
     '.jobs-easy-apply-modal, [data-test-modal-id="easy-apply-modal"]'
   );
-  if (!modal) {
-    showToast('Open a LinkedIn Easy Apply form first, then click Prefill.');
+  if (linkedin) return linkedin;
+
+  const greenhouse = document.querySelector<HTMLElement>(
+    'form#application-form, form#application_form, form.application--form'
+  );
+  if (greenhouse) return greenhouse;
+
+  return null;
+}
+
+(async function run(): Promise<void> {
+  const container = findApplicationForm();
+  if (!container) {
+    showToast('Open a supported application form (LinkedIn Easy Apply or Greenhouse) first, then click Prefill.');
     return;
   }
 
@@ -142,7 +201,7 @@ function showToast(message: string): void {
   }
 
   const profile = resp.profile;
-  const controls = Array.from(modal.querySelectorAll<HTMLElement>('input, textarea'));
+  const controls = Array.from(container.querySelectorAll<HTMLElement>('input, textarea'));
   let filled = 0;
   const kinds: string[] = [];
 

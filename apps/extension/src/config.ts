@@ -1,17 +1,18 @@
 /**
  * Configuration for the TrackMyOPT Chrome Extension
  *
- * NODE_ENV is injected by esbuild at build time (see esbuild.config.js). The
- * `build` script forces NODE_ENV=production so release builds always target the
- * live site; `dev`/`--watch` builds default to development and hit localhost.
+ * Targets the LIVE site (https://www.trackmyopt.com) by default, so any build —
+ * `build` or `dev`/`--watch` — "just works" against production for sign-in, the
+ * API, and prefill. Only an explicit EXT_TARGET=local build points at a local
+ * Next.js dev server (see the `dev:local` script). EXT_TARGET is injected by
+ * esbuild at build time (see esbuild.config.js).
  */
 
-const IS_PROD = process.env.NODE_ENV === 'production';
-
-// Production: the live site. Development: local Next.js dev server.
-export const WEBSITE_URL = IS_PROD
-  ? 'https://www.trackmyopt.com'
-  : 'http://localhost:3000';
+// Default: live site. Opt into localhost ONLY with EXT_TARGET=local.
+export const WEBSITE_URL =
+  process.env.EXT_TARGET === 'local'
+    ? 'http://localhost:3000'
+    : 'https://www.trackmyopt.com';
 
 export const API_ENDPOINTS = {
   ME: `${WEBSITE_URL}/api/me`,

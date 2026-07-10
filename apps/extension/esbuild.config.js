@@ -53,6 +53,8 @@ const buildOptions = {
     'process.env.NODE_ENV': JSON.stringify(
       process.env.NODE_ENV || 'development'
     ),
+    // '' (default) -> live site; 'local' -> localhost. See src/config.ts.
+    'process.env.EXT_TARGET': JSON.stringify(process.env.EXT_TARGET || ''),
   },
 };
 

@@ -5,7 +5,8 @@
   "description": "TrackMyOPT Chrome Extension",
   "scripts": {
     "dev": "node esbuild.config.js --watch",
-    "build": "NODE_ENV=production node esbuild.config.js"
+    "dev:local": "EXT_TARGET=local node esbuild.config.js --watch",
+    "build": "node esbuild.config.js"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.254",
