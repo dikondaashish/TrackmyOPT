@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "Many international students accept the first offer they get because they fear losing H-1B sponsorship. Here is how to negotiate without risking the offer.",
         type: "article",
         url: "https://trackmyopt.com/blog/salary-negotiation-international-workers-opt",
-        images: [{ url: "/blog/salary-negotiation-international-workers-opt.png", width: 1200, height: 630, alt: "A desk with an offer letter, a smartphone calculator, and financial documents" }],
+        images: [{ url: "/blog/salary-negotiation-international-workers-opt.jpg", width: 1200, height: 630, alt: "A desk with an offer letter, a smartphone calculator, and financial documents" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/salary-negotiation-international-workers-opt" }
 };
@@ -34,7 +34,7 @@ export default function SalaryNegotiationPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/salary-negotiation-international-workers-opt.png" alt="A desk with an offer letter, a smartphone calculator, and financial documents" className="object-cover w-full h-full" />
+                <img src="/blog/salary-negotiation-international-workers-opt.jpg" alt="A desk with an offer letter, a smartphone calculator, and financial documents" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">When an employer finally says "Yes, we will sponsor your H-1B," the immediate instinct for an international student is to sign the offer letter immediately. The fear is that if you push for more money, they will realize you are too "expensive" or "difficult" and rescind the offer. This fear costs international students thousands of dollars every year.</p>

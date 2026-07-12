@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "The ticking unemployment clock and the H-1B lottery take a severe toll on international students' mental health. Here is how to cope and find support.",
         type: "article",
         url: "https://trackmyopt.com/blog/opt-anxiety-mental-health-international-students",
-        images: [{ url: "/blog/opt-anxiety-mental-health-international-students.png", width: 1200, height: 630, alt: "A calm desk setup with a journal, herbal tea, and a smartphone showing a mindfulness app" }],
+        images: [{ url: "/blog/opt-anxiety-mental-health-international-students.jpg", width: 1200, height: 630, alt: "A calm desk setup with a journal, herbal tea, and a smartphone showing a mindfulness app" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/opt-anxiety-mental-health-international-students" }
 };
@@ -34,7 +34,7 @@ export default function OPTAnxietyPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/opt-anxiety-mental-health-international-students.png" alt="A calm desk setup with a journal, herbal tea, and a smartphone showing a mindfulness app" className="object-cover w-full h-full" />
+                <img src="/blog/opt-anxiety-mental-health-international-students.jpg" alt="A calm desk setup with a journal, herbal tea, and a smartphone showing a mindfulness app" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">No one warns you about the emotional toll of the US immigration system. The moment you graduate, a literal countdown clock begins. You have 90 days to find a job in a brutal market, all while answering to family expectations back home and facing the looming uncertainty of a random H-1B lottery. It is entirely normal to feel overwhelmed.</p>

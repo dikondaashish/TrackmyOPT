@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "Expected $3,000 but got $2,100? Learn every deduction on your pay stub and which ones F-1 students on OPT are actually exempt from.",
         type: "article",
         url: "https://trackmyopt.com/blog/first-us-paycheck-deductions-w4",
-        images: [{ url: "/blog/first-us-paycheck-deductions-w4.png", width: 1200, height: 630, alt: "Pay stub showing gross pay and deductions next to a W-4 form and a phone with a direct deposit notification" }],
+        images: [{ url: "/blog/first-us-paycheck-deductions-w4.jpg", width: 1200, height: 630, alt: "Pay stub showing gross pay and deductions next to a W-4 form and a phone with a direct deposit notification" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/first-us-paycheck-deductions-w4" }
 };
@@ -34,7 +34,7 @@ export default function FirstPaycheckPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/first-us-paycheck-deductions-w4.png" alt="Pay stub showing gross pay and deductions next to a W-4 form and a phone with a direct deposit notification" className="object-cover w-full h-full" />
+                <img src="/blog/first-us-paycheck-deductions-w4.jpg" alt="Pay stub showing gross pay and deductions next to a W-4 form and a phone with a direct deposit notification" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You started your OPT job, worked hard for two weeks, and excitedly opened your first pay stub. The gross pay says $3,000, but the net pay (what you actually received) is only $2,100. Where did the other $900 go? Let's break down every single deduction line by line.</p>

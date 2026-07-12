@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "Every state has different DMV requirements for F-1 students. Learn what documents to bring and how to get a REAL ID-compliant license.",
         type: "article",
         url: "https://trackmyopt.com/blog/drivers-license-opt-state-requirements",
-        images: [{ url: "/blog/drivers-license-opt-state-requirements.png", width: 1200, height: 630, alt: "US driver's license with REAL ID gold star next to an I-20 and passport" }],
+        images: [{ url: "/blog/drivers-license-opt-state-requirements.jpg", width: 1200, height: 630, alt: "US driver's license with REAL ID gold star next to an I-20 and passport" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/drivers-license-opt-state-requirements" }
 };
@@ -34,7 +34,7 @@ export default function DriversLicensePage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/drivers-license-opt-state-requirements.png" alt="US driver's license with REAL ID gold star next to an I-20 and passport" className="object-cover w-full h-full" />
+                <img src="/blog/drivers-license-opt-state-requirements.jpg" alt="US driver's license with REAL ID gold star next to an I-20 and passport" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">A US driver's license is more than just a license to drive. It is your primary form of identification in America. You will use it to open bank accounts, pick up packages, enter bars, board domestic flights (if REAL ID compliant), and verify your identity at job interviews. Here is how F-1 students on OPT can get one.</p>

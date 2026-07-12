@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "You only get 12 months of OPT. No extensions. Here is how business, arts, and humanities majors can secure sponsorship before time runs out.",
         type: "article",
         url: "https://trackmyopt.com/blog/opt-non-stem-majors-guide",
-        images: [{ url: "/blog/opt-non-stem-majors-guide.png", width: 1200, height: 630, alt: "Laptop showing a marketing strategy presentation next to a sketchbook and an EAD card" }],
+        images: [{ url: "/blog/opt-non-stem-majors-guide.jpg", width: 1200, height: 630, alt: "Laptop showing a marketing strategy presentation next to a sketchbook and an EAD card" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/opt-non-stem-majors-guide" }
 };
@@ -34,7 +34,7 @@ export default function NonStemOPTPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/opt-non-stem-majors-guide.png" alt="Laptop showing a marketing strategy presentation next to a sketchbook and an EAD card" className="object-cover w-full h-full" />
+                <img src="/blog/opt-non-stem-majors-guide.jpg" alt="Laptop showing a marketing strategy presentation next to a sketchbook and an EAD card" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Let's address the elephant in the room: being a non-STEM international student in the US is playing the game on "Hard Mode." While your engineering peers get 3 years (36 months) of work authorization and 3 chances at the H-1B lottery, you get exactly 12 months. One year. One lottery chance. Here is how you survive and thrive.</p>

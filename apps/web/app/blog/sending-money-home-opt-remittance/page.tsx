@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "You are earning your first US salary. Here is exactly how to send money to your family back home without losing hundreds to bank wire fees.",
         type: "article",
         url: "https://trackmyopt.com/blog/sending-money-home-opt-remittance",
-        images: [{ url: "/blog/sending-money-home-opt-remittance.png", width: 1200, height: 630, alt: "Smartphone showing a Wise money transfer app next to US dollar bills and a small globe" }],
+        images: [{ url: "/blog/sending-money-home-opt-remittance.jpg", width: 1200, height: 630, alt: "Smartphone showing a Wise money transfer app next to US dollar bills and a small globe" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/sending-money-home-opt-remittance" }
 };
@@ -34,7 +34,7 @@ export default function SendingMoneyHomePage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/sending-money-home-opt-remittance.png" alt="Smartphone showing a Wise money transfer app next to US dollar bills and a small globe" className="object-cover w-full h-full" />
+                <img src="/blog/sending-money-home-opt-remittance.jpg" alt="Smartphone showing a Wise money transfer app next to US dollar bills and a small globe" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">When you start earning in US dollars on OPT, one of the first things you will want to do is send money back to support your family, repay education loans, or simply save in your home currency. Traditional bank wire transfers can cost $25-50 per transaction <em>plus</em> a 3-5% exchange rate markup. Here are much better options.</p>

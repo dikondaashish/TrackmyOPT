@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "You are earning a US salary on OPT. Can you invest it? Learn the tax rules for stocks, cryptocurrency, employer 401(k), and required FBAR filings.",
         type: "article",
         url: "https://trackmyopt.com/blog/investing-stocks-crypto-401k-opt-tax",
-        images: [{ url: "/blog/investing-stocks-crypto-401k-opt-tax.png", width: 1200, height: 630, alt: "Laptop showing a 401k contribution page next to a smartphone with a stock portfolio tracker" }],
+        images: [{ url: "/blog/investing-stocks-crypto-401k-opt-tax.jpg", width: 1200, height: 630, alt: "Laptop showing a 401k contribution page next to a smartphone with a stock portfolio tracker" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/investing-stocks-crypto-401k-opt-tax" }
 };
@@ -34,7 +34,7 @@ export default function InvestingOnOPTPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/investing-stocks-crypto-401k-opt-tax.png" alt="Laptop showing a 401k contribution page next to a smartphone with a stock portfolio tracker" className="object-cover w-full h-full" />
+                <img src="/blog/investing-stocks-crypto-401k-opt-tax.jpg" alt="Laptop showing a 401k contribution page next to a smartphone with a stock portfolio tracker" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You just received your first US paycheck on OPT. After paying rent and groceries, you want to start investing. The good news: <strong>F-1 students on OPT are 100% legally allowed to invest</strong> in US stocks, bonds, ETFs, mutual funds, cryptocurrency, and even real estate. But the tax treatment is dramatically different from what US citizens and residents face.</p>

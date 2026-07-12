@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "Moving from your college town to a new city for your OPT job? Do not forget the mandatory SEVIS address update. Here is the full checklist.",
         type: "article",
         url: "https://trackmyopt.com/blog/relocating-for-opt-job-moving-states",
-        images: [{ url: "/blog/relocating-for-opt-job-moving-states.png", width: 1200, height: 630, alt: "Moving boxes with a laptop showing apartment listings and a US map with a route drawn" }],
+        images: [{ url: "/blog/relocating-for-opt-job-moving-states.jpg", width: 1200, height: 630, alt: "Moving boxes with a laptop showing apartment listings and a US map with a route drawn" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/relocating-for-opt-job-moving-states" }
 };
@@ -34,7 +34,7 @@ export default function RelocatingPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/relocating-for-opt-job-moving-states.png" alt="Moving boxes with a laptop showing apartment listings and a US map with a route drawn" className="object-cover w-full h-full" />
+                <img src="/blog/relocating-for-opt-job-moving-states.jpg" alt="Moving boxes with a laptop showing apartment listings and a US map with a route drawn" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Congratulations on landing your OPT job! But there is a catch: the job is in San Francisco, and you went to school in Boston. Moving across the country as an international student involves a lot more than just packing boxes. Here is the immigration-critical checklist you must follow.</p>

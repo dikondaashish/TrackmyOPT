@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "Running out of your 90 days of OPT unemployment? You can legally stop the clock by volunteering—if you follow these strict rules.",
         type: "article",
         url: "https://trackmyopt.com/blog/volunteer-work-opt-employment-rules",
-        images: [{ url: "/blog/volunteer-work-opt-employment-rules.png", width: 1200, height: 630, alt: "Clipboard with a volunteer sign-in sheet next to a volunteer agreement form and an EAD card" }],
+        images: [{ url: "/blog/volunteer-work-opt-employment-rules.jpg", width: 1200, height: 630, alt: "Clipboard with a volunteer sign-in sheet next to a volunteer agreement form and an EAD card" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/volunteer-work-opt-employment-rules" }
 };
@@ -34,7 +34,7 @@ export default function VolunteerWorkPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/volunteer-work-opt-employment-rules.png" alt="Clipboard with a volunteer sign-in sheet next to a volunteer agreement form and an EAD card" className="object-cover w-full h-full" />
+                <img src="/blog/volunteer-work-opt-employment-rules.jpg" alt="Clipboard with a volunteer sign-in sheet next to a volunteer agreement form and an EAD card" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You are 60 days into your 90-day unemployment allowance, and you still haven't found a paid job. Panic is setting in. Before your SEVIS record is terminated, there is a legal lifeline: <strong>Unpaid volunteer work or unpaid internships count as employment on standard OPT.</strong> But you cannot just volunteer anywhere.</p>

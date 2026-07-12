@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         url: "https://trackmyopt.com/blog/j1-waiver-212e-two-year-home-residency",
         images: [
             {
-                url: "/blog/j1-waiver-212e-two-year-home-residency.png",
+                url: "/blog/j1-waiver-212e-two-year-home-residency.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Embassy No Objection Statement letter next to a US passport with a J-1 visa stamp and a DS-2019",
@@ -58,7 +58,7 @@ export default function J1WaiverPage() {
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
                 <img
-                    src="/blog/j1-waiver-212e-two-year-home-residency.png"
+                    src="/blog/j1-waiver-212e-two-year-home-residency.jpg"
                     alt="Embassy No Objection Statement letter next to a US passport with a J-1 visa stamp and a DS-2019"
                     className="object-cover w-full h-full"
                 />

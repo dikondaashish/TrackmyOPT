@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "The Applicant Tracking System (ATS) is designed to filter out international students. Here is how to bypass the algorithm through strategic networking.",
         type: "article",
         url: "https://trackmyopt.com/blog/networking-international-student-sponsorship",
-        images: [{ url: "/blog/networking-international-student-sponsorship.png", width: 1200, height: 630, alt: "A conference name tag, a stack of business cards, and a smartphone showing an email draft" }],
+        images: [{ url: "/blog/networking-international-student-sponsorship.jpg", width: 1200, height: 630, alt: "A conference name tag, a stack of business cards, and a smartphone showing an email draft" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/networking-international-student-sponsorship" }
 };
@@ -34,7 +34,7 @@ export default function NetworkingPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/networking-international-student-sponsorship.png" alt="A conference name tag, a stack of business cards, and a smartphone showing an email draft" className="object-cover w-full h-full" />
+                <img src="/blog/networking-international-student-sponsorship.jpg" alt="A conference name tag, a stack of business cards, and a smartphone showing an email draft" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">If you are an international student spending 6 hours a day clicking "Easy Apply" on LinkedIn or submitting resumes to company portals, you are wasting your time. The moment you check the box that says "I will require sponsorship in the future," the ATS (Applicant Tracking System) automatically rejects or deprioritizes your application at most companies.</p>

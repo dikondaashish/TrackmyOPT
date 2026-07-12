@@ -739,7 +739,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["J-1 Visa", "212e Waiver", "Immigration"],
         featured: false,
-        image: "/blog/j1-waiver-212e-two-year-home-residency.png"
+        image: "/blog/j1-waiver-212e-two-year-home-residency.jpg"
     },
     {
         slug: "h4-ead-opt-spouse-work-authorization",
@@ -750,7 +750,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["H-4 EAD", "Spouse Work", "Dependent Visas"],
         featured: false,
-        image: "/blog/h4-ead-opt-spouse-work-authorization.png"
+        image: "/blog/h4-ead-opt-spouse-work-authorization.jpg"
     },
     {
         slug: "f2-dependent-visa-rules-opt-students",
@@ -761,7 +761,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["F-2 Visa", "Family", "Dependent Visas"],
         featured: false,
-        image: "/blog/f2-dependent-visa-rules-opt-students.png"
+        image: "/blog/f2-dependent-visa-rules-opt-students.jpg"
     },
     {
         slug: "investing-stocks-crypto-401k-opt-tax",
@@ -772,7 +772,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Investing", "Taxes", "Finance"],
         featured: false,
-        image: "/blog/investing-stocks-crypto-401k-opt-tax.png"
+        image: "/blog/investing-stocks-crypto-401k-opt-tax.jpg"
     },
     {
         slug: "sending-money-home-opt-remittance",
@@ -783,7 +783,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Remittance", "Finance", "Life in US"],
         featured: false,
-        image: "/blog/sending-money-home-opt-remittance.png"
+        image: "/blog/sending-money-home-opt-remittance.jpg"
     },
     {
         slug: "first-us-paycheck-deductions-w4",
@@ -794,7 +794,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Paycheck", "W-4", "FICA Exemption"],
         featured: false,
-        image: "/blog/first-us-paycheck-deductions-w4.png"
+        image: "/blog/first-us-paycheck-deductions-w4.jpg"
     },
     {
         slug: "relocating-for-opt-job-moving-states",
@@ -805,7 +805,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Relocation", "Address Change", "Compliance"],
         featured: false,
-        image: "/blog/relocating-for-opt-job-moving-states.png"
+        image: "/blog/relocating-for-opt-job-moving-states.jpg"
     },
     {
         slug: "drivers-license-opt-state-requirements",
@@ -816,7 +816,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Driver License", "REAL ID", "DMV"],
         featured: false,
-        image: "/blog/drivers-license-opt-state-requirements.png"
+        image: "/blog/drivers-license-opt-state-requirements.jpg"
     },
     {
         slug: "freelance-gig-work-uber-doordash-opt",
@@ -827,7 +827,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Freelance", "Gig Work", "1099"],
         featured: false,
-        image: "/blog/freelance-gig-work-uber-doordash-opt.png"
+        image: "/blog/freelance-gig-work-uber-doordash-opt.jpg"
     },
     {
         slug: "volunteer-work-opt-employment-rules",
@@ -838,7 +838,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Volunteer", "Unpaid Work", "Unemployment"],
         featured: false,
-        image: "/blog/volunteer-work-opt-employment-rules.png"
+        image: "/blog/volunteer-work-opt-employment-rules.jpg"
     },
     {
         slug: "multiple-jobs-opt-two-employers",
@@ -849,7 +849,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Multiple Jobs", "STEM OPT", "Compliance"],
         featured: false,
-        image: "/blog/multiple-jobs-opt-two-employers.png"
+        image: "/blog/multiple-jobs-opt-two-employers.jpg"
     },
     {
         slug: "linkedin-optimization-f1-h1b-sponsorship",
@@ -860,7 +860,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["LinkedIn", "Networking", "H-1B"],
         featured: false,
-        image: "/blog/linkedin-optimization-f1-h1b-sponsorship.png"
+        image: "/blog/linkedin-optimization-f1-h1b-sponsorship.jpg"
     },
     {
         slug: "opt-non-stem-majors-guide",
@@ -871,7 +871,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Non-STEM", "O-1 Visa", "H-1B"],
         featured: false,
-        image: "/blog/opt-non-stem-majors-guide.png"
+        image: "/blog/opt-non-stem-majors-guide.jpg"
     },
     {
         slug: "opt-anxiety-mental-health-international-students",
@@ -882,7 +882,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Anxiety", "Mental Health", "Wellness"],
         featured: false,
-        image: "/blog/opt-anxiety-mental-health-international-students.png"
+        image: "/blog/opt-anxiety-mental-health-international-students.jpg"
     },
     {
         slug: "60-day-grace-period-f1-students",
@@ -893,7 +893,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Grace Period", "F-1 Status", "Compliance"],
         featured: false,
-        image: "/blog/60-day-grace-period-f1-students.png"
+        image: "/blog/60-day-grace-period-f1-students.jpg"
     },
     {
         slug: "opt-mba-students-career-paths",
@@ -904,7 +904,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["MBA", "STEM", "H-1B"],
         featured: false,
-        image: "/blog/opt-mba-students-career-paths.png"
+        image: "/blog/opt-mba-students-career-paths.jpg"
     },
     {
         slug: "salary-negotiation-international-workers-opt",
@@ -915,7 +915,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Negotiation", "H-1B", "Salary"],
         featured: false,
-        image: "/blog/salary-negotiation-international-workers-opt.png"
+        image: "/blog/salary-negotiation-international-workers-opt.jpg"
     },
     {
         slug: "networking-international-student-sponsorship",
@@ -926,7 +926,7 @@ const blogPosts = [
         date: "July 12, 2026",
         tags: ["Networking", "H-1B", "Career Tips"],
         featured: false,
-        image: "/blog/networking-international-student-sponsorship.png"
+        image: "/blog/networking-international-student-sponsorship.jpg"
     },
 ];
 

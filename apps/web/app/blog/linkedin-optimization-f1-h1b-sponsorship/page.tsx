@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "Stop hiding your immigration status on LinkedIn. Learn how to strategically position yourself to attract recruiters who actually offer H-1B sponsorship.",
         type: "article",
         url: "https://trackmyopt.com/blog/linkedin-optimization-f1-h1b-sponsorship",
-        images: [{ url: "/blog/linkedin-optimization-f1-h1b-sponsorship.png", width: 1200, height: 630, alt: "Laptop showing a LinkedIn profile page with an Open to Work badge next to a resume" }],
+        images: [{ url: "/blog/linkedin-optimization-f1-h1b-sponsorship.jpg", width: 1200, height: 630, alt: "Laptop showing a LinkedIn profile page with an Open to Work badge next to a resume" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/linkedin-optimization-f1-h1b-sponsorship" }
 };
@@ -34,7 +34,7 @@ export default function LinkedInOptimizationPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/linkedin-optimization-f1-h1b-sponsorship.png" alt="Laptop showing a LinkedIn profile page with an Open to Work badge next to a resume" className="object-cover w-full h-full" />
+                <img src="/blog/linkedin-optimization-f1-h1b-sponsorship.jpg" alt="Laptop showing a LinkedIn profile page with an Open to Work badge next to a resume" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Most international students make a fatal mistake on LinkedIn: they try to look exactly like domestic applicants. But recruiters using LinkedIn Recruiter have filters specifically for work authorization. If you don't optimize your profile correctly, you will waste time interviewing with companies that have a strict "no sponsorship" policy.</p>

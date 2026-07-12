@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         url: "https://trackmyopt.com/blog/f2-dependent-visa-rules-opt-students",
         images: [
             {
-                url: "/blog/f2-dependent-visa-rules-opt-students.png",
+                url: "/blog/f2-dependent-visa-rules-opt-students.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Passport with an F-2 visa stamp next to an I-20 with the dependent section highlighted and a wedding photo",
@@ -58,7 +58,7 @@ export default function F2DependentPage() {
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
                 <img
-                    src="/blog/f2-dependent-visa-rules-opt-students.png"
+                    src="/blog/f2-dependent-visa-rules-opt-students.jpg"
                     alt="Passport with an F-2 visa stamp next to an I-20 with the dependent section highlighted and a wedding photo"
                     className="object-cover w-full h-full"
                 />

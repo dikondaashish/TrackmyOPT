@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "You paid a premium for your MBA. Here is how international students can maximize their OPT to secure high-paying US roles and H-1B sponsorship.",
         type: "article",
         url: "https://trackmyopt.com/blog/opt-mba-students-career-paths",
-        images: [{ url: "/blog/opt-mba-students-career-paths.png", width: 1200, height: 630, alt: "Laptop showing a business presentation, next to a sketchbook and an EAD card" }],
+        images: [{ url: "/blog/opt-mba-students-career-paths.jpg", width: 1200, height: 630, alt: "Laptop showing a business presentation, next to a sketchbook and an EAD card" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/opt-mba-students-career-paths" }
 };
@@ -34,7 +34,7 @@ export default function MBAOPTPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/opt-mba-students-career-paths.png" alt="Laptop showing a business presentation, next to a sketchbook and an EAD card" className="object-cover w-full h-full" />
+                <img src="/blog/opt-mba-students-career-paths.jpg" alt="Laptop showing a business presentation, next to a sketchbook and an EAD card" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Pursuing an MBA in the US as an international student is a massive financial and emotional investment. But graduating with that prestigious degree doesn't make you immune to the harsh realities of the US immigration system. Navigating OPT as an MBA requires a highly strategic approach to recruitment.</p>

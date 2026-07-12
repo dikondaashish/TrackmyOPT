@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         description: "Can you drive for Uber, deliver for DoorDash, or freelance on Upwork while on OPT? The answer depends entirely on your major and which OPT you are on.",
         type: "article",
         url: "https://trackmyopt.com/blog/freelance-gig-work-uber-doordash-opt",
-        images: [{ url: "/blog/freelance-gig-work-uber-doordash-opt.png", width: 1200, height: 630, alt: "Laptop showing Upwork, a phone showing Uber Driver app, and an IRS 1099 form" }],
+        images: [{ url: "/blog/freelance-gig-work-uber-doordash-opt.jpg", width: 1200, height: 630, alt: "Laptop showing Upwork, a phone showing Uber Driver app, and an IRS 1099 form" }],
     },
     alternates: { canonical: "https://trackmyopt.com/blog/freelance-gig-work-uber-doordash-opt" }
 };
@@ -34,7 +34,7 @@ export default function FreelanceGigWorkPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/freelance-gig-work-uber-doordash-opt.png" alt="Laptop showing Upwork, a phone showing Uber Driver app, and an IRS 1099 form" className="object-cover w-full h-full" />
+                <img src="/blog/freelance-gig-work-uber-doordash-opt.jpg" alt="Laptop showing Upwork, a phone showing Uber Driver app, and an IRS 1099 form" className="object-cover w-full h-full" />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Earning extra cash through side hustles is a huge part of American culture. But as an F-1 international student, strict rules govern how and where you can work. Let's break down exactly what is allowed regarding freelancing, 1099 independent contracting, and gig economy work.</p>

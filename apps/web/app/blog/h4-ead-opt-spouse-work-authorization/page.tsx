@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         url: "https://trackmyopt.com/blog/h4-ead-opt-spouse-work-authorization",
         images: [
             {
-                url: "/blog/h4-ead-opt-spouse-work-authorization.png",
+                url: "/blog/h4-ead-opt-spouse-work-authorization.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Two EAD cards and two passports with H-1B and H-4 visa stamps next to wedding rings",
@@ -58,7 +58,7 @@ export default function H4EADPage() {
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
                 <img
-                    src="/blog/h4-ead-opt-spouse-work-authorization.png"
+                    src="/blog/h4-ead-opt-spouse-work-authorization.jpg"
                     alt="Two EAD cards and two passports with H-1B and H-4 visa stamps next to wedding rings"
                     className="object-cover w-full h-full"
                 />
