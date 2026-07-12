@@ -786,6 +786,8 @@
         "https://chromewebstore.google.com/*"
       ],
       "js": ["content-job-portal.js"],
+      "all_frames": true,
+      "match_about_blank": true,
       "run_at": "document_idle"
     }
   ],

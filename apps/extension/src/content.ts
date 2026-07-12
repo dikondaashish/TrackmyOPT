@@ -3,13 +3,25 @@
  * Runs on trackmyopt.com to mark extension as connected
  */
 
-// Helper to safely get extension version
+let extensionContextActive = true;
+
+/** Stop this stale content-script instance after an extension reload/update. */
+function deactivateStaleContentScript(): void {
+  if (!extensionContextActive) return;
+  extensionContextActive = false;
+  window.removeEventListener('message', handlePageMessage);
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+  document.removeEventListener('DOMContentLoaded', signalExtensionPresentToPage);
+}
+
+// Helper to safely get extension version. Context invalidation is an expected
+// lifecycle event after reloading an unpacked extension, not an extension error.
 function getExtensionVersion(): string | null {
+  if (!extensionContextActive) return null;
   try {
     return chrome.runtime.getManifest().version;
-  } catch (error) {
-    // Extension context invalidated - extension was reloaded
-    console.warn('[TrackMyOPT] Extension context invalidated, please refresh the page');
+  } catch {
+    deactivateStaleContentScript();
     return null;
   }
 }
@@ -23,8 +35,9 @@ function markExtensionConnected() {
     localStorage.setItem('tmo_extension_connected', 'true');
     localStorage.setItem('tmo_extension_version', version);
     localStorage.setItem('tmo_extension_last_sync', new Date().toISOString());
-  } catch (error) {
-    console.warn('[TrackMyOPT] Failed to mark extension connected:', error);
+  } catch {
+    // Storage can be unavailable in restricted browsing contexts. Detection is
+    // best-effort and should never surface as a Chrome extension error.
   }
 }
 
@@ -34,7 +47,8 @@ markExtensionConnected();
 /** Signals for the dashboard (useExtensionDetector / sidebar) that the extension is present. */
 function signalExtensionPresentToPage() {
   try {
-    const version = getExtensionVersion() || '1';
+    const version = getExtensionVersion();
+    if (!version) return;
     if (!document.getElementById('trackmyopt-extension-installed')) {
       const marker = document.createElement('div');
       marker.id = 'trackmyopt-extension-installed';
@@ -57,7 +71,7 @@ if (document.documentElement) {
 }
 
 // Also listen for messages from the page
-window.addEventListener('message', (event) => {
+function handlePageMessage(event: MessageEvent) {
   // Only accept messages from the same origin
   if (event.origin !== window.location.origin) return;
 
@@ -75,18 +89,18 @@ window.addEventListener('message', (event) => {
       // Also update localStorage
       markExtensionConnected();
       signalExtensionPresentToPage();
-    } catch (error) {
-      console.warn('[TrackMyOPT] Failed to respond to extension check:', error);
+    } catch {
+      deactivateStaleContentScript();
     }
   }
-});
+}
+window.addEventListener('message', handlePageMessage);
 
 // Re-mark on visibility change (when user comes back to tab)
-document.addEventListener('visibilitychange', () => {
+function handleVisibilityChange() {
   if (document.visibilityState === 'visible') {
     markExtensionConnected();
     signalExtensionPresentToPage();
   }
-});
-
-console.log('[TrackMyOPT Extension] Content script loaded');
+}
+document.addEventListener('visibilitychange', handleVisibilityChange);

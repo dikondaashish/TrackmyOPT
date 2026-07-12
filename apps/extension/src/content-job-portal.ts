@@ -11,10 +11,18 @@ import {
   isKnownJobBoardOrAts,
   CAREER_PATH_RE,
 } from './career-sites';
-import { runPrefill, findApplicationForm } from './easy-apply-engine';
+import {
+  runPrefill,
+  findApplicationForm,
+  type GeneratedResumeAttachment,
+} from './easy-apply-engine';
 import { openFeedbackModal } from './feedback';
 import { icon } from './icons';
 import { WEBSITE_URL } from './config';
+import {
+  chooseJobDescriptionCandidate,
+  type JobDescriptionCandidate,
+} from './job-description';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -30,6 +38,70 @@ const WIDGET_HIDE_KEY = 'tmo_widget_hidden';
 const WIDGET_HIDE_SESSION_KEY = 'tmo_job_widget_hide_session';
 
 type WidgetHideConfig = { all?: boolean; domains?: string[] };
+
+type JobScopedGeneratedResume = GeneratedResumeAttachment & {
+  jobFingerprint: string;
+};
+
+// Intentionally memory-only: a generated resume is available to Prefill on
+// this job page, but is never silently reused after a reload or for another job.
+let generatedResumeForCurrentJob: JobScopedGeneratedResume | null = null;
+
+function jobFingerprint(job: JobInfo): string {
+  const url = new URL(window.location.href);
+  url.hash = '';
+  return [
+    url.toString(),
+    (job.company_name || '').trim().toLowerCase(),
+    (job.role_title || '').trim().toLowerCase(),
+  ].join('|');
+}
+
+function generatedResumeFor(job: JobInfo): GeneratedResumeAttachment | undefined {
+  if (!generatedResumeForCurrentJob) return undefined;
+  if (generatedResumeForCurrentJob.jobFingerprint !== jobFingerprint(job)) return undefined;
+  return {
+    pdfBase64: generatedResumeForCurrentJob.pdfBase64,
+    filename: generatedResumeForCurrentJob.filename,
+  };
+}
+
+type WidgetJobSnapshot = Pick<JobInfo,
+  'company_name' | 'role_title' | 'job_url' | 'location' | 'salary_text' | 'company_logo_url'>;
+
+function widgetJobSnapshot(job: JobInfo): WidgetJobSnapshot {
+  return {
+    company_name: job.company_name,
+    role_title: job.role_title,
+    job_url: job.job_url,
+    location: job.location,
+    salary_text: job.salary_text,
+    company_logo_url: job.company_logo_url,
+  };
+}
+
+function shouldRefreshWidget(existing: HTMLElement, nextJob: JobInfo): boolean {
+  let current: Partial<WidgetJobSnapshot> = {};
+  try {
+    current = JSON.parse(existing.dataset.tmoJobSnapshot || '{}') as Partial<WidgetJobSnapshot>;
+  } catch {
+    return true;
+  }
+  const next = widgetJobSnapshot(nextJob);
+  if (
+    current.job_url !== next.job_url ||
+    current.company_name !== next.company_name ||
+    current.role_title !== next.role_title
+  ) return true;
+
+  // Replace an already-rendered card only when the new parse enriches missing
+  // information. Never downgrade a complete card during transient SPA states.
+  return Boolean(
+    (!current.location && next.location) ||
+    (!current.salary_text && next.salary_text) ||
+    (!current.company_logo_url && next.company_logo_url)
+  );
+}
 
 async function getHideConfig(): Promise<WidgetHideConfig> {
   try {
@@ -143,10 +215,66 @@ interface JobInfo {
   role_title: string;
   job_url: string;
   location?: string;
+  /** Normalized display-only compensation from JobPosting JSON-LD or visible
+   * job-page text. Omitted when the source page does not publish compensation. */
+  salary_text?: string;
   /** Employer logo — from JSON-LD hiringOrganization.logo when present, else the
    * current site's own favicon (we're already on the employer's domain, so its
    * favicon reliably IS the employer's mark). Display-only; never sent to our API. */
   company_logo_url?: string;
+}
+
+function formatSalaryAmount(value: unknown): string | null {
+  const number = typeof value === 'number'
+    ? value
+    : Number(String(value ?? '').replace(/[^\d.]/g, ''));
+  if (!Number.isFinite(number) || number <= 0) return null;
+  return Math.round(number).toLocaleString('en-US');
+}
+
+function normalizeSalaryUnit(value: unknown): string {
+  const unit = String(value ?? '').trim().toLowerCase();
+  if (/hour|hr/.test(unit)) return 'hour';
+  if (/month|mo/.test(unit)) return 'month';
+  if (/week|wk/.test(unit)) return 'week';
+  if (/day/.test(unit)) return 'day';
+  return 'year';
+}
+
+function salaryTextFromJobPosting(obj: Record<string, unknown>): string | undefined {
+  const base = obj.baseSalary as Record<string, unknown> | string | number | undefined;
+  if (typeof base === 'string') return salaryTextFromVisibleText(base);
+  if (typeof base === 'number') {
+    const amount = formatSalaryAmount(base);
+    return amount ? `$${amount} USD / year` : undefined;
+  }
+  if (!base || typeof base !== 'object') return undefined;
+
+  const currency = String(base.currency || 'USD').toUpperCase();
+  const rawValue = base.value as Record<string, unknown> | string | number | undefined;
+  if (rawValue && typeof rawValue === 'object') {
+    const min = formatSalaryAmount(rawValue.minValue);
+    const max = formatSalaryAmount(rawValue.maxValue);
+    const exact = formatSalaryAmount(rawValue.value);
+    const unit = normalizeSalaryUnit(rawValue.unitText || base.unitText);
+    if (min && max) return `$${min} - $${max} ${currency} / ${unit}`;
+    if (exact) return `$${exact} ${currency} / ${unit}`;
+  }
+  const amount = formatSalaryAmount(rawValue);
+  return amount ? `$${amount} ${currency} / ${normalizeSalaryUnit(base.unitText)}` : undefined;
+}
+
+function salaryTextFromVisibleText(text: string): string | undefined {
+  const compact = String(text || '').replace(/\s+/g, ' ').trim();
+  const range = compact.match(
+    /(?:USD\s*)?\$\s*([\d,]+(?:\.\d{1,2})?)\s*(?:-|–|—|to)\s*(?:USD\s*)?\$\s*([\d,]+(?:\.\d{1,2})?)/i,
+  );
+  if (!range) return undefined;
+  const min = formatSalaryAmount(range[1]);
+  const max = formatSalaryAmount(range[2]);
+  if (!min || !max) return undefined;
+  const unitMatch = compact.match(/(?:\/|per\s+)(yr|year|hour|hr|month|mo|week|wk|day)s?\b/i);
+  return `$${min} - $${max} USD / ${normalizeSalaryUnit(unitMatch?.[1])}`;
 }
 
 function isHttpDocument(): boolean {
@@ -316,15 +444,16 @@ function jobPostingFromLdObject(obj: Record<string, unknown>): JobInfo | null {
       role_title: title,
       job_url: window.location.href,
       location: location?.trim() || undefined,
+      salary_text: salaryTextFromJobPosting(obj),
       company_logo_url: companyLogo || undefined,
     };
   }
   return null;
 }
 
-function getJsonLdJobPosting(): JobInfo | null {
+function getJsonLdJobPosting(sourceDocument: Document = document): JobInfo | null {
   try {
-    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+    const scripts = sourceDocument.querySelectorAll('script[type="application/ld+json"]');
     for (let i = 0; i < scripts.length; i++) {
       const script = scripts[i];
       const text = script.textContent?.trim();
@@ -432,6 +561,63 @@ function getDomFallbackJob(): JobInfo | null {
     job_url: url,
     location: undefined,
   };
+}
+
+const GENERIC_CAREER_HEADING_RE = /^(career(s)?|career opportunities|job(s)?|job opportunities|job openings|current openings|open positions|employment opportunities|join (our|the) team|work with us|search jobs)$/i;
+
+function cleanRoleCandidate(value: string | null | undefined): string {
+  return (value || '').replace(/\s+/g, ' ').trim();
+}
+
+function isSpecificRoleTitle(value: string, companyName: string): boolean {
+  if (value.length < 3 || value.length > 160) return false;
+  if (GENERIC_CAREER_HEADING_RE.test(value)) return false;
+  if (value.toLowerCase() === companyName.trim().toLowerCase()) return false;
+  if (/^(apply|apply now|job details|position details|description|overview)$/i.test(value)) return false;
+  return true;
+}
+
+/**
+ * Recover the selected role when a generic careers-page title was parsed.
+ * Ordered selectors favor explicit ATS job-title signals before headings so a
+ * page-wide "Career Opportunities" heading cannot mask the actual role.
+ */
+function findSpecificRoleFromDom(companyName: string): string | null {
+  const selectors = [
+    '[data-automation-id="jobPostingHeader"]',
+    '[data-testid*="job-title" i]',
+    '[data-testid*="jobTitle" i]',
+    '[itemprop="title"]',
+    '[id*="job-title" i]',
+    '[class*="job-title" i]',
+    '[class*="jobTitle" i]',
+    '[class*="job_title" i]',
+    '.iCIMS_JobHeader',
+    '.iCIMS_JobTitle',
+    '[class*="iCIMS" i] [class*="jobTitle" i]',
+    '.posting-headline h1',
+    '.posting-headline h2',
+    '[aria-current="true"] [class*="title" i]',
+    '[aria-selected="true"] [class*="title" i]',
+    'main h1',
+  ];
+
+  const seen = new Set<Element>();
+  for (const selector of selectors) {
+    let elements: Element[] = [];
+    try {
+      elements = Array.from(document.querySelectorAll(selector));
+    } catch {
+      continue;
+    }
+    for (const element of elements) {
+      if (seen.has(element)) continue;
+      seen.add(element);
+      const candidate = cleanRoleCandidate(element.textContent);
+      if (isSpecificRoleTitle(candidate, companyName)) return candidate;
+    }
+  }
+  return null;
 }
 
 // --- Site-specific parsers (higher accuracy when available) ---
@@ -642,19 +828,107 @@ function getPageFaviconUrl(): string | undefined {
   }
 }
 
+/**
+ * iCIMS branded portals keep the real job DOM inside #icims_content_iframe.
+ * The top frame still exposes a stable /jobs/<id>/<slug>/job URL and a real
+ * document title, while og:title remains a generic careers-page title.
+ */
+function getICimsJobInfo(): JobInfo | null {
+  if (!window.location.hostname.endsWith('.icims.com')) return null;
+  if (!/^\/jobs\/\d+\/[^/]+\/job\/?$/i.test(window.location.pathname)) return null;
+
+  const pageTitle = cleanRoleCandidate(document.title);
+  let titleAndLocation = pageTitle.split(/\s+\|\s+Careers at\s+/i)[0]?.trim() || '';
+  let locationText: string | undefined;
+
+  const lastIn = titleAndLocation.toLowerCase().lastIndexOf(' in ');
+  if (lastIn > 2) {
+    const possibleLocation = titleAndLocation.slice(lastIn + 4).trim();
+    if (/^(remote|hybrid|on-site)\b/i.test(possibleLocation) || possibleLocation.includes(',')) {
+      locationText = possibleLocation;
+      titleAndLocation = titleAndLocation.slice(0, lastIn).trim();
+    }
+  }
+
+  if (!isSpecificRoleTitle(titleAndLocation, '')) {
+    const slug = window.location.pathname.match(/^\/jobs\/\d+\/([^/]+)\/job/i)?.[1] || '';
+    titleAndLocation = slug
+      .split('-')
+      .filter(Boolean)
+      .map((word) => word.length <= 2 ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+  if (!titleAndLocation) return null;
+
+  const logo = document.querySelector<HTMLImageElement>(
+    'header img[alt*="Logo" i], [role="banner"] img[alt*="Logo" i], img[alt*="Insurance Logo" i]'
+  );
+  const companyFromLogo = cleanRoleCandidate(logo?.alt).replace(/\s+logo(?:\s*\([^)]*\))?$/i, '');
+  const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || '';
+  const companyFromOg = ogTitle.split('|').map((part) => part.trim()).filter(Boolean).pop() || '';
+  const companyName = companyFromLogo || companyFromOg || getCompanyFromDomain(window.location.hostname);
+  if (!companyName) return null;
+
+  // iCIMS commonly renders the actual posting inside a same-origin iframe.
+  // Read structured/visible data from that document when available, while
+  // keeping the stable top-frame job URL.
+  let iframeDocument: Document | null = null;
+  for (const frame of Array.from(document.querySelectorAll('iframe'))) {
+    try {
+      if (frame.contentDocument?.body) {
+        iframeDocument = frame.contentDocument;
+        break;
+      }
+    } catch {
+      /* cross-origin frame; ignore */
+    }
+  }
+  const iframeText = iframeDocument?.body?.innerText || '';
+  const structured = iframeDocument ? getJsonLdJobPosting(iframeDocument) : null;
+  const salaryText = structured?.salary_text || salaryTextFromVisibleText(iframeText);
+
+  return {
+    company_name: structured?.company_name || companyName,
+    role_title: titleAndLocation,
+    job_url: window.location.href,
+    location: structured?.location || locationText,
+    salary_text: salaryText,
+    company_logo_url: structured?.company_logo_url || logo?.src || undefined,
+  };
+}
+
 function getJobInfo(): JobInfo | null {
   const host = window.location.hostname;
-  if (host.includes('linkedin.com')) return getLinkedInJobInfo() || getJsonLdJobPosting() || getMetaAndTitleJob() || getDomFallbackJob();
-  if (host.includes('indeed.com')) return getIndeedJobInfo() || getJsonLdJobPosting() || getMetaAndTitleJob() || getDomFallbackJob();
+  const addVisibleSalary = (job: JobInfo | null): JobInfo | null => {
+    if (job && !job.salary_text) {
+      job.salary_text = salaryTextFromVisibleText(document.body?.innerText || '');
+    }
+    return job;
+  };
+  if (host.includes('linkedin.com')) {
+    return addVisibleSalary(getLinkedInJobInfo() || getJsonLdJobPosting() || getMetaAndTitleJob() || getDomFallbackJob());
+  }
+  if (host.includes('indeed.com')) {
+    return addVisibleSalary(getIndeedJobInfo() || getJsonLdJobPosting() || getMetaAndTitleJob() || getDomFallbackJob());
+  }
+  if (host.endsWith('.icims.com')) {
+    const icimsJob = getICimsJobInfo();
+    if (icimsJob) return addVisibleSalary(icimsJob);
+  }
 
   // We're on the employer's/ATS's own site — its favicon reliably represents
   // the employer, so use it whenever the parser didn't already find an
   // explicit logo (e.g. JSON-LD hiringOrganization.logo).
   const job = getJsonLdJobPosting() || getMetaAndTitleJob() || getDomFallbackJob();
+  if (job && !isSpecificRoleTitle(cleanRoleCandidate(job.role_title), job.company_name)) {
+    const specificRole = findSpecificRoleFromDom(job.company_name);
+    if (specificRole) job.role_title = specificRole;
+    else return null; // Career landing/list page, not a specific job posting.
+  }
   if (job && !job.company_logo_url) {
     job.company_logo_url = getPageFaviconUrl();
   }
-  return job;
+  return addVisibleSalary(job);
 }
 
 function readWidgetDismissedUrl(): string | null {
@@ -681,21 +955,21 @@ function clearWidgetDismissedUrl() {
   }
 }
 
-function readWidgetPosition(): { top: number; left: number } | null {
+function readWidgetPosition(): { top: number } | null {
   try {
     const raw = sessionStorage.getItem(WIDGET_POS_KEY);
     if (!raw) return null;
-    const p = JSON.parse(raw) as { top?: number; left?: number };
-    if (typeof p.top !== 'number' || typeof p.left !== 'number') return null;
-    return { top: p.top, left: p.left };
+    const p = JSON.parse(raw) as { top?: number };
+    if (typeof p.top !== 'number') return null;
+    return { top: p.top };
   } catch {
     return null;
   }
 }
 
-function saveWidgetPosition(top: number, left: number) {
+function saveWidgetPosition(top: number) {
   try {
-    sessionStorage.setItem(WIDGET_POS_KEY, JSON.stringify({ top, left }));
+    sessionStorage.setItem(WIDGET_POS_KEY, JSON.stringify({ top }));
   } catch {
     /* ignore */
   }
@@ -705,33 +979,51 @@ function saveWidgetPosition(top: number, left: number) {
  * Vertical-only drag. The widget stays PINNED to the right edge (right:0) and
  * only moves up/down — it never moves horizontally.
  */
-function attachDragBehavior(root: HTMLElement, dragHandle: HTMLElement) {
-  let dragging = false;
+function attachDragBehavior(
+  root: HTMLElement,
+  dragHandle: HTMLElement,
+  options: { allowButtonTarget?: boolean; onTap?: () => void } = {},
+) {
+  let activePointerId: number | null = null;
   let startClientY = 0;
   let startTop = 0;
+  let movedBeyondTapThreshold = false;
+  const idleCursor = options.onTap ? 'pointer' : 'grab';
 
-  const onMove = (ev: MouseEvent) => {
-    if (!dragging) return;
+  dragHandle.style.touchAction = 'none';
+
+  const onMove = (ev: PointerEvent) => {
+    if (ev.pointerId !== activePointerId) return;
+    const deltaY = ev.clientY - startClientY;
+    if (!movedBeyondTapThreshold && Math.abs(deltaY) < 4) return;
+    movedBeyondTapThreshold = true;
     const pad = 8;
     const rect = root.getBoundingClientRect();
-    const maxTop = window.innerHeight - rect.height - pad;
-    const nextTop = Math.min(Math.max(pad, startTop + (ev.clientY - startClientY)), maxTop);
+    const maxTop = Math.max(pad, window.innerHeight - rect.height - pad);
+    const nextTop = Math.min(Math.max(pad, startTop + deltaY), maxTop);
     root.style.top = `${nextTop}px`; // only vertical; horizontal stays pinned right
   };
 
-  const onUp = () => {
-    if (!dragging) return;
-    dragging = false;
-    document.removeEventListener('mousemove', onMove, true);
-    document.removeEventListener('mouseup', onUp, true);
+  const stopDragging = (ev: PointerEvent) => {
+    if (ev.pointerId !== activePointerId) return;
+    activePointerId = null;
+    dragHandle.style.cursor = idleCursor;
+    const rect = root.getBoundingClientRect();
+    saveWidgetPosition(rect.top);
+    document.removeEventListener('pointermove', onMove, true);
+    document.removeEventListener('pointerup', stopDragging, true);
+    document.removeEventListener('pointercancel', stopDragging, true);
+    if (!movedBeyondTapThreshold && ev.type === 'pointerup') options.onTap?.();
   };
 
-  dragHandle.addEventListener('mousedown', (ev) => {
+  dragHandle.addEventListener('pointerdown', (ev) => {
     // Don't start a drag when the user clicks a button inside the drag zone.
-    if ((ev.target as HTMLElement | null)?.closest('button')) return;
+    if (!options.allowButtonTarget && (ev.target as HTMLElement | null)?.closest('button')) return;
     ev.preventDefault();
     ev.stopPropagation();
-    dragging = true;
+    activePointerId = ev.pointerId;
+    movedBeyondTapThreshold = false;
+    dragHandle.style.cursor = 'grabbing';
     const r = root.getBoundingClientRect();
     startClientY = ev.clientY;
     startTop = r.top;
@@ -741,54 +1033,153 @@ function attachDragBehavior(root: HTMLElement, dragHandle: HTMLElement) {
     root.style.left = 'auto';
     root.style.bottom = 'auto';
     root.style.transform = 'none';
-    document.addEventListener('mousemove', onMove, true);
-    document.addEventListener('mouseup', onUp, true);
+    document.addEventListener('pointermove', onMove, true);
+    document.addEventListener('pointerup', stopDragging, true);
+    document.addEventListener('pointercancel', stopDragging, true);
   });
+
+  // Pointer activation is handled on pointerup so a completed drag never also
+  // opens the panel. Preserve native keyboard/programmatic button activation.
+  if (options.onTap) {
+    dragHandle.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (ev.detail === 0) options.onTap?.();
+    });
+  }
 }
 
 /**
  * Sticky, collapsible side widget: Prefill application, Save to tracker, and
- * (soon) AI analysis. Close (×) opens a menu to hide it for this visit / this
- * site / all sites. Draggable via the header.
+ * (soon) AI analysis. Expanded × minimizes; minimized × opens the hide-scope
+ * menu. Draggable via the expanded header or minimized six-dot grip.
  */
 function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLElement {
   const root = document.createElement('div');
   root.id = WIDGET_ROOT_ID;
+  root.dataset.tmoJobSnapshot = JSON.stringify(widgetJobSnapshot(job));
   root.setAttribute('role', 'region');
   root.setAttribute('aria-label', 'TrackMyOPT job assistant');
 
-  // Always dock to the right edge on creation. Drag repositions within the
-  // current view; we intentionally do NOT restore a stale saved position, which
-  // could place the widget off-screen (e.g. after this redesign or a viewport
-  // change) — that was causing the top-left / cut-off rendering.
+  // Always dock to the right edge. A dragged vertical position is restored for
+  // this tab session and clamped to the current viewport so it cannot reappear
+  // off-screen after collapse, expansion, or a viewport-size change.
   root.style.cssText = `
     position: fixed;
     top: 50%;
     right: 0;
+    bottom: auto;
+    left: auto;
     transform: translateY(-50%);
-    z-index: 2147483646;
+    z-index: 2147483647;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   `;
 
   const extIcon = chrome.runtime.getURL('icons/logo.gif');
+  if (!document.getElementById('tmo-minimized-motion-style')) {
+    const motionStyle = document.createElement('style');
+    motionStyle.id = 'tmo-minimized-motion-style';
+    motionStyle.textContent = `
+      @media (prefers-reduced-motion: reduce) {
+        #${WIDGET_ROOT_ID} .tmo-minimized-tab,
+        #${WIDGET_ROOT_ID} .tmo-minimized-tab * { transition:none !important; }
+      }
+    `;
+    document.head.appendChild(motionStyle);
+  }
 
-  // ---- Collapsed tab (peeks from the right edge) ----
-  const tab = document.createElement('button');
-  tab.type = 'button';
-  tab.title = 'Open TrackMyOPT job assistant';
-  tab.setAttribute('aria-label', 'Open TrackMyOPT job assistant');
+  // ---- Minimized control: close button + logo/open area + six-dot drag grip ----
+  // Keep this palette aligned with popup.css --tmo-gradient-brand and the web
+  // app's primary blue. The gradient is intentionally weighted toward navy so
+  // the small floating control stays polished without appearing too bright.
+  const minimizedBrand = {
+    navy: '#1e3a8a',
+    deepBlue: '#1e40af',
+    primary: '#2563eb',
+    dot: '#dbeafe',
+  } as const;
+
+  const tab = document.createElement('div');
+  tab.className = 'tmo-minimized-tab';
   tab.style.cssText = `
-    display: none;
-    align-items: center; justify-content: center;
-    width: 44px; height: 52px; padding: 0; margin: 0;
-    border: 1px solid #e2e8f0; border-right: none; border-radius: 12px 0 0 12px;
-    background: #fff; cursor: pointer; box-shadow: 0 4px 18px rgba(15,23,42,0.16);
+    display:none;position:relative;align-items:stretch;width:62px;height:58px;margin:0;
+    border:1px solid ${minimizedBrand.primary};border-right:none;border-radius:13px 0 0 13px;
+    background:${minimizedBrand.deepBlue};box-shadow:0 7px 20px rgba(30,64,175,0.22);overflow:visible;
+    transition:width 220ms cubic-bezier(.2,.8,.2,1),box-shadow 220ms ease;
+  `;
+
+  const tabOpenBtn = document.createElement('button');
+  tabOpenBtn.type = 'button';
+  tabOpenBtn.title = 'Click to open · drag vertically to move';
+  tabOpenBtn.setAttribute('aria-label', 'Open or vertically move TrackMyOPT job assistant');
+  tabOpenBtn.style.cssText = `
+    width:62px;height:56px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+    padding:0;border:0;border-radius:12px 0 0 12px;
+    background:linear-gradient(135deg,${minimizedBrand.navy} 0%,${minimizedBrand.deepBlue} 58%,${minimizedBrand.primary} 100%);cursor:pointer;
+    transition:width 220ms cubic-bezier(.2,.8,.2,1),filter 180ms ease;
   `;
   const tabImg = document.createElement('img');
-  tabImg.src = extIcon; tabImg.alt = ''; tabImg.width = 26; tabImg.height = 26;
-  tabImg.style.cssText = 'object-fit:contain;border-radius:4px;';
+  tabImg.src = extIcon; tabImg.alt = ''; tabImg.width = 34; tabImg.height = 34;
+  tabImg.draggable = false;
+  tabImg.style.cssText = 'object-fit:contain;border-radius:5px;pointer-events:none;user-select:none;-webkit-user-drag:none;';
   tabImg.addEventListener('error', () => tabImg.replaceWith(logoSvgFallback()));
-  tab.appendChild(tabImg);
+  tabOpenBtn.appendChild(tabImg);
+
+  const tabDragHandle = document.createElement('div');
+  tabDragHandle.setAttribute('role', 'button');
+  tabDragHandle.setAttribute('aria-label', 'Drag TrackMyOPT panel');
+  tabDragHandle.tabIndex = -1;
+  tabDragHandle.style.cssText = `
+    width:0;height:56px;display:grid;grid-template-columns:repeat(2,4px);
+    grid-template-rows:repeat(3,4px);align-content:center;justify-content:center;
+    gap:4px;border-radius:0;background:${minimizedBrand.deepBlue};cursor:grab;outline:none;opacity:0;
+    overflow:hidden;pointer-events:none;transform:translateX(10px);
+    transition:width 220ms cubic-bezier(.2,.8,.2,1),opacity 180ms ease,transform 220ms cubic-bezier(.2,.8,.2,1);
+  `;
+  for (let i = 0; i < 6; i += 1) {
+    const dot = document.createElement('span');
+    dot.style.cssText = `width:4px;height:4px;border-radius:50%;background:${minimizedBrand.dot};display:block;`;
+    tabDragHandle.appendChild(dot);
+  }
+
+  const tabCloseBtn = document.createElement('button');
+  tabCloseBtn.type = 'button';
+  tabCloseBtn.title = 'Hide TrackMyOPT';
+  tabCloseBtn.setAttribute('aria-label', 'Hide TrackMyOPT options');
+  tabCloseBtn.tabIndex = -1;
+  tabCloseBtn.style.cssText = `
+    position:absolute;top:-14px;left:-14px;z-index:2;width:40px;height:40px;padding:0;
+    display:flex;align-items:center;justify-content:center;border:0;background:transparent;
+    color:#fff;font:inherit;cursor:pointer;outline:none;
+    opacity:0;pointer-events:none;transform:scale(0.72);
+    transition:opacity 140ms ease,transform 170ms ease;
+  `;
+  const tabCloseVisual = document.createElement('span');
+  tabCloseVisual.textContent = '×';
+  tabCloseVisual.style.cssText = `
+    width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+    border:0;border-radius:50%;background:${minimizedBrand.navy};color:#fff;
+    font-size:17px;font-weight:400;line-height:1;box-shadow:none;
+    transition:background 180ms ease,box-shadow 180ms ease;
+  `;
+  tabCloseBtn.appendChild(tabCloseVisual);
+  tabCloseBtn.addEventListener('mouseenter', () => (tabCloseVisual.style.background = minimizedBrand.primary));
+  tabCloseBtn.addEventListener('mouseleave', () => (tabCloseVisual.style.background = minimizedBrand.navy));
+  tabOpenBtn.addEventListener('focus', () => (tabOpenBtn.style.boxShadow = 'inset 0 0 0 3px rgba(255,255,255,0.85)'));
+  tabOpenBtn.addEventListener('blur', () => (tabOpenBtn.style.boxShadow = 'none'));
+  tabDragHandle.addEventListener('focus', () => (tabDragHandle.style.boxShadow = 'inset 0 0 0 3px rgba(255,255,255,0.85)'));
+  tabDragHandle.addEventListener('blur', () => (tabDragHandle.style.boxShadow = 'none'));
+  tabCloseBtn.addEventListener('focus', () => (tabCloseVisual.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.3)'));
+  tabCloseBtn.addEventListener('blur', () => (tabCloseVisual.style.boxShadow = 'none'));
+
+  tab.appendChild(tabOpenBtn);
+  tab.appendChild(tabDragHandle);
+  tab.appendChild(tabCloseBtn);
 
   // ---- Expanded card ----
   const card = document.createElement('div');
@@ -825,38 +1216,110 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
 
   const backBtn = iconBtn('‹', 'Back');
   const settingsBtn = iconBtn('⚙', 'Settings');
-  const collapseBtn = iconBtn('›', 'Collapse');
-  const closeBtn = iconBtn('×', 'Close / hide');
+  const closeBtn = iconBtn('×', 'Minimize panel');
   backBtn.style.display = 'none'; // only shown while the Settings panel is open
 
   header.appendChild(logoRing);
   header.appendChild(title);
   header.appendChild(backBtn);
   header.appendChild(settingsBtn);
-  header.appendChild(collapseBtn);
   header.appendChild(closeBtn);
 
-  // Job title line
-  const jobLine = document.createElement('div');
-  jobLine.style.cssText = 'padding:12px 14px 6px;font-size:13px;color:#334155;line-height:1.45;';
+  // Structured job summary — role first, then only data actually extracted
+  // from the posting. Missing location/salary rows are omitted, never guessed.
+  const jobLine = document.createElement('section');
+  jobLine.setAttribute('aria-label', 'Current job');
+  jobLine.style.cssText = `
+    margin:12px 14px 2px;padding:13px;border:1px solid #e2e8f0;border-radius:12px;
+    background:#fff;box-shadow:0 2px 7px rgba(15,23,42,0.06);line-height:1.38;
+  `;
+
+  const jobTitleRow = document.createElement('div');
+  jobTitleRow.style.cssText = 'display:flex;align-items:flex-start;gap:8px;';
   const roleEl = document.createElement('div');
-  roleEl.textContent = job.role_title || 'This job';
-  roleEl.style.cssText =
-    'font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
-  jobLine.appendChild(roleEl);
-  if (job.company_name) {
-    const coEl = document.createElement('div');
-    coEl.textContent = job.company_name;
-    coEl.style.cssText = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#64748b;';
-    jobLine.appendChild(coEl);
+  roleEl.textContent = job.role_title || 'Selected role';
+  roleEl.title = job.role_title || 'Selected role';
+  roleEl.style.cssText = 'min-width:0;flex:1;color:#172033;font-size:15px;font-weight:800;overflow-wrap:anywhere;';
+  const savedBadge = document.createElement('span');
+  savedBadge.textContent = 'Not saved';
+  savedBadge.style.cssText = `
+    flex:0 0 auto;padding:5px 9px;border-radius:999px;background:#f1f5f9;color:#475569;
+    font-size:10.5px;font-weight:750;white-space:nowrap;
+  `;
+  jobTitleRow.appendChild(roleEl);
+  jobTitleRow.appendChild(savedBadge);
+
+  const companyRow = document.createElement('div');
+  companyRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:7px;min-width:0;';
+  const companyMark = document.createElement('span');
+  companyMark.setAttribute('aria-hidden', 'true');
+  companyMark.style.cssText = `
+    width:30px;height:30px;flex:0 0 30px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;color:#1d4ed8;font-size:12px;font-weight:800;
+  `;
+  const companyInitial = (job.company_name || 'C').trim().charAt(0).toUpperCase() || 'C';
+  companyMark.textContent = companyInitial;
+  if (job.company_logo_url) {
+    const companyLogo = document.createElement('img');
+    companyLogo.src = job.company_logo_url;
+    companyLogo.alt = '';
+    companyLogo.draggable = false;
+    companyLogo.style.cssText = 'width:25px;height:25px;object-fit:contain;display:block;';
+    companyLogo.addEventListener('load', () => {
+      companyMark.textContent = '';
+      companyMark.appendChild(companyLogo);
+    });
+    companyLogo.addEventListener('error', () => (companyMark.textContent = companyInitial));
   }
+
+  const companyEl = document.createElement('div');
+  companyEl.textContent = job.company_name || 'Company';
+  companyEl.title = job.company_name || 'Company';
+  companyEl.style.cssText = 'min-width:0;color:#405462;font-size:13px;font-weight:650;overflow-wrap:anywhere;';
+  companyRow.appendChild(companyMark);
+  companyRow.appendChild(companyEl);
+
+  jobLine.appendChild(jobTitleRow);
+  jobLine.appendChild(companyRow);
+
+  if (job.location) {
+    const locationEl = document.createElement('div');
+    locationEl.textContent = job.location;
+    locationEl.style.cssText = 'margin-top:11px;color:#405462;font-size:12.5px;font-weight:600;overflow-wrap:anywhere;';
+    jobLine.appendChild(locationEl);
+  }
+  if (job.salary_text) {
+    const salaryEl = document.createElement('div');
+    salaryEl.textContent = job.salary_text;
+    salaryEl.style.cssText = 'margin-top:8px;color:#405462;font-size:12.5px;font-weight:650;overflow-wrap:anywhere;';
+    jobLine.appendChild(salaryEl);
+  }
+
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.innerHTML = `<span class="tmo-action-label">Save to job tracker</span>${icon('chevronRight', 15, '#0ea5e9')}`;
+  saveBtn.style.cssText = `
+    min-height:44px;margin:8px 0 -7px -8px;padding:8px;border:0;background:transparent;color:#0ea5e9;
+    display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:13px;font-weight:750;cursor:pointer;
+    border-radius:8px;transition:background 180ms ease,color 180ms ease;
+  `;
+  saveBtn.addEventListener('mouseenter', () => (saveBtn.style.background = '#f0f9ff'));
+  saveBtn.addEventListener('mouseleave', () => (saveBtn.style.background = 'transparent'));
+  saveBtn.addEventListener('focus', () => (saveBtn.style.boxShadow = '0 0 0 3px rgba(14,165,233,0.18)'));
+  saveBtn.addEventListener('blur', () => (saveBtn.style.boxShadow = 'none'));
+  jobLine.appendChild(saveBtn);
 
   // Actions
   const actions = document.createElement('div');
   actions.style.cssText = 'display:flex;flex-direction:column;gap:8px;padding:10px 14px 14px;';
 
   const prefillBtn = actionBtn(icon('zap', 15), 'Prefill application');
-  const saveBtn = actionBtn(icon('plus', 15), 'Save to tracker');
+  prefillBtn.classList.add('tmo-prefill-button');
+  if (generatedResumeFor(job)) {
+    const label = prefillBtn.querySelector<HTMLElement>('.tmo-action-label');
+    if (label) label.textContent = 'Prefill application + resume';
+    prefillBtn.title = 'Prefill profile fields and attach the custom resume generated for this job';
+  }
   const resumeBtn = actionBtn(icon('fileText', 15), 'Generate custom resume');
   const aiBtn = actionBtn(icon('sparkles', 15), 'Analyze with AI');
   const soon = document.createElement('span');
@@ -867,7 +1330,6 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   aiBtn.style.opacity = '0.75';
 
   actions.appendChild(prefillBtn);
-  actions.appendChild(saveBtn);
   actions.appendChild(resumeBtn);
   actions.appendChild(aiBtn);
 
@@ -948,36 +1410,80 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   card.appendChild(normalBody);
   card.appendChild(settingsPanel);
 
-  // Close menu (3 hide scopes)
+  // Minimized close menu (3 hide scopes)
   const menu = document.createElement('div');
   menu.style.cssText = `
-    display:none; position:absolute; top:40px; right:8px; z-index:5;
-    background:#fff; border:1px solid #e2e8f0; border-radius:10px;
-    box-shadow:0 8px 24px rgba(15,23,42,0.18); overflow:hidden; min-width:172px;
+    display:none;position:absolute;top:44px;right:64px;z-index:5;
+    width:min(260px,calc(100vw - 32px));background:#fff;border:1px solid #dbe3ee;border-radius:12px;
+    box-shadow:0 12px 36px rgba(15,23,42,0.22);overflow:hidden;padding:8px 0;
   `;
   const menuItem = (label: string, onClick: () => void) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.textContent = label;
     b.style.cssText =
-      'display:block;width:100%;text-align:left;padding:9px 12px;border:none;background:#fff;color:#0f172a;font:inherit;font-size:12px;cursor:pointer;';
+      'display:block;width:100%;min-height:46px;text-align:left;padding:11px 18px;border:none;background:#fff;color:#26364d;font:inherit;font-size:14px;font-weight:600;cursor:pointer;';
     b.addEventListener('mouseenter', () => (b.style.background = '#f1f5f9'));
     b.addEventListener('mouseleave', () => (b.style.background = '#fff'));
+    b.addEventListener('focus', () => {
+      b.style.background = '#eff6ff';
+      b.style.outline = '2px solid #2563eb';
+      b.style.outlineOffset = '-2px';
+    });
+    b.addEventListener('blur', () => {
+      b.style.background = '#fff';
+      b.style.outline = 'none';
+    });
     b.addEventListener('click', (e) => {
       e.stopPropagation();
       onClick();
     });
     return b;
   };
-  menu.appendChild(menuItem('Hide for this visit', () => { hideForThisVisit(); root.remove(); }));
-  menu.appendChild(menuItem('Hide on this site', () => { void hideForThisSite(); root.remove(); }));
-  menu.appendChild(menuItem('Hide on all sites', () => { void hideForAllSites(); root.remove(); }));
+  menu.appendChild(menuItem('Hide until next visit', () => { hideForThisVisit(); root.remove(); }));
+  menu.appendChild(menuItem('Disable on this domain', () => { void hideForThisSite(); root.remove(); }));
+  menu.appendChild(menuItem('Disable on all pages', () => { void hideForAllSites(); root.remove(); }));
 
   root.appendChild(tab);
   root.appendChild(card);
   root.appendChild(menu);
 
+  let tabControlsRevealed = false;
+  const setTabControlsRevealed = (revealed: boolean) => {
+    if (tabControlsRevealed === revealed) return;
+    tabControlsRevealed = revealed;
+    tab.style.width = revealed ? '106px' : '62px';
+    tab.style.boxShadow = revealed
+      ? '0 9px 26px rgba(30,64,175,0.32)'
+      : '0 7px 20px rgba(30,64,175,0.22)';
+    tabOpenBtn.style.width = revealed ? '70px' : '62px';
+    tabDragHandle.style.width = revealed ? '36px' : '0';
+    tabDragHandle.style.opacity = revealed ? '1' : '0';
+    tabDragHandle.style.transform = revealed ? 'translateX(0)' : 'translateX(10px)';
+    tabDragHandle.style.pointerEvents = revealed ? 'auto' : 'none';
+    tabDragHandle.tabIndex = revealed ? 0 : -1;
+    tabCloseBtn.style.opacity = revealed ? '1' : '0';
+    tabCloseBtn.style.transform = revealed ? 'scale(1)' : 'scale(0.72)';
+    tabCloseBtn.style.pointerEvents = revealed ? 'auto' : 'none';
+    tabCloseBtn.tabIndex = revealed ? 0 : -1;
+  };
+  const retractTabControlsWhenIdle = () => {
+    window.setTimeout(() => {
+      if (menu.style.display !== 'none') return;
+      const active = document.activeElement;
+      if (tab.matches(':hover')) return;
+      if (active && (tab.contains(active) || menu.contains(active))) return;
+      setTabControlsRevealed(false);
+    }, 60);
+  };
+
+  tab.addEventListener('mouseenter', () => setTabControlsRevealed(true));
+  tab.addEventListener('mouseleave', retractTabControlsWhenIdle);
+  tab.addEventListener('focusin', () => setTabControlsRevealed(true));
+  tab.addEventListener('focusout', retractTabControlsWhenIdle);
+
   attachDragBehavior(root, header);
+  attachDragBehavior(root, tabDragHandle);
 
   // ---- collapse / expand ----
   const setCollapsed = (collapsed: boolean) => {
@@ -985,9 +1491,22 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     card.style.display = collapsed ? 'none' : 'block';
     tab.style.display = collapsed ? 'flex' : 'none';
     menu.style.display = 'none';
+    setTabControlsRevealed(false);
+    document.removeEventListener('click', onDocClick, true);
+    requestAnimationFrame(() => {
+      const rect = root.getBoundingClientRect();
+      const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
+      if (rect.top < 8 || rect.top > maxTop) {
+        root.style.top = `${Math.min(Math.max(8, rect.top), maxTop)}px`;
+        root.style.transform = 'none';
+      }
+    });
   };
-  collapseBtn.addEventListener('click', (e) => { e.stopPropagation(); setCollapsed(true); });
-  tab.addEventListener('click', (e) => { e.stopPropagation(); setCollapsed(false); });
+  closeBtn.addEventListener('click', (e) => { e.stopPropagation(); setCollapsed(true); });
+  attachDragBehavior(root, tabOpenBtn, {
+    allowButtonTarget: true,
+    onTap: () => setCollapsed(false),
+  });
 
   // ---- Settings panel open/close (swaps content in place; same widget card) ----
   function showSettings(show: boolean) {
@@ -995,7 +1514,6 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     settingsPanel.style.display = show ? 'block' : 'none';
     title.textContent = show ? 'Settings' : 'TrackMyOPT';
     settingsBtn.style.display = show ? 'none' : 'flex';
-    collapseBtn.style.display = show ? 'none' : 'flex';
     closeBtn.style.display = show ? 'none' : 'flex';
     backBtn.style.display = show ? 'flex' : 'none';
     menu.style.display = 'none';
@@ -1024,18 +1542,91 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     if (!root.contains(e.target as Node)) {
       menu.style.display = 'none';
       document.removeEventListener('click', onDocClick, true);
+      setTabControlsRevealed(false);
     }
   };
-  closeBtn.addEventListener('click', (e) => {
+  tabCloseBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const opening = menu.style.display === 'none';
     menu.style.display = opening ? 'block' : 'none';
-    if (opening) setTimeout(() => document.addEventListener('click', onDocClick, true), 0);
-    else document.removeEventListener('click', onDocClick, true);
+    if (opening) {
+      setTabControlsRevealed(true);
+      menu.style.top = '44px';
+      menu.style.bottom = 'auto';
+      requestAnimationFrame(() => {
+        const menuRect = menu.getBoundingClientRect();
+        if (menuRect.bottom > window.innerHeight - 8) {
+          menu.style.top = 'auto';
+          menu.style.bottom = '44px';
+        }
+      });
+      setTimeout(() => document.addEventListener('click', onDocClick, true), 0);
+      requestAnimationFrame(() => menu.querySelector<HTMLButtonElement>('button')?.focus());
+    } else {
+      document.removeEventListener('click', onDocClick, true);
+      retractTabControlsWhenIdle();
+    }
   });
 
+  menu.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    e.preventDefault();
+    menu.style.display = 'none';
+    document.removeEventListener('click', onDocClick, true);
+    tabOpenBtn.focus();
+  });
+
+  tabDragHandle.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+    e.preventDefault();
+    const rect = root.getBoundingClientRect();
+    const delta = e.key === 'ArrowUp' ? -16 : 16;
+    const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
+    const nextTop = Math.min(Math.max(8, rect.top + delta), maxTop);
+    root.style.top = `${nextTop}px`;
+    root.style.right = '0';
+    root.style.left = 'auto';
+    root.style.transform = 'none';
+    saveWidgetPosition(nextTop);
+  });
+
+  const savedPosition = readWidgetPosition();
+  if (savedPosition) {
+    requestAnimationFrame(() => {
+      const rect = root.getBoundingClientRect();
+      const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
+      root.style.top = `${Math.min(Math.max(8, savedPosition.top), maxTop)}px`;
+      root.style.right = '0';
+      root.style.left = 'auto';
+      root.style.transform = 'none';
+    });
+  }
+
+  const clampWidgetToViewport = () => {
+    if (!root.isConnected) {
+      window.removeEventListener('resize', clampWidgetToViewport);
+      return;
+    }
+    const rect = root.getBoundingClientRect();
+    const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
+    const nextTop = Math.min(Math.max(8, rect.top), maxTop);
+    root.style.top = `${nextTop}px`;
+    root.style.right = '0';
+    root.style.left = 'auto';
+    root.style.transform = 'none';
+    saveWidgetPosition(nextTop);
+  };
+  window.addEventListener('resize', clampWidgetToViewport, { passive: true });
+
   // ---- actions ----
-  prefillBtn.addEventListener('click', () => { void runPrefill(); });
+  prefillBtn.addEventListener('click', () => {
+    const resume = generatedResumeFor(job);
+    void runPrefill({ resume });
+    // The top-frame engine handles the main document, open shadow roots, and
+    // same-origin frames. Ask statically loaded child-frame scripts to cover
+    // cross-origin ATS frames that the browser prevents the top frame reading.
+    chrome.runtime.sendMessage({ type: 'PREFILL_CHILD_FRAMES', resume }).catch(() => {});
+  });
 
   // Opens an explicit saved-resume/template chooser, then generates in the
   // widget with a live countdown and Download / Edit LaTeX actions.
@@ -1047,30 +1638,40 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     showMessage('AI job analysis is coming soon.', false);
   });
 
-  saveBtn.addEventListener('click', () => {
+  const saveJobWithStatus = (status: ApplicationSaveStatus) => {
     const label = saveBtn.querySelector('.tmo-action-label') as HTMLElement | null;
-    const prev = label?.textContent || 'Save to tracker';
+    const prev = label?.textContent || 'Save to job tracker';
     saveBtn.style.pointerEvents = 'none';
     if (label) label.textContent = 'Saving…';
+    savedBadge.textContent = 'Saving…';
     chrome.runtime.sendMessage(
-      { type: 'ADD_JOB_TO_TRACKER', job },
+      { type: 'ADD_JOB_TO_TRACKER', job, status },
       (response: { ok?: boolean; error?: string } | undefined) => {
         saveBtn.style.pointerEvents = '';
         if (chrome.runtime.lastError) {
           if (label) label.textContent = prev;
+          savedBadge.textContent = 'Not saved';
           showMessage('TrackMyOPT: Sign in in the extension to save jobs.', true);
           return;
         }
         if (response?.ok) {
-          if (label) label.textContent = 'Saved ✓';
-          showMessage('Added to Job Tracker!', false);
-          setTimeout(() => { if (label) label.textContent = prev; }, 2000);
+          if (label) label.textContent = 'Saved to job tracker';
+          savedBadge.textContent = 'Saved';
+          savedBadge.style.background = '#dcfce7';
+          savedBadge.style.color = '#166534';
+          saveBtn.disabled = true;
+          saveBtn.style.cursor = 'default';
+          showMessage(status === 'Applied' ? 'Application added to Job Tracker!' : 'Job saved to your Wishlist!', false);
         } else {
           if (label) label.textContent = prev;
+          savedBadge.textContent = 'Not saved';
           showMessage(response?.error || 'Failed to save job', true);
         }
       }
     );
+  };
+  saveBtn.addEventListener('click', () => {
+    openApplicationStatusDialog(job, saveJobWithStatus);
   });
 
   // Initial state: an explicit per-session override (user already toggled
@@ -1144,6 +1745,7 @@ function ensureSpinKeyframes(): void {
 
 /** Best-effort job-description text from the current page. */
 function scrapeJobDescription(): string {
+  const candidates: JobDescriptionCandidate[] = [];
   const selectors = [
     '[data-testid*="jobDescription" i]',
     '[class*="job-description" i]',
@@ -1153,16 +1755,49 @@ function scrapeJobDescription(): string {
     'main',
     'article',
   ];
-  for (const s of selectors) {
+  // iCIMS and several ATS products render the real posting in an iframe while
+  // the top document contains only branding/footer chrome. Same-origin job
+  // documents must therefore be considered before the outer page.
+  for (const frame of Array.from(document.querySelectorAll<HTMLIFrameElement>('iframe'))) {
     try {
-      const el = document.querySelector<HTMLElement>(s);
-      const t = el?.innerText?.trim();
-      if (t && t.length > 200) return t.slice(0, 15000);
+      const frameDocument = frame.contentDocument;
+      const frameText = frameDocument?.body?.innerText || '';
+      if (frameText) candidates.push({ source: 'frame', text: frameText });
+      if (frameDocument) {
+        for (const selector of selectors) {
+          for (const element of Array.from(frameDocument.querySelectorAll<HTMLElement>(selector))) {
+            if (element.innerText) candidates.push({ source: 'frame', text: element.innerText });
+          }
+        }
+      }
     } catch {
-      /* invalid selector — skip */
+      /* cross-origin frame; child-frame prefill remains isolated */
     }
   }
-  return (document.body?.innerText || '').trim().slice(0, 15000);
+
+  for (const selector of selectors) {
+    for (const element of Array.from(document.querySelectorAll<HTMLElement>(selector))) {
+      if (element.closest(`#${WIDGET_ROOT_ID}, #tmo-resume-chooser, #tmo-application-status-dialog`)) continue;
+      if (element.innerText) candidates.push({ source: 'specific', text: element.innerText });
+    }
+  }
+
+  // Last resort: collect top-level page children while explicitly excluding
+  // every TrackMyOPT-owned surface so our card/modal is never sent as the JD.
+  const outerText = Array.from(document.body?.children || [])
+    .filter((element) => ![
+      WIDGET_ROOT_ID,
+      'tmo-resume-chooser',
+      'tmo-application-status-dialog',
+      'tmo-easy-apply-toast',
+    ].includes(element.id))
+    .filter((element) => !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(element.tagName))
+    .map((element) => (element as HTMLElement).innerText || '')
+    .filter(Boolean)
+    .join('\n\n');
+  if (outerText) candidates.push({ source: 'outer', text: outerText });
+
+  return chooseJobDescriptionCandidate(candidates);
 }
 
 function downloadGeneratedPdf(base64: string, filename: string): void {
@@ -1235,9 +1870,151 @@ function modalSelect(id: string): HTMLSelectElement {
   return select;
 }
 
+type ApplicationSaveStatus = 'Wishlist' | 'Applied';
+
+function openApplicationStatusDialog(
+  job: JobInfo,
+  onSelect: (status: ApplicationSaveStatus) => void,
+): void {
+  document.getElementById('tmo-application-status-dialog')?.remove();
+  const returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'tmo-application-status-dialog';
+  overlay.setAttribute('popover', 'manual');
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:2147483647;width:auto;height:auto;margin:0;padding:16px;border:0;
+    background:rgba(15,23,42,0.5);display:flex;align-items:center;justify-content:center;overflow:auto;
+    color:#0f172a;color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  `;
+
+  const dialog = document.createElement('div');
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-modal', 'true');
+  dialog.setAttribute('aria-labelledby', 'tmo-application-status-title');
+  dialog.style.cssText = `
+    width:min(360px,calc(100vw - 24px));border:1px solid #dbe3ee;border-radius:16px;background:#fff;
+    box-shadow:0 24px 70px rgba(15,23,42,0.32);overflow:hidden;
+  `;
+
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:17px 17px 13px;border-bottom:1px solid #eef2f7;';
+  const headingCopy = document.createElement('div');
+  headingCopy.style.cssText = 'flex:1;min-width:0;';
+  const heading = document.createElement('h2');
+  heading.id = 'tmo-application-status-title';
+  heading.textContent = 'Application Status';
+  heading.style.cssText = 'margin:0;color:#0f172a;font-size:17px;line-height:1.3;font-weight:800;';
+  const description = document.createElement('p');
+  description.textContent = `Have you applied for ${job.role_title || 'this job'}?`;
+  description.style.cssText = 'margin:5px 0 0;color:#64748b;font-size:12.5px;line-height:1.45;';
+  headingCopy.appendChild(heading);
+  headingCopy.appendChild(description);
+
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.setAttribute('aria-label', 'Close application status');
+  close.textContent = '×';
+  close.style.cssText = 'width:44px;height:44px;flex:0 0 44px;border:0;border-radius:10px;background:#f1f5f9;color:#334155;font:inherit;font-size:22px;cursor:pointer;';
+  header.appendChild(headingCopy);
+  header.appendChild(close);
+
+  const body = document.createElement('div');
+  body.style.cssText = 'display:grid;gap:9px;padding:15px 17px 17px;';
+
+  const option = (status: ApplicationSaveStatus, label: string, hint: string): HTMLButtonElement => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.style.cssText = `
+      width:100%;min-height:58px;padding:11px 12px;border:1px solid #dbe3ee;border-radius:11px;
+      background:#fff;color:#0f172a;display:flex;align-items:center;gap:11px;text-align:left;font:inherit;cursor:pointer;
+      transition:border-color 180ms ease,background 180ms ease,box-shadow 180ms ease;
+    `;
+    const marker = document.createElement('span');
+    marker.style.cssText = 'width:18px;height:18px;flex:0 0 18px;border:2px solid #94a3b8;border-radius:50%;box-shadow:inset 0 0 0 4px #fff;';
+    const copy = document.createElement('span');
+    copy.style.cssText = 'min-width:0;display:block;';
+    const labelEl = document.createElement('strong');
+    labelEl.textContent = label;
+    labelEl.style.cssText = 'display:block;color:#0f172a;font-size:13.5px;line-height:1.3;';
+    const hintEl = document.createElement('span');
+    hintEl.textContent = hint;
+    hintEl.style.cssText = 'display:block;margin-top:3px;color:#64748b;font-size:11.5px;line-height:1.35;';
+    copy.appendChild(labelEl);
+    copy.appendChild(hintEl);
+    button.appendChild(marker);
+    button.appendChild(copy);
+    button.addEventListener('mouseenter', () => {
+      button.style.borderColor = '#2563eb';
+      button.style.background = '#eff6ff';
+      marker.style.borderColor = '#2563eb';
+    });
+    button.addEventListener('mouseleave', () => {
+      button.style.borderColor = '#dbe3ee';
+      button.style.background = '#fff';
+      marker.style.borderColor = '#94a3b8';
+    });
+    button.addEventListener('focus', () => (button.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.18)'));
+    button.addEventListener('blur', () => (button.style.boxShadow = 'none'));
+    button.addEventListener('click', () => {
+      cleanup();
+      onSelect(status);
+    });
+    return button;
+  };
+
+  const notApplied = option('Wishlist', 'I have not applied yet', 'Save this job to your Wishlist.');
+  const applied = option('Applied', 'I applied', 'Save it as an active application.');
+  body.appendChild(notApplied);
+  body.appendChild(applied);
+  dialog.appendChild(header);
+  dialog.appendChild(body);
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+
+  const cleanup = () => {
+    document.removeEventListener('keydown', onKeyDown, true);
+    try { overlay.hidePopover?.(); } catch { /* already closed */ }
+    overlay.remove();
+    returnFocusTo?.focus();
+  };
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      cleanup();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusable = [close, notApplied, applied];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+  document.addEventListener('keydown', onKeyDown, true);
+  close.addEventListener('click', cleanup);
+  overlay.addEventListener('click', (event) => {
+    if (event.target === overlay) cleanup();
+  });
+  try {
+    overlay.showPopover?.();
+  } catch {
+    overlay.removeAttribute('popover');
+  }
+  notApplied.focus();
+}
+
 /** Explicit resume/template chooser displayed before any generation starts. */
 function openResumeChooser(card: HTMLElement, job: JobInfo): void {
   document.getElementById('tmo-resume-chooser')?.remove();
+  // Capture before mounting TrackMyOPT's modal so extension UI can never enter
+  // the job-description payload or preview.
+  const jobDescription = scrapeJobDescription();
   const returnFocusTo = document.activeElement instanceof HTMLElement
     ? document.activeElement
     : null;
@@ -1402,6 +2179,39 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
       jobContext.style.cssText = 'margin-top:15px;padding:10px 11px;border:1px solid #dbeafe;border-radius:9px;background:#eff6ff;color:#1e3a8a;font-size:12px;line-height:1.45;';
       jobContext.textContent = [job.role_title, job.company_name].filter(Boolean).join(' at ') || 'Current job posting';
 
+      const jdSection = document.createElement('div');
+      jdSection.style.cssText = 'margin-top:15px;';
+      const jdHeader = document.createElement('div');
+      jdHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;';
+      const jdLabel = document.createElement('span');
+      jdLabel.textContent = 'Job description sent for tailoring';
+      jdLabel.style.cssText = 'color:#0f172a;font-size:12.5px;font-weight:750;';
+      const jdCount = document.createElement('span');
+      jdCount.textContent = `${jobDescription.length.toLocaleString()} characters`;
+      jdCount.style.cssText = 'flex-shrink:0;color:#94a3b8;font-size:10.5px;font-weight:600;';
+      jdHeader.appendChild(jdLabel);
+      jdHeader.appendChild(jdCount);
+      const jdPreview = document.createElement('div');
+      jdPreview.setAttribute('role', 'textbox');
+      jdPreview.setAttribute('aria-readonly', 'true');
+      jdPreview.tabIndex = 0;
+      jdPreview.textContent = jobDescription || 'No job description was detected on this page.';
+      jdPreview.style.cssText = `
+        max-height:132px;overflow:auto;padding:10px 11px;border:1px solid #dbe3ee;border-radius:9px;
+        background:#f8fafc;color:#475569;font-size:11.5px;line-height:1.48;white-space:pre-wrap;
+        overflow-wrap:anywhere;scrollbar-width:thin;
+      `;
+      jdPreview.addEventListener('focus', () => {
+        jdPreview.style.borderColor = '#2563eb';
+        jdPreview.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.14)';
+      });
+      jdPreview.addEventListener('blur', () => {
+        jdPreview.style.borderColor = '#dbe3ee';
+        jdPreview.style.boxShadow = 'none';
+      });
+      jdSection.appendChild(jdHeader);
+      jdSection.appendChild(jdPreview);
+
       const actions = document.createElement('div');
       actions.style.cssText = 'display:flex;gap:9px;margin-top:17px;';
       const cancel = resumeMiniBtn('<span>Cancel</span>', false);
@@ -1412,7 +2222,7 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
         const templateId = templateSelect.value;
         if (!resumeId || !templateId) return;
         cleanup();
-        openResumePanel(card, job, resumeId, templateId);
+        openResumePanel(card, job, resumeId, templateId, jobDescription);
       });
       actions.appendChild(cancel);
       actions.appendChild(generate);
@@ -1421,6 +2231,7 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
       body.appendChild(resumeSelect);
       body.appendChild(templateGroup);
       body.appendChild(jobContext);
+      body.appendChild(jdSection);
       body.appendChild(actions);
       resumeSelect.focus();
     }
@@ -1474,15 +2285,32 @@ function renderResumeResult(
   panel.appendChild(head);
 
   const row = document.createElement('div');
-  row.style.cssText = 'display:grid;grid-template-columns:1fr;gap:8px;';
-  const dl = resumeMiniBtn(`${icon('fileText', 14, '#fff')}<span>Download PDF</span>`, true);
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+  const safeCo = (job.company_name || 'company').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+  const filename = `TrackMyOPT-resume-${safeCo}.pdf`;
+  generatedResumeForCurrentJob = {
+    jobFingerprint: jobFingerprint(job),
+    pdfBase64,
+    filename,
+  };
+
+  const card = panel.parentElement;
+  const prefillLabel = card?.querySelector<HTMLElement>('.tmo-prefill-button .tmo-action-label');
+  if (prefillLabel) prefillLabel.textContent = 'Prefill application + resume';
+  const prefillButton = card?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
+  if (prefillButton) {
+    prefillButton.title = 'Prefill profile fields and attach the custom resume generated for this job';
+  }
+
+  const dl = resumeMiniBtn(`${icon('fileText', 14, '#fff')}<span>Download</span>`, true);
+  dl.title = 'Download the tailored resume as a PDF';
   dl.addEventListener('click', () => {
-    const safeCo = (job.company_name || 'company').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
-    downloadGeneratedPdf(pdfBase64, `TrackMyOPT-resume-${safeCo}.pdf`);
+    downloadGeneratedPdf(pdfBase64, filename);
   });
-  const ed = resumeMiniBtn(`${icon('fileText', 14)}<span>Edit LaTeX in TrackMyOPT</span>`, false);
+  const ed = resumeMiniBtn(`${icon('fileText', 14)}<span>Edit</span>`, false);
   ed.disabled = !editorUrl;
   if (editorUrl) {
+    ed.title = 'Open the generated resume in the TrackMyOPT LaTeX editor';
     ed.addEventListener('click', () => window.open(editorUrl, '_blank', 'noopener'));
   } else {
     ed.title = 'The editor handoff could not be prepared. Your PDF is still ready.';
@@ -1499,7 +2327,8 @@ function openResumePanel(
   card: HTMLElement,
   job: JobInfo,
   resumeId: string,
-  templateId: string
+  templateId: string,
+  jobDescription: string,
 ): void {
   card.querySelector('.' + RESUME_PANEL_CLASS)?.remove();
   ensureSpinKeyframes();
@@ -1538,8 +2367,6 @@ function openResumePanel(
     seconds += 1;
     timer.textContent = `${seconds}s`;
   }, 1000);
-
-  const jobDescription = scrapeJobDescription();
 
   chrome.runtime.sendMessage(
     {
@@ -1695,10 +2522,27 @@ async function injectOrRefreshButton() {
 
   const defaultView = await getDefaultViewPref();
 
-  if (document.getElementById(WIDGET_ROOT_ID)) return; // re-check after await
+  const currentWidget = document.getElementById(WIDGET_ROOT_ID);
+  if (currentWidget) {
+    if (!shouldRefreshWidget(currentWidget, job)) return;
+    currentWidget.remove();
+  }
 
   const widget = createJobTrackerWidget(job, defaultView);
+
+  // A maximum z-index alone cannot beat another extension using the same value
+  // from a later stacking context. A manual popover enters Chrome's top layer,
+  // keeping TrackMyOPT above ordinary page and extension overlays. Older
+  // browsers retain the maximum-z-index fallback.
+  widget.setAttribute('popover', 'manual');
   document.body.appendChild(widget);
+  try {
+    widget.showPopover?.();
+  } catch {
+    // If the top-layer API is unavailable or rejected, avoid the popover's
+    // hidden default state and continue with the z-index fallback.
+    widget.removeAttribute('popover');
+  }
 }
 
 function scheduleInject() {
@@ -1814,11 +2658,9 @@ function startEarlyRetryLoop() {
       if (_earlyRetryId === id) _earlyRetryId = null;
       return;
     }
-    if (document.getElementById(WIDGET_ROOT_ID)) {
-      window.clearInterval(id);
-      if (_earlyRetryId === id) _earlyRetryId = null;
-      return;
-    }
+    // Keep sampling briefly even after the initial widget appears: ATS pages
+    // often publish location, compensation, and logos a few seconds later.
+    // injectOrRefreshButton only replaces the widget when data is enriched.
     injectOrRefreshButton();
   }, 600);
   _earlyRetryId = id;
@@ -1862,10 +2704,25 @@ function initFullJobAssistMode() {
   }
 }
 
+// Cross-origin ATS frames receive prefill through the background relay. They
+// never render their own side panel; only the top-level document owns the UI.
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME' || window.top === window.self) return false;
+  void runPrefill({
+    resume: message.resume as GeneratedResumeAttachment | undefined,
+    quietIfNoForm: true,
+  })
+    .then(() => sendResponse({ ok: true }))
+    .catch(() => sendResponse({ ok: false }));
+  return true;
+});
+
 // Guard: only run on actual career / job pages.
 // isCareerPage() covers blocklist → known boards → ATS → career subdomains →
 // path patterns → page title / meta → JSON-LD → application forms.
-if (!isHttpDocument()) {
+if (window.top !== window.self) {
+  // Child frame: listener-only mode.
+} else if (!isHttpDocument()) {
   // Non-HTTP document — do nothing.
 } else {
   const careerReason = isCareerPage();

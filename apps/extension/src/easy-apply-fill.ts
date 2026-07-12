@@ -7,4 +7,4 @@
 
 import { runPrefill } from './easy-apply-engine';
 
-void runPrefill();
+void runPrefill({ quietIfNoForm: window.top !== window.self });

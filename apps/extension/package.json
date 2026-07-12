@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node esbuild.config.js --watch",
     "dev:local": "EXT_TARGET=local node esbuild.config.js --watch",
-    "build": "node esbuild.config.js"
+    "build": "node esbuild.config.js",
+    "test": "node scripts/run-unit-tests.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.254",

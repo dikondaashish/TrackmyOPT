@@ -39,26 +39,26 @@ export function buildFeedbackForm(onClose: () => void): HTMLElement {
   // widget header and popup theme).
   const header = document.createElement('div');
   header.style.cssText =
-    'display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);';
+    'display:flex;align-items:center;gap:9px;padding:10px 14px;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);';
   const logoRing = document.createElement('div');
   logoRing.style.cssText =
-    'width:30px;height:30px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(30,64,175,0.2);overflow:hidden;';
+    'width:28px;height:28px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(30,64,175,0.2);overflow:hidden;';
   const logoImg = document.createElement('img');
   logoImg.src = chrome.runtime.getURL('icons/logo.gif');
   logoImg.alt = '';
-  logoImg.width = 22;
-  logoImg.height = 22;
+  logoImg.width = 20;
+  logoImg.height = 20;
   logoImg.style.cssText = 'object-fit:contain;';
   logoRing.appendChild(logoImg);
   const h = document.createElement('h1');
   h.textContent = 'Share feedback';
-  h.style.cssText = 'font-size:16px;font-weight:800;margin:0;color:#1e40af;';
+  h.style.cssText = 'font-size:15px;font-weight:800;margin:0;color:#1e40af;';
   header.appendChild(logoRing);
   header.appendChild(h);
   container.appendChild(header);
 
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'padding:16px 16px 20px;display:flex;flex-direction:column;gap:16px;';
+  wrap.style.cssText = 'padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px;';
   container.appendChild(wrap);
 
   // Q1 — rating 0..10
@@ -89,10 +89,12 @@ export function buildFeedbackForm(onClose: () => void): HTMLElement {
 
   // Q2 — aspects
   const q2 = section('Anything that didn’t meet your expectations?', false);
+  const aspectGrid = document.createElement('div');
+  aspectGrid.style.cssText = 'display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:2px;';
   for (const label of ASPECTS) {
     const row = document.createElement('label');
     row.style.cssText =
-      'display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;cursor:pointer;';
+      'display:flex;align-items:center;gap:8px;min-height:38px;padding:3px 0;font-size:12px;line-height:1.25;cursor:pointer;';
     const cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.style.cssText = `width:16px;height:16px;accent-color:${GREEN};cursor:pointer;`;
@@ -105,24 +107,25 @@ export function buildFeedbackForm(onClose: () => void): HTMLElement {
     span.textContent = label;
     row.appendChild(cb);
     row.appendChild(span);
-    q2.appendChild(row);
+    aspectGrid.appendChild(row);
   }
+  q2.appendChild(aspectGrid);
   wrap.appendChild(q2);
 
   // Q3 — comment
   const q3 = section('Any specific feedback on how we can improve?', false);
   const ta = document.createElement('textarea');
-  ta.rows = 4;
+  ta.rows = 2;
   ta.placeholder = 'The more specific you are, the better we can help.';
   ta.style.cssText =
-    'width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:13px;resize:vertical;background:#f8fafc;color:inherit;';
+    'width:100%;height:64px;box-sizing:border-box;padding:9px 11px;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:12.5px;line-height:1.35;resize:none;background:#f8fafc;color:inherit;';
   ta.addEventListener('input', clearStatus);
   q3.appendChild(ta);
   wrap.appendChild(q3);
 
   // Status + actions
   const status = document.createElement('p');
-  status.style.cssText = 'margin:0;font-size:12px;min-height:16px;';
+  status.style.cssText = 'margin:0;font-size:11.5px;line-height:1.25;min-height:14px;';
   function clearStatus() {
     status.textContent = '';
   }
@@ -132,18 +135,18 @@ export function buildFeedbackForm(onClose: () => void): HTMLElement {
   }
 
   const actions = document.createElement('div');
-  actions.style.cssText = 'display:flex;gap:10px;';
+  actions.style.cssText = 'display:flex;gap:9px;';
   const cancel = document.createElement('button');
   cancel.type = 'button';
   cancel.textContent = 'Cancel';
   cancel.style.cssText =
-    'flex:1;padding:11px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:inherit;font:inherit;font-weight:700;font-size:13px;cursor:pointer;';
+    'flex:1;min-height:42px;padding:9px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:inherit;font:inherit;font-weight:700;font-size:13px;cursor:pointer;';
   cancel.addEventListener('click', onBack);
 
   const submit = document.createElement('button');
   submit.type = 'button';
   submit.textContent = 'Submit';
-  submit.style.cssText = `flex:1;padding:11px;border:none;border-radius:10px;background:${GREEN};color:#fff;font:inherit;font-weight:800;font-size:13px;cursor:pointer;`;
+  submit.style.cssText = `flex:1;min-height:42px;padding:9px;border:none;border-radius:10px;background:${GREEN};color:#fff;font:inherit;font-weight:800;font-size:13px;cursor:pointer;`;
   submit.addEventListener('click', async () => {
     const comment = ta.value.trim();
     if (rating === null && selectedAspects.size === 0 && comment === '') {
@@ -196,7 +199,7 @@ export function buildFeedbackForm(onClose: () => void): HTMLElement {
 function section(titleText: string, required: boolean): HTMLDivElement {
   const s = document.createElement('div');
   const t = document.createElement('div');
-  t.style.cssText = 'font-size:13px;font-weight:700;margin-bottom:8px;line-height:1.35;';
+  t.style.cssText = 'font-size:12.5px;font-weight:750;margin-bottom:6px;line-height:1.3;';
   t.textContent = titleText;
   if (required) {
     const star = document.createElement('span');
@@ -238,11 +241,11 @@ export function openFeedbackModal(): void {
   const backdrop = document.createElement('div');
   backdrop.id = FEEDBACK_MODAL_ID;
   backdrop.style.cssText =
-    'position:fixed;inset:0;z-index:2147483647;background:rgba(15,23,42,0.5);display:flex;align-items:center;justify-content:center;padding:20px;';
+    'position:fixed;inset:0;z-index:2147483647;background:rgba(15,23,42,0.5);display:flex;align-items:center;justify-content:center;padding:10px;';
 
   const card = document.createElement('div');
   card.style.cssText =
-    'width:min(460px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.35);';
+    'width:min(460px,100%);overflow:hidden;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.35);';
 
   const close = () => backdrop.remove();
   card.appendChild(buildFeedbackForm(close));

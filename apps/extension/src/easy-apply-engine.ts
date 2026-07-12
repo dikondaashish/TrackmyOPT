@@ -5,7 +5,9 @@
  * job widget (content-job-portal.ts), so the fill logic and its safety rules
  * live in exactly one place. Fills the visible identity text fields of a
  * supported, OPEN application form from the user's TrackMyOPT profile, then
- * stops. Supported platforms: LinkedIn Easy Apply, Greenhouse.
+ * stops. The engine is ATS-agnostic and uses native semantics plus guarded
+ * heuristics across LinkedIn, Greenhouse, Workday, Lever, Ashby, iCIMS, and
+ * other standards-based application forms.
  *
  * HARD INVARIANTS — do not change without product + compliance sign-off. These
  * apply to EVERY platform, no exceptions:
@@ -17,6 +19,9 @@
  *  4. NEVER fills combobox / autocomplete / typeahead widgets (see
  *     isComboboxLike) — the user picks those from the dropdown.
  *  5. No timers/delays for evasion, no loop. One open form, once.
+ *  6. A resume PDF is attached only when the caller explicitly provides the
+ *     job-scoped PDF, the input is confidently labeled Resume/CV, and the user
+ *     has not already selected a file.
  *
  * The JWT never reaches this code: it asks the background worker for the
  * resolved profile; the token stays in the background.
@@ -37,8 +42,60 @@ interface AutofillProfile {
   portfolioUrl: string;
 }
 
+export interface GeneratedResumeAttachment {
+  pdfBase64: string;
+  filename: string;
+}
+
+export interface PrefillOptions {
+  resume?: GeneratedResumeAttachment;
+  /** Child frames without an application form should stay silent so only the
+   * frame that actually fills fields reports a result. */
+  quietIfNoForm?: boolean;
+}
+
+type ResumeAttachmentResult = 'not_requested' | 'attached' | 'already_present' | 'not_found' | 'unsupported';
+
 const TOAST_ID = 'tmo-easy-apply-toast';
 const FILLABLE_INPUT_TYPES = new Set(['text', 'email', 'tel', 'url', 'number']);
+const RESUME_FILE_FIELD_RE = /\b(resume|résumé|curriculum\s+vitae|cv)\b/i;
+const NON_RESUME_FILE_FIELD_RE = /\b(cover\s+letter|portfolio|photo|headshot|transcript|certificate)\b/i;
+
+type SearchRoot = Document | ShadowRoot | HTMLElement;
+type FillableControl = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+const isInputElement = (el: Element): el is HTMLInputElement => el.tagName === 'INPUT';
+const isTextAreaElement = (el: Element): el is HTMLTextAreaElement => el.tagName === 'TEXTAREA';
+const isSelectElement = (el: Element): el is HTMLSelectElement => el.tagName === 'SELECT';
+
+function queryAllDeep<T extends Element>(root: SearchRoot, selector: string): T[] {
+  const matches = Array.from(root.querySelectorAll<T>(selector));
+  for (const host of Array.from(root.querySelectorAll<HTMLElement>('*'))) {
+    if (host.shadowRoot) matches.push(...queryAllDeep<T>(host.shadowRoot, selector));
+  }
+  return matches;
+}
+
+/** Documents reachable under browser same-origin rules. Cross-origin frames
+ * are deliberately skipped; browser security does not permit safe DOM access. */
+function reachableDocuments(): Document[] {
+  const documents: Document[] = [document];
+  const seen = new Set<Document>(documents);
+  for (let index = 0; index < documents.length; index += 1) {
+    for (const frame of queryAllDeep<HTMLIFrameElement>(documents[index], 'iframe')) {
+      try {
+        const child = frame.contentDocument;
+        if (child?.body && !seen.has(child)) {
+          seen.add(child);
+          documents.push(child);
+        }
+      } catch {
+        // Cross-origin frame: inaccessible by design.
+      }
+    }
+  }
+  return documents;
+}
 
 /** Build a lowercased label string for a control from every nearby signal. */
 function getLabelText(el: HTMLElement): string {
@@ -50,11 +107,33 @@ function getLabelText(el: HTMLElement): string {
   push(el.getAttribute('aria-label'));
   push(el.getAttribute('name'));
   push(el.getAttribute('placeholder'));
+  push(el.getAttribute('title'));
+  push(el.getAttribute('autocomplete'));
+  push(el.getAttribute('data-testid'));
+  push(el.getAttribute('data-test-id'));
+  push(el.getAttribute('data-automation-id'));
+  push(el.getAttribute('data-field'));
+  push(el.getAttribute('data-qa'));
+
+  if (isInputElement(el) && (el.type === 'email' || el.type === 'tel')) {
+    push(el.type);
+  }
+
+  const ownerDocument = el.ownerDocument;
+  const rootNode = el.getRootNode();
+  const labelRoot = rootNode && 'querySelector' in rootNode
+    ? rootNode as Document | ShadowRoot
+    : ownerDocument;
 
   const id = el.getAttribute('id');
   if (id) {
-    const forLabel = document.querySelector(`label[for="${CSS.escape(id)}"]`);
+    const forLabel = Array.from(labelRoot.querySelectorAll('label[for]'))
+      .find((label) => label.getAttribute('for') === id);
     push(forLabel?.textContent);
+  }
+  for (const relation of ['aria-labelledby', 'aria-describedby']) {
+    const ids = el.getAttribute(relation)?.split(/\s+/).filter(Boolean) || [];
+    for (const relatedId of ids) push(ownerDocument.getElementById(relatedId)?.textContent);
   }
   push(el.closest('label')?.textContent);
   // LinkedIn's artdeco form label + fieldset legend
@@ -62,7 +141,12 @@ function getLabelText(el: HTMLElement): string {
     ?.querySelector('label, .artdeco-text-input--label')?.textContent);
   push(el.closest('fieldset')?.querySelector('legend')?.textContent);
 
-  return parts.join(' ');
+  const fieldWrapper = el.closest<HTMLElement>(
+    '[data-automation-id*="formField" i], [data-testid*="field" i], .application-field, .form-field, .field',
+  );
+  push(fieldWrapper?.querySelector('label, legend, [data-automation-id*="label" i]')?.textContent);
+
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
 }
 
 /**
@@ -83,10 +167,10 @@ function isComboboxLike(el: HTMLElement): boolean {
 /** A control is fillable only if visible, enabled, empty, a text-like input or textarea, and not a combobox. */
 function isFillable(el: HTMLElement): el is HTMLInputElement | HTMLTextAreaElement {
   if (isComboboxLike(el)) return false;
-  if (el instanceof HTMLTextAreaElement) {
+  if (isTextAreaElement(el)) {
     return isVisibleEditableEmpty(el);
   }
-  if (el instanceof HTMLInputElement) {
+  if (isInputElement(el)) {
     if (!FILLABLE_INPUT_TYPES.has((el.type || 'text').toLowerCase())) return false;
     return isVisibleEditableEmpty(el);
   }
@@ -96,10 +180,18 @@ function isFillable(el: HTMLElement): el is HTMLInputElement | HTMLTextAreaEleme
 function isVisibleEditableEmpty(el: HTMLInputElement | HTMLTextAreaElement): boolean {
   if (el.disabled || el.readOnly) return false;
   if (el.value && el.value.trim() !== '') return false; // never overwrite
-  if (el.offsetParent === null) return false; // not rendered
-  const style = getComputedStyle(el);
-  if (style.visibility === 'hidden' || style.display === 'none') return false;
+  if (!isControlVisible(el)) return false;
   return true;
+}
+
+function isControlVisible(el: HTMLElement): boolean {
+  if (!el.isConnected || el.hidden || el.getAttribute('aria-hidden') === 'true') return false;
+  const view = el.ownerDocument.defaultView;
+  if (!view) return false;
+  const style = view.getComputedStyle(el);
+  if (style.visibility === 'hidden' || style.display === 'none' || style.opacity === '0') return false;
+  const rect = el.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0;
 }
 
 function valueForKind(kind: FieldKind, p: AutofillProfile): string {
@@ -129,18 +221,162 @@ function valueForKind(kind: FieldKind, p: AutofillProfile): string {
   }
 }
 
+const US_STATE_NAMES: Record<string, string> = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado',
+  CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', ID: 'Idaho',
+  IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana',
+  ME: 'Maine', MD: 'Maryland', MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota',
+  MS: 'Mississippi', MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada',
+  NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York', NC: 'North Carolina',
+  ND: 'North Dakota', OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania',
+  RI: 'Rhode Island', SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas',
+  UT: 'Utah', VT: 'Vermont', VA: 'Virginia', WA: 'Washington', WV: 'West Virginia',
+  WI: 'Wisconsin', WY: 'Wyoming', DC: 'District of Columbia',
+};
+
+function normalizeOptionValue(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function matchingSelectValue(
+  select: HTMLSelectElement,
+  kind: FieldKind,
+  profileValue: string,
+): string | null {
+  const candidates = new Set([normalizeOptionValue(profileValue)]);
+  if (kind === 'state') {
+    const stateCode = profileValue.trim().toUpperCase();
+    const stateName = US_STATE_NAMES[stateCode];
+    if (stateName) candidates.add(normalizeOptionValue(stateName));
+    for (const [code, name] of Object.entries(US_STATE_NAMES)) {
+      if (normalizeOptionValue(name) === normalizeOptionValue(profileValue)) {
+        candidates.add(normalizeOptionValue(code));
+      }
+    }
+  }
+
+  for (const option of Array.from(select.options)) {
+    if (option.disabled || !option.value) continue;
+    if (
+      candidates.has(normalizeOptionValue(option.value)) ||
+      candidates.has(normalizeOptionValue(option.textContent || ''))
+    ) return option.value;
+  }
+  return null;
+}
+
+function isFillableSelect(el: HTMLElement): el is HTMLSelectElement {
+  if (!isSelectElement(el) || el.disabled || el.multiple || !isControlVisible(el)) return false;
+  const selected = el.selectedOptions[0];
+  return !el.value || !selected || selected.disabled || /select|choose|please/i.test(selected.textContent || '');
+}
+
+function setNativeSelectValue(el: HTMLSelectElement, value: string): void {
+  const view = el.ownerDocument.defaultView;
+  const proto = view?.HTMLSelectElement.prototype;
+  const setter = proto ? Object.getOwnPropertyDescriptor(proto, 'value')?.set : undefined;
+  if (setter) setter.call(el, value);
+  else el.value = value;
+  const EventCtor = view?.Event || Event;
+  el.dispatchEvent(new EventCtor('input', { bubbles: true, composed: true }));
+  el.dispatchEvent(new EventCtor('change', { bubbles: true, composed: true }));
+}
+
 /** Set a value the way frameworks (React/Ember) expect: native setter + input/change. */
 function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement, value: string): void {
-  const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
-  const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
+  const view = el.ownerDocument.defaultView;
+  const proto = isTextAreaElement(el)
+    ? view?.HTMLTextAreaElement.prototype
+    : view?.HTMLInputElement.prototype;
+  const setter = proto ? Object.getOwnPropertyDescriptor(proto, 'value')?.set : undefined;
   if (setter) {
     setter.call(el, value);
   } else {
     el.value = value;
   }
-  el.dispatchEvent(new Event('input', { bubbles: true }));
-  el.dispatchEvent(new Event('change', { bubbles: true }));
-  el.dispatchEvent(new Event('blur', { bubbles: true }));
+  const EventCtor = view?.Event || Event;
+  const InputEventCtor = view?.InputEvent;
+  if (InputEventCtor) {
+    el.dispatchEvent(new InputEventCtor('input', {
+      bubbles: true,
+      composed: true,
+      data: value,
+      inputType: 'insertText',
+    }));
+  } else {
+    el.dispatchEvent(new EventCtor('input', { bubbles: true, composed: true }));
+  }
+  el.dispatchEvent(new EventCtor('change', { bubbles: true, composed: true }));
+  el.dispatchEvent(new EventCtor('blur', { bubbles: true, composed: true }));
+}
+
+function getFileInputLabel(input: HTMLInputElement): string {
+  const parts = [getLabelText(input)];
+  const describedBy = input.getAttribute('aria-describedby');
+  if (describedBy) {
+    for (const id of describedBy.split(/\s+/)) {
+      parts.push(document.getElementById(id)?.textContent || '');
+    }
+  }
+  const field = input.closest<HTMLElement>(
+    '[data-test-form-element], .jobs-document-upload, .application-field, .field, .form-field'
+  );
+  if (field?.textContent) parts.push(field.textContent.slice(0, 300));
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
+}
+
+function acceptsPdf(input: HTMLInputElement): boolean {
+  const accept = (input.accept || '').trim().toLowerCase();
+  if (!accept || accept === '*/*') return true;
+  return accept.split(',').some((value) => {
+    const token = value.trim();
+    return token === '.pdf' || token === 'application/pdf' || token === 'application/*';
+  });
+}
+
+function pdfBase64ToFile(pdfBase64: string, filename: string): File | null {
+  try {
+    const bytes = Uint8Array.from(atob(pdfBase64), (char) => char.charCodeAt(0));
+    if (bytes.length < 5) return null;
+    const safeFilename = filename.toLowerCase().endsWith('.pdf') ? filename : `${filename}.pdf`;
+    return new File([bytes], safeFilename, { type: 'application/pdf', lastModified: Date.now() });
+  } catch {
+    return null;
+  }
+}
+
+/** Attach only to a confidently identified, currently empty Resume/CV input. */
+function attachGeneratedResume(
+  container: HTMLElement,
+  attachment?: GeneratedResumeAttachment
+): ResumeAttachmentResult {
+  if (!attachment) return 'not_requested';
+  const file = pdfBase64ToFile(attachment.pdfBase64, attachment.filename);
+  if (!file || typeof DataTransfer === 'undefined') return 'unsupported';
+
+  const inputs = queryAllDeep<HTMLInputElement>(container, 'input[type="file"]');
+  let sawResumeInput = false;
+  for (const input of inputs) {
+    const label = getFileInputLabel(input);
+    if (!RESUME_FILE_FIELD_RE.test(label) || NON_RESUME_FILE_FIELD_RE.test(label)) continue;
+    sawResumeInput = true;
+    if (input.disabled) continue;
+    if (input.files && input.files.length > 0) return 'already_present';
+    if (!acceptsPdf(input)) continue;
+
+    try {
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      input.files = transfer.files;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return 'attached';
+    } catch {
+      return 'unsupported';
+    }
+  }
+
+  return sawResumeInput ? 'unsupported' : 'not_found';
 }
 
 function showToast(message: string): void {
@@ -174,9 +410,9 @@ function fieldGroup(kind: FieldKind): string {
  */
 function applicationFieldScore(container: HTMLElement): number {
   const kinds = new Set<string>();
-  for (const el of Array.from(container.querySelectorAll<HTMLElement>('input, textarea'))) {
+  for (const el of queryAllDeep<HTMLElement>(container, 'input, textarea, select')) {
     if (isComboboxLike(el)) continue;
-    if (el.offsetParent === null) continue; // visible only
+    if (!isControlVisible(el)) continue;
     const kind = classifyField(getLabelText(el));
     if (kind) kinds.add(fieldGroup(kind));
   }
@@ -198,27 +434,62 @@ function applicationFieldScore(container: HTMLElement): number {
  * only custom non-native widgets, or a page with no form) — the caller toasts.
  */
 export function findApplicationForm(): HTMLElement | null {
-  const linkedin = document.querySelector<HTMLElement>(
-    '.jobs-easy-apply-modal, [data-test-modal-id="easy-apply-modal"]'
-  );
-  if (linkedin) return linkedin;
+  const documents = reachableDocuments();
+  for (const doc of documents) {
+    const linkedin = queryAllDeep<HTMLElement>(
+      doc,
+      '.jobs-easy-apply-modal, [data-test-modal-id="easy-apply-modal"]',
+    )[0];
+    if (linkedin) return linkedin;
 
-  const greenhouse = document.querySelector<HTMLElement>(
-    'form#application-form, form#application_form, form.application--form'
-  );
-  if (greenhouse) return greenhouse;
+    const greenhouse = queryAllDeep<HTMLElement>(
+      doc,
+      'form#application-form, form#application_form, form.application--form',
+    )[0];
+    if (greenhouse) return greenhouse;
+  }
 
-  // Generic: pick the <form> with the most application-like fields (>= 2).
+  // Generic: pick the form with the most application-like fields (>= 2),
+  // including forms hosted in open shadow roots and same-origin frames.
   let best: HTMLElement | null = null;
   let bestScore = 1; // require at least 2 distinct fields to avoid newsletter/search boxes
-  for (const form of Array.from(document.querySelectorAll<HTMLElement>('form'))) {
-    const score = applicationFieldScore(form);
-    if (score > bestScore) {
-      bestScore = score;
-      best = form;
+  for (const doc of documents) {
+    for (const form of queryAllDeep<HTMLElement>(doc, 'form')) {
+      const score = applicationFieldScore(form);
+      if (score > bestScore) {
+        bestScore = score;
+        best = form;
+      }
     }
   }
-  return best;
+  if (best) return best;
+
+  // Multi-step ATS flows sometimes render only one identity field per screen
+  // and omit a real <form>. Accept one confidently classified field only inside
+  // a strongly application-labelled dialog/region or application URL.
+  let singleStep: HTMLElement | null = null;
+  let singleStepScore = 0;
+  for (const doc of documents) {
+    const pageLooksLikeApplication = /\b(apply|application|candidate)\b/i.test(
+      `${doc.location?.pathname || ''} ${doc.title || ''}`,
+    );
+    const candidates = queryAllDeep<HTMLElement>(
+      doc,
+      '[role="dialog"], [aria-modal="true"], [data-automation-id*="application" i], [data-testid*="application" i], main',
+    );
+    for (const candidate of candidates) {
+      const labelledAsApplication = /\b(apply|application|candidate)\b/i.test(
+        `${candidate.getAttribute('aria-label') || ''} ${candidate.getAttribute('data-automation-id') || ''}`,
+      );
+      if (!pageLooksLikeApplication && !labelledAsApplication) continue;
+      const score = applicationFieldScore(candidate);
+      if (score > singleStepScore) {
+        singleStepScore = score;
+        singleStep = candidate;
+      }
+    }
+  }
+  return singleStepScore >= 1 ? singleStep : null;
 }
 
 /**
@@ -226,18 +497,29 @@ export function findApplicationForm(): HTMLElement | null {
  * page. Safe to call from any content-script context (popup-injected or the
  * on-page widget). Shows a toast with the result. Never submits.
  */
-export async function runPrefill(): Promise<void> {
+export async function runPrefill(options: PrefillOptions = {}): Promise<void> {
   const container = findApplicationForm();
   if (!container) {
-    showToast('Open the job application form on this page first, then click Prefill. (Some systems use custom fields we can’t fill — those stay blank.)');
+    if (options.quietIfNoForm) return;
+    showToast(
+      document.querySelector('iframe')
+        ? 'Checking the embedded application form. TrackMyOPT will fill supported fields inside accessible application frames.'
+        : 'Open the job application form on this page first, then click Prefill. Custom or protected fields stay blank.'
+    );
     return;
   }
+
+  const resumeResult = attachGeneratedResume(container, options.resume);
 
   const resp = (await chrome.runtime
     .sendMessage({ type: 'GET_AUTOFILL_PROFILE' })
     .catch(() => null)) as { ok?: boolean; error?: string; profile?: AutofillProfile } | null;
 
   if (!resp?.ok || !resp.profile) {
+    if (resumeResult === 'attached') {
+      showToast('Your generated resume was attached. Profile fields could not be loaded, so please complete them manually.');
+      return;
+    }
     showToast(
       resp?.error === 'not_signed_in'
         ? 'Sign in to TrackMyOPT in the extension first.'
@@ -247,30 +529,63 @@ export async function runPrefill(): Promise<void> {
   }
 
   const profile = resp.profile;
-  const controls = Array.from(container.querySelectorAll<HTMLElement>('input, textarea'));
+  const controls = queryAllDeep<HTMLElement>(container, 'input, textarea, select');
   let filled = 0;
   const kinds: string[] = [];
 
   for (const el of controls) {
-    if (!isFillable(el)) continue;
     const kind = classifyField(getLabelText(el));
     if (!kind) continue; // no confident match, or a sensitive field -> leave it
     const value = valueForKind(kind, profile);
     if (!value) continue; // we don't have this datum -> leave it blank
-    setNativeValue(el, value);
+
+    if (isFillable(el)) {
+      setNativeValue(el, value);
+    } else if (isFillableSelect(el)) {
+      const selectValue = matchingSelectValue(el, kind, value);
+      if (!selectValue) continue; // never guess a dropdown option
+      setNativeSelectValue(el, selectValue);
+    } else {
+      continue;
+    }
     filled += 1;
     if (!kinds.includes(kind)) kinds.push(kind);
   }
 
   if (filled === 0) {
+    if (resumeResult === 'attached') {
+      showToast('Your generated resume was attached. No empty profile fields were available to fill. Review the application and submit it yourself.');
+      return;
+    }
+    if (resumeResult === 'already_present') {
+      showToast('Your existing resume upload was left unchanged. No other empty profile fields were available to fill.');
+      return;
+    }
+    if (options.resume && resumeResult === 'not_found') {
+      showToast('No Resume/CV upload field is visible yet. Open that part of the application and click Prefill again.');
+      return;
+    }
+    if (options.resume && resumeResult === 'unsupported') {
+      showToast('The visible resume field does not accept the generated PDF, so it was left unchanged.');
+      return;
+    }
     showToast(
       'Nothing to prefill here. TrackMyOPT never fills work-authorization, ' +
         'visa, or EEO questions — please answer those yourself.'
     );
   } else {
+    const resumeSummary = resumeResult === 'attached'
+      ? 'Your generated resume was attached.'
+      : resumeResult === 'already_present'
+        ? 'Your existing resume upload was left unchanged.'
+        : options.resume && resumeResult === 'not_found'
+          ? 'No Resume/CV upload field is visible yet; click Prefill again when that field appears.'
+          : options.resume && resumeResult === 'unsupported'
+            ? 'The visible resume field does not accept a PDF, so it was left unchanged.'
+            : '';
     showToast(
       `TrackMyOPT prefilled ${filled} field${filled > 1 ? 's' : ''} (${kinds.join(', ')}). ` +
-        'Review every answer and click Submit yourself — we never submit for you.'
+        `${resumeSummary ? `${resumeSummary} ` : ''}Review every answer and click Submit yourself — we never submit for you.`
     );
   }
 }

@@ -730,6 +730,204 @@ const blogPosts = [
         featured: false,
         image: "/blog/j1-visa-vs-f1-visa-opt-differences.png"
     },
+    {
+        slug: "j1-waiver-212e-two-year-home-residency",
+        title: "J-1 Waiver (212e): How to Escape the 2-Year Home Residency Requirement",
+        description: "Subject to the J-1 two-year home residency requirement? Learn 5 ways to get a 212(e) waiver so you can stay in the US and pursue an H-1B or Green Card.",
+        category: "J-1 Visa",
+        readTime: "9 min read",
+        date: "July 12, 2026",
+        tags: ["J-1 Visa", "212e Waiver", "Immigration"],
+        featured: false,
+        image: "/blog/j1-waiver-212e-two-year-home-residency.png"
+    },
+    {
+        slug: "h4-ead-opt-spouse-work-authorization",
+        title: "H-4 EAD: Can Your Spouse Work While You Are on OPT or H-1B?",
+        description: "Learn whether H-4 visa holders can get work authorization. Understand the H-4 EAD rules, eligibility based on I-140 approval, and the OPT-to-H-1B impact.",
+        category: "Dependent Visas",
+        readTime: "8 min read",
+        date: "July 12, 2026",
+        tags: ["H-4 EAD", "Spouse Work", "Dependent Visas"],
+        featured: false,
+        image: "/blog/h4-ead-opt-spouse-work-authorization.png"
+    },
+    {
+        slug: "f2-dependent-visa-rules-opt-students",
+        title: "F-2 Dependent Visa Rules: What Your Spouse and Kids Can (and Cannot) Do",
+        description: "Bringing your family to the US on an F-2 visa? Learn the strict rules: no work, limited study, and how your OPT status directly impacts your dependents.",
+        category: "Dependent Visas",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["F-2 Visa", "Family", "Dependent Visas"],
+        featured: false,
+        image: "/blog/f2-dependent-visa-rules-opt-students.png"
+    },
+    {
+        slug: "investing-stocks-crypto-401k-opt-tax",
+        title: "Can You Invest in Stocks, Crypto & 401(k) on OPT?",
+        description: "Yes, F-1 students on OPT can invest in stocks and crypto. Learn about capital gains taxes, 401(k) contributions, FBAR reporting, and nonresident alien tax rules.",
+        category: "Finance",
+        readTime: "8 min read",
+        date: "July 12, 2026",
+        tags: ["Investing", "Taxes", "Finance"],
+        featured: false,
+        image: "/blog/investing-stocks-crypto-401k-opt-tax.png"
+    },
+    {
+        slug: "sending-money-home-opt-remittance",
+        title: "How to Send Money Home from the US on OPT: Cheapest Options",
+        description: "Compare the cheapest ways to send money from the US to your home country while on OPT. Wise, Remitly, Western Union, and bank wire fees compared.",
+        category: "Finance",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["Remittance", "Finance", "Life in US"],
+        featured: false,
+        image: "/blog/sending-money-home-opt-remittance.png"
+    },
+    {
+        slug: "first-us-paycheck-deductions-w4",
+        title: "Understanding Your First US Paycheck: Deductions, W-4 & Net Pay Explained",
+        description: "Your first US paycheck on OPT looks smaller than expected. Learn what federal tax, state tax, Social Security, Medicare, and FICA deductions mean for F-1 students.",
+        category: "Finance",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["Paycheck", "W-4", "FICA Exemption"],
+        featured: false,
+        image: "/blog/first-us-paycheck-deductions-w4.png"
+    },
+    {
+        slug: "relocating-for-opt-job-moving-states",
+        title: "Relocating for Your OPT Job: Moving States Checklist for F-1 Students",
+        description: "Got an OPT job in a different state? Follow this immigration-safe moving checklist: address updates, SEVIS reporting, new driver's license, and more.",
+        category: "Life in US",
+        readTime: "6 min read",
+        date: "July 12, 2026",
+        tags: ["Relocation", "Address Change", "Compliance"],
+        featured: false,
+        image: "/blog/relocating-for-opt-job-moving-states.png"
+    },
+    {
+        slug: "drivers-license-opt-state-requirements",
+        title: "Getting a US Driver's License on OPT: State-by-State Requirements",
+        description: "Learn how F-1 international students on OPT can get a US driver's license. State-specific rules, required documents, REAL ID compliance, and renewal tips.",
+        category: "Life in US",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["Driver License", "REAL ID", "DMV"],
+        featured: false,
+        image: "/blog/drivers-license-opt-state-requirements.png"
+    },
+    {
+        slug: "freelance-gig-work-uber-doordash-opt",
+        title: "Can You Freelance or Do Gig Work (Uber, DoorDash) on OPT?",
+        description: "Learn the rules for freelancing, independent contracting (1099), and gig work (Uber, Lyft, DoorDash) while on standard OPT and STEM OPT.",
+        category: "Work Rules",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["Freelance", "Gig Work", "1099"],
+        featured: false,
+        image: "/blog/freelance-gig-work-uber-doordash-opt.png"
+    },
+    {
+        slug: "volunteer-work-opt-employment-rules",
+        title: "Volunteer Work on OPT: Does Unpaid Work Stop the Unemployment Clock?",
+        description: "Learn how to use unpaid volunteer work to stop your 90-day OPT unemployment clock. Rules for F-1 students, degree relevance, and STEM OPT restrictions.",
+        category: "Work Rules",
+        readTime: "6 min read",
+        date: "July 12, 2026",
+        tags: ["Volunteer", "Unpaid Work", "Unemployment"],
+        featured: false,
+        image: "/blog/volunteer-work-opt-employment-rules.png"
+    },
+    {
+        slug: "multiple-jobs-opt-two-employers",
+        title: "Multiple Jobs on OPT: Can You Work for Two Employers at Once?",
+        description: "Learn if F-1 students can legally hold two or more jobs simultaneously on OPT and STEM OPT. SEVIS reporting rules, 20-hour minimums, and E-Verify requirements.",
+        category: "Work Rules",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["Multiple Jobs", "STEM OPT", "Compliance"],
+        featured: false,
+        image: "/blog/multiple-jobs-opt-two-employers.png"
+    },
+    {
+        slug: "linkedin-optimization-f1-h1b-sponsorship",
+        title: "LinkedIn Profile Optimization for F-1 Students Seeking H-1B Sponsorship",
+        description: "Learn how to optimize your LinkedIn profile to attract recruiters who offer H-1B sponsorship. Keywords, Open to Work settings, and networking strategies for F-1 students.",
+        category: "Career Search",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["LinkedIn", "Networking", "H-1B"],
+        featured: false,
+        image: "/blog/linkedin-optimization-f1-h1b-sponsorship.png"
+    },
+    {
+        slug: "opt-non-stem-majors-guide",
+        title: "OPT for Non-STEM Majors: Maximizing Your 12 Months (Business, Arts, Humanities)",
+        description: "Are you a non-STEM major? Learn how to maximize your 12 months of OPT. Strategies for H-1B sponsorship, O-1 visas, and finding employment in arts and business.",
+        category: "Career Planning",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["Non-STEM", "O-1 Visa", "H-1B"],
+        featured: false,
+        image: "/blog/opt-non-stem-majors-guide.png"
+    },
+    {
+        slug: "opt-anxiety-mental-health-international-students",
+        title: "Dealing with OPT Anxiety: Mental Health Resources for International Students",
+        description: "The 90-day unemployment clock, H-1B lotteries, and visa renewals create immense stress. Learn how to manage OPT anxiety and find accessible mental health support.",
+        category: "Mental Health",
+        readTime: "6 min read",
+        date: "July 12, 2026",
+        tags: ["Anxiety", "Mental Health", "Wellness"],
+        featured: false,
+        image: "/blog/opt-anxiety-mental-health-international-students.png"
+    },
+    {
+        slug: "60-day-grace-period-f1-students",
+        title: "The 60-Day Grace Period for F-1 Students: A Practical Guide",
+        description: "What happens when your OPT expires or you run out of unemployment days? Learn the rules of the F-1 60-day grace period and your options to stay in the US.",
+        category: "Visa Rules",
+        readTime: "6 min read",
+        date: "July 12, 2026",
+        tags: ["Grace Period", "F-1 Status", "Compliance"],
+        featured: false,
+        image: "/blog/60-day-grace-period-f1-students.png"
+    },
+    {
+        slug: "opt-mba-students-career-paths",
+        title: "OPT for MBA Students: Maximizing ROI and Securing H-1B Sponsorship",
+        description: "An international student's guide to navigating OPT after an MBA. Strategies for consulting, tech product management, finance, and STEM MBA extensions.",
+        category: "Career Paths",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["MBA", "STEM", "H-1B"],
+        featured: false,
+        image: "/blog/opt-mba-students-career-paths.png"
+    },
+    {
+        slug: "salary-negotiation-international-workers-opt",
+        title: "Salary Negotiation for International Students on OPT",
+        description: "Do you lose leverage because you need H-1B sponsorship? Learn how international students can successfully negotiate salary, sign-on bonuses, and relocation on OPT.",
+        category: "Career Advice",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["Negotiation", "H-1B", "Salary"],
+        featured: false,
+        image: "/blog/salary-negotiation-international-workers-opt.png"
+    },
+    {
+        slug: "networking-international-student-sponsorship",
+        title: "Networking for H-1B Sponsorship: The International Student Playbook",
+        description: "Cold applying online rarely works for international students. Learn how to network effectively to bypass ATS filters and find H-1B sponsoring employers.",
+        category: "Career Search",
+        readTime: "7 min read",
+        date: "July 12, 2026",
+        tags: ["Networking", "H-1B", "Career Tips"],
+        featured: false,
+        image: "/blog/networking-international-student-sponsorship.png"
+    },
 ];
 
 function CategoryBadge({ category }: { category: string }) {

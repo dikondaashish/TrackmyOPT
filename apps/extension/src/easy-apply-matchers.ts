@@ -29,7 +29,7 @@ export type FieldKind =
  * Fields we refuse to auto-fill under any circumstance. (Unchanged from slice 1.)
  */
 export const SENSITIVE_FIELD_RE =
-  /\b(visa|sponsor|sponsorship|authoriz|work permit|eligib|citizen|immigration|clearance|gender|sex|race|ethnic|hispanic|latino|veteran|disab|eeo|equal opportunity|salary|compensation|expected pay|desired pay|date of birth|dob|ssn|social security)\b/i;
+  /\b(visa|sponsor(?:ship|ed|ing)?|work authori[sz]\w*|authori[sz]\w*|work permit|eligib\w*|citizen\w*|immigration|clearance|gender|sex|race|ethnic\w*|hispanic|latino|veteran\w*|disab\w*|eeo|equal opportunity|salary|compensation|expected pay|desired pay|date of birth|dob|ssn|social security)\b/i;
 
 /**
  * Free-text prompts (cover letters, "describe…", essays). Never dump identity
@@ -46,12 +46,26 @@ const ESSAY_RE =
 const ORG_TRAP_RE =
   /\b(company|employer|organization|organisation|school|university|college|institution|reference|referral|referrer|manager|supervisor)\b/i;
 
+/** Normalize machine-oriented ATS identifiers before applying human-label
+ * matchers. This makes candidate[first_name], first_name and firstName behave
+ * like "first name" and, critically, lets sensitive-field exclusions see
+ * compound identifiers such as visa_sponsorship_email. */
+export function normalizeFieldSignal(value: string): string {
+  return value
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .replace(/[\[\]_.:/\\-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
 /**
  * Classify a form field from its combined label text. Returns null when there
  * is no confident, safe match (the caller then leaves the field untouched).
  */
 export function classifyField(labelText: string): FieldKind | null {
-  const t = labelText.trim().toLowerCase();
+  const t = normalizeFieldSignal(labelText);
   if (!t) return null;
 
   // Order matters: exclusions first, then most-specific matches.
@@ -60,7 +74,7 @@ export function classifyField(labelText: string): FieldKind | null {
   if (ORG_TRAP_RE.test(t)) return null;
 
   if (/\b(e-?mail|courriel|correo)\b/.test(t)) return 'email';
-  if (/\b(phone|telephone|téléphone|telefono|mobile|cell|portable)\b/.test(t)) return 'phone';
+  if (/\b(phone|telephone|tel|téléphone|telefono|mobile|cell|portable)\b/.test(t)) return 'phone';
   if (/\blinkedin\b/.test(t)) return 'linkedinUrl';
   if (/\b(portfolio|personal website|personal site|website|web site)\b/.test(t)) return 'portfolioUrl';
 
@@ -80,7 +94,10 @@ export function classifyField(labelText: string): FieldKind | null {
   if (/\b(first name|given name|prénom|prenom|nombre|vorname)\b/.test(t)) return 'firstName';
   if (/\b(last name|surname|family name|apellido|nachname)\b/.test(t)) return 'lastName';
   if (/\b(full name|legal name|your name|nom complet|nombre completo)\b/.test(t)) return 'fullName';
+  if (t === 'name') return 'fullName'; // HTML autocomplete="name"
 
+  if (/\baddress level\s*2\b/.test(t)) return 'city'; // HTML autocomplete token
+  if (/\baddress level\s*1\b/.test(t)) return 'state'; // HTML autocomplete token
   if (/\b(city|town|ville|ciudad)\b/.test(t)) return 'city';
   if (/\b(state|province|région|region)\b/.test(t)) return 'state';
   if (/\b(location|localisation)\b/.test(t)) return 'location';

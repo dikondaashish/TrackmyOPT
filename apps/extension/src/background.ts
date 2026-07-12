@@ -90,7 +90,8 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
   if (msg.type === 'ADD_JOB_TO_TRACKER') {
-    handleAddJobToTracker(msg.job, !!msg.autoAdd).then(sendResponse).catch((e) => {
+    const status = msg.status === 'Wishlist' ? 'Wishlist' : 'Applied';
+    handleAddJobToTracker(msg.job, !!msg.autoAdd, status).then(sendResponse).catch((e) => {
       sendResponse({ ok: false, error: e instanceof Error ? e.message : 'Failed to add job' });
     });
     return true; // async response
@@ -130,6 +131,31 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     getAutofillProfile()
       .then((profile) => sendResponse(profile))
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
+    return true;
+  }
+  if (msg.type === 'PREFILL_CHILD_FRAMES') {
+    if (!_sender.tab?.id) {
+      sendResponse({ ok: false, error: 'missing_tab' });
+      return true;
+    }
+    const requestedResume = msg.resume as { pdfBase64?: unknown; filename?: unknown } | undefined;
+    const resume = requestedResume &&
+      typeof requestedResume.pdfBase64 === 'string' &&
+      requestedResume.pdfBase64.length <= 25_000_000 &&
+      typeof requestedResume.filename === 'string'
+      ? {
+          pdfBase64: requestedResume.pdfBase64,
+          filename: requestedResume.filename.slice(0, 180),
+        }
+      : undefined;
+    chrome.tabs.sendMessage(_sender.tab.id, {
+      type: 'RUN_PREFILL_IN_CHILD_FRAME',
+      resume,
+    }).then(() => sendResponse({ ok: true })).catch(() => {
+      // A page without child-frame receivers is normal; the top-frame engine
+      // has already run, so this is not a user-visible error.
+      sendResponse({ ok: true, childFramesAvailable: false });
+    });
     return true;
   }
   if (msg.type === 'LIST_SAVED_RESUMES') {
@@ -489,8 +515,12 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
 
 async function handleAddJobToTracker(
   job: { company_name: string; role_title: string; job_url?: string; location?: string },
-  autoAdd: boolean = false
+  autoAdd: boolean = false,
+  requestedStatus: 'Wishlist' | 'Applied' = 'Applied',
 ) {
+  // Application-success auto-adds are always Applied. Manual saves preserve
+  // the status explicitly selected in the side-panel dialog.
+  const status: 'Wishlist' | 'Applied' = autoAdd ? 'Applied' : requestedStatus;
   let token = await getExtensionBearerToken();
   if (!token) {
     const err = new Error('Sign in to TrackMyOPT in the extension to add jobs.');
@@ -517,7 +547,7 @@ async function handleAddJobToTracker(
         role_title: job.role_title,
         job_url: job.job_url || null,
         location: job.location || null,
-        status: 'Applied',
+        status,
       }),
     });
 
@@ -553,7 +583,7 @@ async function handleAddJobToTracker(
       message,
     });
   }
-  return { ok: true };
+  return { ok: true, status };
 }
 
 async function beginAuth(){

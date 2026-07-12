@@ -201,7 +201,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       ${icon('fileText', 16)} Add a job from this page
     </button>
 
-    <button id="prefill-easy-apply-btn" type="button" title="Prefill the open application form (LinkedIn Easy Apply or Greenhouse) — you review and submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(37,99,235,0.35);background:rgba(37,99,235,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
+    <button id="prefill-easy-apply-btn" type="button" title="Prefill the open job application form — you review and submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(37,99,235,0.35);background:rgba(37,99,235,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
       ${icon('checkCircle', 16)} Prefill this application
     </button>
 
@@ -306,7 +306,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     }
     try {
       await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
+        target: { tabId: tab.id, allFrames: true },
         files: ['easy-apply-fill.js'],
       });
       window.close();
@@ -366,4 +366,3 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     });
   }
 }
-
