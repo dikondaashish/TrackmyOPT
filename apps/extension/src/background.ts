@@ -132,10 +132,23 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
     return true;
   }
+  if (msg.type === 'LIST_SAVED_RESUMES') {
+    listSavedResumes()
+      .then((res) => sendResponse(res))
+      .catch(() => sendResponse({ ok: false as const, error: 'error' }));
+    return true;
+  }
   if (msg.type === 'GENERATE_RESUME') {
-    // Orchestrate base resume -> tailored LaTeX -> compiled PDF. Bearer stays
-    // in the background; the content script only receives the finished PDF.
-    generateTailoredResume(String(msg.jobDescription ?? ''))
+    // Orchestrate selected resume -> tailored LaTeX -> compiled PDF. Bearer
+    // stays in the background; the page receives only the result and an opaque
+    // authenticated editor-handoff URL.
+    generateTailoredResume({
+      jobDescription: String(msg.jobDescription ?? ''),
+      resumeId: String(msg.resumeId ?? ''),
+      templateId: String(msg.templateId ?? ''),
+      companyName: String(msg.companyName ?? ''),
+      roleTitle: String(msg.roleTitle ?? ''),
+    })
       .then((res) => sendResponse(res))
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
     return true;
@@ -221,6 +234,65 @@ interface GenerateResumeResult {
   error?: string;
   detail?: string;
   pdfBase64?: string;
+  editorUrl?: string;
+}
+
+interface SavedResumeOption {
+  id: string;
+  filename: string;
+  updatedAt?: string | null;
+}
+
+async function listSavedResumes(): Promise<{
+  ok: boolean;
+  error?: string;
+  resumes?: SavedResumeOption[];
+  accountEmail?: string;
+}> {
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+
+  const response = await fetch(`${WEBSITE_URL}/api/resume-generator/base-resume?mode=list`, {
+    headers: { Authorization: `Bearer ${bearer}` },
+  });
+  if (!response.ok) return { ok: false, error: 'load_failed' };
+  const data = (await response.json()) as {
+    resumes?: SavedResumeOption[];
+    id?: string;
+    filename?: string;
+    content?: string;
+  };
+
+  if (Array.isArray(data.resumes)) {
+    if (data.resumes.length > 0) return { ok: true, resumes: data.resumes };
+    const profile = await getAutofillProfile().catch(() => null);
+    return {
+      ok: true,
+      resumes: [],
+      accountEmail: profile?.profile?.email || undefined,
+    };
+  }
+
+  // Backward compatibility while the production web app still serves the
+  // previous single-resume response. Without this, a valid saved resume was
+  // incorrectly interpreted as an empty list by the newly built extension.
+  if (data.content?.trim()) {
+    return {
+      ok: true,
+      resumes: [{
+        id: data.id || '__latest__',
+        filename: data.filename || 'Most recently saved resume',
+        updatedAt: null,
+      }],
+    };
+  }
+
+  const profile = await getAutofillProfile().catch(() => null);
+  return {
+    ok: true,
+    resumes: [],
+    accountEmail: profile?.profile?.email || undefined,
+  };
 }
 
 /** ArrayBuffer -> base64 (chunked to avoid call-stack limits in the worker). */
@@ -239,21 +311,34 @@ function arrayBufferToBase64(buf: ArrayBuffer): string {
  * All calls use the extension Bearer token; only the finished PDF (base64) is
  * returned to the caller.
  */
-async function generateTailoredResume(jobDescription: string): Promise<GenerateResumeResult> {
+async function generateTailoredResume(input: {
+  jobDescription: string;
+  resumeId: string;
+  templateId: string;
+  companyName: string;
+  roleTitle: string;
+}): Promise<GenerateResumeResult> {
   const bearer = await getExtensionBearerToken();
   if (!bearer) return { ok: false, error: 'not_signed_in' };
+  const { jobDescription, resumeId, templateId, companyName, roleTitle } = input;
   if (!jobDescription.trim()) return { ok: false, error: 'no_job_description' };
+  if (!resumeId.trim()) return { ok: false, error: 'no_base_resume' };
+  if (!templateId.trim()) return { ok: false, error: 'no_template' };
 
   const auth = { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` };
 
-  // 1. Saved base resume
-  const baseRes = await fetch(`${WEBSITE_URL}/api/resume-generator/base-resume`, {
+  // 1. User-selected saved resume
+  const baseUrl = new URL(`${WEBSITE_URL}/api/resume-generator/base-resume`);
+  if (resumeId !== '__latest__') {
+    baseUrl.searchParams.set('resumeId', resumeId);
+  }
+  const baseRes = await fetch(baseUrl.toString(), {
     method: 'GET',
     headers: auth,
   });
   if (baseRes.status === 404) return { ok: false, error: 'no_base_resume' };
   if (!baseRes.ok) return { ok: false, error: 'base_failed' };
-  const base = (await baseRes.json()) as { content?: string };
+  const base = (await baseRes.json()) as { content?: string; filename?: string };
   if (!base.content) return { ok: false, error: 'no_base_resume' };
 
   // 2. Tailored LaTeX
@@ -263,7 +348,7 @@ async function generateTailoredResume(jobDescription: string): Promise<GenerateR
     body: JSON.stringify({
       resumeText: base.content,
       jobDescription: jobDescription.slice(0, 15000),
-      templateId: 'modern',
+      templateId,
     }),
   });
   if (genRes.status === 403) {
@@ -274,17 +359,74 @@ async function generateTailoredResume(jobDescription: string): Promise<GenerateR
   const gen = (await genRes.json()) as { latex?: string };
   if (!gen.latex) return { ok: false, error: 'generate_failed' };
 
-  // 3. Compile to PDF
-  const compRes = await fetch(`${WEBSITE_URL}/api/resume-generator/compile`, {
-    method: 'POST',
-    headers: auth,
-    body: JSON.stringify({ latexCode: gen.latex }),
-  });
-  if (!compRes.ok) return { ok: false, error: 'compile_failed' };
-  const buf = await compRes.arrayBuffer();
-  if (!buf.byteLength) return { ok: false, error: 'compile_failed' };
+  // 3. Compile to PDF — with one AI repair-and-retry on failure. Some Gemini
+  //    LaTeX has syntax errors the compiler rejects; fix-latex repairs them and
+  //    we compile again (mirrors the website's editor flow).
+  const compile = async (latexCode: string): Promise<{ pdf?: ArrayBuffer; error?: string }> => {
+    const r = await fetch(`${WEBSITE_URL}/api/resume-generator/compile`, {
+      method: 'POST',
+      headers: auth,
+      body: JSON.stringify({ latexCode }),
+    });
+    if (!r.ok) {
+      const j = (await r.json().catch(() => ({}))) as { error?: string };
+      return { error: j.error || `HTTP ${r.status}` };
+    }
+    const buf = await r.arrayBuffer();
+    return buf.byteLength ? { pdf: buf } : { error: 'empty pdf' };
+  };
 
-  return { ok: true, pdfBase64: arrayBufferToBase64(buf) };
+  let latex = gen.latex;
+  let out = await compile(latex);
+  if (!out.pdf) {
+    try {
+      const fixRes = await fetch(`${WEBSITE_URL}/api/resume-generator/fix-latex`, {
+        method: 'POST',
+        headers: auth,
+        body: JSON.stringify({ latexCode: latex, errorMessage: out.error || 'Compilation failed' }),
+      });
+      if (fixRes.ok) {
+        const fixed = (await fixRes.json()) as { latex?: string };
+        if (fixed.latex) {
+          latex = fixed.latex;
+          out = await compile(latex);
+        }
+      }
+    } catch {
+      /* keep the original failure */
+    }
+  }
+  if (!out.pdf) return { ok: false, error: 'compile_failed' };
+
+  // 4. Persist a short-lived, user-scoped handoff so "Edit" opens the actual
+  // generated LaTeX in the editor instead of restarting the three-step flow.
+  let editorUrl: string | undefined;
+  try {
+    const handoffRes = await fetch(`${WEBSITE_URL}/api/resume-generator/extension-handoff`, {
+      method: 'POST',
+      headers: auth,
+      body: JSON.stringify({
+        latex,
+        resumeText: base.content,
+        resumeFilename: base.filename,
+        jobDescription: jobDescription.slice(0, 15000),
+        jobTitle: roleTitle
+          ? (companyName ? `${roleTitle} at ${companyName}` : roleTitle)
+          : companyName,
+        templateId,
+      }),
+    });
+    const handoff = (await handoffRes.json().catch(() => ({}))) as { handoffId?: string };
+    if (handoffRes.ok && handoff.handoffId) {
+      const editor = new URL(`${WEBSITE_URL}/dashboard/career/resume-generator/editor`);
+      editor.searchParams.set('handoffId', handoff.handoffId);
+      editorUrl = editor.toString();
+    }
+  } catch {
+    // PDF download remains available even if the optional editor handoff fails.
+  }
+
+  return { ok: true, pdfBase64: arrayBufferToBase64(out.pdf), editorUrl };
 }
 
 // External message listener (from web app)

@@ -58,11 +58,14 @@ export default function ResumeEditorPage() {
     const searchParams = useSearchParams();
     const autoRegenAttempts = useRef(0);
     const skipNextAutoRegen = useRef(false);
+    const handoffLoadedRef = useRef(false);
+    const handoffId = searchParams.get("handoffId");
 
     // Store
     const {
         resumeText, jobDescription, selectedTemplateId, jobTitle, applicationId,
         generatedLatex, compiledPdfUrl, atsAnalysis,
+        setResumeText, setJobDescription, setSelectedTemplateId,
         setGeneratedLatex, setCompiledPdfUrl, setAtsAnalysis, setApplicationId,
         isGenerating, setIsGenerating,
         isCompiling, setIsCompiling
@@ -79,6 +82,7 @@ export default function ResumeEditorPage() {
     const [isAutoFixing, setIsAutoFixing] = useState(false);
     const [compiledPdfBlob, setCompiledPdfBlob] = useState<Blob | null>(null);
     const [pdfHighlightQuery, setPdfHighlightQuery] = useState<string | null>(null);
+    const [pendingHandoffLatex, setPendingHandoffLatex] = useState<string | null>(null);
 
     // View Mode State
     const [viewMode, setViewMode] = useState<EditorViewMode>('split');
@@ -181,6 +185,9 @@ export default function ResumeEditorPage() {
 
     useEffect(() => {
         if (!storeHydrated) return;
+        // Extension handoffs load their already-generated LaTeX below. Do not
+        // restart the normal three-step generation flow with stale store data.
+        if (handoffId) return;
         const resumePrep = prepareResumeText(resumeText.trim());
         const jobPrep = prepareResumeText(jobDescription.trim(), JOB_DESCRIPTION_MAX_CHARS);
         if (resumePrep.truncated || jobPrep.truncated) {
@@ -204,7 +211,7 @@ export default function ResumeEditorPage() {
             compilePdf(generatedLatex);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [storeHydrated]);
+    }, [storeHydrated, handoffId]);
 
     // Handle Text Insertion from Toolbar
     const handleInsert = (startTag: string, endTag: string = '') => {
@@ -589,6 +596,78 @@ export default function ResumeEditorPage() {
             setIsCompiling(false);
         }
     };
+
+    useEffect(() => {
+        if (!pendingHandoffLatex) return;
+        const latex = pendingHandoffLatex;
+        setPendingHandoffLatex(null);
+        void compilePdf(latex);
+        // Run after the handoff's store updates have rendered so compilation,
+        // ATS scanning, and history saving use the new job/resume context.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pendingHandoffLatex]);
+
+    useEffect(() => {
+        if (!storeHydrated || !handoffId || handoffLoadedRef.current) return;
+        handoffLoadedRef.current = true;
+
+        const loadExtensionHandoff = async () => {
+            try {
+                const response = await fetch(
+                    `/api/resume-generator/extension-handoff?handoffId=${encodeURIComponent(handoffId)}`,
+                    { cache: "no-store" }
+                );
+                const result = await response.json();
+                if (!response.ok || !result?.payload) {
+                    throw new Error(result?.error || "Could not open generated resume");
+                }
+
+                const payload = result.payload as {
+                    latex?: string;
+                    resumeText?: string;
+                    resumeFilename?: string;
+                    jobDescription?: string;
+                    jobTitle?: string | null;
+                    templateId?: string;
+                };
+                if (!payload.latex || !payload.resumeText || !payload.jobDescription) {
+                    throw new Error("Generated resume data is incomplete");
+                }
+
+                const previousPdfUrl = useResumeStore.getState().compiledPdfUrl;
+                if (previousPdfUrl) URL.revokeObjectURL(previousPdfUrl);
+                setCompiledPdfUrl("");
+                setResumeText(payload.resumeText, payload.resumeFilename || "resume");
+                setJobDescription(payload.jobDescription, payload.jobTitle || undefined);
+                if (payload.templateId) setSelectedTemplateId(payload.templateId);
+                setAtsAnalysis(null);
+                setIsStreamingEnabled(false);
+                updateText(payload.latex, true);
+
+                const mobile = window.matchMedia("(max-width: 767px)").matches;
+                setViewMode(mobile ? "code" : "split");
+                setShowPreview(!mobile);
+                setEditorWidth(mobile ? 100 : 50);
+
+                setPendingHandoffLatex(payload.latex);
+                toast({
+                    title: "Custom resume opened",
+                    description: "Your generated LaTeX is ready to edit.",
+                });
+            } catch (error) {
+                const message = error instanceof Error ? error.message : "Could not open generated resume";
+                toast({
+                    title: "Resume handoff failed",
+                    description: message,
+                    variant: "destructive",
+                });
+            }
+        };
+
+        void loadExtensionHandoff();
+        // compilePdf intentionally runs once for this one-time handoff.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [handoffId, storeHydrated]);
 
     useEffect(() => {
         return () => {

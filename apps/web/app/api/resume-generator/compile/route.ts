@@ -77,7 +77,9 @@ export async function POST(req: NextRequest) {
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.warn(`${compiler.name} failed: ${response.status} - ${errorText.substring(0, 100)}`);
-                    lastError = `${compiler.name} Error: ${response.statusText}`;
+                    // Keep the compiler's actual log (truncated) — fix-latex needs
+                    // the real error to repair the LaTeX, not just the status text.
+                    lastError = `${compiler.name} (${response.status}): ${errorText.substring(0, 800)}`;
                     continue; // Try next compiler
                 }
 
