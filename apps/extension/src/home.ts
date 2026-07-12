@@ -197,11 +197,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       </div>
     </div>
 
-    <button id="scan-page-btn" type="button" title="Detect a job posting on the current tab and add it to your tracker" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
+    <button id="scan-page-btn" type="button" title="Detect a job posting on the current tab and add it to your tracker" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
       ${icon('fileText', 16)} Add a job from this page
     </button>
 
-    <button id="prefill-easy-apply-btn" type="button" title="Prefill the open application form (LinkedIn Easy Apply or Greenhouse) — you review and submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
+    <button id="prefill-easy-apply-btn" type="button" title="Prefill the open application form (LinkedIn Easy Apply or Greenhouse) — you review and submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(37,99,235,0.35);background:rgba(37,99,235,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
       ${icon('checkCircle', 16)} Prefill this application
     </button>
 
@@ -213,11 +213,39 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       </div>
     </div>
 
+    <div style="display:flex;justify-content:center;margin:2px 0 10px;">
+      <button id="feedback-btn" type="button" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid #e2e8f0;border-radius:999px;background:#fff;color:#0f172a;font:inherit;font-size:12px;font-weight:700;cursor:pointer;">
+        ${icon('mail', 14)} Feedback
+      </button>
+    </div>
+
     <div class="footer">
       <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/privacy">Privacy</a> ·
       <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/terms">Terms</a>
     </div>
   `;
+
+  // Opens the feedback modal ON THE ACTUAL PAGE (centered overlay), injected via
+  // activeTab — the exact same modal the job widget's "Send feedback" link opens.
+  // Never renders inside the small toolbar popup.
+  const feedbackBtnEl = root.querySelector<HTMLButtonElement>('#feedback-btn');
+  feedbackBtnEl?.addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const url = tab?.url ?? '';
+    if (!tab?.id || !/^https?:\/\//i.test(url)) {
+      feedbackBtnEl.textContent = 'Open a website tab first';
+      return;
+    }
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['feedback-modal-entry.js'],
+      });
+      window.close();
+    } catch {
+      feedbackBtnEl.textContent = 'Cannot open feedback on this page';
+    }
+  });
 
   // Hook up tile navigation
   const tiles = root.querySelectorAll<HTMLElement>('.tile');
@@ -264,21 +292,16 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     }
   });
 
-  // Application prefill (fill-only). Injects the prefill script into the current
-  // tab via activeTab on a supported ATS host; it fills the open form's identity
-  // fields and never submits. Supported: LinkedIn, Greenhouse.
-  const SUPPORTED_PREFILL_HOST = /(^|\.)(linkedin\.com|greenhouse\.io)$/;
+  // Application prefill (fill-only). Injects the prefill engine into the current
+  // tab via activeTab; it detects the application form generically (any ATS),
+  // fills the identity fields, and never submits. Works on any http(s) page —
+  // the engine toasts if it can't find a fillable form.
   const prefillBtn = root.querySelector<HTMLButtonElement>('#prefill-easy-apply-btn');
   prefillBtn?.addEventListener('click', async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    let host = '';
-    try {
-      host = new URL(tab?.url ?? '').hostname;
-    } catch {
-      /* no URL */
-    }
-    if (!tab?.id || !SUPPORTED_PREFILL_HOST.test(host)) {
-      prefillBtn.textContent = 'Open a LinkedIn or Greenhouse application page';
+    const url = tab?.url ?? '';
+    if (!tab?.id || !/^https?:\/\//i.test(url)) {
+      prefillBtn.textContent = 'Open a job application page first';
       return;
     }
     try {

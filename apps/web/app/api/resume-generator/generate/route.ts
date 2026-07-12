@@ -9,8 +9,7 @@ import { z } from 'zod';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { getUserId } from '@/lib/auth/getUserId';
 import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
 import {
     JOB_DESCRIPTION_MAX_CHARS,
@@ -44,28 +43,15 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
     try {
-        // 0. Auth Check
-        const cookieStore = await cookies();
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    get(name: string) {
-                        return cookieStore.get(name)?.value;
-                    },
-                },
-            }
-        );
-
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !user) {
+        // 0. Auth Check — accepts the web cookie session OR the extension's
+        // Bearer token (getUserId handles both).
+        const userId = await getUserId(req);
+        if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
         }
 
         // 1. Check Usage Limits
-        const { allowed, limit, usage, tier } = await checkResumeLimit(user.id);
+        const { allowed, limit, usage, tier } = await checkResumeLimit(userId);
         if (!allowed) {
             return NextResponse.json(
                 {
@@ -171,7 +157,7 @@ export async function POST(req: NextRequest) {
         const atsCheck = checkAtsCompliance(latex);
 
         // 6. Track Usage
-        await trackResumeGeneration(user.id, 'generate');
+        await trackResumeGeneration(userId, 'generate');
 
         return NextResponse.json(
             {

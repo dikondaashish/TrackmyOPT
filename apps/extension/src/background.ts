@@ -101,12 +101,42 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       .catch((e) => sendResponse({ ok: false as const, error: e instanceof Error ? e.message : String(e) }));
     return true;
   }
+  if (msg.type === 'SUBMIT_FEEDBACK') {
+    // Post the in-popup feedback to the backend. Bearer-linked when signed in;
+    // the endpoint also accepts anonymous feedback.
+    (async () => {
+      try {
+        const bearer = await getExtensionBearerToken();
+        const res = await fetch(`${WEBSITE_URL}/api/extension/feedback`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
+          },
+          body: JSON.stringify(msg.payload || {}),
+        });
+        const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+        sendResponse({ ok: res.ok && data.ok !== false, error: data.error });
+      } catch {
+        sendResponse({ ok: false, error: 'network' });
+      }
+    })();
+    return true;
+  }
   if (msg.type === 'GET_AUTOFILL_PROFILE') {
     // Resolve the user's name/email for Easy Apply prefill. The bearer token
     // stays here — only these non-sensitive fields are returned to the content
     // script running on linkedin.com.
     getAutofillProfile()
       .then((profile) => sendResponse(profile))
+      .catch(() => sendResponse({ ok: false as const, error: 'error' }));
+    return true;
+  }
+  if (msg.type === 'GENERATE_RESUME') {
+    // Orchestrate base resume -> tailored LaTeX -> compiled PDF. Bearer stays
+    // in the background; the content script only receives the finished PDF.
+    generateTailoredResume(String(msg.jobDescription ?? ''))
+      .then((res) => sendResponse(res))
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
     return true;
   }
@@ -184,6 +214,77 @@ async function getAutofillProfile(): Promise<AutofillProfileResult> {
       portfolioUrl: (ap.portfolio_url ?? '').trim(),
     },
   };
+}
+
+interface GenerateResumeResult {
+  ok: boolean;
+  error?: string;
+  detail?: string;
+  pdfBase64?: string;
+}
+
+/** ArrayBuffer -> base64 (chunked to avoid call-stack limits in the worker). */
+function arrayBufferToBase64(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+/**
+ * base resume (resumes table) -> tailored LaTeX (/generate) -> PDF (/compile).
+ * All calls use the extension Bearer token; only the finished PDF (base64) is
+ * returned to the caller.
+ */
+async function generateTailoredResume(jobDescription: string): Promise<GenerateResumeResult> {
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+  if (!jobDescription.trim()) return { ok: false, error: 'no_job_description' };
+
+  const auth = { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` };
+
+  // 1. Saved base resume
+  const baseRes = await fetch(`${WEBSITE_URL}/api/resume-generator/base-resume`, {
+    method: 'GET',
+    headers: auth,
+  });
+  if (baseRes.status === 404) return { ok: false, error: 'no_base_resume' };
+  if (!baseRes.ok) return { ok: false, error: 'base_failed' };
+  const base = (await baseRes.json()) as { content?: string };
+  if (!base.content) return { ok: false, error: 'no_base_resume' };
+
+  // 2. Tailored LaTeX
+  const genRes = await fetch(`${WEBSITE_URL}/api/resume-generator/generate`, {
+    method: 'POST',
+    headers: auth,
+    body: JSON.stringify({
+      resumeText: base.content,
+      jobDescription: jobDescription.slice(0, 15000),
+      templateId: 'modern',
+    }),
+  });
+  if (genRes.status === 403) {
+    const j = (await genRes.json().catch(() => ({}))) as { details?: string };
+    return { ok: false, error: 'limit', detail: j.details };
+  }
+  if (!genRes.ok) return { ok: false, error: 'generate_failed' };
+  const gen = (await genRes.json()) as { latex?: string };
+  if (!gen.latex) return { ok: false, error: 'generate_failed' };
+
+  // 3. Compile to PDF
+  const compRes = await fetch(`${WEBSITE_URL}/api/resume-generator/compile`, {
+    method: 'POST',
+    headers: auth,
+    body: JSON.stringify({ latexCode: gen.latex }),
+  });
+  if (!compRes.ok) return { ok: false, error: 'compile_failed' };
+  const buf = await compRes.arrayBuffer();
+  if (!buf.byteLength) return { ok: false, error: 'compile_failed' };
+
+  return { ok: true, pdfBase64: arrayBufferToBase64(buf) };
 }
 
 // External message listener (from web app)
