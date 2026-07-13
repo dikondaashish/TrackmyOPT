@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, Variants, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { LandingTrustedUniversities } from "./LandingTrustedUniversities";
 import { ResumeEditorMockup } from "./ResumeEditorMockup";
 import { GuestPreviewModal } from "./GuestPreviewModal";
@@ -884,7 +885,7 @@ const tooltipContent: Record<string, string> = {
 };
 
 export function LandingHero() {
-    const prefersReducedMotion = useReducedMotion();
+    const prefersReducedMotion = usePrefersReducedMotion();
     const [activeTab, setActiveTab] = useState<TabType>("timeline");
     const [isHovered, setIsHovered] = useState(false);
     const [progress, setProgress] = useState(0);

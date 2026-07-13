@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, FileText, Users, Star, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signOutWithAnalytics } from "@/lib/auth/signOutWithAnalytics";
@@ -13,7 +14,7 @@ import { UserProfileMenu } from "@/components/layout/UserProfileMenu";
 import { ResumePromoBanner } from "@/components/promo/ResumePromoBanner";
 
 export function LandingNavbar() {
-    const prefersReducedMotion = useReducedMotion();
+    const prefersReducedMotion = usePrefersReducedMotion();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);

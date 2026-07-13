@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
 import {
   checkRateLimitByIP,
   rateLimitResponse,
@@ -23,42 +21,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
+    const response = NextResponse.json({
+      success: true,
+      message: 'If an account exists for this email, a reset link has been sent.',
+    });
+
+    // Password recovery uses PKCE. The code verifier written by Supabase must be
+    // returned to the browser that requested the email so the emailed `?code=`
+    // can be exchanged for a recovery session on /auth/reset-password.
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
+          getAll() {
+            return request.cookies.getAll();
           },
-          set(name: string, value: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value, ...options });
-            } catch {
-              /* read-only context */
-            }
-          },
-          remove(name: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value: '', ...options });
-            } catch {
-              /* read-only context */
-            }
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options);
+            });
           },
         },
       }
     );
 
-    await supabase.auth.resetPasswordForEmail(email.trim(), {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
     });
 
-    // Always return success to avoid email enumeration
-    return NextResponse.json({
-      success: true,
-      message: 'If an account exists for this email, a reset link has been sent.',
-    });
+    // Keep the public response identical for existing and non-existing accounts.
+    if (error) {
+      console.error('Password reset request was rejected by the auth provider');
+    }
+
+    response.headers.set('Cache-Control', 'private, no-store');
+    return response;
   } catch (error) {
     console.error('Password reset error:', error);
     return NextResponse.json(

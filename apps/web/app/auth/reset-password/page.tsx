@@ -3,28 +3,94 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CheckCircle2 } from 'lucide-react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
+const INVALID_RESET_LINK_MESSAGE =
+  'This password reset link is invalid or expired. Request a new link and open it in the same browser.';
+
+type RecoveryStatus = 'checking' | 'ready' | 'invalid';
+
+function resetErrorMessage(error: unknown) {
+  if (
+    error instanceof Error &&
+    (error.name === 'AuthSessionMissingError' || /auth session missing/i.test(error.message))
+  ) {
+    return INVALID_RESET_LINK_MESSAGE;
+  }
+
+  return error instanceof Error
+    ? error.message
+    : 'Failed to reset password. Please try again.';
+}
+
 export default function ResetPasswordPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [recoveryStatus, setRecoveryStatus] = useState<RecoveryStatus>('checking');
 
   useEffect(() => {
-    // Check if we have the reset token in the URL
-    const hash = window.location.hash;
-    if (!hash) {
-      setError('Invalid or expired reset link');
+    let active = true;
+
+    async function verifyRecoverySession() {
+      const url = new URL(window.location.href);
+      const hashParams = new URLSearchParams(url.hash.slice(1));
+      const callbackError =
+        url.searchParams.get('error_description') || hashParams.get('error_description');
+
+      if (callbackError) {
+        if (active) {
+          setRecoveryStatus('invalid');
+          setError(INVALID_RESET_LINK_MESSAGE);
+        }
+        return;
+      }
+
+      // createBrowserClient completes Supabase's PKCE/hash callback during its
+      // initialization. getSession waits for that initialization to finish.
+      const { data, error: sessionError } = await supabase.auth.getSession();
+
+      if (!active) return;
+
+      if (sessionError || !data.session) {
+        setRecoveryStatus('invalid');
+        setError(INVALID_RESET_LINK_MESSAGE);
+        return;
+      }
+
+      setRecoveryStatus('ready');
+      setError(null);
     }
+
+    void verifyRecoverySession();
+
+    return () => {
+      active = false;
+    };
   }, []);
+
+  useEffect(() => {
+    if (!success) return;
+
+    const redirectTimer = window.setTimeout(() => {
+      router.push('/');
+    }, 3000);
+
+    return () => window.clearTimeout(redirectTimer);
+  }, [router, success]);
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (recoveryStatus !== 'ready') {
+      setError(INVALID_RESET_LINK_MESSAGE);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -52,14 +118,15 @@ export default function ResetPasswordPage() {
       }
 
       setSuccess(true);
-      setLoading(false);
-
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        router.push('/');
-      }, 3000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to reset password. Please try again.');
+    } catch (err: unknown) {
+      setError(resetErrorMessage(err));
+      if (
+        err instanceof Error &&
+        (err.name === 'AuthSessionMissingError' || /auth session missing/i.test(err.message))
+      ) {
+        setRecoveryStatus('invalid');
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -96,14 +163,20 @@ export default function ResetPasswordPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div
+            role="alert"
+            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+          >
             {error}
           </div>
         )}
 
         <form onSubmit={handlePasswordReset} className="space-y-4" method="post">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
+            <label
+              htmlFor="new-password"
+              className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2"
+            >
               New Password
             </label>
             <input
@@ -114,7 +187,7 @@ export default function ResetPasswordPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={loading}
+              disabled={loading || recoveryStatus !== 'ready'}
               minLength={6}
               className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
               placeholder="••••••••"
@@ -123,7 +196,10 @@ export default function ResetPasswordPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2">
+            <label
+              htmlFor="confirm-password"
+              className="block text-sm font-medium text-gray-700 dark:text-foreground mb-2"
+            >
               Confirm New Password
             </label>
             <input
@@ -134,7 +210,7 @@ export default function ResetPasswordPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              disabled={loading}
+              disabled={loading || recoveryStatus !== 'ready'}
               minLength={6}
               className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-muted bg-white dark:bg-muted dark:text-foreground"
               placeholder="••••••••"
@@ -143,14 +219,26 @@ export default function ResetPasswordPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || recoveryStatus !== 'ready'}
             className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Resetting Password...' : 'Reset Password'}
+            {recoveryStatus === 'checking'
+              ? 'Verifying Reset Link...'
+              : loading
+                ? 'Resetting Password...'
+                : 'Reset Password'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
+          {recoveryStatus === 'invalid' && (
+            <Link
+              href="/login"
+              className="block mb-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Request a new reset link
+            </Link>
+          )}
           <Link
             href="/"
             className="text-sm text-blue-600 hover:text-blue-700 font-medium"
@@ -162,4 +250,3 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
-

@@ -27,11 +27,11 @@ export function isBenignWebSocketUnavailableError(message: string): boolean {
   return isBenignWebSocketError(message);
 }
 
-/** Pull exception text from every shape posthog-js may emit. */
-export function extractExceptionMessages(
+/** Pull exception values from every shape posthog-js may emit. */
+function extractExceptionValues(
   properties: Record<string, unknown> | undefined
-): string {
-  if (!properties) return "";
+): string[] {
+  if (!properties) return [];
 
   const parts: string[] = [];
 
@@ -57,7 +57,67 @@ export function extractExceptionMessages(
     }
   }
 
-  return parts.join(" ");
+  return parts;
+}
+
+/** Pull exception text from every shape posthog-js may emit. */
+export function extractExceptionMessages(
+  properties: Record<string, unknown> | undefined
+): string {
+  return extractExceptionValues(properties).join(" ");
+}
+
+function extractExceptionFrameSources(
+  properties: Record<string, unknown> | undefined
+): string[] {
+  if (!properties || !Array.isArray(properties.$exception_list)) return [];
+
+  const sources: string[] = [];
+  for (const item of properties.$exception_list) {
+    if (!item || typeof item !== "object") continue;
+    const stacktrace = (item as { stacktrace?: unknown }).stacktrace;
+    if (!stacktrace || typeof stacktrace !== "object") continue;
+    const frames = (stacktrace as { frames?: unknown }).frames;
+    if (!Array.isArray(frames)) continue;
+
+    for (const frame of frames) {
+      if (!frame || typeof frame !== "object") continue;
+      const row = frame as Record<string, unknown>;
+      for (const key of ["source", "filename", "abs_path", "module"]) {
+        if (row[key] != null) sources.push(String(row[key]));
+      }
+    }
+  }
+
+  return sources;
+}
+
+/** Network failures thrown inside AdSense are external and not app-fixable. */
+export function isBenignAdSenseNetworkError(
+  properties: Record<string, unknown> | undefined
+): boolean {
+  const hasNetworkFailure = extractExceptionValues(properties).some((value) => {
+    const normalized = value.trim().toLowerCase();
+    return normalized === "failed to fetch" || normalized === "load failed";
+  });
+  if (!hasNetworkFailure) return false;
+
+  return extractExceptionFrameSources(properties).some((source) => {
+    const normalized = source.toLowerCase();
+    return (
+      normalized.includes("pagead2.googlesyndication.com") ||
+      normalized.includes("/pagead/js/adsbygoogle.js")
+    );
+  });
+}
+
+/** Browsers use this opaque placeholder when a cross-origin script hides details. */
+export function isOpaqueCrossOriginScriptError(
+  properties: Record<string, unknown> | undefined
+): boolean {
+  return extractExceptionValues(properties).some(
+    (value) => value.trim().toLowerCase() === "script error."
+  );
 }
 
 export function shouldDropExceptionEvent(
@@ -65,7 +125,10 @@ export function shouldDropExceptionEvent(
 ): boolean {
   const text = extractExceptionMessages(properties);
   return (
-    isBenignReactDomTeardownError(text) || isBenignWebSocketError(text)
+    isBenignReactDomTeardownError(text) ||
+    isBenignWebSocketError(text) ||
+    isBenignAdSenseNetworkError(properties) ||
+    isOpaqueCrossOriginScriptError(properties)
   );
 }
 

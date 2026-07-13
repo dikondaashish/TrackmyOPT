@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   extractExceptionMessages,
+  isBenignAdSenseNetworkError,
   isBenignReactDomTeardownError,
   isBenignWebSocketUnavailableError,
+  isOpaqueCrossOriginScriptError,
   shouldDropExceptionEvent,
 } from "@/lib/posthog/posthog-browser";
 
@@ -92,5 +94,64 @@ describe("shouldDropExceptionEvent", () => {
         ],
       })
     ).toBe(true);
+  });
+
+  it("drops network failures proven to originate inside AdSense", () => {
+    const properties = {
+      $exception_values: ["Failed to fetch"],
+      $exception_list: [
+        {
+          type: "TypeError",
+          value: "Failed to fetch",
+          stacktrace: {
+            frames: [
+              {
+                source: "/pagead/js/adsbygoogle.js",
+                filename:
+                  "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js",
+              },
+            ],
+          },
+        },
+      ],
+    };
+
+    expect(isBenignAdSenseNetworkError(properties)).toBe(true);
+    expect(shouldDropExceptionEvent(properties)).toBe(true);
+  });
+
+  it("keeps first-party network failures observable", () => {
+    const properties = {
+      $exception_values: ["Failed to fetch"],
+      $exception_list: [
+        {
+          value: "Failed to fetch",
+          stacktrace: {
+            frames: [{ source: "/_next/static/chunks/app.js" }],
+          },
+        },
+      ],
+    };
+
+    expect(isBenignAdSenseNetworkError(properties)).toBe(false);
+    expect(shouldDropExceptionEvent(properties)).toBe(false);
+  });
+
+  it("drops opaque cross-origin Script error placeholders", () => {
+    const properties = {
+      $exception_list: [{ type: "Error", value: "Script error." }],
+    };
+
+    expect(isOpaqueCrossOriginScriptError(properties)).toBe(true);
+    expect(shouldDropExceptionEvent(properties)).toBe(true);
+  });
+
+  it("keeps generic Safari Load failed errors without third-party evidence", () => {
+    const properties = {
+      $exception_values: ["Load failed"],
+    };
+
+    expect(isBenignAdSenseNetworkError(properties)).toBe(false);
+    expect(shouldDropExceptionEvent(properties)).toBe(false);
   });
 });
