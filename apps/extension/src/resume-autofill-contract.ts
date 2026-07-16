@@ -142,6 +142,13 @@ export interface JobContextIdentity {
   roleTitle: string;
 }
 
+export interface WorkdayJobIdentity {
+  requisitionId: string;
+  jobSlug: string;
+  slugRequisitionId: string;
+  queryRequisitionId?: string;
+}
+
 const TRACKING_PARAMETER_RE =
   /^(?:utm_.+|gclid|fbclid|msclkid|ref|referrer|source|trk)$/i;
 
@@ -169,13 +176,110 @@ export function normalizeJobIdentityText(value: string): string {
     .toLocaleLowerCase('en-US');
 }
 
+const WORKDAY_HOST_RE = /(?:^|\.)(?:myworkdayjobs|myworkday)\.com$/i;
+
+function normalizeRequisitionId(value: string): string {
+  return value.normalize('NFKC').trim().toLocaleLowerCase('en-US');
+}
+
+/** Extract stable Workday identity without treating an apply-route suffix as a new job. */
+export function extractWorkdayJobIdentity(
+  value: string,
+): WorkdayJobIdentity | undefined {
+  try {
+    const url = new URL(value);
+    if (!WORKDAY_HOST_RE.test(url.hostname)) return undefined;
+
+    const segments = url.pathname
+      .split('/')
+      .filter(Boolean)
+      .map((segment) => {
+        try {
+          return decodeURIComponent(segment);
+        } catch {
+          return segment;
+        }
+      });
+    const jobIndex = segments.findIndex(
+      (segment) => segment.toLocaleLowerCase('en-US') === 'job',
+    );
+    if (jobIndex < 0) return undefined;
+    const applyIndex = segments.findIndex(
+      (segment, index) =>
+        index > jobIndex && segment.toLocaleLowerCase('en-US') === 'apply',
+    );
+    const jobSegments = segments.slice(
+      jobIndex + 1,
+      applyIndex >= 0 ? applyIndex : undefined,
+    );
+    const jobSlug = jobSegments[jobSegments.length - 1]?.trim() || '';
+    const slugRequisitionId = jobSlug.includes('_')
+      ? jobSlug.slice(jobSlug.lastIndexOf('_') + 1).trim()
+      : jobSlug;
+    if (!jobSlug || !slugRequisitionId) return undefined;
+
+    const queryRequisitionId = url.searchParams.get('jr_id')?.trim();
+    return {
+      requisitionId: queryRequisitionId || slugRequisitionId,
+      jobSlug,
+      slugRequisitionId,
+      ...(queryRequisitionId ? { queryRequisitionId } : {}),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+export function jobUrlsReferToSameJob(
+  artifactUrl: string,
+  contextUrl: string,
+  artifactRequisitionId?: string,
+): boolean {
+  const artifactIdentity = extractWorkdayJobIdentity(artifactUrl);
+  const contextIdentity = extractWorkdayJobIdentity(contextUrl);
+  if (artifactIdentity && contextIdentity) {
+    try {
+      if (new URL(artifactUrl).hostname !== new URL(contextUrl).hostname) {
+        return false;
+      }
+    } catch {
+      return false;
+    }
+    if (
+      artifactIdentity.queryRequisitionId &&
+      contextIdentity.queryRequisitionId
+    ) {
+      return normalizeRequisitionId(artifactIdentity.queryRequisitionId) ===
+        normalizeRequisitionId(contextIdentity.queryRequisitionId);
+    }
+    const artifactIds = new Set(
+      [
+        artifactRequisitionId,
+        artifactIdentity.requisitionId,
+        artifactIdentity.slugRequisitionId,
+      ]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .map(normalizeRequisitionId),
+    );
+    const contextIds = [
+      contextIdentity.requisitionId,
+      contextIdentity.slugRequisitionId,
+    ].map(normalizeRequisitionId);
+    return contextIds.some((identifier) => artifactIds.has(identifier));
+  }
+  return normalizeJobUrl(artifactUrl) === normalizeJobUrl(contextUrl);
+}
+
 export function artifactMatchesJobContext(
   artifact: GeneratedResumeArtifactV1,
   context: JobContextIdentity
 ): boolean {
   return (
-    normalizeJobUrl(artifact.job.sourceUrl) ===
-      normalizeJobUrl(context.jobUrl) &&
+    jobUrlsReferToSameJob(
+      artifact.job.sourceUrl,
+      context.jobUrl,
+      artifact.job.requisitionId,
+    ) &&
     normalizeJobIdentityText(artifact.job.companyName) ===
       normalizeJobIdentityText(context.companyName) &&
     normalizeJobIdentityText(artifact.job.roleTitle) ===
