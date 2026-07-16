@@ -14,10 +14,15 @@ import {
   type SnapshotExtractionHandoff,
 } from './resume-generation-result';
 import type {
+  BasicContactProfile,
   GeneratedResumeArtifactV1,
   ResumeAutofillSnapshotV1,
+  V1PrefillPayloadRequest,
+  V1PrefillPayloadResponse,
 } from './resume-autofill-contract';
 import { buildGeneratedResumeArtifactV1 } from './resume-artifact-lifecycle';
+import { resolveV1PrefillPayload } from './prefill-payload-resolver';
+import { validateResumeAutofillSnapshotV1 } from './resume-artifact-validator';
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
@@ -29,6 +34,10 @@ chrome.runtime.onInstalled.addListener(() => {
 // The web side now issues 5-minute JWTs (mintToken), matching this window so
 // the cached token never outlives the issued token.
 const TOKEN_TTL_MS = 5 * 60 * 1000;
+
+// V1 is deliberately memory-only. Service-worker recreation makes this
+// unavailable and resolves to profile_only; it is never persisted to storage.
+let currentGeneratedResumeArtifact: GeneratedResumeArtifactV1 | null = null;
 
 /** True if JWT `exp` is more than 60s in the future (matches popup refresh heuristic). */
 function isJwtNotExpired(token: string): boolean {
@@ -116,6 +125,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === 'EXTENSION_SIGN_OUT') {
     performExtensionSignOut()
       .then(async () => {
+        currentGeneratedResumeArtifact = null;
         const tabs = await chrome.tabs.query({}).catch(() => []);
         await Promise.allSettled(
           tabs
@@ -162,12 +172,40 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
     return true;
   }
+  if (msg.type === 'RESOLVE_V1_PREFILL_PAYLOAD') {
+    const request: V1PrefillPayloadRequest = {
+      now: String(msg.request?.now ?? ''),
+      jobContext: {
+        jobUrl: String(msg.request?.jobContext?.jobUrl ?? ''),
+        companyName: String(msg.request?.jobContext?.companyName ?? ''),
+        roleTitle: String(msg.request?.jobContext?.roleTitle ?? ''),
+      },
+    };
+    resolveCurrentV1PrefillPayload(request)
+      .then((response) => {
+        if (
+          response.ok &&
+          response.source === 'profile_only' &&
+          response.reason !== 'missing'
+        ) {
+          currentGeneratedResumeArtifact = null;
+        }
+        sendResponse(response);
+      })
+      .catch(() => sendResponse({ ok: false as const, error: 'unavailable' }));
+    return true;
+  }
   if (msg.type === 'PREFILL_CHILD_FRAMES') {
     if (!_sender.tab?.id) {
       sendResponse({ ok: false, error: 'missing_tab' });
       return true;
     }
-    const requestedResume = msg.resume as { pdfBase64?: unknown; filename?: unknown } | undefined;
+    const requestedPrefill = (msg.prefill ?? { resume: msg.resume }) as {
+      resume?: { pdfBase64?: unknown; filename?: unknown };
+      snapshot?: unknown;
+      profileFallback?: unknown;
+    };
+    const requestedResume = requestedPrefill.resume;
     const resume = requestedResume &&
       typeof requestedResume.pdfBase64 === 'string' &&
       requestedResume.pdfBase64.length <= 25_000_000 &&
@@ -177,9 +215,15 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           filename: requestedResume.filename.slice(0, 180),
         }
       : undefined;
+    const snapshot = validateResumeAutofillSnapshotV1(requestedPrefill.snapshot)
+      ? requestedPrefill.snapshot
+      : undefined;
+    const profileFallback = sanitizeBasicContactProfile(
+      requestedPrefill.profileFallback
+    );
     chrome.tabs.sendMessage(_sender.tab.id, {
       type: 'RUN_PREFILL_IN_CHILD_FRAME',
-      resume,
+      prefill: { resume, snapshot, profileFallback },
     }).then(() => sendResponse({ ok: true })).catch(() => {
       // A page without child-frame receivers is normal; the top-frame engine
       // has already run, so this is not a user-visible error.
@@ -297,6 +341,44 @@ interface AutofillProfileResult {
   ok: boolean;
   error?: string;
   profile?: AutofillProfile;
+}
+
+function sanitizeBasicContactProfile(value: unknown): BasicContactProfile | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const profile = value as Record<string, unknown>;
+  const read = (key: keyof BasicContactProfile): string => {
+    const field = profile[key];
+    return typeof field === 'string' ? field.trim().slice(0, 500) : '';
+  };
+  return {
+    firstName: read('firstName'),
+    lastName: read('lastName'),
+    fullName: read('fullName'),
+    email: read('email'),
+    phone: read('phone'),
+    city: read('city'),
+    state: read('state'),
+    yearsExperience: read('yearsExperience'),
+    linkedinUrl: read('linkedinUrl'),
+    portfolioUrl: read('portfolioUrl'),
+  };
+}
+
+async function resolveCurrentV1PrefillPayload(
+  request: V1PrefillPayloadRequest
+): Promise<V1PrefillPayloadResponse> {
+  return resolveV1PrefillPayload({
+    artifact: currentGeneratedResumeArtifact,
+    request,
+    fetchProfileFallback: async () => {
+      const result = await getAutofillProfile();
+      return {
+        ok: result.ok,
+        error: result.error,
+        profile: result.profile as BasicContactProfile | undefined,
+      };
+    },
+  });
 }
 
 async function getAutofillProfile(): Promise<AutofillProfileResult> {
@@ -778,6 +860,7 @@ async function generateTailoredResume(input: {
       pdfFilename: outputFilename,
     });
     artifact = builtArtifact.artifact;
+    currentGeneratedResumeArtifact = artifact;
     snapshotExtraction = {
       structuredFieldsAvailable: builtArtifact.structuredFieldsAvailable,
       generatedContentHash: artifact.generatedContentHash,
@@ -787,6 +870,7 @@ async function generateTailoredResume(input: {
       reason: snapshotExtraction?.reason,
     };
   } catch {
+    currentGeneratedResumeArtifact = null;
     // PDF download remains available if local hashing is unexpectedly unavailable.
   }
 

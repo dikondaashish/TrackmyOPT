@@ -16,6 +16,7 @@ import {
   jumpToPrefillField,
   findApplicationForm,
   type GeneratedResumeAttachment,
+  type PrefillOptions,
   type PrefillCoverageResult,
 } from './easy-apply-engine';
 import { openFeedbackModal } from './feedback';
@@ -46,8 +47,11 @@ import {
 import {
   normalizeJobIdentityText,
   normalizeJobUrl,
+  type BasicContactProfile,
   type GeneratedResumeArtifactV1,
   type JobContextIdentity,
+  type ResumeAutofillSnapshotV1,
+  type V1PrefillPayloadResponse,
 } from './resume-autofill-contract';
 import {
   resolveArtifactLifecycle,
@@ -2043,34 +2047,64 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
 
   prefillBtn.addEventListener('click', () => {
     void (async () => {
-      const resume = generatedResumeFor(job);
       const label = prefillBtn.querySelector<HTMLElement>('.tmo-action-label');
-      const idleLabel = resume ? 'Prefill application + resume' : 'Prefill application';
+      let hasResume = false;
       prefillBtn.disabled = true;
       if (label) label.textContent = 'Prefilling…';
-      // The top-frame engine handles the main document, open shadow roots, and
-      // same-origin frames. Ask statically loaded child-frame scripts to cover
-      // cross-origin ATS frames that the browser prevents the top frame reading.
-      chrome.runtime.sendMessage({ type: 'PREFILL_CHILD_FRAMES', resume }).catch(() => {});
       try {
-        const result = await runPrefill({ resume });
-        if (resume && result.filled > 0) artifactBackedFieldsFilled = true;
+        const resolved = (await chrome.runtime.sendMessage({
+          type: 'RESOLVE_V1_PREFILL_PAYLOAD',
+          request: {
+            now: new Date().toISOString(),
+            jobContext: jobContextFor(job),
+          },
+        }).catch(() => null)) as V1PrefillPayloadResponse | null;
+
+        let prefill: PrefillOptions = {};
+        if (resolved?.ok && resolved.source === 'generated_resume') {
+          hasResume = true;
+          prefill = {
+            resume: resolved.resume,
+            snapshot: resolved.snapshot,
+            profileFallback: resolved.profileFallback,
+          };
+        } else if (resolved?.ok && resolved.source === 'profile_only') {
+          markCurrentArtifactInvalid(
+            resolved.reason,
+            resolved.reason !== 'expired'
+          );
+          prefill = { profileFallback: resolved.profileFallback };
+        }
+
+        // The top-frame engine handles the main document, open shadow roots,
+        // and same-origin frames. Child frames receive this already-resolved
+        // payload only for this explicit run; it is never persisted.
+        chrome.runtime.sendMessage({
+          type: 'PREFILL_CHILD_FRAMES',
+          prefill,
+        }).catch(() => {});
+        const result = await runPrefill(prefill);
+        if (hasResume && result.filled > 0) artifactBackedFieldsFilled = true;
         paintPrefillCoverage(result);
         trackWidgetAnalytics('extension_widget_prefill_completed', {
           outcome: 'success',
           filled: result.filled,
           skipped: result.skipped,
           total: result.total,
-          has_resume: !!resume,
+          has_resume: hasResume,
         });
       } catch {
         trackWidgetAnalytics('extension_widget_prefill_completed', {
           outcome: 'error',
-          has_resume: !!resume,
+          has_resume: hasResume,
         });
       } finally {
         prefillBtn.disabled = false;
-        if (label) label.textContent = idleLabel;
+        if (label) {
+          label.textContent = generatedResumeFor(job)
+            ? 'Prefill application + resume'
+            : 'Prefill application';
+        }
       }
     })();
   });
@@ -3874,8 +3908,15 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return false;
   }
   if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME' || window.top === window.self) return false;
+  const prefill = (message.prefill ?? {}) as {
+    resume?: GeneratedResumeAttachment;
+    snapshot?: ResumeAutofillSnapshotV1;
+    profileFallback?: BasicContactProfile;
+  };
   void runPrefill({
-    resume: message.resume as GeneratedResumeAttachment | undefined,
+    resume: prefill.resume,
+    snapshot: prefill.snapshot,
+    profileFallback: prefill.profileFallback,
     quietIfNoForm: true,
   })
     .then(() => sendResponse({ ok: true }))

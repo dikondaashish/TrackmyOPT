@@ -33,21 +33,15 @@ import {
   type PrefillControlOutcome,
   type PrefillCoverageResult,
 } from './prefill-coverage';
+import { buildContactAutofillProfile } from './prefill-contact-source';
+import type {
+  BasicContactProfile,
+  ResumeAutofillSnapshotV1,
+} from './resume-autofill-contract';
 
 export type { PrefillCoverageResult } from './prefill-coverage';
 
-interface AutofillProfile {
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  city: string;
-  state: string;
-  yearsExperience: string;
-  linkedinUrl: string;
-  portfolioUrl: string;
-}
+type AutofillProfile = BasicContactProfile;
 
 export interface GeneratedResumeAttachment {
   pdfBase64: string;
@@ -56,6 +50,8 @@ export interface GeneratedResumeAttachment {
 
 export interface PrefillOptions {
   resume?: GeneratedResumeAttachment;
+  snapshot?: ResumeAutofillSnapshotV1;
+  profileFallback?: BasicContactProfile;
   /** Child frames without an application form should stay silent so only the
    * frame that actually fills fields reports a result. */
   quietIfNoForm?: boolean;
@@ -620,9 +616,15 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     ? [{ filled: true }]
     : [];
 
-  const resp = (await chrome.runtime
-    .sendMessage({ type: 'GET_AUTOFILL_PROFILE' })
-    .catch(() => null)) as { ok?: boolean; error?: string; profile?: AutofillProfile } | null;
+  const resp = options.profileFallback
+    ? { ok: true, profile: options.profileFallback }
+    : ((await chrome.runtime
+        .sendMessage({ type: 'GET_AUTOFILL_PROFILE' })
+        .catch(() => null)) as {
+        ok?: boolean;
+        error?: string;
+        profile?: AutofillProfile;
+      } | null);
 
   if (!resp?.ok || !resp.profile) {
     if (resumeResult === 'attached') {
@@ -637,7 +639,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     return summarizePrefillOutcomes(remainingRequiredOutcomes(container));
   }
 
-  const profile = resp.profile;
+  const profile = buildContactAutofillProfile(options.snapshot, resp.profile);
   const controls = queryAllDeep<HTMLElement>(container, 'input, textarea, select');
   let filled = 0;
   const kinds: string[] = [];
