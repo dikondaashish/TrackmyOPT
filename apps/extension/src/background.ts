@@ -282,6 +282,20 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     }).then(sendResponse).catch(() => sendResponse({ ok: false, error: 'compile_failed' }));
     return true;
   }
+  if (msg.type === 'GENERATE_SCREENING_DRAFT') {
+    requestScreeningDraft(msg).then(sendResponse).catch(() => sendResponse({ ok: false, error: 'generation_failed' }));
+    return true;
+  }
+  if (msg.type === 'LOAD_SCREENING_ANSWER' || msg.type === 'DELETE_SCREENING_ANSWER') {
+    requestSavedScreeningAnswer(msg.type === 'LOAD_SCREENING_ANSWER' ? 'GET' : 'DELETE', String(msg.questionHash ?? ''))
+      .then(sendResponse).catch(() => sendResponse({ ok: false, error: 'storage_failed' }));
+    return true;
+  }
+  if (msg.type === 'SAVE_SCREENING_ANSWER') {
+    saveScreeningAnswerForCurrentUser(msg.answer).then(sendResponse)
+      .catch(() => sendResponse({ ok: false, error: 'storage_failed' }));
+    return true;
+  }
   if (msg.type === 'CHECK_JOB_SAVED') {
     // Look up whether the current posting is already in the tracker. Bearer
     // stays in the worker; the content script only receives the boolean/status.
@@ -696,6 +710,49 @@ function arrayBufferToBase64(buf: ArrayBuffer): string {
     binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
   }
   return btoa(binary);
+}
+
+async function requestScreeningDraft(input: Record<string, unknown>) {
+  const artifact = currentGeneratedResumeArtifact;
+  if (!artifact) return { ok: false, error: 'artifact_unavailable' };
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+  const response = await fetch(`${WEBSITE_URL}/api/extension/screening-answer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` },
+    body: JSON.stringify({
+      questionText: String(input.questionText ?? ''),
+      ...(typeof input.characterLimit === 'number' ? { characterLimit: input.characterLimit } : {}),
+      job: {
+        companyName: String(input.companyName ?? artifact.job.companyName),
+        roleTitle: String(input.roleTitle ?? artifact.job.roleTitle),
+        jobDescription: String(input.jobDescription ?? ''),
+      },
+      snapshot: artifact.snapshot,
+      sourceContentHash: artifact.generatedContentHash,
+      regenerate: input.regenerate === true,
+    }),
+  });
+  return response.json().catch(() => ({ ok: false, error: 'invalid_response' }));
+}
+
+async function requestSavedScreeningAnswer(method: 'GET' | 'DELETE', questionHash: string) {
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+  const url = `${WEBSITE_URL}/api/extension/screening-answers?questionHash=${encodeURIComponent(questionHash)}`;
+  const response = await fetch(url, { method, headers: { Authorization: `Bearer ${bearer}` } });
+  return response.json().catch(() => ({ ok: false, error: 'invalid_response' }));
+}
+
+async function saveScreeningAnswerForCurrentUser(answer: unknown) {
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+  const response = await fetch(`${WEBSITE_URL}/api/extension/screening-answers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` },
+    body: JSON.stringify(answer),
+  });
+  return response.json().catch(() => ({ ok: false, error: 'invalid_response' }));
 }
 
 async function generateCoverLetterForCurrentArtifact(input: {

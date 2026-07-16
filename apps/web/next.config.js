@@ -243,11 +243,9 @@ const nextConfig = {
 // an interactive client.html / server.html report under .next/analyze/.
 let wrappedConfig = nextConfig;
 
-if (
-  process.env.POSTHOG_SOURCEMAPS_ENABLED === "true" &&
-  process.env.POSTHOG_PERSONAL_API_KEY &&
-  process.env.POSTHOG_PROJECT_ID
-) {
+const { shouldUploadPostHogSourcemaps } = require('./lib/config/posthog-sourcemaps');
+
+if (shouldUploadPostHogSourcemaps()) {
   try {
     const { withPostHogConfig } = require("@posthog/nextjs-config");
     wrappedConfig = withPostHogConfig(nextConfig, {

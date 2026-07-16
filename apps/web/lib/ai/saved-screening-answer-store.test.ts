@@ -10,12 +10,15 @@ const answer = {
 };
 
 describe('saved screening answer ownership and bounds', () => {
-  it('always scopes service-role reads and writes to the authenticated user', () => {
+  it('prevents one authenticated user from reading or writing another user answer scope', () => {
     expect(ownedAnswerMatch('user-a', answer.questionHash)).toEqual({
       user_id: 'user-a',
       question_hash: answer.questionHash,
     });
     expect(toUserScopedUpsert('user-b', answer).user_id).toBe('user-b');
+    expect(ownedAnswerMatch('user-b', answer.questionHash)).not.toEqual(
+      ownedAnswerMatch('user-a', answer.questionHash),
+    );
   });
 
   it('rejects oversized question and answer text', () => {

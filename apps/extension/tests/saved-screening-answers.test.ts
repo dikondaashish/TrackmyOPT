@@ -7,6 +7,8 @@ assert.match(migration, /ENABLE ROW LEVEL SECURITY/i);
 assert.match(migration, /FOR SELECT\s+USING \(auth\.uid\(\) = user_id\)/i);
 assert.match(migration, /FOR INSERT\s+WITH CHECK \(auth\.uid\(\) = user_id\)/i);
 assert.match(migration, /FOR DELETE\s+USING \(auth\.uid\(\) = user_id\)/i);
+assert.match(migration, /char_length\(normalized_question_text\) BETWEEN 1 AND 2000/i);
+assert.match(migration, /char_length\(edited_answer\) BETWEEN 1 AND 8000/i);
 
 const analytics = JSON.stringify(savedAnswerAnalyticsProperties('saved'));
 assert.doesNotMatch(analytics, /questionText|answerText|editedAnswer|normalizedQuestion/i);
