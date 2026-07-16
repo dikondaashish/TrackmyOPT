@@ -1,5 +1,6 @@
 import {
   artifactMatchesJobContext,
+  extractWorkdayJobIdentity,
   normalizeJobUrl,
   type GeneratedResumeArtifactV1,
   type JobContextIdentity,
@@ -112,6 +113,8 @@ export async function buildGeneratedResumeArtifactV1(input: {
         companyName: normalizeDisplayText(input.jobContext.companyName),
         roleTitle: normalizeDisplayText(input.jobContext.roleTitle),
         sourceUrl: normalizeJobUrl(input.jobContext.jobUrl),
+        requisitionId: extractWorkdayJobIdentity(input.jobContext.jobUrl)
+          ?.requisitionId,
       },
       generatedAt: new Date(generatedAtMs).toISOString(),
       expiresAt: new Date(generatedAtMs + RESUME_ARTIFACT_TTL_MS).toISOString(),

@@ -47,14 +47,20 @@ import {
   type WidgetAnalyticsProperties,
 } from './widget-platform';
 import {
+  jobUrlsReferToSameJob,
   normalizeJobIdentityText,
-  normalizeJobUrl,
   type BasicContactProfile,
   type GeneratedResumeArtifactV1,
   type JobContextIdentity,
   type ResumeAutofillSnapshotV1,
   type V1PrefillPayloadResponse,
 } from './resume-autofill-contract';
+import {
+  artifactExpectedForSession,
+  clearArtifactExpectedForSession,
+  rememberArtifactExpectedForSession,
+  renderInactiveArtifactFallback,
+} from './artifact-fallback-ui';
 import {
   resolveArtifactLifecycle,
   type ArtifactInvalidReason,
@@ -90,6 +96,7 @@ const POST_SAVE_SUGGESTION_SEEN_KEY = 'tmo_post_save_suggestions_seen_v1';
 const WIDGET_THEME_STYLE_ID = 'tmo-widget-theme-tokens';
 const WIDGET_THEME_SCOPE_CLASS = 'tmo-widget-theme-scope';
 const ARTIFACT_STALE_BANNER_CLASS = 'tmo-artifact-stale-banner';
+const ARTIFACT_INACTIVE_FALLBACK_CLASS = 'tmo-artifact-inactive-fallback';
 
 type WidgetHideConfig = { all?: boolean; domains?: string[] };
 
@@ -113,6 +120,14 @@ let regenerationRecheckPending = false;
 let latestJobFitScore: { jobFingerprint: string; score: number } | null = null;
 let currentAutofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
 const trackedWidgetAnalytics = new Set<string>();
+
+function currentSessionStorage(): Storage | null {
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
 
 function ensureWidgetThemeStyles(): void {
   if (document.getElementById(WIDGET_THEME_STYLE_ID)) return;
@@ -224,6 +239,15 @@ function scheduleCurrentArtifactExpiry(artifact: GeneratedResumeArtifactV1): voi
 
 function setCurrentGeneratedArtifact(artifact: GeneratedResumeArtifactV1): void {
   generatedResumeArtifactForCurrentJob = artifact;
+  const storage = currentSessionStorage();
+  if (storage) rememberArtifactExpectedForSession(storage, artifact);
+  for (const fallback of Array.from(
+    document.querySelectorAll<HTMLElement>(`.${ARTIFACT_INACTIVE_FALLBACK_CLASS}`),
+  )) {
+    fallback.textContent = '';
+    fallback.style.display = 'none';
+    fallback.removeAttribute('role');
+  }
   artifactStaleReason = null;
   scheduleCurrentArtifactExpiry(artifact);
   syncArtifactStaleBannerVisibility();
@@ -236,8 +260,42 @@ function setCurrentGeneratedArtifact(artifact: GeneratedResumeArtifactV1): void 
 function invalidateArtifactForUrlChange(nextUrl: string): void {
   const artifact = generatedResumeArtifactForCurrentJob;
   if (!artifact) return;
-  if (normalizeJobUrl(artifact.job.sourceUrl) !== normalizeJobUrl(nextUrl)) {
+  if (!jobUrlsReferToSameJob(
+    artifact.job.sourceUrl,
+    nextUrl,
+    artifact.job.requisitionId,
+  )) {
     markCurrentArtifactInvalid('job_changed', true);
+  }
+}
+
+async function reconcileArtifactAvailabilityOnWidgetMount(
+  job: JobInfo,
+  prefillButton: HTMLButtonElement,
+  fallbackHost: HTMLElement,
+): Promise<void> {
+  const context = jobContextFor(job);
+  const storage = currentSessionStorage();
+  if (!storage || !artifactExpectedForSession(storage, context)) return;
+
+  const resolved = (await chrome.runtime.sendMessage({
+    type: 'RESOLVE_V1_PREFILL_PAYLOAD',
+    request: { now: new Date().toISOString(), jobContext: context },
+  }).catch(() => null)) as V1PrefillPayloadResponse | null;
+  const artifactAvailable = Boolean(
+    resolved?.ok && resolved.source === 'generated_resume',
+  );
+  renderInactiveArtifactFallback({
+    host: fallbackHost,
+    storage,
+    jobContext: context,
+    artifactAvailable,
+  });
+  if (artifactAvailable) {
+    const label = prefillButton.querySelector<HTMLElement>('.tmo-action-label');
+    if (label) label.textContent = 'Prefill application + resume';
+    prefillButton.title =
+      'Prefill profile fields and attach the custom resume generated for this job';
   }
 }
 
@@ -1833,6 +1891,10 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   artifactStaleBanner.appendChild(artifactStaleCopy);
   artifactStaleBanner.appendChild(artifactStaleAction);
   if (artifactStaleReason) artifactStaleBanner.style.display = 'block';
+  const artifactInactiveFallback = document.createElement('div');
+  artifactInactiveFallback.className = ARTIFACT_INACTIVE_FALLBACK_CLASS;
+  artifactInactiveFallback.style.cssText =
+    'display:none;padding:10px 12px;border-top:1px solid #f59e0b;background:#fffbeb;color:#92400e;font-size:11.5px;font-weight:800;line-height:1.45;';
 
   const rowDivider = () => {
     const d = document.createElement('div');
@@ -1843,10 +1905,16 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   toolsPanel.appendChild(prefillBtn);
   toolsPanel.appendChild(prefillResultLine);
   toolsPanel.appendChild(artifactStaleBanner);
+  toolsPanel.appendChild(artifactInactiveFallback);
   toolsPanel.appendChild(rowDivider());
   toolsPanel.appendChild(resumeBtn);
   toolsPanel.appendChild(rowDivider());
   toolsPanel.appendChild(aiBtn);
+  void reconcileArtifactAvailabilityOnWidgetMount(
+    job,
+    prefillBtn,
+    artifactInactiveFallback,
+  );
 
   const nextStepHost = document.createElement('div');
   nextStepHost.setAttribute('role', 'status');
@@ -2234,7 +2302,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
       } finally {
         prefillBtn.disabled = false;
         if (label) {
-          label.textContent = generatedResumeFor(job)
+          label.textContent = hasResume || generatedResumeFor(job)
             ? 'Prefill application + resume'
             : 'Prefill application';
         }
@@ -4158,6 +4226,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     generatedResumeArtifactForCurrentJob = null;
     artifactBackedFieldsFilled = false;
     artifactStaleReason = null;
+    const storage = currentSessionStorage();
+    if (storage) clearArtifactExpectedForSession(storage);
     if (artifactExpiryTimer) {
       window.clearTimeout(artifactExpiryTimer);
       artifactExpiryTimer = null;
