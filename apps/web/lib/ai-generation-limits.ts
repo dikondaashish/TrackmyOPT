@@ -5,6 +5,7 @@ export interface AiGenerationLimitState {
 }
 const DAILY = 25, ITEM = 3;
 const buckets = new Map<string,{ day:string; used:number; items:Map<string,number> }>();
+export function resetAiGenerationLimitsForTesting(): void { buckets.clear(); }
 /** Atomic in-process implementation; production deployments should back this with a transactional store. */
 export function consumeAiGeneration(userId:string,itemKey:string, isRegeneration:boolean): AiGenerationLimitState {
   const day = new Date().toISOString().slice(0,10); let b=buckets.get(userId);
