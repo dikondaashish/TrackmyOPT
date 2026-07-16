@@ -434,6 +434,80 @@ body.dark-mode .case-more {
   flex-shrink: 0;
 }
 
+.prefill-settings {
+  padding: 11px 13px 13px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.prefill-setting-heading {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.prefill-mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.prefill-mode-toggle button {
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.prefill-mode-toggle button:hover {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+.prefill-mode-toggle button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--tool-blue-surface);
+  color: var(--tool-blue-ink);
+}
+.prefill-skills-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.35;
+  min-height: 44px;
+}
+.prefill-skills-toggle input {
+  margin-top: 2px;
+  accent-color: var(--accent);
+}
+.prefill-skills-toggle b,
+.prefill-skills-toggle small {
+  display: block;
+}
+.prefill-skills-toggle small,
+.prefill-mode-note {
+  color: var(--muted);
+}
+.prefill-mode-note {
+  min-height: 28px;
+  margin-top: 8px;
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+.prefill-mode-toggle button:focus-visible,
+.prefill-skills-toggle input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ============================================================
    Compliance note
    ============================================================ */

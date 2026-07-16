@@ -2,6 +2,12 @@ import { API_ENDPOINTS } from './config';
 import { performExtensionSignOut } from './signOut';
 import { icon, themeToggleIcon } from './icons';
 import { getIdToken } from './token-store';
+import {
+  AUTOFILL_PREFERENCES_KEY,
+  DEFAULT_AUTOFILL_PREFERENCES,
+  normalizeAutofillPreferences,
+  type AutofillPreferences,
+} from './autofill-preferences';
 
 /** Escape untrusted values before interpolating them into innerHTML. */
 function escapeHtml(value: unknown): string {
@@ -29,6 +35,13 @@ function showTransientLabel(label: HTMLElement, message: string, original: strin
  * Renders the signed-in home screen with tool tiles
  */
 export async function renderHome(root: HTMLElement, onNavigate: (page: string) => void): Promise<void> {
+  let autofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
+  try {
+    const stored = await chrome.storage.sync.get(AUTOFILL_PREFERENCES_KEY);
+    autofillPreferences = normalizeAutofillPreferences(stored[AUTOFILL_PREFERENCES_KEY]);
+  } catch {
+    // Safe defaults remain active if preferences cannot be read.
+  }
   // Fetch premium status to show badge. Try the web session cookie first; only
   // an unauthenticated/failed cookie request falls back to the extension JWT.
   let planBadge = '';
@@ -170,6 +183,21 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         </span>
         <span class="arr">${icon('chevronRight', 16)}</span>
       </button>
+      <div class="prefill-settings" aria-label="Application prefill settings">
+        <div class="prefill-setting-heading">Prefill mode</div>
+        <div class="prefill-mode-toggle" role="group" aria-label="Prefill mode">
+          <button type="button" id="prefill-mode-step" aria-pressed="false">Step-by-step</button>
+          <button type="button" id="prefill-mode-continuous" aria-pressed="false">Continuous</button>
+        </div>
+        <label class="prefill-skills-toggle">
+          <input type="checkbox" id="autofill-skills-toggle">
+          <span>
+            <b>Fill dedicated skills fields</b>
+            <small>Off by default · uses only this job's generated resume</small>
+          </span>
+        </label>
+        <p class="prefill-mode-note" id="prefill-mode-note" role="status" aria-live="polite"></p>
+      </div>
     </div>
 
     <div class="compliance">
@@ -280,6 +308,45 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       if (prefillLabel) showTransientLabel(prefillLabel, 'Cannot prefill on this page', prefillLabelText);
     }
   });
+
+  const stepModeBtn = root.querySelector<HTMLButtonElement>('#prefill-mode-step');
+  const continuousModeBtn = root.querySelector<HTMLButtonElement>('#prefill-mode-continuous');
+  const skillsToggle = root.querySelector<HTMLInputElement>('#autofill-skills-toggle');
+  const modeNote = root.querySelector<HTMLElement>('#prefill-mode-note');
+
+  const paintAutofillPreferences = () => {
+    const continuous = autofillPreferences.mode === 'continuous';
+    stepModeBtn?.setAttribute('aria-pressed', String(!continuous));
+    continuousModeBtn?.setAttribute('aria-pressed', String(continuous));
+    if (skillsToggle) skillsToggle.checked = autofillPreferences.autofillSkills;
+    if (modeNote) {
+      modeNote.textContent = continuous
+        ? 'Fills each new step as it loads. TrackMyOPT never clicks Next or Submit.'
+        : 'You click Prefill on each application page or step.';
+    }
+  };
+
+  const saveAutofillPreferences = async (next: AutofillPreferences) => {
+    autofillPreferences = normalizeAutofillPreferences(next);
+    paintAutofillPreferences();
+    await chrome.storage.sync.set({
+      [AUTOFILL_PREFERENCES_KEY]: autofillPreferences,
+    });
+  };
+
+  stepModeBtn?.addEventListener('click', () => {
+    void saveAutofillPreferences({ ...autofillPreferences, mode: 'step_by_step' });
+  });
+  continuousModeBtn?.addEventListener('click', () => {
+    void saveAutofillPreferences({ ...autofillPreferences, mode: 'continuous' });
+  });
+  skillsToggle?.addEventListener('change', () => {
+    void saveAutofillPreferences({
+      ...autofillPreferences,
+      autofillSkills: skillsToggle.checked,
+    });
+  });
+  paintAutofillPreferences();
 
   // Theme button - toggle between light and dark mode
   const themeBtn = root.querySelector('.theme-btn');

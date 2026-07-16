@@ -1,19 +1,29 @@
 import assert from 'node:assert/strict';
-import { summarizePrefillOutcomes } from '../src/prefill-coverage';
+import {
+  formatPrefillCoverageSummary,
+  summarizePrefillOutcomes,
+} from '../src/prefill-coverage';
 
 const result = summarizePrefillOutcomes([
-  { filled: true },
-  { filled: true },
+  { filled: true, fieldGroup: 'resume' },
+  { filled: true, fieldGroup: 'contact' },
+  { filled: true, fieldGroup: 'contact' },
+  { filled: true, fieldGroup: 'skills' },
   { needsUser: true, groupKey: 'radio:work-auth', selector: '[data-tmo-prefill-target="a"]' },
   { needsUser: true, groupKey: 'radio:work-auth', selector: '[data-tmo-prefill-target="b"]' },
-  { needsUser: true, groupKey: 'field:cover-letter', selector: '[data-tmo-prefill-target="c"]' },
+  { needsUser: true, fieldGroup: 'skills', groupKey: 'field:skills', selector: '[data-tmo-prefill-target="c"]' },
   { needsUser: false, groupKey: 'field:optional' },
 ]);
 
 assert.deepEqual(result, {
-  filled: 2,
+  filled: 4,
   skipped: 2,
-  total: 4,
+  total: 6,
+  groups: {
+    resume: { filled: 1, skipped: 0, total: 1 },
+    contact: { filled: 2, skipped: 0, total: 2 },
+    skills: { filled: 1, skipped: 1, total: 2 },
+  },
   firstSkippedSelector: '[data-tmo-prefill-target="a"]',
 });
 
@@ -21,6 +31,16 @@ assert.deepEqual(summarizePrefillOutcomes([]), {
   filled: 0,
   skipped: 0,
   total: 0,
+  groups: {
+    resume: { filled: 0, skipped: 0, total: 0 },
+    contact: { filled: 0, skipped: 0, total: 0 },
+    skills: { filled: 0, skipped: 0, total: 0 },
+  },
 });
 
-console.log('prefill-coverage: counting, radio dedupe, and jump target passed');
+assert.equal(
+  formatPrefillCoverageSummary(result),
+  'Resume attached · 2 contact fields · 1 skills field filled · 2 need you',
+);
+
+console.log('prefill-coverage: grouped counts, radio dedupe, and jump target passed');
