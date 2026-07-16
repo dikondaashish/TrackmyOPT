@@ -69,6 +69,7 @@ import {
   type AutofillPreferences,
 } from './autofill-preferences';
 import { shouldRunContinuousPrefill } from './continuous-prefill';
+import { mountCoverLetterReviewUi } from './cover-letter-review';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -3482,6 +3483,24 @@ function renderResumeResult(
   row.appendChild(dl);
   row.appendChild(ed);
   panel.appendChild(row);
+
+  if (artifact) {
+    mountCoverLetterReviewUi(panel, {
+      artifact,
+      jobDescription: lastResumeGenerationRequest?.jobDescription || '',
+      sendMessage: (message) => new Promise((resolve) => {
+        chrome.runtime.sendMessage(message, (response) => {
+          if (chrome.runtime.lastError) {
+            resolve({ ok: false, error: 'Cover-letter service is unavailable.' });
+            return;
+          }
+          resolve(response || { ok: false, error: 'Cover-letter service returned no response.' });
+        });
+      }),
+      onArtifactUpdated: setCurrentGeneratedArtifact,
+      download: (attachment) => downloadGeneratedPdf(attachment.base64, attachment.filename),
+    });
+  }
   addResumePanelDismiss(panel);
 }
 

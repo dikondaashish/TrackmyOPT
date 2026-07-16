@@ -13,5 +13,5 @@ export async function POST(req:NextRequest) {
   const text=`Dear ${job.companyName} hiring team,\n\nI am excited to apply for the ${job.roleTitle} role. ${snapshot.summary||'My experience aligns with the needs described in the job posting.'}\n\nSincerely,\n${snapshot.contact.fullName||[snapshot.contact.firstName,snapshot.contact.lastName].filter(Boolean).join(' ')}`;
   const pdf=Buffer.from(`%PDF-1.4\n% TrackMyOPT cover letter\n${text}`).toString('base64');
   const hash=createHash('sha256').update(pdf,'base64').digest('hex');
-  return NextResponse.json({attachment:{filename:'cover-letter.pdf',base64:pdf,sha256:hash,generatedAt:new Date().toISOString(),sourceContentHash},limits:limit});
+  return NextResponse.json({attachment:{filename:'cover-letter.pdf',base64:pdf,sha256:hash,generatedAt:new Date().toISOString(),sourceContentHash},draftText:text,limits:limit});
 }
