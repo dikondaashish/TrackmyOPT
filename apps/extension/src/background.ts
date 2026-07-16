@@ -13,7 +13,11 @@ import {
   buildGeneratedResumeResult,
   type SnapshotExtractionHandoff,
 } from './resume-generation-result';
-import type { ResumeAutofillSnapshotV1 } from './resume-autofill-contract';
+import type {
+  GeneratedResumeArtifactV1,
+  ResumeAutofillSnapshotV1,
+} from './resume-autofill-contract';
+import { buildGeneratedResumeArtifactV1 } from './resume-artifact-lifecycle';
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
@@ -111,7 +115,19 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
   if (msg.type === 'EXTENSION_SIGN_OUT') {
     performExtensionSignOut()
-      .then(() => sendResponse({ ok: true as const }))
+      .then(async () => {
+        const tabs = await chrome.tabs.query({}).catch(() => []);
+        await Promise.allSettled(
+          tabs
+            .filter((tab) => typeof tab.id === 'number')
+            .map((tab) =>
+              chrome.tabs.sendMessage(tab.id!, {
+                type: 'CLEAR_RESUME_AUTOFILL_ARTIFACT',
+              })
+            )
+        );
+        sendResponse({ ok: true as const });
+      })
       .catch((e) => sendResponse({ ok: false as const, error: e instanceof Error ? e.message : String(e) }));
     return true;
   }
@@ -187,6 +203,9 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       templateId: String(msg.templateId ?? ''),
       companyName: String(msg.companyName ?? ''),
       roleTitle: String(msg.roleTitle ?? ''),
+      jobUrl: String(msg.jobUrl ?? ''),
+      jobKey: String(msg.jobKey ?? ''),
+      outputFilename: String(msg.outputFilename ?? 'TrackMyOPT-resume.pdf'),
       focusKeywords: Array.isArray(msg.focusKeywords)
         ? msg.focusKeywords.map((keyword: unknown) => String(keyword ?? '')).filter(Boolean)
         : [],
@@ -346,6 +365,7 @@ interface GenerateResumeResult {
   structuredFieldsAvailable?: boolean;
   generatedContentHash?: string;
   snapshot?: ResumeAutofillSnapshotV1;
+  artifact?: GeneratedResumeArtifactV1;
 }
 
 interface SavedResumeOption {
@@ -584,12 +604,24 @@ async function generateTailoredResume(input: {
   templateId: string;
   companyName: string;
   roleTitle: string;
+  jobUrl: string;
+  jobKey: string;
+  outputFilename: string;
   focusKeywords?: string[];
   baselineScore?: number;
 }): Promise<GenerateResumeResult> {
   const bearer = await getExtensionBearerToken();
   if (!bearer) return { ok: false, error: 'not_signed_in' };
-  const { jobDescription, resumeId, templateId, companyName, roleTitle } = input;
+  const {
+    jobDescription,
+    resumeId,
+    templateId,
+    companyName,
+    roleTitle,
+    jobUrl,
+    jobKey,
+    outputFilename,
+  } = input;
   const focusKeywords = [...new Set((input.focusKeywords ?? [])
     .map((keyword) => keyword.replace(/\s+/g, ' ').trim().slice(0, 80))
     .filter(Boolean))].slice(0, 12);
@@ -726,6 +758,38 @@ async function generateTailoredResume(input: {
     snapshotExtraction = { structuredFieldsAvailable: false };
   }
 
+  const pdfBase64 = arrayBufferToBase64(out.pdf);
+  let artifact: GeneratedResumeArtifactV1 | undefined;
+  try {
+    const builtArtifact = await buildGeneratedResumeArtifactV1({
+      sourceResumeId: resumeId,
+      sourceResumeFilename: base.filename || 'resume',
+      templateId,
+      jobKey: jobKey || `${companyName}|${roleTitle}|${jobUrl}`,
+      jobContext: {
+        jobUrl,
+        companyName,
+        roleTitle,
+      },
+      finalLatex: latex,
+      extractedContentHash: snapshotExtraction?.generatedContentHash,
+      extractedSnapshot: snapshotExtraction?.snapshot,
+      pdfBase64,
+      pdfFilename: outputFilename,
+    });
+    artifact = builtArtifact.artifact;
+    snapshotExtraction = {
+      structuredFieldsAvailable: builtArtifact.structuredFieldsAvailable,
+      generatedContentHash: artifact.generatedContentHash,
+      snapshot: builtArtifact.structuredFieldsAvailable
+        ? artifact.snapshot
+        : undefined,
+      reason: snapshotExtraction?.reason,
+    };
+  } catch {
+    // PDF download remains available if local hashing is unexpectedly unavailable.
+  }
+
   // 4. Score the exact generated LaTeX after any compile repair. This is
   // non-blocking from a product perspective: a quota/network failure never
   // discards an otherwise valid generated resume.
@@ -783,11 +847,12 @@ async function generateTailoredResume(input: {
   }
 
   return buildGeneratedResumeResult({
-    pdfBase64: arrayBufferToBase64(out.pdf),
+    pdfBase64,
     editorUrl,
     baselineScore,
     generatedScore,
     scoreError,
+    artifact,
   }, snapshotExtraction);
 }
 
