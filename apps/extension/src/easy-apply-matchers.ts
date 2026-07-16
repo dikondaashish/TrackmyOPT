@@ -75,7 +75,9 @@ export function classifyField(labelText: string): FieldKind | null {
 
   if (/\b(e-?mail|courriel|correo)\b/.test(t)) return 'email';
   if (/\b(phone|telephone|tel|téléphone|telefono|mobile|cell|portable)\b/.test(t)) return 'phone';
-  if (/\blinkedin\b/.test(t)) return 'linkedinUrl';
+  // normalizeFieldSignal splits camelCase, so "LinkedIn" becomes "linked in";
+  // tolerate the space/hyphen so human-facing "LinkedIn Profile URL" labels match.
+  if (/\blinked[\s-]?in\b/.test(t)) return 'linkedinUrl';
   if (/\b(portfolio|personal website|personal site|website|web site)\b/.test(t)) return 'portfolioUrl';
 
   // Years of experience — CONSERVATIVE. Only a bare, general question fills.

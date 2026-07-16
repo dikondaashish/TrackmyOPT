@@ -244,6 +244,7 @@ export function normalizeText(text: string): string {
 export interface AtsGapAnalysis {
   matchScore: number;
   missingKeywords: string[];
+  foundKeywords: string[];
   gapAnalysis: string;
   recommendations: string[];
 }
@@ -376,6 +377,7 @@ Output JSON ONLY (no markdown fences):
     return {
       matchScore: 0,
       missingKeywords: [],
+      foundKeywords: [],
       gapAnalysis: 'AI Analysis Failed',
       recommendations: []
     };

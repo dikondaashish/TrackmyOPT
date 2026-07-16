@@ -47,6 +47,21 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | `resume_downloaded` | Client | `ats_score` | PDF export |
 | `resume_ats_scored` | Client | `score` | Deep scan complete |
 
+### Chrome extension job widget
+
+These events are sent through the authenticated `/api/extension/widget-event`
+bridge. The bridge allowlists low-cardinality properties and rejects job URLs,
+job descriptions, company names, role titles, and unknown event names.
+
+| Event | Properties | Notes |
+|-------|------------|-------|
+| `extension_widget_shown` | `site_family`, `default_view` | Once per normalized job in the active page runtime |
+| `extension_widget_sponsorship_classified` | `site_family`, `signal`, `refreshed` | Final client-side sponsorship signal |
+| `extension_widget_job_saved` | `site_family`, `status`, `outcome` | Wishlist/Applied save result |
+| `extension_widget_prefill_completed` | `site_family`, `outcome`, `filled`, `skipped`, `total`, `has_resume` | Prefill coverage and generated-resume attachment state |
+| `extension_widget_job_analyzed` | `site_family`, `outcome`, `score`, keyword counts, `error_code` | ATS analysis result without keyword text |
+| `extension_widget_resume_generated` | `site_family`, `outcome`, `template_id`, ATS scores/delta, `error_code` | Tailored resume result |
+
 ## Reliability / UX
 
 | Event | Source | Properties | Notes |

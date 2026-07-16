@@ -2,6 +2,7 @@ import { getIdToken } from '../token-store';
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 import { icon } from '../icons.js';
+import { toolSurfaceCard } from '../tool-page-theme.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -131,7 +132,7 @@ function createDatePicker(
     left: 0;
     right: 0;
     margin-top: 8px;
-    background: white;
+    background: var(--surface);
     border-radius: 14px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
     padding: 14px;
@@ -160,7 +161,7 @@ function createDatePicker(
       align-items: center;
       margin-bottom: 12px;
       padding-bottom: 10px;
-      border-bottom: 2px solid #e5e7eb;
+      border-bottom: 2px solid var(--border);
     `;
 
     const prevBtn = document.createElement('button');
@@ -170,18 +171,18 @@ function createDatePicker(
       height: 32px;
       border: 0;
       border-radius: 8px;
-      background: #f3f4f6;
-      color: #374151;
+      background: var(--surface-2);
+      color: var(--ink);
       cursor: pointer;
       font-size: 18px;
       font-weight: 700;
       transition: all 0.2s;
     `;
     prevBtn.addEventListener('mouseenter', () => {
-      prevBtn.style.background = '#e5e7eb';
+      prevBtn.style.background = 'var(--border)';
     });
     prevBtn.addEventListener('mouseleave', () => {
-      prevBtn.style.background = '#f3f4f6';
+      prevBtn.style.background = 'var(--surface-2)';
     });
     prevBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -197,9 +198,9 @@ function createDatePicker(
     monthYear.style.cssText = `
       font-weight: 700;
       font-size: 14px;
-      color: #111827;
+      color: var(--ink);
     `;
-    monthYear.innerHTML = `${getMonthName(currentMonth)} ${currentYear} <span style="font-size: 12px; color: #6b7280;">▼</span>`;
+    monthYear.innerHTML = `${getMonthName(currentMonth)} ${currentYear} <span style="font-size: 12px; color: var(--muted);">▼</span>`;
 
     const nextBtn = document.createElement('button');
     nextBtn.innerHTML = '↓';
@@ -208,18 +209,18 @@ function createDatePicker(
       height: 32px;
       border: 0;
       border-radius: 8px;
-      background: #f3f4f6;
-      color: #374151;
+      background: var(--surface-2);
+      color: var(--ink);
       cursor: pointer;
       font-size: 18px;
       font-weight: 700;
       transition: all 0.2s;
     `;
     nextBtn.addEventListener('mouseenter', () => {
-      nextBtn.style.background = '#e5e7eb';
+      nextBtn.style.background = 'var(--border)';
     });
     nextBtn.addEventListener('mouseleave', () => {
-      nextBtn.style.background = '#f3f4f6';
+      nextBtn.style.background = 'var(--surface-2)';
     });
     nextBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -252,7 +253,7 @@ function createDatePicker(
         text-align: center;
         font-size: 11px;
         font-weight: 700;
-        color: #6b7280;
+        color: var(--muted);
         padding: 4px 0;
       `;
       dayHeaders.appendChild(dayHeader);
@@ -283,7 +284,7 @@ function createDatePicker(
         border: 0;
         border-radius: 8px;
         background: transparent;
-        color: #d1d5db;
+        color: var(--border);
         font-size: 12px;
         cursor: pointer;
       `;
@@ -306,7 +307,7 @@ function createDatePicker(
         border: 0;
         border-radius: 8px;
         background: ${isToday ? '#3b82f6' : 'transparent'};
-        color: ${isToday ? 'white' : '#111827'};
+        color: ${isToday ? 'white' : 'var(--ink)'};
         font-size: 12px;
         font-weight: ${isToday ? '700' : '500'};
         cursor: pointer;
@@ -315,7 +316,7 @@ function createDatePicker(
 
       dayBtn.addEventListener('mouseenter', () => {
         if (!isToday) {
-          dayBtn.style.background = '#f3f4f6';
+          dayBtn.style.background = 'var(--surface-2)';
         }
       });
 
@@ -346,7 +347,7 @@ function createDatePicker(
         border: 0;
         border-radius: 8px;
         background: transparent;
-        color: #d1d5db;
+        color: var(--border);
         font-size: 12px;
         cursor: pointer;
       `;
@@ -362,7 +363,7 @@ function createDatePicker(
       justify-content: space-between;
       margin-top: 12px;
       padding-top: 10px;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid var(--border);
     `;
 
     const clearBtn = document.createElement('button');
@@ -379,7 +380,7 @@ function createDatePicker(
       transition: all 0.2s;
     `;
     clearBtn.addEventListener('mouseenter', () => {
-      clearBtn.style.background = '#eff6ff';
+      clearBtn.style.background = 'var(--tool-blue-surface)';
     });
     clearBtn.addEventListener('mouseleave', () => {
       clearBtn.style.background = 'transparent';
@@ -405,7 +406,7 @@ function createDatePicker(
       transition: all 0.2s;
     `;
     todayBtn.addEventListener('mouseenter', () => {
-      todayBtn.style.background = '#eff6ff';
+      todayBtn.style.background = 'var(--tool-blue-surface)';
     });
     todayBtn.addEventListener('mouseleave', () => {
       todayBtn.style.background = 'transparent';
@@ -625,15 +626,13 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   infoCard.style.cssText = `
     padding: 14px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    color: white;
+    ${toolSurfaceCard('blue')};
     margin-bottom: 12px;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
   `;
   infoCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start;">
-      <div style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 16px;">
-        ${icon('info', 16, 'white')}
+      <div style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: 16px;">
+        ${icon('info', 16, 'currentColor')}
       </div>
       <div>
         <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">Post-Completion OPT Filing Rules</div>
@@ -650,16 +649,14 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   programCard.style.cssText = `
     padding: 14px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    color: white;
+    ${toolSurfaceCard('blue')};
     margin-bottom: 12px;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
     position: relative;
   `;
   programCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
-      <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 18px;">
-        ${icon('calendar', 20, 'white')}
+      <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; font-size: 18px;">
+        ${icon('calendar', 20, 'currentColor')}
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Program End Date</div>
@@ -676,9 +673,9 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
           padding: 10px 40px 10px 12px;
           border: 0;
           border-radius: 10px;
-          background: rgba(255,255,255,0.15);
+          background: var(--surface-2);
           backdrop-filter: blur(10px);
-          color: white;
+          color: var(--ink);
           font-size: 14px;
           outline: none;
           font-family: inherit;
@@ -695,15 +692,15 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
           height: 32px;
           border: 0;
           border-radius: 8px;
-          background: rgba(255,255,255,0.2);
-          color: white;
+          background: var(--surface-2);
+          color: var(--ink);
           cursor: pointer;
           font-size: 16px;
           display: grid;
           place-items: center;
           transition: all 0.2s;
         "
-      >${icon('calendar', 16, 'white')}</button>
+      >${icon('calendar', 16, 'currentColor')}</button>
     </div>
   `;
   content.appendChild(programCard);
@@ -713,16 +710,14 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   dsoCard.style.cssText = `
     padding: 14px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
+    ${toolSurfaceCard('green')};
     margin-bottom: 12px;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
     position: relative;
   `;
   dsoCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
-      <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 18px;">
-        ${icon('calendar', 20, 'white')}
+      <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; font-size: 18px;">
+        ${icon('calendar', 20, 'currentColor')}
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">DSO Recommendation Date</div>
@@ -739,9 +734,9 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
           padding: 10px 40px 10px 12px;
           border: 0;
           border-radius: 10px;
-          background: rgba(255,255,255,0.15);
+          background: var(--surface-2);
           backdrop-filter: blur(10px);
-          color: white;
+          color: var(--ink);
           font-size: 14px;
           outline: none;
           font-family: inherit;
@@ -758,15 +753,15 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
           height: 32px;
           border: 0;
           border-radius: 8px;
-          background: rgba(255,255,255,0.2);
-          color: white;
+          background: var(--surface-2);
+          color: var(--ink);
           cursor: pointer;
           font-size: 16px;
           display: grid;
           place-items: center;
           transition: all 0.2s;
         "
-      >${icon('calendar', 16, 'white')}</button>
+      >${icon('calendar', 16, 'currentColor')}</button>
     </div>
   `;
   content.appendChild(dsoCard);
@@ -779,7 +774,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     padding: 14px;
     border: 0;
     border-radius: 12px;
-    background: linear-gradient(135deg, #374151, #1f2937);
+    background: var(--tmo-gradient-brand);
     color: white;
     font-weight: 700;
     font-size: 14px;
@@ -868,10 +863,10 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   [programDatePickerBtn, dsoDatePickerBtn].forEach(btn => {
     if (btn) {
       btn.addEventListener('mouseenter', () => {
-        btn.style.background = 'rgba(255,255,255,0.3)';
+        btn.style.background = 'var(--surface-2)';
       });
       btn.addEventListener('mouseleave', () => {
-        btn.style.background = 'rgba(255,255,255,0.2)';
+        btn.style.background = 'var(--surface-2)';
       });
     }
   });
@@ -898,7 +893,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     const programEndDate = parseDate(programEndInput.value);
     if (!programEndDate) {
       resultsContainer.innerHTML = `
-        <div style="padding: 12px; border-radius: 12px; background: #fef2f2; color: #991b1b; font-size: 13px; border: 1px solid #fecaca;">
+        <div style="padding:12px;border-radius:12px;background:var(--tool-red-surface);color:var(--tool-red-ink);font-size:13px;border:1px solid var(--tool-red-border);">
           Please enter a valid Program End Date (mm/dd/yyyy)
         </div>
       `;
@@ -911,7 +906,7 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
 
     if (dsoRecommendationInput.value.trim() && !dsoRecommendationDate) {
       resultsContainer.innerHTML = `
-        <div style="padding: 12px; border-radius: 12px; background: #fef2f2; color: #991b1b; font-size: 13px; border: 1px solid #fecaca;">
+        <div style="padding:12px;border-radius:12px;background:var(--tool-red-surface);color:var(--tool-red-ink);font-size:13px;border:1px solid var(--tool-red-border);">
           Please enter a valid DSO Recommendation Date (mm/dd/yyyy)
         </div>
       `;
@@ -940,10 +935,10 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   inputs.forEach(input => {
     if (input) {
       input.addEventListener('focus', (e) => {
-        (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.25)';
+        (e.target as HTMLElement).style.background = 'var(--surface-2)';
       });
       input.addEventListener('blur', (e) => {
-        (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.15)';
+        (e.target as HTMLElement).style.background = 'var(--surface-2)';
       });
     }
   });
@@ -996,5 +991,3 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
 
   setupPageHandlers(onBack);
 }
-
-

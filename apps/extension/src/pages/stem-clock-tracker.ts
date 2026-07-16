@@ -2,6 +2,7 @@ import { getIdToken } from '../token-store';
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 import { icon } from '../icons.js';
+import { toolSurfaceCard, type ToolSurfaceTone } from '../tool-page-theme.js';
 
 /**
  * Format date for card display (e.g., "13 OCTOBER 2025")
@@ -222,21 +223,19 @@ export function renderStemClockTracker(
   startCard.style.cssText = `
     padding: 14px 10px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #f97316, #ea580c);
-    color: white;
+    ${toolSurfaceCard('orange')};
     text-align: center;
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
   `;
   startCard.innerHTML = `
     <div style="margin-bottom: 8px; opacity: 0.9;">
-      <div style="width: 36px; height: 36px; margin: 0 auto; background: rgba(255,255,255,0.25); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        ${icon('calendar', 20, 'white')}
+      <div style="width: 36px; height: 36px; margin: 0 auto; background: var(--surface-2); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
+        ${icon('calendar', 20, 'currentColor')}
       </div>
     </div>
     <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${startFormatted.day}</div>
     <div style="font-size: 9px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.95; margin-bottom: 2px;">${startFormatted.month}</div>
     <div style="font-size: 11px; font-weight: 600; opacity: 0.9;">${startFormatted.year}</div>
-    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.25); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">START DATE</div>
+    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">START DATE</div>
   `;
   dateCardsContainer.appendChild(startCard);
 
@@ -245,21 +244,19 @@ export function renderStemClockTracker(
   presentCard.style.cssText = `
     padding: 14px 10px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #f97316, #ea580c);
-    color: white;
+    ${toolSurfaceCard('orange')};
     text-align: center;
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
   `;
   presentCard.innerHTML = `
     <div style="margin-bottom: 8px; opacity: 0.9;">
-      <div style="width: 36px; height: 36px; margin: 0 auto; background: rgba(255,255,255,0.25); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        ${icon('calendar', 20, 'white')}
+      <div style="width: 36px; height: 36px; margin: 0 auto; background: var(--surface-2); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
+        ${icon('calendar', 20, 'currentColor')}
       </div>
     </div>
     <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${todayFormatted.day}</div>
     <div style="font-size: 9px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.95; margin-bottom: 2px;">${todayFormatted.month}</div>
     <div style="font-size: 11px; font-weight: 600; opacity: 0.9;">${todayFormatted.year}</div>
-    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.25); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">PRESENT</div>
+    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">PRESENT</div>
   `;
   dateCardsContainer.appendChild(presentCard);
 
@@ -268,21 +265,19 @@ export function renderStemClockTracker(
   endCard.style.cssText = `
     padding: 14px 10px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
+    ${toolSurfaceCard('red')};
     text-align: center;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
   `;
   endCard.innerHTML = `
     <div style="margin-bottom: 8px; opacity: 0.9;">
-      <div style="width: 36px; height: 36px; margin: 0 auto; background: rgba(255,255,255,0.25); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        ${icon('calendar', 20, 'white')}
+      <div style="width: 36px; height: 36px; margin: 0 auto; background: var(--surface-2); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
+        ${icon('calendar', 20, 'currentColor')}
       </div>
     </div>
     <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${endFormatted.day}</div>
     <div style="font-size: 9px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.95; margin-bottom: 2px;">${endFormatted.month}</div>
     <div style="font-size: 11px; font-weight: 600; opacity: 0.9;">${endFormatted.year}</div>
-    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.25); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">END DATE</div>
+    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">END DATE</div>
   `;
   dateCardsContainer.appendChild(endCard);
 
@@ -293,10 +288,8 @@ export function renderStemClockTracker(
   countdownCard.style.cssText = `
     padding: 20px 16px;
     border-radius: 18px;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
+    ${toolSurfaceCard('red')};
     margin-bottom: 12px;
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
   `;
 
   const timeRemaining = calculateTimeRemaining(endDate);
@@ -305,19 +298,19 @@ export function renderStemClockTracker(
     <div id="days-left-text" style="font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 14px; line-height: 1;">${timeRemaining.days} days left</div>
     
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px;">
-      <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
+      <div style="background: var(--surface-2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
         <div id="countdown-days" style="font-size: 24px; font-weight: 800; color: #f97316; line-height: 1; margin-bottom: 4px;">${String(timeRemaining.days).padStart(2, '0')}</div>
         <div style="font-size: 9px; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px;">DAYS</div>
       </div>
-      <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
+      <div style="background: var(--surface-2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
         <div id="countdown-hours" style="font-size: 24px; font-weight: 800; color: #f97316; line-height: 1; margin-bottom: 4px;">${String(timeRemaining.hours).padStart(2, '0')}</div>
         <div style="font-size: 9px; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px;">HOURS</div>
       </div>
-      <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
+      <div style="background: var(--surface-2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
         <div id="countdown-minutes" style="font-size: 24px; font-weight: 800; color: #f97316; line-height: 1; margin-bottom: 4px;">${String(timeRemaining.minutes).padStart(2, '0')}</div>
         <div style="font-size: 9px; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px;">MINUTES</div>
       </div>
-      <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
+      <div style="background: var(--surface-2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
         <div id="countdown-seconds" style="font-size: 24px; font-weight: 800; color: #f97316; line-height: 1; margin-bottom: 4px;">${String(timeRemaining.seconds).padStart(2, '0')}</div>
         <div style="font-size: 9px; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px;">SECONDS</div>
       </div>
@@ -334,31 +327,29 @@ export function renderStemClockTracker(
   remindersCard.style.cssText = `
     padding: 18px;
     border-radius: 18px;
-    background: linear-gradient(135deg, #f97316, #ea580c);
-    color: white;
+    ${toolSurfaceCard('orange')};
     margin-bottom: 12px;
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3);
   `;
 
   remindersCard.innerHTML = `
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-      <div style="display: flex; justify-content: center; margin-bottom: 8px;">${icon('mail', 22, 'white')}</div>
+      <div style="display: flex; justify-content: center; margin-bottom: 8px;">${icon('mail', 22, 'currentColor')}</div>
       <div style="font-weight: 800; font-size: 16px;">Daily Reminders (9:00 AM ET)</div>
     </div>
     <div style="font-size: 12px; opacity: 0.95; margin-bottom: 14px; line-height: 1.5;">
       We'll show a Chrome notification every morning. If you enter an email and connect the mailer, we'll also email you.
     </div>
     <div id="premium-content" style="text-align: center; padding: 20px 10px;">
-      <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.95; display: flex; align-items: center; justify-content: center; gap: 6px;">${icon('lock', 14, 'white')} Unlock Daily Email Reminders</div>
+      <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.95; display: flex; align-items: center; justify-content: center; gap: 6px;">${icon('lock', 14, 'currentColor')} Unlock Daily Email Reminders</div>
       <div style="font-size: 12px; margin-bottom: 14px; opacity: 0.9;">Get daily email notifications with Pro ($4.99/mo)</div>
       <button id="upgrade-btn" style="
         width: 100%;
         padding: 12px;
         border: 0;
         border-radius: 12px;
-        background: rgba(255,255,255,0.25);
+        background: var(--surface-2);
         backdrop-filter: blur(10px);
-        color: white;
+        color: var(--ink);
         font-weight: 800;
         font-size: 14px;
         cursor: pointer;
@@ -407,20 +398,23 @@ export function renderStemClockTracker(
     const containerEl = document.getElementById('countdown-container') as HTMLElement;
 
     // Determine color based on days remaining (Apple colors)
-    let gradient = '';
+    let tone: ToolSurfaceTone = 'red';
     if (remaining.days > 40) {
-      gradient = 'linear-gradient(135deg, #34C759, #30D158)'; // Green
+      tone = 'green';
     } else if (remaining.days > 20) {
-      gradient = 'linear-gradient(135deg, #007AFF, #5AC8FA)'; // Blue
+      tone = 'blue';
     } else if (remaining.days > 10) {
-      gradient = 'linear-gradient(135deg, #FF9500, #FF9F0A)'; // Orange
+      tone = 'orange';
     } else if (remaining.days > 5) {
-      gradient = 'linear-gradient(135deg, #FF9500, #FF3B30)'; // Deep Orange
+      tone = 'orange';
     } else {
-      gradient = 'linear-gradient(135deg, #FF3B30, #FF453A)'; // Red
+      tone = 'red';
     }
 
-    if (containerEl) containerEl.style.background = gradient;
+    if (containerEl) {
+      containerEl.style.background = `var(--tool-${tone}-surface)`;
+      containerEl.style.borderColor = `var(--tool-${tone}-border)`;
+    }
 
     // Flip animation function
     function flipElement(element: HTMLElement, newValue: string) {
@@ -491,9 +485,9 @@ export function renderStemClockTracker(
               padding: 14px 50px 14px 16px;
               border: 0;
               border-radius: 12px;
-              background: rgba(255,255,255,0.2);
+              background: var(--surface-2);
               backdrop-filter: blur(10px);
-              color: white;
+              color: var(--ink);
               font-size: 14px;
               font-weight: 600;
               outline: none;
@@ -510,8 +504,8 @@ export function renderStemClockTracker(
               padding: 6px 12px;
               border: 0;
               border-radius: 8px;
-              background: rgba(255,255,255,0.3);
-              color: white;
+              background: var(--surface-2);
+              color: var(--ink);
               cursor: pointer;
               font-size: 18px;
               display: grid;
@@ -525,9 +519,9 @@ export function renderStemClockTracker(
           padding: 10px;
           border: 0;
           border-radius: 10px;
-          background: rgba(255,255,255,0.15);
+          background: var(--surface-2);
           backdrop-filter: blur(10px);
-          color: white;
+          color: var(--ink);
           font-weight: 700;
           font-size: 13px;
           cursor: pointer;
@@ -589,7 +583,7 @@ export function renderStemClockTracker(
 
           // Change button to checkmark
           if (saveEmailBtn) {
-            saveEmailBtn.innerHTML = icon('checkCircle', 18, 'white');
+            saveEmailBtn.innerHTML = icon('checkCircle', 18, 'currentColor');
             saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
 
             // Reload the page after 1 second to show "Stop Reminders" button
@@ -630,17 +624,17 @@ export function renderStemClockTracker(
 
       // Hover effects
       saveEmailBtn?.addEventListener('mouseenter', () => {
-        if (saveEmailBtn) saveEmailBtn.style.background = 'rgba(255,255,255,0.4)';
+        if (saveEmailBtn) saveEmailBtn.style.background = 'var(--surface-2)';
       });
       saveEmailBtn?.addEventListener('mouseleave', () => {
-        if (saveEmailBtn) saveEmailBtn.style.background = 'rgba(255,255,255,0.3)';
+        if (saveEmailBtn) saveEmailBtn.style.background = 'var(--surface-2)';
       });
 
       stopRemindersBtn?.addEventListener('mouseenter', () => {
-        if (stopRemindersBtn) stopRemindersBtn.style.background = 'rgba(255,255,255,0.25)';
+        if (stopRemindersBtn) stopRemindersBtn.style.background = 'var(--surface-2)';
       });
       stopRemindersBtn?.addEventListener('mouseleave', () => {
-        if (stopRemindersBtn) stopRemindersBtn.style.background = 'rgba(255,255,255,0.15)';
+        if (stopRemindersBtn) stopRemindersBtn.style.background = 'var(--surface-2)';
       });
     }
   });
@@ -653,11 +647,11 @@ export function renderStemClockTracker(
   });
 
   upgradeBtn?.addEventListener('mouseenter', () => {
-    if (upgradeBtn) upgradeBtn.style.background = 'rgba(255,255,255,0.35)';
+    if (upgradeBtn) upgradeBtn.style.background = 'var(--surface-2)';
   });
 
   upgradeBtn?.addEventListener('mouseleave', () => {
-    if (upgradeBtn) upgradeBtn.style.background = 'rgba(255,255,255,0.25)';
+    if (upgradeBtn) upgradeBtn.style.background = 'var(--surface-2)';
   });
 
   modifyBtn.addEventListener('click', () => {
@@ -680,4 +674,3 @@ export function renderStemClockTracker(
 
   setupPageHandlers(onBack);
 }
-

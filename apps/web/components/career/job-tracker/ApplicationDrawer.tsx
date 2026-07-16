@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { JobApplication, JobFollowup, JobInterview, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES } from "@/lib/career/job-tracker/constants";
-import { X, Calendar, MapPin, ExternalLink, Trash2, CheckCircle, Clock, Archive, FileText, Download } from "lucide-react";
+import { X, Calendar, MapPin, ExternalLink, Trash2, CheckCircle, Clock, Archive, FileText, Download, BadgeDollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,6 +14,7 @@ import { updateApplicationDetails, updateApplicationStatus, deleteApplication, a
 import { useRouter } from "next/navigation";
 import { OfferDetailsSection } from "./OfferDetailsSection";
 import { supabase } from "@/lib/supabaseClient";
+import { useResumeStore } from "@/store/resume-store";
 
 interface LinkedResume {
     id: string;
@@ -43,6 +44,8 @@ interface ApplicationDrawerProps {
 
 export function ApplicationDrawer({ application, onClose, interviews = [], followups = [], onDelete, onUpdate, onArchive }: ApplicationDrawerProps) {
     const router = useRouter();
+    const setJobDescription = useResumeStore((state) => state.setJobDescription);
+    const setApplicationId = useResumeStore((state) => state.setApplicationId);
     const [status, setStatus] = useState<JobStage | "">("");
     const [notes, setNotes] = useState("");
     const [updating, setUpdating] = useState(false);
@@ -274,6 +277,15 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                                     {application.location}
                                 </div>
                             )}
+                            {application.salary_text && (
+                                <div className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-200">
+                                    <BadgeDollarSign className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                                    <div className="min-w-0">
+                                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Compensation</p>
+                                        <p className="break-words leading-5">{application.salary_text}</p>
+                                    </div>
+                                </div>
+                            )}
                             {application.job_url && (
                                 <a href={application.job_url} target="_blank" className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
                                     <ExternalLink className="w-4 h-4" />
@@ -285,7 +297,11 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                                 size="sm"
                                 className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400 gap-2 h-9"
                                 onClick={() => {
-                                    window.location.href = buildResumeGeneratorUrl(application);
+                                    if (application.job_description) {
+                                        setJobDescription(application.job_description, application.role_title);
+                                    }
+                                    setApplicationId(application.id);
+                                    router.push(buildResumeGeneratorUrl(application));
                                 }}
                             >
                                 <FileText className="w-4 h-4" />
@@ -333,6 +349,22 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                             )}
                         </div>
                     </div>
+
+                    {application.job_description && (
+                        <details open className="rounded-lg border border-gray-200 bg-gray-50/70 dark:border-gray-700 dark:bg-gray-800/60">
+                            <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset dark:text-white">
+                                Saved job description
+                            </summary>
+                            <div className="border-t border-gray-200 px-4 py-3 dark:border-gray-700">
+                                <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+                                    Captured from the job post when this application was saved.
+                                </p>
+                                <p className="max-h-72 overflow-y-auto whitespace-pre-wrap break-words pr-2 text-sm leading-6 text-gray-700 dark:text-gray-200">
+                                    {application.job_description}
+                                </p>
+                            </div>
+                        </details>
+                    )}
 
                     <Separator />
 

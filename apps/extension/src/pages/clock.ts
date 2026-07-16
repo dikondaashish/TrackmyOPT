@@ -2,6 +2,7 @@ import { getIdToken } from '../token-store';
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 import { icon } from '../icons.js';
+import { toolSurfaceCard } from '../tool-page-theme.js';
 
 /**
  * Format date to mm/dd/yyyy
@@ -131,7 +132,7 @@ function createDatePicker(
     left: 0;
     right: 0;
     margin-top: 8px;
-    background: white;
+    background: var(--surface);
     border-radius: 14px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
     padding: 14px;
@@ -158,7 +159,7 @@ function createDatePicker(
       align-items: center;
       margin-bottom: 12px;
       padding-bottom: 10px;
-      border-bottom: 2px solid #e5e7eb;
+      border-bottom: 2px solid var(--border);
     `;
     
     const prevBtn = document.createElement('button');
@@ -168,15 +169,15 @@ function createDatePicker(
       height: 32px;
       border: 0;
       border-radius: 8px;
-      background: #f3f4f6;
-      color: #374151;
+      background: var(--surface-2);
+      color: var(--ink);
       cursor: pointer;
       font-size: 18px;
       font-weight: 700;
       transition: all 0.2s;
     `;
-    prevBtn.addEventListener('mouseenter', () => { prevBtn.style.background = '#e5e7eb'; });
-    prevBtn.addEventListener('mouseleave', () => { prevBtn.style.background = '#f3f4f6'; });
+    prevBtn.addEventListener('mouseenter', () => { prevBtn.style.background = 'var(--border)'; });
+    prevBtn.addEventListener('mouseleave', () => { prevBtn.style.background = 'var(--surface-2)'; });
     prevBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       currentMonth--;
@@ -185,8 +186,8 @@ function createDatePicker(
     });
     
     const monthYear = document.createElement('div');
-    monthYear.style.cssText = `font-weight: 700; font-size: 14px; color: #111827;`;
-    monthYear.innerHTML = `${getMonthName(currentMonth)} ${currentYear} <span style="font-size: 12px; color: #6b7280;">▼</span>`;
+    monthYear.style.cssText = `font-weight: 700; font-size: 14px; color: var(--ink);`;
+    monthYear.innerHTML = `${getMonthName(currentMonth)} ${currentYear} <span style="font-size: 12px; color: var(--muted);">▼</span>`;
     
     const nextBtn = document.createElement('button');
     nextBtn.innerHTML = '↓';
@@ -195,15 +196,15 @@ function createDatePicker(
       height: 32px;
       border: 0;
       border-radius: 8px;
-      background: #f3f4f6;
-      color: #374151;
+      background: var(--surface-2);
+      color: var(--ink);
       cursor: pointer;
       font-size: 18px;
       font-weight: 700;
       transition: all 0.2s;
     `;
-    nextBtn.addEventListener('mouseenter', () => { nextBtn.style.background = '#e5e7eb'; });
-    nextBtn.addEventListener('mouseleave', () => { nextBtn.style.background = '#f3f4f6'; });
+    nextBtn.addEventListener('mouseenter', () => { nextBtn.style.background = 'var(--border)'; });
+    nextBtn.addEventListener('mouseleave', () => { nextBtn.style.background = 'var(--surface-2)'; });
     nextBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       currentMonth++;
@@ -222,7 +223,7 @@ function createDatePicker(
     ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(day => {
       const dayHeader = document.createElement('div');
       dayHeader.textContent = day;
-      dayHeader.style.cssText = `text-align: center; font-size: 11px; font-weight: 700; color: #6b7280; padding: 4px 0;`;
+      dayHeader.style.cssText = `text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding: 4px 0;`;
       dayHeaders.appendChild(dayHeader);
     });
     picker.appendChild(dayHeaders);
@@ -237,7 +238,7 @@ function createDatePicker(
     for (let i = firstDay - 1; i >= 0; i--) {
       const dayBtn = document.createElement('button');
       dayBtn.textContent = String(prevMonthDays - i);
-      dayBtn.style.cssText = `width: 100%; aspect-ratio: 1; border: 0; border-radius: 8px; background: transparent; color: #d1d5db; font-size: 12px; cursor: pointer;`;
+      dayBtn.style.cssText = `width: 100%; aspect-ratio: 1; border: 0; border-radius: 8px; background: transparent; color: var(--border); font-size: 12px; cursor: pointer;`;
       daysGrid.appendChild(dayBtn);
     }
     
@@ -250,12 +251,12 @@ function createDatePicker(
       dayBtn.style.cssText = `
         width: 100%; aspect-ratio: 1; border: 0; border-radius: 8px;
         background: ${isToday ? '#3b82f6' : 'transparent'};
-        color: ${isToday ? 'white' : '#111827'};
+        color: ${isToday ? 'white' : 'var(--ink)'};
         font-size: 12px; font-weight: ${isToday ? '700' : '500'};
         cursor: pointer; transition: all 0.15s;
       `;
       
-      dayBtn.addEventListener('mouseenter', () => { if (!isToday) dayBtn.style.background = '#f3f4f6'; });
+      dayBtn.addEventListener('mouseenter', () => { if (!isToday) dayBtn.style.background = 'var(--surface-2)'; });
       dayBtn.addEventListener('mouseleave', () => { if (!isToday) dayBtn.style.background = 'transparent'; });
       
       const selectedDate = new Date(currentYear, currentMonth, day);
@@ -272,19 +273,19 @@ function createDatePicker(
     for (let i = 1; i <= remainingCells; i++) {
       const dayBtn = document.createElement('button');
       dayBtn.textContent = String(i);
-      dayBtn.style.cssText = `width: 100%; aspect-ratio: 1; border: 0; border-radius: 8px; background: transparent; color: #d1d5db; font-size: 12px; cursor: pointer;`;
+      dayBtn.style.cssText = `width: 100%; aspect-ratio: 1; border: 0; border-radius: 8px; background: transparent; color: var(--border); font-size: 12px; cursor: pointer;`;
       daysGrid.appendChild(dayBtn);
     }
     
     picker.appendChild(daysGrid);
     
     const footer = document.createElement('div');
-    footer.style.cssText = `display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid #e5e7eb;`;
+    footer.style.cssText = `display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);`;
     
     const clearBtn = document.createElement('button');
     clearBtn.textContent = 'Clear';
     clearBtn.style.cssText = `padding: 6px 12px; border: 0; border-radius: 6px; background: transparent; color: #3b82f6; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;`;
-    clearBtn.addEventListener('mouseenter', () => { clearBtn.style.background = '#eff6ff'; });
+    clearBtn.addEventListener('mouseenter', () => { clearBtn.style.background = 'var(--tool-blue-surface)'; });
     clearBtn.addEventListener('mouseleave', () => { clearBtn.style.background = 'transparent'; });
     clearBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -296,7 +297,7 @@ function createDatePicker(
     const todayBtn = document.createElement('button');
     todayBtn.textContent = 'Today';
     todayBtn.style.cssText = `padding: 6px 12px; border: 0; border-radius: 6px; background: transparent; color: #3b82f6; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;`;
-    todayBtn.addEventListener('mouseenter', () => { todayBtn.style.background = '#eff6ff'; });
+    todayBtn.addEventListener('mouseenter', () => { todayBtn.style.background = 'var(--tool-blue-surface)'; });
     todayBtn.addEventListener('mouseleave', () => { todayBtn.style.background = 'transparent'; });
     todayBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -438,16 +439,14 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
   startDateCard.style.cssText = `
     padding: 14px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    color: white;
+    ${toolSurfaceCard('blue')};
     margin-bottom: 10px;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
     position: relative;
   `;
   startDateCard.innerHTML = `
     <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-      <div style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.2); display: grid; place-items: center; font-size: 20px;">
-        ${icon('calendar', 20, 'white')}
+      <div style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: var(--surface-2); display: grid; place-items: center; font-size: 20px;">
+        ${icon('calendar', 20, 'currentColor')}
       </div>
       <div style="flex: 1;">
         <div style="font-weight: 700; font-size: 15px;">Start Date</div>
@@ -463,9 +462,9 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
           padding: 12px 46px 12px 14px;
           border: 0;
           border-radius: 10px;
-          background: rgba(255,255,255,0.2);
+          background: var(--surface-2);
           backdrop-filter: blur(10px);
-          color: white;
+          color: var(--ink);
           font-size: 14px;
           font-weight: 600;
           outline: none;
@@ -483,15 +482,15 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
           height: 32px;
           border: 0;
           border-radius: 8px;
-          background: rgba(255,255,255,0.25);
-          color: white;
+          background: var(--surface-2);
+          color: var(--ink);
           cursor: pointer;
           font-size: 16px;
           display: grid;
           place-items: center;
           transition: all 0.2s;
         "
-      >${icon('calendar', 16, 'white')}</button>
+      >${icon('calendar', 16, 'currentColor')}</button>
     </div>
   `;
   content.appendChild(startDateCard);
@@ -501,10 +500,8 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
   optDaysCard.style.cssText = `
     padding: 18px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #a855f7, #9333ea);
-    color: white;
+    ${toolSurfaceCard('neutral')};
     margin-bottom: 10px;
-    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3);
     text-align: center;
   `;
   optDaysCard.innerHTML = `
@@ -519,10 +516,8 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
   readyMessage.style.cssText = `
     padding: 14px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
+    ${toolSurfaceCard('green')};
     margin-bottom: 10px;
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
     text-align: center;
     font-size: 13px;
     font-weight: 700;
@@ -535,7 +530,7 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
   const saveBtn = document.createElement('button');
   saveBtn.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-      <span style="font-size: 18px;">💾</span>
+      <span style="display:flex;">${icon('checkCircle', 18, 'currentColor')}</span>
       <span>Save & Go</span>
     </div>
   `;
@@ -598,10 +593,10 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
   // Hover effect for calendar button
   if (startDatePickerBtn) {
     startDatePickerBtn.addEventListener('mouseenter', () => {
-      startDatePickerBtn.style.background = 'rgba(255,255,255,0.35)';
+      startDatePickerBtn.style.background = 'var(--surface-2)';
     });
     startDatePickerBtn.addEventListener('mouseleave', () => {
-      startDatePickerBtn.style.background = 'rgba(255,255,255,0.25)';
+      startDatePickerBtn.style.background = 'var(--surface-2)';
     });
   }
   
@@ -631,10 +626,10 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
     addDateInputValidation(startDateInput);
     
     startDateInput.addEventListener('focus', (e) => {
-      (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.3)';
+      (e.target as HTMLElement).style.background = 'var(--surface-2)';
     });
     startDateInput.addEventListener('blur', async (e) => {
-      (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.2)';
+      (e.target as HTMLElement).style.background = 'var(--surface-2)';
       // Auto-save on blur
       const date = parseDate(startDateInput.value);
       if (date) {
@@ -662,4 +657,3 @@ export function renderClock(root: HTMLElement, onBack: () => void): void {
   
   setupPageHandlers(onBack);
 }
-

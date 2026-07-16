@@ -7,6 +7,8 @@ export interface JobApplication {
     role_title: string;
     location?: string | null;
     job_url?: string | null;
+    salary_text?: string | null;
+    job_description?: string | null;
     status: JobStage;
     applied_at?: string | null; // ISO Date
     next_follow_up_at?: string | null; // ISO Date

@@ -111,7 +111,18 @@ THESE MUST NEVER BE MODIFIED — NOT EVEN SLIGHTLY:
 </never_change>`
 ;
 
-export function buildGeneratePrompt(resumeText: string, jobDescription: string, templateTex: string): string {
+export function buildGeneratePrompt(
+    resumeText: string,
+    jobDescription: string,
+    templateTex: string,
+    focusKeywords: string[] = [],
+): string {
+    const normalizedFocusKeywords = [...new Set(focusKeywords
+        .map((keyword) => keyword.replace(/\s+/g, ' ').trim().slice(0, 80))
+        .filter(Boolean))].slice(0, 12);
+    const analysisFocus = normalizedFocusKeywords.length > 0
+        ? `\n--- ANALYSIS-IDENTIFIED KEYWORD GAPS ---\n${normalizedFocusKeywords.join(', ')}\nPrioritize these terms only where the candidate resume contains supporting evidence. Do not fabricate skills, experience, or claims.\n`
+        : '';
     return `
 ${SYSTEM_PROMPT}
 
@@ -120,6 +131,7 @@ ${resumeText}
 
 --- TARGET JOB DESCRIPTION ---
 ${jobDescription}
+${analysisFocus}
 
 --- LATEX TEMPLATE (follow this exact format) ---
 ${templateTex}

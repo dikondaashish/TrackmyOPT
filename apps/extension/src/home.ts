@@ -11,22 +11,64 @@ function escapeHtml(value: unknown): string {
   );
 }
 
+const transientLabelTimers = new WeakMap<HTMLElement, number>();
+
+/** Change only a button's text span, preserve its icon/subtext, then restore. */
+function showTransientLabel(label: HTMLElement, message: string, original: string): void {
+  const previousTimer = transientLabelTimers.get(label);
+  if (previousTimer) window.clearTimeout(previousTimer);
+  label.textContent = message;
+  const timer = window.setTimeout(() => {
+    if (label.isConnected) label.textContent = original;
+    transientLabelTimers.delete(label);
+  }, 2500);
+  transientLabelTimers.set(label, timer);
+}
+
 /**
  * Renders the signed-in home screen with tool tiles
  */
 export async function renderHome(root: HTMLElement, onNavigate: (page: string) => void): Promise<void> {
-  // Fetch premium status to show badge
+  // Fetch premium status to show badge. Try the web session cookie first; only
+  // an unauthenticated/failed cookie request falls back to the extension JWT.
   let planBadge = '';
   let caseStatusCard = '';
   try {
-    const res = await fetch(API_ENDPOINTS.STATUS, { credentials: 'include' });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.isPremium && data.planName) {
-        const plan = String(data.planName).toUpperCase();
-        const badgeClass = plan === 'DEDICATED' ? 'badge-dedicated' : 'badge-pro';
-        planBadge = `<span class="plan-badge ${badgeClass}">${escapeHtml(plan)}</span>`;
-      }
+    const statusToken = await getIdToken();
+    type PremiumStatusPayload = {
+      isPremium?: boolean;
+      planName?: string;
+      error?: string;
+    };
+    let data: PremiumStatusPayload | null = null;
+    let cookieRequestOk = false;
+    try {
+      const cookieRes = await fetch(API_ENDPOINTS.STATUS, {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      cookieRequestOk = cookieRes.ok;
+      if (cookieRes.ok) data = await cookieRes.json() as PremiumStatusPayload;
+    } catch {
+      // The Bearer attempt below is still useful for a transient cookie failure.
+    }
+
+    const cookieUnauthenticated = data?.error === 'Not authenticated';
+    if ((!cookieRequestOk || cookieUnauthenticated) && statusToken) {
+      const bearerRes = await fetch(API_ENDPOINTS.STATUS, {
+        credentials: 'omit',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${statusToken}`,
+        },
+      });
+      if (bearerRes.ok) data = await bearerRes.json() as PremiumStatusPayload;
+    }
+
+    if (data?.isPremium && data.planName) {
+      const plan = String(data.planName).toUpperCase();
+      const badgeClass = plan === 'DEDICATED' ? 'badge-dedicated' : 'badge-pro';
+      planBadge = `<span class="plan-badge ${badgeClass}">${escapeHtml(plan)}</span>`;
     }
   } catch (err) {
     console.error('Failed to fetch premium status for extension', err);
@@ -67,161 +109,82 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   }
 
   root.innerHTML = `
-    <style>
-      .plan-badge {
-        font-size: 8px;
-        font-weight: 800;
-        padding: 1.5px 4px;
-        border-radius: 3px;
-        margin-left: 6px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        vertical-align: middle;
-        display: inline-block;
-        line-height: 1;
-      }
-      .badge-pro {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        color: white;
-        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
-      }
-      .badge-dedicated {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        color: white;
-        box-shadow: 0 2px 4px rgba(217, 119, 6, 0.3);
-      }
-      .header-title-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 2px;
-      }
-      .case-status-card {
-        display: block;
-        margin: 0 0 12px 0;
-        padding: 12px 14px;
-        border-radius: 12px;
-        border: 1px solid rgba(16, 185, 129, 0.35);
-        background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(20,184,166,0.12) 100%);
-        text-decoration: none;
-        color: inherit;
-      }
-      .case-status-card:hover {
-        border-color: rgba(16, 185, 129, 0.55);
-      }
-      .case-status-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        margin-bottom: 6px;
-      }
-      .case-status-label {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: #059669;
-      }
-      .case-more {
-        font-size: 10px;
-        font-weight: 700;
-        color: #047857;
-        background: rgba(16,185,129,0.15);
-        padding: 2px 6px;
-        border-radius: 999px;
-      }
-      .case-status-receipt {
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 12px;
-        font-weight: 700;
-        margin: 0 0 4px 0;
-      }
-      .case-status-text {
-        font-size: 12px;
-        line-height: 1.35;
-        margin: 0;
-        opacity: 0.85;
-      }
-    </style>
-    <div class="header" role="region" aria-label="TrackMyOPT header">
-      <div class="logo-icon">
-        <img src="icons/logo.gif" alt="TrackMyOPT" />
+    <div class="tmo-top" role="region" aria-label="TrackMyOPT header">
+      <div class="brandmark">${icon('graduationCap', 20)}</div>
+      <div class="brandtext">
+        <h1 class="title">TrackMyOPT ${planBadge}</h1>
+        <p class="subtitle">Your OPT command center</p>
       </div>
-      <div class="header-buttons">
-        <button class="theme-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
-          <span id="theme-icon">${icon('moon', 18)}</span>
-        </button>
-        <button class="logout-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
-          <span>→</span>
-        </button>
-      </div>
-      <div class="header-title-container">
-        <h1 class="title" style="margin-bottom: 0;">TrackMyOPT</h1>
-        ${planBadge}
-      </div>
-      <p class="subtitle">Your complete toolkit for managing OPT requirements</p>
-    </div>
-
-    <div class="banner" aria-live="polite">
-      Select a tool below to get started with your OPT journey
+      <button class="theme-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
+        <span id="theme-icon">${icon('moon', 16)}</span>
+      </button>
+      <button class="logout-btn" id="logout-btn" title="Sign out" aria-label="Sign out">
+        ${icon('logOut', 16)}
+      </button>
     </div>
 
     ${caseStatusCard}
 
-    <div class="grid" role="list">
-      <div class="tile blue" role="button" tabindex="0" aria-label="OPT Apply Start Dates - Calculate when you can start applying for OPT" data-page="opt-apply">
-        <div class="icon">${icon('calendar')}</div>
+    <div class="eyebrow">OPT Tools</div>
+    <div class="tools" role="list">
+      <div class="tool-card" role="button" tabindex="0" aria-label="OPT Apply Dates - Calculate when you can start applying for OPT" data-page="opt-apply">
+        <div class="chip blue">${icon('calendar', 18)}</div>
         <h3 class="t">OPT Apply Dates</h3>
-        <p class="s">Calculate when you can apply for OPT</p>
+        <p class="s">Your filing window</p>
       </div>
 
-      <div class="tile purple" role="button" tabindex="0" aria-label="OPT Clock Tracker - Track your OPT unemployment days in real-time" data-page="clock">
-        <div class="icon">${icon('clock')}</div>
-        <h3 class="t">OPT Clock Tracker</h3>
-        <p class="s">Track your unemployment days</p>
+      <div class="tool-card" role="button" tabindex="0" aria-label="OPT Clock Tracker - Track your OPT unemployment days in real-time" data-page="clock">
+        <div class="chip purple">${icon('clock', 18)}</div>
+        <h3 class="t">OPT Clock</h3>
+        <p class="s">Unemployment days</p>
       </div>
 
-      <div class="tile green" role="button" tabindex="0" aria-label="STEM OPT Apply Start Dates - Calculate STEM OPT extension application dates" data-page="stem-apply">
-        <div class="icon">${icon('graduationCap')}</div>
+      <div class="tool-card" role="button" tabindex="0" aria-label="STEM Apply Dates - Calculate STEM OPT extension application dates" data-page="stem-apply">
+        <div class="chip green">${icon('graduationCap', 18)}</div>
         <h3 class="t">STEM Apply Dates</h3>
-        <p class="s">Calculate STEM OPT dates</p>
+        <p class="s">Extension window</p>
       </div>
 
-      <div class="tile orange" role="button" tabindex="0" aria-label="STEM OPT Clock Tracker - Track your STEM OPT unemployment days" data-page="stem-clock">
-        <div class="icon">${icon('timer')}</div>
-        <h3 class="t">STEM Clock Tracker</h3>
-        <p class="s">Track STEM unemployment</p>
-      </div>
-    </div>
-
-    <button id="scan-page-btn" type="button" title="Detect a job posting on the current tab and add it to your tracker" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
-      ${icon('fileText', 16)} Add a job from this page
-    </button>
-
-    <button id="prefill-easy-apply-btn" type="button" title="Prefill the open job application form — you review and submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 12px 0;padding:11px 14px;border-radius:12px;border:1px solid rgba(37,99,235,0.35);background:rgba(37,99,235,0.08);color:inherit;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
-      ${icon('checkCircle', 16)} Prefill this application
-    </button>
-
-    <div class="notice">
-      <div class="dot">${icon('shield', 18)}</div>
-      <div>
-        <div style="font-weight:800; margin-bottom: 4px;">Stay Compliant</div>
-        <div>All tools are designed to help you track and manage your OPT requirements. Always consult with your DSO for official guidance.</div>
+      <div class="tool-card" role="button" tabindex="0" aria-label="STEM Clock Tracker - Track your STEM OPT unemployment days" data-page="stem-clock">
+        <div class="chip orange">${icon('timer', 18)}</div>
+        <h3 class="t">STEM Clock</h3>
+        <p class="s">STEM unemployment</p>
       </div>
     </div>
 
-    <div style="display:flex;justify-content:center;margin:2px 0 10px;">
-      <button id="feedback-btn" type="button" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid #e2e8f0;border-radius:999px;background:#fff;color:#0f172a;font:inherit;font-size:12px;font-weight:700;cursor:pointer;">
-        ${icon('mail', 14)} Feedback
+    <div class="page-panel">
+      <div class="phead"><span class="pdot"></span> On this page</div>
+      <button class="act" id="scan-page-btn" type="button" title="Detect a job posting on the current tab and add it to your tracker">
+        <span class="aic">${icon('fileText', 16)}</span>
+        <span class="atxt">
+          <span class="at">Add this job to tracker</span>
+          <span class="as">Detect the posting on this tab</span>
+        </span>
+        <span class="arr">${icon('chevronRight', 16)}</span>
+      </button>
+      <button class="act" id="prefill-easy-apply-btn" type="button" title="Prefill the open job application form — you review and submit">
+        <span class="aic">${icon('checkCircle', 16)}</span>
+        <span class="atxt">
+          <span class="at">Prefill this application</span>
+          <span class="as">Fill the form — you review &amp; submit</span>
+        </span>
+        <span class="arr">${icon('chevronRight', 16)}</span>
       </button>
     </div>
 
-    <div class="footer">
-      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/privacy">Privacy</a> ·
-      <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/terms">Terms</a>
+    <div class="compliance">
+      <div class="ci">${icon('shield', 15)}</div>
+      <div><b>Stay compliant.</b> These tools help you track your OPT requirements. Always confirm official guidance with your DSO.</div>
+    </div>
+
+    <div class="foot">
+      <button id="feedback-btn" class="fb" type="button">
+        ${icon('mail', 13)} <span class="fb-label">Feedback</span>
+      </button>
+      <div class="links">
+        <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/privacy">Privacy</a> ·
+        <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/terms">Terms</a>
+      </div>
     </div>
   `;
 
@@ -229,11 +192,12 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   // activeTab — the exact same modal the job widget's "Send feedback" link opens.
   // Never renders inside the small toolbar popup.
   const feedbackBtnEl = root.querySelector<HTMLButtonElement>('#feedback-btn');
+  const feedbackLabel = feedbackBtnEl?.querySelector<HTMLElement>('.fb-label');
   feedbackBtnEl?.addEventListener('click', async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const url = tab?.url ?? '';
     if (!tab?.id || !/^https?:\/\//i.test(url)) {
-      feedbackBtnEl.textContent = 'Open a website tab first';
+      if (feedbackLabel) showTransientLabel(feedbackLabel, 'Open a website tab first', 'Feedback');
       return;
     }
     try {
@@ -243,12 +207,12 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       });
       window.close();
     } catch {
-      feedbackBtnEl.textContent = 'Cannot open feedback on this page';
+      if (feedbackLabel) showTransientLabel(feedbackLabel, 'Cannot open feedback on this page', 'Feedback');
     }
   });
 
   // Hook up tile navigation
-  const tiles = root.querySelectorAll<HTMLElement>('.tile');
+  const tiles = root.querySelectorAll<HTMLElement>('.tool-card');
   tiles.forEach(tile => {
     const page = tile.dataset.page;
     const href = tile.dataset.link;
@@ -297,11 +261,13 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   // fills the identity fields, and never submits. Works on any http(s) page —
   // the engine toasts if it can't find a fillable form.
   const prefillBtn = root.querySelector<HTMLButtonElement>('#prefill-easy-apply-btn');
+  const prefillLabel = prefillBtn?.querySelector<HTMLElement>('.at');
+  const prefillLabelText = prefillLabel?.textContent || 'Prefill this application';
   prefillBtn?.addEventListener('click', async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const url = tab?.url ?? '';
     if (!tab?.id || !/^https?:\/\//i.test(url)) {
-      prefillBtn.textContent = 'Open a job application page first';
+      if (prefillLabel) showTransientLabel(prefillLabel, 'Open a job application page first', prefillLabelText);
       return;
     }
     try {
@@ -311,7 +277,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       });
       window.close();
     } catch {
-      prefillBtn.textContent = 'Cannot prefill on this page';
+      if (prefillLabel) showTransientLabel(prefillLabel, 'Cannot prefill on this page', prefillLabelText);
     }
   });
 
@@ -322,7 +288,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   // Set initial icon based on current theme
   const { theme } = await chrome.storage.sync.get('theme');
   if (themeIcon) {
-    themeIcon.innerHTML = themeToggleIcon(theme === 'dark');
+    themeIcon.innerHTML = themeToggleIcon(theme === 'dark', 16);
   }
 
   if (themeBtn) {
@@ -333,11 +299,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       if (isDarkMode) {
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
-        if (themeIcon) themeIcon.innerHTML = themeToggleIcon(false);
+        if (themeIcon) themeIcon.innerHTML = themeToggleIcon(false, 16);
       } else {
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
-        if (themeIcon) themeIcon.innerHTML = themeToggleIcon(true);
+        if (themeIcon) themeIcon.innerHTML = themeToggleIcon(true, 16);
       }
     });
   }

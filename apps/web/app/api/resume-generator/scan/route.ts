@@ -6,23 +6,19 @@ import { getUserId } from '@/lib/auth/getUserId';
 import { latexToPlainText } from '@/lib/resume/latex-to-plain-text';
 import { computeKeywordPlacement } from '@/lib/resume/keyword-placement';
 import { checkAtsScanLimit, trackAtsScan } from '@/lib/usage-limit';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 
-const corsHeaders = {
-    'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-export async function OPTIONS() {
-    return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+    return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
+    const corsHeaders = corsHeadersWebAndExtension(req);
     const userId = await getUserId(req);
     if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
     try {

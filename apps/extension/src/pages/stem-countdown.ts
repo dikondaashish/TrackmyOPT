@@ -2,6 +2,7 @@ import { getIdToken } from '../token-store';
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
 import { icon } from '../icons.js';
+import { toolSurfaceCard, type ToolSurfaceTone } from '../tool-page-theme.js';
 
 /**
  * Get formatted date for card display
@@ -204,8 +205,8 @@ export async function renderStemCountdown(
     <!-- Date Cards -->
     <div style="display: flex; gap: 8px; margin-bottom: 10px;">
       <!-- Start Date -->
-      <div style="flex: 1; background: linear-gradient(135deg, #10b981, #059669); border-radius: 16px; padding: 12px; color: white; text-align: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
-        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.25); border-radius: 10px; margin: 0 auto 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px;">
+      <div style="flex:1;${toolSurfaceCard('green')};border-radius:16px;padding:12px;text-align:center;">
+        <div style="width:40px;height:40px;background:var(--surface-2);border-radius:10px;margin:0 auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;">
           <div style="font-size: 16px; font-weight: 800; line-height: 1;">${startCard.day}</div>
           <div style="font-size: 7px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">${startCard.month.substring(0, 3)}</div>
           <div style="font-size: 7px; opacity: 0.8;">${startCard.year}</div>
@@ -214,8 +215,8 @@ export async function renderStemCountdown(
       </div>
       
       <!-- Present -->
-      <div style="flex: 1; background: linear-gradient(135deg, #10b981, #059669); border-radius: 16px; padding: 12px; color: white; text-align: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
-        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.25); border-radius: 10px; margin: 0 auto 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px;">
+      <div style="flex:1;${toolSurfaceCard('green')};border-radius:16px;padding:12px;text-align:center;">
+        <div style="width:40px;height:40px;background:var(--surface-2);border-radius:10px;margin:0 auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;">
           <div style="font-size: 16px; font-weight: 800; line-height: 1;">${presentCard.day}</div>
           <div style="font-size: 7px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">${presentCard.month.substring(0, 3)}</div>
           <div style="font-size: 7px; opacity: 0.8;">${presentCard.year}</div>
@@ -224,8 +225,8 @@ export async function renderStemCountdown(
       </div>
       
       <!-- End Date -->
-      <div style="flex: 1; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 16px; padding: 12px; color: white; text-align: center; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
-        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.25); border-radius: 10px; margin: 0 auto 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px;">
+      <div style="flex:1;${toolSurfaceCard('red')};border-radius:16px;padding:12px;text-align:center;">
+        <div style="width:40px;height:40px;background:var(--surface-2);border-radius:10px;margin:0 auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;">
           <div style="font-size: 16px; font-weight: 800; line-height: 1;">${endCard.day}</div>
           <div style="font-size: 7px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">${endCard.month.substring(0, 3)}</div>
           <div style="font-size: 7px; opacity: 0.8;">${endCard.year}</div>
@@ -235,24 +236,24 @@ export async function renderStemCountdown(
     </div>
     
     <!-- Countdown Display -->
-    <div id="countdown-container" style="border-radius: 20px; padding: 16px; color: white; margin-bottom: 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); transition: all 0.5s ease;">
+    <div id="countdown-container" style="${toolSurfaceCard('green')};border-radius:20px;padding:16px;margin-bottom:10px;transition:background-color .2s ease,border-color .2s ease;">
       <div id="days-left-text" style="font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 12px;">-- days left</div>
       
       <!-- Time Boxes -->
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px;">
-        <div style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 8px 4px; text-align: center;">
+        <div style="background: var(--surface-2); border-radius: 10px; padding: 8px 4px; text-align: center;">
           <div id="countdown-days" style="font-size: 20px; font-weight: 800; color: #10b981;">--</div>
           <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">DAYS</div>
         </div>
-        <div style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 8px 4px; text-align: center;">
+        <div style="background: var(--surface-2); border-radius: 10px; padding: 8px 4px; text-align: center;">
           <div id="countdown-hours" style="font-size: 20px; font-weight: 800; color: #10b981;">--</div>
           <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">HOURS</div>
         </div>
-        <div style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 8px 4px; text-align: center;">
+        <div style="background: var(--surface-2); border-radius: 10px; padding: 8px 4px; text-align: center;">
           <div id="countdown-minutes" style="font-size: 20px; font-weight: 800; color: #10b981;">--</div>
           <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">MINUTES</div>
         </div>
-        <div style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 8px 4px; text-align: center;">
+        <div style="background: var(--surface-2); border-radius: 10px; padding: 8px 4px; text-align: center;">
           <div id="countdown-seconds" style="font-size: 20px; font-weight: 800; color: #10b981;">--</div>
           <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">SECONDS</div>
         </div>
@@ -262,7 +263,7 @@ export async function renderStemCountdown(
     </div>
     
     <!-- Email Reminders Section -->
-    <div style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 20px; padding: 16px; color: white; margin-bottom: 10px; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); position: relative; overflow: hidden;">
+    <div style="${toolSurfaceCard('green')};border-radius:20px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden;">
       ${!isPremium ? `
         <div style="position: absolute; top: 8px; right: 8px; background: #fbbf24; color: #78350f; font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;">
           Premium
@@ -270,7 +271,7 @@ export async function renderStemCountdown(
       ` : ''}
       
       <div style="text-align: center; margin-bottom: 12px;">
-        <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">${icon('mail', 18, 'white')} Daily Reminders <span style="font-size: 13px; opacity: 0.9;">(9:00 AM ET)</span></div>
+        <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">${icon('mail', 18, 'currentColor')} Daily Reminders <span style="font-size: 13px; opacity: 0.9;">(9:00 AM ET)</span></div>
         <div style="font-size: 11px; opacity: 0.9; line-height: 1.4;">
           We'll show a Chrome notification every morning. If you enter an email and connect the mailer, we'll also email you.
         </div>
@@ -289,8 +290,8 @@ export async function renderStemCountdown(
                 padding: 12px;
                 border: 0;
                 border-radius: 12px;
-                background: rgba(255,255,255,0.25);
-                color: white;
+                background: var(--surface-2);
+                color: var(--ink);
                 font-size: 13px;
                 outline: none;
                 font-family: inherit;
@@ -303,8 +304,8 @@ export async function renderStemCountdown(
                 height: 44px;
                 border: 0;
                 border-radius: 12px;
-                background: rgba(255,255,255,0.3);
-                color: white;
+                background: var(--surface-2);
+                color: var(--ink);
                 font-size: 18px;
                 cursor: pointer;
                 display: grid;
@@ -331,12 +332,12 @@ export async function renderStemCountdown(
                 gap: 6px;
               "
             >
-              ${icon('circleStop', 14, 'white')} Stop Reminders
+              ${icon('circleStop', 14, 'currentColor')} Stop Reminders
             </button>
           ` : ''}
         ` : `
           <div style="text-align: center; padding: 16px;">
-            <div style="margin-bottom: 8px; display: flex; justify-content: center;">${icon('lock', 28, 'white')}</div>
+            <div style="margin-bottom: 8px; display: flex; justify-content: center;">${icon('lock', 28, 'currentColor')}</div>
             <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Unlock Daily Email Reminders</div>
             <div style="font-size: 11px; opacity: 0.9; margin-bottom: 12px;">Get daily email notifications with Pro ($4.99/mo)</div>
             <button 
@@ -399,20 +400,23 @@ export async function renderStemCountdown(
     const containerEl = content.querySelector('#countdown-container') as HTMLElement;
 
     // Determine color based on days remaining (Apple colors)
-    let gradient = '';
+    let tone: ToolSurfaceTone = 'red';
     if (remaining.days > 60) {
-      gradient = 'linear-gradient(135deg, #34C759, #30D158)'; // Green
+      tone = 'green';
     } else if (remaining.days > 30) {
-      gradient = 'linear-gradient(135deg, #007AFF, #5AC8FA)'; // Blue
+      tone = 'blue';
     } else if (remaining.days > 14) {
-      gradient = 'linear-gradient(135deg, #FF9500, #FF9F0A)'; // Orange
+      tone = 'orange';
     } else if (remaining.days > 7) {
-      gradient = 'linear-gradient(135deg, #FF9500, #FF3B30)'; // Deep Orange
+      tone = 'orange';
     } else {
-      gradient = 'linear-gradient(135deg, #FF3B30, #FF453A)'; // Red
+      tone = 'red';
     }
 
-    if (containerEl) containerEl.style.background = gradient;
+    if (containerEl) {
+      containerEl.style.background = `var(--tool-${tone}-surface)`;
+      containerEl.style.borderColor = `var(--tool-${tone}-border)`;
+    }
 
     // Flip animation function
     function flipElement(element: HTMLElement, newValue: string) {
@@ -527,7 +531,7 @@ export async function renderStemCountdown(
           });
 
           // Change button to checkmark
-          saveEmailBtn.innerHTML = icon('checkCircle', 18, 'white');
+          saveEmailBtn.innerHTML = icon('checkCircle', 18, 'currentColor');
           saveEmailBtn.style.background = 'rgba(16, 185, 129, 0.8)';
 
           // Reload the page after 1 second to show "Stop Reminders" button
@@ -580,4 +584,3 @@ export async function renderStemCountdown(
 
   setupPageHandlers(onBack);
 }
-

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/getUserId';
+import { calculateUnemploymentDays, type EmploymentSpan } from '@/lib/immigration/optCalculations';
 
 // UUID v4 pattern for safe userId validation before use in DB queries
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -57,6 +58,46 @@ export async function GET(req: NextRequest) {
     } else {
     }
 
+    let unemploymentClock: {
+      active: true;
+      used: number;
+      max: 90 | 150;
+      remaining: number;
+      phase: 'initial' | 'stem';
+    } | null = null;
+    if (data?.opt_start_date && data.opt_ead_end_date) {
+      const { data: employmentRows, error: employmentError } = await supabase
+        .from('employment_spans')
+        .select('id, employer_name, start_date, end_date')
+        .eq('user_id', userId)
+        .order('start_date', { ascending: true });
+      if (employmentError) {
+        console.error('OPT calculator employment lookup error:', employmentError);
+      } else {
+        const spans: EmploymentSpan[] = (employmentRows || []).map((span) => ({
+          ...span,
+          is_current: !span.end_date,
+        }));
+        const breakdown = calculateUnemploymentDays(
+          data.opt_start_date,
+          data.opt_ead_end_date,
+          spans,
+          data.stem_start_date,
+        );
+        const today = new Date().toISOString().slice(0, 10);
+        const hasStarted = data.opt_start_date <= today;
+        if (hasStarted && (breakdown.phase === 'initial' || breakdown.phase === 'stem')) {
+          unemploymentClock = {
+            active: true,
+            used: breakdown.used,
+            max: breakdown.max,
+            remaining: breakdown.remaining,
+            phase: breakdown.phase,
+          };
+        }
+      }
+    }
+
     // Format dates to mm/dd/yyyy
     const formatDate = (dateStr: string | null) => {
       if (!dateStr) return null;
@@ -76,13 +117,14 @@ export async function GET(req: NextRequest) {
         opt_ead_end_date: formatDate(data.opt_ead_end_date),
         stem_start_date: formatDate(data.stem_start_date),
         last_updated_field: data.last_updated_field || null,
+        unemployment_clock: unemploymentClock,
       } : null
     }, { headers: corsHeaders });
   } catch (error: any) {
     console.error('GET /api/opt/calculator error:', error);
     return NextResponse.json(
       { ok: false, error: error.message || 'Failed to load data' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
@@ -242,4 +284,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

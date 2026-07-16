@@ -1,6 +1,14 @@
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
 import { performExtensionSignOut, EXTENSION_LOCAL_SIGNOUT_KEY } from './signOut';
 import { readCachedToken, setIdToken, clearIdToken, purgeLegacySyncToken } from './token-store';
+import { isJobFitLimitResponse, normalizeJobFitAnalysis } from './job-fit';
+import { buildJobSaveSnapshot } from './job-save-snapshot';
+import { buildScoreComparison, normalizeOptClockNudge, type DuplicateApplicationNotice, type OptClockNudge } from './smart-flow';
+import {
+  WIDGET_ANALYTICS_EVENTS,
+  normalizeWidgetAnalyticsProperties,
+  type WidgetAnalyticsEvent,
+} from './widget-platform';
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
@@ -174,12 +182,78 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       templateId: String(msg.templateId ?? ''),
       companyName: String(msg.companyName ?? ''),
       roleTitle: String(msg.roleTitle ?? ''),
+      focusKeywords: Array.isArray(msg.focusKeywords)
+        ? msg.focusKeywords.map((keyword: unknown) => String(keyword ?? '')).filter(Boolean)
+        : [],
+      baselineScore: typeof msg.baselineScore === 'number' ? msg.baselineScore : undefined,
     })
       .then((res) => sendResponse(res))
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
     return true;
   }
+  if (msg.type === 'CHECK_JOB_SAVED') {
+    // Look up whether the current posting is already in the tracker. Bearer
+    // stays in the worker; the content script only receives the boolean/status.
+    checkJobSaved({
+      jobUrl: String(msg.jobUrl ?? ''),
+      companyName: String(msg.companyName ?? ''),
+      roleTitle: String(msg.roleTitle ?? ''),
+    })
+      .then((res) => sendResponse(res))
+      .catch(() => sendResponse({ ok: false as const, error: 'error' }));
+    return true;
+  }
+  if (msg.type === 'GET_OPT_CLOCK_NUDGE') {
+    getOptClockNudge()
+      .then((res) => sendResponse(res))
+      .catch(() => sendResponse({ ok: false as const, error: 'error' }));
+    return true;
+  }
+  if (msg.type === 'TRACK_WIDGET_EVENT') {
+    trackWidgetEvent(msg.event, msg.properties)
+      .then((res) => sendResponse(res))
+      .catch(() => sendResponse({ ok: false as const, error: 'network' }));
+    return true;
+  }
+  if (msg.type === 'ANALYZE_JOB_FIT') {
+    // Fetch the user's base resume + run the ATS gap analysis. The resume text
+    // and Bearer token never enter the page — only the score/keywords return.
+    analyzeJobFit({ jobDescription: String(msg.jobDescription ?? '') })
+      .then((res) => sendResponse(res))
+      .catch(() => sendResponse({ ok: false as const, error: 'error' }));
+    return true;
+  }
 });
+
+async function trackWidgetEvent(
+  rawEvent: unknown,
+  rawProperties: unknown,
+): Promise<{ ok: boolean; error?: string }> {
+  if (typeof rawEvent !== 'string' || !WIDGET_ANALYTICS_EVENTS.includes(rawEvent as WidgetAnalyticsEvent)) {
+    return { ok: false, error: 'invalid_event' };
+  }
+  const event = rawEvent as WidgetAnalyticsEvent;
+  const properties = normalizeWidgetAnalyticsProperties(event, rawProperties);
+  let bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+
+  const postEvent = (token: string) => fetch(`${WEBSITE_URL}/api/extension/widget-event`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ event, properties }),
+  });
+  let response = await postEvent(bearer);
+  if (response.status === 401) {
+    const refreshed = await getExtensionBearerToken(true);
+    if (refreshed) {
+      bearer = refreshed;
+      response = await postEvent(bearer);
+    }
+  }
+  return response.ok
+    ? { ok: true }
+    : { ok: false, error: response.status === 401 ? 'not_signed_in' : 'network' };
+}
 
 interface AutofillProfile {
   firstName: string;
@@ -261,12 +335,171 @@ interface GenerateResumeResult {
   detail?: string;
   pdfBase64?: string;
   editorUrl?: string;
+  baselineScore?: number;
+  generatedScore?: number;
+  scoreError?: 'limit_reached' | 'scan_failed';
 }
 
 interface SavedResumeOption {
   id: string;
   filename: string;
   updatedAt?: string | null;
+}
+
+interface CheckJobSavedResult {
+  ok: boolean;
+  error?: string;
+  saved?: boolean;
+  status?: 'Applied' | 'Wishlist';
+  savedAt?: string | null;
+  duplicateApplication?: DuplicateApplicationNotice;
+}
+
+interface AnalyzeJobFitResult {
+  ok: boolean;
+  error?: string;
+  matchScore?: number;
+  matchedKeywords?: string[];
+  missingKeywords?: string[];
+  gapSummary?: string;
+  resumeName?: string;
+}
+
+/**
+ * Is this posting already in the user's tracker? Used to paint the widget's
+ * saved state on load so we don't show "Not saved" for a job already added.
+ */
+async function checkJobSaved(input: {
+  jobUrl: string;
+  companyName: string;
+  roleTitle: string;
+}): Promise<CheckJobSavedResult> {
+  const url = input.jobUrl.trim();
+  const companyName = input.companyName.trim();
+  const roleTitle = input.roleTitle.trim();
+  if (!url && (!companyName || !roleTitle)) return { ok: true, saved: false };
+  let bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+
+  const endpoint = new URL(`${WEBSITE_URL}/api/extension/job-application`);
+  if (url) endpoint.searchParams.set('job_url', url);
+  if (companyName) endpoint.searchParams.set('company_name', companyName);
+  if (roleTitle) endpoint.searchParams.set('role_title', roleTitle);
+  const request = (token: string) =>
+    fetch(endpoint.toString(), {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    });
+  let res = await request(bearer);
+  if (res.status === 401) {
+    const refreshed = await getExtensionBearerToken(true);
+    if (refreshed) {
+      bearer = refreshed;
+      res = await request(bearer);
+    }
+  }
+  if (res.status === 401) return { ok: false, error: 'not_signed_in' };
+  if (!res.ok) return { ok: false, error: 'lookup_failed' };
+  const data = (await res.json()) as {
+    saved?: boolean;
+    status?: string;
+    saved_at?: string | null;
+    duplicate_application?: DuplicateApplicationNotice;
+  };
+  return {
+    ok: true,
+    saved: !!data.saved,
+    status: data.status === 'Wishlist' ? 'Wishlist' : data.status === 'Applied' ? 'Applied' : undefined,
+    savedAt: data.saved_at ?? null,
+    duplicateApplication: data.duplicate_application,
+  };
+}
+
+const OPT_CLOCK_NUDGE_CACHE_KEY = 'tmo_opt_clock_nudge_daily_v1';
+
+async function getOptClockNudge(): Promise<{ ok: boolean; error?: string; nudge?: OptClockNudge }> {
+  const day = new Date().toISOString().slice(0, 10);
+  try {
+    const cached = await chrome.storage.session.get(OPT_CLOCK_NUDGE_CACHE_KEY);
+    const entry = cached[OPT_CLOCK_NUDGE_CACHE_KEY] as { day?: string; nudge?: unknown } | undefined;
+    if (entry?.day === day) {
+      const nudge = normalizeOptClockNudge(entry.nudge);
+      return { ok: true, ...(nudge ? { nudge } : {}) };
+    }
+  } catch {
+    // Cache failure is non-fatal; fetch current data below.
+  }
+
+  let bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+  const request = (token: string) => fetch(`${WEBSITE_URL}/api/opt/calculator`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  });
+  let response = await request(bearer);
+  if (response.status === 401) {
+    const refreshed = await getExtensionBearerToken(true);
+    if (refreshed) {
+      bearer = refreshed;
+      response = await request(bearer);
+    }
+  }
+  if (!response.ok) return { ok: false, error: response.status === 401 ? 'not_signed_in' : 'load_failed' };
+  const payload = await response.json().catch(() => null) as {
+    ok?: boolean;
+    data?: { unemployment_clock?: unknown } | null;
+  } | null;
+  const nudge = normalizeOptClockNudge(payload?.ok ? payload.data?.unemployment_clock : null);
+  try {
+    await chrome.storage.session.set({
+      [OPT_CLOCK_NUDGE_CACHE_KEY]: { day, nudge },
+    });
+  } catch {
+    // The nudge is still usable for this render even if caching is unavailable.
+  }
+  return { ok: true, ...(nudge ? { nudge } : {}) };
+}
+
+/**
+ * Run the ATS gap analysis for this posting against the user's base resume.
+ * Reuses the resume-generator base-resume + analyze-gap routes (already live).
+ */
+async function analyzeJobFit(input: { jobDescription: string }): Promise<AnalyzeJobFitResult> {
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+  const jd = (input.jobDescription || '').trim();
+  if (jd.length < 200) return { ok: false, error: 'no_job_description' };
+  const auth = { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` };
+
+  // Pick the user's most recent base resume.
+  const list = await listSavedResumes();
+  if (!list.ok) return { ok: false, error: 'base_failed' };
+  const first = list.resumes && list.resumes[0];
+  if (!first) return { ok: false, error: 'no_base_resume' };
+
+  const baseUrl = new URL(`${WEBSITE_URL}/api/resume-generator/base-resume`);
+  if (first.id && first.id !== '__latest__') baseUrl.searchParams.set('resumeId', first.id);
+  const baseRes = await fetch(baseUrl.toString(), { method: 'GET', headers: auth });
+  if (baseRes.status === 404) return { ok: false, error: 'no_base_resume' };
+  if (!baseRes.ok) return { ok: false, error: 'base_failed' };
+  const base = (await baseRes.json()) as { content?: string; filename?: string };
+  if (!base.content || !base.content.trim()) return { ok: false, error: 'no_base_resume' };
+
+  const anRes = await fetch(`${WEBSITE_URL}/api/resume-generator/analyze-gap`, {
+    method: 'POST',
+    headers: auth,
+    body: JSON.stringify({ resumeText: base.content, jobDescription: jd }),
+  });
+  const data = await anRes.json().catch(() => ({})) as { code?: string };
+  if (anRes.status === 401) return { ok: false, error: 'not_signed_in' };
+  if (isJobFitLimitResponse(anRes.status, data.code)) return { ok: false, error: 'limit_reached' };
+  if (!anRes.ok) return { ok: false, error: 'analyze_failed' };
+  const normalized = normalizeJobFitAnalysis(data);
+  return {
+    ok: true,
+    ...normalized,
+    resumeName: base.filename || 'your saved resume',
+  };
 }
 
 async function listSavedResumes(): Promise<{
@@ -343,10 +576,15 @@ async function generateTailoredResume(input: {
   templateId: string;
   companyName: string;
   roleTitle: string;
+  focusKeywords?: string[];
+  baselineScore?: number;
 }): Promise<GenerateResumeResult> {
   const bearer = await getExtensionBearerToken();
   if (!bearer) return { ok: false, error: 'not_signed_in' };
   const { jobDescription, resumeId, templateId, companyName, roleTitle } = input;
+  const focusKeywords = [...new Set((input.focusKeywords ?? [])
+    .map((keyword) => keyword.replace(/\s+/g, ' ').trim().slice(0, 80))
+    .filter(Boolean))].slice(0, 12);
   if (!jobDescription.trim()) return { ok: false, error: 'no_job_description' };
   if (!resumeId.trim()) return { ok: false, error: 'no_base_resume' };
   if (!templateId.trim()) return { ok: false, error: 'no_template' };
@@ -367,6 +605,35 @@ async function generateTailoredResume(input: {
   const base = (await baseRes.json()) as { content?: string; filename?: string };
   if (!base.content) return { ok: false, error: 'no_base_resume' };
 
+  // Reuse the in-widget analysis score when the user followed Analyze →
+  // Generate. A direct Generate click has no prior score in page memory, so
+  // compute the baseline once here before tailoring.
+  let baselineScore = buildScoreComparison(undefined, input.baselineScore)?.generated;
+  let scoreError: GenerateResumeResult['scoreError'];
+  if (baselineScore === undefined) {
+    try {
+      const baselineRes = await fetch(`${WEBSITE_URL}/api/resume-generator/analyze-gap`, {
+        method: 'POST',
+        headers: auth,
+        body: JSON.stringify({
+          resumeText: base.content,
+          jobDescription: jobDescription.slice(0, 15000),
+        }),
+      });
+      const baselineData = await baselineRes.json().catch(() => ({})) as {
+        code?: string;
+        matchScore?: number;
+      };
+      if (isJobFitLimitResponse(baselineRes.status, baselineData.code)) {
+        scoreError = 'limit_reached';
+      } else if (baselineRes.ok) {
+        baselineScore = buildScoreComparison(undefined, baselineData.matchScore)?.generated;
+      }
+    } catch {
+      // Tailoring remains available even if the optional baseline comparison fails.
+    }
+  }
+
   // 2. Tailored LaTeX
   const genRes = await fetch(`${WEBSITE_URL}/api/resume-generator/generate`, {
     method: 'POST',
@@ -375,6 +642,7 @@ async function generateTailoredResume(input: {
       resumeText: base.content,
       jobDescription: jobDescription.slice(0, 15000),
       templateId,
+      focusKeywords,
     }),
   });
   if (genRes.status === 403) {
@@ -424,7 +692,35 @@ async function generateTailoredResume(input: {
   }
   if (!out.pdf) return { ok: false, error: 'compile_failed' };
 
-  // 4. Persist a short-lived, user-scoped handoff so "Edit" opens the actual
+  // 4. Score the exact generated LaTeX after any compile repair. This is
+  // non-blocking from a product perspective: a quota/network failure never
+  // discards an otherwise valid generated resume.
+  let generatedScore: number | undefined;
+  if (scoreError !== 'limit_reached') {
+    try {
+      const scanRes = await fetch(`${WEBSITE_URL}/api/resume-generator/scan`, {
+        method: 'POST',
+        headers: auth,
+        body: JSON.stringify({
+          latexCode: latex,
+          jobDescription: jobDescription.slice(0, 15000),
+        }),
+      });
+      const scanData = await scanRes.json().catch(() => ({})) as { code?: string; score?: number };
+      if (isJobFitLimitResponse(scanRes.status, scanData.code)) {
+        scoreError = 'limit_reached';
+      } else if (scanRes.ok) {
+        generatedScore = buildScoreComparison(baselineScore, scanData.score)?.generated;
+        if (generatedScore === undefined) scoreError = 'scan_failed';
+      } else {
+        scoreError = 'scan_failed';
+      }
+    } catch {
+      scoreError = 'scan_failed';
+    }
+  }
+
+  // 5. Persist a short-lived, user-scoped handoff so "Edit" opens the actual
   // generated LaTeX in the editor instead of restarting the three-step flow.
   let editorUrl: string | undefined;
   try {
@@ -452,7 +748,14 @@ async function generateTailoredResume(input: {
     // PDF download remains available even if the optional editor handoff fails.
   }
 
-  return { ok: true, pdfBase64: arrayBufferToBase64(out.pdf), editorUrl };
+  return {
+    ok: true,
+    pdfBase64: arrayBufferToBase64(out.pdf),
+    editorUrl,
+    baselineScore,
+    generatedScore,
+    scoreError,
+  };
 }
 
 // External message listener (from web app)
@@ -514,13 +817,21 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
 });
 
 async function handleAddJobToTracker(
-  job: { company_name: string; role_title: string; job_url?: string; location?: string },
+  job: {
+    company_name: string;
+    role_title: string;
+    job_url?: string;
+    location?: string;
+    salary_text?: string;
+    job_description?: string;
+  },
   autoAdd: boolean = false,
   requestedStatus: 'Wishlist' | 'Applied' = 'Applied',
 ) {
   // Application-success auto-adds are always Applied. Manual saves preserve
   // the status explicitly selected in the side-panel dialog.
   const status: 'Wishlist' | 'Applied' = autoAdd ? 'Applied' : requestedStatus;
+  const snapshot = buildJobSaveSnapshot(job);
   let token = await getExtensionBearerToken();
   if (!token) {
     const err = new Error('Sign in to TrackMyOPT in the extension to add jobs.');
@@ -543,10 +854,12 @@ async function handleAddJobToTracker(
         Authorization: `Bearer ${bearer}`,
       },
       body: JSON.stringify({
-        company_name: job.company_name,
-        role_title: job.role_title,
-        job_url: job.job_url || null,
-        location: job.location || null,
+        company_name: snapshot.company_name,
+        role_title: snapshot.role_title,
+        job_url: snapshot.job_url || null,
+        location: snapshot.location || null,
+        salary_text: snapshot.salary_text || null,
+        job_description: snapshot.job_description || null,
         status,
       }),
     });

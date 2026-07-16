@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 export async function checkResumeLimit(userId: string) {
@@ -104,19 +105,20 @@ export async function trackResumeGeneration(
 const FREE_ATS_SCAN_LIMIT = 3;
 const PRO_ATS_SCAN_LIMIT = 10_000;
 
-export async function checkAtsScanLimit(userId: string) {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
+// ATS routes accept the extension's custom Bearer JWT as well as web cookies.
+// Once a route has verified that JWT and resolved userId, use the server-only
+// admin client for quota reads/writes; an anon cookie client has no Supabase
+// session in extension requests and would incorrectly fail RLS.
+function getAtsUsageClient() {
+    return createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) {
-                    return cookieStore.get(name)?.value;
-                },
-            },
-        }
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { persistSession: false, autoRefreshToken: false } }
     );
+}
+
+export async function checkAtsScanLimit(userId: string) {
+    const supabase = getAtsUsageClient();
 
     const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -156,18 +158,7 @@ export async function checkAtsScanLimit(userId: string) {
 }
 
 export async function trackAtsScan(userId: string): Promise<{ ok: boolean; error?: string }> {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) {
-                    return cookieStore.get(name)?.value;
-                },
-            },
-        }
-    );
+    const supabase = getAtsUsageClient();
 
     const { error } = await supabase.from('resume_generations').insert({
         user_id: userId,

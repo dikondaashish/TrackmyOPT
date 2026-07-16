@@ -2,7 +2,7 @@
  * Content script for job / career pages (any company career site, LinkedIn, Indeed, etc.)
  * Parses job listing using JSON-LD, meta tags, and DOM. Shows a sticky, collapsible
  * side widget when a listing is detected, offering: Prefill application, Save to
- * tracker, and (soon) AI analysis. Close menu can hide it for this visit / this
+ * tracker, and AI analysis. Close menu can hide it for this visit / this
  * site / all sites. Auto-adds job to TrackMyOPT on application-success pages.
  */
 
@@ -13,8 +13,10 @@ import {
 } from './career-sites';
 import {
   runPrefill,
+  jumpToPrefillField,
   findApplicationForm,
   type GeneratedResumeAttachment,
+  type PrefillCoverageResult,
 } from './easy-apply-engine';
 import { openFeedbackModal } from './feedback';
 import { icon } from './icons';
@@ -23,6 +25,24 @@ import {
   chooseJobDescriptionCandidate,
   type JobDescriptionCandidate,
 } from './job-description';
+import { classifySponsorship, type SponsorshipResult } from './sponsorship-signal';
+import { buildJobSaveSnapshot } from './job-save-snapshot';
+import {
+  buildScoreComparison,
+  formatDuplicateApplicationNotice,
+  jobMemoryKey,
+  normalizeOptClockNudge,
+  recordSeenJob,
+  type DuplicateApplicationNotice,
+} from './smart-flow';
+import {
+  buildWidgetThemeCss,
+  isDarkCssColor,
+  normalizeWidgetAnalyticsProperties,
+  widgetSiteFamily,
+  type WidgetAnalyticsEvent,
+  type WidgetAnalyticsProperties,
+} from './widget-platform';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -36,6 +56,9 @@ const WIDGET_COLLAPSED_KEY = 'tmo_job_widget_collapsed';
 // chrome.storage.local: { all?: boolean; domains?: string[] } — persists across visits.
 const WIDGET_HIDE_KEY = 'tmo_widget_hidden';
 const WIDGET_HIDE_SESSION_KEY = 'tmo_job_widget_hide_session';
+const POST_SAVE_SUGGESTION_SEEN_KEY = 'tmo_post_save_suggestions_seen_v1';
+const WIDGET_THEME_STYLE_ID = 'tmo-widget-theme-tokens';
+const WIDGET_THEME_SCOPE_CLASS = 'tmo-widget-theme-scope';
 
 type WidgetHideConfig = { all?: boolean; domains?: string[] };
 
@@ -46,6 +69,61 @@ type JobScopedGeneratedResume = GeneratedResumeAttachment & {
 // Intentionally memory-only: a generated resume is available to Prefill on
 // this job page, but is never silently reused after a reload or for another job.
 let generatedResumeForCurrentJob: JobScopedGeneratedResume | null = null;
+let latestJobFitScore: { jobFingerprint: string; score: number } | null = null;
+const trackedWidgetAnalytics = new Set<string>();
+
+function ensureWidgetThemeStyles(): void {
+  if (document.getElementById(WIDGET_THEME_STYLE_ID)) return;
+  const style = document.createElement('style');
+  style.id = WIDGET_THEME_STYLE_ID;
+  style.textContent = buildWidgetThemeCss(`.${WIDGET_THEME_SCOPE_CLASS}`);
+  (document.head || document.documentElement).appendChild(style);
+}
+
+function applyWidgetThemeScope(element: HTMLElement): void {
+  ensureWidgetThemeStyles();
+  element.classList.add(WIDGET_THEME_SCOPE_CLASS);
+  const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+  const bodyColor = document.body ? getComputedStyle(document.body).backgroundColor : '';
+  const documentColor = getComputedStyle(document.documentElement).backgroundColor;
+  if (prefersDark || isDarkCssColor(bodyColor) || isDarkCssColor(documentColor)) {
+    element.dataset.tmoTheme = 'dark';
+  }
+}
+
+function trackWidgetAnalytics(
+  event: WidgetAnalyticsEvent,
+  properties: WidgetAnalyticsProperties = {},
+): void {
+  const safeProperties = normalizeWidgetAnalyticsProperties(event, {
+    site_family: widgetSiteFamily(window.location.hostname),
+    ...properties,
+  });
+  try {
+    chrome.runtime.sendMessage(
+      { type: 'TRACK_WIDGET_EVENT', event, properties: safeProperties },
+      () => void chrome.runtime.lastError,
+    );
+  } catch {
+    // Analytics is best-effort and must never interrupt a user action.
+  }
+}
+
+function trackWidgetAnalyticsOnce(
+  event: WidgetAnalyticsEvent,
+  job: JobInfo,
+  properties: WidgetAnalyticsProperties = {},
+  variant = '',
+): void {
+  const key = `${event}|${jobMemoryKey({
+    jobUrl: job.job_url,
+    companyName: job.company_name,
+    roleTitle: job.role_title,
+  })}|${variant}`;
+  if (trackedWidgetAnalytics.has(key)) return;
+  trackedWidgetAnalytics.add(key);
+  trackWidgetAnalytics(event, properties);
+}
 
 function jobFingerprint(job: JobInfo): string {
   const url = new URL(window.location.href);
@@ -64,6 +142,38 @@ function generatedResumeFor(job: JobInfo): GeneratedResumeAttachment | undefined
     pdfBase64: generatedResumeForCurrentJob.pdfBase64,
     filename: generatedResumeForCurrentJob.filename,
   };
+}
+
+function rememberJobFitScore(job: JobInfo, score: number): void {
+  if (!Number.isFinite(score)) return;
+  latestJobFitScore = {
+    jobFingerprint: jobFingerprint(job),
+    score: Math.max(0, Math.min(100, score)),
+  };
+}
+
+function rememberedJobFitScore(job: JobInfo): number | undefined {
+  return latestJobFitScore?.jobFingerprint === jobFingerprint(job)
+    ? latestJobFitScore.score
+    : undefined;
+}
+
+async function markPostSaveSuggestionSeen(job: JobInfo): Promise<boolean> {
+  try {
+    const key = jobMemoryKey({
+      jobUrl: job.job_url,
+      companyName: job.company_name,
+      roleTitle: job.role_title,
+    });
+    const stored = await chrome.storage.local.get(POST_SAVE_SUGGESTION_SEEN_KEY);
+    const next = recordSeenJob(stored[POST_SAVE_SUGGESTION_SEEN_KEY], key, 100);
+    if (next.alreadySeen) return false;
+    await chrome.storage.local.set({ [POST_SAVE_SUGGESTION_SEEN_KEY]: next.keys });
+    return true;
+  } catch {
+    // Storage failure should not repeatedly nag the user in the same page.
+    return false;
+  }
 }
 
 type WidgetJobSnapshot = Pick<JobInfo,
@@ -101,6 +211,21 @@ function shouldRefreshWidget(existing: HTMLElement, nextJob: JobInfo): boolean {
     (!current.salary_text && next.salary_text) ||
     (!current.company_logo_url && next.company_logo_url)
   );
+}
+
+/**
+ * True while the user is mid-interaction: a resume is generating (or its result
+ * is on screen), the AI-analysis or resume-template modal is open, or the
+ * save-status dialog is up. SPA route churn on job boards like Workday must
+ * never tear the widget down during these — that would destroy work in progress
+ * (e.g. a running resume generation) or a result the user is still reading.
+ */
+function isWidgetInteractionInFlight(): boolean {
+  if (document.getElementById('tmo-resume-chooser')) return true;
+  if (document.getElementById('tmo-ai-analysis')) return true;
+  if (document.getElementById('tmo-application-status-dialog')) return true;
+  const widget = document.getElementById(WIDGET_ROOT_ID);
+  return !!widget?.querySelector('.' + RESUME_PANEL_CLASS);
 }
 
 async function getHideConfig(): Promise<WidgetHideConfig> {
@@ -218,6 +343,8 @@ interface JobInfo {
   /** Normalized display-only compensation from JobPosting JSON-LD or visible
    * job-page text. Omitted when the source page does not publish compensation. */
   salary_text?: string;
+  /** Plain-text posting snapshot captured before the user leaves the job page. */
+  job_description?: string;
   /** Employer logo — from JSON-LD hiringOrganization.logo when present, else the
    * current site's own favicon (we're already on the employer's domain, so its
    * favicon reliably IS the employer's mark). Display-only; never sent to our API. */
@@ -331,9 +458,17 @@ function isApplicationSuccessPage(): boolean {
 
 function saveJobContext(job: JobInfo) {
   try {
+    const snapshot = buildJobSaveSnapshot(job, scrapeJobDescription());
     chrome.storage.session.set({
       [SESSION_KEYS.LAST_JOB_CONTEXT]: {
-        job: { company_name: job.company_name, role_title: job.role_title, job_url: job.job_url, location: job.location },
+        job: {
+          company_name: snapshot.company_name,
+          role_title: snapshot.role_title,
+          job_url: snapshot.job_url,
+          location: snapshot.location,
+          salary_text: snapshot.salary_text,
+          job_description: snapshot.job_description,
+        },
         storedAt: Date.now(),
       },
     });
@@ -344,26 +479,16 @@ function saveJobContext(job: JobInfo) {
 
 function tryAutoAddOnSuccess() {
   if (!document.body || !isApplicationSuccessPage()) return;
-  let jobToAdd: JobInfo | null = null;
-
   const fromPage = getJobInfo();
-  if (fromPage && fromPage.role_title && fromPage.company_name) {
-    jobToAdd = fromPage;
-  }
-
-  if (!jobToAdd) {
-    chrome.storage.session.get(SESSION_KEYS.LAST_JOB_CONTEXT, (result) => {
-      const ctx = result[SESSION_KEYS.LAST_JOB_CONTEXT] as { job: JobInfo; storedAt: number } | undefined;
-      if (!ctx?.job) return;
-      const age = Date.now() - (ctx.storedAt || 0);
-      if (age > JOB_CONTEXT_MAX_AGE_MS) return;
-      jobToAdd = ctx.job;
-      tryAutoAddWithJob(jobToAdd);
-    });
-    return;
-  }
-
-  tryAutoAddWithJob(jobToAdd);
+  chrome.storage.session.get(SESSION_KEYS.LAST_JOB_CONTEXT, (result) => {
+    const ctx = result[SESSION_KEYS.LAST_JOB_CONTEXT] as { job: JobInfo; storedAt: number } | undefined;
+    const storedJob = ctx?.job && Date.now() - (ctx.storedAt || 0) <= JOB_CONTEXT_MAX_AGE_MS
+      ? ctx.job
+      : null;
+    const jobToAdd = storedJob || fromPage;
+    if (!jobToAdd?.role_title || !jobToAdd.company_name) return;
+    tryAutoAddWithJob(jobToAdd);
+  });
 }
 
 function tryAutoAddWithJob(job: JobInfo) {
@@ -372,7 +497,11 @@ function tryAutoAddWithJob(job: JobInfo) {
     if (last && last.job_url === job.job_url && Date.now() - last.at < AUTO_ADD_DEBOUNCE_MS) return;
 
     chrome.runtime.sendMessage(
-      { type: 'ADD_JOB_TO_TRACKER', job, autoAdd: true },
+      {
+        type: 'ADD_JOB_TO_TRACKER',
+        job: buildJobSaveSnapshot(job, scrapeJobDescription()),
+        autoAdd: true,
+      },
       (response: { ok?: boolean; error?: string } | undefined) => {
         if (chrome.runtime.lastError) return;
         if (response?.ok) {
@@ -1051,15 +1180,17 @@ function attachDragBehavior(
 
 /**
  * Sticky, collapsible side widget: Prefill application, Save to tracker, and
- * (soon) AI analysis. Expanded × minimizes; minimized × opens the hide-scope
+ * AI analysis. Expanded × minimizes; minimized × opens the hide-scope
  * menu. Draggable via the expanded header or minimized six-dot grip.
  */
 function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLElement {
   const root = document.createElement('div');
   root.id = WIDGET_ROOT_ID;
+  applyWidgetThemeScope(root);
   root.dataset.tmoJobSnapshot = JSON.stringify(widgetJobSnapshot(job));
   root.setAttribute('role', 'region');
   root.setAttribute('aria-label', 'TrackMyOPT job assistant');
+  trackWidgetAnalyticsOnce('extension_widget_shown', job, { default_view: defaultView });
 
   // Always dock to the right edge. A dragged vertical position is restored for
   // this tab session and clamped to the current viewport so it cannot reappear
@@ -1184,9 +1315,9 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   // ---- Expanded card ----
   const card = document.createElement('div');
   card.style.cssText = `
-    width: min(320px, calc(100vw - 20px)); background: #fff;
-    border: 1px solid #e2e8f0; border-right: none; border-radius: 14px 0 0 14px;
-    box-shadow: 0 8px 30px rgba(15,23,42,0.18); overflow: hidden;
+    width: min(320px, calc(100vw - 20px)); background:var(--tmo-widget-surface);
+    border:1px solid var(--tmo-widget-border);border-right:none;border-radius:14px 0 0 14px;
+    box-shadow:var(--tmo-widget-shadow);overflow:hidden;color:var(--tmo-widget-ink);
   `;
 
   // Header (drag zone)
@@ -1194,12 +1325,12 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   header.style.cssText = `
     display: flex; align-items: center; gap: 8px;
     padding: 10px 10px 10px 12px;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    background:var(--tmo-widget-info-surface);border-bottom:1px solid var(--tmo-widget-info-border);
     cursor: grab; user-select: none;
   `;
   const logoRing = document.createElement('div');
   logoRing.style.cssText = `
-    width: 28px; height: 28px; border-radius: 50%; background: #fff;
+    width:28px;height:28px;border-radius:50%;background:var(--tmo-widget-surface);
     display:flex; align-items:center; justify-content:center; flex-shrink:0;
     box-shadow: 0 1px 3px rgba(30,64,175,0.2);
   `;
@@ -1212,7 +1343,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   const title = document.createElement('span');
   title.textContent = 'TrackMyOPT';
   title.style.cssText =
-    'font-size:13px;font-weight:800;color:#1e40af;letter-spacing:-0.02em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+    'font-size:13px;font-weight:800;color:var(--tmo-widget-accent-strong);letter-spacing:-0.02em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
 
   const backBtn = iconBtn('‹', 'Back');
   const settingsBtn = iconBtn('⚙', 'Settings');
@@ -1230,8 +1361,8 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   const jobLine = document.createElement('section');
   jobLine.setAttribute('aria-label', 'Current job');
   jobLine.style.cssText = `
-    margin:12px 14px 2px;padding:13px;border:1px solid #e2e8f0;border-radius:12px;
-    background:#fff;box-shadow:0 2px 7px rgba(15,23,42,0.06);line-height:1.38;
+    margin:12px 14px 2px;padding:13px;border:1px solid var(--tmo-widget-border);border-radius:12px;
+    background:var(--tmo-widget-surface);box-shadow:0 2px 7px rgba(15,23,42,0.06);line-height:1.38;
   `;
 
   const jobTitleRow = document.createElement('div');
@@ -1239,11 +1370,11 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   const roleEl = document.createElement('div');
   roleEl.textContent = job.role_title || 'Selected role';
   roleEl.title = job.role_title || 'Selected role';
-  roleEl.style.cssText = 'min-width:0;flex:1;color:#172033;font-size:15px;font-weight:800;overflow-wrap:anywhere;';
+  roleEl.style.cssText = 'min-width:0;flex:1;color:var(--tmo-widget-ink);font-size:15px;font-weight:800;overflow-wrap:anywhere;';
   const savedBadge = document.createElement('span');
   savedBadge.textContent = 'Not saved';
   savedBadge.style.cssText = `
-    flex:0 0 auto;padding:5px 9px;border-radius:999px;background:#f1f5f9;color:#475569;
+    flex:0 0 auto;padding:5px 9px;border-radius:999px;background:var(--tmo-widget-surface-2);color:var(--tmo-widget-muted);
     font-size:10.5px;font-weight:750;white-space:nowrap;
   `;
   jobTitleRow.appendChild(roleEl);
@@ -1254,8 +1385,8 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   const companyMark = document.createElement('span');
   companyMark.setAttribute('aria-hidden', 'true');
   companyMark.style.cssText = `
-    width:30px;height:30px;flex:0 0 30px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;
-    display:flex;align-items:center;justify-content:center;overflow:hidden;color:#1d4ed8;font-size:12px;font-weight:800;
+    width:30px;height:30px;flex:0 0 30px;border:1px solid var(--tmo-widget-border);border-radius:8px;background:var(--tmo-widget-surface);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tmo-widget-accent);font-size:12px;font-weight:800;
   `;
   const companyInitial = (job.company_name || 'C').trim().charAt(0).toUpperCase() || 'C';
   companyMark.textContent = companyInitial;
@@ -1275,7 +1406,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   const companyEl = document.createElement('div');
   companyEl.textContent = job.company_name || 'Company';
   companyEl.title = job.company_name || 'Company';
-  companyEl.style.cssText = 'min-width:0;color:#405462;font-size:13px;font-weight:650;overflow-wrap:anywhere;';
+  companyEl.style.cssText = 'min-width:0;color:var(--tmo-widget-muted);font-size:13px;font-weight:650;overflow-wrap:anywhere;';
   companyRow.appendChild(companyMark);
   companyRow.appendChild(companyEl);
 
@@ -1285,53 +1416,157 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   if (job.location) {
     const locationEl = document.createElement('div');
     locationEl.textContent = job.location;
-    locationEl.style.cssText = 'margin-top:11px;color:#405462;font-size:12.5px;font-weight:600;overflow-wrap:anywhere;';
+    locationEl.style.cssText = 'margin-top:11px;color:var(--tmo-widget-muted);font-size:12.5px;font-weight:600;overflow-wrap:anywhere;';
     jobLine.appendChild(locationEl);
   }
   if (job.salary_text) {
     const salaryEl = document.createElement('div');
     salaryEl.textContent = job.salary_text;
-    salaryEl.style.cssText = 'margin-top:8px;color:#405462;font-size:12.5px;font-weight:650;overflow-wrap:anywhere;';
+    salaryEl.style.cssText = 'margin-top:8px;color:var(--tmo-widget-muted);font-size:12.5px;font-weight:650;overflow-wrap:anywhere;';
     jobLine.appendChild(salaryEl);
   }
 
+  // Visa-sponsorship signal — the make-or-break fact for an OPT student. Read
+  // from the posting text client-side (no API). Painted once now, then refreshed
+  // shortly after in case the job body streamed in after the widget mounted.
+  const sponsorPill = document.createElement('div');
+  sponsorPill.style.cssText = 'margin-top:11px;';
+  const initialSponsorship = classifySponsorship(scrapeJobDescription());
+  paintSponsorshipPill(sponsorPill, initialSponsorship);
+  if (initialSponsorship.signal !== 'unclear') {
+    trackWidgetAnalyticsOnce(
+      'extension_widget_sponsorship_classified',
+      job,
+      { signal: initialSponsorship.signal, refreshed: false },
+    );
+  }
+  jobLine.appendChild(sponsorPill);
+  window.setTimeout(() => {
+    if (sponsorPill.isConnected) {
+      const refreshedSponsorship = classifySponsorship(scrapeJobDescription());
+      paintSponsorshipPill(sponsorPill, refreshedSponsorship);
+      trackWidgetAnalyticsOnce(
+        'extension_widget_sponsorship_classified',
+        job,
+        { signal: refreshedSponsorship.signal, refreshed: true },
+      );
+    }
+  }, 1400);
+
+  // Primary anchor action — Save to job tracker (filled brand gradient).
   const saveBtn = document.createElement('button');
   saveBtn.type = 'button';
-  saveBtn.innerHTML = `<span class="tmo-action-label">Save to job tracker</span>${icon('chevronRight', 15, '#0ea5e9')}`;
+  saveBtn.innerHTML = `${icon('bookmark', 16, '#fff')}<span class="tmo-action-label" style="flex:1;text-align:left;">Save to job tracker</span>${icon('chevronRight', 16, 'rgba(255,255,255,0.9)')}`;
   saveBtn.style.cssText = `
-    min-height:44px;margin:8px 0 -7px -8px;padding:8px;border:0;background:transparent;color:#0ea5e9;
-    display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:13px;font-weight:750;cursor:pointer;
-    border-radius:8px;transition:background 180ms ease,color 180ms ease;
+    display:flex;align-items:center;gap:10px;width:100%;min-height:46px;margin:0;padding:11px 14px;
+    border:0;border-radius:12px;color:#fff;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;
+    background:linear-gradient(135deg,#1e40af 0%,#2563eb 55%,#0ea5e9 100%);
+    box-shadow:0 6px 16px rgba(37,99,235,0.34);transition:filter 160ms ease,transform 160ms ease,box-shadow 160ms ease;
   `;
-  saveBtn.addEventListener('mouseenter', () => (saveBtn.style.background = '#f0f9ff'));
-  saveBtn.addEventListener('mouseleave', () => (saveBtn.style.background = 'transparent'));
-  saveBtn.addEventListener('focus', () => (saveBtn.style.boxShadow = '0 0 0 3px rgba(14,165,233,0.18)'));
-  saveBtn.addEventListener('blur', () => (saveBtn.style.boxShadow = 'none'));
-  jobLine.appendChild(saveBtn);
+  saveBtn.addEventListener('mouseenter', () => {
+    if (saveBtn.disabled) return;
+    saveBtn.style.filter = 'brightness(1.06)';
+    saveBtn.style.transform = 'translateY(-1px)';
+  });
+  saveBtn.addEventListener('mouseleave', () => {
+    saveBtn.style.filter = 'none';
+    saveBtn.style.transform = 'none';
+  });
+  saveBtn.addEventListener('focus', () => (saveBtn.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.35)'));
+  saveBtn.addEventListener('blur', () => (saveBtn.style.boxShadow = '0 6px 16px rgba(37,99,235,0.34)'));
 
   // Actions
   const actions = document.createElement('div');
-  actions.style.cssText = 'display:flex;flex-direction:column;gap:8px;padding:10px 14px 14px;';
+  actions.style.cssText = 'display:flex;flex-direction:column;gap:10px;padding:10px 14px 14px;';
 
-  const prefillBtn = actionBtn(icon('zap', 15), 'Prefill application');
+  // Secondary tools grouped in a bordered panel with colored icon chips.
+  const toolsPanel = document.createElement('div');
+  toolsPanel.style.cssText =
+    'border:1px solid var(--tmo-widget-border);border-radius:12px;overflow:hidden;background:var(--tmo-widget-surface);box-shadow:0 2px 8px rgba(15,23,42,0.05);';
+
+  const prefillBtn = actionBtn(icon('zap', 16, '#fff'), 'Prefill application', {
+    sublabel: 'Auto-fill this application',
+    chip: 'linear-gradient(135deg,#2563eb,#0ea5e9)',
+  });
   prefillBtn.classList.add('tmo-prefill-button');
   if (generatedResumeFor(job)) {
     const label = prefillBtn.querySelector<HTMLElement>('.tmo-action-label');
     if (label) label.textContent = 'Prefill application + resume';
     prefillBtn.title = 'Prefill profile fields and attach the custom resume generated for this job';
   }
-  const resumeBtn = actionBtn(icon('fileText', 15), 'Generate custom resume');
-  const aiBtn = actionBtn(icon('sparkles', 15), 'Analyze with AI');
-  const soon = document.createElement('span');
-  soon.textContent = 'soon';
-  soon.style.cssText =
-    'margin-left:auto;font-size:10px;font-weight:700;color:#94a3b8;background:#f1f5f9;padding:1px 6px;border-radius:999px;';
-  aiBtn.appendChild(soon);
-  aiBtn.style.opacity = '0.75';
+  const prefillResultLine = document.createElement('div');
+  prefillResultLine.setAttribute('role', 'status');
+  prefillResultLine.setAttribute('aria-live', 'polite');
+  prefillResultLine.style.cssText =
+    'display:none;align-items:center;flex-wrap:wrap;gap:4px;padding:8px 12px 9px;background:var(--tmo-widget-surface-2);color:var(--tmo-widget-muted);font-size:11.5px;line-height:1.4;border-top:1px solid var(--tmo-widget-border);';
+  const resumeBtn = actionBtn(icon('fileText', 16, '#fff'), 'Generate custom resume', {
+    sublabel: 'Tailored to this role',
+    chip: 'linear-gradient(135deg,#10b981,#059669)',
+  });
+  const aiBtn = actionBtn(icon('sparkles', 16, '#fff'), 'Analyze with AI', {
+    sublabel: 'Fit score & keyword gaps',
+    chip: 'linear-gradient(135deg,#6366f1,#a855f7)',
+  });
 
-  actions.appendChild(prefillBtn);
-  actions.appendChild(resumeBtn);
-  actions.appendChild(aiBtn);
+  const rowDivider = () => {
+    const d = document.createElement('div');
+    d.style.cssText = 'height:1px;background:var(--tmo-widget-border);margin:0 12px;';
+    return d;
+  };
+
+  toolsPanel.appendChild(prefillBtn);
+  toolsPanel.appendChild(prefillResultLine);
+  toolsPanel.appendChild(rowDivider());
+  toolsPanel.appendChild(resumeBtn);
+  toolsPanel.appendChild(rowDivider());
+  toolsPanel.appendChild(aiBtn);
+
+  const nextStepHost = document.createElement('div');
+  nextStepHost.setAttribute('role', 'status');
+  nextStepHost.setAttribute('aria-live', 'polite');
+  nextStepHost.style.cssText = `
+    display:none;align-items:stretch;overflow:hidden;border:1px solid var(--tmo-widget-success-border);border-radius:11px;
+    background:var(--tmo-widget-success-surface);color:var(--tmo-widget-success-ink);
+  `;
+  const nextStepBtn = document.createElement('button');
+  nextStepBtn.type = 'button';
+  nextStepBtn.innerHTML = `<span style="flex:1;text-align:left;">Next: generate a resume tailored to this job</span>${icon('chevronRight', 15, 'currentColor')}`;
+  nextStepBtn.style.cssText = `
+    display:flex;align-items:center;gap:7px;flex:1;min-height:44px;padding:9px 8px 9px 11px;
+    border:0;background:transparent;color:var(--tmo-widget-success-ink);font:inherit;font-size:11.5px;font-weight:750;cursor:pointer;
+  `;
+  const dismissNextStep = document.createElement('button');
+  dismissNextStep.type = 'button';
+  dismissNextStep.setAttribute('aria-label', 'Dismiss resume suggestion');
+  dismissNextStep.title = 'Dismiss';
+  dismissNextStep.textContent = '×';
+  dismissNextStep.style.cssText = `
+    width:44px;min-height:44px;flex:0 0 44px;border:0;border-left:1px solid var(--tmo-widget-success-border);
+    background:transparent;color:var(--tmo-widget-success-ink);font:inherit;font-size:19px;cursor:pointer;
+  `;
+  const hideNextStep = () => (nextStepHost.style.display = 'none');
+  nextStepBtn.addEventListener('click', () => {
+    hideNextStep();
+    openResumeChooser(card, job);
+  });
+  dismissNextStep.addEventListener('click', hideNextStep);
+  for (const button of [nextStepBtn, dismissNextStep]) {
+    button.addEventListener('focus', () => {
+      button.style.outline = '3px solid rgba(22,163,74,0.25)';
+      button.style.outlineOffset = '-3px';
+    });
+    button.addEventListener('blur', () => (button.style.outline = 'none'));
+  }
+  nextStepHost.appendChild(nextStepBtn);
+  nextStepHost.appendChild(dismissNextStep);
+
+  const showPostSaveSuggestionOnce = async () => {
+    if (await markPostSaveSuggestionSeen(job)) nextStepHost.style.display = 'flex';
+  };
+
+  actions.appendChild(saveBtn);
+  actions.appendChild(nextStepHost);
+  actions.appendChild(toolsPanel);
 
   // Feedback link (opens the on-page feedback modal)
   const feedbackRow = document.createElement('div');
@@ -1340,20 +1575,46 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   feedbackBtn.type = 'button';
   feedbackBtn.innerHTML = `${icon('messageCircle', 14)}<span>Send feedback</span>`;
   feedbackBtn.style.cssText =
-    'display:inline-flex;align-items:center;gap:5px;border:none;background:transparent;color:#64748b;font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;padding:2px 6px;';
-  feedbackBtn.addEventListener('mouseenter', () => (feedbackBtn.style.color = "#2563eb"));
-  feedbackBtn.addEventListener('mouseleave', () => (feedbackBtn.style.color = '#64748b'));
+    'display:inline-flex;align-items:center;gap:5px;border:none;background:transparent;color:var(--tmo-widget-muted);font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;padding:6px 8px;min-height:32px;';
+  feedbackBtn.addEventListener('mouseenter', () => (feedbackBtn.style.color = 'var(--tmo-widget-accent)'));
+  feedbackBtn.addEventListener('mouseleave', () => (feedbackBtn.style.color = 'var(--tmo-widget-muted)'));
   feedbackBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     openFeedbackModal();
   });
   feedbackRow.appendChild(feedbackBtn);
 
+  const optClockRow = document.createElement('div');
+  optClockRow.setAttribute('role', 'status');
+  optClockRow.setAttribute('aria-live', 'polite');
+  optClockRow.style.cssText = `
+    display:none;align-items:flex-start;justify-content:center;gap:6px;padding:0 14px 11px;
+    color:var(--tmo-widget-muted);font-size:11.5px;font-weight:600;line-height:1.4;text-align:center;
+  `;
+  const optClockIcon = document.createElement('span');
+  optClockIcon.style.cssText = 'display:flex;flex:0 0 auto;margin-top:1px;';
+  optClockIcon.innerHTML = icon('clock', 13, 'currentColor');
+  const optClockText = document.createElement('span');
+  optClockRow.appendChild(optClockIcon);
+  optClockRow.appendChild(optClockText);
+
   // Normal content (job info + actions + feedback link) — hidden while Settings is open.
   const normalBody = document.createElement('div');
   normalBody.appendChild(jobLine);
   normalBody.appendChild(actions);
+  normalBody.appendChild(optClockRow);
   normalBody.appendChild(feedbackRow);
+
+  chrome.runtime.sendMessage(
+    { type: 'GET_OPT_CLOCK_NUDGE' },
+    (res: { ok?: boolean; nudge?: unknown } | undefined) => {
+      if (chrome.runtime.lastError || !res?.ok || !optClockRow.isConnected) return;
+      const nudge = normalizeOptClockNudge(res.nudge);
+      if (!nudge) return;
+      optClockText.textContent = `${nudge.remaining} unemployment ${nudge.remaining === 1 ? 'day' : 'days'} remaining — every application counts.`;
+      optClockRow.style.display = 'flex';
+    },
+  );
 
   // ---- Settings panel ("Default plugin view": Expanded / Minimized) ----
   const settingsPanel = document.createElement('div');
@@ -1363,7 +1624,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   settingsLabelRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:4px;';
   const settingsLabel = document.createElement('span');
   settingsLabel.textContent = 'Default plugin view';
-  settingsLabel.style.cssText = 'font-size:12.5px;font-weight:700;color:#0f172a;';
+  settingsLabel.style.cssText = 'font-size:12.5px;font-weight:700;color:var(--tmo-widget-ink);';
   const helpBtn = document.createElement('button');
   helpBtn.type = 'button';
   helpBtn.textContent = '?';
@@ -1371,8 +1632,8 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   helpBtn.title =
     'Choose how TrackMyOPT appears when a new job page loads: fully expanded, or minimized to a small tab you click to open.';
   helpBtn.style.cssText = `
-    width:16px;height:16px;flex-shrink:0;border-radius:50%;border:1px solid #cbd5e1;
-    background:#f8fafc;color:#64748b;font-size:10px;font-weight:700;line-height:1;
+    width:24px;height:24px;flex-shrink:0;border-radius:50%;border:1px solid var(--tmo-widget-border);
+    background:var(--tmo-widget-surface-2);color:var(--tmo-widget-muted);font-size:11px;font-weight:700;line-height:1;
     cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;
   `;
   settingsLabelRow.appendChild(settingsLabel);
@@ -1381,7 +1642,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
 
   const helpText = document.createElement('p');
   helpText.textContent = 'This only changes how the widget first appears on a new job page — it does not affect the current one.';
-  helpText.style.cssText = 'display:none;font-size:11px;color:#64748b;margin:0 0 10px;line-height:1.4;';
+  helpText.style.cssText = 'display:none;font-size:11px;color:var(--tmo-widget-muted);margin:0 0 10px;line-height:1.4;';
   settingsPanel.appendChild(helpText);
   helpBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -1414,24 +1675,24 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   const menu = document.createElement('div');
   menu.style.cssText = `
     display:none;position:absolute;top:44px;right:64px;z-index:5;
-    width:min(260px,calc(100vw - 32px));background:#fff;border:1px solid #dbe3ee;border-radius:12px;
-    box-shadow:0 12px 36px rgba(15,23,42,0.22);overflow:hidden;padding:8px 0;
+    width:min(260px,calc(100vw - 32px));background:var(--tmo-widget-surface);border:1px solid var(--tmo-widget-border);border-radius:12px;
+    box-shadow:var(--tmo-widget-shadow);overflow:hidden;padding:8px 0;color:var(--tmo-widget-ink);
   `;
   const menuItem = (label: string, onClick: () => void) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.textContent = label;
     b.style.cssText =
-      'display:block;width:100%;min-height:46px;text-align:left;padding:11px 18px;border:none;background:#fff;color:#26364d;font:inherit;font-size:14px;font-weight:600;cursor:pointer;';
-    b.addEventListener('mouseenter', () => (b.style.background = '#f1f5f9'));
-    b.addEventListener('mouseleave', () => (b.style.background = '#fff'));
+      'display:block;width:100%;min-height:46px;text-align:left;padding:11px 18px;border:none;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer;';
+    b.addEventListener('mouseenter', () => (b.style.background = 'var(--tmo-widget-surface-2)'));
+    b.addEventListener('mouseleave', () => (b.style.background = 'var(--tmo-widget-surface)'));
     b.addEventListener('focus', () => {
-      b.style.background = '#eff6ff';
-      b.style.outline = '2px solid #2563eb';
+      b.style.background = 'var(--tmo-widget-info-surface)';
+      b.style.outline = '2px solid var(--tmo-widget-accent)';
       b.style.outlineOffset = '-2px';
     });
     b.addEventListener('blur', () => {
-      b.style.background = '#fff';
+      b.style.background = 'var(--tmo-widget-surface)';
       b.style.outline = 'none';
     });
     b.addEventListener('click', (e) => {
@@ -1619,13 +1880,63 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   window.addEventListener('resize', clampWidgetToViewport, { passive: true });
 
   // ---- actions ----
+  const paintPrefillCoverage = (result: PrefillCoverageResult) => {
+    prefillResultLine.textContent = '';
+    if (result.total === 0) {
+      prefillResultLine.style.display = 'none';
+      return;
+    }
+    prefillResultLine.style.display = 'flex';
+    const summary = document.createElement('span');
+    summary.textContent = result.skipped > 0
+      ? `${result.filled} filled · ${result.skipped} need you`
+      : `${result.filled} filled · ready to review`;
+    prefillResultLine.appendChild(summary);
+    if (result.skipped > 0 && result.firstSkippedSelector) {
+      const jump = document.createElement('button');
+      jump.type = 'button';
+      jump.textContent = 'Jump to first';
+      jump.style.cssText =
+        'padding:0;border:0;background:transparent;color:#b45309;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;';
+      jump.addEventListener('click', () => {
+        jumpToPrefillField(result.firstSkippedSelector || '');
+      });
+      prefillResultLine.append('—');
+      prefillResultLine.appendChild(jump);
+    }
+  };
+
   prefillBtn.addEventListener('click', () => {
-    const resume = generatedResumeFor(job);
-    void runPrefill({ resume });
-    // The top-frame engine handles the main document, open shadow roots, and
-    // same-origin frames. Ask statically loaded child-frame scripts to cover
-    // cross-origin ATS frames that the browser prevents the top frame reading.
-    chrome.runtime.sendMessage({ type: 'PREFILL_CHILD_FRAMES', resume }).catch(() => {});
+    void (async () => {
+      const resume = generatedResumeFor(job);
+      const label = prefillBtn.querySelector<HTMLElement>('.tmo-action-label');
+      const idleLabel = resume ? 'Prefill application + resume' : 'Prefill application';
+      prefillBtn.disabled = true;
+      if (label) label.textContent = 'Prefilling…';
+      // The top-frame engine handles the main document, open shadow roots, and
+      // same-origin frames. Ask statically loaded child-frame scripts to cover
+      // cross-origin ATS frames that the browser prevents the top frame reading.
+      chrome.runtime.sendMessage({ type: 'PREFILL_CHILD_FRAMES', resume }).catch(() => {});
+      try {
+        const result = await runPrefill({ resume });
+        paintPrefillCoverage(result);
+        trackWidgetAnalytics('extension_widget_prefill_completed', {
+          outcome: 'success',
+          filled: result.filled,
+          skipped: result.skipped,
+          total: result.total,
+          has_resume: !!resume,
+        });
+      } catch {
+        trackWidgetAnalytics('extension_widget_prefill_completed', {
+          outcome: 'error',
+          has_resume: !!resume,
+        });
+      } finally {
+        prefillBtn.disabled = false;
+        if (label) label.textContent = idleLabel;
+      }
+    })();
   });
 
   // Opens an explicit saved-resume/template chooser, then generates in the
@@ -1635,44 +1946,127 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   });
 
   aiBtn.addEventListener('click', () => {
-    showMessage('AI job analysis is coming soon.', false);
+    openAiAnalysis(card, job);
   });
+
+  // Once a job is in the tracker (saved just now, or found on load), the primary
+  // button stops being a "save" and becomes a link into the dashboard tracker.
+  let jobSavedState = false;
+  let savedLookupPending = false;
+  let duplicateApplication: DuplicateApplicationNotice | undefined;
+  const setSavedLookupPending = (pending: boolean) => {
+    savedLookupPending = pending;
+    saveBtn.disabled = pending;
+    saveBtn.setAttribute('aria-busy', pending ? 'true' : 'false');
+    saveBtn.style.cursor = pending ? 'wait' : 'pointer';
+    saveBtn.style.opacity = pending ? '0.78' : '1';
+    const label = saveBtn.querySelector('.tmo-action-label') as HTMLElement | null;
+    if (pending) {
+      if (label) label.textContent = 'Checking saved state…';
+      savedBadge.textContent = 'Checking…';
+    } else if (!jobSavedState) {
+      if (label) label.textContent = 'Save to job tracker';
+      savedBadge.textContent = 'Not saved';
+    }
+  };
+  const markJobSaved = (statusText: 'Applied' | 'Wishlist') => {
+    jobSavedState = true;
+    savedLookupPending = false;
+    saveBtn.disabled = false;
+    saveBtn.setAttribute('aria-busy', 'false');
+    saveBtn.style.cursor = 'pointer';
+    saveBtn.style.opacity = '1';
+    const label = saveBtn.querySelector('.tmo-action-label') as HTMLElement | null;
+    if (label) label.textContent = 'View in tracker';
+    savedBadge.textContent = statusText === 'Wishlist' ? 'Wishlist' : 'Saved ✓';
+    savedBadge.style.background = 'var(--tmo-widget-success-surface)';
+    savedBadge.style.color = 'var(--tmo-widget-success-ink)';
+    saveBtn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+    saveBtn.style.boxShadow = '0 4px 12px rgba(16,185,129,0.28)';
+    saveBtn.style.filter = 'none';
+    saveBtn.style.transform = 'none';
+  };
 
   const saveJobWithStatus = (status: ApplicationSaveStatus) => {
     const label = saveBtn.querySelector('.tmo-action-label') as HTMLElement | null;
     const prev = label?.textContent || 'Save to job tracker';
-    saveBtn.style.pointerEvents = 'none';
+    saveBtn.disabled = true;
     if (label) label.textContent = 'Saving…';
     savedBadge.textContent = 'Saving…';
     chrome.runtime.sendMessage(
-      { type: 'ADD_JOB_TO_TRACKER', job, status },
+      {
+        type: 'ADD_JOB_TO_TRACKER',
+        job: buildJobSaveSnapshot(job, scrapeJobDescription()),
+        status,
+      },
       (response: { ok?: boolean; error?: string } | undefined) => {
-        saveBtn.style.pointerEvents = '';
+        saveBtn.disabled = false;
         if (chrome.runtime.lastError) {
           if (label) label.textContent = prev;
           savedBadge.textContent = 'Not saved';
           showMessage('TrackMyOPT: Sign in in the extension to save jobs.', true);
+          trackWidgetAnalytics('extension_widget_job_saved', {
+            status,
+            outcome: 'error',
+          });
           return;
         }
         if (response?.ok) {
-          if (label) label.textContent = 'Saved to job tracker';
-          savedBadge.textContent = 'Saved';
-          savedBadge.style.background = '#dcfce7';
-          savedBadge.style.color = '#166534';
-          saveBtn.disabled = true;
-          saveBtn.style.cursor = 'default';
+          markJobSaved(status === 'Applied' ? 'Applied' : 'Wishlist');
+          void showPostSaveSuggestionOnce();
           showMessage(status === 'Applied' ? 'Application added to Job Tracker!' : 'Job saved to your Wishlist!', false);
+          trackWidgetAnalytics('extension_widget_job_saved', {
+            status,
+            outcome: 'success',
+          });
         } else {
           if (label) label.textContent = prev;
           savedBadge.textContent = 'Not saved';
           showMessage(response?.error || 'Failed to save job', true);
+          trackWidgetAnalytics('extension_widget_job_saved', {
+            status,
+            outcome: response?.error === 'not_signed_in' ? 'not_signed_in' : 'error',
+          });
         }
       }
     );
   };
   saveBtn.addEventListener('click', () => {
-    openApplicationStatusDialog(job, saveJobWithStatus);
+    if (savedLookupPending) return;
+    if (jobSavedState) {
+      window.open(`${WEBSITE_URL}/dashboard/career/job-tracker`, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    openApplicationStatusDialog(job, saveJobWithStatus, duplicateApplication);
   });
+
+  // Paint the saved state on load so a revisited job doesn't show "Not saved".
+  if (job.job_url) {
+    setSavedLookupPending(true);
+    chrome.runtime.sendMessage(
+      {
+        type: 'CHECK_JOB_SAVED',
+        jobUrl: job.job_url,
+        companyName: job.company_name,
+        roleTitle: job.role_title,
+      },
+      (res: {
+        ok?: boolean;
+        saved?: boolean;
+        status?: 'Applied' | 'Wishlist';
+        duplicateApplication?: DuplicateApplicationNotice;
+      } | undefined) => {
+        if (!chrome.runtime.lastError && res?.ok) {
+          duplicateApplication = res.duplicateApplication;
+        }
+        if (!chrome.runtime.lastError && res?.ok && res.saved) {
+          markJobSaved(res.status === 'Wishlist' ? 'Wishlist' : 'Applied');
+          return;
+        }
+        setSavedLookupPending(false);
+      }
+    );
+  }
 
   // Initial state: an explicit per-session override (user already toggled
   // collapse/expand on this origin this session) wins; otherwise fall back to
@@ -1692,7 +2086,7 @@ function iconBtn(glyph: string, label: string): HTMLButtonElement {
   b.textContent = glyph;
   b.style.cssText = `
     width:34px;height:34px;flex-shrink:0;padding:0;margin:0;border:none;border-radius:8px;
-    background:transparent;color:#1e40af;font-size:18px;line-height:1;cursor:pointer;
+    background:transparent;color:var(--tmo-widget-accent-strong);font-size:18px;line-height:1;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
   `;
   b.addEventListener('mouseenter', () => (b.style.background = "rgba(37,99,235,0.1)"));
@@ -1700,34 +2094,112 @@ function iconBtn(glyph: string, label: string): HTMLButtonElement {
   return b;
 }
 
-/** Full-width action row button: real lucide-style SVG icon (matches the web app sidebar) + label. */
-function actionBtn(iconSvg: string, label: string): HTMLButtonElement {
+/** Render the visa-sponsorship pill into `host` from a classifier result. */
+function paintSponsorshipPill(host: HTMLElement, result: SponsorshipResult): void {
+  const theme = {
+    sponsors: {
+      bg: 'var(--tmo-widget-success-surface)',
+      fg: 'var(--tmo-widget-success-ink)',
+      border: 'var(--tmo-widget-success-border)',
+      iconName: 'checkCircle' as const,
+      label: 'Mentions sponsorship',
+      fallback: 'This posting mentions visa sponsorship.',
+    },
+    no_sponsorship: {
+      bg: 'var(--tmo-widget-danger-surface)',
+      fg: 'var(--tmo-widget-danger-ink)',
+      border: 'var(--tmo-widget-danger-border)',
+      iconName: 'alertTriangle' as const,
+      label: 'No sponsorship',
+      fallback: 'This posting appears to rule out visa sponsorship.',
+    },
+    unclear: {
+      bg: 'var(--tmo-widget-surface-2)',
+      fg: 'var(--tmo-widget-muted)',
+      border: 'var(--tmo-widget-border)',
+      iconName: 'info' as const,
+      label: 'Sponsorship not stated',
+      fallback: "The posting doesn't clearly state its visa-sponsorship policy.",
+    },
+  }[result.signal];
+
+  host.textContent = '';
+  const pill = document.createElement('span');
+  pill.style.cssText = `
+    display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;
+    background:${theme.bg};color:${theme.fg};border:1px solid ${theme.border};
+    font-size:11px;font-weight:750;line-height:1;max-width:100%;
+  `;
+  const ic = document.createElement('span');
+  ic.style.cssText = 'display:flex;flex-shrink:0;';
+  ic.innerHTML = icon(theme.iconName, 13, theme.fg);
+  const text = document.createElement('span');
+  text.textContent = theme.label;
+  text.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+  pill.appendChild(ic);
+  pill.appendChild(text);
+  pill.title = result.matchedSentence ? `“${result.matchedSentence}”` : theme.fallback;
+  host.appendChild(pill);
+}
+
+/**
+ * Action row inside the tools panel: colored icon chip + label + optional
+ * sublabel, with a trailing chevron (default) or custom trailing element.
+ * `iconSvg` should already be a white icon so it reads on the colored chip.
+ */
+function actionBtn(
+  iconSvg: string,
+  label: string,
+  opts: { sublabel?: string; chip?: string; trailing?: string } = {}
+): HTMLButtonElement {
+  const chip = opts.chip || 'linear-gradient(135deg,#2563eb,#0ea5e9)';
   const b = document.createElement('button');
   b.type = 'button';
   b.style.cssText = `
-    display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:10px 12px;
-    border:1px solid #dbe3ee;border-radius:10px;background:#fff;color:#0f172a;
-    font:inherit;font-size:13px;font-weight:650;cursor:pointer;text-align:left;
-    box-shadow:0 1px 1px rgba(15,23,42,0.03);transition:background 160ms ease,border-color 160ms ease,transform 160ms ease;
+    display:flex;align-items:center;gap:11px;width:100%;min-height:56px;padding:11px 12px;
+    border:0;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;text-align:left;cursor:pointer;
+    transition:background 160ms ease;
   `;
-  b.addEventListener('mouseenter', () => {
-    b.style.background = '#f8fafc';
-    b.style.borderColor = '#bfdbfe';
+  b.addEventListener('mouseenter', () => (b.style.background = 'var(--tmo-widget-surface-2)'));
+  b.addEventListener('mouseleave', () => (b.style.background = 'var(--tmo-widget-surface)'));
+  b.addEventListener('focus', () => {
+    b.style.background = 'var(--tmo-widget-info-surface)';
+    b.style.outline = '2px solid var(--tmo-widget-focus)';
+    b.style.outlineOffset = '-2px';
   });
-  b.addEventListener('mouseleave', () => {
-    b.style.background = '#fff';
-    b.style.borderColor = '#dbe3ee';
+  b.addEventListener('blur', () => {
+    b.style.background = 'var(--tmo-widget-surface)';
+    b.style.outline = 'none';
   });
-  b.addEventListener('focus', () => (b.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.2)'));
-  b.addEventListener('blur', () => (b.style.boxShadow = '0 1px 1px rgba(15,23,42,0.03)'));
-  const g = document.createElement('span');
-  g.innerHTML = iconSvg;
-  g.style.cssText = 'display:flex;flex-shrink:0;';
+
+  const chipEl = document.createElement('span');
+  chipEl.innerHTML = iconSvg;
+  chipEl.style.cssText = `
+    width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:${chip};
+    display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(15,23,42,0.14);
+  `;
+
+  const textWrap = document.createElement('span');
+  textWrap.style.cssText = 'flex:1;min-width:0;';
   const l = document.createElement('span');
   l.className = 'tmo-action-label';
   l.textContent = label;
-  b.appendChild(g);
-  b.appendChild(l);
+  l.style.cssText = 'display:block;font-size:13px;font-weight:750;letter-spacing:-0.1px;';
+  textWrap.appendChild(l);
+  if (opts.sublabel) {
+    const s = document.createElement('span');
+    s.textContent = opts.sublabel;
+    s.style.cssText = 'display:block;font-size:11px;color:var(--tmo-widget-muted);margin-top:1px;';
+    textWrap.appendChild(s);
+  }
+
+  const trail = document.createElement('span');
+  trail.style.cssText = 'display:flex;flex:0 0 auto;margin-left:auto;align-items:center;color:var(--tmo-widget-muted);';
+  trail.innerHTML = opts.trailing ?? icon('chevronRight', 16, 'currentColor');
+
+  b.appendChild(chipEl);
+  b.appendChild(textWrap);
+  b.appendChild(trail);
   return b;
 }
 
@@ -1821,9 +2293,9 @@ function resumeMiniBtn(labelSvgAndText: string, primary: boolean): HTMLButtonEle
     min-height:44px;padding:10px 9px;border-radius:9px;font:inherit;font-size:12.5px;font-weight:750;cursor:pointer;
     ${primary
       ? 'background:#2563eb;color:#fff;border:1px solid #2563eb;'
-      : 'background:#fff;color:#0f172a;border:1px solid #e2e8f0;'}
+      : 'background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);border:1px solid var(--tmo-widget-border);'}
   `;
-  b.addEventListener('focus', () => (b.style.outline = '3px solid rgba(37,99,235,0.22)'));
+  b.addEventListener('focus', () => (b.style.outline = '3px solid var(--tmo-widget-focus)'));
   b.addEventListener('blur', () => (b.style.outline = 'none'));
   return b;
 }
@@ -1847,7 +2319,7 @@ function modalFieldLabel(text: string, htmlFor: string): HTMLLabelElement {
   const label = document.createElement('label');
   label.htmlFor = htmlFor;
   label.textContent = text;
-  label.style.cssText = 'display:block;margin:0 0 6px;color:#0f172a;font-size:12.5px;font-weight:750;';
+  label.style.cssText = 'display:block;margin:0 0 6px;color:var(--tmo-widget-ink);font-size:12.5px;font-weight:750;';
   return label;
 }
 
@@ -1855,16 +2327,16 @@ function modalSelect(id: string): HTMLSelectElement {
   const select = document.createElement('select');
   select.id = id;
   select.style.cssText = `
-    display:block;width:100%;height:44px;padding:0 34px 0 11px;border:1px solid #cbd5e1;
-    border-radius:9px;background:#fff;color:#0f172a;font:inherit;font-size:13px;cursor:pointer;
+    display:block;width:100%;height:44px;padding:0 34px 0 11px;border:1px solid var(--tmo-widget-border);
+    border-radius:9px;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;font-size:13px;cursor:pointer;
     outline:none;
   `;
   select.addEventListener('focus', () => {
-    select.style.borderColor = '#2563eb';
-    select.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.16)';
+    select.style.borderColor = 'var(--tmo-widget-accent)';
+    select.style.boxShadow = '0 0 0 3px var(--tmo-widget-focus)';
   });
   select.addEventListener('blur', () => {
-    select.style.borderColor = '#cbd5e1';
+    select.style.borderColor = 'var(--tmo-widget-border)';
     select.style.boxShadow = 'none';
   });
   return select;
@@ -1875,17 +2347,19 @@ type ApplicationSaveStatus = 'Wishlist' | 'Applied';
 function openApplicationStatusDialog(
   job: JobInfo,
   onSelect: (status: ApplicationSaveStatus) => void,
+  duplicate?: DuplicateApplicationNotice,
 ): void {
   document.getElementById('tmo-application-status-dialog')?.remove();
   const returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
   const overlay = document.createElement('div');
   overlay.id = 'tmo-application-status-dialog';
+  applyWidgetThemeScope(overlay);
   overlay.setAttribute('popover', 'manual');
   overlay.style.cssText = `
     position:fixed;inset:0;z-index:2147483647;width:auto;height:auto;margin:0;padding:16px;border:0;
-    background:rgba(15,23,42,0.5);display:flex;align-items:center;justify-content:center;overflow:auto;
-    color:#0f172a;color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--tmo-widget-overlay);display:flex;align-items:center;justify-content:center;overflow:auto;
+    color:var(--tmo-widget-ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   `;
 
   const dialog = document.createElement('div');
@@ -1893,21 +2367,21 @@ function openApplicationStatusDialog(
   dialog.setAttribute('aria-modal', 'true');
   dialog.setAttribute('aria-labelledby', 'tmo-application-status-title');
   dialog.style.cssText = `
-    width:min(360px,calc(100vw - 24px));border:1px solid #dbe3ee;border-radius:16px;background:#fff;
-    box-shadow:0 24px 70px rgba(15,23,42,0.32);overflow:hidden;
+    width:min(360px,calc(100vw - 24px));border:1px solid var(--tmo-widget-border);border-radius:16px;background:var(--tmo-widget-surface);
+    box-shadow:var(--tmo-widget-shadow);overflow:hidden;color:var(--tmo-widget-ink);
   `;
 
   const header = document.createElement('div');
-  header.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:17px 17px 13px;border-bottom:1px solid #eef2f7;';
+  header.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:17px 17px 13px;border-bottom:1px solid var(--tmo-widget-border);';
   const headingCopy = document.createElement('div');
   headingCopy.style.cssText = 'flex:1;min-width:0;';
   const heading = document.createElement('h2');
   heading.id = 'tmo-application-status-title';
   heading.textContent = 'Application Status';
-  heading.style.cssText = 'margin:0;color:#0f172a;font-size:17px;line-height:1.3;font-weight:800;';
+  heading.style.cssText = 'margin:0;color:var(--tmo-widget-ink);font-size:17px;line-height:1.3;font-weight:800;';
   const description = document.createElement('p');
   description.textContent = `Have you applied for ${job.role_title || 'this job'}?`;
-  description.style.cssText = 'margin:5px 0 0;color:#64748b;font-size:12.5px;line-height:1.45;';
+  description.style.cssText = 'margin:5px 0 0;color:var(--tmo-widget-muted);font-size:12.5px;line-height:1.45;';
   headingCopy.appendChild(heading);
   headingCopy.appendChild(description);
 
@@ -1915,44 +2389,68 @@ function openApplicationStatusDialog(
   close.type = 'button';
   close.setAttribute('aria-label', 'Close application status');
   close.textContent = '×';
-  close.style.cssText = 'width:44px;height:44px;flex:0 0 44px;border:0;border-radius:10px;background:#f1f5f9;color:#334155;font:inherit;font-size:22px;cursor:pointer;';
+  close.style.cssText = 'width:44px;height:44px;flex:0 0 44px;border:0;border-radius:10px;background:var(--tmo-widget-surface-2);color:var(--tmo-widget-ink);font:inherit;font-size:22px;cursor:pointer;';
   header.appendChild(headingCopy);
   header.appendChild(close);
 
   const body = document.createElement('div');
   body.style.cssText = 'display:grid;gap:9px;padding:15px 17px 17px;';
 
+  if (duplicate) {
+    const notice = formatDuplicateApplicationNotice(duplicate);
+    const warning = document.createElement('div');
+    warning.setAttribute('role', 'note');
+    warning.style.cssText = `
+      display:flex;align-items:flex-start;gap:8px;padding:10px 11px;border:1px solid var(--tmo-widget-warning-border);
+      border-radius:10px;background:var(--tmo-widget-warning-surface);color:var(--tmo-widget-warning-ink);font-size:12px;line-height:1.45;
+    `;
+    const warningIcon = document.createElement('span');
+    warningIcon.style.cssText = 'display:flex;flex:0 0 auto;margin-top:2px;';
+    warningIcon.innerHTML = icon('info', 14, 'currentColor');
+    const warningCopy = document.createElement('span');
+    warningCopy.append('You applied to ');
+    const duplicateRole = document.createElement('strong');
+    duplicateRole.textContent = notice.roleTitle || 'a similar role';
+    warningCopy.appendChild(duplicateRole);
+    warningCopy.append(` at ${notice.companyName || 'this company'}`);
+    if (notice.dateLabel) warningCopy.append(` on ${notice.dateLabel}`);
+    warningCopy.append('. You can still save this posting.');
+    warning.appendChild(warningIcon);
+    warning.appendChild(warningCopy);
+    body.appendChild(warning);
+  }
+
   const option = (status: ApplicationSaveStatus, label: string, hint: string): HTMLButtonElement => {
     const button = document.createElement('button');
     button.type = 'button';
     button.style.cssText = `
-      width:100%;min-height:58px;padding:11px 12px;border:1px solid #dbe3ee;border-radius:11px;
-      background:#fff;color:#0f172a;display:flex;align-items:center;gap:11px;text-align:left;font:inherit;cursor:pointer;
+      width:100%;min-height:58px;padding:11px 12px;border:1px solid var(--tmo-widget-border);border-radius:11px;
+      background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);display:flex;align-items:center;gap:11px;text-align:left;font:inherit;cursor:pointer;
       transition:border-color 180ms ease,background 180ms ease,box-shadow 180ms ease;
     `;
     const marker = document.createElement('span');
-    marker.style.cssText = 'width:18px;height:18px;flex:0 0 18px;border:2px solid #94a3b8;border-radius:50%;box-shadow:inset 0 0 0 4px #fff;';
+    marker.style.cssText = 'width:18px;height:18px;flex:0 0 18px;border:2px solid var(--tmo-widget-muted);border-radius:50%;box-shadow:inset 0 0 0 4px var(--tmo-widget-surface);';
     const copy = document.createElement('span');
     copy.style.cssText = 'min-width:0;display:block;';
     const labelEl = document.createElement('strong');
     labelEl.textContent = label;
-    labelEl.style.cssText = 'display:block;color:#0f172a;font-size:13.5px;line-height:1.3;';
+    labelEl.style.cssText = 'display:block;color:var(--tmo-widget-ink);font-size:13.5px;line-height:1.3;';
     const hintEl = document.createElement('span');
     hintEl.textContent = hint;
-    hintEl.style.cssText = 'display:block;margin-top:3px;color:#64748b;font-size:11.5px;line-height:1.35;';
+    hintEl.style.cssText = 'display:block;margin-top:3px;color:var(--tmo-widget-muted);font-size:11.5px;line-height:1.35;';
     copy.appendChild(labelEl);
     copy.appendChild(hintEl);
     button.appendChild(marker);
     button.appendChild(copy);
     button.addEventListener('mouseenter', () => {
-      button.style.borderColor = '#2563eb';
-      button.style.background = '#eff6ff';
-      marker.style.borderColor = '#2563eb';
+      button.style.borderColor = 'var(--tmo-widget-accent)';
+      button.style.background = 'var(--tmo-widget-info-surface)';
+      marker.style.borderColor = 'var(--tmo-widget-accent)';
     });
     button.addEventListener('mouseleave', () => {
-      button.style.borderColor = '#dbe3ee';
-      button.style.background = '#fff';
-      marker.style.borderColor = '#94a3b8';
+      button.style.borderColor = 'var(--tmo-widget-border)';
+      button.style.background = 'var(--tmo-widget-surface)';
+      marker.style.borderColor = 'var(--tmo-widget-muted)';
     });
     button.addEventListener('focus', () => (button.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.18)'));
     button.addEventListener('blur', () => (button.style.boxShadow = 'none'));
@@ -2009,20 +2507,348 @@ function openApplicationStatusDialog(
   notApplied.focus();
 }
 
+// ── Analyze with AI (in-widget ATS fit) ─────────────────────────────────────
+
+interface AnalyzeJobFitResponse {
+  ok: boolean;
+  error?: string;
+  matchScore?: number;
+  matchedKeywords?: string[];
+  missingKeywords?: string[];
+  gapSummary?: string;
+  resumeName?: string;
+}
+
+/** Simple centered message inside the analysis dialog body. */
+function renderAiMessage(body: HTMLElement, message: string): void {
+  body.textContent = '';
+  const p = document.createElement('p');
+  p.textContent = message;
+  p.style.cssText = 'margin:0;color:var(--tmo-widget-muted);font-size:13px;line-height:1.5;';
+  body.appendChild(p);
+}
+
+/** Error / empty states, with an action button where one helps. */
+function renderAiError(body: HTMLElement, error: string, card: HTMLElement, job: JobInfo): void {
+  body.textContent = '';
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
+  const p = document.createElement('p');
+  p.style.cssText = 'margin:0;color:var(--tmo-widget-muted);font-size:13px;line-height:1.5;';
+
+  let action: HTMLButtonElement | null = null;
+  const actionBtnStyled = (labelText: string): HTMLButtonElement => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = labelText;
+    b.style.cssText =
+      'align-self:flex-start;padding:9px 14px;border:0;border-radius:10px;background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;font:inherit;font-size:12.5px;font-weight:750;cursor:pointer;';
+    return b;
+  };
+
+  switch (error) {
+    case 'not_signed_in':
+      p.textContent = 'Sign in from the TrackMyOPT extension icon to analyze this job against your resume.';
+      break;
+    case 'no_base_resume':
+      p.textContent = 'Save a base resume on TrackMyOPT first, then come back to see your ATS match for this job.';
+      action = actionBtnStyled('Open resume generator');
+      action.addEventListener('click', () => {
+        window.open(`${WEBSITE_URL}/dashboard/career/resume-generator`, '_blank', 'noopener,noreferrer');
+      });
+      break;
+    case 'no_job_description':
+      p.textContent = "We couldn't read enough of this posting to analyze it. Open the full job description on the page, then try again.";
+      break;
+    case 'limit_reached':
+      p.textContent = "You've reached this month's AI analysis limit. It resets next month, or upgrade for more.";
+      action = actionBtnStyled('See plans');
+      action.addEventListener('click', () => {
+        window.open(`${WEBSITE_URL}/pricing`, '_blank', 'noopener,noreferrer');
+      });
+      break;
+    default:
+      p.textContent = 'Something went wrong analyzing this job. Please try again in a moment.';
+  }
+
+  wrap.appendChild(p);
+  if (action) wrap.appendChild(action);
+  body.appendChild(wrap);
+}
+
+/** Render the score ring, missing-keyword chips, and the resume-generator chain. */
+function renderAiResult(
+  body: HTMLElement,
+  res: AnalyzeJobFitResponse,
+  card: HTMLElement,
+  job: JobInfo,
+  closeDialog: () => void,
+): void {
+  body.textContent = '';
+  const score = typeof res.matchScore === 'number' ? res.matchScore : 0;
+  rememberJobFitScore(job, score);
+  const matched = Array.isArray(res.matchedKeywords) ? res.matchedKeywords : [];
+  const missing = Array.isArray(res.missingKeywords) ? res.missingKeywords : [];
+  const color = score >= 75 ? '#16a34a' : score >= 50 ? '#f59e0b' : '#ef4444';
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:14px;';
+
+  // Score ring + label
+  const top = document.createElement('div');
+  top.style.cssText = 'display:flex;align-items:center;gap:14px;';
+  const ring = document.createElement('div');
+  ring.style.cssText = 'position:relative;width:84px;height:84px;flex:0 0 84px;';
+  const circumference = 2 * Math.PI * 34;
+  const offset = circumference * (1 - score / 100);
+  ring.innerHTML = `
+    <svg width="84" height="84" viewBox="0 0 84 84" aria-hidden="true">
+      <circle cx="42" cy="42" r="34" fill="none" stroke="var(--tmo-widget-border)" stroke-width="8"></circle>
+      <circle cx="42" cy="42" r="34" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round"
+        stroke-dasharray="${circumference.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"
+        transform="rotate(-90 42 42)"></circle>
+    </svg>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:800;color:var(--tmo-widget-ink);">${score}</div>`;
+  const topText = document.createElement('div');
+  topText.style.cssText = 'min-width:0;';
+  const topTitle = document.createElement('div');
+  topTitle.textContent = 'ATS match score';
+  topTitle.style.cssText = 'font-size:14px;font-weight:800;color:var(--tmo-widget-ink);';
+  const topSub = document.createElement('div');
+  topSub.textContent = `vs ${res.resumeName || 'your saved resume'}`;
+  topSub.style.cssText = 'font-size:12px;color:var(--tmo-widget-muted);margin-top:3px;overflow-wrap:anywhere;';
+  topText.appendChild(topTitle);
+  topText.appendChild(topSub);
+  top.appendChild(ring);
+  top.appendChild(topText);
+  wrap.appendChild(top);
+
+  // Matched keywords
+  if (matched.length > 0) {
+    const matchedSection = document.createElement('div');
+    const matchedHeading = document.createElement('div');
+    matchedHeading.textContent = `Matched keywords (${matched.length})`;
+    matchedHeading.style.cssText = 'font-size:11.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--tmo-widget-muted);margin-bottom:8px;';
+    const matchedChips = document.createElement('div');
+    matchedChips.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
+    for (const kw of matched) {
+      const chip = document.createElement('span');
+      chip.textContent = kw;
+      chip.style.cssText =
+        'padding:4px 9px;border-radius:999px;background:var(--tmo-widget-success-surface);color:var(--tmo-widget-success-ink);border:1px solid var(--tmo-widget-success-border);font-size:11.5px;font-weight:700;';
+      matchedChips.appendChild(chip);
+    }
+    matchedSection.appendChild(matchedHeading);
+    matchedSection.appendChild(matchedChips);
+    wrap.appendChild(matchedSection);
+  }
+
+  // Missing keywords
+  const kwSection = document.createElement('div');
+  const kwHeading = document.createElement('div');
+  kwHeading.style.cssText = 'font-size:11.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--tmo-widget-muted);margin-bottom:8px;';
+  if (missing.length > 0) {
+    kwHeading.textContent = `Missing keywords (${missing.length})`;
+    kwSection.appendChild(kwHeading);
+    const chips = document.createElement('div');
+    chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
+    for (const kw of missing) {
+      const chip = document.createElement('span');
+      chip.textContent = kw;
+      chip.style.cssText =
+        'padding:4px 9px;border-radius:999px;background:var(--tmo-widget-warning-surface);color:var(--tmo-widget-warning-ink);border:1px solid var(--tmo-widget-warning-border);font-size:11.5px;font-weight:700;';
+      chips.appendChild(chip);
+    }
+    kwSection.appendChild(chips);
+  } else {
+    kwHeading.textContent = 'Keyword coverage';
+    kwSection.appendChild(kwHeading);
+    const ok = document.createElement('p');
+    ok.textContent = 'No major keyword gaps detected — your resume covers this posting well.';
+    ok.style.cssText = 'margin:0;color:var(--tmo-widget-success-ink);font-size:12.5px;line-height:1.45;font-weight:600;';
+    kwSection.appendChild(ok);
+  }
+  wrap.appendChild(kwSection);
+
+  // Gap summary (optional)
+  if (res.gapSummary && res.gapSummary.trim()) {
+    const summary = document.createElement('p');
+    summary.textContent = res.gapSummary.trim();
+    summary.style.cssText = 'margin:0;color:var(--tmo-widget-muted);font-size:12.5px;line-height:1.5;';
+    wrap.appendChild(summary);
+  }
+
+  // Chain into the resume generator
+  const chain = document.createElement('button');
+  chain.type = 'button';
+  chain.innerHTML = `<span>${missing.length > 0 ? 'Add these to a tailored resume' : 'Generate a tailored resume'}</span>${icon('chevronRight', 16, '#fff')}`;
+  chain.style.cssText =
+    'display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;margin-top:2px;padding:11px 14px;border:0;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(16,185,129,0.3);';
+  chain.addEventListener('click', () => {
+    closeDialog();
+    openResumeChooser(card, job, missing);
+  });
+  wrap.appendChild(chain);
+
+  body.appendChild(wrap);
+}
+
+/**
+ * In-widget ATS fit analysis: score ring + missing-keyword chips against the
+ * user's base resume, chaining into the resume generator. Backed by the live
+ * /api/resume-generator/analyze-gap route (Bearer stays in the background).
+ */
+function openAiAnalysis(card: HTMLElement, job: JobInfo): void {
+  document.getElementById('tmo-ai-analysis')?.remove();
+  // Capture the posting text before mounting our modal so our own UI can never
+  // leak into the analyzed job description.
+  const jobDescription = scrapeJobDescription();
+  const returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'tmo-ai-analysis';
+  applyWidgetThemeScope(overlay);
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:2147483647;background:var(--tmo-widget-overlay);
+    display:flex;align-items:center;justify-content:center;padding:16px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  `;
+  const dialog = document.createElement('div');
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-modal', 'true');
+  dialog.setAttribute('aria-labelledby', 'tmo-ai-dialog-title');
+  dialog.style.cssText = `
+    width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 32px);overflow:auto;
+    border:1px solid var(--tmo-widget-border);border-radius:16px;background:var(--tmo-widget-surface);box-shadow:var(--tmo-widget-shadow);color:var(--tmo-widget-ink);
+  `;
+
+  const dialogHeader = document.createElement('div');
+  dialogHeader.style.cssText = 'display:flex;align-items:flex-start;gap:12px;padding:18px 18px 14px;border-bottom:1px solid var(--tmo-widget-border);';
+  const headerCopy = document.createElement('div');
+  headerCopy.style.cssText = 'flex:1;min-width:0;';
+  const heading = document.createElement('h2');
+  heading.id = 'tmo-ai-dialog-title';
+  heading.textContent = 'Analyze with AI';
+  heading.style.cssText = 'margin:0;color:var(--tmo-widget-ink);font-size:17px;line-height:1.3;font-weight:800;letter-spacing:-0.02em;';
+  const description = document.createElement('p');
+  description.textContent = 'How your saved resume scores against this posting.';
+  description.style.cssText = 'margin:5px 0 0;color:var(--tmo-widget-muted);font-size:12.5px;line-height:1.45;';
+  headerCopy.appendChild(heading);
+  headerCopy.appendChild(description);
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.setAttribute('aria-label', 'Close analysis');
+  close.textContent = '×';
+  close.style.cssText = 'width:44px;height:44px;flex-shrink:0;border:0;border-radius:10px;background:var(--tmo-widget-surface-2);color:var(--tmo-widget-ink);font-size:22px;line-height:1;cursor:pointer;';
+  dialogHeader.appendChild(headerCopy);
+  dialogHeader.appendChild(close);
+
+  const body = document.createElement('div');
+  body.style.cssText = 'padding:16px 18px 18px;';
+  body.setAttribute('aria-live', 'polite');
+
+  dialog.appendChild(dialogHeader);
+  dialog.appendChild(body);
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+  ensureSpinKeyframes();
+
+  const cleanup = () => {
+    document.removeEventListener('keydown', onKeyDown, true);
+    try { overlay.hidePopover?.(); } catch { /* already closed */ }
+    overlay.remove();
+    returnFocusTo?.focus();
+  };
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      cleanup();
+    }
+  };
+  document.addEventListener('keydown', onKeyDown, true);
+  close.addEventListener('click', cleanup);
+  overlay.addEventListener('click', (event) => {
+    if (event.target === overlay) cleanup();
+  });
+  try { overlay.showPopover?.(); } catch { overlay.removeAttribute('popover'); }
+  close.focus();
+
+  if (jobDescription.trim().length < 200) {
+    trackWidgetAnalytics('extension_widget_job_analyzed', {
+      outcome: 'no_job_description',
+      error_code: 'no_job_description',
+    });
+    renderAiError(body, 'no_job_description', card, job);
+    return;
+  }
+
+  const loading = document.createElement('div');
+  loading.style.cssText = 'display:flex;align-items:center;gap:9px;min-height:88px;color:var(--tmo-widget-muted);font-size:13px;';
+  const spinner = document.createElement('span');
+  spinner.style.cssText = 'width:17px;height:17px;border:2px solid var(--tmo-widget-border);border-top-color:#6366f1;border-radius:50%;animation:tmo-spin .8s linear infinite;';
+  loading.appendChild(spinner);
+  loading.append('Scoring your resume against this job…');
+  body.appendChild(loading);
+
+  chrome.runtime.sendMessage(
+    { type: 'ANALYZE_JOB_FIT', jobDescription },
+    (res: AnalyzeJobFitResponse | undefined) => {
+      if (chrome.runtime.lastError) {
+        trackWidgetAnalytics('extension_widget_job_analyzed', {
+          outcome: 'error',
+          error_code: 'runtime',
+        });
+        renderAiError(body, 'error', card, job);
+        return;
+      }
+      if (!res || !res.ok) {
+        const errorCode = res?.error || 'unknown';
+        trackWidgetAnalytics('extension_widget_job_analyzed', {
+          outcome: errorCode === 'limit_reached'
+            ? 'limit'
+            : errorCode === 'not_signed_in'
+              ? 'not_signed_in'
+              : errorCode === 'no_base_resume'
+                ? 'no_base_resume'
+                : errorCode === 'no_job_description'
+                  ? 'no_job_description'
+                  : 'error',
+          error_code: errorCode === 'limit_reached'
+            ? 'limit'
+            : errorCode === 'base_failed' || errorCode === 'analyze_failed'
+              ? 'analyze_failed'
+              : errorCode,
+        });
+        renderAiError(body, res?.error || 'error', card, job);
+        return;
+      }
+      trackWidgetAnalytics('extension_widget_job_analyzed', {
+        outcome: 'success',
+        score: res.matchScore,
+        matched_keywords_count: res.matchedKeywords?.length ?? 0,
+        missing_keywords_count: res.missingKeywords?.length ?? 0,
+      });
+      renderAiResult(body, res, card, job, cleanup);
+    },
+  );
+}
+
 /** Explicit resume/template chooser displayed before any generation starts. */
-function openResumeChooser(card: HTMLElement, job: JobInfo): void {
+function openResumeChooser(card: HTMLElement, job: JobInfo, analyzedMissingKeywords: string[] = []): void {
   document.getElementById('tmo-resume-chooser')?.remove();
   // Capture before mounting TrackMyOPT's modal so extension UI can never enter
   // the job-description payload or preview.
   const jobDescription = scrapeJobDescription();
+  const focusKeywords = [...new Set(analyzedMissingKeywords.map((keyword) => keyword.trim()).filter(Boolean))].slice(0, 12);
   const returnFocusTo = document.activeElement instanceof HTMLElement
     ? document.activeElement
     : null;
 
   const overlay = document.createElement('div');
   overlay.id = 'tmo-resume-chooser';
+  applyWidgetThemeScope(overlay);
   overlay.style.cssText = `
-    position:fixed;inset:0;z-index:2147483647;background:rgba(15,23,42,0.48);
+    position:fixed;inset:0;z-index:2147483647;background:var(--tmo-widget-overlay);
     display:flex;align-items:center;justify-content:center;padding:16px;
     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   `;
@@ -2032,27 +2858,27 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
   dialog.setAttribute('aria-labelledby', 'tmo-resume-dialog-title');
   dialog.style.cssText = `
     width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 32px);overflow:auto;
-    border:1px solid #dbe3ee;border-radius:16px;background:#fff;box-shadow:0 24px 70px rgba(15,23,42,0.32);
+    border:1px solid var(--tmo-widget-border);border-radius:16px;background:var(--tmo-widget-surface);box-shadow:var(--tmo-widget-shadow);color:var(--tmo-widget-ink);
   `;
 
   const dialogHeader = document.createElement('div');
-  dialogHeader.style.cssText = 'display:flex;align-items:flex-start;gap:12px;padding:18px 18px 14px;border-bottom:1px solid #eef2f7;';
+  dialogHeader.style.cssText = 'display:flex;align-items:flex-start;gap:12px;padding:18px 18px 14px;border-bottom:1px solid var(--tmo-widget-border);';
   const headerCopy = document.createElement('div');
   headerCopy.style.cssText = 'flex:1;min-width:0;';
   const heading = document.createElement('h2');
   heading.id = 'tmo-resume-dialog-title';
   heading.textContent = 'Generate custom resume';
-  heading.style.cssText = 'margin:0;color:#0f172a;font-size:17px;line-height:1.3;font-weight:800;letter-spacing:-0.02em;';
+  heading.style.cssText = 'margin:0;color:var(--tmo-widget-ink);font-size:17px;line-height:1.3;font-weight:800;letter-spacing:-0.02em;';
   const description = document.createElement('p');
   description.textContent = 'Choose the resume and template to tailor for this job.';
-  description.style.cssText = 'margin:5px 0 0;color:#64748b;font-size:12.5px;line-height:1.45;';
+  description.style.cssText = 'margin:5px 0 0;color:var(--tmo-widget-muted);font-size:12.5px;line-height:1.45;';
   headerCopy.appendChild(heading);
   headerCopy.appendChild(description);
   const close = document.createElement('button');
   close.type = 'button';
   close.setAttribute('aria-label', 'Close resume generator');
   close.textContent = '×';
-  close.style.cssText = 'width:44px;height:44px;flex-shrink:0;border:0;border-radius:10px;background:#f1f5f9;color:#334155;font-size:22px;line-height:1;cursor:pointer;';
+  close.style.cssText = 'width:44px;height:44px;flex-shrink:0;border:0;border-radius:10px;background:var(--tmo-widget-surface-2);color:var(--tmo-widget-ink);font-size:22px;line-height:1;cursor:pointer;';
   dialogHeader.appendChild(headerCopy);
   dialogHeader.appendChild(close);
 
@@ -2060,9 +2886,9 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
   body.style.cssText = 'padding:16px 18px 18px;';
   body.setAttribute('aria-live', 'polite');
   const loading = document.createElement('div');
-  loading.style.cssText = 'display:flex;align-items:center;gap:9px;min-height:88px;color:#475569;font-size:13px;';
+  loading.style.cssText = 'display:flex;align-items:center;gap:9px;min-height:88px;color:var(--tmo-widget-muted);font-size:13px;';
   const spinner = document.createElement('span');
-  spinner.style.cssText = 'width:17px;height:17px;border:2px solid #cbd5e1;border-top-color:#2563eb;border-radius:50%;animation:tmo-spin .8s linear infinite;';
+  spinner.style.cssText = 'width:17px;height:17px;border:2px solid var(--tmo-widget-border);border-top-color:var(--tmo-widget-accent);border-radius:50%;animation:tmo-spin .8s linear infinite;';
   loading.appendChild(spinner);
   loading.append('Loading your saved resumes…');
   body.appendChild(loading);
@@ -2132,14 +2958,14 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
       const resumes = response.resumes ?? [];
       if (resumes.length === 0) {
         const message = document.createElement('p');
-        message.style.cssText = 'margin:0 0 12px;color:#475569;font-size:13px;line-height:1.5;';
+        message.style.cssText = 'margin:0 0 12px;color:var(--tmo-widget-muted);font-size:13px;line-height:1.5;';
         message.textContent = response.accountEmail
           ? `No saved resumes were found for ${response.accountEmail}. Make sure the extension and TrackMyOPT website use the same account.`
           : 'No saved resumes were found for this extension account. Make sure the extension and TrackMyOPT website use the same account.';
         const refresh = resumeMiniBtn('<span>Check again</span>', false);
         refresh.addEventListener('click', () => {
           cleanup();
-          openResumeChooser(card, job);
+          openResumeChooser(card, job, focusKeywords);
         });
         const open = resumeMiniBtn('<span>Open resume generator</span>', true);
         open.addEventListener('click', () => {
@@ -2176,8 +3002,14 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
       templateGroup.appendChild(templateSelect);
 
       const jobContext = document.createElement('div');
-      jobContext.style.cssText = 'margin-top:15px;padding:10px 11px;border:1px solid #dbeafe;border-radius:9px;background:#eff6ff;color:#1e3a8a;font-size:12px;line-height:1.45;';
+      jobContext.style.cssText = 'margin-top:15px;padding:10px 11px;border:1px solid var(--tmo-widget-info-border);border-radius:9px;background:var(--tmo-widget-info-surface);color:var(--tmo-widget-info-ink);font-size:12px;line-height:1.45;';
       jobContext.textContent = [job.role_title, job.company_name].filter(Boolean).join(' at ') || 'Current job posting';
+
+      const analysisContext = document.createElement('div');
+      if (focusKeywords.length > 0) {
+        analysisContext.style.cssText = 'margin-top:10px;padding:10px 11px;border:1px solid var(--tmo-widget-warning-border);border-radius:9px;background:var(--tmo-widget-warning-surface);color:var(--tmo-widget-warning-ink);font-size:11.5px;line-height:1.45;';
+        analysisContext.textContent = `AI focus keywords: ${focusKeywords.join(', ')}`;
+      }
 
       const jdSection = document.createElement('div');
       jdSection.style.cssText = 'margin-top:15px;';
@@ -2185,10 +3017,10 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
       jdHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;';
       const jdLabel = document.createElement('span');
       jdLabel.textContent = 'Job description sent for tailoring';
-      jdLabel.style.cssText = 'color:#0f172a;font-size:12.5px;font-weight:750;';
+      jdLabel.style.cssText = 'color:var(--tmo-widget-ink);font-size:12.5px;font-weight:750;';
       const jdCount = document.createElement('span');
       jdCount.textContent = `${jobDescription.length.toLocaleString()} characters`;
-      jdCount.style.cssText = 'flex-shrink:0;color:#94a3b8;font-size:10.5px;font-weight:600;';
+      jdCount.style.cssText = 'flex-shrink:0;color:var(--tmo-widget-muted);font-size:10.5px;font-weight:600;';
       jdHeader.appendChild(jdLabel);
       jdHeader.appendChild(jdCount);
       const jdPreview = document.createElement('div');
@@ -2197,16 +3029,16 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
       jdPreview.tabIndex = 0;
       jdPreview.textContent = jobDescription || 'No job description was detected on this page.';
       jdPreview.style.cssText = `
-        max-height:132px;overflow:auto;padding:10px 11px;border:1px solid #dbe3ee;border-radius:9px;
-        background:#f8fafc;color:#475569;font-size:11.5px;line-height:1.48;white-space:pre-wrap;
+        max-height:132px;overflow:auto;padding:10px 11px;border:1px solid var(--tmo-widget-border);border-radius:9px;
+        background:var(--tmo-widget-surface-2);color:var(--tmo-widget-muted);font-size:11.5px;line-height:1.48;white-space:pre-wrap;
         overflow-wrap:anywhere;scrollbar-width:thin;
       `;
       jdPreview.addEventListener('focus', () => {
-        jdPreview.style.borderColor = '#2563eb';
+        jdPreview.style.borderColor = 'var(--tmo-widget-accent)';
         jdPreview.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.14)';
       });
       jdPreview.addEventListener('blur', () => {
-        jdPreview.style.borderColor = '#dbe3ee';
+        jdPreview.style.borderColor = 'var(--tmo-widget-border)';
         jdPreview.style.boxShadow = 'none';
       });
       jdSection.appendChild(jdHeader);
@@ -2222,7 +3054,15 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
         const templateId = templateSelect.value;
         if (!resumeId || !templateId) return;
         cleanup();
-        openResumePanel(card, job, resumeId, templateId, jobDescription);
+        openResumePanel(
+          card,
+          job,
+          resumeId,
+          templateId,
+          jobDescription,
+          focusKeywords,
+          rememberedJobFitScore(job),
+        );
       });
       actions.appendChild(cancel);
       actions.appendChild(generate);
@@ -2231,11 +3071,36 @@ function openResumeChooser(card: HTMLElement, job: JobInfo): void {
       body.appendChild(resumeSelect);
       body.appendChild(templateGroup);
       body.appendChild(jobContext);
+      if (focusKeywords.length > 0) body.appendChild(analysisContext);
       body.appendChild(jdSection);
       body.appendChild(actions);
       resumeSelect.focus();
     }
   );
+}
+
+/**
+ * Adds a small dismiss (×) to a terminal resume panel. While a panel is present
+ * the widget is held stable (isWidgetInteractionInFlight), so the user needs a
+ * way to close a finished result and let the widget follow them to a new job.
+ */
+function addResumePanelDismiss(panel: HTMLElement): void {
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.setAttribute('aria-label', 'Dismiss resume panel');
+  close.title = 'Dismiss';
+  close.textContent = '×';
+  close.style.cssText =
+    'position:absolute;top:8px;right:8px;width:22px;height:22px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--tmo-widget-muted);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;';
+  close.addEventListener('mouseenter', () => (close.style.background = 'var(--tmo-widget-surface)'));
+  close.addEventListener('mouseleave', () => (close.style.background = 'transparent'));
+  close.addEventListener('click', () => {
+    panel.remove();
+    // Reconcile now that the interaction is over — the widget can follow the
+    // user to whatever job they navigated to while the panel was open.
+    scheduleInject();
+  });
+  panel.appendChild(close);
 }
 
 function renderResumeError(panel: HTMLElement, message: string): void {
@@ -2250,12 +3115,13 @@ function renderResumeError(panel: HTMLElement, message: string): void {
   row.appendChild(ic);
   row.appendChild(t);
   panel.appendChild(row);
+  addResumePanelDismiss(panel);
 }
 
 function renderResumeNeedBase(panel: HTMLElement): void {
   panel.textContent = '';
   const t = document.createElement('div');
-  t.style.cssText = 'font-size:12px;color:#334155;margin-bottom:8px;';
+  t.style.cssText = 'font-size:12px;color:var(--tmo-widget-ink);margin-bottom:8px;';
   t.textContent = 'Save a base resume on TrackMyOPT first, then generate a tailored one here.';
   const btn = resumeMiniBtn('Open resume generator', true);
   btn.addEventListener('click', () => {
@@ -2263,13 +3129,19 @@ function renderResumeNeedBase(panel: HTMLElement): void {
   });
   panel.appendChild(t);
   panel.appendChild(btn);
+  addResumePanelDismiss(panel);
 }
 
 function renderResumeResult(
   panel: HTMLElement,
   pdfBase64: string,
   job: JobInfo,
-  editorUrl?: string
+  editorUrl?: string,
+  scores?: {
+    baselineScore?: number;
+    generatedScore?: number;
+    scoreError?: 'limit_reached' | 'scan_failed';
+  },
 ): void {
   panel.textContent = '';
   const head = document.createElement('div');
@@ -2283,6 +3155,46 @@ function renderResumeResult(
   head.appendChild(hi);
   head.appendChild(ht);
   panel.appendChild(head);
+
+  const comparison = buildScoreComparison(scores?.baselineScore, scores?.generatedScore);
+  if (comparison) {
+    const scoreCard = document.createElement('div');
+    scoreCard.style.cssText = `
+      margin:0 0 10px;padding:10px 11px;border:1px solid ${comparison.improved ? 'var(--tmo-widget-success-border)' : 'var(--tmo-widget-border)'};
+      border-radius:10px;background:${comparison.improved ? 'var(--tmo-widget-success-surface)' : 'var(--tmo-widget-surface)'};
+    `;
+    const scoreLine = document.createElement('div');
+    scoreLine.style.cssText = `
+      display:flex;align-items:center;gap:7px;color:${comparison.improved ? 'var(--tmo-widget-success-ink)' : 'var(--tmo-widget-ink)'};
+      font-size:13px;font-weight:800;
+    `;
+    const scoreIcon = document.createElement('span');
+    scoreIcon.style.cssText = 'display:flex;flex:0 0 auto;';
+    scoreIcon.innerHTML = icon(comparison.improved ? 'sparkles' : 'info', 15, 'currentColor');
+    const scoreCopy = document.createElement('span');
+    scoreCopy.textContent = comparison.baseline === undefined
+      ? `Generated resume ATS score: ${comparison.generated}`
+      : `ATS score ${comparison.baseline} → ${comparison.generated}`;
+    scoreLine.appendChild(scoreIcon);
+    scoreLine.appendChild(scoreCopy);
+    scoreCard.appendChild(scoreLine);
+    if (comparison.baseline !== undefined) {
+      const scoreDetail = document.createElement('div');
+      scoreDetail.textContent = comparison.improved
+        ? `+${comparison.delta} after tailoring`
+        : 'No score gain detected — review the tailored resume before applying.';
+      scoreDetail.style.cssText = 'margin:4px 0 0 22px;color:var(--tmo-widget-muted);font-size:11.5px;line-height:1.4;';
+      scoreCard.appendChild(scoreDetail);
+    }
+    panel.appendChild(scoreCard);
+  } else if (scores?.scoreError) {
+    const scoreNote = document.createElement('p');
+    scoreNote.style.cssText = 'margin:0 0 10px;color:var(--tmo-widget-muted);font-size:11.5px;line-height:1.45;';
+    scoreNote.textContent = scores.scoreError === 'limit_reached'
+      ? 'Resume ready. ATS comparison is unavailable because your monthly scan limit was reached.'
+      : 'Resume ready. ATS comparison could not be completed this time.';
+    panel.appendChild(scoreNote);
+  }
 
   const row = document.createElement('div');
   row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
@@ -2320,6 +3232,7 @@ function renderResumeResult(
   row.appendChild(dl);
   row.appendChild(ed);
   panel.appendChild(row);
+  addResumePanelDismiss(panel);
 }
 
 /** Opens the in-card resume-generation panel: countdown → result / error. */
@@ -2329,6 +3242,8 @@ function openResumePanel(
   resumeId: string,
   templateId: string,
   jobDescription: string,
+  focusKeywords: string[] = [],
+  baselineScore?: number,
 ): void {
   card.querySelector('.' + RESUME_PANEL_CLASS)?.remove();
   ensureSpinKeyframes();
@@ -2337,26 +3252,26 @@ function openResumePanel(
   panel.className = RESUME_PANEL_CLASS;
   panel.setAttribute('role', 'status');
   panel.setAttribute('aria-live', 'polite');
-  panel.style.cssText = 'padding:14px;border-top:1px solid #e2e8f0;background:#f8fafc;';
+  panel.style.cssText = 'position:relative;padding:14px 34px 14px 14px;border-top:1px solid var(--tmo-widget-border);background:var(--tmo-widget-surface-2);';
   card.appendChild(panel);
 
   const line = document.createElement('div');
   line.style.cssText =
-    'display:flex;align-items:center;gap:8px;font-weight:700;color:#0f172a;font-size:12px;';
+    'display:flex;align-items:center;gap:8px;font-weight:700;color:var(--tmo-widget-ink);font-size:12px;';
   const spinner = document.createElement('div');
   spinner.style.cssText =
-    'width:14px;height:14px;flex-shrink:0;border:2px solid #cbd5e1;border-top-color:#2563eb;border-radius:50%;animation:tmo-spin 0.8s linear infinite;';
+    'width:14px;height:14px;flex-shrink:0;border:2px solid var(--tmo-widget-border);border-top-color:var(--tmo-widget-accent);border-radius:50%;animation:tmo-spin 0.8s linear infinite;';
   const msg = document.createElement('span');
   msg.textContent = 'Tailoring your resume…';
   const timer = document.createElement('span');
-  timer.style.cssText = 'margin-left:auto;color:#94a3b8;font-weight:600;';
+  timer.style.cssText = 'margin-left:auto;color:var(--tmo-widget-muted);font-weight:600;';
   timer.textContent = '0s';
   line.appendChild(spinner);
   line.appendChild(msg);
   line.appendChild(timer);
 
   const sub = document.createElement('div');
-  sub.style.cssText = 'color:#94a3b8;font-size:11px;margin-top:5px;';
+  sub.style.cssText = 'color:var(--tmo-widget-muted);font-size:11px;margin-top:5px;';
   sub.textContent = 'Matching your saved resume to this job — usually 20–40s.';
 
   panel.appendChild(line);
@@ -2376,6 +3291,8 @@ function openResumePanel(
       templateId,
       companyName: job.company_name || '',
       roleTitle: job.role_title || '',
+      focusKeywords,
+      baselineScore,
     },
     (
       res: {
@@ -2384,17 +3301,54 @@ function openResumePanel(
         detail?: string;
         pdfBase64?: string;
         editorUrl?: string;
+        baselineScore?: number;
+        generatedScore?: number;
+        scoreError?: 'limit_reached' | 'scan_failed';
       } | undefined
     ) => {
       window.clearInterval(interval);
       if (chrome.runtime.lastError) {
+        trackWidgetAnalytics('extension_widget_resume_generated', {
+          outcome: 'error',
+          template_id: templateId,
+          error_code: 'runtime',
+        });
         renderResumeError(panel, 'Something went wrong. Please try again.');
         return;
       }
       if (res?.ok && res.pdfBase64) {
-        renderResumeResult(panel, res.pdfBase64, job, res.editorUrl);
+        const comparison = buildScoreComparison(res.baselineScore, res.generatedScore);
+        trackWidgetAnalytics('extension_widget_resume_generated', {
+          outcome: 'success',
+          template_id: templateId,
+          baseline_score: comparison?.baseline,
+          generated_score: comparison?.generated,
+          score_delta: comparison?.delta,
+        });
+        renderResumeResult(panel, res.pdfBase64, job, res.editorUrl, {
+          baselineScore: res.baselineScore,
+          generatedScore: res.generatedScore,
+          scoreError: res.scoreError,
+        });
         return;
       }
+      trackWidgetAnalytics('extension_widget_resume_generated', {
+        outcome: res?.error === 'limit'
+          ? 'limit'
+          : res?.error === 'not_signed_in'
+            ? 'not_signed_in'
+            : res?.error === 'no_base_resume'
+              ? 'no_base_resume'
+              : res?.error === 'no_job_description'
+                ? 'no_job_description'
+                : 'error',
+        template_id: templateId,
+        error_code: res?.error === 'limit' || res?.error === 'compile_failed'
+          ? res.error
+          : res?.error === 'not_signed_in' || res?.error === 'no_base_resume' || res?.error === 'no_job_description'
+            ? res.error
+            : 'unknown',
+      });
       switch (res?.error) {
         case 'not_signed_in':
           renderResumeError(panel, 'Sign in to TrackMyOPT in the extension first.');
@@ -2439,9 +3393,9 @@ function viewOptionStyle(selected: boolean): string {
     'font-size:12px',
     'font-weight:700',
     'cursor:pointer',
-    selected ? 'background:#2563eb' : 'background:#fff',
-    selected ? 'color:#fff' : 'color:#0f172a',
-    selected ? 'border:1px solid #2563eb' : 'border:1px solid #e2e8f0',
+    selected ? 'background:#2563eb' : 'background:var(--tmo-widget-surface)',
+    selected ? 'color:#fff' : 'color:var(--tmo-widget-ink)',
+    selected ? 'border:1px solid #2563eb' : 'border:1px solid var(--tmo-widget-border)',
   ].join(';');
 }
 
@@ -2494,6 +3448,14 @@ async function injectOrRefreshButton() {
     return;
   }
 
+  // Keep an existing widget exactly as-is while the user is mid-interaction.
+  // Job boards like Workday mutate the DOM and change the URL constantly; without
+  // this guard, a resume generation in progress (or its result) would be wiped
+  // out from under the user by a routine SPA refresh.
+  if (document.getElementById(WIDGET_ROOT_ID) && isWidgetInteractionInFlight()) {
+    return;
+  }
+
   const host = window.location.hostname;
   if (host.includes('linkedin.com') && !isLinkedInJobSurface()) {
     document.getElementById(WIDGET_ROOT_ID)?.remove();
@@ -2501,7 +3463,9 @@ async function injectOrRefreshButton() {
   }
 
   const job = getJobInfo();
-  if (job) saveJobContext(job);
+  // Never overwrite the original posting snapshot with a confirmation page;
+  // auto-add relies on this context after the application flow navigates.
+  if (job && !isApplicationSuccessPage()) saveJobContext(job);
 
   const existing = document.getElementById(WIDGET_ROOT_ID);
   if (!job) {
@@ -2525,6 +3489,10 @@ async function injectOrRefreshButton() {
   const currentWidget = document.getElementById(WIDGET_ROOT_ID);
   if (currentWidget) {
     if (!shouldRefreshWidget(currentWidget, job)) return;
+    // Re-check after the awaits above: a resume generation / analysis / dialog
+    // may have started while this async pass was resolving. Never destroy the
+    // widget out from under an in-flight interaction on any job portal.
+    if (isWidgetInteractionInFlight()) return;
     currentWidget.remove();
   }
 
@@ -2626,8 +3594,12 @@ function setupSpaObservers() {
     if (location.href !== lastUrl) {
       lastUrl = location.href;
       clearWidgetDismissedUrl();
-      const existing = document.getElementById(WIDGET_ROOT_ID);
-      if (existing) existing.remove();
+      // Do NOT tear the widget down here. On SPA job boards (Workday, LinkedIn)
+      // the URL changes constantly; eagerly removing the widget caused it to
+      // flicker open/closed and destroyed any in-progress resume generation.
+      // injectOrRefreshButton reconciles instead — it refreshes the card when
+      // the job actually changed, removes it when there is no job, keeps it
+      // (and any in-flight work) otherwise.
       scheduleInject();
       runSuccessCheckDebounced();
     } else {

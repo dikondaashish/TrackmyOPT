@@ -1,0 +1,214 @@
+export const WIDGET_TOKENS = {
+  light: {
+    background: '#f6f8fb',
+    surface: '#ffffff',
+    surface2: '#f1f4f9',
+    border: '#e7eaf0',
+    ink: '#0f172a',
+    muted: '#64748b',
+    accent: '#2563eb',
+    accentStrong: '#1e40af',
+    focus: 'rgba(37,99,235,0.35)',
+    shadow: '0 10px 28px rgba(15,23,42,0.18)',
+    overlay: 'rgba(15,23,42,0.48)',
+    successSurface: '#f0fdf4',
+    successBorder: '#bbf7d0',
+    successInk: '#166534',
+    warningSurface: '#fffbeb',
+    warningBorder: '#fde68a',
+    warningInk: '#92400e',
+    dangerSurface: '#fef2f2',
+    dangerBorder: '#fecaca',
+    dangerInk: '#991b1b',
+    infoSurface: '#eff6ff',
+    infoBorder: '#dbeafe',
+    infoInk: '#1e40af',
+  },
+  dark: {
+    background: '#0d1016',
+    surface: '#161b22',
+    surface2: '#1c222c',
+    border: '#262d3a',
+    ink: '#e6eaf2',
+    muted: '#8b95a7',
+    accent: '#5eead4',
+    accentStrong: '#93c5fd',
+    focus: 'rgba(94,234,212,0.38)',
+    shadow: '0 12px 34px rgba(0,0,0,0.48)',
+    overlay: 'rgba(2,6,23,0.72)',
+    successSurface: '#102a22',
+    successBorder: '#215c45',
+    successInk: '#86efac',
+    warningSurface: '#30250f',
+    warningBorder: '#6b4f16',
+    warningInk: '#fde68a',
+    dangerSurface: '#341719',
+    dangerBorder: '#713437',
+    dangerInk: '#fca5a5',
+    infoSurface: '#152641',
+    infoBorder: '#294b75',
+    infoInk: '#93c5fd',
+  },
+} as const;
+
+type WidgetTheme = keyof typeof WIDGET_TOKENS;
+type WidgetTokenName = keyof (typeof WIDGET_TOKENS)['light'];
+
+const CSS_TOKEN_NAMES: Record<WidgetTokenName, string> = {
+  background: 'background',
+  surface: 'surface',
+  surface2: 'surface-2',
+  border: 'border',
+  ink: 'ink',
+  muted: 'muted',
+  accent: 'accent',
+  accentStrong: 'accent-strong',
+  focus: 'focus',
+  shadow: 'shadow',
+  overlay: 'overlay',
+  successSurface: 'success-surface',
+  successBorder: 'success-border',
+  successInk: 'success-ink',
+  warningSurface: 'warning-surface',
+  warningBorder: 'warning-border',
+  warningInk: 'warning-ink',
+  dangerSurface: 'danger-surface',
+  dangerBorder: 'danger-border',
+  dangerInk: 'danger-ink',
+  infoSurface: 'info-surface',
+  infoBorder: 'info-border',
+  infoInk: 'info-ink',
+};
+
+function tokenDeclarations(theme: WidgetTheme): string {
+  return Object.entries(WIDGET_TOKENS[theme])
+    .map(([name, value]) => `--tmo-widget-${CSS_TOKEN_NAMES[name as WidgetTokenName]}:${value}`)
+    .join(';');
+}
+
+export function buildWidgetThemeCss(scopeSelector: string): string {
+  const scope = scopeSelector.trim() || '.tmo-widget-theme-scope';
+  return `
+${scope}{${tokenDeclarations('light')};color-scheme:light;color:var(--tmo-widget-ink)}
+@media (prefers-color-scheme: dark){${scope}{${tokenDeclarations('dark')};color-scheme:dark}}
+${scope}[data-tmo-theme="dark"]{${tokenDeclarations('dark')};color-scheme:dark}
+@media (prefers-reduced-motion: reduce){${scope},${scope} *{scroll-behavior:auto!important;animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
+`;
+}
+
+/** True for opaque CSS colors whose perceived luminance is dark. */
+export function isDarkCssColor(value: string): boolean {
+  const color = value.trim().toLowerCase();
+  let channels: [number, number, number] | null = null;
+  const rgb = color.match(/^rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)(?:\s*,\s*(\d+(?:\.\d+)?))?\s*\)$/);
+  if (rgb) {
+    if (rgb[4] !== undefined && Number(rgb[4]) <= 0.05) return false;
+    channels = [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])];
+  } else {
+    const hex = color.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i)?.[1];
+    if (hex?.length === 3) {
+      channels = [...hex].map((part) => Number.parseInt(part + part, 16)) as [number, number, number];
+    } else if (hex?.length === 6) {
+      channels = [0, 2, 4].map((index) => Number.parseInt(hex.slice(index, index + 2), 16)) as [number, number, number];
+    }
+  }
+  if (!channels || channels.some((channel) => !Number.isFinite(channel))) return false;
+  const [red, green, blue] = channels;
+  return (red * 0.2126 + green * 0.7152 + blue * 0.0722) < 128;
+}
+
+export const WIDGET_ANALYTICS_EVENTS = [
+  'extension_widget_shown',
+  'extension_widget_sponsorship_classified',
+  'extension_widget_job_saved',
+  'extension_widget_prefill_completed',
+  'extension_widget_job_analyzed',
+  'extension_widget_resume_generated',
+] as const;
+
+export type WidgetAnalyticsEvent = (typeof WIDGET_ANALYTICS_EVENTS)[number];
+export type WidgetAnalyticsProperties = Record<string, string | number | boolean | null | undefined>;
+
+const SITE_FAMILIES = [
+  'linkedin', 'indeed', 'glassdoor', 'greenhouse', 'lever', 'workday',
+  'ashby', 'icims', 'smartrecruiters', 'jobvite', 'handshake', 'other',
+] as const;
+
+export function widgetSiteFamily(hostname: string): (typeof SITE_FAMILIES)[number] {
+  const host = hostname.toLowerCase();
+  if (host.includes('linkedin.')) return 'linkedin';
+  if (host.includes('indeed.')) return 'indeed';
+  if (host.includes('glassdoor.')) return 'glassdoor';
+  if (host.includes('greenhouse.') || host.includes('greenhouse.io')) return 'greenhouse';
+  if (host.includes('lever.co')) return 'lever';
+  if (host.includes('myworkdayjobs.') || host.includes('workday.')) return 'workday';
+  if (host.includes('ashbyhq.')) return 'ashby';
+  if (host.includes('icims.')) return 'icims';
+  if (host.includes('smartrecruiters.')) return 'smartrecruiters';
+  if (host.includes('jobvite.')) return 'jobvite';
+  if (host.includes('joinhandshake.')) return 'handshake';
+  return 'other';
+}
+
+const EVENT_KEYS: Record<WidgetAnalyticsEvent, readonly string[]> = {
+  extension_widget_shown: ['site_family', 'default_view'],
+  extension_widget_sponsorship_classified: ['site_family', 'signal', 'refreshed'],
+  extension_widget_job_saved: ['site_family', 'status', 'outcome'],
+  extension_widget_prefill_completed: ['site_family', 'outcome', 'filled', 'skipped', 'total', 'has_resume'],
+  extension_widget_job_analyzed: ['site_family', 'outcome', 'score', 'matched_keywords_count', 'missing_keywords_count', 'error_code'],
+  extension_widget_resume_generated: ['site_family', 'outcome', 'template_id', 'baseline_score', 'generated_score', 'score_delta', 'error_code'],
+};
+
+const ENUM_VALUES: Record<string, readonly string[]> = {
+  site_family: SITE_FAMILIES,
+  default_view: ['expanded', 'minimized'],
+  signal: ['sponsors', 'no_sponsorship', 'unclear'],
+  status: ['Applied', 'Wishlist'],
+  outcome: ['success', 'error', 'limit', 'not_signed_in', 'no_job_description', 'no_base_resume'],
+  template_id: ['professional', 'tech', 'modern', 'academic', 'executive', 'creative'],
+  error_code: ['network', 'runtime', 'not_signed_in', 'no_job_description', 'no_base_resume', 'limit', 'compile_failed', 'analyze_failed', 'unknown'],
+};
+
+const NUMBER_KEYS = new Set([
+  'filled', 'skipped', 'total', 'score', 'matched_keywords_count',
+  'missing_keywords_count', 'baseline_score', 'generated_score',
+]);
+// `score_delta` is signed: a tailored resume can score worse than the baseline,
+// so it must keep its sign instead of being clamped to 0 like the counts above.
+const SIGNED_NUMBER_KEYS = new Set(['score_delta']);
+const BOOLEAN_KEYS = new Set(['has_resume', 'refreshed']);
+
+function boundedInteger(value: unknown, min: number, max: number): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
+  return Math.max(min, Math.min(max, Math.round(value)));
+}
+
+export function normalizeWidgetAnalyticsProperties(
+  event: WidgetAnalyticsEvent,
+  input: unknown,
+): WidgetAnalyticsProperties {
+  const source = input && typeof input === 'object' ? input as Record<string, unknown> : {};
+  const result: WidgetAnalyticsProperties = { source: 'chrome_extension' };
+  for (const key of EVENT_KEYS[event]) {
+    const value = source[key];
+    if (NUMBER_KEYS.has(key)) {
+      const normalized = boundedInteger(value, 0, 500);
+      if (normalized !== undefined) result[key] = normalized;
+      continue;
+    }
+    if (SIGNED_NUMBER_KEYS.has(key)) {
+      const normalized = boundedInteger(value, -100, 100);
+      if (normalized !== undefined) result[key] = normalized;
+      continue;
+    }
+    if (BOOLEAN_KEYS.has(key)) {
+      if (typeof value === 'boolean') result[key] = value;
+      continue;
+    }
+    const allowed = ENUM_VALUES[key];
+    if (!allowed || typeof value !== 'string') continue;
+    const candidate = key === 'site_family' ? value.trim().toLowerCase() : value.trim();
+    if (allowed.includes(candidate)) result[key] = candidate;
+  }
+  return result;
+}

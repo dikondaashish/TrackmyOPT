@@ -28,6 +28,13 @@
  */
 
 import { classifyField, type FieldKind } from './easy-apply-matchers';
+import {
+  summarizePrefillOutcomes,
+  type PrefillControlOutcome,
+  type PrefillCoverageResult,
+} from './prefill-coverage';
+
+export type { PrefillCoverageResult } from './prefill-coverage';
 
 interface AutofillProfile {
   firstName: string;
@@ -60,6 +67,8 @@ const TOAST_ID = 'tmo-easy-apply-toast';
 const FILLABLE_INPUT_TYPES = new Set(['text', 'email', 'tel', 'url', 'number']);
 const RESUME_FILE_FIELD_RE = /\b(resume|résumé|curriculum\s+vitae|cv)\b/i;
 const NON_RESUME_FILE_FIELD_RE = /\b(cover\s+letter|portfolio|photo|headshot|transcript|certificate)\b/i;
+const PREFILL_TARGET_ATTR = 'data-tmo-prefill-target';
+let prefillTargetSequence = 0;
 
 type SearchRoot = Document | ShadowRoot | HTMLElement;
 type FillableControl = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
@@ -144,7 +153,26 @@ function getLabelText(el: HTMLElement): string {
   const fieldWrapper = el.closest<HTMLElement>(
     '[data-automation-id*="formField" i], [data-testid*="field" i], .application-field, .form-field, .field',
   );
-  push(fieldWrapper?.querySelector('label, legend, [data-automation-id*="label" i]')?.textContent);
+  push(
+    fieldWrapper?.querySelector(
+      'label, legend, [data-automation-id*="label" i], [class*="label" i]',
+    )?.textContent,
+  );
+
+  // Last resort: many generic company forms place a plain <span>/<div>/<p>/
+  // <label> caption immediately before the input with no for/aria association.
+  // Read a short, non-interactive preceding sibling as a label signal.
+  if (parts.length === 0) {
+    const prev = el.previousElementSibling;
+    if (
+      prev &&
+      /^(label|span|div|p|strong|b)$/i.test(prev.tagName) &&
+      !prev.querySelector('input, select, textarea, button')
+    ) {
+      const text = prev.textContent?.replace(/\s+/g, ' ').trim() || '';
+      if (text && text.length <= 60) push(text);
+    }
+  }
 
   return parts.join(' ').replace(/\s+/g, ' ').trim();
 }
@@ -492,24 +520,105 @@ export function findApplicationForm(): HTMLElement | null {
   return singleStepScore >= 1 ? singleStep : null;
 }
 
+function isRequiredControl(el: HTMLElement): boolean {
+  return el.hasAttribute('required') || el.getAttribute('aria-required') === 'true';
+}
+
+function requiredControlNeedsUser(el: HTMLElement, container: HTMLElement): boolean {
+  if (!isRequiredControl(el) || !isControlVisible(el)) return false;
+  if (isInputElement(el)) {
+    if (el.disabled || el.readOnly) return false;
+    const type = (el.type || 'text').toLowerCase();
+    if (['hidden', 'submit', 'button', 'reset', 'image'].includes(type)) return false;
+    if (type === 'radio') {
+      const name = el.name;
+      const radios = queryAllDeep<HTMLInputElement>(container, 'input[type="radio"]');
+      return !radios.some((radio) => (!name || radio.name === name) && radio.checked);
+    }
+    if (type === 'checkbox') return !el.checked;
+    if (type === 'file') return !el.files || el.files.length === 0;
+    return !el.value.trim();
+  }
+  if (isTextAreaElement(el)) return !el.disabled && !el.readOnly && !el.value.trim();
+  if (isSelectElement(el)) {
+    if (el.disabled) return false;
+    const selected = el.selectedOptions[0];
+    return !el.value || !selected || selected.disabled || /select|choose|please/i.test(selected.textContent || '');
+  }
+  return false;
+}
+
+function coverageGroupKey(el: HTMLElement, index: number): string {
+  if (isInputElement(el) && el.type.toLowerCase() === 'radio') {
+    return `radio:${el.name || getLabelText(el) || index}`;
+  }
+  return `field:${index}`;
+}
+
+function remainingRequiredOutcomes(container: HTMLElement): PrefillControlOutcome[] {
+  for (const oldTarget of queryAllDeep<HTMLElement>(container, `[${PREFILL_TARGET_ATTR}]`)) {
+    oldTarget.removeAttribute(PREFILL_TARGET_ATTR);
+  }
+  const outcomes: PrefillControlOutcome[] = [];
+  const controls = queryAllDeep<HTMLElement>(container, 'input, textarea, select');
+  for (let index = 0; index < controls.length; index += 1) {
+    const control = controls[index];
+    if (!requiredControlNeedsUser(control, container)) continue;
+    const marker = `tmo-${Date.now().toString(36)}-${++prefillTargetSequence}`;
+    control.setAttribute(PREFILL_TARGET_ATTR, marker);
+    outcomes.push({
+      needsUser: true,
+      groupKey: coverageGroupKey(control, index),
+      selector: `[${PREFILL_TARGET_ATTR}="${marker}"]`,
+    });
+  }
+  return outcomes;
+}
+
+/** Scroll and focus the first required field left for the user. */
+export function jumpToPrefillField(selector: string): boolean {
+  if (!selector || !selector.startsWith(`[${PREFILL_TARGET_ATTR}=`)) return false;
+  for (const doc of reachableDocuments()) {
+    const target = queryAllDeep<HTMLElement>(doc, selector)[0];
+    if (!target) continue;
+    target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    try { target.focus({ preventScroll: true }); } catch { target.focus(); }
+    const previousOutline = target.style.outline;
+    const previousOffset = target.style.outlineOffset;
+    target.style.outline = '3px solid #f59e0b';
+    target.style.outlineOffset = '3px';
+    window.setTimeout(() => {
+      if (!target.isConnected) return;
+      target.style.outline = previousOutline;
+      target.style.outlineOffset = previousOffset;
+    }, 1800);
+    return true;
+  }
+  return false;
+}
+
 /**
  * Run the fill-only prefill against the open application form on the current
  * page. Safe to call from any content-script context (popup-injected or the
  * on-page widget). Shows a toast with the result. Never submits.
  */
-export async function runPrefill(options: PrefillOptions = {}): Promise<void> {
+export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillCoverageResult> {
+  const emptyCoverage: PrefillCoverageResult = { filled: 0, skipped: 0, total: 0 };
   const container = findApplicationForm();
   if (!container) {
-    if (options.quietIfNoForm) return;
+    if (options.quietIfNoForm) return emptyCoverage;
     showToast(
       document.querySelector('iframe')
         ? 'Checking the embedded application form. TrackMyOPT will fill supported fields inside accessible application frames.'
         : 'Open the job application form on this page first, then click Prefill. Custom or protected fields stay blank.'
     );
-    return;
+    return emptyCoverage;
   }
 
   const resumeResult = attachGeneratedResume(container, options.resume);
+  const filledOutcomes: PrefillControlOutcome[] = resumeResult === 'attached'
+    ? [{ filled: true }]
+    : [];
 
   const resp = (await chrome.runtime
     .sendMessage({ type: 'GET_AUTOFILL_PROFILE' })
@@ -518,14 +627,14 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<void> {
   if (!resp?.ok || !resp.profile) {
     if (resumeResult === 'attached') {
       showToast('Your generated resume was attached. Profile fields could not be loaded, so please complete them manually.');
-      return;
+      return summarizePrefillOutcomes([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     showToast(
       resp?.error === 'not_signed_in'
         ? 'Sign in to TrackMyOPT in the extension first.'
         : 'Could not load your TrackMyOPT profile.'
     );
-    return;
+    return summarizePrefillOutcomes(remainingRequiredOutcomes(container));
   }
 
   const profile = resp.profile;
@@ -549,25 +658,26 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<void> {
       continue;
     }
     filled += 1;
+    filledOutcomes.push({ filled: true });
     if (!kinds.includes(kind)) kinds.push(kind);
   }
 
   if (filled === 0) {
     if (resumeResult === 'attached') {
       showToast('Your generated resume was attached. No empty profile fields were available to fill. Review the application and submit it yourself.');
-      return;
+      return summarizePrefillOutcomes([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     if (resumeResult === 'already_present') {
       showToast('Your existing resume upload was left unchanged. No other empty profile fields were available to fill.');
-      return;
+      return summarizePrefillOutcomes(remainingRequiredOutcomes(container));
     }
     if (options.resume && resumeResult === 'not_found') {
       showToast('No Resume/CV upload field is visible yet. Open that part of the application and click Prefill again.');
-      return;
+      return summarizePrefillOutcomes(remainingRequiredOutcomes(container));
     }
     if (options.resume && resumeResult === 'unsupported') {
       showToast('The visible resume field does not accept the generated PDF, so it was left unchanged.');
-      return;
+      return summarizePrefillOutcomes(remainingRequiredOutcomes(container));
     }
     showToast(
       'Nothing to prefill here. TrackMyOPT never fills work-authorization, ' +
@@ -588,4 +698,5 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<void> {
         `${resumeSummary ? `${resumeSummary} ` : ''}Review every answer and click Submit yourself — we never submit for you.`
     );
   }
+  return summarizePrefillOutcomes([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
 }

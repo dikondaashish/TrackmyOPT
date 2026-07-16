@@ -31,6 +31,7 @@ const GenerateSchema = z.object({
     resumeText: z.string().trim().min(1).max(RESUME_TEXT_MAX_CHARS, "Resume text too long (max 25k chars)"),
     jobDescription: z.string().trim().min(1).max(JOB_DESCRIPTION_MAX_CHARS, "Job description too long (max 15k chars)"),
     templateId: z.string().trim().min(1).max(50),
+    focusKeywords: z.array(z.string().trim().min(1).max(80)).max(12).optional().default([]),
 });
 
 const corsHeaders = corsHeadersConfiguredWebApp();
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { resumeText, jobDescription, templateId } = validation.data;
+        const { resumeText, jobDescription, templateId, focusKeywords } = validation.data;
 
         // 4. Load Template
         const possiblePaths = [
@@ -132,7 +133,7 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Build Prompt
-        const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex);
+        const prompt = buildGeneratePrompt(resumeText, jobDescription, templateTex, focusKeywords);
 
         let response;
         try {

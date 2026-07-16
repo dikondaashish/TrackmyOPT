@@ -72,10 +72,10 @@ export function renderPageHeader(root: HTMLElement, title: string, subtitle: str
       </div>
       <div class="header-buttons">
         <button class="theme-btn" id="theme-btn-page" title="Toggle theme" aria-label="Toggle theme">
-          <span id="theme-icon-page">${icon('moon', 18)}</span>
+          <span id="theme-icon-page">${icon('moon', 16)}</span>
         </button>
         <button class="logout-btn" id="logout-btn-page" title="Sign out" aria-label="Sign out">
-          <span>→</span>
+          ${icon('logOut', 16)}
         </button>
       </div>
     </div>
@@ -122,22 +122,22 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
   // Set initial icon based on current theme
   const { theme } = await chrome.storage.sync.get('theme');
   if (themeIconPage) {
-    themeIconPage.innerHTML = themeToggleIcon(theme === 'dark');
+    themeIconPage.innerHTML = themeToggleIcon(theme === 'dark', 16);
   }
-  
+
   if (themeBtn) {
     themeBtn.addEventListener('click', async () => {
       const body = document.body;
       const isDarkMode = body.classList.contains('dark-mode');
-      
+
       if (isDarkMode) {
         body.classList.remove('dark-mode');
         await chrome.storage.sync.set({ theme: 'light' });
-        if (themeIconPage) themeIconPage.innerHTML = themeToggleIcon(false);
+        if (themeIconPage) themeIconPage.innerHTML = themeToggleIcon(false, 16);
       } else {
         body.classList.add('dark-mode');
         await chrome.storage.sync.set({ theme: 'dark' });
-        if (themeIconPage) themeIconPage.innerHTML = themeToggleIcon(true);
+        if (themeIconPage) themeIconPage.innerHTML = themeToggleIcon(true, 16);
       }
     });
   }
