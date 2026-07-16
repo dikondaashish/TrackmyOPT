@@ -9,6 +9,11 @@ import {
   normalizeWidgetAnalyticsProperties,
   type WidgetAnalyticsEvent,
 } from './widget-platform';
+import {
+  buildGeneratedResumeResult,
+  type SnapshotExtractionHandoff,
+} from './resume-generation-result';
+import type { ResumeAutofillSnapshotV1 } from './resume-autofill-contract';
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
@@ -338,6 +343,9 @@ interface GenerateResumeResult {
   baselineScore?: number;
   generatedScore?: number;
   scoreError?: 'limit_reached' | 'scan_failed';
+  structuredFieldsAvailable?: boolean;
+  generatedContentHash?: string;
+  snapshot?: ResumeAutofillSnapshotV1;
 }
 
 interface SavedResumeOption {
@@ -692,6 +700,32 @@ async function generateTailoredResume(input: {
   }
   if (!out.pdf) return { ok: false, error: 'compile_failed' };
 
+  // Extract a structured snapshot only after the exact, possibly repaired,
+  // LaTeX has compiled. Extraction is deliberately non-blocking: the PDF is
+  // still returned when the endpoint, model, or reconciliation is unavailable.
+  let snapshotExtraction: SnapshotExtractionHandoff | undefined;
+  try {
+    const snapshotRes = await fetch(`${WEBSITE_URL}/api/resume-generator/autofill-snapshot`, {
+      method: 'POST',
+      headers: auth,
+      body: JSON.stringify({ finalLatex: latex, sourceResumeId: resumeId }),
+    });
+    const snapshotData = (await snapshotRes.json().catch(() => ({}))) as {
+      structuredFieldsAvailable?: boolean;
+      generatedContentHash?: string;
+      snapshot?: ResumeAutofillSnapshotV1;
+      reason?: string;
+    };
+    snapshotExtraction = {
+      structuredFieldsAvailable: snapshotRes.ok && snapshotData.structuredFieldsAvailable === true,
+      generatedContentHash: snapshotData.generatedContentHash,
+      snapshot: snapshotData.snapshot,
+      reason: snapshotData.reason,
+    };
+  } catch {
+    snapshotExtraction = { structuredFieldsAvailable: false };
+  }
+
   // 4. Score the exact generated LaTeX after any compile repair. This is
   // non-blocking from a product perspective: a quota/network failure never
   // discards an otherwise valid generated resume.
@@ -748,14 +782,13 @@ async function generateTailoredResume(input: {
     // PDF download remains available even if the optional editor handoff fails.
   }
 
-  return {
-    ok: true,
+  return buildGeneratedResumeResult({
     pdfBase64: arrayBufferToBase64(out.pdf),
     editorUrl,
     baselineScore,
     generatedScore,
     scoreError,
-  };
+  }, snapshotExtraction);
 }
 
 // External message listener (from web app)

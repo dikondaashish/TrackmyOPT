@@ -1,0 +1,11 @@
+Alice Johnson
+alice.johnson@example.com | +1 617 555 0101 | Boston, MA
+
+Experience
+Acme Analytics
+Senior Data Engineer
+Jan 2021 - Mar 2024
+
+Education
+Northeastern University
+Master of Science, Data Science
