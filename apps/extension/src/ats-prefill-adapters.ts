@@ -145,12 +145,15 @@ function classifyWithHints(root: HTMLElement, hints: AdapterHints): ClassifiedCo
   );
   const results: ClassifiedControl[] = [];
   const seen = new Set<Element>();
+  const recordsBySection: Record<'experience' | 'education', Element[]> = {
+    experience: [],
+    education: [],
+  };
 
   for (const sectionElement of sections) {
     const section = classifySection(sectionSignal(sectionElement));
     if (section !== 'experience' && section !== 'education' && section !== 'skills') continue;
 
-    const records: Element[] = [];
     for (const control of safeQueryAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
       sectionElement,
       'input, textarea, select',
@@ -162,6 +165,7 @@ function classifyWithHints(root: HTMLElement, hints: AdapterHints): ClassifiedCo
       let recordIndex: number | undefined;
       if (section === 'experience' || section === 'education') {
         const record = control.closest(hints.repeatableRecords) || sectionElement;
+        const records = recordsBySection[section];
         let index = records.indexOf(record);
         if (index < 0) {
           records.push(record);

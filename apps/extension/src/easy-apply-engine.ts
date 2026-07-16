@@ -41,6 +41,8 @@ import type {
   GeneratedCoverLetterAttachment,
   ResumeAutofillSnapshotV1,
 } from './resume-autofill-contract';
+import { selectAtsPrefillAdapter } from './ats-prefill-adapters';
+import { fillRepeatableRecords } from './repeatable-record-engine';
 
 export type { PrefillCoverageResult } from './prefill-coverage';
 
@@ -704,6 +706,31 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     ? [{ filled: true, fieldGroup: 'resume' }]
     : [];
 
+  const historyRemaining = { experience: 0, education: 0 };
+  if (options.snapshot) {
+    const adapter = selectAtsPrefillAdapter(document);
+    const historyControls = adapter.classifyRepeatableSections(container);
+    for (const section of ['experience', 'education'] as const) {
+      const outcome = fillRepeatableRecords(section, historyControls, options.snapshot);
+      historyRemaining[section] = outcome.remainingRecords;
+      filledOutcomes.push(
+        ...Array.from({ length: outcome.filledFields }, () => ({
+          filled: true as const,
+          fieldGroup: section,
+        })),
+        ...Array.from({ length: outcome.skippedFields }, (_, index) => ({
+          needsUser: true as const,
+          fieldGroup: section,
+          groupKey: `${section}:skipped:${index}`,
+        })),
+      );
+    }
+  }
+  const coverageFor = (outcomes: PrefillControlOutcome[]): PrefillCoverageResult => ({
+    ...summarizePrefillOutcomes(outcomes),
+    remainingRecords: historyRemaining,
+  });
+
   const resp = options.profileFallback
     ? { ok: true, profile: options.profileFallback }
     : ((await chrome.runtime
@@ -717,20 +744,23 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   if (!resp?.ok || !resp.profile) {
     if (resumeResult === 'attached') {
       notify('Your generated resume was attached. Profile fields could not be loaded, so please complete them manually.');
-      return summarizePrefillOutcomes([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     notify(
       resp?.error === 'not_signed_in'
         ? 'Sign in to TrackMyOPT in the extension first.'
         : 'Could not load your TrackMyOPT profile.'
     );
-    return summarizePrefillOutcomes(remainingRequiredOutcomes(container));
+    return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
   }
 
   const profile = buildContactAutofillProfile(options.snapshot, resp.profile);
   const controls = queryAllDeep<HTMLElement>(container, 'input, textarea, select');
-  let filled = 0;
-  const kinds: string[] = [];
+  let filled = filledOutcomes.filter((outcome) => outcome.filled && (outcome.fieldGroup === 'experience' || outcome.fieldGroup === 'education')).length;
+  const kinds: string[] = [
+    ...(filledOutcomes.some((outcome) => outcome.filled && outcome.fieldGroup === 'experience') ? ['experience'] : []),
+    ...(filledOutcomes.some((outcome) => outcome.filled && outcome.fieldGroup === 'education') ? ['education'] : []),
+  ];
 
   for (const el of controls) {
     const kind = classifyField(getLabelText(el));
@@ -762,19 +792,19 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   if (filled === 0) {
     if (resumeResult === 'attached') {
       notify('Your generated resume was attached. No empty profile fields were available to fill. Review the application and submit it yourself.');
-      return summarizePrefillOutcomes([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     if (resumeResult === 'already_present') {
       notify('Your existing resume upload was left unchanged. No other empty profile fields were available to fill.');
-      return summarizePrefillOutcomes(remainingRequiredOutcomes(container));
+      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     if (options.resume && resumeResult === 'not_found') {
       notify('No Resume/CV upload field is visible yet. Open that part of the application and click Prefill again.');
-      return summarizePrefillOutcomes(remainingRequiredOutcomes(container));
+      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     if (options.resume && resumeResult === 'unsupported') {
       notify('The visible resume field does not accept the generated PDF, so it was left unchanged.');
-      return summarizePrefillOutcomes(remainingRequiredOutcomes(container));
+      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     notify(
       'Nothing to prefill here. TrackMyOPT never fills work-authorization, ' +
@@ -795,5 +825,5 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         `${resumeSummary ? `${resumeSummary} ` : ''}Review every answer and click Submit yourself — we never submit for you.`
     );
   }
-  return summarizePrefillOutcomes([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+  return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
 }

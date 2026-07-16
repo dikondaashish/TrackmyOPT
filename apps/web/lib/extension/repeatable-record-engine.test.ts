@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { fillRepeatableRecords } from '../../../extension/src/repeatable-record-engine';
 import type { ClassifiedControl } from '../../../extension/src/section-aware-classifier';
 import type { ResumeAutofillSnapshotV1 } from '../../../extension/src/resume-autofill-contract';
+import { runPrefill } from '../../../extension/src/easy-apply-engine';
 
 const snapshot: ResumeAutofillSnapshotV1 = {
   contact: {}, skills: [], certifications: [], education: [],
@@ -31,6 +32,35 @@ describe('repeatable work-history records', () => {
         <fieldset><input id="company-0"><input id="title-0"><input id="month-0"><input id="year-0"></fieldset>
         <fieldset><input id="company-1"><input id="title-1"><input id="month-1"><input id="year-1"></fieldset>
       </section>`;
+  });
+
+  it('fills exactly two visible employer rows end-to-end and leaves referral company blank', async () => {
+    document.body.innerHTML = `
+      <form id="application-form">
+        <fieldset><legend>Work Experience</legend>
+          <label>Company <input id="e2e-company-0" aria-label="Company"></label>
+          <label>Job title <input id="e2e-title-0" aria-label="Job title"></label>
+        </fieldset>
+        <fieldset><legend>Work Experience</legend>
+          <label>Company <input id="e2e-company-1" aria-label="Company"></label>
+          <label>Job title <input id="e2e-title-1" aria-label="Job title"></label>
+        </fieldset>
+        <section><h2>Referral</h2><label>Company <input id="referral-company" aria-label="Company"></label></section>
+      </form>`;
+    const result = await runPrefill({
+      snapshot,
+      profileFallback: {
+        firstName: '', lastName: '', fullName: '', email: '', phone: '', city: '',
+        state: '', yearsExperience: '', linkedinUrl: '', portfolioUrl: '',
+      },
+      quietResultToast: true,
+    });
+    expect((document.querySelector('#e2e-company-0') as HTMLInputElement).value).toBe('Acme');
+    expect((document.querySelector('#e2e-title-0') as HTMLInputElement).value).toBe('Senior Engineer');
+    expect((document.querySelector('#e2e-company-1') as HTMLInputElement).value).toBe('Beta Labs');
+    expect((document.querySelector('#e2e-title-1') as HTMLInputElement).value).toBe('Engineer');
+    expect((document.querySelector('#referral-company') as HTMLInputElement).value).toBe('');
+    expect(result.groups.experience.filled).toBe(4);
   });
 
   it('maps two employers to two visible containers without crossing record boundaries', () => {
@@ -67,5 +97,30 @@ describe('repeatable work-history records', () => {
     ], snapshot);
     expect(company.value).toBe('Applicant value');
     expect(title.value).toBe('');
+  });
+
+  it('maps education fields from the matching education record', () => {
+    document.body.innerHTML = '<input id="school"><input id="degree"><input id="major"><input id="grad-year"><input id="grad-month">';
+    const educationSnapshot: ResumeAutofillSnapshotV1 = {
+      contact: {}, skills: [], experience: [], certifications: [],
+      education: [{
+        school: 'State University', degree: 'MS', fieldOfStudy: 'Computer Science',
+        endDate: { originalText: '2024', year: 2024, precision: 'year' },
+      }],
+    };
+    const educationControl = (id: string, field: ClassifiedControl['field']): ClassifiedControl => ({
+      element: document.querySelector(`#${id}`) as HTMLInputElement,
+      section: 'education', recordIndex: 0, field,
+    });
+    fillRepeatableRecords('education', [
+      educationControl('school', 'school'), educationControl('degree', 'degree'),
+      educationControl('major', 'fieldOfStudy'), educationControl('grad-year', 'endYear'),
+      educationControl('grad-month', 'endMonth'),
+    ], educationSnapshot);
+    expect((document.querySelector('#school') as HTMLInputElement).value).toBe('State University');
+    expect((document.querySelector('#degree') as HTMLInputElement).value).toBe('MS');
+    expect((document.querySelector('#major') as HTMLInputElement).value).toBe('Computer Science');
+    expect((document.querySelector('#grad-year') as HTMLInputElement).value).toBe('2024');
+    expect((document.querySelector('#grad-month') as HTMLInputElement).value).toBe('');
   });
 });
