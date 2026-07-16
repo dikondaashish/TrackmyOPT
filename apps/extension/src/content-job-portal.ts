@@ -69,6 +69,13 @@ import {
   type AutofillPreferences,
 } from './autofill-preferences';
 import { shouldRunContinuousPrefill } from './continuous-prefill';
+import { detectScreeningQuestions } from './screening-question-drafts';
+import {
+  normalizeScreeningQuestionDraftResponse,
+  type ScreeningQuestionDraftResponse,
+  type ScreeningQuestionMode,
+} from './screening-question-review';
+import { renderScreeningQuestionPanel } from './screening-question-widget';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -86,6 +93,7 @@ const POST_SAVE_SUGGESTION_SEEN_KEY = 'tmo_post_save_suggestions_seen_v1';
 const WIDGET_THEME_STYLE_ID = 'tmo-widget-theme-tokens';
 const WIDGET_THEME_SCOPE_CLASS = 'tmo-widget-theme-scope';
 const ARTIFACT_STALE_BANNER_CLASS = 'tmo-artifact-stale-banner';
+const SCREENING_PANEL_HOST_CLASS = 'tmo-screening-question-panel-host';
 
 type WidgetHideConfig = { all?: boolean; domains?: string[] };
 
@@ -358,6 +366,39 @@ function paintContinuousStopGuidance(reason: 'expired' | 'job_changed' | 'invali
     ? 'This generated resume expired. Generate again or use Step-by-step profile prefill.'
     : 'This generated resume is not active for the current job. Generate again or use Step-by-step profile prefill.';
   line.style.display = 'flex';
+}
+
+function surfaceScreeningQuestionActions(
+  job: JobInfo,
+  mode: ScreeningQuestionMode,
+): void {
+  const host = document.querySelector<HTMLElement>(`.${SCREENING_PANEL_HOST_CLASS}`);
+  if (!host) return;
+  const candidates = detectScreeningQuestions(document).filter(
+    (candidate) => !candidate.control.closest(`#${WIDGET_ROOT_ID}`),
+  );
+  renderScreeningQuestionPanel(host, {
+    mode,
+    candidates,
+    requestDraft: async (candidate): Promise<ScreeningQuestionDraftResponse> => {
+      try {
+        const response = await chrome.runtime.sendMessage({
+          type: 'GENERATE_SCREENING_QUESTION_DRAFT',
+          questionText: candidate.questionText,
+          characterLimit: candidate.characterLimit,
+          jobDescription: scrapeJobDescription(),
+          jobContext: jobContextFor(job),
+        });
+        return normalizeScreeningQuestionDraftResponse(response);
+      } catch {
+        return {
+          ok: false,
+          questionHash: '',
+          error: 'generation_failed',
+        };
+      }
+    },
+  });
 }
 
 function rememberJobFitScore(job: JobInfo, score: number): void {
@@ -1826,6 +1867,12 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   actions.appendChild(saveBtn);
   actions.appendChild(nextStepHost);
   actions.appendChild(toolsPanel);
+  const screeningPanelHost = document.createElement('section');
+  screeningPanelHost.className = SCREENING_PANEL_HOST_CLASS;
+  screeningPanelHost.setAttribute('aria-label', 'AI screening question drafts');
+  screeningPanelHost.style.cssText =
+    'display:none;padding:11px;border:1px solid var(--tmo-widget-border);border-radius:12px;background:var(--tmo-widget-surface-2);';
+  actions.appendChild(screeningPanelHost);
 
   // Feedback link (opens the on-page feedback modal)
   const feedbackRow = document.createElement('div');
@@ -2150,6 +2197,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         hasResume = execution.hasResume;
         const result = execution.result;
         paintPrefillCoverage(prefillResultLine, result);
+        surfaceScreeningQuestionActions(job, 'step_by_step');
         trackWidgetAnalytics('extension_widget_prefill_completed', {
           outcome: 'success',
           filled: result.filled,
@@ -3778,6 +3826,7 @@ async function injectOrRefreshButton() {
   // browsers retain the maximum-z-index fallback.
   widget.setAttribute('popover', 'manual');
   document.body.appendChild(widget);
+  surfaceScreeningQuestionActions(job, currentAutofillPreferences.mode);
   try {
     widget.showPopover?.();
   } catch {
@@ -3838,6 +3887,11 @@ function stopContinuousPrefill(): void {
 
 async function runContinuousPrefill(): Promise<void> {
   continuousPrefillTimer = null;
+  const job = getJobInfo();
+  if (!job) return;
+  // Continuous mode surfaces user-controlled draft actions, but this call is
+  // intentionally incapable of generating or inserting any AI text.
+  surfaceScreeningQuestionActions(job, 'continuous');
   const signature = getPrefillCandidateSignature();
   if (!shouldRunContinuousPrefill({
     mode: currentAutofillPreferences.mode,
@@ -3846,8 +3900,6 @@ async function runContinuousPrefill(): Promise<void> {
     inFlight: continuousPrefillInFlight,
   })) return;
 
-  const job = getJobInfo();
-  if (!job) return;
   previousContinuousSignature = signature;
   continuousPrefillInFlight = true;
   continuousMutationPending = false;

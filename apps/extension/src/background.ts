@@ -16,13 +16,24 @@ import {
 import type {
   BasicContactProfile,
   GeneratedResumeArtifactV1,
+  JobContextIdentity,
   ResumeAutofillSnapshotV1,
   V1PrefillPayloadRequest,
   V1PrefillPayloadResponse,
 } from './resume-autofill-contract';
-import { buildGeneratedResumeArtifactV1 } from './resume-artifact-lifecycle';
+import {
+  buildGeneratedResumeArtifactV1,
+  validateArtifactForPrefill,
+} from './resume-artifact-lifecycle';
 import { resolveV1PrefillPayload } from './prefill-payload-resolver';
-import { validateResumeAutofillSnapshotV1 } from './resume-artifact-validator';
+import {
+  validateGeneratedResumeArtifactV1,
+  validateResumeAutofillSnapshotV1,
+} from './resume-artifact-validator';
+import {
+  normalizeScreeningQuestionDraftResponse,
+  type ScreeningQuestionDraftResponse,
+} from './screening-question-review';
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
@@ -267,6 +278,27 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
     return true;
   }
+  if (msg.type === 'GENERATE_SCREENING_QUESTION_DRAFT') {
+    generateScreeningQuestionDraft({
+      questionText: String(msg.questionText ?? ''),
+      characterLimit: Number.isInteger(msg.characterLimit)
+        ? Number(msg.characterLimit)
+        : undefined,
+      jobDescription: String(msg.jobDescription ?? ''),
+      jobContext: {
+        jobUrl: String(msg.jobContext?.jobUrl ?? ''),
+        companyName: String(msg.jobContext?.companyName ?? ''),
+        roleTitle: String(msg.jobContext?.roleTitle ?? ''),
+      },
+    })
+      .then(sendResponse)
+      .catch(() => sendResponse({
+        ok: false,
+        questionHash: '',
+        error: 'generation_failed',
+      } satisfies ScreeningQuestionDraftResponse));
+    return true;
+  }
   if (msg.type === 'CHECK_JOB_SAVED') {
     // Look up whether the current posting is already in the tracker. Bearer
     // stays in the worker; the content script only receives the boolean/status.
@@ -387,6 +419,81 @@ async function resolveCurrentV1PrefillPayload(
       };
     },
   });
+}
+
+async function generateScreeningQuestionDraft(input: {
+  questionText: string;
+  characterLimit?: number;
+  jobDescription: string;
+  jobContext: JobContextIdentity;
+}): Promise<ScreeningQuestionDraftResponse> {
+  const unavailable = (): ScreeningQuestionDraftResponse => ({
+    ok: false,
+    questionHash: '',
+    error: 'insufficient_context',
+  });
+  const artifact = currentGeneratedResumeArtifact;
+  if (!artifact) return unavailable();
+  if (!(await validateGeneratedResumeArtifactV1(artifact))) return unavailable();
+  if (!validateArtifactForPrefill(artifact, input.jobContext).valid) {
+    return unavailable();
+  }
+
+  const questionText = input.questionText.trim().replace(/\s+/g, ' ');
+  const jobDescription = input.jobDescription.trim().slice(0, 15_000);
+  if (!questionText || questionText.length > 2_000 || !jobDescription) {
+    return unavailable();
+  }
+  const characterLimit = input.characterLimit &&
+    input.characterLimit > 0 &&
+    input.characterLimit <= 10_000
+    ? input.characterLimit
+    : undefined;
+  let bearer = await getExtensionBearerToken();
+  if (!bearer) {
+    return { ok: false, questionHash: '', error: 'generation_failed' };
+  }
+  const request = (token: string) => fetch(`${WEBSITE_URL}/api/extension/screening-answer`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      questionText,
+      ...(characterLimit ? { characterLimit } : {}),
+      job: {
+        companyName: artifact.job.companyName,
+        roleTitle: artifact.job.roleTitle,
+        jobDescription,
+      },
+      snapshot: artifact.snapshot,
+      sourceContentHash: artifact.generatedContentHash,
+    }),
+  });
+  let response = await request(bearer);
+  if (response.status === 401) {
+    const refreshed = await getExtensionBearerToken(true);
+    if (refreshed) {
+      bearer = refreshed;
+      response = await request(bearer);
+    }
+  }
+  const normalized = normalizeScreeningQuestionDraftResponse(
+    await response.json().catch(() => null),
+  );
+  if (
+    normalized.ok &&
+    normalized.sourceContentHash !== artifact.generatedContentHash
+  ) {
+    return {
+      ok: false,
+      questionHash: normalized.questionHash,
+      error: 'generation_failed',
+      ...(normalized.limits ? { limits: normalized.limits } : {}),
+    };
+  }
+  return normalized;
 }
 
 async function getAutofillProfile(): Promise<AutofillProfileResult> {

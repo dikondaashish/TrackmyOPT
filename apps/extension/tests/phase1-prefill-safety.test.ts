@@ -26,7 +26,16 @@ const continuousBlock = portalSource.slice(
   portalSource.indexOf('function scheduleContinuousPrefill'),
 );
 assert.doesNotMatch(withoutComments(continuousBlock), /\.click\s*\(/);
-assert.doesNotMatch(withoutComments(continuousBlock), /GENERATE_|screening|cover.?letter/i);
+assert.match(
+  continuousBlock,
+  /surfaceScreeningQuestionActions\(job, 'continuous'\)/,
+  'Continuous mode may surface manual AI draft actions',
+);
+assert.doesNotMatch(
+  withoutComments(continuousBlock),
+  /GENERATE_SCREENING_QUESTION_DRAFT|insertDraftIntoEmptyScreeningControl|requestDraft\(/,
+  'Continuous mode never generates or inserts screening answers',
+);
 assert.match(
   backgroundSource,
   /autofillSkills:\s*requestedPrefill\.autofillSkills === true/,
