@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createScreeningQuestionReviewUI } from '../../../extension/src/screening-question-review-ui';
 import { CoverLetterReviewController } from '../../../extension/src/cover-letter-review';
+import { attachGeneratedCoverLetter } from '../../../extension/src/easy-apply-engine';
 
 describe('screening-question review DOM', () => {
   it('never inserts generated text before the explicit Insert draft action', async () => {
@@ -90,5 +91,29 @@ describe('cover-letter edit controller', () => {
     expect(order).toEqual(['invalidated', 'recompiled']);
     expect(controller.state.phase).toBe('review');
     expect(controller.state.attachment?.sourceContentHash).toBe('a'.repeat(64));
+  });
+
+  it('never attaches a cover letter to Resume/CV or other document inputs', () => {
+    const originalDataTransfer = globalThis.DataTransfer;
+    class FakeDataTransfer {
+      files: File[] = [];
+      items = { add: (file: File) => { this.files.push(file); } };
+    }
+    Object.defineProperty(globalThis, 'DataTransfer', { value: FakeDataTransfer, configurable: true });
+    const form = document.createElement('form');
+    form.innerHTML = [
+      '<label for="resume">Resume/CV</label><input id="resume" type="file" accept="application/pdf">',
+      '<label for="transcript">Transcript</label><input id="transcript" type="file" accept="application/pdf">',
+    ].join('');
+    document.body.appendChild(form);
+    const result = attachGeneratedCoverLetter(form, {
+      filename: 'cover-letter.pdf', base64: 'JVBERi0xLjQK', sha256: 'b'.repeat(64),
+      generatedAt: '2026-07-16T12:00:00.000Z', sourceContentHash: 'a'.repeat(64),
+    });
+
+    expect(result).toBe('not_found');
+    expect((form.querySelector('#resume') as HTMLInputElement).files?.length).toBe(0);
+    expect((form.querySelector('#transcript') as HTMLInputElement).files?.length).toBe(0);
+    Object.defineProperty(globalThis, 'DataTransfer', { value: originalDataTransfer, configurable: true });
   });
 });

@@ -12,12 +12,14 @@ test('sensitive questions are rejected before any AI request', async () => {
   assert.equal(aiCalls, 0);
 });
 
-assert.equal(SENSITIVE_FIELD_RE.test('What is your citizenship status?'), true);
-assert.equal(classifyField('Why do you want to work here?'), null);
-assert.equal(classifyField('What is your citizenship status?'), null);
 const matcherSource = readFileSync('src/easy-apply-matchers.ts', 'utf8');
-assert.match(matcherSource, /const ESSAY_RE\s*=/);
-assert.match(matcherSource, /if \(ESSAY_RE\.test\(t\)\) return null/);
+test('ESSAY_RE and SENSITIVE_FIELD_RE remain present and function in classifyField', () => {
+  assert.equal(SENSITIVE_FIELD_RE.test('What is your citizenship status?'), true);
+  assert.equal(classifyField('Why do you want to work here?'), null);
+  assert.equal(classifyField('What is your citizenship status?'), null);
+  assert.match(matcherSource, /const ESSAY_RE\s*=/);
+  assert.match(matcherSource, /if \(ESSAY_RE\.test\(t\)\) return null/);
+});
 
 const saved = [{
   questionHash: 'a'.repeat(64), normalizedQuestionText: 'Why this role?', editedAnswer: 'Saved',
