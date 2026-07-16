@@ -99,6 +99,33 @@ describe('screening answer contracts and generation', () => {
     expect(generatePlan).not.toHaveBeenCalled();
   });
 
+  it('blocks further regeneration with the correct zero per-question count', async () => {
+    const limits = {
+      ...allowedLimits,
+      allowed: false,
+      dailyRemaining: 5,
+      itemRegenerationsRemaining: 0,
+      error: 'ai_item_regeneration_limit_reached' as const,
+    };
+    const generatePlan = vi.fn();
+    const result = await processScreeningQuestionDraft(request, 'user-1', {
+      reserve: vi.fn().mockResolvedValue(limits),
+      generatePlan,
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: 'limit',
+      limits: {
+        dailyRemaining: 5,
+        itemRegenerationLimit: 3,
+        itemRegenerationsRemaining: 0,
+        error: 'ai_item_regeneration_limit_reached',
+      },
+    });
+    expect(generatePlan).not.toHaveBeenCalled();
+  });
+
   it('constructs the returned candidate evidence only from the validated snapshot', async () => {
     const result = await processScreeningQuestionDraft(request, 'user-1', {
       reserve: vi.fn().mockResolvedValue(allowedLimits),

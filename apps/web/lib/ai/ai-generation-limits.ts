@@ -44,6 +44,10 @@ export interface AiGenerationLimitRepository {
   reserve(input: NormalizedReservationInput): Promise<AtomicReservationRow>;
 }
 
+export interface AiGenerationLimitReadRepository {
+  read(input: NormalizedReservationInput): Promise<AtomicReservationRow>;
+}
+
 const postgresRepository: AiGenerationLimitRepository = {
   async reserve(input) {
     const client = getSupabaseAdminClient();
@@ -62,6 +66,24 @@ const postgresRepository: AiGenerationLimitRepository = {
   },
 };
 
+const postgresReadRepository: AiGenerationLimitReadRepository = {
+  async read(input) {
+    const client = getSupabaseAdminClient();
+    const { data, error } = await client.rpc('get_ai_generation_limit_state', {
+      p_user_id: input.userId,
+      p_generation_kind: input.kind,
+      p_item_hash: input.itemHash,
+      p_daily_limit: input.dailyLimit,
+      p_item_regeneration_limit: input.itemRegenerationLimit,
+      p_short_window_limit: input.shortWindowLimit,
+    });
+    if (error) throw error;
+    const row = (Array.isArray(data) ? data[0] : data) as AtomicReservationRow | null;
+    if (!row) throw new Error('Missing AI generation limit state');
+    return row;
+  },
+};
+
 function unavailableLimitState(input: NormalizedReservationInput): AiGenerationLimitState {
   return {
     allowed: false,
@@ -73,30 +95,52 @@ function unavailableLimitState(input: NormalizedReservationInput): AiGenerationL
   };
 }
 
-export async function reserveAiGenerationLimit(
+function normalizeReservationInput(
   input: AiGenerationReservationInput,
-  repository: AiGenerationLimitRepository = postgresRepository,
-): Promise<AiGenerationLimitState> {
-  const normalized: NormalizedReservationInput = {
+): NormalizedReservationInput {
+  return {
     ...input,
     dailyLimit: input.dailyLimit ?? AI_DAILY_GENERATION_LIMIT,
     itemRegenerationLimit:
       input.itemRegenerationLimit ?? AI_ITEM_REGENERATION_LIMIT,
     shortWindowLimit: input.shortWindowLimit ?? AI_SHORT_WINDOW_LIMIT,
   };
+}
+
+function limitStateFromRow(row: AtomicReservationRow): AiGenerationLimitState {
+  return {
+    allowed: row.allowed,
+    dailyLimit: row.daily_limit,
+    dailyRemaining: Math.max(0, row.daily_remaining),
+    itemRegenerationLimit: row.item_regeneration_limit,
+    itemRegenerationsRemaining: Math.max(0, row.item_regenerations_remaining),
+    ...(row.resets_at ? { resetsAt: row.resets_at } : {}),
+    ...(row.error ? { error: row.error } : {}),
+  };
+}
+
+export async function reserveAiGenerationLimit(
+  input: AiGenerationReservationInput,
+  repository: AiGenerationLimitRepository = postgresRepository,
+): Promise<AiGenerationLimitState> {
+  const normalized = normalizeReservationInput(input);
   try {
     const row = await repository.reserve(normalized);
-    return {
-      allowed: row.allowed,
-      dailyLimit: row.daily_limit,
-      dailyRemaining: Math.max(0, row.daily_remaining),
-      itemRegenerationLimit: row.item_regeneration_limit,
-      itemRegenerationsRemaining: Math.max(0, row.item_regenerations_remaining),
-      ...(row.resets_at ? { resetsAt: row.resets_at } : {}),
-      ...(row.error ? { error: row.error } : {}),
-    };
+    return limitStateFromRow(row);
   } catch {
     // Server-side enforcement fails closed. No request reaches a model.
+    return unavailableLimitState(normalized);
+  }
+}
+
+export async function readAiGenerationLimitState(
+  input: AiGenerationReservationInput,
+  repository: AiGenerationLimitReadRepository = postgresReadRepository,
+): Promise<AiGenerationLimitState> {
+  const normalized = normalizeReservationInput(input);
+  try {
+    return limitStateFromRow(await repository.read(normalized));
+  } catch {
     return unavailableLimitState(normalized);
   }
 }

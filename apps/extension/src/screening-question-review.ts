@@ -1,5 +1,6 @@
 import {
   detectScreeningQuestions,
+  normalizeScreeningQuestionText,
   type ScreeningQuestionCandidate,
 } from './screening-question-drafts';
 
@@ -27,6 +28,62 @@ export interface ScreeningQuestionDraftResponse {
     | 'limit'
     | 'generation_failed';
   limits?: AiGenerationLimitState;
+}
+
+export interface SavedScreeningAnswer {
+  questionHash: string;
+  normalizedQuestionText: string;
+  editedAnswer: string;
+  source: 'user_edited_ai_draft' | 'user_written';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ScreeningQuestionLibraryContext {
+  answer: SavedScreeningAnswer | null;
+  limits?: AiGenerationLimitState;
+  exactOnly: true;
+}
+
+export interface ScreeningGenerationUsageCopy {
+  dailyCopy: string;
+  itemCopy: string;
+  blockedCopy: string;
+  canRegenerate: boolean;
+}
+
+export function formatScreeningGenerationUsage(
+  limits: AiGenerationLimitState,
+): ScreeningGenerationUsageCopy {
+  const used = Math.max(
+    0,
+    limits.itemRegenerationLimit - limits.itemRegenerationsRemaining,
+  );
+  const blockedCopy = limits.error === 'ai_daily_limit_reached'
+    ? 'Your daily AI generation limit was reached.'
+    : limits.error === 'ai_item_regeneration_limit_reached' ||
+        limits.itemRegenerationsRemaining <= 0
+      ? 'This question reached its regeneration limit.'
+      : limits.error === 'ai_rate_limited'
+        ? 'AI requests are temporarily rate limited. Please wait and try again.'
+        : '';
+  return {
+    dailyCopy: `You have ${Math.max(0, limits.dailyRemaining)} AI generations left today.`,
+    itemCopy: `${used} of ${limits.itemRegenerationLimit} regenerations used for this question.`,
+    blockedCopy,
+    canRegenerate:
+      limits.allowed &&
+      limits.dailyRemaining > 0 &&
+      limits.itemRegenerationsRemaining > 0,
+  };
+}
+
+export async function hashNormalizedScreeningQuestion(value: string): Promise<string> {
+  const bytes = new TextEncoder().encode(normalizeScreeningQuestionText(value));
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, '0')
+  ).join('');
 }
 
 export type ScreeningQuestionReviewStatus =
@@ -61,6 +118,10 @@ export interface ScreeningQuestionReviewController {
   getState(): ScreeningQuestionReviewState;
   surface(mode: ScreeningQuestionMode): void;
   requestDraft(origin: ScreeningQuestionActionOrigin): Promise<boolean>;
+  previewSavedAnswer(
+    origin: ScreeningQuestionActionOrigin,
+    answer: SavedScreeningAnswer,
+  ): boolean;
   insertDraft(origin: ScreeningQuestionActionOrigin, editedDraft?: string): boolean;
   recordControlInput(isTrusted: boolean): void;
   confirmReview(origin: ScreeningQuestionActionOrigin): boolean;
@@ -101,6 +162,18 @@ export function createScreeningQuestionReviewController(input: {
         return false;
       }
       publish({ status: 'draft_ready', response });
+      return true;
+    },
+    previewSavedAnswer(origin, answer) {
+      if (origin !== 'user' || state.status === 'generating') return false;
+      publish({
+        status: 'draft_ready',
+        response: {
+          ok: true,
+          questionHash: answer.questionHash,
+          draft: answer.editedAnswer,
+        },
+      });
       return true;
     },
     insertDraft(origin, editedDraft) {
@@ -261,6 +334,50 @@ function isLimitState(value: unknown): value is AiGenerationLimitState {
     Number.isInteger(value.itemRegenerationLimit) &&
     Number.isInteger(value.itemRegenerationsRemaining)
   );
+}
+
+export function normalizeSavedScreeningAnswer(
+  value: unknown,
+): SavedScreeningAnswer | null {
+  if (!isRecord(value)) return null;
+  if (
+    typeof value.questionHash !== 'string' ||
+    !/^[a-f0-9]{64}$/i.test(value.questionHash) ||
+    typeof value.normalizedQuestionText !== 'string' ||
+    value.normalizedQuestionText.length < 1 ||
+    value.normalizedQuestionText.length > 2_000 ||
+    typeof value.editedAnswer !== 'string' ||
+    value.editedAnswer.length < 1 ||
+    value.editedAnswer.length > 10_000 ||
+    !['user_edited_ai_draft', 'user_written'].includes(String(value.source)) ||
+    typeof value.createdAt !== 'string' ||
+    !Number.isFinite(Date.parse(value.createdAt)) ||
+    typeof value.updatedAt !== 'string' ||
+    !Number.isFinite(Date.parse(value.updatedAt))
+  ) {
+    return null;
+  }
+  return {
+    questionHash: value.questionHash,
+    normalizedQuestionText: value.normalizedQuestionText,
+    editedAnswer: value.editedAnswer,
+    source: value.source as SavedScreeningAnswer['source'],
+    createdAt: value.createdAt,
+    updatedAt: value.updatedAt,
+  };
+}
+
+export function normalizeScreeningQuestionLibraryContext(
+  value: unknown,
+): ScreeningQuestionLibraryContext {
+  if (!isRecord(value) || value.ok !== true || value.exactOnly !== true) {
+    return { answer: null, exactOnly: true };
+  }
+  return {
+    answer: normalizeSavedScreeningAnswer(value.answer),
+    ...(isLimitState(value.limits) ? { limits: value.limits } : {}),
+    exactOnly: true,
+  };
 }
 
 export function normalizeScreeningQuestionDraftResponse(

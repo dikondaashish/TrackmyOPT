@@ -31,8 +31,13 @@ import {
   validateResumeAutofillSnapshotV1,
 } from './resume-artifact-validator';
 import {
+  hashNormalizedScreeningQuestion,
   normalizeScreeningQuestionDraftResponse,
+  normalizeSavedScreeningAnswer,
+  normalizeScreeningQuestionLibraryContext,
+  type SavedScreeningAnswer,
   type ScreeningQuestionDraftResponse,
+  type ScreeningQuestionLibraryContext,
 } from './screening-question-review';
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
@@ -299,6 +304,30 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       } satisfies ScreeningQuestionDraftResponse));
     return true;
   }
+  if (msg.type === 'GET_SCREENING_QUESTION_CONTEXT') {
+    loadScreeningQuestionContext(String(msg.questionText ?? ''))
+      .then(sendResponse)
+      .catch(() => sendResponse({ ok: false, error: 'unavailable' }));
+    return true;
+  }
+  if (msg.type === 'SAVE_SCREENING_ANSWER') {
+    saveScreeningAnswerForCurrentUser({
+      questionText: String(msg.questionText ?? ''),
+      editedAnswer: String(msg.editedAnswer ?? ''),
+      source: msg.source === 'user_written'
+        ? 'user_written'
+        : 'user_edited_ai_draft',
+    })
+      .then(sendResponse)
+      .catch(() => sendResponse({ ok: false, error: 'unavailable' }));
+    return true;
+  }
+  if (msg.type === 'DELETE_SCREENING_ANSWER') {
+    deleteScreeningAnswerForCurrentUser(String(msg.questionHash ?? ''))
+      .then(sendResponse)
+      .catch(() => sendResponse({ ok: false, error: 'unavailable' }));
+    return true;
+  }
   if (msg.type === 'CHECK_JOB_SAVED') {
     // Look up whether the current posting is already in the tracker. Bearer
     // stays in the worker; the content script only receives the boolean/status.
@@ -494,6 +523,104 @@ async function generateScreeningQuestionDraft(input: {
     };
   }
   return normalized;
+}
+
+async function screeningLibraryRequest(
+  path: string,
+  init: Omit<RequestInit, 'headers'>,
+): Promise<Response | null> {
+  let bearer = await getExtensionBearerToken();
+  if (!bearer) return null;
+  const request = (token: string) => fetch(
+    `${WEBSITE_URL}/api/extension/screening-answer-library${path}`,
+    {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+  let response = await request(bearer);
+  if (response.status === 401) {
+    const refreshed = await getExtensionBearerToken(true);
+    if (refreshed) {
+      bearer = refreshed;
+      response = await request(bearer);
+    }
+  }
+  return response;
+}
+
+async function loadScreeningQuestionContext(questionText: string): Promise<
+  | ({ ok: true } & ScreeningQuestionLibraryContext)
+  | { ok: false; error: 'unavailable' }
+> {
+  const normalized = questionText.trim().replace(/\s+/g, ' ');
+  if (!normalized || normalized.length > 2_000) {
+    return { ok: false, error: 'unavailable' };
+  }
+  const questionHash = await hashNormalizedScreeningQuestion(normalized);
+  const response = await screeningLibraryRequest(
+    `?question_hash=${encodeURIComponent(questionHash)}`,
+    { method: 'GET' },
+  );
+  if (!response?.ok) return { ok: false, error: 'unavailable' };
+  const context = normalizeScreeningQuestionLibraryContext(
+    await response.json().catch(() => null),
+  );
+  return { ok: true, ...context };
+}
+
+async function saveScreeningAnswerForCurrentUser(input: {
+  questionText: string;
+  editedAnswer: string;
+  source: SavedScreeningAnswer['source'];
+}): Promise<
+  | { ok: true; answer: SavedScreeningAnswer }
+  | { ok: false; error: 'unavailable' }
+> {
+  const questionText = input.questionText.trim().replace(/\s+/g, ' ');
+  const editedAnswer = input.editedAnswer.trim();
+  if (
+    !questionText ||
+    questionText.length > 2_000 ||
+    !editedAnswer ||
+    editedAnswer.length > 10_000
+  ) {
+    return { ok: false, error: 'unavailable' };
+  }
+  const response = await screeningLibraryRequest('', {
+    method: 'PUT',
+    body: JSON.stringify({
+      questionText,
+      editedAnswer,
+      source: input.source,
+    }),
+  });
+  if (!response?.ok) return { ok: false, error: 'unavailable' };
+  const body = await response.json().catch(() => null) as {
+    answer?: unknown;
+  } | null;
+  const answer = normalizeSavedScreeningAnswer(body?.answer);
+  return answer
+    ? { ok: true, answer }
+    : { ok: false, error: 'unavailable' };
+}
+
+async function deleteScreeningAnswerForCurrentUser(questionHash: string): Promise<
+  { ok: true } | { ok: false; error: 'unavailable' }
+> {
+  if (!/^[a-f0-9]{64}$/i.test(questionHash)) {
+    return { ok: false, error: 'unavailable' };
+  }
+  const response = await screeningLibraryRequest('', {
+    method: 'DELETE',
+    body: JSON.stringify({ questionHash }),
+  });
+  return response?.ok
+    ? { ok: true }
+    : { ok: false, error: 'unavailable' };
 }
 
 async function getAutofillProfile(): Promise<AutofillProfileResult> {

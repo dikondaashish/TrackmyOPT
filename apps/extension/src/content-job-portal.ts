@@ -72,7 +72,11 @@ import { shouldRunContinuousPrefill } from './continuous-prefill';
 import { detectScreeningQuestions } from './screening-question-drafts';
 import {
   normalizeScreeningQuestionDraftResponse,
+  normalizeSavedScreeningAnswer,
+  normalizeScreeningQuestionLibraryContext,
+  type SavedScreeningAnswer,
   type ScreeningQuestionDraftResponse,
+  type ScreeningQuestionLibraryContext,
   type ScreeningQuestionMode,
 } from './screening-question-review';
 import { renderScreeningQuestionPanel } from './screening-question-widget';
@@ -397,6 +401,32 @@ function surfaceScreeningQuestionActions(
           error: 'generation_failed',
         };
       }
+    },
+    loadContext: async (candidate): Promise<ScreeningQuestionLibraryContext> => {
+      const response = await chrome.runtime.sendMessage({
+        type: 'GET_SCREENING_QUESTION_CONTEXT',
+        questionText: candidate.questionText,
+      });
+      if (!response?.ok) throw new Error('Screening context unavailable');
+      return normalizeScreeningQuestionLibraryContext(response);
+    },
+    saveAnswer: async (candidate, answer, source): Promise<SavedScreeningAnswer | null> => {
+      const response = await chrome.runtime.sendMessage({
+        type: 'SAVE_SCREENING_ANSWER',
+        questionText: candidate.questionText,
+        editedAnswer: answer,
+        source,
+      });
+      return response?.ok
+        ? normalizeSavedScreeningAnswer(response.answer)
+        : null;
+    },
+    deleteAnswer: async (questionHash): Promise<boolean> => {
+      const response = await chrome.runtime.sendMessage({
+        type: 'DELETE_SCREENING_ANSWER',
+        questionHash,
+      });
+      return response?.ok === true;
     },
   });
 }
