@@ -19,6 +19,7 @@ import {
   type GeneratedResumeAttachment,
   type PrefillOptions,
   type PrefillCoverageResult,
+  getLabelText,
 } from './easy-apply-engine';
 import { openFeedbackModal } from './feedback';
 import { icon } from './icons';
@@ -70,6 +71,8 @@ import {
 } from './autofill-preferences';
 import { shouldRunContinuousPrefill } from './continuous-prefill';
 import { mountCoverLetterReviewUi } from './cover-letter-review';
+import { detectScreeningQuestion } from './screening-question-drafts';
+import { createScreeningQuestionReviewUI } from './screening-question-review-ui';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -350,6 +353,70 @@ function paintPrefillCoverage(
     line.append('—');
     line.appendChild(jump);
   }
+}
+
+async function mountScreeningQuestionReviews(card: HTMLElement, job: JobInfo): Promise<void> {
+  const artifact = generatedResumeArtifactForCurrentJob;
+  if (!artifact) return;
+  card.querySelector('.tmo-screening-review-list')?.remove();
+  const host = document.createElement('div');
+  host.className = 'tmo-screening-review-list';
+  const form = findApplicationForm();
+  if (!form) return;
+  for (const element of Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('textarea,input[type="text"]'))) {
+    const eligible = await detectScreeningQuestion({
+      label: getLabelText(element),
+      value: element.value,
+      hidden: element.hidden || element.getClientRects().length === 0,
+      disabled: element.disabled,
+      element,
+      characterLimit: element.maxLength > 0 ? element.maxLength : undefined,
+    });
+    if (!eligible) continue;
+    const savedResponse = await chrome.runtime.sendMessage({
+      type: 'LOAD_SCREENING_ANSWER', questionHash: eligible.questionHash,
+    }).catch(() => null) as { answer?: import('./screening-question-drafts').SavedScreeningAnswer } | null;
+    host.appendChild(createScreeningQuestionReviewUI({
+      question: eligible,
+      limits: { dailyRemaining: 25, itemRegenerationsRemaining: 3, itemRegenerationLimit: 3 },
+      savedAnswer: savedResponse?.answer,
+      generateDraft: async (regenerate) => {
+        const response = await chrome.runtime.sendMessage({
+          type: 'GENERATE_SCREENING_DRAFT',
+          questionText: eligible.normalizedQuestionText,
+          characterLimit: eligible.characterLimit,
+          jobDescription: lastResumeGenerationRequest?.jobDescription || '',
+          companyName: job.company_name || '',
+          roleTitle: job.role_title || '',
+          regenerate,
+        }) as { draft?: string; dailyRemaining?: number; itemRegenerationsRemaining?: number; itemRegenerationLimit?: number; error?: string };
+        if (!response?.draft) throw new Error(response?.error || 'Draft generation failed');
+        return {
+          draft: response.draft,
+          limits: {
+            dailyRemaining: response.dailyRemaining ?? 0,
+            itemRegenerationsRemaining: response.itemRegenerationsRemaining ?? 0,
+            itemRegenerationLimit: response.itemRegenerationLimit ?? 3,
+          },
+        };
+      },
+      onReviewed: (answer) => {
+        void chrome.runtime.sendMessage({
+          type: 'SAVE_SCREENING_ANSWER',
+          answer: {
+            questionHash: eligible.questionHash,
+            normalizedQuestionText: eligible.normalizedQuestionText,
+            editedAnswer: answer,
+            source: 'user_edited_ai_draft',
+          },
+        });
+      },
+      onDeleteSavedAnswer: async (questionHash) => {
+        await chrome.runtime.sendMessage({ type: 'DELETE_SCREENING_ANSWER', questionHash });
+      },
+    }));
+  }
+  if (host.childElementCount > 0) card.appendChild(host);
 }
 
 function paintContinuousStopGuidance(reason: 'expired' | 'job_changed' | 'invalid'): void {
@@ -2151,6 +2218,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         hasResume = execution.hasResume;
         const result = execution.result;
         paintPrefillCoverage(prefillResultLine, result);
+        await mountScreeningQuestionReviews(card, job);
         trackWidgetAnalytics('extension_widget_prefill_completed', {
           outcome: 'success',
           filled: result.filled,

@@ -113,7 +113,7 @@ function reachableDocuments(): Document[] {
 }
 
 /** Build a lowercased label string for a control from every nearby signal. */
-function getLabelText(el: HTMLElement): string {
+export function getLabelText(el: HTMLElement): string {
   const parts: string[] = [];
   const push = (s: string | null | undefined) => {
     if (s) parts.push(s);
