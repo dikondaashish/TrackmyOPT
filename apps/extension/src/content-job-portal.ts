@@ -15,6 +15,7 @@ import {
   runPrefill,
   jumpToPrefillField,
   findApplicationForm,
+  getPrefillCandidateSignature,
   type GeneratedResumeAttachment,
   type PrefillOptions,
   type PrefillCoverageResult,
@@ -57,6 +58,17 @@ import {
   resolveArtifactLifecycle,
   type ArtifactInvalidReason,
 } from './resume-artifact-lifecycle';
+import {
+  emptyPrefillCoverage,
+  formatPrefillCoverageSummary,
+} from './prefill-coverage';
+import {
+  AUTOFILL_PREFERENCES_KEY,
+  DEFAULT_AUTOFILL_PREFERENCES,
+  normalizeAutofillPreferences,
+  type AutofillPreferences,
+} from './autofill-preferences';
+import { shouldRunContinuousPrefill } from './continuous-prefill';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -95,6 +107,7 @@ let artifactExpiryTimer: number | null = null;
 let lastResumeGenerationRequest: LastResumeGenerationRequest | null = null;
 let regenerationRecheckPending = false;
 let latestJobFitScore: { jobFingerprint: string; score: number } | null = null;
+let currentAutofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
 const trackedWidgetAnalytics = new Set<string>();
 
 function ensureWidgetThemeStyles(): void {
@@ -210,6 +223,10 @@ function setCurrentGeneratedArtifact(artifact: GeneratedResumeArtifactV1): void 
   artifactStaleReason = null;
   scheduleCurrentArtifactExpiry(artifact);
   syncArtifactStaleBannerVisibility();
+  if (currentAutofillPreferences.mode === 'continuous') {
+    previousContinuousSignature = '';
+    scheduleContinuousPrefill();
+  }
 }
 
 function invalidateArtifactForUrlChange(nextUrl: string): void {
@@ -239,6 +256,108 @@ function generatedResumeFor(job: JobInfo): GeneratedResumeAttachment | undefined
     pdfBase64: lifecycle.artifact.pdf.base64,
     filename: lifecycle.artifact.pdf.filename,
   };
+}
+
+type PrefillExecutionResult = {
+  result: PrefillCoverageResult;
+  hasResume: boolean;
+  stoppedReason?: 'expired' | 'job_changed' | 'invalid';
+};
+
+/** Resolve immediately before every manual or Continuous engine pass. */
+async function executeResolvedPrefill(
+  job: JobInfo,
+  mode: AutofillPreferences['mode'],
+): Promise<PrefillExecutionResult> {
+  const resolved = (await chrome.runtime.sendMessage({
+    type: 'RESOLVE_V1_PREFILL_PAYLOAD',
+    request: {
+      now: new Date().toISOString(),
+      jobContext: jobContextFor(job),
+    },
+  }).catch(() => null)) as V1PrefillPayloadResponse | null;
+
+  if (!resolved?.ok) {
+    const result = mode === 'step_by_step'
+      ? await runPrefill({ autofillSkills: false })
+      : emptyPrefillCoverage();
+    return { result, hasResume: false };
+  }
+
+  let hasResume = false;
+  let prefill: PrefillOptions;
+  if (resolved.source === 'generated_resume') {
+    hasResume = true;
+    prefill = {
+      resume: resolved.resume,
+      snapshot: resolved.snapshot,
+      profileFallback: resolved.profileFallback,
+      autofillSkills: currentAutofillPreferences.autofillSkills,
+      quietResultToast: mode === 'continuous',
+    };
+  } else {
+    markCurrentArtifactInvalid(
+      resolved.reason,
+      resolved.reason !== 'expired',
+    );
+    if (mode === 'continuous' && resolved.reason !== 'missing') {
+      return {
+        result: emptyPrefillCoverage(),
+        hasResume: false,
+        stoppedReason: resolved.reason,
+      };
+    }
+    prefill = {
+      profileFallback: resolved.profileFallback,
+      autofillSkills: false,
+      quietResultToast: mode === 'continuous',
+    };
+  }
+
+  // Frames receive only the already-resolved, ephemeral payload for this run.
+  chrome.runtime.sendMessage({
+    type: 'PREFILL_CHILD_FRAMES',
+    prefill,
+  }).catch(() => {});
+  const result = await runPrefill(prefill);
+  if (hasResume && result.filled > 0) artifactBackedFieldsFilled = true;
+  return { result, hasResume };
+}
+
+function paintPrefillCoverage(
+  line: HTMLElement,
+  result: PrefillCoverageResult,
+): void {
+  line.textContent = '';
+  if (result.total === 0) {
+    line.style.display = 'none';
+    return;
+  }
+  line.style.display = 'flex';
+  const summary = document.createElement('span');
+  summary.textContent = formatPrefillCoverageSummary(result);
+  line.appendChild(summary);
+  if (result.skipped > 0 && result.firstSkippedSelector) {
+    const jump = document.createElement('button');
+    jump.type = 'button';
+    jump.textContent = 'Jump to first';
+    jump.style.cssText =
+      'padding:0;border:0;background:transparent;color:#b45309;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;';
+    jump.addEventListener('click', () => {
+      jumpToPrefillField(result.firstSkippedSelector || '');
+    });
+    line.append('—');
+    line.appendChild(jump);
+  }
+}
+
+function paintContinuousStopGuidance(reason: 'expired' | 'job_changed' | 'invalid'): void {
+  const line = document.querySelector<HTMLElement>('.tmo-prefill-result-line');
+  if (!line) return;
+  line.textContent = reason === 'expired'
+    ? 'This generated resume expired. Generate again or use Step-by-step profile prefill.'
+    : 'This generated resume is not active for the current job. Generate again or use Step-by-step profile prefill.';
+  line.style.display = 'flex';
 }
 
 function rememberJobFitScore(job: JobInfo, score: number): void {
@@ -1592,6 +1711,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     prefillBtn.title = 'Prefill profile fields and attach the custom resume generated for this job';
   }
   const prefillResultLine = document.createElement('div');
+  prefillResultLine.className = 'tmo-prefill-result-line';
   prefillResultLine.setAttribute('role', 'status');
   prefillResultLine.setAttribute('aria-live', 'polite');
   prefillResultLine.style.cssText =
@@ -2019,32 +2139,6 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   window.addEventListener('resize', clampWidgetToViewport, { passive: true });
 
   // ---- actions ----
-  const paintPrefillCoverage = (result: PrefillCoverageResult) => {
-    prefillResultLine.textContent = '';
-    if (result.total === 0) {
-      prefillResultLine.style.display = 'none';
-      return;
-    }
-    prefillResultLine.style.display = 'flex';
-    const summary = document.createElement('span');
-    summary.textContent = result.skipped > 0
-      ? `${result.filled} filled · ${result.skipped} need you`
-      : `${result.filled} filled · ready to review`;
-    prefillResultLine.appendChild(summary);
-    if (result.skipped > 0 && result.firstSkippedSelector) {
-      const jump = document.createElement('button');
-      jump.type = 'button';
-      jump.textContent = 'Jump to first';
-      jump.style.cssText =
-        'padding:0;border:0;background:transparent;color:#b45309;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;';
-      jump.addEventListener('click', () => {
-        jumpToPrefillField(result.firstSkippedSelector || '');
-      });
-      prefillResultLine.append('—');
-      prefillResultLine.appendChild(jump);
-    }
-  };
-
   prefillBtn.addEventListener('click', () => {
     void (async () => {
       const label = prefillBtn.querySelector<HTMLElement>('.tmo-action-label');
@@ -2052,40 +2146,10 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
       prefillBtn.disabled = true;
       if (label) label.textContent = 'Prefilling…';
       try {
-        const resolved = (await chrome.runtime.sendMessage({
-          type: 'RESOLVE_V1_PREFILL_PAYLOAD',
-          request: {
-            now: new Date().toISOString(),
-            jobContext: jobContextFor(job),
-          },
-        }).catch(() => null)) as V1PrefillPayloadResponse | null;
-
-        let prefill: PrefillOptions = {};
-        if (resolved?.ok && resolved.source === 'generated_resume') {
-          hasResume = true;
-          prefill = {
-            resume: resolved.resume,
-            snapshot: resolved.snapshot,
-            profileFallback: resolved.profileFallback,
-          };
-        } else if (resolved?.ok && resolved.source === 'profile_only') {
-          markCurrentArtifactInvalid(
-            resolved.reason,
-            resolved.reason !== 'expired'
-          );
-          prefill = { profileFallback: resolved.profileFallback };
-        }
-
-        // The top-frame engine handles the main document, open shadow roots,
-        // and same-origin frames. Child frames receive this already-resolved
-        // payload only for this explicit run; it is never persisted.
-        chrome.runtime.sendMessage({
-          type: 'PREFILL_CHILD_FRAMES',
-          prefill,
-        }).catch(() => {});
-        const result = await runPrefill(prefill);
-        if (hasResume && result.filled > 0) artifactBackedFieldsFilled = true;
-        paintPrefillCoverage(result);
+        const execution = await executeResolvedPrefill(job, 'step_by_step');
+        hasResume = execution.hasResume;
+        const result = execution.result;
+        paintPrefillCoverage(prefillResultLine, result);
         trackWidgetAnalytics('extension_widget_prefill_completed', {
           outcome: 'success',
           filled: result.filled,
@@ -3753,6 +3817,112 @@ function runSuccessCheckDebounced() {
 // Module-level references so both observer and interval can be cleaned up on unload.
 let _spaObserver: MutationObserver | null = null;
 let _earlyRetryId: number | null = null;
+let _continuousPrefillObserver: MutationObserver | null = null;
+let continuousPrefillTimer: number | null = null;
+let continuousPrefillInFlight = false;
+let continuousMutationPending = false;
+let previousContinuousSignature = '';
+const CONTINUOUS_PREFILL_DEBOUNCE_MS = 500;
+
+function stopContinuousPrefill(): void {
+  _continuousPrefillObserver?.disconnect();
+  _continuousPrefillObserver = null;
+  if (continuousPrefillTimer !== null) {
+    window.clearTimeout(continuousPrefillTimer);
+    continuousPrefillTimer = null;
+  }
+  continuousPrefillInFlight = false;
+  continuousMutationPending = false;
+  previousContinuousSignature = '';
+}
+
+async function runContinuousPrefill(): Promise<void> {
+  continuousPrefillTimer = null;
+  const signature = getPrefillCandidateSignature();
+  if (!shouldRunContinuousPrefill({
+    mode: currentAutofillPreferences.mode,
+    signature,
+    previousSignature: previousContinuousSignature,
+    inFlight: continuousPrefillInFlight,
+  })) return;
+
+  const job = getJobInfo();
+  if (!job) return;
+  previousContinuousSignature = signature;
+  continuousPrefillInFlight = true;
+  continuousMutationPending = false;
+  try {
+    const execution = await executeResolvedPrefill(job, 'continuous');
+    if (execution.stoppedReason) {
+      paintContinuousStopGuidance(execution.stoppedReason);
+      return;
+    }
+    const resultLine = document.querySelector<HTMLElement>('.tmo-prefill-result-line');
+    if (resultLine && execution.result.total > 0) {
+      paintPrefillCoverage(resultLine, execution.result);
+    }
+  } finally {
+    continuousPrefillInFlight = false;
+    previousContinuousSignature = getPrefillCandidateSignature();
+    if (continuousMutationPending && currentAutofillPreferences.mode === 'continuous') {
+      continuousMutationPending = false;
+      previousContinuousSignature = '';
+      scheduleContinuousPrefill();
+    }
+  }
+}
+
+function scheduleContinuousPrefill(): void {
+  if (currentAutofillPreferences.mode !== 'continuous') return;
+  if (continuousPrefillInFlight) {
+    continuousMutationPending = true;
+    return;
+  }
+  if (continuousPrefillTimer !== null) window.clearTimeout(continuousPrefillTimer);
+  continuousPrefillTimer = window.setTimeout(
+    () => void runContinuousPrefill(),
+    CONTINUOUS_PREFILL_DEBOUNCE_MS,
+  );
+}
+
+function startContinuousPrefill(): void {
+  stopContinuousPrefill();
+  if (currentAutofillPreferences.mode !== 'continuous') return;
+  if (!document.body) {
+    document.addEventListener('DOMContentLoaded', startContinuousPrefill, { once: true });
+    return;
+  }
+  _continuousPrefillObserver = new MutationObserver((records) => {
+    const hasApplicationMutation = records.some((record) => {
+      const target = record.target instanceof Element ? record.target : null;
+      return !target?.closest(`#${WIDGET_ROOT_ID}`);
+    });
+    if (hasApplicationMutation) scheduleContinuousPrefill();
+  });
+  _continuousPrefillObserver.observe(document.body, { childList: true, subtree: true });
+  scheduleContinuousPrefill();
+}
+
+async function initializeAutofillPreferences(): Promise<void> {
+  try {
+    const stored = await chrome.storage.sync.get(AUTOFILL_PREFERENCES_KEY);
+    currentAutofillPreferences = normalizeAutofillPreferences(
+      stored[AUTOFILL_PREFERENCES_KEY],
+    );
+  } catch {
+    currentAutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
+  }
+  if (currentAutofillPreferences.mode === 'continuous') startContinuousPrefill();
+}
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== 'sync' || !changes[AUTOFILL_PREFERENCES_KEY]) return;
+  currentAutofillPreferences = normalizeAutofillPreferences(
+    changes[AUTOFILL_PREFERENCES_KEY].newValue,
+  );
+  if (currentAutofillPreferences.mode === 'continuous') startContinuousPrefill();
+  else stopContinuousPrefill();
+});
 
 /**
  * False once the extension is reloaded/updated while THIS old content script is
@@ -3770,6 +3940,7 @@ function extAlive(): boolean {
 
 /** Stop every timer/observer and remove the widget (used when the context dies). */
 function teardownWidgetRuntime() {
+  stopContinuousPrefill();
   if (_spaObserver) {
     _spaObserver.disconnect();
     _spaObserver = null;
@@ -3855,6 +4026,7 @@ function startEarlyRetryLoop() {
 
 // Cleanup on page unload (navigation away in non-SPA contexts).
 window.addEventListener('pagehide', () => {
+  stopContinuousPrefill();
   if (_spaObserver) { _spaObserver.disconnect(); _spaObserver = null; }
   if (_earlyRetryId !== null) { window.clearInterval(_earlyRetryId); _earlyRetryId = null; }
   if (injectDebounceTimer) { clearTimeout(injectDebounceTimer); injectDebounceTimer = null; }
@@ -3912,11 +4084,15 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     resume?: GeneratedResumeAttachment;
     snapshot?: ResumeAutofillSnapshotV1;
     profileFallback?: BasicContactProfile;
+    autofillSkills?: boolean;
+    quietResultToast?: boolean;
   };
   void runPrefill({
     resume: prefill.resume,
     snapshot: prefill.snapshot,
     profileFallback: prefill.profileFallback,
+    autofillSkills: prefill.autofillSkills === true,
+    quietResultToast: prefill.quietResultToast === true,
     quietIfNoForm: true,
   })
     .then(() => sendResponse({ ok: true }))
@@ -3936,6 +4112,7 @@ if (window.top !== window.self) {
   if (!careerReason) {
     // Not a career page — fully inert, zero DOM work.
   } else {
+    void initializeAutofillPreferences();
     // Log why we activated (shows in DevTools → Console on career pages).
     console.log(`[TrackMyOPT] Career page detected: ${careerReason}`);
     if (shouldUseFullJobAssistMode()) {

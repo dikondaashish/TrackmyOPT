@@ -204,6 +204,8 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       resume?: { pdfBase64?: unknown; filename?: unknown };
       snapshot?: unknown;
       profileFallback?: unknown;
+      autofillSkills?: unknown;
+      quietResultToast?: unknown;
     };
     const requestedResume = requestedPrefill.resume;
     const resume = requestedResume &&
@@ -223,7 +225,13 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     );
     chrome.tabs.sendMessage(_sender.tab.id, {
       type: 'RUN_PREFILL_IN_CHILD_FRAME',
-      prefill: { resume, snapshot, profileFallback },
+      prefill: {
+        resume,
+        snapshot,
+        profileFallback,
+        autofillSkills: requestedPrefill.autofillSkills === true,
+        quietResultToast: requestedPrefill.quietResultToast === true,
+      },
     }).then(() => sendResponse({ ok: true })).catch(() => {
       // A page without child-frame receivers is normal; the top-frame engine
       // has already run, so this is not a user-visible error.

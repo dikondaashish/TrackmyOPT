@@ -23,7 +23,8 @@ export type FieldKind =
   | 'location'
   | 'yearsExperience'
   | 'linkedinUrl'
-  | 'portfolioUrl';
+  | 'portfolioUrl'
+  | 'skills';
 
 /**
  * Fields we refuse to auto-fill under any circumstance. (Unchanged from slice 1.)
@@ -72,6 +73,18 @@ export function classifyField(labelText: string): FieldKind | null {
   if (SENSITIVE_FIELD_RE.test(t)) return null; // always left for the user
   if (ESSAY_RE.test(t)) return null;
   if (ORG_TRAP_RE.test(t)) return null;
+
+  // Rule 8: only a dedicated, plainly labelled skills field. Qualifiers are
+  // intentionally allowlisted so technology-specific or eligibility prompts
+  // do not become resume-backed skills targets.
+  const dedicatedSkillsSignal = /\b(?:(?:technical|core|professional|key) )?skills\b/.test(t);
+  const skillsSignalRemainder = t
+    .replace(/\b(?:(?:technical|core|professional|key) )?skills\b/g, ' ')
+    .replace(/\b(?:enter|your|list|comma|separated|required|optional|field|add)\b/g, ' ')
+    .replace(/[(),*]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (dedicatedSkillsSignal && !skillsSignalRemainder) return 'skills';
 
   if (/\b(e-?mail|courriel|correo)\b/.test(t)) return 'email';
   if (/\b(phone|telephone|tel|téléphone|telefono|mobile|cell|portable)\b/.test(t)) return 'phone';

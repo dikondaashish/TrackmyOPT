@@ -32,6 +32,16 @@ const cases: Array<[string, ReturnType<typeof classifyField>]> = [
   ['address-level2', 'city'],
   ['name', 'fullName'],
   ['tel', 'phone'],
+  ['Skills', 'skills'],
+  ['Technical Skills', 'skills'],
+  ['Core Skills', 'skills'],
+  ['Professional Skills (comma separated)', 'skills'],
+  ['skills Technical Skills', 'skills'],
+  ['skills Enter your skills', 'skills'],
+  ['describe_your_skills', null],
+  ['years_of_java_experience', null],
+  ['Java skills', null],
+  ['Are you eligible to use Python skills in this role?', null],
 ];
 
 for (const [signal, expected] of cases) {
