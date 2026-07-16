@@ -76,4 +76,8 @@ __pycache__/
 all-in-one-career/
 AutoResumeDev/
 .cursor
+.claude/
 .vercel
+
+# Local scratch / generated assets
+tmp/
