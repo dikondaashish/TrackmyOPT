@@ -220,3 +220,23 @@ export type ResumeAutofillSnapshotV1 = z.infer<
 export type GeneratedResumeArtifactV1 = z.infer<
   typeof GeneratedResumeArtifactV1Schema
 >;
+
+export const GenerateCoverLetterRequestSchema = z.object({
+  snapshot: ResumeAutofillSnapshotV1Schema,
+  sourceContentHash: sha256,
+  job: z.object({
+    companyName: requiredShortText,
+    roleTitle: requiredShortText,
+    jobDescription: z.string().trim().min(1).max(AUTOFILL_CONTRACT_LIMITS.description),
+  }).strict(),
+}).strict();
+export type GenerateCoverLetterRequest = z.infer<typeof GenerateCoverLetterRequestSchema>;
+
+export const GeneratedCoverLetterAttachmentSchema = z.object({
+  filename,
+  base64: base64Payload,
+  sha256,
+  generatedAt: isoDateTime,
+  sourceContentHash: sha256,
+}).strict();
+export type GeneratedCoverLetterAttachment = z.infer<typeof GeneratedCoverLetterAttachmentSchema>;

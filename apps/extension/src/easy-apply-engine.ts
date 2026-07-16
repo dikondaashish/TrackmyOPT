@@ -38,6 +38,7 @@ import { buildContactAutofillProfile } from './prefill-contact-source';
 import { buildSkillsPrefillValue } from './skills-prefill';
 import type {
   BasicContactProfile,
+  GeneratedCoverLetterAttachment,
   ResumeAutofillSnapshotV1,
 } from './resume-autofill-contract';
 
@@ -52,6 +53,7 @@ export interface GeneratedResumeAttachment {
 
 export interface PrefillOptions {
   resume?: GeneratedResumeAttachment;
+  coverLetter?: GeneratedCoverLetterAttachment;
   snapshot?: ResumeAutofillSnapshotV1;
   profileFallback?: BasicContactProfile;
   /** Rule 8 is default-off and only reads snapshot.skills when explicitly on. */
@@ -423,6 +425,20 @@ function attachGeneratedResume(
   return sawResumeInput ? 'unsupported' : 'not_found';
 }
 
+export function attachGeneratedCoverLetter(container: HTMLElement, attachment?: GeneratedCoverLetterAttachment): ResumeAttachmentResult {
+  if (!attachment) return 'not_requested';
+  const file = pdfBase64ToFile(attachment.base64, attachment.filename);
+  if (!file || typeof DataTransfer === 'undefined') return 'unsupported';
+  let saw=false;
+  for (const input of queryAllDeep<HTMLInputElement>(container,'input[type="file"]')) {
+    const label=getFileInputLabel(input);
+    if (!/\b(cover\s*letter|letter\s*of\s*interest)\b/i.test(label) || /\b(resume|cv|portfolio|transcript|photo|certificate)\b/i.test(label)) continue;
+    saw=true; if(input.disabled) continue; if(input.files?.length) return 'already_present'; if(!acceptsPdf(input)) continue;
+    try { const transfer=new DataTransfer(); transfer.items.add(file); input.files=transfer.files; input.dispatchEvent(new Event('input',{bubbles:true})); input.dispatchEvent(new Event('change',{bubbles:true})); return 'attached'; } catch { return 'unsupported'; }
+  }
+  return saw?'unsupported':'not_found';
+}
+
 function showToast(message: string): void {
   document.getElementById(TOAST_ID)?.remove();
   const el = document.createElement('div');
@@ -683,6 +699,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   }
 
   const resumeResult = attachGeneratedResume(container, options.resume);
+  const coverLetterResult = attachGeneratedCoverLetter(container, options.coverLetter);
   const filledOutcomes: PrefillControlOutcome[] = resumeResult === 'attached'
     ? [{ filled: true, fieldGroup: 'resume' }]
     : [];

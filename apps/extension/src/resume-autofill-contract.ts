@@ -82,7 +82,18 @@ export interface GeneratedResumeAttachment {
   filename: string;
 }
 
-export type GeneratedCoverLetterAttachment = GeneratedResumeAttachment;
+export interface GeneratedCoverLetterAttachment {
+  filename: string;
+  base64: string;
+  sha256: string;
+  generatedAt: string;
+  sourceContentHash: string;
+}
+export interface GenerateCoverLetterRequest {
+  snapshot: ResumeAutofillSnapshotV1;
+  sourceContentHash: string;
+  job: { companyName: string; roleTitle: string; jobDescription: string };
+}
 
 export interface BasicContactProfile {
   firstName: string;
