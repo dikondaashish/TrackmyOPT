@@ -17,6 +17,9 @@ export async function resolveV1PrefillPayload(input: {
   artifact: GeneratedResumeArtifactV1 | null;
   request: V1PrefillPayloadRequest;
   fetchProfileFallback: () => Promise<ProfileFallbackResult>;
+  onArtifactRejected?: (
+    reason: 'expired' | 'job_changed' | 'invalid',
+  ) => void | Promise<void>;
 }): Promise<V1PrefillPayloadResponse> {
   let reason: 'missing' | 'expired' | 'job_changed' | 'invalid' | undefined;
   let validArtifact: GeneratedResumeArtifactV1 | undefined;
@@ -38,6 +41,10 @@ export async function resolveV1PrefillPayload(input: {
       if (lifecycle.valid) validArtifact = input.artifact;
       else reason = lifecycle.reason;
     }
+  }
+
+  if (reason && reason !== 'missing') {
+    await input.onArtifactRejected?.(reason);
   }
 
   const fallbackResult = await input.fetchProfileFallback();

@@ -91,13 +91,11 @@ export function artifactExpectedForSession(
 
 export function renderInactiveArtifactFallback(input: {
   host: HTMLElement;
-  storage: SessionStorageLike;
-  jobContext: JobContextIdentity;
   artifactAvailable: boolean;
 }): boolean {
-  const visible =
-    !input.artifactAvailable &&
-    artifactExpectedForSession(input.storage, input.jobContext);
+  // Mount reconciliation always asks the authoritative background resolver.
+  // A missing marker must never turn an unavailable artifact into a silent UI.
+  const visible = !input.artifactAvailable;
   input.host.textContent = visible ? INACTIVE_ARTIFACT_FALLBACK_MESSAGE : '';
   input.host.style.display = visible ? 'block' : 'none';
   if (visible) input.host.setAttribute('role', 'alert');

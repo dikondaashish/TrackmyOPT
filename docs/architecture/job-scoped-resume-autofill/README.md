@@ -504,24 +504,30 @@ use fuzzy matching, opener-tab inheritance, or “close enough” job reassignme
 
 ### V1 artifact lifecycle
 
-**[MODIFIED — simplified for V1]**
+**[MODIFIED — live reliability correction]**
 
-V1 keeps the artifact in the current widget/content-script memory, building on
-`generatedResumeForCurrentJob`:
+V1 keeps exactly one active artifact. The background service worker owns it,
+uses a module-level value as a fast cache, and stores the same bounded value in
+`chrome.storage.session` so MV3 worker recreation cannot discard it during a
+same-job application-route navigation:
 
 - **Generate:** set `generatedAt` and `expiresAt = generatedAt + 30 minutes`.
 - **Prefill:** re-check expiration, URL, company, role, schema, and content
   hashes immediately before filling.
-- **Generate again:** replace the current in-memory artifact.
+- **Generate again:** replace the single background/session artifact; never
+  retain a second job artifact.
 - **URL/company/role changes:** invalidate and discard the artifact immediately.
 - **User edits the generated resume:** invalidate the artifact until the edited
   version is recompiled and revalidated.
-- **Reload, content-script recreation, or new tab:** no artifact is available;
-  offer profile-only prefill or ask the user to generate again in that context.
-- **Sign-out:** clear the in-memory artifact.
+- **Reload or content-script recreation:** ask the background resolver, rehydrate
+  from `chrome.storage.session` if needed, and run the full validation chain.
+- **New tab:** no automatic handoff or tab association is inferred.
+- **Sign-out:** clear both the memory cache and session artifact.
 
-There is no `chrome.storage.session` artifact persistence, tab binding,
-opener-tab inheritance, or new-tab handoff confirmation UI in V1.
+The session store uses one fixed key and a serialized-size ceiling below
+Chrome's 10 MiB quota. Oversized artifacts are not persisted. This is not a
+tab registry: there is still no tab binding, opener-tab inheritance, cross-job
+selection, or new-tab handoff confirmation UI in V1.
 
 This is an intentional time-to-market tradeoff. The widget should explain expiry
 or context mismatch clearly rather than silently selecting another resume.

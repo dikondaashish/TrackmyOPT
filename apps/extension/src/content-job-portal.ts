@@ -56,7 +56,6 @@ import {
   type V1PrefillPayloadResponse,
 } from './resume-autofill-contract';
 import {
-  artifactExpectedForSession,
   clearArtifactExpectedForSession,
   rememberArtifactExpectedForSession,
   renderInactiveArtifactFallback,
@@ -275,9 +274,9 @@ async function reconcileArtifactAvailabilityOnWidgetMount(
   fallbackHost: HTMLElement,
 ): Promise<void> {
   const context = jobContextFor(job);
-  const storage = currentSessionStorage();
-  if (!storage || !artifactExpectedForSession(storage, context)) return;
-
+  // A newly injected content script never trusts its empty module cache. Ask
+  // the background owner on every mount, including when the page marker was
+  // lost or parsed identity is temporarily incomplete.
   const resolved = (await chrome.runtime.sendMessage({
     type: 'RESOLVE_V1_PREFILL_PAYLOAD',
     request: { now: new Date().toISOString(), jobContext: context },
@@ -287,15 +286,16 @@ async function reconcileArtifactAvailabilityOnWidgetMount(
   );
   renderInactiveArtifactFallback({
     host: fallbackHost,
-    storage,
-    jobContext: context,
     artifactAvailable,
   });
+  const label = prefillButton.querySelector<HTMLElement>('.tmo-action-label');
   if (artifactAvailable) {
-    const label = prefillButton.querySelector<HTMLElement>('.tmo-action-label');
     if (label) label.textContent = 'Prefill application + resume';
     prefillButton.title =
       'Prefill profile fields and attach the custom resume generated for this job';
+  } else {
+    if (label) label.textContent = 'Prefill application';
+    prefillButton.title = 'Prefill available profile fields for this application';
   }
 }
 
