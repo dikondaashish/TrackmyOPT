@@ -10,6 +10,17 @@ export const metadata: Metadata = {
 
 const blogPosts = [
     {
+        slug: "end-of-duration-of-status-f1-visa-rule",
+        title: "End of 'Duration of Status': What the New DHS 4-Year Visa Rule Means for OPT Students",
+        description: "DHS announced a final rule ending 'Duration of Status' for F-1 visas. Learn how the new 4-year cap, mandatory USCIS extensions, and 30-day grace period impact you.",
+        category: "Important",
+        readTime: "8 min read",
+        date: "July 16, 2026",
+        tags: ["F-1 Visa", "Duration of Status", "OPT Rules", "DHS"],
+        featured: true,
+        image: "/blog/dhs-visa-rule.png"
+    },
+    {
         slug: "form-i9-complete-guide",
         title: "Form I-9: The Complete 2026 Guide for Employees & Employers",
         description: "Everything you need to know about Form I-9 Employment Eligibility Verification — who fills it out, what documents are accepted, deadlines, and how OPT/STEM OPT students complete it.",
