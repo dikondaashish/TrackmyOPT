@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { buildGeneratedResumeArtifactV1 } from '../src/resume-artifact-lifecycle';
 import { resolveV1PrefillPayload } from '../src/prefill-payload-resolver';
+import { jobMemoryKey } from '../src/smart-flow';
 import type {
   BasicContactProfile,
   GeneratedResumeArtifactV1,
@@ -175,4 +176,54 @@ test('real Workday listing artifact resolves on the same-job apply route within 
   if (response.source !== 'generated_resume') return;
   assert.equal(response.artifactId, 'artifact-real-workday-route');
   assert.equal(response.resume.pdfBase64, generation.artifact.pdf.base64);
+});
+
+test('live Workday artifact with the literal company, role, and generated job key resolves on the apply route', async () => {
+  const liveCompanyName = 'OMLUS Hearts and Science LLC';
+  const liveRoleTitle = 'Analyst, Business Analytics';
+  const liveJobKey = jobMemoryKey({
+    jobUrl: REAL_WORKDAY_LISTING_URL,
+    companyName: liveCompanyName,
+    roleTitle: liveRoleTitle,
+  });
+
+  // This is the exact 217-character key produced during the live reproduction.
+  assert.equal(liveJobKey.length, 217);
+
+  const generation = await buildGeneratedResumeArtifactV1({
+    artifactId: 'artifact-live-workday-route',
+    generatedAt: '2026-07-16T12:00:00.000Z',
+    sourceResumeId: 'resume-a',
+    sourceResumeFilename: 'resume-a.pdf',
+    templateId: 'classic',
+    jobKey: liveJobKey,
+    jobContext: {
+      jobUrl: REAL_WORKDAY_LISTING_URL,
+      companyName: liveCompanyName,
+      roleTitle: liveRoleTitle,
+    },
+    finalLatex: '\\begin{document}Live Workday route fixture\\end{document}',
+    pdfBase64: 'JVBERi0xLjQK',
+    pdfFilename: 'resume-a.pdf',
+  });
+
+  assert.match(generation.artifact.job.jobKey, /^sha256:[a-f0-9]{64}$/);
+  assert.ok(generation.artifact.job.jobKey.length <= 200);
+
+  const response = await resolveV1PrefillPayload({
+    artifact: generation.artifact,
+    request: {
+      now: '2026-07-16T12:29:59.999Z',
+      jobContext: {
+        jobUrl: REAL_WORKDAY_APPLY_URL,
+        companyName: liveCompanyName,
+        roleTitle: liveRoleTitle,
+      },
+    },
+    fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
+  });
+
+  assert.equal(response.ok, true);
+  if (!response.ok) return;
+  assert.equal(response.source, 'generated_resume');
 });

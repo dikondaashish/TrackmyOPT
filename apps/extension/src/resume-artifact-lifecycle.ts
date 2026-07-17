@@ -8,6 +8,7 @@ import {
 } from './resume-autofill-contract';
 
 export const RESUME_ARTIFACT_TTL_MS = 30 * 60 * 1_000;
+const ARTIFACT_IDENTIFIER_MAX_LENGTH = 200;
 
 export type ArtifactInvalidReason =
   | 'missing'
@@ -95,6 +96,11 @@ export async function buildGeneratedResumeArtifactV1(input: {
     new TextEncoder().encode(input.finalLatex)
   );
   const pdfHash = await sha256Hex(decodeBase64(input.pdfBase64));
+  const normalizedJobKey = normalizeDisplayText(input.jobKey);
+  const artifactJobKey =
+    normalizedJobKey.length <= ARTIFACT_IDENTIFIER_MAX_LENGTH
+      ? normalizedJobKey
+      : `sha256:${await sha256Hex(new TextEncoder().encode(normalizedJobKey))}`;
   const structuredFieldsAvailable = Boolean(
     input.extractedSnapshot &&
       input.extractedContentHash === generatedContentHash
@@ -109,7 +115,7 @@ export async function buildGeneratedResumeArtifactV1(input: {
       sourceResumeFilename: input.sourceResumeFilename,
       templateId: input.templateId,
       job: {
-        jobKey: input.jobKey,
+        jobKey: artifactJobKey,
         companyName: normalizeDisplayText(input.jobContext.companyName),
         roleTitle: normalizeDisplayText(input.jobContext.roleTitle),
         sourceUrl: normalizeJobUrl(input.jobContext.jobUrl),
