@@ -23,6 +23,11 @@ import type {
 import { buildGeneratedResumeArtifactV1 } from './resume-artifact-lifecycle';
 import { resolveV1PrefillPayload } from './prefill-payload-resolver';
 import { validateResumeAutofillSnapshotV1 } from './resume-artifact-validator';
+import {
+  clearActiveGeneratedResumeArtifact,
+  readActiveGeneratedResumeArtifact,
+  replaceActiveGeneratedResumeArtifact,
+} from './active-resume-artifact-store';
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
@@ -35,9 +40,30 @@ chrome.runtime.onInstalled.addListener(() => {
 // the cached token never outlives the issued token.
 const TOKEN_TTL_MS = 5 * 60 * 1000;
 
-// V1 is deliberately memory-only. Service-worker recreation makes this
-// unavailable and resolves to profile_only; it is never persisted to storage.
+// V1 still owns exactly one active artifact. The memory value is a fast cache;
+// chrome.storage.session is authoritative across MV3 worker recreation.
 let currentGeneratedResumeArtifact: GeneratedResumeArtifactV1 | null = null;
+
+async function clearCurrentGeneratedResumeArtifact(): Promise<void> {
+  currentGeneratedResumeArtifact = null;
+  await clearActiveGeneratedResumeArtifact();
+}
+
+async function cacheCurrentGeneratedResumeArtifact(
+  artifact: GeneratedResumeArtifactV1,
+): Promise<void> {
+  currentGeneratedResumeArtifact = artifact;
+  await replaceActiveGeneratedResumeArtifact(artifact);
+}
+
+async function readCurrentGeneratedResumeArtifact(): Promise<GeneratedResumeArtifactV1 | null> {
+  if (currentGeneratedResumeArtifact) return currentGeneratedResumeArtifact;
+  const stored = await readActiveGeneratedResumeArtifact();
+  if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
+    currentGeneratedResumeArtifact = stored as GeneratedResumeArtifactV1;
+  }
+  return currentGeneratedResumeArtifact;
+}
 
 /** True if JWT `exp` is more than 60s in the future (matches popup refresh heuristic). */
 function isJwtNotExpired(token: string): boolean {
@@ -125,7 +151,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === 'EXTENSION_SIGN_OUT') {
     performExtensionSignOut()
       .then(async () => {
-        currentGeneratedResumeArtifact = null;
+        await clearCurrentGeneratedResumeArtifact();
         const tabs = await chrome.tabs.query({}).catch(() => []);
         await Promise.allSettled(
           tabs
@@ -183,13 +209,6 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     };
     resolveCurrentV1PrefillPayload(request)
       .then((response) => {
-        if (
-          response.ok &&
-          response.source === 'profile_only' &&
-          response.reason !== 'missing'
-        ) {
-          currentGeneratedResumeArtifact = null;
-        }
         sendResponse(response);
       })
       .catch(() => sendResponse({ ok: false as const, error: 'unavailable' }));
@@ -249,7 +268,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     // Orchestrate selected resume -> tailored LaTeX -> compiled PDF. Bearer
     // stays in the background; the page receives only the result and an opaque
     // authenticated editor-handoff URL.
-    generateTailoredResume({
+    clearCurrentGeneratedResumeArtifact().then(() => generateTailoredResume({
       jobDescription: String(msg.jobDescription ?? ''),
       resumeId: String(msg.resumeId ?? ''),
       templateId: String(msg.templateId ?? ''),
@@ -262,7 +281,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         ? msg.focusKeywords.map((keyword: unknown) => String(keyword ?? '')).filter(Boolean)
         : [],
       baselineScore: typeof msg.baselineScore === 'number' ? msg.baselineScore : undefined,
-    })
+    }))
       .then((res) => sendResponse(res))
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
     return true;
@@ -404,9 +423,11 @@ function sanitizeBasicContactProfile(value: unknown): BasicContactProfile | unde
 async function resolveCurrentV1PrefillPayload(
   request: V1PrefillPayloadRequest
 ): Promise<V1PrefillPayloadResponse> {
-  return resolveV1PrefillPayload({
-    artifact: currentGeneratedResumeArtifact,
+  const artifact = await readCurrentGeneratedResumeArtifact();
+  const response = await resolveV1PrefillPayload({
+    artifact,
     request,
+    onArtifactRejected: clearCurrentGeneratedResumeArtifact,
     fetchProfileFallback: async () => {
       const result = await getAutofillProfile();
       return {
@@ -416,6 +437,7 @@ async function resolveCurrentV1PrefillPayload(
       };
     },
   });
+  return response;
 }
 
 async function getAutofillProfile(): Promise<AutofillProfileResult> {
@@ -791,6 +813,7 @@ async function generateCoverLetterForCurrentArtifact(input: {
     return { ok: false, error: 'source_hash_mismatch', limits: result.limits };
   }
   artifact.coverLetter = result.attachment;
+  await replaceActiveGeneratedResumeArtifact(artifact);
   return { ok: true, attachment: result.attachment, draftText: result.draftText || '', limits: result.limits };
 }
 
@@ -812,6 +835,7 @@ async function recompileCoverLetterForCurrentArtifact(input: {
   if (!artifact || artifact.artifactId !== input.artifactId) return { ok: false, error: 'artifact_unavailable' };
   // Invalidate synchronously before any asynchronous compiler work begins.
   artifact.coverLetter = undefined;
+  await replaceActiveGeneratedResumeArtifact(artifact);
   if (input.sourceContentHash !== artifact.generatedContentHash || !input.editedText.trim()) {
     return { ok: false, error: 'source_hash_mismatch' };
   }
@@ -836,6 +860,7 @@ async function recompileCoverLetterForCurrentArtifact(input: {
     sourceContentHash: artifact.generatedContentHash,
   };
   artifact.coverLetter = attachment;
+  await replaceActiveGeneratedResumeArtifact(artifact);
   return { ok: true, attachment, draftText: input.editedText };
 }
 
@@ -1024,7 +1049,7 @@ async function generateTailoredResume(input: {
       pdfFilename: outputFilename,
     });
     artifact = builtArtifact.artifact;
-    currentGeneratedResumeArtifact = artifact;
+    await cacheCurrentGeneratedResumeArtifact(artifact);
     snapshotExtraction = {
       structuredFieldsAvailable: builtArtifact.structuredFieldsAvailable,
       generatedContentHash: artifact.generatedContentHash,
@@ -1034,7 +1059,7 @@ async function generateTailoredResume(input: {
       reason: snapshotExtraction?.reason,
     };
   } catch {
-    currentGeneratedResumeArtifact = null;
+    await clearCurrentGeneratedResumeArtifact();
     // PDF download remains available if local hashing is unexpectedly unavailable.
   }
 
