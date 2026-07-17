@@ -387,7 +387,7 @@ export default function DurationOfStatusRulePage() {
                             <span className="text-primary mt-0.5">25.</span> Are there 2-year limits for certain countries or schools?
                         </h4>
                         <p className="text-gray-700 dark:text-gray-300 mb-0 ml-6">
-                            <strong>Yes.</strong> Students from countries on the State Sponsor of Terrorism list, or countries with high visa overstay rates (>10%), or those attending non-E-Verify schools, are capped at a 2-year maximum admission instead of 4 years.
+                            <strong>Yes.</strong> Students from countries on the State Sponsor of Terrorism list, or countries with high visa overstay rates (&gt;10%), or those attending non-E-Verify schools, are capped at a 2-year maximum admission instead of 4 years.
                         </p>
                     </div>
                 </div>
