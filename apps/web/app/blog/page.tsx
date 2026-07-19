@@ -11,6 +11,50 @@ export const metadata: Metadata = {
 
 const blogPosts = [
     {
+        slug: "h1b-fy2027-cap-closed-no-second-lottery",
+        title: "USCIS Closes FY 2027 H-1B Cap: No Second Lottery & What OPT Students Must Do Next",
+        description: "USCIS has officially reached the 85,000 cap for FY 2027 H-1B petitions and announced there will be no second lottery. Discover your backup options if you weren't selected.",
+        category: "Breaking News",
+        readTime: "6 min read",
+        date: "July 18, 2026",
+        tags: ["H-1B", "Second Lottery", "USCIS"],
+        featured: true,
+        image: "/blog/h1b-fy2027-cap-closed-no-second-lottery.png"
+    },
+    {
+        slug: "uscis-new-strict-signature-requirements-2026",
+        title: "Don't Get Denied: Navigate USCIS's New Strict Signature Rules for OPT",
+        description: "USCIS has implemented stricter signature requirements for all applications, including Form I-765. Learn how to sign correctly to avoid instant denial.",
+        category: "Compliance Update",
+        readTime: "5 min read",
+        date: "July 16, 2026",
+        tags: ["USCIS", "Signatures", "I-765"],
+        featured: true,
+        image: "/blog/uscis-new-strict-signature-requirements-2026.png"
+    },
+    {
+        slug: "f1-visa-interview-waivers-restricted-2026",
+        title: "F-1 Visa Renewals in 2026: Why You Now Need an In-Person Interview",
+        description: "The State Department has severely restricted interview waivers for nonimmigrant visas in 2026. Prepare for mandatory in-person consular interviews if traveling home.",
+        category: "Travel Update",
+        readTime: "6 min read",
+        date: "July 15, 2026",
+        tags: ["Travel", "Visa Interview", "Dropbox"],
+        featured: false,
+        image: "/blog/f1-visa-interview-waivers-restricted-2026.png"
+    },
+    {
+        slug: "opt-premium-processing-fee-increase-1780",
+        title: "Is the $1,780 Premium Processing Fee Worth It for Your OPT Application?",
+        description: "USCIS increased the premium processing fee for Form I-765 to $1,780. We break down the timeline and help you decide if it's worth the cost for your OPT application.",
+        category: "USCIS Fees",
+        readTime: "7 min read",
+        date: "July 14, 2026",
+        tags: ["Premium Processing", "Fees", "USCIS"],
+        featured: false,
+        image: "/blog/opt-premium-processing-fee-increase-1780.png"
+    },
+    {
         slug: "end-of-duration-of-status-f1-visa-rule",
         title: "End of 'Duration of Status': What the New DHS 4-Year Visa Rule Means for OPT Students",
         description: "DHS announced a final rule ending 'Duration of Status' for F-1 visas. Learn how the new 4-year cap, mandatory USCIS extensions, and 30-day grace period impact you.",
