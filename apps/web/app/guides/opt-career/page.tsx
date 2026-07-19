@@ -60,7 +60,7 @@ export default function OPTCareerPillarGuide() {
                 "dateModified": "2026-03-12",
                 "author": {
                     "@type": "Organization",
-                    "name": "TrackMyOPT Team",
+                    "name": "Vinay Kumar",
                     "url": "https://www.trackmyopt.com"
                 },
                 "publisher": {
@@ -202,7 +202,7 @@ export default function OPTCareerPillarGuide() {
                     The definitive career resource for F-1 international students. Everything you need to land a job, navigate sponsorship,
                     negotiate your worth, and build a long-term career in the United States.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: March 12, 2026 • Written by Vinay Kumar</div>
             </header>
 
             {/* Key Takeaway */}

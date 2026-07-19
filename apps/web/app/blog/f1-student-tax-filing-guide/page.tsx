@@ -29,7 +29,7 @@ export default function F1TaxFilingGuide() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "F1 Student Tax Filing Guide", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" howToItems={[{step: 1, name: "Determine Your Residency Status", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#residency", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Complete Form 8843", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#form-8843", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Complete Form 1040-NR if You Earned Income", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#form-1040-nr", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Gather All Required Documents", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#documents", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "File With the IRS Before Deadline", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#filing", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Keep Your Records for Future Years", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#records", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-02-12" modifiedDate="2026-02-12" author="Vinay Kumar" howToItems={[{step: 1, name: "Determine Your Residency Status", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#residency", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Complete Form 8843", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#form-8843", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Complete Form 1040-NR if You Earned Income", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#form-1040-nr", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Gather All Required Documents", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#documents", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "File With the IRS Before Deadline", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#filing", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Keep Your Records for Future Years", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide#records", image: "https://www.trackmyopt.com/og-image.png"}]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -57,9 +57,9 @@ export default function F1TaxFilingGuide() {
                     Filing taxes as an international student is confusing — especially when the rules differ from US citizens. This guide breaks down every form, deadline, and exemption F-1 students need to know for the 2026 tax season.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Last updated: March 12, 2026</span>
+                    <span>Last updated: February 12, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

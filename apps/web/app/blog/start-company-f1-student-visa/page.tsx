@@ -30,9 +30,9 @@ export default function F1StartupArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-05-25" 
+                modifiedDate="2026-05-25" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "Can an F-1 student register an LLC or C-Corp?", answer: "Yes. An F-1 student can legally register a company, invest money, and hold shares. However, they cannot actively work for or operate the company without proper work authorization."}, 
                     {question: "What is considered active vs. passive involvement?", answer: "Active involvement (illegal on F-1) includes coding the app, making sales calls, or managing employees. Passive involvement (legal) means acting solely as an investor or shareholder."} 
@@ -56,7 +56,7 @@ export default function F1StartupArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     You have a billion-dollar idea, but you are studying in the US on an F-1 visa. This article is for international students who want to build a startup without risking deportation.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: May 25, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <figure className="mb-12">

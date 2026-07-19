@@ -40,9 +40,9 @@ export default function FormI9GuidePage() {
             <BlogPostSchema
                 title={metadata.title as string}
                 description={metadata.description as string}
-                publishedDate="2026-06-12"
-                modifiedDate="2026-06-12"
-                author="TrackMyOPT Team"
+                publishedDate="2026-02-23"
+                modifiedDate="2026-02-23"
+                author="Vinay Kumar"
                 faqItems={faqItems}
             />
 
@@ -63,7 +63,7 @@ export default function FormI9GuidePage() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Whether you are a first-time employee, an HR manager, or an international student on OPT, this guide explains everything about Form I-9 — what it is, who fills it out, which documents to use, and how to stay compliant.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: February 23, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img

@@ -40,9 +40,9 @@ export default function FormI765GuidePage() {
             <BlogPostSchema
                 title={metadata.title as string}
                 description={metadata.description as string}
-                publishedDate="2026-06-12"
-                modifiedDate="2026-06-12"
-                author="TrackMyOPT Team"
+                publishedDate="2026-02-21"
+                modifiedDate="2026-02-21"
+                author="Vinay Kumar"
                 faqItems={faqItems}
             />
 
@@ -63,7 +63,7 @@ export default function FormI765GuidePage() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Form I-765 is the application that gets you your EAD card — your legal permission to work in the United States as an F-1 student on OPT. This guide covers every field, every fee, every deadline, and every common mistake.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: February 21, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img
@@ -360,6 +360,15 @@ export default function FormI765GuidePage() {
                     ))}
                 </div>
             </section>
+
+            
+            {/* Internal Linking for SEO */}
+            <div className="my-12 p-8 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Guides & Resources</h3>
+                <ul className="space-y-4 list-disc pl-5">
+                    <li><Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">OPT Processing Times & Tips to Avoid Delays</Link></li>\n                    <li><Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">OPT Application Checklist 2026</Link></li>\n                    <li><Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">Complete STEM OPT Guide: Extension & Application</Link></li>
+                </ul>
+            </div>
 
             <AuthorBio />
 

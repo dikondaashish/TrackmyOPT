@@ -40,9 +40,9 @@ export default function FormI983GuidePage() {
             <BlogPostSchema
                 title={metadata.title as string}
                 description={metadata.description as string}
-                publishedDate="2026-06-12"
-                modifiedDate="2026-06-12"
-                author="TrackMyOPT Team"
+                publishedDate="2026-02-25"
+                modifiedDate="2026-02-25"
+                author="Vinay Kumar"
                 faqItems={faqItems}
             />
 
@@ -63,7 +63,7 @@ export default function FormI983GuidePage() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Form I-983 is the most misunderstood document in the entire STEM OPT process — yet it is the foundation of your 24-month extension. This guide walks you and your employer through every section, every reporting requirement, and every compliance rule you need to know.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: February 25, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/sevp-portal-guide-opt",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/sevp-portal-guide.png",
@@ -41,9 +41,9 @@ export default function SEVPortalGuide() {
             <BlogPostSchema
                 title="SEVP Portal Complete Guide: Setup, Unlock & Reporting for OPT & STEM OPT"
                 description="Ultimate step-by-step guide for setting up, unlocking, and managing your SEVP Portal account to report OPT compliance events."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-05-20"
+                modifiedDate="2026-05-20"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "How do I get an SEVP Portal registration email?", answer: "Once your OPT application is approved by USCIS and your OPT start date arrives, the Student and Exchange Visitor Program (SEVP) automatically emails a registration link to your school's registered email address. The email comes from do-not-reply.sevp@ice.dhs.gov." },
                     { question: "What do I do if my SEVP Portal account is locked?", answer: "If your account is locked due to too many failed login attempts, you must contact your school's Designated School Official (DSO). Only your DSO can send a portal reset or profile unlocking request to SEVP on your behalf." },
@@ -77,9 +77,9 @@ export default function SEVPortalGuide() {
                     The Student and Exchange Visitor Portal (SEVP Portal) is the federal government&apos;s direct reporting system for F-1 OPT students. Failing to set up your account or report within 10 days can result in SEVIS termination. Here is how to keep your record in status.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: May 20, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

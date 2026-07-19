@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/opt-reporting-requirements-dso",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/opt-reporting-requirements.png",
@@ -41,9 +41,9 @@ export default function OPTReportingRequirements() {
             <BlogPostSchema
                 title="OPT & STEM OPT Reporting Requirements: Complete DSO Guide"
                 description="Everything F-1 students must report to their DSO during post-completion OPT and STEM OPT."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-04-21"
+                modifiedDate="2026-04-21"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "What is the 10-day reporting rule on OPT?", answer: "Under 8 CFR § 214.2(f)(12), F-1 students on OPT must report any changes to their legal name, residential address, employer name, or employer address within 10 days of the change." },
                     { question: "What do STEM OPT students need to report every 6 months?", answer: "STEM OPT students must submit a validation report to their DSO every 6 months to confirm that their residential address and employer information in SEVIS are correct." },
@@ -77,9 +77,9 @@ export default function OPTReportingRequirements() {
                     Maintaining status on OPT requires strict reporting discipline. From updating your residential address to validating your STEM OPT employment, here is the comprehensive guide on what, when, and how to report.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: April 21, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

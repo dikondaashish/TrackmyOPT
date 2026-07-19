@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/cpt-complete-guide",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/cpt-complete-guide.png",
@@ -41,9 +41,9 @@ export default function CPTCompleteGuide() {
             <BlogPostSchema
                 title="CPT Complete Guide 2026: Eligibility, Application & Rules for F-1 Students"
                 description="Everything F-1 students need to know about Curricular Practical Training (CPT): eligibility, application, Day 1 CPT risks, and how CPT affects OPT."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-02-02"
+                modifiedDate="2026-02-02"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "What is CPT and who is eligible?", answer: "Curricular Practical Training (CPT) is a type of F-1 work authorization that allows students to participate in internships, co-ops, or practicums that are an integral part of their curriculum. You must have been enrolled full-time for at least one academic year (two semesters) before you can apply, unless your program requires immediate participation." },
                     { question: "Does using CPT affect my OPT eligibility?", answer: "Part-time CPT (20 hours/week or less) does not affect your OPT eligibility at all. However, if you accumulate 12 months or more of full-time CPT, you become ineligible for post-completion OPT at that same degree level." },
@@ -80,9 +80,9 @@ export default function CPTCompleteGuide() {
                     Curricular Practical Training (CPT) is one of the most valuable work authorizations available to F-1 students — but using it incorrectly can cost you your OPT. Here is everything you need to know.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: February 2, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

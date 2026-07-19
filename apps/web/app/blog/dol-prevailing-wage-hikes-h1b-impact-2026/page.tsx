@@ -30,9 +30,9 @@ export default function PrevailingWageArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-05-14" 
+                modifiedDate="2026-05-14" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "What is the new DOL prevailing wage rule for H-1B?", answer: "Proposed in March 2026, this rule seeks to significantly raise the minimum salary thresholds (prevailing wages) that employers must pay to sponsor H-1B, E-3, and PERM green card workers."}, 
                     {question: "How much will H-1B minimum salaries increase?", answer: "Under the proposal, entry-level (Level 1) wages would jump from the 17th percentile to the 35th percentile of the wage distribution, effectively raising minimum salaries by tens of thousands of dollars in major tech hubs."} 
@@ -56,7 +56,7 @@ export default function PrevailingWageArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     The Department of Labor is pushing to dramatically increase the minimum salary required for H-1B sponsorship. This article is for international graduates on OPT and employers navigating the escalating costs of foreign talent.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: May 13, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img 

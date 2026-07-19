@@ -32,9 +32,9 @@ export default function PermLaborCertificationPage() {
             <BlogPostSchema
                 title={metadata.title as string}
                 description={metadata.description as string}
-                publishedDate="2026-07-12"
-                modifiedDate="2026-07-12"
-                author="TrackMyOPT Team"
+                publishedDate="2026-04-29"
+                modifiedDate="2026-04-29"
+                author="Vinay Kumar"
                 canonicalUrl={metadata.alternates?.canonical as string}
             />
 

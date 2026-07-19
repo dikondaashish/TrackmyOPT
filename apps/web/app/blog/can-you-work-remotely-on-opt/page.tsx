@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/can-you-work-remotely-on-opt",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/remote-work-opt.png",
@@ -41,9 +41,9 @@ export default function RemoteWorkOPTGuide() {
             <BlogPostSchema
                 title="Can You Work Remotely on OPT? Remote Work Rules for F-1 Students"
                 description="Complete guide to remote work rules on OPT and STEM OPT for F-1 students."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-01-26"
+                modifiedDate="2026-01-26"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "Can I work remotely on OPT?", answer: "Yes, F-1 students on OPT can work remotely. The employment must still be directly related to your field of study, at least 20 hours per week, and properly reported to your DSO. Remote work follows the same rules as in-office OPT employment." },
                     { question: "Can I work remotely from a different state than my employer?", answer: "Yes, but you must update your address with USCIS (Form AR-11) and in the SEVP Portal within 10 days of moving. Your employer may also need to comply with the new state's tax and labor laws." },
@@ -77,9 +77,9 @@ export default function RemoteWorkOPTGuide() {
                     Remote work is now standard in most industries — but what are the rules for F-1 students on OPT? Here is what&apos;s allowed, what&apos;s not, and how to stay compliant.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: January 25, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

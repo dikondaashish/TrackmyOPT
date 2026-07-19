@@ -78,9 +78,9 @@ export default function IsOptEndingBlogPage() {
             <BlogPostSchema
                 title={metadata.title as string}
                 description={metadata.description as string}
-                publishedDate="2026-05-14"
-                modifiedDate="2026-05-14"
-                author="TrackMyOPT Team"
+                publishedDate="2026-05-28"
+                modifiedDate="2026-05-28"
+                author="Vinay Kumar"
                 faqItems={faqItems}
             />
 
@@ -109,9 +109,9 @@ export default function IsOptEndingBlogPage() {
                     DHS has confirmed it is formally re-evaluating OPT and STEM OPT. Trump's USCIS nominee has stated he wants to eliminate post-completion work authorization. Here is what is real, what is a rumor, and exactly what you should do right now.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: May 14, 2026</span>
+                    <span>Published: May 27, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team (former F-1 students)</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

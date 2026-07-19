@@ -36,7 +36,7 @@ export default function CanYouTravelOnOPTArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Can You Travel on OPT Guide", url: "https://www.trackmyopt.com/blog/can-you-travel-on-opt-complete-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-23" modifiedDate="2026-03-23" author="TrackMyOPT Team" faqItems={[
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-01-24" modifiedDate="2026-01-24" author="Vinay Kumar" faqItems={[
                 { question: "Can I travel while waiting for OPT approval?", answer: "No, do not travel while OPT is pending unless absolutely necessary. If you leave the US while pending, your case may be denied or abandoned. If you must travel, contact your DSO first to understand the risks." },
                 { question: "Can I travel once OPT is approved?", answer: "Yes, once your I-765 is approved and you have valid OPT authorization, you can travel outside the US. You must have a valid passport and your EAD card to re-enter." },
                 { question: "Do I need a visa to travel on OPT?", answer: "If you're from a visa-exempt country (Canada, Mexico, most EU countries), you don't need a US visa to re-enter. If you're from a visa-required country, check if your F-1 visa is still valid. If expired, you'll need a new visa to re-enter the US." },
@@ -74,7 +74,7 @@ export default function CanYouTravelOnOPTArticle() {
                     Everything F-1 students need to know about traveling on OPT: travel while pending, required documents, visa requirements, and re-entry authorization.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: March 23, 2026</span>
+                    <span>Published: January 24, 2026</span>
                     <span>•</span>
                     <span>Updated by TrackMyOPT Travel Team</span>
                 </div>

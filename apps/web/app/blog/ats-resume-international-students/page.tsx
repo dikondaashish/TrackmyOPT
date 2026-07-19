@@ -32,7 +32,7 @@ export default function ATSResumeArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Ats Resume International Students", url: "https://www.trackmyopt.com/blog/ats-resume-international-students" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2025-03-20" modifiedDate="2026-03-20" author="TrackMyOPT Team" faqItems={[{question: "What is an ATS?", answer: "An Applicant Tracking System is software that scans and filters resumes before reaching a human recruiter."}, {question: "Why do ATS systems reject resumes?", answer: "ATS filters resumes for keywords, formatting, file type, and required qualifications. Poor formatting causes rejection."}, {question: "How do I make my resume ATS-friendly?", answer: "Use standard formatting, include keywords from the job posting, save as .docx or .pdf, use bullet points, avoid images and graphics."}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-01-17" modifiedDate="2026-01-17" author="Vinay Kumar" faqItems={[{question: "What is an ATS?", answer: "An Applicant Tracking System is software that scans and filters resumes before reaching a human recruiter."}, {question: "Why do ATS systems reject resumes?", answer: "ATS filters resumes for keywords, formatting, file type, and required qualifications. Poor formatting causes rejection."}, {question: "How do I make my resume ATS-friendly?", answer: "Use standard formatting, include keywords from the job posting, save as .docx or .pdf, use bullet points, avoid images and graphics."}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -50,7 +50,7 @@ export default function ATSResumeArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     98% of Fortune 500 companies use Applicant Tracking Systems to filter resumes before a human ever sees them. International students face extra hurdles. Here&apos;s exactly how to get past the bots.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: January 16, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">

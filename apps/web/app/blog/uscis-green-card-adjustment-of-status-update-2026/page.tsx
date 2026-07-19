@@ -30,9 +30,9 @@ export default function GreenCardUpdateArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-05-28" 
+                modifiedDate="2026-05-28" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "What is the new USCIS adjustment of status policy?", answer: "A May 2026 memo instructs officers to treat adjustment of status as an act of 'discretionary grace,' heavily encouraging applicants to use consular processing in their home countries instead."}, 
                     {question: "How does this affect H-1B holders waiting for a green card?", answer: "It creates uncertainty. Unless applicants can prove 'extraordinary circumstances,' USCIS may deny AOS applications and force individuals to travel to their home country's U.S. consulate to finalize their green card."} 
@@ -56,7 +56,7 @@ export default function GreenCardUpdateArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     A sweeping May 2026 memo is changing how U.S. immigration processes Green Cards. This article is for H-1B visa holders and employment-based Green Card applicants currently residing in the U.S. who intend to file Form I-485.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: May 27, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img 

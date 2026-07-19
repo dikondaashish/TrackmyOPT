@@ -30,9 +30,9 @@ export default function OPTCongressArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-05-22" 
+                modifiedDate="2026-05-22" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "Is Congress trying to cancel OPT?", answer: "There are currently dueling legislative efforts. While some lawmakers have introduced bills aiming to restrict or pause OPT to protect domestic workers, a bipartisan coalition has introduced legislation to permanently codify and protect OPT in federal law."}, 
                     {question: "Will the OPT program be eliminated in 2026?", answer: "It is highly unlikely to be eliminated overnight. The OPT program has survived decades of legal and legislative challenges. However, the current political climate means the program is under intense scrutiny."} 
@@ -56,7 +56,7 @@ export default function OPTCongressArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     The Optional Practical Training (OPT) program has become a major legislative battleground. This article is for universities, employers, and international students tracking the political future of post-graduate work authorization.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: May 21, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img 

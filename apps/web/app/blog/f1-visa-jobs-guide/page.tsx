@@ -21,7 +21,7 @@ export default function F1JobsArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "F1 Visa Jobs Guide", url: "https://www.trackmyopt.com/blog/f1-visa-jobs-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Can F-1 students work?", answer: "Yes. F-1 students can work based on CPT (Curricular Practical Training) during school, OPT (Optional Practical Training) after graduation, or on-campus employment up to 20 hours/week during school."}, {question: "How do I find H-1B sponsors?", answer: "Search the USCIS H-1B Employer Data Hub, use TrackMyOPT's Sponsor Database (which shows approval rates and salary data), check LinkedIn, or apply to companies known for sponsoring visa workers."}, {question: "When should I start job searching if I want to transition to H-1B?", answer: "Start job searching 6-9 months before your OPT would end. H-1B registration opens in March for a new fiscal year, so positions should be filled by then."} ]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-02-14" modifiedDate="2026-02-14" author="Vinay Kumar" faqItems={[{question: "Can F-1 students work?", answer: "Yes. F-1 students can work based on CPT (Curricular Practical Training) during school, OPT (Optional Practical Training) after graduation, or on-campus employment up to 20 hours/week during school."}, {question: "How do I find H-1B sponsors?", answer: "Search the USCIS H-1B Employer Data Hub, use TrackMyOPT's Sponsor Database (which shows approval rates and salary data), check LinkedIn, or apply to companies known for sponsoring visa workers."}, {question: "When should I start job searching if I want to transition to H-1B?", answer: "Start job searching 6-9 months before your OPT would end. H-1B registration opens in March for a new fiscal year, so positions should be filled by then."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -34,7 +34,7 @@ export default function F1JobsArticle() {
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">F-1 Visa Jobs 2026: How to Find Jobs as an International Student</h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">Finding a job as an F-1 student has unique challenges — work authorization, OPT timing, H-1B sponsorship. Here's the complete strategy.</p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: February 14, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">

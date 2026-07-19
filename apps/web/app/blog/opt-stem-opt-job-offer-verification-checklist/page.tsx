@@ -80,9 +80,9 @@ export default function OPTSTEMOfferChecklistPage() {
       <BlogPostSchema
         title={metadata.title}
         description={metadata.description}
-        publishedDate="2026-02-19"
-        modifiedDate="2026-02-19"
-        author="TrackMyOPT Team"
+        publishedDate="2026-04-23"
+        modifiedDate="2026-04-23"
+        author="Vinay Kumar"
       />
 
       <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
@@ -113,7 +113,7 @@ export default function OPTSTEMOfferChecklistPage() {
         <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
           A job offer can protect your status or put it at risk. Use this pre-acceptance checklist to verify employer eligibility, DSO alignment, and SEVIS accuracy before you say yes.
         </p>
-        <div className="mt-6 text-sm text-gray-500">Last updated: February 19, 2026 • Written by TrackMyOPT Team</div>
+        <div className="mt-6 text-sm text-gray-500">Last updated: April 23, 2026 • Written by Vinay Kumar</div>
       </header>
 
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">

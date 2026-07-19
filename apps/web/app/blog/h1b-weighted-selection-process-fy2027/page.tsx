@@ -30,9 +30,9 @@ export default function H1BWeightedSelectionArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-03-08" 
+                modifiedDate="2026-03-08" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "What is the H-1B weighted selection process?", answer: "Starting with the FY 2027 cap season, USCIS uses a weighted system that favors higher-skilled and higher-paid beneficiaries rather than a purely random lottery, prioritizing Level 4 and Level 3 wages."}, 
                     {question: "Has the FY 2027 H-1B cap been reached?", answer: "Yes, USCIS confirmed that it received enough electronic registrations during the initial period to reach the FY 2027 numerical allocations, including the master's cap."} 
@@ -56,7 +56,7 @@ export default function H1BWeightedSelectionArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     The H-1B lottery is no longer purely random. This article is for employers and international professionals navigating the new wage-based selection system implemented for the FY 2027 season.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: March 8, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img 

@@ -30,9 +30,9 @@ export default function STEMOPTStartupArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-05-24" 
+                modifiedDate="2026-05-24" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "Can I be self-employed on STEM OPT?", answer: "No. DHS regulations explicitly forbid self-employment and sole proprietorships on the 24-month STEM OPT extension. You must have a bona fide employer-employee relationship."}, 
                     {question: "Can I work for my own startup on STEM OPT?", answer: "Only if you restructure the company. You must establish a Board of Directors or an independent hiring manager who has the authority to hire, fire, and supervise you, proving you are an 'employee' of the entity."} 
@@ -56,7 +56,7 @@ export default function STEMOPTStartupArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Transitioning a self-employed startup from standard OPT to the 24-month STEM extension is notoriously difficult. This article is for founders navigating the strict E-Verify and supervision regulations.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: May 23, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <figure className="mb-12">

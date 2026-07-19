@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/how-to-get-ssn-on-opt",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/ssn-opt-guide.png",
@@ -41,9 +41,9 @@ export default function HowToGetSSNOnOPT() {
             <BlogPostSchema
                 title="How to Get a Social Security Number (SSN) on OPT: Step-by-Step Guide"
                 description="Complete guide to getting your SSN as an F-1 student on OPT."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-03-13"
+                modifiedDate="2026-03-13"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "Can I apply for an SSN before my OPT starts?", answer: "No. You need proof of employment authorization (your EAD card) and typically a job offer or employment letter. You cannot apply for an SSN purely based on being an F-1 student — you need work authorization." },
                     { question: "How long does it take to receive my SSN card?", answer: "The Social Security Administration typically mails your SSN card within 2-4 weeks after your in-person visit. In some cases, it can take up to 6 weeks, especially during peak graduation seasons." },
@@ -78,9 +78,9 @@ export default function HowToGetSSNOnOPT() {
                     Your SSN is the key to employment, banking, credit, and taxes in the US. Here is exactly how to get one as an F-1 student on OPT — documents, SSA office tips, and what to do if denied.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: March 13, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

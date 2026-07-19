@@ -30,9 +30,9 @@ export default function OPTStartupArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-05-22" 
+                modifiedDate="2026-05-22" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "Can I be self-employed on standard 12-month OPT?", answer: "Yes! During your initial 12-month post-completion OPT, you are allowed to be self-employed or start your own business, as long as the work is directly related to your major field of study."}, 
                     {question: "Do I need to pay myself a salary on OPT?", answer: "No. On the standard 12-month OPT, employment can be unpaid or you can work for your own unfunded startup, provided you work at least 20 hours per week."} 
@@ -56,7 +56,7 @@ export default function OPTStartupArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Once you receive your EAD card, the rules completely change. This article is for recent graduates who want to use their initial 12-month OPT to build a startup as an active founder.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: May 22, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <figure className="mb-12">

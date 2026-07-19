@@ -36,7 +36,7 @@ export default function ATSResumeArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "ATS Resume Guide 2026", url: "https://www.trackmyopt.com/blog/ats-resume-international-students-2026" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-27" modifiedDate="2026-03-27" author="TrackMyOPT Team" faqItems={[
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-19" modifiedDate="2026-05-19" author="Vinay Kumar" faqItems={[
                 { question: "What is an ATS resume?", answer: "An ATS (Applicant Tracking System) resume is formatted to be parsed by software that screens applications before human review. Most large companies use ATS systems, so optimizing your resume for them is crucial." },
                 { question: "Why do international students need ATS-optimized resumes?", answer: "International students must stand out on H-1B sponsorship jobs where thousands apply. ATS optimization ensures you get past the software filter and into human hands." },
                 { question: "What font should I use for an ATS resume?", answer: "Use standard fonts like Arial, Helvetica, Times New Roman, or Calibri. Avoid fancy fonts, graphics, colors, and unusual formatting. ATS systems struggle with non-standard fonts." },
@@ -74,7 +74,7 @@ export default function ATSResumeArticle() {
                     Master ATS-optimized resume formatting, keyword strategy, and LinkedIn optimization specifically for H-1B sponsorship positions.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: March 27, 2026</span>
+                    <span>Published: May 18, 2026</span>
                     <span>•</span>
                     <span>Updated by TrackMyOPT Careers Team</span>
                 </div>
