@@ -548,7 +548,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
         metadata: {
             title: "USCIS Case Status Check Online (2026) — Receipt Number Guide | TrackMyOPT",
             description:
-                "Check USCIS case status online with your 13-character receipt number (IOE, MSC, LIN). Step-by-step guide for OPT/I-765 plus free auto-tracking with email alerts.",
+                "Check USCIS case status online with your 13-character receipt number (IOE, MSC, LIN). Step-by-step guide for OPT/I-765 plus TrackMyOPT free manual tracking; Pro adds daily auto-checks and email alerts.",
             keywords: [
                 "USCIS case status",
                 "USCIS case status online",

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/green-card-after-opt",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/green-card-after-opt.png",
@@ -41,9 +41,9 @@ export default function GreenCardAfterOPT() {
             <BlogPostSchema
                 title="Green Card After OPT: Top 5 Pathways for F-1 Students"
                 description="Explore the primary pathways for F-1 students on OPT or STEM OPT to transition to a US Green Card."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-03-01"
+                modifiedDate="2026-03-01"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "Can I apply for a green card directly from F-1 student status?", answer: "Yes, you can apply for a green card while on an F-1 visa. However, F-1 is a non-immigrant status. Filing for a green card demonstrates immigrant intent, which makes it very difficult to travel internationally or renew your F-1 visa. Many students transition to an H-1B or L-1 visa first." },
                     { question: "What is the EB-2 National Interest Waiver (NIW)?", answer: "The EB-2 NIW is an employment-based green card category that allows individuals with advanced degrees or exceptional ability to self-petition. You do not need an employer sponsor if you can prove your proposed work has national importance and substantial merit." },
@@ -77,9 +77,9 @@ export default function GreenCardAfterOPT() {
                     Transitioning from an F-1 student visa (including OPT/STEM OPT) to permanent residency is the ultimate goal for many international students. Here is a breakdown of the top 5 legal pathways to secure a US Green Card.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: February 28, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

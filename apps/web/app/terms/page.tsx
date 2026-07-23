@@ -46,9 +46,8 @@ export default function TermsPage() {
             <p className="text-sm font-mono text-blue-600 dark:text-blue-400 mb-4 uppercase tracking-widest">
               Last Updated: {LEGAL_EFFECTIVE_DATE} · Version {LEGAL_VERSION_ID}
             </p>
-            <p className="text-xs text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-12">
-              U.S. counsel should review these Terms, especially arbitration, subscription billing, and immigration disclaimers, before launch.
-            </p>
+
+
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none 
               prose-headings:text-gray-900 dark:prose-headings:text-white 

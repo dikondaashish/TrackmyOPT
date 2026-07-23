@@ -29,7 +29,7 @@ export default function StemOPTUnemploymentArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Stem Opt Unemployment Limit", url: "https://www.trackmyopt.com/blog/stem-opt-unemployment-limit" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 cumulative days of unemployment across the entire 36-month OPT + STEM OPT period. This includes the initial 90 days from post-completion OPT plus an additional 60 days from the STEM extension."}, {question: "Does volunteer work count as employment on STEM OPT?", answer: "No. Unlike regular OPT where volunteer positions (20+ hours/week) can count, STEM OPT requires paid employment at an E-Verify employer. Volunteer and unpaid work does not stop the unemployment clock during STEM OPT."}, {question: "What happens if I exceed 150 days on STEM OPT?", answer: "Exceeding 150 days of unemployment during the OPT + STEM OPT period can result in SEVIS termination and loss of F-1 status. Your DSO is required to report excess unemployment days to SEVP."} ]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-06-02" modifiedDate="2026-06-02" author="Vinay Kumar" faqItems={[{question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 cumulative days of unemployment across the entire 36-month OPT + STEM OPT period. This includes the initial 90 days from post-completion OPT plus an additional 60 days from the STEM extension."}, {question: "Does volunteer work count as employment on STEM OPT?", answer: "No. Unlike regular OPT where volunteer positions (20+ hours/week) can count, STEM OPT requires paid employment at an E-Verify employer. Volunteer and unpaid work does not stop the unemployment clock during STEM OPT."}, {question: "What happens if I exceed 150 days on STEM OPT?", answer: "Exceeding 150 days of unemployment during the OPT + STEM OPT period can result in SEVIS termination and loss of F-1 status. Your DSO is required to report excess unemployment days to SEVP."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
                 <span>/</span>
@@ -49,7 +49,7 @@ export default function StemOPTUnemploymentArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     If you're on STEM OPT, your total unemployment limit extends to 150 days. Here's exactly how it works, what counts, and how to avoid violations.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: June 1, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">

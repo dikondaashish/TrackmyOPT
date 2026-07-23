@@ -21,7 +21,7 @@ export default function Day1CPTArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Day 1 Cpt Vs Opt", url: "https://www.trackmyopt.com/blog/day-1-cpt-vs-opt" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Is Day 1 CPT legal?", answer: "Day 1 CPT is technically legal under USCIS regulations, but it is not without risk. Your employer must be certified for CPT participation."}, {question: "Does Day 1 CPT affect my OPT eligibility?", answer: "No. Day 1 CPT does not reduce your OPT period. You still get 12 months of OPT after graduation, regardless of any prior CPT."}, {question: "Can I do Day 1 CPT after I've already used OPT?", answer: "No. Once you're on post-completion OPT, you cannot go back to CPT. However, you can switch during school if the opportunity arises."} ]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-02-04" modifiedDate="2026-02-04" author="Vinay Kumar" faqItems={[{question: "Is Day 1 CPT legal?", answer: "Day 1 CPT is technically legal under USCIS regulations, but it is not without risk. Your employer must be certified for CPT participation."}, {question: "Does Day 1 CPT affect my OPT eligibility?", answer: "No. Day 1 CPT does not reduce your OPT period. You still get 12 months of OPT after graduation, regardless of any prior CPT."}, {question: "Can I do Day 1 CPT after I've already used OPT?", answer: "No. Once you're on post-completion OPT, you cannot go back to CPT. However, you can switch during school if the opportunity arises."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -34,7 +34,7 @@ export default function Day1CPTArticle() {
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">Day 1 CPT vs OPT: Key Differences Every F-1 Student Should Know</h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">Day 1 CPT and OPT are both work authorizations for F-1 students, but they have very different rules, risks, and immigration implications.</p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: February 3, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">

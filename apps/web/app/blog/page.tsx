@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Clock, TrendingUp, BookOpen } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -10,12 +11,56 @@ export const metadata: Metadata = {
 
 const blogPosts = [
     {
+        slug: "h1b-fy2027-cap-closed-no-second-lottery",
+        title: "USCIS Closes FY 2027 H-1B Cap: No Second Lottery & What OPT Students Must Do Next",
+        description: "USCIS has officially reached the 85,000 cap for FY 2027 H-1B petitions and announced there will be no second lottery. Discover your backup options if you weren't selected.",
+        category: "Breaking News",
+        readTime: "6 min read",
+        date: "July 18, 2026",
+        tags: ["H-1B", "Second Lottery", "USCIS"],
+        featured: true,
+        image: "/blog/h1b-fy2027-cap-closed-no-second-lottery.png"
+    },
+    {
+        slug: "uscis-new-strict-signature-requirements-2026",
+        title: "Don't Get Denied: Navigate USCIS's New Strict Signature Rules for OPT",
+        description: "USCIS has implemented stricter signature requirements for all applications, including Form I-765. Learn how to sign correctly to avoid instant denial.",
+        category: "Compliance Update",
+        readTime: "5 min read",
+        date: "July 16, 2026",
+        tags: ["USCIS", "Signatures", "I-765"],
+        featured: true,
+        image: "/blog/uscis-new-strict-signature-requirements-2026.png"
+    },
+    {
+        slug: "f1-visa-interview-waivers-restricted-2026",
+        title: "F-1 Visa Renewals in 2026: Why You Now Need an In-Person Interview",
+        description: "The State Department has severely restricted interview waivers for nonimmigrant visas in 2026. Prepare for mandatory in-person consular interviews if traveling home.",
+        category: "Travel Update",
+        readTime: "6 min read",
+        date: "July 15, 2026",
+        tags: ["Travel", "Visa Interview", "Dropbox"],
+        featured: false,
+        image: "/blog/f1-visa-interview-waivers-restricted-2026.png"
+    },
+    {
+        slug: "opt-premium-processing-fee-increase-1780",
+        title: "Is the $1,780 Premium Processing Fee Worth It for Your OPT Application?",
+        description: "USCIS increased the premium processing fee for Form I-765 to $1,780. We break down the timeline and help you decide if it's worth the cost for your OPT application.",
+        category: "USCIS Fees",
+        readTime: "7 min read",
+        date: "July 14, 2026",
+        tags: ["Premium Processing", "Fees", "USCIS"],
+        featured: false,
+        image: "/blog/opt-premium-processing-fee-increase-1780.png"
+    },
+    {
         slug: "end-of-duration-of-status-f1-visa-rule",
         title: "End of 'Duration of Status': What the New DHS 4-Year Visa Rule Means for OPT Students",
         description: "DHS announced a final rule ending 'Duration of Status' for F-1 visas. Learn how the new 4-year cap, mandatory USCIS extensions, and 30-day grace period impact you.",
         category: "Important",
         readTime: "8 min read",
-        date: "July 16, 2026",
+        date: "February 9, 2026",
         tags: ["F-1 Visa", "Duration of Status", "OPT Rules", "DHS"],
         featured: true,
         image: "/blog/dhs-visa-rule.png"
@@ -26,7 +71,7 @@ const blogPosts = [
         description: "Everything you need to know about Form I-9 Employment Eligibility Verification — who fills it out, what documents are accepted, deadlines, and how OPT/STEM OPT students complete it.",
         category: "Compliance",
         readTime: "10 min read",
-        date: "June 12, 2026",
+        date: "February 23, 2026",
         tags: ["Form I-9", "Employment Eligibility", "OPT", "Compliance"],
         featured: true,
         image: "/blog/form-i9.png"
@@ -37,7 +82,7 @@ const blogPosts = [
         description: "How to apply for your EAD card using Form I-765 — eligibility categories, filing fees, processing times, and step-by-step instructions for F-1 OPT and STEM OPT students.",
         category: "OPT",
         readTime: "12 min read",
-        date: "June 12, 2026",
+        date: "February 21, 2026",
         tags: ["Form I-765", "EAD Card", "OPT Application", "STEM OPT"],
         featured: true,
         image: "/blog/form-i765.png"
@@ -48,7 +93,7 @@ const blogPosts = [
         description: "Discover the USCIS rules on OPT eligibility when pursuing a second Master's degree. Learn about the 'once per higher degree level' rule.",
         category: "Compliance",
         readTime: "5 min read",
-        date: "June 12, 2026",
+        date: "May 13, 2026",
         tags: ["F-1 Visa", "OPT Rules", "Second Degree"],
         featured: true,
         image: "/blog/second-masters-opt.png"
@@ -59,7 +104,7 @@ const blogPosts = [
         description: "Can an international student start a business in the US? Yes, but with strict limits. Learn how to incorporate and passively invest while on an F-1 visa.",
         category: "Careers",
         readTime: "8 min read",
-        date: "June 12, 2026",
+        date: "May 25, 2026",
         tags: ["F-1 Visa", "Startup", "Entrepreneurship"],
         featured: true,
         image: "/blog/f1-startup.png"
@@ -70,7 +115,7 @@ const blogPosts = [
         description: "Did you know you can be self-employed on OPT? Learn how to legally work for your own startup during your initial 12-month OPT period.",
         category: "Careers",
         readTime: "7 min read",
-        date: "June 12, 2026",
+        date: "May 22, 2026",
         tags: ["OPT", "Startup", "Entrepreneurship"],
         featured: true,
         image: "/blog/f1-opt-startup.png"
@@ -81,7 +126,7 @@ const blogPosts = [
         description: "Unlike standard OPT, STEM OPT explicitly forbids self-employment. Learn how founders restructure their startups with a Board of Directors to qualify for STEM OPT.",
         category: "Careers",
         readTime: "8 min read",
-        date: "June 12, 2026",
+        date: "May 24, 2026",
         tags: ["STEM OPT", "Startup", "E-Verify"],
         featured: true,
         image: "/blog/f1-stem-opt-startup.png"
@@ -92,7 +137,7 @@ const blogPosts = [
         description: "May 2026 USCIS policy memo shifts 'Adjustment of Status' for Green Cards to an act of 'discretionary grace,' pushing many applicants to consular processing.",
         category: "Important",
         readTime: "7 min read",
-        date: "June 12, 2026",
+        date: "May 28, 2026",
         tags: ["USCIS", "Green Card", "Adjustment of Status"],
         featured: true,
         image: "/blog/green-card-processing.png"
@@ -103,7 +148,7 @@ const blogPosts = [
         description: "The proposed rule to end 'Duration of Status' (D/S) for F-1 and J-1 students is under final OMB review. Learn how fixed expiration dates will change OPT.",
         category: "Important",
         readTime: "8 min read",
-        date: "June 12, 2026",
+        date: "May 14, 2026",
         tags: ["F-1 Visa", "Duration of Status", "OPT"],
         featured: true,
         image: "/blog/duration-of-status.png"
@@ -114,7 +159,7 @@ const blogPosts = [
         description: "The Department of Labor has proposed significant hikes to prevailing wage thresholds for H-1B, E-3, and PERM programs. Learn how this impacts international graduates.",
         category: "H-1B",
         readTime: "7 min read",
-        date: "June 12, 2026",
+        date: "May 14, 2026",
         tags: ["H-1B", "Prevailing Wage", "DOL"],
         featured: true,
         image: "/blog/prevailing-wage-hikes.png"
@@ -125,7 +170,7 @@ const blogPosts = [
         description: "New 2026 legislation in Congress targets the OPT program. While some bills aim to restrict it, bipartisan efforts are pushing to protect and codify OPT into federal law.",
         category: "Important",
         readTime: "6 min read",
-        date: "June 12, 2026",
+        date: "May 22, 2026",
         tags: ["OPT", "STEM OPT", "Congress"],
         featured: true,
         image: "/blog/opt-congress-bills.png"
@@ -136,7 +181,7 @@ const blogPosts = [
         description: "A major June 2026 ruling by a US District Court in Massachusetts has vacated the controversial $100,000 H-1B fee. Read the full details and next steps.",
         category: "Important",
         readTime: "4 min read",
-        date: "June 12, 2026",
+        date: "May 26, 2026",
         tags: ["H-1B", "Fee", "Update", "2026"],
         featured: true,
         image: "/blog/h1b-fee-vacated.png"
@@ -147,7 +192,7 @@ const blogPosts = [
         description: "USCIS has implemented a new weighted selection process for the FY 2027 H-1B cap season. Learn how this favors higher-skilled workers and what it means for applicants.",
         category: "H-1B",
         readTime: "5 min read",
-        date: "June 12, 2026",
+        date: "March 8, 2026",
         tags: ["H-1B", "Lottery", "FY 2027", "Wage Levels"],
         featured: true,
         image: "/blog/h1b-weighted-selection.png"
@@ -158,7 +203,7 @@ const blogPosts = [
         description: "Government enforcement and scrutiny regarding OPT and CPT programs are intensifying in 2026. Learn how to stay compliant and protect your F-1 status.",
         category: "Important",
         readTime: "6 min read",
-        date: "June 12, 2026",
+        date: "May 13, 2026",
         tags: ["OPT", "CPT", "Compliance", "Scrutiny"],
         featured: true,
         image: "/blog/opt-cpt-scrutiny.png"
@@ -169,7 +214,7 @@ const blogPosts = [
         description: "Understand the 90-day unemployment limit for OPT, how days are counted, what counts as employment, and how to avoid violating your F-1 status.",
         category: "OPT Basics",
         readTime: "8 min read",
-        date: "March 10, 2026",
+        date: "January 13, 2026",
         tags: ["OPT", "Unemployment", "F-1 Visa"],
         featured: true,
     },
@@ -179,7 +224,7 @@ const blogPosts = [
         description: "Latest EAD processing times for OPT applications in 2026. Learn how long USCIS takes, tips to speed up approval, and what to do while waiting.",
         category: "USCIS",
         readTime: "7 min read",
-        date: "March 10, 2026",
+        date: "May 20, 2026",
         tags: ["OPT", "Processing Time", "USCIS"],
         featured: true,
     },
@@ -189,7 +234,7 @@ const blogPosts = [
         description: "How the 150-day unemployment limit works for STEM OPT, counting rules, what qualifies as employment, and strategies to stay compliant.",
         category: "STEM OPT",
         readTime: "6 min read",
-        date: "March 10, 2026",
+        date: "June 2, 2026",
         tags: ["STEM OPT", "Unemployment", "Compliance"],
     },
     {
@@ -198,7 +243,7 @@ const blogPosts = [
         description: "Step-by-step checklist for filing your OPT application. Every document, form, and deadline you need to know to avoid RFEs and delays.",
         category: "OPT Basics",
         readTime: "10 min read",
-        date: "March 10, 2026",
+        date: "May 25, 2026",
         tags: ["OPT", "I-765", "Application"],
     },
     {
@@ -207,7 +252,7 @@ const blogPosts = [
         description: "Complete guide to transitioning from OPT to H-1B. Timeline, cap-gap extension, employer requirements, and backup plans if you're not selected.",
         category: "H-1B",
         readTime: "9 min read",
-        date: "March 10, 2026",
+        date: "April 25, 2026",
         tags: ["H-1B", "OPT", "Cap-Gap"],
         featured: true,
     },
@@ -217,7 +262,7 @@ const blogPosts = [
         description: "Section-by-section guide to Form I-983. Employer requirements, E-Verify enrollment, common mistakes, and how to get it right the first time.",
         category: "STEM OPT",
         readTime: "8 min read",
-        date: "March 10, 2026",
+        date: "March 17, 2026",
         tags: ["STEM OPT", "I-983", "E-Verify"],
     },
     {
@@ -226,7 +271,7 @@ const blogPosts = [
         description: "Your OPT is expiring — what now? The 60-day grace period, STEM OPT extension, H-1B cap-gap, and what happens to your F-1 status.",
         category: "OPT Basics",
         readTime: "7 min read",
-        date: "March 10, 2026",
+        date: "June 11, 2026",
         tags: ["OPT", "Expiration", "Grace Period"],
     },
     {
@@ -235,7 +280,7 @@ const blogPosts = [
         description: "Which companies have the highest H-1B approval rates? Data-driven analysis of 25,000+ employers with approval rates, denial trends, and red flags.",
         category: "H-1B",
         readTime: "8 min read",
-        date: "March 10, 2026",
+        date: "March 4, 2026",
         tags: ["H-1B", "Approval Rates", "Data"],
         featured: true,
     },
@@ -245,7 +290,7 @@ const blogPosts = [
         description: "The definitive guide to the 24-month STEM OPT extension. Eligibility, CIP codes, I-983, employer requirements, and unemployment rules.",
         category: "STEM OPT",
         readTime: "15 min read",
-        date: "March 10, 2026",
+        date: "May 31, 2026",
         tags: ["STEM OPT", "Extension", "Guide"],
         featured: true,
     },
@@ -255,7 +300,7 @@ const blogPosts = [
         description: "All ways to extend OPT: STEM OPT extension, H-1B cap-gap, and 180-day auto extension. Side-by-side comparison with eligibility details.",
         category: "OPT Basics",
         readTime: "10 min read",
-        date: "March 10, 2026",
+        date: "April 14, 2026",
         tags: ["OPT", "Extension", "STEM OPT"],
     },
     {
@@ -264,7 +309,7 @@ const blogPosts = [
         description: "Complete job search strategy for F-1 students. Work authorization types, H-1B sponsor companies, industries hiring, and job board recommendations.",
         category: "Careers",
         readTime: "12 min read",
-        date: "March 10, 2026",
+        date: "February 14, 2026",
         tags: ["F-1 Visa", "Jobs", "H-1B Sponsors"],
     },
     {
@@ -273,7 +318,7 @@ const blogPosts = [
         description: "Everything about your OPT EAD card. Step-by-step I-765 application, tracking methods, processing times, and what to do if delayed.",
         category: "OPT Basics",
         readTime: "9 min read",
-        date: "March 10, 2026",
+        date: "April 13, 2026",
         tags: ["OPT", "EAD Card", "I-765"],
     },
     {
@@ -282,7 +327,7 @@ const blogPosts = [
         description: "How the cap-gap bridges OPT expiration and H-1B start date. Work authorization rules, timeline, and what happens if H-1B is denied.",
         category: "H-1B",
         readTime: "10 min read",
-        date: "March 10, 2026",
+        date: "March 6, 2026",
         tags: ["H-1B", "Cap-Gap", "OPT"],
     },
     {
@@ -291,7 +336,7 @@ const blogPosts = [
         description: "Comprehensive comparison of Day 1 CPT and OPT. Eligibility, risks, immigration impact, and when OPT is the better choice.",
         category: "Important",
         readTime: "11 min read",
-        date: "March 10, 2026",
+        date: "February 4, 2026",
         tags: ["CPT", "OPT", "Comparison"],
     },
     {
@@ -300,7 +345,7 @@ const blogPosts = [
         description: "Complete guide to F-1 student tax filing in 2026. Learn which forms to file (Form 8843, 1040-NR), FICA exemptions, tax treaty benefits, and step-by-step filing instructions.",
         category: "Tax & Finance",
         readTime: "12 min read",
-        date: "March 13, 2026",
+        date: "May 19, 2026",
         tags: ["Taxes", "Form 8843", "1040-NR"],
         featured: true,
     },
@@ -310,7 +355,7 @@ const blogPosts = [
         description: "Complete guide to health insurance for F-1 students on OPT in 2026. Compare marketplace plans, COBRA, international student plans, and state requirements.",
         category: "Health",
         readTime: "11 min read",
-        date: "March 16, 2026",
+        date: "May 27, 2026",
         tags: ["Health Insurance", "OPT", "ACA"],
         featured: true,
     },
@@ -320,7 +365,7 @@ const blogPosts = [
         description: "Step-by-step guide to tracking your USCIS I-765 OPT EAD case status. Learn what status messages mean, processing times, RFE explanations, and what to do if delayed.",
         category: "USCIS",
         readTime: "10 min read",
-        date: "March 20, 2026",
+        date: "June 5, 2026",
         tags: ["USCIS", "Case Status", "I-765"],
         featured: true,
     },
@@ -330,7 +375,7 @@ const blogPosts = [
         description: "Complete guide to traveling while on OPT: travel while pending, required documents, advanced parole, re-entry permits, and travel authorization explained.",
         category: "OPT Basics",
         readTime: "10 min read",
-        date: "March 23, 2026",
+        date: "January 24, 2026",
         tags: ["OPT", "Travel", "Re-entry"],
     },
     {
@@ -339,7 +384,7 @@ const blogPosts = [
         description: "Master ATS-optimized resume writing for international students. Learn formatting, keywords, H-1B requirements, and how to get past applicant tracking systems.",
         category: "Careers",
         readTime: "11 min read",
-        date: "March 27, 2026",
+        date: "May 19, 2026",
         tags: ["Resume", "ATS", "Job Search"],
         featured: true,
     },
@@ -349,7 +394,7 @@ const blogPosts = [
         description: "Which companies sponsor the most H-1B visas? Data-driven rankings by petitions, approval rates, and industry with red flags to watch.",
         category: "H-1B",
         readTime: "10 min read",
-        date: "March 12, 2026",
+        date: "May 14, 2026",
         tags: ["H-1B", "Sponsors", "Rankings"],
     },
     {
@@ -358,7 +403,7 @@ const blogPosts = [
         description: "Everything employers must do for STEM OPT: E-Verify enrollment, I-983 training plan, reporting requirements, and wage compliance.",
         category: "STEM OPT",
         readTime: "9 min read",
-        date: "March 12, 2026",
+        date: "May 27, 2026",
         tags: ["STEM OPT", "E-Verify", "Employer"],
     },
     {
@@ -367,7 +412,7 @@ const blogPosts = [
         description: "Your OPT was denied — now what? Common denial reasons, your options (refile, transfer, leave), 60-day grace period rules, and prevention tips.",
         category: "OPT Basics",
         readTime: "8 min read",
-        date: "March 12, 2026",
+        date: "April 11, 2026",
         tags: ["OPT", "Denial", "I-765"],
     },
     {
@@ -376,7 +421,7 @@ const blogPosts = [
         description: "Before accepting any OPT/STEM OPT role, verify W-2, E-Verify, degree alignment, I-983 readiness, and SEVIS/I-20 details with your DSO.",
         category: "STEM OPT",
         readTime: "8 min read",
-        date: "February 19, 2026",
+        date: "April 23, 2026",
         tags: ["OPT", "STEM OPT", "Compliance"],
     },
     {
@@ -385,7 +430,7 @@ const blogPosts = [
         description: "A practical guide for F-1 students to use TrackMyOPT Resume Generator for ATS-ready resumes, faster role tailoring, and better interview conversion.",
         category: "Careers",
         readTime: "9 min read",
-        date: "March 29, 2026",
+        date: "March 31, 2026",
         tags: ["Resume", "ATS", "Job Search"],
     },
     {
@@ -394,7 +439,7 @@ const blogPosts = [
         description: "Avoid common F-1 OPT/STEM OPT tax filing mistakes including wrong forms, FICA errors, and treaty claim pitfalls.",
         category: "Tax & Finance",
         readTime: "10 min read",
-        date: "March 29, 2026",
+        date: "February 11, 2026",
         tags: ["Taxes", "OPT", "STEM OPT"],
     },
     {
@@ -403,7 +448,7 @@ const blogPosts = [
         description: "If you've spent 182+ days in the US on OPT or STEM OPT, your Indian savings account is a FEMA violation. Learn how to convert to NRO without flying back to India.",
         category: "Finance & Compliance",
         readTime: "9 min read",
-        date: "May 14, 2026",
+        date: "March 18, 2026",
         tags: ["Finance", "NRO", "FEMA", "Indian Students"],
     },
     {
@@ -412,7 +457,7 @@ const blogPosts = [
         description: "DHS has identified 10,000+ students connected to suspected fraudulent OPT employers across 8 states. Here's how legitimate students verify their employer and protect their F-1 status.",
         category: "Important",
         readTime: "11 min read",
-        date: "May 14, 2026",
+        date: "May 24, 2026",
         featured: true,
         tags: ["OPT Fraud", "HSI", "Compliance", "STEM OPT"],
     },
@@ -422,7 +467,7 @@ const blogPosts = [
         description: "DHS confirmed it is re-evaluating OPT and STEM OPT, and Trump's USCIS nominee wants to eliminate post-completion work authorization. Here is what is real vs. rumor — and what to do now.",
         category: "Important",
         readTime: "10 min read",
-        date: "May 14, 2026",
+        date: "May 28, 2026",
         featured: true,
         tags: ["OPT Policy", "DHS Rule", "STEM OPT", "2026"],
     },
@@ -432,7 +477,7 @@ const blogPosts = [
         description: "Graduating in May or June 2026? With USCIS processing delays at record highs, the timing of your I-765 filing directly determines whether you can start work on day one.",
         category: "OPT Basics",
         readTime: "8 min read",
-        date: "May 14, 2026",
+        date: "May 29, 2026",
         tags: ["OPT Application", "Spring 2026", "I-765", "Timing"],
     },
     {
@@ -441,7 +486,7 @@ const blogPosts = [
         description: "USCIS OPT processing delays are at record highs in 2026, with some cases pending over a year. Here is a stage-by-stage action guide including service requests, congressional inquiries, and escalation tools.",
         category: "USCIS",
         readTime: "9 min read",
-        date: "May 14, 2026",
+        date: "May 17, 2026",
         tags: ["OPT Delays", "I-765 Pending", "USCIS", "Processing Times"],
     },
     {
@@ -450,7 +495,7 @@ const blogPosts = [
         description: "Everything F-1 students need to know about Curricular Practical Training (CPT): eligibility, part-time vs full-time, application steps, Day 1 CPT risks, and how CPT affects your OPT.",
         category: "Compliance",
         readTime: "12 min read",
-        date: "July 11, 2026",
+        date: "February 2, 2026",
         tags: ["CPT", "F-1 Visa", "Work Authorization"],
         featured: true,
         image: "/blog/cpt-complete-guide.png"
@@ -461,7 +506,7 @@ const blogPosts = [
         description: "Complete guide to getting your SSN as an F-1 student on OPT. Required documents, SSA office visit, processing times, what to do if denied, and why you need an SSN for employment.",
         category: "Finance & Compliance",
         readTime: "9 min read",
-        date: "July 11, 2026",
+        date: "March 13, 2026",
         tags: ["SSN", "OPT", "Finance"],
         featured: true,
         image: "/blog/ssn-opt-guide.png"
@@ -472,7 +517,7 @@ const blogPosts = [
         description: "Can F-1 students on OPT work remotely? Yes, but with rules. Learn about remote work compliance, working from different states, international remote work restrictions, and STEM OPT requirements.",
         category: "OPT Basics",
         readTime: "10 min read",
-        date: "July 11, 2026",
+        date: "January 26, 2026",
         tags: ["Remote Work", "OPT", "Compliance"],
         featured: true,
         image: "/blog/remote-work-opt.png"
@@ -483,7 +528,7 @@ const blogPosts = [
         description: "Missed the H-1B lottery? Explore the top H-1B visa alternatives for F-1 and OPT students including O-1, L-1, E-2, TN, Cap-Exempt H-1B, and Day 1 CPT options.",
         category: "Work Visas",
         readTime: "14 min read",
-        date: "July 11, 2026",
+        date: "March 2, 2026",
         tags: ["H-1B Alternatives", "Work Visas", "F-1 Students"],
         featured: true,
         image: "/blog/h1b-alternatives-work-visas.png"
@@ -494,7 +539,7 @@ const blogPosts = [
         description: "Learn how to set up your SEVP Portal account, unlock your profile, reset your password, and report address or employment changes for OPT and STEM OPT compliance.",
         category: "OPT Basics",
         readTime: "11 min read",
-        date: "July 11, 2026",
+        date: "May 20, 2026",
         tags: ["SEVP Portal", "OPT Compliance", "F-1 Regulations"],
         featured: true,
         image: "/blog/sevp-portal-guide.png"
@@ -505,7 +550,7 @@ const blogPosts = [
         description: "Guide to securing permanent residency (Green Card) after F-1 OPT or STEM OPT. Explore EB-2 NIW, EB-3 employer-sponsored, family green cards, and investment pathways.",
         category: "Work Visas",
         readTime: "13 min read",
-        date: "July 11, 2026",
+        date: "March 1, 2026",
         tags: ["Green Card", "OPT", "Immigration"],
         featured: true,
         image: "/blog/green-card-after-opt.png"
@@ -516,7 +561,7 @@ const blogPosts = [
         description: "Ultimate guide to the EB-2 National Interest Waiver (NIW) green card for F-1 OPT and STEM OPT students. Learn about the Matter of Dhanasar criteria, self-petition steps, and processing times.",
         category: "Work Visas",
         readTime: "12 min read",
-        date: "July 11, 2026",
+        date: "February 7, 2026",
         tags: ["EB-2 NIW", "Green Card", "Immigration"],
         featured: true,
         image: "/blog/eb2-niw-green-card-opt.png"
@@ -527,7 +572,7 @@ const blogPosts = [
         description: "Learn what F-1 students must report to their DSO and SEVIS during OPT and STEM OPT. Compliance deadlines, residential address changes, and employment updates.",
         category: "Compliance",
         readTime: "10 min read",
-        date: "July 11, 2026",
+        date: "April 21, 2026",
         tags: ["OPT Reporting", "DSO", "F-1 Compliance"],
         featured: true,
         image: "/blog/opt-reporting-requirements.png"
@@ -538,7 +583,7 @@ const blogPosts = [
         description: "Crucial guide for international students on OPT. Learn exactly how to answer 'Will you now or in the future require visa sponsorship?' without getting disqualified immediately.",
         category: "Careers",
         readTime: "9 min read",
-        date: "July 11, 2026",
+        date: "March 11, 2026",
         tags: ["Interview Prep", "Sponsorship", "Careers"],
         featured: true,
         image: "/blog/how-to-answer-sponsorship-question.png"
@@ -549,7 +594,7 @@ const blogPosts = [
         description: "Learn how to find and check your degree CIP code against the DHS STEM Designated Degree Program List to confirm your eligibility for the 24-month STEM OPT extension.",
         category: "STEM OPT",
         readTime: "8 min read",
-        date: "July 11, 2026",
+        date: "March 22, 2026",
         tags: ["STEM OPT", "CIP Code", "Compliance"],
         featured: true,
         image: "/blog/is-my-degree-stem-eligible-cip-code.png"
@@ -560,7 +605,7 @@ const blogPosts = [
         description: "Deciding between Pre-Completion OPT and CPT for your internship? Understand the rules, costs, and impacts on your post-graduation OPT.",
         category: "OPT Basics",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "April 30, 2026",
         tags: ["Pre-Completion OPT", "CPT", "Internships"],
         featured: false,
         image: "/blog/pre-opt-vs-cpt.png"
@@ -571,7 +616,7 @@ const blogPosts = [
         description: "Will doing a CPT internship ruin your chances for OPT? Discover exactly how the 12-month CPT rule works and how to protect your post-graduation work authorization.",
         category: "OPT Basics",
         readTime: "6 min read",
-        date: "July 12, 2026",
+        date: "January 31, 2026",
         tags: ["CPT 12 Month Rule", "CPT", "Compliance"],
         featured: false,
         image: "/blog/cpt-12-month-rule.png"
@@ -582,7 +627,7 @@ const blogPosts = [
         description: "The O-1 visa has no lottery, no prevailing wage requirements, and no cap. Discover the 8 criteria for the O-1 visa and how F-1 students can build a profile to qualify.",
         category: "Work Visas",
         readTime: "11 min read",
-        date: "July 12, 2026",
+        date: "April 7, 2026",
         tags: ["O-1 Visa", "H-1B Alternative", "Work Visas"],
         featured: false,
         image: "/blog/o1-visa-international-students.png"
@@ -593,7 +638,7 @@ const blogPosts = [
         description: "Navigating the PERM process for your Green Card? Understand the strict advertising requirements, prevailing wage delays, and ETA Form 9089.",
         category: "Work Visas",
         readTime: "9 min read",
-        date: "July 12, 2026",
+        date: "April 29, 2026",
         tags: ["PERM", "Green Card", "Employer Sponsorship"],
         featured: false,
         image: "/blog/perm-labor-certification-opt.png"
@@ -604,7 +649,7 @@ const blogPosts = [
         description: "Learn what falling out of F-1 status means, the severe consequences, and your options for reinstatement, travel and reentry, or voluntary departure.",
         category: "Compliance",
         readTime: "8 min read",
-        date: "July 12, 2026",
+        date: "February 18, 2026",
         tags: ["Fall Out of Status", "F-1 Reinstatement", "Compliance"],
         featured: false,
         image: "/blog/fall-out-of-f1-status-options.png"
@@ -615,7 +660,7 @@ const blogPosts = [
         description: "No SSN? No credit history? No problem. Learn the exact steps to build a 700+ US credit score while on your F-1 visa or OPT.",
         category: "Finance & Compliance",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "January 18, 2026",
         tags: ["Credit Score", "SSN", "Finance"],
         featured: false,
         image: "/blog/building-credit-international-students-opt.png"
@@ -626,7 +671,7 @@ const blogPosts = [
         description: "International student with no US credit score? Learn 5 proven strategies to get approved for an off-campus apartment on F-1 OPT.",
         category: "Life in US",
         readTime: "8 min read",
-        date: "July 12, 2026",
+        date: "May 8, 2026",
         tags: ["Housing", "Credit Score", "Finance"],
         featured: false,
         image: "/blog/renting-apartment-without-us-credit-history.png"
@@ -637,7 +682,7 @@ const blogPosts = [
         description: "Didn't win the H-1B lottery on OPT? Learn how the L-1 intracompany transferee visa works and how to relocate to a foreign branch.",
         category: "Work Visas",
         readTime: "9 min read",
-        date: "July 12, 2026",
+        date: "March 27, 2026",
         tags: ["L-1 Visa", "H-1B Backup", "Work Visas"],
         featured: false,
         image: "/blog/l1-visa-transfer-after-opt.png"
@@ -648,7 +693,7 @@ const blogPosts = [
         description: "Learn how Canadian and Mexican citizens can easily transition from an F-1 OPT to a TN Visa under the USMCA agreement. Skip the H-1B lottery.",
         category: "Work Visas",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "June 3, 2026",
         tags: ["TN Visa", "USMCA", "Work Visas"],
         featured: false,
         image: "/blog/tn-visa-canadian-mexican-students-opt.png"
@@ -659,7 +704,7 @@ const blogPosts = [
         description: "Planning to transfer to a new university or start a master's degree? Learn how a SEVIS transfer instantly cancels your OPT and CPT authorization.",
         category: "Compliance",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "May 18, 2026",
         tags: ["SEVIS Transfer", "OPT", "Compliance"],
         featured: false,
         image: "/blog/sevis-transfer-guide-opt-impact.png"
@@ -670,7 +715,7 @@ const blogPosts = [
         description: "Learn how to buy, finance, and insure a car in the US without a credit score. Guide for F-1 international students and OPT workers.",
         category: "Life in US",
         readTime: "8 min read",
-        date: "July 12, 2026",
+        date: "January 20, 2026",
         tags: ["Auto Loan", "Finance", "Life in US"],
         featured: false,
         image: "/blog/buying-car-international-student-opt.png"
@@ -681,7 +726,7 @@ const blogPosts = [
         description: "Can you renew your expired F-1 visa stamp while on OPT or STEM OPT? Yes, but it carries high risks. Learn the process and common pitfalls.",
         category: "Travel",
         readTime: "9 min read",
-        date: "July 12, 2026",
+        date: "May 6, 2026",
         tags: ["Visa Renewal", "Travel", "F-1 Status"],
         featured: false,
         image: "/blog/renewing-f1-visa-on-opt.png"
@@ -692,7 +737,7 @@ const blogPosts = [
         description: "Learn the TSA rules for domestic flights in the US on an F-1 visa. Find out how to get a REAL ID and why you should never travel without your I-20.",
         category: "Life in US",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "May 2, 2026",
         tags: ["REAL ID", "Domestic Travel", "Life in US"],
         featured: false,
         image: "/blog/real-id-domestic-flights-international-students.png"
@@ -703,7 +748,7 @@ const blogPosts = [
         description: "Thinking about switching your major from Business to Computer Science? Learn how changing your degree program impacts your F-1 status and STEM OPT eligibility.",
         category: "Academics",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "January 29, 2026",
         tags: ["Academics", "STEM OPT", "Compliance"],
         featured: false,
         image: "/blog/changing-majors-f1-student-opt-impact.png"
@@ -714,7 +759,7 @@ const blogPosts = [
         description: "Failing a class and want to drop it? Learn the strict SEVIS rules for course withdrawals, full-time enrollment, and how it affects your future OPT.",
         category: "Academics",
         readTime: "8 min read",
-        date: "July 12, 2026",
+        date: "June 12, 2026",
         tags: ["Course Withdrawal", "Compliance", "F-1 Status"],
         featured: false,
         image: "/blog/withdrawing-from-classes-f1-visa.png"
@@ -725,7 +770,7 @@ const blogPosts = [
         description: "Got an Academic Warning or placed on Academic Probation? Learn how a low GPA affects your F-1 student status, SEVIS record, and future OPT eligibility.",
         category: "Academics",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "January 15, 2026",
         tags: ["Academics", "Compliance", "GPA"],
         featured: false,
         image: "/blog/academic-probation-f1-student-opt.png"
@@ -736,7 +781,7 @@ const blogPosts = [
         description: "Compare the F-1 and J-1 student visas. Learn the differences between OPT and Academic Training, spouse work rules, and the 2-year home residency requirement.",
         category: "Visa Types",
         readTime: "8 min read",
-        date: "July 12, 2026",
+        date: "March 24, 2026",
         tags: ["F-1 Visa", "J-1 Visa", "OPT"],
         featured: false,
         image: "/blog/j1-visa-vs-f1-visa-opt-differences.png"
@@ -747,7 +792,7 @@ const blogPosts = [
         description: "Subject to the J-1 two-year home residency requirement? Learn 5 ways to get a 212(e) waiver so you can stay in the US and pursue an H-1B or Green Card.",
         category: "J-1 Visa",
         readTime: "9 min read",
-        date: "July 12, 2026",
+        date: "March 26, 2026",
         tags: ["J-1 Visa", "212e Waiver", "Immigration"],
         featured: false,
         image: "/blog/j1-waiver-212e-two-year-home-residency.jpg"
@@ -758,7 +803,7 @@ const blogPosts = [
         description: "Learn whether H-4 visa holders can get work authorization. Understand the H-4 EAD rules, eligibility based on I-140 approval, and the OPT-to-H-1B impact.",
         category: "Dependent Visas",
         readTime: "8 min read",
-        date: "July 12, 2026",
+        date: "March 10, 2026",
         tags: ["H-4 EAD", "Spouse Work", "Dependent Visas"],
         featured: false,
         image: "/blog/h4-ead-opt-spouse-work-authorization.jpg"
@@ -769,7 +814,7 @@ const blogPosts = [
         description: "Bringing your family to the US on an F-2 visa? Learn the strict rules: no work, limited study, and how your OPT status directly impacts your dependents.",
         category: "Dependent Visas",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "February 16, 2026",
         tags: ["F-2 Visa", "Family", "Dependent Visas"],
         featured: false,
         image: "/blog/f2-dependent-visa-rules-opt-students.jpg"
@@ -780,7 +825,7 @@ const blogPosts = [
         description: "Yes, F-1 students on OPT can invest in stocks and crypto. Learn about capital gains taxes, 401(k) contributions, FBAR reporting, and nonresident alien tax rules.",
         category: "Finance",
         readTime: "8 min read",
-        date: "July 12, 2026",
+        date: "March 20, 2026",
         tags: ["Investing", "Taxes", "Finance"],
         featured: false,
         image: "/blog/investing-stocks-crypto-401k-opt-tax.jpg"
@@ -791,7 +836,7 @@ const blogPosts = [
         description: "Compare the cheapest ways to send money from the US to your home country while on OPT. Wise, Remitly, Western Union, and bank wire fees compared.",
         category: "Finance",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "May 15, 2026",
         tags: ["Remittance", "Finance", "Life in US"],
         featured: false,
         image: "/blog/sending-money-home-opt-remittance.jpg"
@@ -802,7 +847,7 @@ const blogPosts = [
         description: "Your first US paycheck on OPT looks smaller than expected. Learn what federal tax, state tax, Social Security, Medicare, and FICA deductions mean for F-1 students.",
         category: "Finance",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "February 20, 2026",
         tags: ["Paycheck", "W-4", "FICA Exemption"],
         featured: false,
         image: "/blog/first-us-paycheck-deductions-w4.jpg"
@@ -813,7 +858,7 @@ const blogPosts = [
         description: "Got an OPT job in a different state? Follow this immigration-safe moving checklist: address updates, SEVIS reporting, new driver's license, and more.",
         category: "Life in US",
         readTime: "6 min read",
-        date: "July 12, 2026",
+        date: "May 4, 2026",
         tags: ["Relocation", "Address Change", "Compliance"],
         featured: false,
         image: "/blog/relocating-for-opt-job-moving-states.jpg"
@@ -824,7 +869,7 @@ const blogPosts = [
         description: "Learn how F-1 international students on OPT can get a US driver's license. State-specific rules, required documents, REAL ID compliance, and renewal tips.",
         category: "Life in US",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "February 5, 2026",
         tags: ["Driver License", "REAL ID", "DMV"],
         featured: false,
         image: "/blog/drivers-license-opt-state-requirements.jpg"
@@ -835,7 +880,7 @@ const blogPosts = [
         description: "Learn the rules for freelancing, independent contracting (1099), and gig work (Uber, Lyft, DoorDash) while on standard OPT and STEM OPT.",
         category: "Work Rules",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "February 27, 2026",
         tags: ["Freelance", "Gig Work", "1099"],
         featured: false,
         image: "/blog/freelance-gig-work-uber-doordash-opt.jpg"
@@ -846,7 +891,7 @@ const blogPosts = [
         description: "Learn how to use unpaid volunteer work to stop your 90-day OPT unemployment clock. Rules for F-1 students, degree relevance, and STEM OPT restrictions.",
         category: "Work Rules",
         readTime: "6 min read",
-        date: "July 12, 2026",
+        date: "June 7, 2026",
         tags: ["Volunteer", "Unpaid Work", "Unemployment"],
         featured: false,
         image: "/blog/volunteer-work-opt-employment-rules.jpg"
@@ -857,7 +902,7 @@ const blogPosts = [
         description: "Learn if F-1 students can legally hold two or more jobs simultaneously on OPT and STEM OPT. SEVIS reporting rules, 20-hour minimums, and E-Verify requirements.",
         category: "Work Rules",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "April 4, 2026",
         tags: ["Multiple Jobs", "STEM OPT", "Compliance"],
         featured: false,
         image: "/blog/multiple-jobs-opt-two-employers.jpg"
@@ -868,7 +913,7 @@ const blogPosts = [
         description: "Learn how to optimize your LinkedIn profile to attract recruiters who offer H-1B sponsorship. Keywords, Open to Work settings, and networking strategies for F-1 students.",
         category: "Career Search",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "April 2, 2026",
         tags: ["LinkedIn", "Networking", "H-1B"],
         featured: false,
         image: "/blog/linkedin-optimization-f1-h1b-sponsorship.jpg"
@@ -879,7 +924,7 @@ const blogPosts = [
         description: "Are you a non-STEM major? Learn how to maximize your 12 months of OPT. Strategies for H-1B sponsorship, O-1 visas, and finding employment in arts and business.",
         category: "Career Planning",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "April 20, 2026",
         tags: ["Non-STEM", "O-1 Visa", "H-1B"],
         featured: false,
         image: "/blog/opt-non-stem-majors-guide.jpg"
@@ -890,7 +935,7 @@ const blogPosts = [
         description: "The 90-day unemployment clock, H-1B lotteries, and visa renewals create immense stress. Learn how to manage OPT anxiety and find accessible mental health support.",
         category: "Mental Health",
         readTime: "6 min read",
-        date: "July 12, 2026",
+        date: "April 9, 2026",
         tags: ["Anxiety", "Mental Health", "Wellness"],
         featured: false,
         image: "/blog/opt-anxiety-mental-health-international-students.jpg"
@@ -901,7 +946,7 @@ const blogPosts = [
         description: "What happens when your OPT expires or you run out of unemployment days? Learn the rules of the F-1 60-day grace period and your options to stay in the US.",
         category: "Visa Rules",
         readTime: "6 min read",
-        date: "July 12, 2026",
+        date: "January 11, 2026",
         tags: ["Grace Period", "F-1 Status", "Compliance"],
         featured: false,
         image: "/blog/60-day-grace-period-f1-students.jpg"
@@ -912,7 +957,7 @@ const blogPosts = [
         description: "An international student's guide to navigating OPT after an MBA. Strategies for consulting, tech product management, finance, and STEM MBA extensions.",
         category: "Career Paths",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "April 18, 2026",
         tags: ["MBA", "STEM", "H-1B"],
         featured: false,
         image: "/blog/opt-mba-students-career-paths.jpg"
@@ -923,7 +968,7 @@ const blogPosts = [
         description: "Do you lose leverage because you need H-1B sponsorship? Learn how international students can successfully negotiate salary, sign-on bonuses, and relocation on OPT.",
         category: "Career Advice",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "May 9, 2026",
         tags: ["Negotiation", "H-1B", "Salary"],
         featured: false,
         image: "/blog/salary-negotiation-international-workers-opt.jpg"
@@ -934,7 +979,7 @@ const blogPosts = [
         description: "Cold applying online rarely works for international students. Learn how to network effectively to bypass ATS filters and find H-1B sponsoring employers.",
         category: "Career Search",
         readTime: "7 min read",
-        date: "July 12, 2026",
+        date: "April 5, 2026",
         tags: ["Networking", "H-1B", "Career Tips"],
         featured: false,
         image: "/blog/networking-international-student-sponsorship.jpg"
@@ -975,39 +1020,71 @@ export default function BlogIndexPage() {
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                     OPT & F-1 Visa Guides
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10">
                     Expert guides on OPT timelines, STEM OPT extensions, H-1B sponsors, and USCIS tracking.
                     Written by former F-1 students who've been through it all.
                 </p>
+                
+                {/* E-E-A-T / Editorial Density Section */}
+                <div className="max-w-3xl mx-auto bg-blue-50 dark:bg-blue-900/10 rounded-2xl p-6 text-left border border-blue-100 dark:border-blue-900/30">
+                    <div className="flex flex-col sm:flex-row gap-6 items-start">
+                        <div className="flex-shrink-0">
+                            <div className="w-16 h-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-xl">
+                                VK
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">Editorial Independence & Accuracy</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">
+                                Our content is exclusively authored by <strong>Vinay Kumar</strong>, our Lead Content Writer and former F-1 student. 
+                                We regularly consult with immigration attorneys and review DHS/USCIS policy updates to ensure our guides remain accurate, objective, and up-to-date.
+                            </p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                <em>TrackMyOPT is not a law firm. The guides below provide general educational information about the F-1 visa lifecycle and should not be construed as legal advice.</em>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Featured Posts */}
             <div className="grid md:grid-cols-2 gap-8 mb-16">
                 {featured.map((post) => (
                     <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
-                        <article className="h-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-zinc-900 dark:to-zinc-800 rounded-2xl border border-blue-100 dark:border-zinc-700 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                            <div className="flex items-center gap-3 mb-4">
-                                <CategoryBadge category={post.category} />
-                                <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {post.readTime}
-                                </span>
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium">
-                                    <TrendingUp className="w-3 h-3" />
-                                    Featured
-                                </span>
+                        <article className="flex flex-col h-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-zinc-900 dark:to-zinc-800 rounded-2xl border border-blue-100 dark:border-zinc-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                            <div className="relative w-full h-48 sm:h-56 bg-blue-100 dark:bg-zinc-800">
+                                <Image 
+                                    src={post.image || "/blog/default.jpg"} 
+                                    alt={post.title} 
+                                    fill 
+                                    className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                />
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                {post.title}
-                            </h2>
-                            <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-                                {post.description}
-                            </p>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-500">{post.date}</span>
-                                <span className="flex items-center text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:gap-2 transition-all">
-                                    Read Guide <ArrowRight className="w-4 h-4 ml-1" />
-                                </span>
+                            <div className="p-8 flex flex-col flex-grow">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <CategoryBadge category={post.category} />
+                                    <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        {post.readTime}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium">
+                                        <TrendingUp className="w-3 h-3" />
+                                        Featured
+                                    </span>
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                    {post.title}
+                                </h2>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed flex-grow">
+                                    {post.description}
+                                </p>
+                                <div className="flex items-center justify-between mt-auto">
+                                    <span className="text-sm text-gray-500">{post.date}</span>
+                                    <span className="flex items-center text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:gap-2 transition-all">
+                                        Read Guide <ArrowRight className="w-4 h-4 ml-1" />
+                                    </span>
+                                </div>
                             </div>
                         </article>
                     </Link>
@@ -1019,21 +1096,32 @@ export default function BlogIndexPage() {
             <div className="grid md:grid-cols-2 gap-6">
                 {rest.map((post) => (
                     <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
-                        <article className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 hover:shadow-lg transition-all duration-300">
-                            <div className="flex items-center gap-3 mb-3">
-                                <CategoryBadge category={post.category} />
-                                <span className="text-xs text-gray-500 flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {post.readTime}
-                                </span>
+                        <article className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:shadow-lg transition-all duration-300 overflow-hidden">
+                            <div className="relative w-full h-40 bg-gray-100 dark:bg-zinc-800">
+                                <Image 
+                                    src={post.image || "/blog/default.jpg"} 
+                                    alt={post.title} 
+                                    fill 
+                                    className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                {post.title}
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                                {post.description}
-                            </p>
-                            <span className="text-sm text-gray-400">{post.date}</span>
+                            <div className="p-6 flex flex-col flex-grow">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <CategoryBadge category={post.category} />
+                                    <span className="text-xs text-gray-500 flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        {post.readTime}
+                                    </span>
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                    {post.title}
+                                </h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 flex-grow">
+                                    {post.description}
+                                </p>
+                                <span className="text-sm text-gray-400 mt-auto">{post.date}</span>
+                            </div>
                         </article>
                     </Link>
                 ))}

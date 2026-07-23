@@ -95,7 +95,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
         {
             name: "Dedicated",
             id: "dedicated",
-            description: "Pro plus monthly attorney access for complex immigration questions.",
+            description: "Pro plus higher resume quota and priority email support.",
             price: { monthly: 14.99, yearly: 149.99 },
             originalPrice: { monthly: 19.99, yearly: 199.99 },
             features: getPlanBullets("dedicated"),
@@ -231,7 +231,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                                                 ? proFreeTrialEligible === false
                                                     ? 'No trial — your account already used the one-time Pro trial'
                                                     : '7-Day Free Trial'
-                                                : '1-Hr Attorney Session Included'}
+                                                : 'Priority email support'}
                                         </div>
                                     </>
                                 ) : (
@@ -253,7 +253,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                                                 ? proFreeTrialEligible === false
                                                     ? 'No trial — your account already used the one-time Pro trial'
                                                     : '7-Day Free Trial'
-                                                : '1-Hr Attorney Session Included'}
+                                                : 'Priority email support'}
                                         </div>
                                     </>
                                 )}

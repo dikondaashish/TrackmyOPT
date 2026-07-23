@@ -77,9 +77,9 @@ export default function SpringGraduatesOptTimingPage() {
             <BlogPostSchema
                 title={metadata.title as string}
                 description={metadata.description as string}
-                publishedDate="2026-05-14"
-                modifiedDate="2026-05-14"
-                author="TrackMyOPT Team"
+                publishedDate="2026-05-29"
+                modifiedDate="2026-05-29"
+                author="Vinay Kumar"
                 faqItems={faqItems}
             />
 
@@ -108,9 +108,9 @@ export default function SpringGraduatesOptTimingPage() {
                     If you are graduating in May or June 2026, the window to file your OPT application is right now — or possibly already closing. Here is the exact timeline, what to expect from USCIS processing in 2026, and how to make sure delays do not cost you months of work authorization.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: May 14, 2026</span>
+                    <span>Published: May 28, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team (former F-1 students)</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

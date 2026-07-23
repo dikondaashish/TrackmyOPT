@@ -22,7 +22,7 @@ export default function CapGapArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "H1b Cap Gap Extension", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-12" author="TrackMyOPT Team" howToItems={[{step: 1, name: "Understand Cap-Gap Requirements", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#requirements", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Register for H-1B and Participate in Lottery", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#lottery", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Have Your Employer File H-1B Petition", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#filing", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Receive I-20 Endorsement for Cap-Gap", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#i20", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Work During Cap-Gap Until October 1", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#work", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-06" modifiedDate="2026-03-06" author="Vinay Kumar" howToItems={[{step: 1, name: "Understand Cap-Gap Requirements", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#requirements", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Register for H-1B and Participate in Lottery", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#lottery", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Have Your Employer File H-1B Petition", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#filing", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Receive I-20 Endorsement for Cap-Gap", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#i20", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Work During Cap-Gap Until October 1", url: "https://www.trackmyopt.com/blog/h1b-cap-gap-extension#work", image: "https://www.trackmyopt.com/og-image.png"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -35,7 +35,7 @@ export default function CapGapArticle() {
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">H-1B Cap-Gap Extension Explained: What Happens Between OPT and H-1B</h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">The cap-gap bridges the gap between your OPT expiration and H-1B start date. Here's exactly how it works.</p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: March 6, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">

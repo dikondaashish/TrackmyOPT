@@ -4,6 +4,8 @@ import {
   formatStatusChangedDaysAgo,
   isStatusChangeWithinWedgeWindow,
   shouldShowStatusChangeWedge,
+  shouldShowStaleStatusUpsell,
+  STALE_STATUS_MS,
   STATUS_CHANGE_WEDGE_MAX_AGE_DAYS,
 } from "./free-change-wedge";
 
@@ -126,5 +128,20 @@ describe("formatStatusChangedDaysAgo", () => {
       Date.now() - (STATUS_CHANGE_WEDGE_MAX_AGE_DAYS + 5) * 24 * 60 * 60 * 1000
     ).toISOString();
     expect(formatStatusChangedDaysAgo(staleChangeAt)).toBe("recently");
+  });
+});
+
+describe("shouldShowStaleStatusUpsell", () => {
+  it("shows for free users after 24h", () => {
+    const old = new Date(Date.now() - STALE_STATUS_MS - 1000).toISOString();
+    expect(shouldShowStaleStatusUpsell(old, false)).toBe(true);
+  });
+
+  it("hides for premium and fresh checks", () => {
+    const old = new Date(Date.now() - STALE_STATUS_MS - 1000).toISOString();
+    const fresh = new Date().toISOString();
+    expect(shouldShowStaleStatusUpsell(old, true)).toBe(false);
+    expect(shouldShowStaleStatusUpsell(fresh, false)).toBe(false);
+    expect(shouldShowStaleStatusUpsell(null, false)).toBe(false);
   });
 });

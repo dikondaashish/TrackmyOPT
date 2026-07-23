@@ -77,9 +77,9 @@ export default function IndianBankAccountNROPage() {
             <BlogPostSchema
                 title={metadata.title as string}
                 description={metadata.description as string}
-                publishedDate="2026-05-14"
-                modifiedDate="2026-05-14"
-                author="TrackMyOPT Team"
+                publishedDate="2026-03-18"
+                modifiedDate="2026-03-18"
+                author="Vinay Kumar"
                 faqItems={faqItems}
             />
 
@@ -110,9 +110,9 @@ export default function IndianBankAccountNROPage() {
                     Most Indian F-1 students on OPT do not realize they have quietly become NRIs under Indian law — and that their regular savings account back home is now a FEMA violation. Here is what that means and exactly how to fix it.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: May 14, 2026</span>
+                    <span>Published: March 18, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team (former F-1 students)</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

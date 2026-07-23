@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/h1b-alternatives-work-visas",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/h1b-alternatives-work-visas.png",
@@ -41,9 +41,9 @@ export default function H1BAlternativesGuide() {
             <BlogPostSchema
                 title="H-1B Visa Alternatives: Top 8 Work Visas for F-1 OPT Students"
                 description="Comprehensive guide exploring work visa alternatives to the H-1B for F-1 students on OPT."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-03-02"
+                modifiedDate="2026-03-02"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "What happens if I miss the H-1B lottery?", answer: "If your OPT/STEM OPT is ending and you didn't get selected in the H-1B lottery, you must either transition to another visa status (such as O-1, TN, E-2, L-1, or cap-exempt H-1B), enroll in a new degree program (like Day 1 CPT), or depart the United States before your grace period ends." },
                     { question: "Who qualifies for an O-1 Extraordinary Ability visa?", answer: "The O-1 visa is for individuals who possess extraordinary ability in the sciences, arts, education, business, or athletics. You must meet at least 3 out of 8 USCIS criteria, such as publishing scholarly articles, receiving high salary offers, or playing a critical role in distinguished organizations." },
@@ -77,9 +77,9 @@ export default function H1BAlternativesGuide() {
                     With H-1B lottery selection rates remaining highly competitive, relying solely on the H-1B cap is risky. Here are the top 8 alternative visa pathways to continue working legally in the US.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: March 2, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 
@@ -301,7 +301,7 @@ export default function H1BAlternativesGuide() {
                             <h3 className="text-2xl font-bold">Track Your OPT Deadlines</h3>
                         </div>
                         <p className="text-indigo-100 mb-6 text-lg max-w-2xl">
-                            Ensure you never miss a compliance deadline while planning your next visa step. Use TrackMyOPT to track status and unemployment days automatically.
+                            Ensure you never miss a compliance deadline while planning your next visa step. Use TrackMyOPT to track unemployment days for free, and Pro for daily USCIS auto-checks.
                         </p>
                         <Link
                             href="/login"

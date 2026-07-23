@@ -65,7 +65,7 @@ export const softwareApplicationSchema = {
             price: "4.99",
             priceCurrency: "USD",
             description:
-                "Everything in Free + Priority Alerts, H-1B Data, AI Resume Parser",
+                "Everything in Free + daily USCIS auto-checks, status-change email alerts, Document Vault, H-1B data, and higher AI resume limits",
         },
     ],
     description:

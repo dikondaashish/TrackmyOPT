@@ -29,7 +29,7 @@ export default function OPTHealthInsuranceGuide() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Opt Health Insurance Guide", url: "https://www.trackmyopt.com/blog/opt-health-insurance-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Do F-1 students on OPT need health insurance?", answer: "While there is no federal mandate penalty since 2019, some states impose penalties. Going without insurance is financially risky — an ER visit averages $2,200. Most advisors strongly recommend maintaining coverage during OPT."}, {question: "Can OPT students get ACA marketplace plans?", answer: "Yes. F-1 students on valid OPT are considered lawfully present and can purchase plans. Resident aliens for tax purposes may qualify for premium subsidies; non-resident aliens pay full price."}, {question: "What happens if I don't have health insurance on OPT?", answer: "Without insurance, you pay 100% of medical costs. An ER visit averages $2,200 and hospitalization $13,000/day. In states with individual mandates, you may also face tax penalties."}, {question: "When can I enroll in a marketplace plan?", answer: "During annual Open Enrollment (November 1 – January 15) or during a Special Enrollment Period triggered by losing coverage (60-day window)."}, {question: "Is employer health insurance available on OPT?", answer: "Yes. If your employer offers health benefits, you are eligible just like any other employee. Employers typically cover 50-80% of costs, making this the most affordable option."}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-04-16" modifiedDate="2026-04-16" author="Vinay Kumar" faqItems={[{question: "Do F-1 students on OPT need health insurance?", answer: "While there is no federal mandate penalty since 2019, some states impose penalties. Going without insurance is financially risky — an ER visit averages $2,200. Most advisors strongly recommend maintaining coverage during OPT."}, {question: "Can OPT students get ACA marketplace plans?", answer: "Yes. F-1 students on valid OPT are considered lawfully present and can purchase plans. Resident aliens for tax purposes may qualify for premium subsidies; non-resident aliens pay full price."}, {question: "What happens if I don't have health insurance on OPT?", answer: "Without insurance, you pay 100% of medical costs. An ER visit averages $2,200 and hospitalization $13,000/day. In states with individual mandates, you may also face tax penalties."}, {question: "When can I enroll in a marketplace plan?", answer: "During annual Open Enrollment (November 1 – January 15) or during a Special Enrollment Period triggered by losing coverage (60-day window)."}, {question: "Is employer health insurance available on OPT?", answer: "Yes. If your employer offers health benefits, you are eligible just like any other employee. Employers typically cover 50-80% of costs, making this the most affordable option."}]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -57,9 +57,9 @@ export default function OPTHealthInsuranceGuide() {
                     After graduation, your university health plan ends — but your need for coverage doesn't. This guide walks you through every health insurance option available to F-1 students on OPT, from ACA marketplace plans to employer coverage.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Last updated: March 12, 2026</span>
+                    <span>Last updated: April 16, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

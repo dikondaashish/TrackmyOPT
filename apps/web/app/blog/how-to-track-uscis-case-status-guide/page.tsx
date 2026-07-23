@@ -36,7 +36,7 @@ export default function USCISCaseStatusArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "How to Track USCIS Case Status", url: "https://www.trackmyopt.com/blog/how-to-track-uscis-case-status-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-20" modifiedDate="2026-03-20" author="TrackMyOPT Team" faqItems={[
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-15" modifiedDate="2026-03-15" author="Vinay Kumar" faqItems={[
                 { question: "Where do I check my USCIS case status?", answer: "Log into your USCIS account at uscis.gov, click 'Check Application Status,' enter your case number (starts with three letters like EAC, LIN, or WAC), and review your status messages." },
                 { question: "What does 'case received' mean for OPT?", answer: "'Case received' means USCIS has accepted your I-765 petition and assigned it a case number. Processing has begun, and you should see updates within 30-60 days." },
                 { question: "What does 'request for additional evidence (RFE)' mean?", answer: "USCIS is requesting additional documents or information to process your case. You have 7 calendar days to respond (extendable to 87 days). Missing the deadline results in case denial." },
@@ -74,7 +74,7 @@ export default function USCISCaseStatusArticle() {
                     Master USCIS case tracking with step-by-step instructions, status message explanations, processing time details, and what to do if your case is delayed.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: March 20, 2026</span>
+                    <span>Published: March 15, 2026</span>
                     <span>•</span>
                     <span>Updated by TrackMyOPT USCIS Team</span>
                 </div>

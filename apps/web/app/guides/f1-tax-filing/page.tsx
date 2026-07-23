@@ -45,7 +45,7 @@ export default function F1TaxFilingPillarGuide() {
                 "dateModified": "2026-03-12",
                 "author": {
                     "@type": "Organization",
-                    "name": "TrackMyOPT Team",
+                    "name": "Vinay Kumar",
                     "url": "https://www.trackmyopt.com"
                 },
                 "publisher": {
@@ -151,7 +151,7 @@ export default function F1TaxFilingPillarGuide() {
                 <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <span>Last updated: March 12, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                     <span>•</span>
                     <span>IRS-sourced & expert-reviewed</span>
                 </div>

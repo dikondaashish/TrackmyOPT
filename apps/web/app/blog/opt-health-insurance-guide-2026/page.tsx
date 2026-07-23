@@ -36,7 +36,7 @@ export default function OPTHealthInsuranceArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "OPT Health Insurance Guide 2026", url: "https://www.trackmyopt.com/blog/opt-health-insurance-guide-2026" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-16" modifiedDate="2026-03-16" author="TrackMyOPT Team" faqItems={[
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-27" modifiedDate="2026-05-27" author="Vinay Kumar" faqItems={[
                 { question: "Do F-1 students on OPT need health insurance?", answer: "While federal law doesn't mandate health insurance for F-1 OPT students, most employers offer coverage, and many states require minimum coverage. More importantly, going without insurance could result in medical debt that devastates your finances." },
                 { question: "Can F-1 students buy health insurance on the marketplace?", answer: "Yes, F-1 students can purchase plans on the ACA marketplace (Healthcare.gov). As a nonresident alien, you don't qualify for subsidies, but you can buy full-price plans. Enrollment typically occurs during open enrollment (November-December)." },
                 { question: "What is COBRA health insurance?", answer: "COBRA allows you to continue your employer's health insurance for up to 18 months after leaving a job or graduating. You pay the full premium (typically $400-800+/month) plus a 2% administrative fee, but coverage is often better than marketplace plans." },
@@ -74,7 +74,7 @@ export default function OPTHealthInsuranceArticle() {
                     Navigate health insurance options for OPT students: marketplace plans, COBRA, international plans, and employer coverage explained with costs and comparisons.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: March 16, 2026</span>
+                    <span>Published: May 26, 2026</span>
                     <span>•</span>
                     <span>Updated by TrackMyOPT Benefits Team</span>
                 </div>

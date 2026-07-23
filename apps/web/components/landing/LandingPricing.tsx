@@ -51,7 +51,7 @@ export function LandingPricing() {
             buttonLabel: LANDING_PLAN_COPY.dedicated.buttonLabel,
             features: LANDING_DEDICATED_FEATURES,
             recommended: false,
-            badge: "Attorney-Backed",
+            badge: "Priority Support",
         },
     ];
 
@@ -60,7 +60,7 @@ export function LandingPricing() {
             <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <PricingModule
                 title="Simple, Transparent Pricing"
-                subtitle="Start free. Upgrade to Pro for automation, or Dedicated when you need attorney-backed support."
+                subtitle="Start free. Upgrade to Pro for daily auto-checks, or Dedicated for higher quotas and priority support."
                 annualBillingLabel="Annual Billing"
                 buttonLabel="Start 7-Day Free Trial"
                 plans={plans}

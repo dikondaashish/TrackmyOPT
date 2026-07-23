@@ -32,9 +32,9 @@ export default function BuyingCarPage() {
             <BlogPostSchema
                 title={metadata.title as string}
                 description={metadata.description as string}
-                publishedDate="2026-07-12"
-                modifiedDate="2026-07-12"
-                author="TrackMyOPT Team"
+                publishedDate="2026-01-20"
+                modifiedDate="2026-01-20"
+                author="Vinay Kumar"
                 canonicalUrl={metadata.alternates?.canonical as string}
             />
 

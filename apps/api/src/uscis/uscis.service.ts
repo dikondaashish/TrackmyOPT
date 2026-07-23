@@ -4,6 +4,7 @@ import { InjectQueue } from '@nestjs/bull';
 import * as Bull from 'bull';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { fetchCaseStatus, type USCISStatus } from './uscis-client';
+import { filterCasesForPremiumAutoCheck } from './premium-auto-check';
 
 export type { USCISHistoryItem, USCISStatus } from './uscis-client';
 
@@ -24,33 +25,60 @@ export class UscisService {
   }
 
   /**
-   * Queue jobs for ALL active cases (Cron Entrypoint)
+   * Queue daily auto-checks for Pro/Dedicated (premium_status) cases only.
+   * Free users refresh manually via case-status/check.
    */
   async queueAllActiveCases() {
-    // Fetch all active cases
-    const fetchResponse = (await this.supabase
+    const casesResponse = (await this.supabase
       .from('case_status')
       .select('receipt_number, user_id')) as unknown as {
       data: { receipt_number: string; user_id: string }[] | null;
       error: Error | null;
     };
 
-    const cases = fetchResponse.data;
-    const error = fetchResponse.error;
-
-    if (error) {
-      throw new Error(`Failed to fetch cases: ${error.message}`);
+    if (casesResponse.error) {
+      throw new Error(`Failed to fetch cases: ${casesResponse.error.message}`);
     }
 
+    const premiumResponse = (await this.supabase
+      .from('profiles')
+      .select('user_id')
+      .eq('premium_status', true)) as unknown as {
+      data: { user_id: string }[] | null;
+      error: Error | null;
+    };
+
+    if (premiumResponse.error) {
+      throw new Error(
+        `Failed to fetch premium profiles: ${premiumResponse.error.message}`,
+      );
+    }
+
+    const cases = casesResponse.data;
     if (!cases || cases.length === 0) {
       this.logger.log('No cases found to check');
-      return { count: 0 };
+      return { count: 0, skippedFree: 0 };
     }
 
-    this.logger.log(`Queueing ${cases.length} cases for background check...`);
+    const premiumIds = (premiumResponse.data ?? []).map((p) => p.user_id);
+    const { premiumCases, skippedFree } = filterCasesForPremiumAutoCheck(
+      cases,
+      premiumIds,
+    );
+
+    if (premiumCases.length === 0) {
+      this.logger.log(
+        `No premium cases to auto-check (skipped ${skippedFree} free)`,
+      );
+      return { count: 0, skippedFree };
+    }
+
+    this.logger.log(
+      `Queueing ${premiumCases.length} premium cases for auto-check (skipped ${skippedFree} free)`,
+    );
 
     // Stagger jobs with 150ms delay between each to stay within USCIS 10 TPS limit
-    const jobs = cases.map((c, index) => ({
+    const jobs = premiumCases.map((c, index) => ({
       name: 'check-status',
       data: { receiptNumber: c.receipt_number, userId: c.user_id },
       opts: {
@@ -64,7 +92,7 @@ export class UscisService {
 
     await this.uscisQueue.addBulk(jobs);
 
-    return { count: cases.length };
+    return { count: premiumCases.length, skippedFree };
   }
 
   /**

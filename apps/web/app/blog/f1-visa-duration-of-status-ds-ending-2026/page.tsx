@@ -30,9 +30,9 @@ export default function DurationOfStatusArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-05-14" 
+                modifiedDate="2026-05-14" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "What does Duration of Status (D/S) mean for F-1 students?", answer: "Currently, F-1 students are admitted for 'D/S', meaning they can stay in the U.S. indefinitely as long as they maintain student status, progress academically, or transition to OPT."}, 
                     {question: "What happens if Duration of Status ends?", answer: "F-1 students would be given fixed admission periods (typically 2 or 4 years). To stay longer, transfer schools, or start OPT, they would have to file an extension of stay application with USCIS, paying fees and facing potential denials."} 
@@ -56,7 +56,7 @@ export default function DurationOfStatusArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     A controversial rule to replace indefinite "D/S" with fixed visa expiration dates is near final approval. This article is for all current and future F-1 international students whose legal presence in the U.S. will be directly impacted.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: May 13, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img 

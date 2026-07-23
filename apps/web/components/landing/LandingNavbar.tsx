@@ -67,8 +67,9 @@ export function LandingNavbar() {
     return (
         <>
         <ResumePromoBanner variant="marketing" />
+        {/* ponytail: initial={false} — skip slide-in so SSR HTML matches client (hydration #418). */}
         <motion.nav
-            initial={{ y: prefersReducedMotion ? 0 : -100 }}
+            initial={false}
             animate={{ y: 0 }}
             transition={prefersReducedMotion ? { duration: 0 } : undefined}
             style={{ top: "var(--tmopt-marketing-promo, 0px)" }}

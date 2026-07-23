@@ -24,6 +24,7 @@ import {
   type PaidPlanId,
 } from "@/lib/pricing/sales-copy";
 import { PlanPickerGuide } from "@/components/pricing/PlanPickerGuide";
+import { captureCheckoutStarted, capturePricingCtaViewed } from "@/lib/posthog-client";
 
 interface PricingModalProps {
   open: boolean;
@@ -114,6 +115,10 @@ export function PricingModal({
     if (!open || isPremium) {
       return;
     }
+    capturePricingCtaViewed({
+      variant: "control",
+      source: "pricing_modal",
+    });
     let cancelled = false;
     (async () => {
       try {
@@ -171,6 +176,11 @@ export function PricingModal({
     const currentInterval = isYearly ? "year" : "month";
 
     try {
+      captureCheckoutStarted({
+        trigger: "pricing_modal",
+        source: checkoutPage ? "premium_checkout_page" : "pricing_modal",
+      });
+
       const promoFields = buildPromoCheckoutBody(promoMode, customPromoInput);
       const response = await fetch('/api/premium/create-checkout', {
         method: 'POST',
@@ -531,7 +541,7 @@ export function PricingModal({
                     <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
                       <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-amber-500/30">
                         <Shield className="w-3 h-3" />
-                        {salesMeta?.badge ?? "Attorney-Backed"}
+                        {salesMeta?.badge ?? "Priority Support"}
                       </div>
                     </div>
                   )}

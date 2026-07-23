@@ -3,6 +3,7 @@ import {
   extractExceptionMessages,
   isBenignAdSenseNetworkError,
   isBenignReactDomTeardownError,
+  isBenignWebkitMessageHandlersError,
   isBenignWebSocketUnavailableError,
   isOpaqueCrossOriginScriptError,
   shouldDropExceptionEvent,
@@ -153,5 +154,30 @@ describe("shouldDropExceptionEvent", () => {
 
     expect(isBenignAdSenseNetworkError(properties)).toBe(false);
     expect(shouldDropExceptionEvent(properties)).toBe(false);
+  });
+
+  it("drops Instagram/iOS webkit.messageHandlers bridge noise", () => {
+    expect(
+      isBenignWebkitMessageHandlersError(
+        "undefined is not an object (evaluating 'window.webkit.messageHandlers')"
+      )
+    ).toBe(true);
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: [
+          "undefined is not an object (evaluating 'window.webkit.messageHandlers')",
+        ],
+      })
+    ).toBe(true);
+  });
+
+  it("keeps React hydration #418 observable", () => {
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: [
+          "Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]=",
+        ],
+      })
+    ).toBe(false);
   });
 });

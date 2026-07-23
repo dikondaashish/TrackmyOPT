@@ -27,7 +27,7 @@ export default function OPTExpiresArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "What Happens If Opt Expires", url: "https://www.trackmyopt.com/blog/what-happens-if-opt-expires" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "What happens when my OPT expires?", answer: "When your OPT EAD expires, your work authorization ends immediately. You enter a 60-day grace period during which you can prepare to leave the US, change visa status, transfer to a new school, or wait for a pending H-1B decision (cap-gap)."}, {question: "Can I stay in the US after OPT expires?", answer: "Yes, for up to 60 days (the grace period). However, you cannot work during this time. If you stay beyond 60 days without changing status, you begin accruing unlawful presence."}, {question: "Can I extend my OPT?", answer: "Regular OPT cannot be extended. However, STEM degree holders can apply for a 24-month STEM OPT extension before their current OPT expires. You must have an E-Verify employer and file Form I-765."} ]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-06-11" modifiedDate="2026-06-11" author="Vinay Kumar" faqItems={[{question: "What happens when my OPT expires?", answer: "When your OPT EAD expires, your work authorization ends immediately. You enter a 60-day grace period during which you can prepare to leave the US, change visa status, transfer to a new school, or wait for a pending H-1B decision (cap-gap)."}, {question: "Can I stay in the US after OPT expires?", answer: "Yes, for up to 60 days (the grace period). However, you cannot work during this time. If you stay beyond 60 days without changing status, you begin accruing unlawful presence."}, {question: "Can I extend my OPT?", answer: "Regular OPT cannot be extended. However, STEM degree holders can apply for a 24-month STEM OPT extension before their current OPT expires. You must have an E-Verify employer and file Form I-765."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -45,7 +45,7 @@ export default function OPTExpiresArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Your OPT EAD is about to expire — or already has. Don't panic. Here are your options and the exact steps to take.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: June 10, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">

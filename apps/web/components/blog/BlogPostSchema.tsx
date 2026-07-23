@@ -28,7 +28,7 @@ export function BlogPostSchema({
   description = "Read our latest insights on OPT, H-1B, and F-1 visa information",
   publishedDate,
   modifiedDate,
-  author = "TrackMyOPT Team",
+  author = "Vinay Kumar",
   canonicalUrl,
   faqItems = [],
   howToItems = [],
@@ -58,14 +58,17 @@ export function BlogPostSchema({
     datePublished: publishedDate,
     dateModified: modifiedDate,
     author: {
-      "@type": "Organization",
-      name: "TrackMyOPT",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://www.trackmyopt.com/logo.png",
-        width: 256,
-        height: 256,
+      "@type": "Person",
+      name: author,
+      jobTitle: "Content Writer",
+      worksFor: {
+        "@type": "Organization",
+        name: "Zyene Inc",
       },
+      sameAs: [
+        "https://www.linkedin.com/company/trackmyopt",
+        "https://www.trackmyopt.com/about",
+      ],
     },
     publisher: {
       "@type": "Organization",

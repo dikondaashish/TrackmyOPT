@@ -36,7 +36,7 @@ export default function F1TaxFilingArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "F-1 Student Tax Filing Guide 2026", url: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide-2026" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-13" modifiedDate="2026-03-13" author="TrackMyOPT Team" faqItems={[
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-19" modifiedDate="2026-05-19" author="Vinay Kumar" faqItems={[
                 { question: "Do F-1 students have to pay taxes?", answer: "F-1 students on OPT are required to pay federal income taxes on wages earned in the US, FICA taxes (Social Security & Medicare), and state taxes if applicable. You are considered a nonresident alien for tax purposes in your first 5 years." },
                 { question: "What form does an F-1 student file?", answer: "F-1 students typically file Form 1040-NR (Nonresident Alien Income Tax Return) instead of Form 1040. You must also file Form 8843 to claim the Substantial Presence Test exception or to report if you were exempt from taxation." },
                 { question: "What is Form 8843 used for?", answer: "Form 8843 is filed by nonresident aliens to claim exemption from the Substantial Presence Test or to report that they were exempt from US income tax. It must be filed even if you have no US income." },
@@ -74,7 +74,7 @@ export default function F1TaxFilingArticle() {
                     Master F-1 tax filing with complete instructions on forms, deadlines, FICA exemptions, and tax-saving strategies for international students earning US income.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: March 13, 2026</span>
+                    <span>Published: May 18, 2026</span>
                     <span>•</span>
                     <span>Updated by TrackMyOPT Tax Team</span>
                 </div>

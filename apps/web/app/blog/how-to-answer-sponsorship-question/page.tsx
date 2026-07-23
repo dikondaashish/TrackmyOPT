@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/how-to-answer-sponsorship-question",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/how-to-answer-sponsorship-question.png",
@@ -41,9 +41,9 @@ export default function SponsorshipQuestionGuide() {
             <BlogPostSchema
                 title="How to Answer the Visa Sponsorship Question in Job Interviews"
                 description="Proven interview strategies for F-1 students on OPT when asked about work visa sponsorship."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-03-11"
+                modifiedDate="2026-03-11"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "Should I lie about my sponsorship requirement on a job application?", answer: "No, never lie on a job application or in an interview. If an employer finds out later that you misrepresented your work authorization, it is legal grounds for immediate termination." },
                     { question: "How should I answer 'Do you require sponsorship now or in the future?'", answer: "You should answer 'Yes'. However, you can clarify that you have immediate, independent work authorization (OPT or STEM OPT) for up to 36 months, meaning no immediate sponsorship is needed." },
@@ -76,9 +76,9 @@ export default function SponsorshipQuestionGuide() {
                     &quot;Will you now or in the future require visa sponsorship?&quot; For F-1 OPT students, this is the most stressful screening question. Here is how to answer strategically, truthfully, and maximize your chances.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: March 11, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

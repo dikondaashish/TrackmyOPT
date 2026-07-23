@@ -30,9 +30,9 @@ export default function OPTCPTScrutinyArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-05-13" 
+                modifiedDate="2026-05-13" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "Is OPT being scrutinized more heavily in 2026?", answer: "Yes. There is an intensified focus by the government on enforcement regarding the Optional Practical Training (OPT) for F-1 students, including worksite inspections."}, 
                     {question: "What should I do to protect my F-1 OPT status?", answer: "Ensure strict compliance with the 90-day unemployment rule, maintain accurate SEVP Portal records, only work in fields directly related to your major, and be prepared to justify your employment relationship."} 
@@ -56,7 +56,7 @@ export default function OPTCPTScrutinyArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Government agencies are intensifying enforcement and audits of student work authorization programs. This article is for international students on F-1 visas—specifically those utilizing OPT, STEM OPT, or CPT—who need to ensure their status is bulletproof.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: May 12, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img 

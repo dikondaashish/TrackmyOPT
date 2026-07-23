@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         description: "Discover the USCIS rules on OPT eligibility when pursuing a second Master's degree. Learn about the 'once per higher degree level' rule and what it means for F-1 students.",
         type: "article",
         publishedTime: "2026-06-12T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/second-masters-opt.png",
@@ -55,8 +55,8 @@ export default function BlogPost() {
             <BlogPostSchema 
                 title="Can I Apply for OPT Again After a Second Master's Degree?"
                 description="Discover the USCIS rules on OPT eligibility when pursuing a second Master's degree. Learn about the 'once per higher degree level' rule and what it means for F-1 students."
-                publishedDate="2026-06-12"
-                modifiedDate="2026-06-12"
+                publishedDate="2026-05-13"
+                modifiedDate="2026-05-13"
                 faqItems={jsonLd.mainEntity.map((q: { name: string; acceptedAnswer: { text: string } }) => ({ question: q.name, answer: q.acceptedAnswer.text }))}
             />
             <BreadcrumbSchema
@@ -88,7 +88,7 @@ export default function BlogPost() {
                     <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                         A very common question among international students is whether enrolling in a second Master's degree resets their Optional Practical Training (OPT) clock. Here is the definitive answer under USCIS regulations.
                     </p>
-                    <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                    <div className="mt-6 text-sm text-gray-500">Published: May 13, 2026 • Written by Vinay Kumar</div>
                 </header>
 
                 <figure className="mb-12">

@@ -12,7 +12,7 @@ export { PLAN_COMPARISON_FEATURES as comparisonFeatures } from "@/lib/pricing/pl
 export const pricingFaqs = [
     {
         q: "When should I choose Dedicated over Pro?",
-        a: "Choose Pro if you want automated USCIS monitoring, unemployment alerts, document vault, and career tools — it covers most OPT and STEM OPT students. Choose Dedicated if you want monthly access to a licensed immigration attorney, hands-on application completeness review, or 24/7 priority support for a complex case (RFE, status issues, or H-1B planning).",
+        a: "Choose Pro if you want automated USCIS monitoring, unemployment alerts, document vault, and career tools — it covers most OPT and STEM OPT students. Choose Dedicated if you want a higher resume quota and priority email support on top of Pro.",
     },
     {
         q: "Is TrackMyOPT Pro worth it?",
@@ -20,7 +20,7 @@ export const pricingFaqs = [
     },
     {
         q: "What does TrackMyOPT Pro include that the free plan doesn't?",
-        a: "Pro adds 9:00 AM ET email reminders for all four trackers, daily USCIS auto-checks with change alerts, Document Vault, unlimited job tracking, AI resume tools, and STEM OPT planning — designed to reduce the chance of missing deadlines.",
+        a: "Pro adds 9:00 AM ET email reminders for all four trackers, daily USCIS auto-checks with change alerts, Document Vault, higher AI resume/ATS limits, and STEM OPT planning — designed to reduce the chance of missing deadlines. Free keeps manual case refresh and core OPT calculators.",
     },
     {
         q: "Can I track OPT without TrackMyOPT Pro?",

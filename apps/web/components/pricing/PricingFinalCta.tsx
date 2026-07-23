@@ -98,8 +98,7 @@ export function PricingFinalCta() {
             </Link>
           </div>
           <p className="text-sm text-blue-100/80 mt-4">
-            Pro from $4.17/mo billed yearly · Dedicated includes monthly attorney
-            access
+            Pro from $4.17/mo billed yearly · Dedicated adds priority email support
           </p>
         </div>
       </div>

@@ -81,9 +81,9 @@ export default function OptEadPendingDelaysBlogPage() {
             <BlogPostSchema
                 title={metadata.title as string}
                 description={metadata.description as string}
-                publishedDate="2026-05-14"
-                modifiedDate="2026-05-14"
-                author="TrackMyOPT Team"
+                publishedDate="2026-05-17"
+                modifiedDate="2026-05-17"
+                author="Vinay Kumar"
                 faqItems={faqItems}
             />
 
@@ -112,9 +112,9 @@ export default function OptEadPendingDelaysBlogPage() {
                     USCIS processing delays for OPT and STEM OPT I-765 applications are at some of the worst levels in the program's history. If your case has been pending for months with no update, here is a step-by-step guide for what to do at each stage — and how to protect your status while you wait.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: May 14, 2026</span>
+                    <span>Published: May 16, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team (former F-1 students)</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 
@@ -522,7 +522,7 @@ export default function OptEadPendingDelaysBlogPage() {
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your USCIS Case Status Automatically</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">
-                    TrackMyOPT monitors your USCIS case status, tracks your OPT deadlines, and alerts you the moment anything changes — so you can focus on your job search, not the USCIS website.
+                    TrackMyOPT Free includes manual case refresh and OPT deadline tools. Pro adds daily USCIS auto-checks and alerts when status changes — so you can focus on your job search, not the USCIS website.
                 </p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
                     Track Your Case Free <ArrowRight className="w-4 h-4" />

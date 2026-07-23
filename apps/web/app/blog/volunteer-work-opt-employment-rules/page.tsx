@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 export default function VolunteerWorkPage() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <BlogPostSchema title={metadata.title as string} description={metadata.description as string} publishedDate="2026-07-12" modifiedDate="2026-07-12" author="TrackMyOPT Team" canonicalUrl={metadata.alternates?.canonical as string} />
+            <BlogPostSchema title={metadata.title as string} description={metadata.description as string} publishedDate="2026-06-07" modifiedDate="2026-06-07" author="Vinay Kumar" canonicalUrl={metadata.alternates?.canonical as string} />
             <header className="mb-10 text-center">
                 <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
                     <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Work Rules</span>

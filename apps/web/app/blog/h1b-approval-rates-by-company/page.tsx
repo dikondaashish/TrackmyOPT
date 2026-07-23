@@ -27,7 +27,7 @@ export default function H1BApprovalRatesArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "H1b Approval Rates By Company", url: "https://www.trackmyopt.com/blog/h1b-approval-rates-by-company" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" faqItems={[{question: "Which companies have the highest H-1B approval rates?", answer: "Top tech companies like Google (98%), Apple (97%), and Microsoft (97%) lead with near-perfect approval rates. Direct employers consistently outperform IT staffing firms, which average 60-75% approval rates."}, {question: "What is the average H-1B approval rate?", answer: "The overall H-1B approval rate in FY2025 was approximately 85%. Direct employers average 90-98%, while IT staffing and consulting firms place workers average 65-80%."}, {question: "Why do IT staffing firms have lower approval rates?", answer: "IT staffing firms often place workers at third-party client sites, which USCIS scrutinizes more heavily. Additionally, staffing firms file a much higher volume of petitions, making individual cases receive less thorough vetting per petition."} ]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-04" modifiedDate="2026-03-04" author="Vinay Kumar" faqItems={[{question: "Which companies have the highest H-1B approval rates?", answer: "Top tech companies like Google (98%), Apple (97%), and Microsoft (97%) lead with near-perfect approval rates. Direct employers consistently outperform IT staffing firms, which average 60-75% approval rates."}, {question: "What is the average H-1B approval rate?", answer: "The overall H-1B approval rate in FY2025 was approximately 85%. Direct employers average 90-98%, while IT staffing and consulting firms place workers average 65-80%."}, {question: "Why do IT staffing firms have lower approval rates?", answer: "IT staffing firms often place workers at third-party client sites, which USCIS scrutinizes more heavily. Additionally, staffing firms file a much higher volume of petitions, making individual cases receive less thorough vetting per petition."} ]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -45,7 +45,7 @@ export default function H1BApprovalRatesArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Not all H-1B sponsors are created equal. Some companies have 98%+ approval rates while others see 50%+ denials. Here's the data-driven breakdown.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Data source: USCIS H-1B Employer Data Hub</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: March 4, 2026 • Data source: USCIS H-1B Employer Data Hub</div>
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">

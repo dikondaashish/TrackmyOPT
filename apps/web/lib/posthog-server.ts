@@ -74,11 +74,28 @@ export async function captureServerEvent(
   event: string,
   properties?: PostHogEventProperties
 ): Promise<void> {
+  if (!distinctId?.trim()) {
+    console.error("[PostHog] captureServerEvent called without distinctId:", event);
+    return;
+  }
+
   await withPostHogClient((posthog) => {
+    // Identify first so server billing events merge onto the same person as
+    // client identify(user.id) — required for checkout → payment funnels.
+    posthog.identify({
+      distinctId,
+      properties: {
+        capture_source: "server",
+      },
+    });
     posthog.capture({
       distinctId,
       event,
-      properties: withServerDefaults(properties),
+      properties: withServerDefaults({
+        ...properties,
+        // Explicit mirror for HogQL / debugging when person merges lag.
+        supabase_user_id: distinctId,
+      }),
     });
   });
 }

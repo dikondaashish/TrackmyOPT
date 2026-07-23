@@ -30,9 +30,9 @@ export default function H1BFeeVacatedArticle() {
             <BlogPostSchema 
                 title={metadata.title as string} 
                 description={metadata.description as string} 
-                publishedDate="2026-06-12" 
-                modifiedDate="2026-06-12" 
-                author="TrackMyOPT Team" 
+                publishedDate="2026-05-26" 
+                modifiedDate="2026-05-26" 
+                author="Vinay Kumar" 
                 faqItems={[
                     {question: "What was the $100,000 H-1B fee?", answer: "Implemented in September 2025, the rule required certain employers to pay a $100,000 fee for new H-1B petitions filed for individuals outside the U.S."}, 
                     {question: "Is the H-1B fee still required?", answer: "No. As of June 8, 2026, a federal court vacated the fee, ruling it an unlawful tax implemented without congressional approval. DHS has stated they will comply with the order."} 
@@ -56,7 +56,7 @@ export default function H1BFeeVacatedArticle() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     In a major victory for employers and international talent, a federal court has struck down the controversial $100,000 fee on certain new H-1B petitions. This article is for HR professionals, recruiters, and international candidates seeking clarity on the current H-1B fee structure.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Published: June 12, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Published: May 25, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <img 

@@ -21,7 +21,7 @@ export default function OPTExtensionGuideArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Opt Extension Guide", url: "https://www.trackmyopt.com/blog/opt-extension-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" howToItems={[{step: 1, name: "Verify You Have a STEM-Designated Degree", url: "https://www.trackmyopt.com/blog/opt-extension-guide#stem-eligibility", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Confirm Your Employer Is E-Verify Enrolled", url: "https://www.trackmyopt.com/blog/opt-extension-guide#everify", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Complete Form I-983 With Your Employer", url: "https://www.trackmyopt.com/blog/opt-extension-guide#i983", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "File Form I-765 for STEM Extension", url: "https://www.trackmyopt.com/blog/opt-extension-guide#i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Wait for USCIS Processing and Approval", url: "https://www.trackmyopt.com/blog/opt-extension-guide#processing", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-04-14" modifiedDate="2026-04-14" author="Vinay Kumar" howToItems={[{step: 1, name: "Verify You Have a STEM-Designated Degree", url: "https://www.trackmyopt.com/blog/opt-extension-guide#stem-eligibility", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Confirm Your Employer Is E-Verify Enrolled", url: "https://www.trackmyopt.com/blog/opt-extension-guide#everify", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Complete Form I-983 With Your Employer", url: "https://www.trackmyopt.com/blog/opt-extension-guide#i983", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "File Form I-765 for STEM Extension", url: "https://www.trackmyopt.com/blog/opt-extension-guide#i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Wait for USCIS Processing and Approval", url: "https://www.trackmyopt.com/blog/opt-extension-guide#processing", image: "https://www.trackmyopt.com/og-image.png"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -34,7 +34,7 @@ export default function OPTExtensionGuideArticle() {
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">OPT Extension Guide 2026: How to Extend Your Work Authorization</h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">Your OPT is expiring and you need more time. Here are ALL the ways to extend your F-1 work authorization in 2026.</p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: April 14, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">

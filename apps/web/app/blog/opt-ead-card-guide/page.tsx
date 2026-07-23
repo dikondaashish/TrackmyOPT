@@ -21,7 +21,7 @@ export default function OPTEADArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Opt Ead Card Guide", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-12" modifiedDate="2026-03-12" author="TrackMyOPT Team" howToItems={[{step: 1, name: "Request OPT I-20 from Your DSO", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#request-i20", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Complete Form I-765 for EAD", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#form-i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Gather All Required Documents", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#documents", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "File Your Application Online or by Mail", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#filing", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Receive Your Receipt Notice (I-797C)", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#receipt", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Wait for USCIS Processing and Card Delivery", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#delivery", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-04-13" modifiedDate="2026-04-13" author="Vinay Kumar" howToItems={[{step: 1, name: "Request OPT I-20 from Your DSO", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#request-i20", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Complete Form I-765 for EAD", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#form-i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Gather All Required Documents", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#documents", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "File Your Application Online or by Mail", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#filing", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Receive Your Receipt Notice (I-797C)", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#receipt", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Wait for USCIS Processing and Card Delivery", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#delivery", image: "https://www.trackmyopt.com/og-image.png"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -34,7 +34,7 @@ export default function OPTEADArticle() {
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">OPT EAD Card 2026: How to Apply, Track & What to Do If Delayed</h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">Your EAD card is the physical proof of your work authorization. Here's every step from application to receiving it.</p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: March 10, 2026 • Written by TrackMyOPT Team</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: April 12, 2026 • Written by Vinay Kumar</div>
             </header>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
@@ -162,7 +162,7 @@ export default function OPTEADArticle() {
             <AuthorBio />
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your EAD Application in Real-Time</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT monitors your USCIS case status and alerts you the moment your EAD is approved.</p>
+                <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT Free lets you refresh case status anytime. Pro adds daily auto-checks and alerts you when your EAD is approved.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">Track My EAD <ArrowRight className="w-4 h-4" /></Link>
             </div>
         </article>

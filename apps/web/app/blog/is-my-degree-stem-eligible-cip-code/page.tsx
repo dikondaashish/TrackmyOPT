@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/is-my-degree-stem-eligible-cip-code",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/is-my-degree-stem-eligible-cip-code.png",
@@ -41,9 +41,9 @@ export default function CIPCodeGuide() {
             <BlogPostSchema
                 title="Is My Degree STEM Eligible? CIP Code Lookup Guide for STEM OPT"
                 description="Comprehensive guide on how to check your Form I-20 CIP code against the official DHS STEM Designated Degree list."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-03-22"
+                modifiedDate="2026-03-22"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "Where can I find my degree's CIP code?", answer: "Your degree's Classification of Instructional Programs (CIP) code is printed on the first page of your Form I-20, under the 'Primary Major' section. It is a 6-digit code in the format XX.XXXX (e.g., 11.0101)." },
                     { question: "What is the DHS STEM Designated Degree Program List?", answer: "It is the official list of fields of study designated by the Department of Homeland Security (DHS) as STEM-eligible for the 24-month STEM OPT extension. DHS periodically updates this list to add new qualifying CIP codes." },
@@ -76,9 +76,9 @@ export default function CIPCodeGuide() {
                     To qualify for the 24-month STEM OPT extension, your major must be recognized as STEM by the Department of Homeland Security. Eligibility is determined solely by the 6-digit CIP code on your Form I-20. Here is how to find and verify yours.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: March 22, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

@@ -73,9 +73,9 @@ export default function F1OptTaxMistakesBlogPage() {
             <BlogPostSchema
                 title={metadata.title}
                 description={metadata.description}
-                publishedDate="2026-03-29"
-                modifiedDate="2026-03-29"
-                author="TrackMyOPT Team"
+                publishedDate="2026-02-11"
+                modifiedDate="2026-02-11"
+                author="Vinay Kumar"
                 faqItems={faqItems}
             />
 
@@ -104,7 +104,7 @@ export default function F1OptTaxMistakesBlogPage() {
                     A practical, student-friendly checklist of filing errors that can cost you refunds, create IRS notices, or complicate your immigration paperwork.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: March 29, 2026</span>
+                    <span>Published: February 10, 2026</span>
                     <span>•</span>
                     <span>Updated by TrackMyOPT Tax Team</span>
                 </div>

@@ -73,9 +73,9 @@ export default function LeverageResumeGeneratorBlogPage() {
             <BlogPostSchema
                 title={metadata.title}
                 description={metadata.description}
-                publishedDate="2026-03-29"
-                modifiedDate="2026-03-29"
-                author="TrackMyOPT Team"
+                publishedDate="2026-03-31"
+                modifiedDate="2026-03-31"
+                author="Vinay Kumar"
                 faqItems={faqItems}
             />
 
@@ -104,7 +104,7 @@ export default function LeverageResumeGeneratorBlogPage() {
                     A practical playbook for F-1 students to create ATS-ready, role-targeted resumes faster and improve interview conversion during OPT and STEM OPT job search.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: March 29, 2026</span>
+                    <span>Published: March 31, 2026</span>
                     <span>•</span>
                     <span>Updated by TrackMyOPT Careers Team</span>
                 </div>

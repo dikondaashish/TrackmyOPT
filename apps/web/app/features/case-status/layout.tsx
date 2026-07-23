@@ -1,9 +1,9 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "USCIS Case Status Tracker — Free Auto-Check & Email Alerts (2026)",
+    title: "USCIS Case Status Tracker — Manual Check Free, Auto-Check on Pro (2026)",
     description:
-        "Free USCIS case status tracker for F-1 students. Daily auto-checks for I-765 OPT/EAD, plain-English status updates, RFE alerts, and email notifications when your case changes.",
+        "USCIS case status tracker for F-1 students. Free manual refresh for I-765 OPT/EAD. Pro adds daily auto-checks and email alerts when your case changes.",
     keywords: [
         "USCIS case status tracker",
         "I-765 case tracking",
@@ -16,9 +16,9 @@ export const metadata: Metadata = {
         canonical: "https://www.trackmyopt.com/features/case-status",
     },
     openGraph: {
-        title: "USCIS Case Status Tracker — Free Auto-Check for OPT & EAD | TrackMyOPT",
+        title: "USCIS Case Status Tracker for OPT & EAD | TrackMyOPT",
         description:
-            "Track your USCIS case by receipt number. Daily auto-checks and instant email when your OPT or I-765 status changes.",
+            "Track your USCIS case by receipt number. Free manual checks; Pro daily auto-checks and email when status changes.",
         url: "https://www.trackmyopt.com/features/case-status",
         siteName: "TrackMyOPT",
     },

@@ -40,8 +40,10 @@ import { StatusChangeUpgradeBanner } from "@/components/dashboard/case-status/St
 import { ManualRefreshUpsellPrompt } from "@/components/dashboard/case-status/ManualRefreshUpsellPrompt";
 import {
   shouldShowStatusChangeWedge,
+  shouldShowStaleStatusUpsell,
   MANUAL_REFRESH_COUNT_SESSION_KEY,
   MANUAL_REFRESH_UPSELL_SESSION_KEY,
+  STALE_STATUS_UPSELL_SESSION_KEY,
   CHECKOUT_UPSELL_TRIGGER,
 } from "@/lib/case-status/free-change-wedge";
 import {
@@ -61,6 +63,7 @@ import {
   AlertCircle,
   Loader2,
   Info,
+  X,
 } from "lucide-react";
 import { StickyCaseSwitcher, deriveCaseState } from "@/components/dashboard/case-status/redesign/StickyCaseSwitcher";
 import { useClientDate } from "@/hooks/useClientDate";
@@ -72,6 +75,9 @@ import { ToolsAccordion } from "@/components/dashboard/case-status/redesign/Tool
 import { SmartNextSteps } from "@/components/dashboard/case-status/redesign/SmartNextSteps";
 import { OptJourneySection } from "@/components/dashboard/case-status/redesign/OptJourneySection";
 import { CaseInfoFooter } from "@/components/dashboard/case-status/redesign/CaseInfoFooter";
+import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
+
+const PACKAGING_NOTICE_DISMISS_KEY = "tmo_packaging_notice_dismissed_v1";
 
 interface CaseStatus {
   id: string;
@@ -132,15 +138,54 @@ export function CaseStatusSection() {
   // ISS-030: explicit load error so UI can distinguish "no case" vs "couldn't load"
   const [loadError, setLoadError] = useState<string | null>(null);
   const [wedgeDismissed, setWedgeDismissed] = useState(false);
+  const [packagingNoticeDismissed, setPackagingNoticeDismissed] = useState(true);
   const [showManualRefreshUpsell, setShowManualRefreshUpsell] = useState(false);
+  const [showStaleStatusUpsell, setShowStaleStatusUpsell] = useState(false);
   const [isEditingReceipt, setIsEditingReceipt] = useState(false);
   const [filingDateInput, setFilingDateInput] = useState("");
   const [filingDateSaving, setFilingDateSaving] = useState(false);
+
+  useEffect(() => {
+    try {
+      setPackagingNoticeDismissed(
+        window.localStorage.getItem(PACKAGING_NOTICE_DISMISS_KEY) === "1"
+      );
+    } catch {
+      setPackagingNoticeDismissed(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isPremium !== false || !caseStatus?.last_checked_at) return;
+    if (!shouldShowStaleStatusUpsell(caseStatus.last_checked_at, isPremium)) return;
+    try {
+      if (sessionStorage.getItem(STALE_STATUS_UPSELL_SESSION_KEY) === "1") return;
+      sessionStorage.setItem(STALE_STATUS_UPSELL_SESSION_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+    setShowStaleStatusUpsell(true);
+    captureUpgradePromptShown({
+      trigger: CHECKOUT_UPSELL_TRIGGER.STALE_STATUS,
+      source: "case_status_page",
+    });
+  }, [isPremium, caseStatus?.last_checked_at, caseStatus?.id]);
 
   const showStatusChangeWedge = useMemo(() => {
     if (wedgeDismissed || isPremium !== false || !caseStatus) return false;
     return shouldShowStatusChangeWedge(caseStatus, isPremium);
   }, [wedgeDismissed, isPremium, caseStatus]);
+
+  const showPackagingNotice =
+    !packagingNoticeDismissed && isPremium === false && Boolean(caseStatus);
+
+  const nextCheckAt = useMemo(() => {
+    if (isPremium !== true || !caseStatus?.last_checked_at) return null;
+    const next = new Date(
+      new Date(caseStatus.last_checked_at).getTime() + 24 * 60 * 60 * 1000
+    );
+    return Number.isNaN(next.getTime()) ? null : next.toISOString();
+  }, [isPremium, caseStatus?.last_checked_at]);
 
   // Client-only date — null during SSR/hydration to prevent error #418.
   const clientNow = useClientDate();
@@ -786,7 +831,44 @@ export function CaseStatusSection() {
             rfeDate={rfeDate}
           />
 
-          {/* ── 2b. Status-change upgrade wedge (free users) ── */}
+          {/* ── 2b. Packaging clarification (free users with a case) ── */}
+          {showPackagingNotice && (
+            <Card
+              className="p-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
+              role="status"
+            >
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-blue-900 dark:text-blue-100 flex-1">
+                  {CASE_STATUS_MESSAGING.packagingChangeNotice}{" "}
+                  <button
+                    type="button"
+                    onClick={() => setShowPricingModal(true)}
+                    className="font-medium underline underline-offset-2 hover:no-underline cursor-pointer"
+                  >
+                    See Pro
+                  </button>
+                </p>
+                <button
+                  type="button"
+                  aria-label="Dismiss packaging notice"
+                  className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer"
+                  onClick={() => {
+                    setPackagingNoticeDismissed(true);
+                    try {
+                      window.localStorage.setItem(PACKAGING_NOTICE_DISMISS_KEY, "1");
+                    } catch {
+                      /* ignore */
+                    }
+                  }}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </Card>
+          )}
+
+          {/* ── 2c. Status-change upgrade wedge (free users) ── */}
           {showStatusChangeWedge && caseStatus.status_last_changed_at && (
             <StatusChangeUpgradeBanner
               statusLastChangedAt={caseStatus.status_last_changed_at}
@@ -832,7 +914,9 @@ export function CaseStatusSection() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-amber-900 dark:text-amber-100">
-                  Last auto-check failed ({formatDate(caseStatus.last_check_failed_at)}). USCIS may be unreachable — we&apos;ll keep retrying.
+                  {isPremium === true
+                    ? `Last auto-check failed (${formatDate(caseStatus.last_check_failed_at)}). USCIS may be unreachable — we will keep retrying.`
+                    : `Last check failed (${formatDate(caseStatus.last_check_failed_at)}). Try a manual refresh, or upgrade to Pro for daily auto-checks.`}
                 </p>
               </div>
             </Card>
@@ -843,9 +927,13 @@ export function CaseStatusSection() {
             <MonitorHealthStrip
               monitorActive={isPremium === true}
               lastCheckedAt={caseStatus.last_checked_at}
+              nextCheckAt={nextCheckAt}
               emailAlertsEnabled={caseStatus.notifications_enabled}
               emailAddress={notificationEmail}
               onEditEmail={() => setIsEditingEmail(true)}
+              onUpgrade={
+                isPremium === false ? () => setShowPricingModal(true) : undefined
+              }
             />
           </CaseStatusPanelErrorBoundary>
 
@@ -1031,10 +1119,19 @@ export function CaseStatusSection() {
             />
           </CaseStatusPanelErrorBoundary>
 
-          {/* ── 8b. Manual refresh upsell ── */}
+          {/* ── 8b. Manual refresh / stale status upsell ── */}
           {showManualRefreshUpsell && (
             <ManualRefreshUpsellPrompt onDismiss={() => setShowManualRefreshUpsell(false)} />
           )}
+          {!showManualRefreshUpsell &&
+            !showStatusChangeWedge &&
+            showStaleStatusUpsell && (
+              <ManualRefreshUpsellPrompt
+                trigger={CHECKOUT_UPSELL_TRIGGER.STALE_STATUS}
+                message="Status may be outdated. Pro auto-checks USCIS daily and emails you when it changes."
+                onDismiss={() => setShowStaleStatusUpsell(false)}
+              />
+            )}
 
           {/* ── Dev: mock mode badge ── */}
           {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' &&

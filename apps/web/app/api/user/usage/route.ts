@@ -26,25 +26,16 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Get Profile and Job Count
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('premium_status, plan_tier')
-            .eq('user_id', user.id)
-            .single();
-
         // Job tracker stores rows in job_applications (see migrations/20260115_create_job_tracker.sql)
         const { count: jobCount, error: jobError } = await supabase
             .from('job_applications')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', user.id);
 
-        if (profileError) console.error('Error fetching profile for usage:', profileError);
         if (jobError) console.error('Error fetching job count:', jobError);
 
-        // Calculate limits
-        const isPaid = profile?.premium_status || false;
-        const jobLimit = isPaid ? 1000 : 5; // 1000 acts as 'Unlimited' for UI practical purposes
+        // Job tracker is free for all tiers (no server-side cap).
+        const jobLimit = 1000;
 
         // Get Resume Usage
         const { usage: resumeUsage, limit: resumeLimit } = await checkResumeLimit(user.id);

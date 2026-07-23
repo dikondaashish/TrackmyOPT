@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/eb2-niw-green-card-opt",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
-        authors: ["TrackMyOPT Team"],
+        authors: ["Vinay Kumar"],
         images: [
             {
                 url: "/blog/eb2-niw-green-card-opt.png",
@@ -41,9 +41,9 @@ export default function EB2NIWGuide() {
             <BlogPostSchema
                 title="EB-2 NIW Green Card Guide for OPT & STEM OPT Students"
                 description="Comprehensive guide on the EB-2 National Interest Waiver (NIW) pathway for F-1 international students."
-                publishedDate="2026-07-11"
-                modifiedDate="2026-07-11"
-                author="TrackMyOPT Team"
+                publishedDate="2026-02-07"
+                modifiedDate="2026-02-07"
+                author="Vinay Kumar"
                 faqItems={[
                     { question: "Do I need a job offer for an EB-2 NIW petition?", answer: "No. The National Interest Waiver bypasses the job offer and PERM Labor Certification requirements. You can self-petition without employer support, even if you are currently unemployed or working on OPT." },
                     { question: "What are the three prongs of the Matter of Dhanasar?", answer: "To qualify for an NIW, you must satisfy three prongs: 1) Your proposed endeavor has substantial merit and national importance; 2) You are well-positioned to advance the endeavor; and 3) On balance, it would be beneficial to the United States to waive the job offer and PERM requirements." },
@@ -77,9 +77,9 @@ export default function EB2NIWGuide() {
                     The EB-2 National Interest Waiver (NIW) is one of the most powerful immigration pathways for highly skilled F-1 students. It allows you to self-petition for a Green Card, skipping the employer-sponsorship and PERM Labor Certification requirements entirely.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: July 11, 2026</span>
+                    <span>Published: February 7, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 

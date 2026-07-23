@@ -37,7 +37,7 @@ export default function NinetyDayRuleArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "90 Day Unemployment Rule Opt", url: "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-10" modifiedDate="2026-03-10" author="TrackMyOPT Team" faqItems={[{question: "What is the 90-day rule for OPT?", answer: "The 90-day rule limits F-1 students on post-completion OPT to a maximum of 90 cumulative days of unemployment during their 12-month OPT authorization period. Exceeding this limit results in SEVIS termination."}, {question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 days of unemployment across the combined OPT + STEM OPT period: 90 days from initial OPT plus 60 additional days from the STEM extension."}, {question: "Do weekends count as unemployment days on OPT?", answer: "Yes, weekends and holidays count as unemployment days if you do not have qualifying employment. The unemployment counter counts calendar days, not business days."}, {question: "Can I reset my unemployment days?", answer: "No, unemployment days are cumulative and cannot be reset. They accumulate throughout your entire OPT authorization period."}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-01-13" modifiedDate="2026-01-13" author="Vinay Kumar" faqItems={[{question: "What is the 90-day rule for OPT?", answer: "The 90-day rule limits F-1 students on post-completion OPT to a maximum of 90 cumulative days of unemployment during their 12-month OPT authorization period. Exceeding this limit results in SEVIS termination."}, {question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 days of unemployment across the combined OPT + STEM OPT period: 90 days from initial OPT plus 60 additional days from the STEM extension."}, {question: "Do weekends count as unemployment days on OPT?", answer: "Yes, weekends and holidays count as unemployment days if you do not have qualifying employment. The unemployment counter counts calendar days, not business days."}, {question: "Can I reset my unemployment days?", answer: "No, unemployment days are cumulative and cannot be reset. They accumulate throughout your entire OPT authorization period."}]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -65,9 +65,9 @@ export default function NinetyDayRuleArticle() {
                     If you're an F-1 student on post-completion OPT, understanding the 90-day unemployment limit is critical to maintaining your legal status. Here's the complete guide.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Last updated: March 10, 2026</span>
+                    <span>Last updated: January 13, 2026</span>
                     <span>•</span>
-                    <span>Written by TrackMyOPT Team (former F-1 students)</span>
+                    <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 
