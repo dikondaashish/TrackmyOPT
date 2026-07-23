@@ -120,6 +120,19 @@ export function isOpaqueCrossOriginScriptError(
   );
 }
 
+/**
+ * Instagram / Facebook / iOS in-app browsers inject native bridges that call
+ * `window.webkit.messageHandlers` on pagehide. Missing handlers throw TypeError
+ * that is not first-party product code.
+ */
+export function isBenignWebkitMessageHandlersError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("webkit.messagehandlers") ||
+    lower.includes("webkit.message_handlers")
+  );
+}
+
 export function shouldDropExceptionEvent(
   properties: Record<string, unknown> | undefined
 ): boolean {
@@ -128,7 +141,8 @@ export function shouldDropExceptionEvent(
     isBenignReactDomTeardownError(text) ||
     isBenignWebSocketError(text) ||
     isBenignAdSenseNetworkError(properties) ||
-    isOpaqueCrossOriginScriptError(properties)
+    isOpaqueCrossOriginScriptError(properties) ||
+    isBenignWebkitMessageHandlersError(text)
   );
 }
 
