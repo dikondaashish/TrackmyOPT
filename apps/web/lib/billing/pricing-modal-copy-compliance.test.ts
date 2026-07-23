@@ -35,8 +35,9 @@ describe("pricing modal copy compliance", () => {
   it("plan features include safer labels", () => {
     const content = readFileSync(PLAN_FEATURES_PATH, "utf8");
     expect(content).toContain("Daily Status Change Alerts");
-    expect(content).toContain("Personalized Support Plan");
-    expect(content).toContain("Application Completeness Check");
+    expect(content).toContain("Personalized support plan");
+    expect(content).toContain("Daily USCIS Auto-Checks");
+    expect(content).not.toContain("Application Completeness Check");
   });
 
   it("PricingModal links Terms, Privacy, and Refund Policy near consent", () => {

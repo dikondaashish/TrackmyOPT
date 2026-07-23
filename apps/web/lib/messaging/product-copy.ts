@@ -42,12 +42,15 @@ export const REMINDER_MESSAGING = {
 export const CASE_STATUS_MESSAGING = {
   headline: "Track your USCIS case status in one place",
   subhead:
-    "Add your receipt number and we'll help you monitor status changes with daily checks (Pro).",
-  proFeatureTitle: "Pro: Email when your status changes",
+    "Add your receipt number — Free includes manual refresh; Pro adds daily auto-checks and email alerts.",
+  proFeatureTitle: "Pro: Daily auto-checks + email when status changes",
   proFeatureBody:
-    "Get an email when USCIS posts a new status on your case — so you can review updates and talk to your DSO if needed.",
+    "We check USCIS every day and email you when your status changes — so you do not have to refresh manually.",
   howItWorksNotify: "Get notified by email when your status changes (Pro)",
   upgradeForAutoChecks: "Upgrade to Pro for daily auto-checks",
+  autoMonitorOffHint: "Manual refresh only — daily auto-check is Pro",
+  packagingChangeNotice:
+    "Free includes manual refresh. Daily USCIS auto-checks and status-change emails are on Pro.",
   disclaimer:
     "Status data comes from USCIS. Processing times vary — check with your DSO or attorney for official guidance.",
 } as const;
@@ -63,7 +66,7 @@ export const PLAN_OUTCOME_COPY = {
   free: "Basic tracking for one OPT timeline — calculators and clocks always free.",
   pro: "Daily reminders, deadline alerts, OPT/STEM trackers, and case monitoring in one place.",
   dedicated:
-    "Everything in Pro plus guided support. Legal advice, when included, comes from independent attorneys — not from TrackMyOPT.",
+    "Everything in Pro plus higher resume quota and priority email support.",
 } as const;
 
 export const PRO_TIPS = [

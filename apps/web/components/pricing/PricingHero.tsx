@@ -22,7 +22,7 @@ export function PricingHero() {
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-4">
                     Pro automates unemployment tracking, USCIS monitoring, and deadline
-                    alerts. Dedicated adds monthly attorney access for complex cases.
+                    alerts. Dedicated adds higher resume quotas and priority email support.
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
                     {PRICING_VALUE_ANCHOR}

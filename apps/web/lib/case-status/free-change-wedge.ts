@@ -81,9 +81,27 @@ export const MANUAL_REFRESH_UPSELL_SESSION_KEY =
 export const MANUAL_REFRESH_COUNT_SESSION_KEY =
   "trackmyopt_case_status_manual_refresh_count";
 
+export const STALE_STATUS_UPSELL_SESSION_KEY =
+  "trackmyopt_case_status_stale_upsell_shown";
+
+/** Free status older than this is treated as stale for Pro auto-check upsell. */
+export const STALE_STATUS_MS = 24 * 60 * 60 * 1000;
+
+export function shouldShowStaleStatusUpsell(
+  lastCheckedAt: string | null | undefined,
+  isPremium: boolean | null,
+  nowMs = Date.now()
+): boolean {
+  if (isPremium !== false || !lastCheckedAt) return false;
+  const checkedAt = new Date(lastCheckedAt).getTime();
+  if (Number.isNaN(checkedAt)) return false;
+  return nowMs - checkedAt >= STALE_STATUS_MS;
+}
+
 export const CHECKOUT_UPSELL_TRIGGER = {
   STATUS_CHANGE_WEDGE: "status_change_wedge",
   SECOND_MANUAL_REFRESH: "second_manual_refresh",
+  STALE_STATUS: "stale_status",
 } as const;
 
 export type CheckoutUpsellTrigger =

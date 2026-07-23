@@ -36,7 +36,7 @@ const steps = [
         number: 3,
         title: "Connect Your USCIS Receipt",
         description:
-            "Link your I-765 receipt number (e.g., IOE1234567890) to enable automatic daily case status checks and instant notifications.",
+            "Link your I-765 receipt number (e.g., IOE1234567890). Free includes manual refresh; Pro adds daily auto-checks and status-change notifications.",
         icon: Link2,
         color: "green",
     },

@@ -103,6 +103,7 @@ export async function trackResumeGeneration(
 }
 
 const FREE_ATS_SCAN_LIMIT = 3;
+export { FREE_ATS_SCAN_LIMIT };
 const PRO_ATS_SCAN_LIMIT = 10_000;
 
 // ATS routes accept the extension's custom Bearer JWT as well as web cookies.

@@ -8,11 +8,11 @@ import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "USCIS Case Status Check Online (2026) — Track by Receipt Number",
-    description: "Check USCIS case status with your receipt number (IOE/MSC/LIN). What each status message means for OPT & I-765, plus free daily auto-tracking with email alerts on TrackMyOPT.",
+    description: "Check USCIS case status with your receipt number (IOE/MSC/LIN). What each status message means for OPT & I-765, plus TrackMyOPT free manual tracking and Pro daily auto-checks with email alerts.",
     keywords: ["USCIS case status online", "USCIS case status check", "USCIS case status tracker", "check case status with receipt number", "I-765 case status", "EAD case tracker", "OPT case tracking", "egov.uscis.gov"],
     openGraph: {
         title: "USCIS Case Status Check Online (2026) | TrackMyOPT",
-        description: "Check USCIS case status by receipt number. Status message decoder + free auto-tracker with email alerts for OPT and EAD.",
+        description: "Check USCIS case status by receipt number. Status message decoder + TrackMyOPT free manual tracking; Pro adds daily auto-checks and email alerts for OPT and EAD.",
         url: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide",
         type: "article",
         images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "How to Track Your USCIS Case Status Online: Complete Guide (2026)" }],
@@ -87,7 +87,7 @@ export default function USCISCaseStatusTrackingGuide() {
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
-                    Every USCIS application receives a unique <strong>13-character receipt number</strong> (e.g., IOE0912345678). You can check your status for free at <a href="https://egov.uscis.gov/casestatus/landing.do" target="_blank" rel="noopener noreferrer" className="underline">egov.uscis.gov</a>, but it only shows the latest update. TrackMyOPT checks your case daily and sends you email alerts whenever the status changes — so you never miss a critical update.
+                    Every USCIS application receives a unique <strong>13-character receipt number</strong> (e.g., IOE0912345678). You can check your status for free at <a href="https://egov.uscis.gov/casestatus/landing.do" target="_blank" rel="noopener noreferrer" className="underline">egov.uscis.gov</a>, but it only shows the latest update. TrackMyOPT Free lets you refresh manually anytime; Pro adds daily auto-checks and email alerts when status changes — so you never miss a critical update.
                 </p>
                 <p className="text-blue-700 dark:text-blue-300 text-sm mt-2">
                     Source: <a href="https://www.uscis.gov/forms/filing-guidance/check-case-status" target="_blank" rel="noopener noreferrer" className="underline">USCIS.gov — Check Case Status</a>
@@ -249,13 +249,13 @@ export default function USCISCaseStatusTrackingGuide() {
                         How TrackMyOPT Makes Tracking Easier
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        Manually checking USCIS.gov every day gets tedious fast — and it's easy to miss a critical status change. TrackMyOPT's <Link href="/features/case-status" className="text-blue-600 dark:text-blue-400 underline">Case Status Tracker</Link> solves this with full automation.
+                        Manually checking USCIS.gov every day gets tedious fast — and it's easy to miss a critical status change. TrackMyOPT's <Link href="/features/case-status" className="text-blue-600 dark:text-blue-400 underline">Case Status Tracker</Link> keeps history on Free (manual refresh) and adds daily auto-checks plus email alerts on Pro.
                     </p>
 
                     <div className="grid md:grid-cols-2 gap-4">
                         {[
-                            { icon: Search, title: "Automatic Daily Checks", desc: "We check your case status every day and store a complete history so you can see exactly when each status change happened." },
-                            { icon: Bell, title: "Instant Email Alerts", desc: "Get an email notification the moment your status changes. No more refreshing USCIS.gov hoping for an update." },
+                            { icon: Search, title: "Pro: Automatic Daily Checks", desc: "Pro checks your case status every day and stores a complete history so you can see exactly when each status change happened." },
+                            { icon: Bell, title: "Pro: Email Alerts", desc: "Get an email notification when we detect a status change. No more refreshing USCIS.gov hoping for an update." },
                             { icon: FileText, title: "Plain-English Explanations", desc: "Each status update comes with a clear explanation of what it means and what action (if any) you need to take." },
                             { icon: Clock, title: "Full Status History", desc: "See a timeline of every status change your case has gone through — useful for congressional inquiries or if you need to prove processing delays." },
                         ].map((item) => (
@@ -400,7 +400,7 @@ export default function USCISCaseStatusTrackingGuide() {
                             { tip: "File online whenever possible", detail: "Online filing through myUSCIS is faster, provides instant receipt numbers, and allows you to upload documents directly. Paper applications may take weeks just to receive a receipt number." },
                             { tip: "Keep copies of everything", detail: "Save digital and physical copies of every form, receipt notice, and supporting document you submit. If USCIS loses your file or you need to reference something, you'll be prepared." },
                             { tip: "Respond to RFEs quickly", detail: "If you receive a Request for Evidence, don't wait until the last minute. USCIS typically gives 87 days to respond, but submitting early shows diligence and avoids mail-related delays." },
-                            { tip: "Set up automated tracking", detail: "Use TrackMyOPT's case status tracker to get instant alerts when your status changes. This eliminates the need to check USCIS.gov manually every day." },
+                            { tip: "Set up automated tracking", detail: "Use TrackMyOPT Free for manual refresh, or Pro for daily auto-checks and email alerts when status changes — so you do not have to check USCIS.gov every day." },
                             { tip: "Contact your DSO proactively", detail: "Your Designated School Official (DSO) can see your SEVIS record and may have information about your case that isn't visible on USCIS.gov. Keep them in the loop, especially if your case is delayed." },
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
@@ -418,7 +418,7 @@ export default function USCISCaseStatusTrackingGuide() {
                     </h2>
                     <div className="space-y-4">
                         {[
-                            { question: "How do I check my USCIS case status?", answer: "Visit egov.uscis.gov/casestatus/landing.do and enter your 13-character receipt number (found on your I-797C Notice of Action). USCIS will display the most recent status update for your case. For automated daily tracking with email alerts, use TrackMyOPT's free Case Status Tracker." },
+                            { question: "How do I check my USCIS case status?", answer: "Visit egov.uscis.gov/casestatus/landing.do and enter your 13-character receipt number (found on your I-797C Notice of Action). USCIS will display the most recent status update for your case. TrackMyOPT Free includes manual refresh; Pro adds daily auto-checks and email alerts when status changes." },
                             { question: "What does 'Case Was Received' mean?", answer: "This means USCIS has accepted your application and assigned it a receipt number, but processing has not yet begun. Your application is in the queue. Depending on the form type and service center workload, it may take several weeks before the status changes to 'Case Is Being Actively Reviewed.'" },
                             { question: "How long does I-765 processing take?", answer: "As of early 2026, the typical processing time for Form I-765 (Application for Employment Authorization) is 3–5 months. Processing times vary by service center and can fluctuate. Check the official USCIS processing times page at egov.uscis.gov/processing-times for the most current estimates." },
                             { question: "What should I do if I get an RFE?", answer: "A Request for Evidence (RFE) means USCIS needs additional documentation to decide your case. Read the RFE letter carefully — it specifies exactly what documents they need. Respond well before the deadline (usually 87 days), include a cover letter referencing your receipt number, and send copies of the requested evidence. Consider consulting your DSO or an immigration attorney for complex RFEs." },

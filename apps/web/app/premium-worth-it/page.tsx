@@ -29,7 +29,7 @@ const faqSchema = {
             name: "What does TrackMyOPT premium include that the free plan doesn't?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "Premium adds automated deadline reminders, unemployment day alerts, daily USCIS case auto-checks, employer tracking, unlimited AI resume generation, secure document vault, STEM OPT extension planning, and priority support — all designed to eliminate manual USCIS monitoring and reduce compliance risk.",
+                text: "Premium (Pro) adds automated deadline reminders, unemployment day alerts, daily USCIS case auto-checks, employer tracking, higher AI resume limits, secure document vault, and STEM OPT extension planning. Dedicated adds higher resume quota and priority email support — all designed to reduce manual USCIS monitoring and compliance risk.",
             },
         },
         {
@@ -53,7 +53,7 @@ const faqSchema = {
             name: "How much does TrackMyOPT Premium cost?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "TrackMyOPT Pro is $4.99/month, or about $4.17/mo when billed yearly (save vs paying monthly). Dedicated with 1-on-1 attorney sessions is $14.99/month, or about $12.50/mo when billed yearly. Each account may use one 7-day Pro trial, one time only; after that, new Pro checkouts bill without an additional trial. Dedicated does not include a free trial.",
+                text: "TrackMyOPT Pro is $4.99/month, or about $4.17/mo when billed yearly (save vs paying monthly). Dedicated with higher resume quota and priority email support is $14.99/month, or about $12.50/mo when billed yearly. Each account may use one 7-day Pro trial, one time only; after that, new Pro checkouts bill without an additional trial. Dedicated does not include a free trial.",
             },
         },
     ],
@@ -297,8 +297,7 @@ export default function PremiumWorthItPage() {
                                 "Unlimited job application tracking",
                                 "Full H-1B sponsor database with approval rate data",
                                 "STEM OPT I-983 training plan tracking and E-Verify verification",
-                                "Chrome extension priority alerts",
-                                "Priority email support",
+                                "Priority email support on Dedicated",
                             ].map((item, i) => (
                                 <li
                                     key={i}

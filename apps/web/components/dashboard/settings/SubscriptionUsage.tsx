@@ -1,62 +1,43 @@
-import { useState, useEffect } from 'react';
-import { Briefcase } from 'lucide-react';
+import { useState, useEffect } from "react";
 
 interface UsageStats {
-    jobsCount: number;
-    jobLimit: number;
+  jobsCount: number;
 }
 
 export function SubscriptionUsage() {
-    const [stats, setStats] = useState<UsageStats>({ jobsCount: 0, jobLimit: 5 });
-    const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<UsageStats>({ jobsCount: 0 });
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        async function fetchUsage() {
-            try {
-                const res = await fetch('/api/user/usage');
-                if (res.ok) {
-                    const data = await res.json();
-                    setStats({ jobsCount: data.jobsCount || 0, jobLimit: data.jobLimit || 5 });
-                }
-            } catch (error) {
-                console.error('Failed to fetch usage stats', error);
-            } finally {
-                setLoading(false);
-            }
+  useEffect(() => {
+    async function fetchUsage() {
+      try {
+        const res = await fetch("/api/user/usage");
+        if (res.ok) {
+          const data = await res.json();
+          setStats({ jobsCount: data.jobsCount || 0 });
         }
-        fetchUsage();
-    }, []);
+      } catch (error) {
+        console.error("Failed to fetch usage stats", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUsage();
+  }, []);
 
-    const percentage = Math.min((stats.jobsCount / stats.jobLimit) * 100, 100);
-    const isNearLimit = percentage >= 80;
+  if (loading) return null;
 
-    return (
-        <div className="space-y-1">
-            <h4 className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400 tracking-wide">
-                Usage Limits
-            </h4>
-
-            <div className="space-y-4">
-                <div>
-                    <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-gray-600 dark:text-gray-400">Backlogged Jobs</span>
-                        <span className={`font-medium ${isNearLimit ? 'text-amber-500' : 'text-gray-900 dark:text-gray-100'}`}>
-                            {stats.jobsCount} / {stats.jobLimit}
-                        </span>
-                    </div>
-                    <div className="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                            className={`h-full rounded-full transition-all duration-500 ${isNearLimit ? 'bg-amber-500' : 'bg-blue-500'}`}
-                            style={{ width: `${percentage}%` }}
-                        />
-                    </div>
-                    {isNearLimit && (
-                        <p className="text-xs text-amber-500 mt-2">
-                            You're near the free job limit. Upgrade to Pro for unlimited tracking.
-                        </p>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <div className="space-y-1">
+      <h4 className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400 tracking-wide">
+        Job tracker
+      </h4>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {stats.jobsCount}
+        </span>{" "}
+        application{stats.jobsCount === 1 ? "" : "s"} tracked
+      </p>
+    </div>
+  );
 }

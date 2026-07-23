@@ -7,6 +7,7 @@ const shutdownMock = vi.fn().mockResolvedValue(undefined);
 
 vi.mock("posthog-node", () => ({
   PostHog: class MockPostHog {
+    identify = vi.fn();
     capture = captureMock;
     shutdown = shutdownMock;
   },

@@ -13,7 +13,7 @@ export function PricingComparison() {
                         Free vs Pro — Side by Side
                     </h2>
                     <p className="text-gray-600 dark:text-gray-400">
-                        See what Pro adds. Need attorney access? Dedicated includes everything below plus monthly legal support.
+                        See what Pro adds. Need more resume capacity and faster email support? Dedicated includes everything below plus priority support.
                     </p>
                 </div>
 
@@ -53,14 +53,14 @@ export function PricingComparison() {
                                 { feature: "OPT Unemployment Day Tracking", free: "Manual", pro: "Automated with alerts at 60, 75, 85 days" },
                                 { feature: "USCIS Case Status Monitoring", free: "Manual check", pro: "Daily auto-check + status change email alerts" },
                                 { feature: "Deadline Reminders", free: "Basic in-app", pro: "Daily 9AM email + push notifications" },
-                                { feature: "H-1B Sponsor Database", free: "100 companies", pro: "Unlimited + approval rate data" },
+                                { feature: "H-1B Sponsor Database", free: "25 companies", pro: "Unlimited + approval rate data" },
                                 { feature: "AI Resume Generator", free: "5/month", pro: "500/month + unlimited ATS scans" },
-                                { feature: "Job Application Tracker", free: "5 jobs", pro: "Unlimited jobs" },
+                                { feature: "ATS Resume Scanner", free: "3/month", pro: "Unlimited" },
+                                { feature: "Job Application Tracker", free: true, pro: true },
                                 { feature: "Document Vault", free: false, pro: "Encrypted storage + expiry reminders" },
                                 { feature: "STEM OPT Extension Planner", free: "Basic calculator", pro: "Full I-983 tracking + E-Verify check" },
                                 { feature: "Sprintax partner coupon ($20)", free: true, pro: true },
-                                { feature: "Chrome Extension Priority Alerts", free: false, pro: true },
-                                { feature: "Priority Support", free: false, pro: true },
+                                { feature: "Priority email support", free: false, pro: "Dedicated plan" },
                             ].map((row, i) => (
                                 <tr
                                     key={i}
@@ -103,10 +103,10 @@ export function PricingComparison() {
                             </div>
                             <div>
                                 <h3 className="font-bold text-gray-900 dark:text-white">
-                                    Need attorney guidance?
+                                    Need more capacity and faster support?
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    Dedicated includes everything in Pro plus 1 hr/month with a licensed immigration attorney, application review, and 24/7 priority support.
+                                    Dedicated includes everything in Pro plus a higher resume quota and priority email support.
                                 </p>
                             </div>
                         </div>

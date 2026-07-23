@@ -20,7 +20,7 @@ const VARIANTS: Record<
     icon: Bell,
     title: "Track your USCIS case automatically",
     description:
-      "Add your receipt number once — free daily checks and email alerts when your I-765 or EAD status changes.",
+      "Add your receipt number once — free manual refresh anytime. Pro adds daily auto-checks and email alerts when your I-765 or EAD status changes.",
     href: "/dashboard/case-status",
     cta: "Start tracking free",
   },

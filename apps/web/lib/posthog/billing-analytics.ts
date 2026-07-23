@@ -31,3 +31,19 @@ export function buildPaymentSucceededCapture(input: {
     is_upgrade: input.isUpgrade ?? false,
   };
 }
+
+/** Canonical conversion funnel steps (PostHog event names). */
+export const NORTH_STAR_FUNNEL_EVENTS = [
+  "user_signed_up",
+  "receipt_added",
+  "case_status_check_completed",
+  "upgrade_prompt_shown",
+  "checkout_started",
+  "subscription_started",
+] as const;
+
+export type NorthStarFunnelEvent = (typeof NORTH_STAR_FUNNEL_EVENTS)[number];
+
+export function isNorthStarFunnelEvent(event: string): event is NorthStarFunnelEvent {
+  return (NORTH_STAR_FUNNEL_EVENTS as readonly string[]).includes(event);
+}

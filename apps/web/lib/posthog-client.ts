@@ -201,12 +201,15 @@ export function captureOnboardingReceiptVariantExposed(properties: {
   });
 }
 
-export function capturePricingCtaViewed(properties: { variant: string }): void {
+export function capturePricingCtaViewed(properties: {
+  variant: string;
+  source?: string;
+}): void {
   captureOnceWhenConsented(() => {
     captureClientEvent("pricing_cta_viewed", {
       variant: properties.variant,
       [`$feature/pricing-cta-experiment`]: properties.variant,
-      source: "pricing_page",
+      source: properties.source ?? "pricing_page",
     });
   });
 }
@@ -291,8 +294,10 @@ export function associateUniversityPartnerGroup(
 export type UpgradePromptTrigger =
   | "status_change_wedge"
   | "second_manual_refresh"
+  | "stale_status"
   | "h1b_limit"
-  | "ats_limit";
+  | "ats_limit"
+  | "pricing_modal";
 
 export type UpgradePromptShownProperties = {
   trigger?: UpgradePromptTrigger;
@@ -311,15 +316,30 @@ export function captureUpgradePromptShown(
 
 export type CheckoutStartedProperties = {
   trigger: UpgradePromptTrigger;
+  source?: string;
 };
 
 export function captureCheckoutStarted(
   properties: CheckoutStartedProperties
 ): void {
+  if (!isBrowserPostHogReady()) return;
+
+  // Prefer the already-identified Supabase user id when present so this client
+  // click aligns with server checkout_started / payment_succeeded.
+  const identifiedId =
+    typeof posthog.get_distinct_id === "function"
+      ? posthog.get_distinct_id()
+      : undefined;
+  if (identifiedId && !identifiedId.startsWith("distinct_id_")) {
+    // no-op identify to force person merge before capture in same tick
+    posthog.identify(identifiedId);
+  }
+
   captureClientEvent("checkout_started", {
     ...properties,
     capture_source: "client",
-    source: "case_status_page",
+    source: properties.source ?? properties.trigger ?? "case_status_page",
+    ...(identifiedId ? { supabase_user_id: identifiedId } : {}),
   });
 }
 

@@ -605,7 +605,7 @@ ${emailInfoCallout(`
 `)}
 ${emailTextLead("Other Premium features that are paused")}
 ${emailTextList([
-  "Daily 9&nbsp;AM email reminders and smart auto-tracking",
+  "Daily 9&nbsp;AM email reminders for OPT/STEM tools",
   "Daily USCIS auto-checks and status-change alerts",
   "Unlimited H-1B sponsor search and job application tracker",
   "Secure document vault and expiry reminders",
@@ -650,7 +650,7 @@ On Premium, AI Resume Generator includes 500 resumes/month plus unlimited ATS sc
 Open AI Resume Generator: ${resumeUrl}
 
 Other Premium features that are paused:
-- Daily email reminders and smart auto-tracking
+- Daily email reminders for OPT/STEM tools
 - Daily USCIS auto-checks and status alerts
 - Unlimited sponsor search and job tracker
 - Document vault and expiry reminders
@@ -987,15 +987,15 @@ export function buildFreeReceiptReengagementEmailBodies(firstName: string | null
     headerTitle: "Your case is on our radar",
     bodyHtml: `
 ${emailBodySectionOpen()}
-${emailTextLead("Daily USCIS checks, instant Pro alerts")}
+${emailTextLead("Stay ahead of USCIS status changes")}
 ${emailTextP(greeting)}
 ${emailTextP(
-  "We&rsquo;ve been checking your case with USCIS daily. Pro emails you the moment it changes &mdash; no manual refreshing."
+  "Free includes manual refresh anytime. Pro runs daily USCIS auto-checks and emails you when we detect a status change &mdash; so you do not have to keep refreshing."
 )}
 ${emailTextList(
   [
-    "Automatic daily USCIS status checks",
-    "Instant email the moment your status changes",
+    "Pro: automatic daily USCIS status checks",
+    "Pro: email when your status changes",
     "Full case history in one place",
   ],
   { ordered: false }
@@ -1009,10 +1009,10 @@ ${emailBodySectionClose()}`,
 
   const text = `${greetingText}
 
-We've been checking your case with USCIS daily. Pro emails you the moment it changes — no manual refreshing.
+Free includes manual refresh anytime. Pro runs daily USCIS auto-checks and emails you when status changes — so you do not have to keep refreshing.
 
-- Automatic daily USCIS status checks
-- Instant email the moment your status changes
+- Pro: automatic daily USCIS status checks
+- Pro: email when your status changes
 - Full case history in one place
 
 Upgrade to Pro: ${checkoutUrl}
@@ -1415,7 +1415,6 @@ ${emailInfoCallout(`
 ${emailTextLead("Immigration &amp; automation")}
 ${emailTextList([
   "Daily 9&nbsp;AM email reminders for OPT/STEM tools",
-  "Smart suggestions and auto-tracking on your timeline",
   "Daily USCIS auto-checks and status-change email alerts",
   "Document Vault with expiry reminders for passports, EADs, and more",
 ], { ordered: false })}
@@ -1424,7 +1423,7 @@ ${emailTextList([
   `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("500 generations/month")} and ${emailTextStrong("unlimited ATS resume scans")}`,
   "Unlimited job application tracker and analytics",
   "Unlimited H-1B sponsor search with approval-rate insights",
-  "Chrome extension priority alerts on every new tab",
+  "Chrome extension for H-1B sponsor intel while you browse",
 ], { ordered: false })}
 ${emailTextLead("Quick links")}
 ${emailTextList([
@@ -1458,7 +1457,6 @@ Get the most from Premium in 3 steps:
 
 Immigration & automation:
 - Daily email reminders for OPT/STEM tools
-- Smart suggestions and auto-tracking
 - Daily USCIS auto-checks and status alerts
 - Document Vault with expiry reminders
 
@@ -1466,7 +1464,7 @@ Career & job search:
 - AI Resume Generator: 500/month + unlimited ATS scans
 - Unlimited job tracker
 - Unlimited H-1B sponsor search with analytics
-- Chrome extension priority alerts
+- Chrome extension for H-1B sponsor intel
 
 Quick links:
 - OPT & STEM: ${optToolsUrl}

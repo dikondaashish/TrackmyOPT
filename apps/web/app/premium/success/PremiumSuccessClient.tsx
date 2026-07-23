@@ -209,7 +209,7 @@ export function PremiumSuccessClient() {
   const headline = isDedicated ? "You're set for Dedicated." : "You're all set.";
   const sub =
     isDedicated
-      ? "Expert-backed support is live on your account."
+      ? "Higher resume quota and priority email support are live on your account."
       : "Pro is live—here’s what you can use first.";
 
   const proFeatures = [
@@ -220,8 +220,8 @@ export function PremiumSuccessClient() {
     },
     {
       icon: Zap,
-      title: "Smart urgency",
-      description: "Surfaces what needs attention first.",
+      title: "Daily USCIS monitoring",
+      description: "Auto-checks plus email when status changes.",
     },
     {
       icon: Search,
@@ -230,26 +230,26 @@ export function PremiumSuccessClient() {
     },
     {
       icon: Shield,
-      title: "Priority support",
-      description: "Faster answers when you’re stuck.",
+      title: "Document Vault",
+      description: "Store EAD, I-20, and passport with expiry reminders.",
     },
   ];
 
   const dedicatedFeatures = [
     {
       icon: Clock,
-      title: "Attorney session",
-      description: "Included session each month for strategy.",
+      title: "Higher resume quota",
+      description: "Up to 1000 AI resume generations per month.",
     },
     {
       icon: FileText,
-      title: "Application audit",
-      description: "Structured review of your filings.",
+      title: "Personalized support plan",
+      description: "Guidance tailored to your OPT workflow.",
     },
     {
       icon: Sparkles,
-      title: "Dedicated support",
-      description: "Direct line when timing matters.",
+      title: "Priority email support",
+      description: "Faster responses when timing matters.",
     },
     {
       icon: Crown,
@@ -266,7 +266,7 @@ export function PremiumSuccessClient() {
         },
         {
           title: "Watch your email",
-          detail: "We’ll send next steps for your attorney session.",
+          detail: "We’ll share how to reach priority support.",
         },
         {
           title: "Confirm notification email",

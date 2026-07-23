@@ -80,14 +80,14 @@ const howItWorks = [
     {
         step: "02",
         icon: <RefreshCw className="w-6 h-6" />,
-        title: "We Check Case Status Daily",
-        description: "TrackMyOPT retrieves case-status information using USCIS Case Status API access and compares results to your previous check.",
+        title: "Refresh Manually or Upgrade to Pro",
+        description: "Free includes on-demand refresh. Pro runs daily auto-checks via USCIS Case Status API access and compares results to your previous check.",
         color: "teal",
     },
     {
         step: "03",
         icon: <Bell className="w-6 h-6" />,
-        title: "Get Email & Browser Alerts",
+        title: "Get Email & Browser Alerts (Pro)",
         description: "When we detect a status change, Pro users can get email plus browser push with a plain-English explanation (timing may vary).",
         color: "cyan",
     },
@@ -150,14 +150,14 @@ export default function CaseStatusPage() {
             <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="USCIS Case Status Tracker"
-                description="Automated daily case status checks with email alerts when we detect status changes. Tracks I-765 (EAD), I-140, I-485, and other USCIS applications."
+                description="Free manual case status checks. Pro adds daily auto-checks and email alerts when we detect status changes. Tracks I-765 (EAD), I-140, I-485, and other USCIS applications."
                 featurePath="/features/case-status"
                 faqItems={faqItems}
             />
             <FeatureHero
                 badge="Case Status Tracking"
                 headline="Track Your USCIS Case Status"
-                subheadline="Automated daily checks and email alerts when we detect status changes—using USCIS Case Status API access. Always verify important updates with official USCIS notices."
+                subheadline="Free: refresh anytime. Pro: daily auto-checks and email alerts when status changes—using USCIS Case Status API access. Always verify important updates with official USCIS notices."
                 ctaText="Start Tracking Free"
                 ctaHref="/login"
                 secondaryCta={{
@@ -262,9 +262,9 @@ export default function CaseStatusPage() {
                 accentColor="emerald"
                 stats={[
                     { value: "3-5 Mo", label: "Average I-765 processing time", icon: <Clock className="w-5 h-5" /> },
-                    { value: "Daily", label: "Automated status checks", icon: <RefreshCw className="w-5 h-5" /> },
-                    { value: "<1 Min", label: "Alert after status change", icon: <Mail className="w-5 h-5" /> },
-                    { value: "$0", label: "Free forever for tracking", icon: <Shield className="w-5 h-5" /> },
+                    { value: "Pro", label: "Daily auto-checks + alerts", icon: <RefreshCw className="w-5 h-5" /> },
+                    { value: "Free", label: "Manual refresh anytime", icon: <Mail className="w-5 h-5" /> },
+                    { value: "$0", label: "Core OPT tools forever free", icon: <Shield className="w-5 h-5" /> },
                 ]}
             />
 

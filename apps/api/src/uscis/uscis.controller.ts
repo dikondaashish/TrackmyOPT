@@ -30,6 +30,7 @@ export class UscisController {
     return {
       status: 'queued',
       count: result.count,
+      skippedFree: result.skippedFree,
       timestamp: new Date(),
     };
   }

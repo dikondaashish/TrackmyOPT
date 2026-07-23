@@ -72,9 +72,9 @@ export function LandingFeatures() {
                             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 mb-4">
                                 <LayoutDashboard className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">24/7 Case Patrol</h3>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pro Case Monitoring</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">
-                                We check your USCIS status daily so you don't have to. Get instant alerts on approvals or RFEs.
+                                Free includes manual refresh. Pro checks USCIS daily and emails you when status changes.
                             </p>
                         </div>
                         {/* Decorative Gradient - Blue/Cyan */}

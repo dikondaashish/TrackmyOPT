@@ -71,8 +71,8 @@ export function StatusChangeUpgradeBanner({
               Your case status changed {daysAgoLabel}.
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              We&apos;re checking daily — upgrade to Pro to be emailed the moment it
-              changes.
+              Free includes manual refresh. Upgrade to Pro for daily auto-checks
+              and email the moment your status changes.
             </p>
           </div>
         </div>

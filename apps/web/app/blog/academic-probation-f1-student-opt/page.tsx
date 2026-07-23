@@ -149,7 +149,7 @@ export default function AcademicProbationPage() {
                     Maintain Your Status, No Matter What
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    TrackMyOPT is designed to keep you compliant with US immigration law from your first day of class to your final day of OPT. Use our automated tracking tools to ensure you never miss a SEVIS deadline or accidentally violate your F-1 status.
+                    TrackMyOPT is designed to keep you organized from your first day of class to your final day of OPT. Use free OPT/STEM calculators and clocks, and Pro daily USCIS auto-checks when you need automated case monitoring.
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link

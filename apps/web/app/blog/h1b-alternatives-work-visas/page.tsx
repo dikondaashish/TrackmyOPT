@@ -301,7 +301,7 @@ export default function H1BAlternativesGuide() {
                             <h3 className="text-2xl font-bold">Track Your OPT Deadlines</h3>
                         </div>
                         <p className="text-indigo-100 mb-6 text-lg max-w-2xl">
-                            Ensure you never miss a compliance deadline while planning your next visa step. Use TrackMyOPT to track status and unemployment days automatically.
+                            Ensure you never miss a compliance deadline while planning your next visa step. Use TrackMyOPT to track unemployment days for free, and Pro for daily USCIS auto-checks.
                         </p>
                         <Link
                             href="/login"

@@ -432,7 +432,7 @@ export default function HowToGetSSNOnOPT() {
             <div className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your EAD Card Status</h2>
                 <p className="text-teal-100 mb-6 max-w-lg mx-auto">
-                    Know the moment your EAD is approved so you can apply for your SSN immediately. TrackMyOPT monitors your USCIS case 24/7.
+                    Know the moment your EAD is approved so you can apply for your SSN immediately. TrackMyOPT Pro runs daily USCIS auto-checks and can email you when status changes.
                 </p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-teal-600 rounded-xl font-semibold hover:bg-teal-50 transition-colors">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />

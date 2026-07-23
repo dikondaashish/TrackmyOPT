@@ -114,9 +114,9 @@ export function DashboardNextStepCard() {
         return {
           icon: Crown,
           iconClass: "text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30",
-          title: "Don't wait for a status change — get daily Pro alerts",
+          title: "Don't wait to refresh — get daily Pro auto-checks",
           description:
-            "Your receipt is saved. Pro checks USCIS every morning and emails you when anything changes — before you find out by accident.",
+            "Your receipt is saved. Free includes manual refresh. Pro checks USCIS every morning and emails you when anything changes.",
           cta: "Start 7-Day Free Trial",
         };
       case "status_live":

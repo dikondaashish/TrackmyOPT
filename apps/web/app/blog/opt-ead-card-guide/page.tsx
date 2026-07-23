@@ -162,7 +162,7 @@ export default function OPTEADArticle() {
             <AuthorBio />
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your EAD Application in Real-Time</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT monitors your USCIS case status and alerts you the moment your EAD is approved.</p>
+                <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT Free lets you refresh case status anytime. Pro adds daily auto-checks and alerts you when your EAD is approved.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">Track My EAD <ArrowRight className="w-4 h-4" /></Link>
             </div>
         </article>

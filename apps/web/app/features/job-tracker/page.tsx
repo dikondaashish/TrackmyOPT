@@ -102,7 +102,7 @@ export default function JobTrackerPage() {
                   {question: "Can I import applications from LinkedIn?", answer: "Not yet, but with our Chrome extension you can save jobs directly from LinkedIn to your tracker with one click. Full import is on our roadmap."},
                   {question: "What application stages can I track?", answer: "Applied, Phone Screen, Technical Interview, Onsite, Offer, Rejected, and Withdrawn. You can customize the stages to match your workflow."},
                   {question: "Do I get reminders for follow-ups?", answer: "Yes! Set custom reminders for each application. We'll notify you via email and in-app when it's time to follow up with a recruiter."},
-                  {question: "Is there a limit to how many applications I can track?", answer: "Free users can track up to 50 active applications. Premium users get unlimited tracking plus analytics and company insights."},
+                  {question: "Is there a limit to how many applications I can track?", answer: "Job application tracking is available on Free and Pro. There is no hard application cap on Free."},
                   {question: "Can I export my application data?", answer: "Yes, you can export all your application data to CSV at any time. Your data belongs to you."}
                 ]}
             />
@@ -300,7 +300,7 @@ export default function JobTrackerPage() {
                     },
                     {
                         question: "Is there a limit to how many applications I can track?",
-                        answer: "Free users can track up to 50 active applications. Premium users get unlimited tracking plus analytics and company insights."
+                        answer: "Job application tracking is available on Free and Pro. There is no hard application cap on Free."
                     },
                     {
                         question: "Can I export my application data?",

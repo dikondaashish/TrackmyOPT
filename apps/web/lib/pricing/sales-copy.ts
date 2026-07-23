@@ -50,21 +50,21 @@ export const PLAN_SALES_META: Record<
     highlights: [
       "9:00 AM ET email reminders for all four trackers",
       "Daily USCIS status checks + change alerts",
-      "Unlimited jobs, resumes & document vault",
+      "Document vault + higher resume / ATS limits",
     ],
     badge: "Most Popular",
     ctaDefault: "Start 7-Day Free Trial",
     ctaNoTrial: "Subscribe to Pro",
   },
   dedicated: {
-    tagline: "Everything in Pro + attorney access & hands-on support",
-    bestFor: "RFEs, complex cases, or H-1B/STEM planning",
+    tagline: "Everything in Pro + higher quotas & priority support",
+    bestFor: "Students who want more resume capacity and faster email support",
     highlights: [
-      "1 hr/month with a licensed immigration attorney",
-      "Application completeness review",
-      "Priority support for complex questions",
+      "Resume generator up to 1000/mo",
+      "Priority email support",
+      "Personalized support plan",
     ],
-    badge: "Attorney-Backed",
+    badge: "Priority Support",
     guarantee: "3-day money-back on your first paid month",
     ctaDefault: "Get Dedicated Support",
     ctaNoTrial: "Get Dedicated Support",
@@ -76,7 +76,7 @@ export const PLAN_PICKER_GUIDE = {
   proLine:
     "Choose Pro if you want automated USCIS monitoring, unemployment alerts, and career tools — most students start here.",
   dedicatedLine:
-    "Choose Dedicated if you want monthly attorney access, hands-on application review, or priority support for a complex case.",
+    "Choose Dedicated if you want higher resume quotas and priority email support on top of Pro.",
 } as const;
 
 export const LANDING_PLAN_COPY = {
@@ -91,8 +91,8 @@ export const LANDING_PLAN_COPY = {
     buttonLabel: "Start 7-Day Free Trial",
   },
   dedicated: {
-    description: "Pro + monthly attorney session for complex immigration questions.",
-    users: "1-hr attorney session included monthly",
+    description: "Pro + higher resume quota and priority email support.",
+    users: "Priority support · 3-day money-back",
     buttonLabel: "Get Dedicated Support",
   },
 } as const;

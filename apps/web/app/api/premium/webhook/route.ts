@@ -209,6 +209,29 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ received: true });
 }
 
+/** Prefer checkout metadata; fall back to profiles.stripe_customer_id for analytics. */
+async function resolveCheckoutAnalyticsUserId(
+  session: Stripe.Checkout.Session
+): Promise<string | null> {
+  const meta = session.metadata?.supabase_user_id;
+  if (typeof meta === "string" && meta.trim()) return meta.trim();
+
+  const customerId =
+    typeof session.customer === "string" ? session.customer : session.customer?.id;
+  if (!customerId) return null;
+
+  // Analytics only needs user_id — do not require email (resolveUserForStripeCustomer does).
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("user_id")
+    .eq("stripe_customer_id", customerId)
+    .maybeSingle();
+
+  return typeof profile?.user_id === "string" && profile.user_id.trim()
+    ? profile.user_id.trim()
+    : null;
+}
+
 async function handleCheckoutCompleted(
   stripe: Stripe,
   session: Stripe.Checkout.Session,
@@ -250,8 +273,13 @@ async function handleCheckoutCompleted(
       return;
     }
 
-    const userId = session.metadata?.supabase_user_id;
-    if (!userId) return;
+    const userId = await resolveCheckoutAnalyticsUserId(session);
+    if (!userId) {
+      secureLog.warn('checkout analytics skipped: no user for session', {
+        sessionId: logIdPrefix(session.id),
+      });
+      return;
+    }
 
     const planId = session.metadata?.planId || 'pro';
     const billingIntervalLabel =
@@ -394,7 +422,7 @@ async function handleCheckoutCompleted(
 }
 
 async function logPaymentFailure(session: Stripe.Checkout.Session) {
-  const userId = session.metadata?.supabase_user_id;
+  const userId = await resolveCheckoutAnalyticsUserId(session);
 
   if (!userId) return;
 
@@ -417,7 +445,7 @@ async function logPaymentFailure(session: Stripe.Checkout.Session) {
 
 async function handleAsyncCheckoutPaymentFailed(session: Stripe.Checkout.Session, eventId: string) {
   try {
-    const userId = session.metadata?.supabase_user_id;
+    const userId = await resolveCheckoutAnalyticsUserId(session);
     if (!userId) return;
 
     let email = session.customer_details?.email?.trim() || '';

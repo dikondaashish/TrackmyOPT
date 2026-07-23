@@ -44,7 +44,20 @@ export async function applyStripeCheckoutSession(args: {
   };
 }): Promise<{ ok: true; alreadyRecorded: boolean } | { ok: false; reason: string }> {
   const { stripe, supabase, session, options } = args;
-  const userId = session.metadata?.supabase_user_id;
+  let userId = session.metadata?.supabase_user_id;
+
+  if (!userId) {
+    const customerId =
+      typeof session.customer === "string" ? session.customer : session.customer?.id;
+    if (customerId) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .eq("stripe_customer_id", customerId)
+        .maybeSingle();
+      userId = profile?.user_id ?? undefined;
+    }
+  }
 
   if (!userId) {
     return { ok: false, reason: "missing_supabase_user_id" };

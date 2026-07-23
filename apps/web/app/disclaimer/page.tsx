@@ -62,9 +62,9 @@ export default function DisclaimerPage() {
         Some features may use artificial intelligence (e.g. resume suggestions). AI output can be wrong, incomplete, or inappropriate. <strong>Review all AI output yourself.</strong> It is not legal, immigration, or professional advice.
       </p>
 
-      <h2>8. Dedicated plan attorney benefit</h2>
+      <h2>8. Dedicated plan support</h2>
       <p>
-        If your plan includes access to an independent immigration attorney, that attorney is not our employee. Session terms, scope, and fees beyond included benefits are between you and the attorney. See <Link href="/terms">Terms of Service</Link> and <Link href="/refund-policy">Refund Policy</Link>.
+        The Dedicated plan currently includes higher product quotas and priority email support from TrackMyOPT. It does not include immigration attorney sessions or legal advice. For legal questions, consult a licensed immigration attorney, your DSO, or official USCIS sources. See <Link href="/terms">Terms of Service</Link> and <Link href="/refund-policy">Refund Policy</Link>.
       </p>
 
       <h2>9. Urgent matters</h2>

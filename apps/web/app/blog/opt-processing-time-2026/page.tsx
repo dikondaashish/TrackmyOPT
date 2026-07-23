@@ -66,7 +66,7 @@ export default function OPTProcessingTimeArticle() {
                     <Link href="/blog/uscis-case-status-tracking-guide" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                         USCIS case status check guide
                     </Link>{" "}
-                    or use TrackMyOPT&apos;s free auto-tracker.
+                    or use TrackMyOPT&apos;s free case status tracker (manual refresh; Pro adds daily auto-checks).
                 </p>
             </div>
 
