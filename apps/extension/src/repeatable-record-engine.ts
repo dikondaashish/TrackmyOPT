@@ -1,5 +1,5 @@
 import type { ResumeAutofillSnapshotV1, ResumeDateValue } from './resume-autofill-contract';
-import type { ClassifiedControl, FormSectionKind } from './section-aware-classifier';
+import type { ClassifiedControl, FormSectionKind } from './ats-prefill-adapters';
 
 type RepeatableSection = Extract<FormSectionKind, 'experience' | 'education'>;
 

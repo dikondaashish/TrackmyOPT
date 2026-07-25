@@ -30,6 +30,12 @@ import {
 } from './resume-artifact-validator';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
 import { normalizeQuestionText } from './screening-question-drafts';
+import {
+  deleteSavedScreeningAnswer,
+  loadSavedScreeningAnswer,
+  saveScreeningAnswer,
+  type SavedAnswerWrite,
+} from './saved-screening-answers';
 import { resolveScreeningDraftJobContext } from './screening-draft-context';
 import { normalizeSensitiveAnswerSession } from './sensitive-autofill';
 import {
@@ -819,20 +825,15 @@ async function requestScreeningDraft(input: Record<string, unknown>) {
 async function requestSavedScreeningAnswer(method: 'GET' | 'DELETE', questionHash: string) {
   const bearer = await getExtensionBearerToken();
   if (!bearer) return { ok: false, error: 'not_signed_in' };
-  const url = `${WEBSITE_URL}/api/extension/screening-answers?questionHash=${encodeURIComponent(questionHash)}`;
-  const response = await fetch(url, { method, headers: { Authorization: `Bearer ${bearer}` } });
-  return response.json().catch(() => ({ ok: false, error: 'invalid_response' }));
+  return method === 'GET'
+    ? loadSavedScreeningAnswer(bearer, questionHash)
+    : deleteSavedScreeningAnswer(bearer, questionHash);
 }
 
-async function saveScreeningAnswerForCurrentUser(answer: unknown) {
+async function saveScreeningAnswerForCurrentUser(answer: SavedAnswerWrite) {
   const bearer = await getExtensionBearerToken();
   if (!bearer) return { ok: false, error: 'not_signed_in' };
-  const response = await fetch(`${WEBSITE_URL}/api/extension/screening-answers`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` },
-    body: JSON.stringify(answer),
-  });
-  return response.json().catch(() => ({ ok: false, error: 'invalid_response' }));
+  return saveScreeningAnswer(bearer, answer);
 }
 
 async function generateCoverLetterForCurrentArtifact(input: {

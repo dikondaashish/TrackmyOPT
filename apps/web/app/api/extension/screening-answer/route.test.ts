@@ -36,7 +36,7 @@ function request(
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        origin: 'chrome-extension://abcdefghijklmnop',
+        origin: 'chrome-extension://hfljbefkccdmlnhclfojlafipjnjbajm',
       },
       body: JSON.stringify({
         questionText,
@@ -104,7 +104,7 @@ describe('screening-answer sensitive-question boundary', () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get('access-control-allow-origin')).toBe(
-      'chrome-extension://abcdefghijklmnop'
+      'chrome-extension://hfljbefkccdmlnhclfojlafipjnjbajm'
     );
     await expect(response.json()).resolves.toMatchObject({
       ok: true,

@@ -10,14 +10,6 @@ const WEAK_VERBS = [
     'contributed to', 'involved in', 'handled', 'dealt with', 'tasked with',
 ];
 
-const STRONG_VERBS = [
-    'led', 'engineered', 'architected', 'automated', 'optimized', 'delivered',
-    'spearheaded', 'orchestrated', 'streamlined', 'implemented', 'developed',
-    'designed', 'built', 'reduced', 'increased', 'improved', 'launched',
-    'managed', 'created', 'established', 'transformed', 'accelerated',
-    'mentored', 'negotiated', 'secured', 'migrated', 'integrated',
-];
-
 export function checkAtsCompliance(latex: string): AtsCheckResult {
     const issues: string[] = [];
 

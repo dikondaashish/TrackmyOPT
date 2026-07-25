@@ -83,9 +83,9 @@ export async function POST(req: NextRequest) {
     await associateUserWithServerGroup(user.id, UNIVERSITY_PARTNER_GROUP_TYPE, referralCode);
 
     return NextResponse.json({ ok: true, code: referralCode });
-  } catch (error: unknown) {
+  } catch {
     return NextResponse.json(
-      { ok: false, error: error instanceof Error ? error.message : "Internal error" },
+      { ok: false, error: "Internal error" },
       { status: 500 }
     );
   }

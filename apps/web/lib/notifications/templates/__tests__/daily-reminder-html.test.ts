@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EmailReminderData } from '../../email-service';
 import { getDailyReminderSubject, renderDailyReminderEmailHtml } from '../daily-reminder-html';
+import { generateStemClockSection } from '../partials/stem-clock';
 
 function optApplyFixture(): EmailReminderData['tools'][number] {
   return {
@@ -44,5 +45,22 @@ describe('daily-reminder-html', () => {
     expect(html).toContain('Daily OPT summary');
     expect(html).toContain('OPT Application Dates');
     expect(html).toContain('Open dashboard');
+  });
+
+  it('renders STEM unemployment as the cumulative 150-day limit', () => {
+    const html = generateStemClockSection({
+      name: 'STEM Unemployment Days',
+      toolType: 'stem-clock',
+      daysLeft: 60,
+      totalDays: 150,
+      startDate: 'Jun 1, 2026',
+      endDate: 'Jun 1, 2028',
+      urgency: 'moderate',
+      message: 'Review your employment records.',
+    });
+
+    expect(html).toContain('90 / 150');
+    expect(html.toLowerCase()).toContain('cumulative');
+    expect(html).not.toContain('90 / 60');
   });
 });

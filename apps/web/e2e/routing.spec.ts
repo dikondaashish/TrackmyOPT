@@ -49,8 +49,6 @@ test.describe('Authentication & Dashboard Journey', () => {
 
 test.describe('Empty States & Board Polish', () => {
     test.fixme('Job Tracker empty state triggers CTA highlight pulse', async ({ page }) => {
-        // Needs test database seed
-        // await page.goto('/dashboard/career/job-tracker');
-        // await expect(page.locator('text=Add Application')).toHaveClass(/animate-pulse/);
+        void page;
     });
 });

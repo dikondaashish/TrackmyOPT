@@ -11,16 +11,8 @@ function mmddyyyyToISO(dateStr: string): string | null {
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
-// Convert ISO to MM/DD/YYYY format
-function isoToMmddyyyy(isoDate: string): string {
-  const date = new Date(isoDate);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${month}/${day}/${date.getFullYear()}`;
-}
-
 // GET - Fetch all employment spans for the user
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -61,7 +53,7 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('Employment spans fetch error:', error);
     return NextResponse.json(
-      { ok: false, error: error.message || 'Failed to fetch employment spans' },
+      { ok: false, error: 'Failed to fetch employment spans' },
       { status: 500 }
     );
   }
@@ -169,7 +161,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Employment spans save error:', error);
     return NextResponse.json(
-      { ok: false, error: error.message || 'Failed to save employment spans' },
+      { ok: false, error: 'Failed to save employment spans' },
       { status: 500 }
     );
   }
@@ -224,7 +216,7 @@ export async function DELETE(req: NextRequest) {
   } catch (error: any) {
     console.error('Employment span delete error:', error);
     return NextResponse.json(
-      { ok: false, error: error.message || 'Failed to delete employment span' },
+      { ok: false, error: 'Failed to delete employment span' },
       { status: 500 }
     );
   }

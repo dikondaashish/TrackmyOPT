@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         }
 
         // 1. Check Usage Limits
-        const { allowed, limit, usage, tier } = await checkResumeLimit(userId);
+        const { allowed, limit, usage } = await checkResumeLimit(userId);
         if (!allowed) {
             return NextResponse.json(
                 {
@@ -184,7 +184,7 @@ export async function POST(req: NextRequest) {
     } catch (error: any) {
         console.error('Generation Error:', error);
         return NextResponse.json(
-            { success: false, error: error.message || 'Failed to generate resume' },
+            { success: false, error: 'Failed to generate resume' },
             { status: 500, headers: corsHeaders }
         );
     }

@@ -14,7 +14,7 @@ Getting lost in folders? Here is a map of the TrackMyOPT monorepo.
 
 ## 2. Frontend (`apps/web`)
 
-The frontend is the largest application. It follows Next.js 14 patterns.
+The frontend is the largest application. It follows Next.js 16 App Router patterns.
 
 - **`app/`**: **The Routes**.
   - `(auth)/`: Authentication pages (Login, Signup, Callback).

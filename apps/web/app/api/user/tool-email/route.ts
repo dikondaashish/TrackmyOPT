@@ -14,6 +14,7 @@ import { getUserId } from '@/lib/auth/getUserId';
 import { sendEnrollmentEmail, type EnrollmentEmailData } from '@/lib/notifications/email-service';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
+import { addDays, getFilingWindow } from '@/lib/immigration/optCalculations';
 
 export const dynamic = 'force-dynamic';
 
@@ -181,7 +182,7 @@ export async function POST(req: NextRequest) {
       }
 
       return NextResponse.json(
-        { error: `Failed to save email: ${error.message}` },
+        { error: 'Failed to save email' },
         { status: 500, headers: cors }
       );
     }
@@ -221,15 +222,11 @@ export async function POST(req: NextRequest) {
 
           // Calculate dates based on tool type
           if (tool === 'opt_apply' && optData.program_end_date) {
-            const programEnd = new Date(optData.program_end_date);
-            const earliestFiling = new Date(programEnd);
-            earliestFiling.setDate(earliestFiling.getDate() - 90);
-            const filingDeadline = new Date(programEnd);
-            filingDeadline.setDate(filingDeadline.getDate() + 60);
+            const filingWindow = getFilingWindow(optData.program_end_date);
 
             enrollmentData = {
-              startDate: formatDate(earliestFiling.toISOString()),
-              endDate: formatDate(filingDeadline.toISOString()),
+              startDate: formatDate(filingWindow.earliestFile),
+              endDate: formatDate(filingWindow.hardDeadline),
               programEndDate: formatDate(optData.program_end_date),
               totalDays: 150,
               optType: 'Post-Completion OPT',
@@ -240,12 +237,8 @@ export async function POST(req: NextRequest) {
               endDate: optData.opt_ead_end_date ? formatDate(optData.opt_ead_end_date) : undefined,
             };
           } else if (tool === 'stem_apply' && optData.opt_ead_end_date) {
-            const optEadEnd = new Date(optData.opt_ead_end_date);
-            const earliestStemFiling = new Date(optEadEnd);
-            earliestStemFiling.setDate(earliestStemFiling.getDate() - 90);
-
             enrollmentData = {
-              startDate: formatDate(earliestStemFiling.toISOString()),
+              startDate: formatDate(addDays(optData.opt_ead_end_date, -90)),
               endDate: formatDate(optData.opt_ead_end_date),
               totalDays: 90,
             };

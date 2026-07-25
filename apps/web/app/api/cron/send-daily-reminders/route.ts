@@ -25,10 +25,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { createClient } from '@supabase/supabase-js';
-import { sendDailyReminder, type EmailReminderData, type ToolReminderDetail } from '@/lib/notifications/email-service';
+import { sendDailyReminder, type EmailReminderData } from '@/lib/notifications/email-service';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 import {
   calculateUnemploymentDays,
+  addDays,
   getFilingWindow,
   daysBetween,
   type EmploymentSpan,
@@ -381,8 +382,7 @@ function calculateActiveTools(
   // 3) STEM APPLY — extension filing window
   if (optData.opt_ead_end_date && toolEmails.stem_apply_email) {
     const optEadEnd = new Date(optData.opt_ead_end_date);
-    const earliestStemFiling = new Date(optEadEnd);
-    earliestStemFiling.setDate(earliestStemFiling.getDate() - 90);
+    const earliestStemFiling = new Date(`${addDays(optData.opt_ead_end_date, -90)}T00:00:00`);
     const today = new Date(todayIso);
 
     if (!optData.stem_start_date && today >= earliestStemFiling && today <= optEadEnd) {

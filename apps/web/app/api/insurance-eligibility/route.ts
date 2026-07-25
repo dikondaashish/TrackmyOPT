@@ -9,7 +9,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import rateLimit from "@/lib/auth/rate-limit";
 
-const eligibilityLimiter = rateLimit({ interval: 3_600_000 });
+const eligibilityLimiter = rateLimit({ interval: 3_600_000, name: 'insurance-eligibility' });
 
 async function getSessionUserId(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       "unknown";
-    const { isRateLimited } = eligibilityLimiter.check(
+    const { isRateLimited, unavailable } = await eligibilityLimiter.check(
       request,
       20,
       `insurance-eligibility:${ip}`
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     if (isRateLimited) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
-        { status: 429 }
+        { status: unavailable ? 503 : 429 }
       );
     }
 
@@ -67,6 +67,8 @@ export async function POST(request: NextRequest) {
       monthly_income,
       visa_type,
       date_of_birth,
+      gender,
+      is_pregnant,
       has_employer_insurance,
     } = body;
 
@@ -95,6 +97,8 @@ export async function POST(request: NextRequest) {
         monthly_income: monthly_income || 0,
         visa_type,
         date_of_birth: date_of_birth || null,
+        gender: gender || null,
+        is_pregnant: is_pregnant ?? false,
         has_employer_insurance: has_employer_insurance ?? false,
         checked_at: new Date().toISOString(),
       })

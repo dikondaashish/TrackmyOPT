@@ -4728,8 +4728,6 @@ if (window.top !== window.self) {
     // Not a career page — fully inert, zero DOM work.
   } else {
     void initializeAutofillPreferences();
-    // Log why we activated (shows in DevTools → Console on career pages).
-    console.log(`[TrackMyOPT] Career page detected: ${careerReason}`);
     if (shouldUseFullJobAssistMode()) {
       // Well-known job board or ATS: full SPA observer + retry loop.
       initFullJobAssistMode();

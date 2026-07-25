@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
     if (error && error.code !== 'PGRST116') {
       console.error('Error fetching email preferences:', error);
       return NextResponse.json(
-        { error: error.message },
+        { error: 'Failed to fetch preferences' },
         { status: 500 }
       );
     }
@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error('Error updating email preferences:', error);
       return NextResponse.json(
-        { error: error.message },
+        { error: 'Failed to update preferences' },
         { status: 500 }
       );
     }
@@ -202,7 +202,7 @@ export async function DELETE(req: NextRequest) {
     if (error) {
       console.error('Error deleting email preferences:', error);
       return NextResponse.json(
-        { error: error.message },
+        { error: 'Failed to delete preferences' },
         { status: 500 }
       );
     }
@@ -220,4 +220,3 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
-

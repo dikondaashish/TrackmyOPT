@@ -92,7 +92,7 @@ const jsonLd = {
       name: "What is the 90-day unemployment rule?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "F-1 students on post-completion OPT cannot be unemployed for more than 90 days total during their OPT period. STEM OPT holders receive an additional 60 days (separate allowance, not combined). Exceeding these limits violates your F-1 status.",
+        text: "F-1 students may not accrue more than 90 aggregate unemployment days during initial post-completion OPT. For students approved for STEM OPT, the aggregate maximum across initial OPT and STEM OPT is 150 days. Exceeding the applicable limit can violate F-1 status.",
       },
     },
     {

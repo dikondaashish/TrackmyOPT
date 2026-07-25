@@ -10,7 +10,8 @@
  * - customer.subscription.updated/deleted: Sync access + transactional email
  * - charge.refunded: Revoke premium + refund acknowledgment email
  *
- * Handlers must not throw — Stripe expects 200; errors are logged only.
+ * Mandatory billing/entitlement failures must throw so Stripe retries the
+ * event. Analytics and email failures remain best-effort.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -89,10 +90,11 @@ async function handleCheckoutSessionExpired(session: Stripe.Checkout.Session) {
       .eq('stripe_checkout_session_id', session.id)
       .eq('status', 'pending');
     if (error) {
-      secureLog.warn('checkout.session.expired update failed:', error.message);
+      throw new Error(`checkout.session.expired update failed: ${error.message}`);
     }
   } catch (e) {
     secureLog.error('handleCheckoutSessionExpired:', sanitizeError(e));
+    throw e;
   }
 }
 
@@ -284,16 +286,17 @@ async function handleCheckoutCompleted(
   session: Stripe.Checkout.Session,
   stripeEventId: string
 ) {
+  const result = await applyStripeCheckoutSession({ stripe, supabase, session });
+  if (!result.ok) {
+    secureLog.error('handleCheckoutCompleted failed:', result.reason, {
+      sessionId: logIdPrefix(session.id),
+      customer: typeof session.customer === 'string' ? logIdPrefix(session.customer) : '(linked)',
+      hasMetadataUser: Boolean(session.metadata?.supabase_user_id),
+    });
+    throw new Error(`Checkout entitlement sync failed: ${result.reason}`);
+  }
+
   try {
-    const result = await applyStripeCheckoutSession({ stripe, supabase, session });
-    if (!result.ok) {
-      secureLog.error('handleCheckoutCompleted failed:', result.reason, {
-        sessionId: logIdPrefix(session.id),
-        customer: typeof session.customer === 'string' ? logIdPrefix(session.customer) : '(linked)',
-        hasMetadataUser: Boolean(session.metadata?.supabase_user_id),
-      });
-      return;
-    }
     if (result.alreadyRecorded) {
       secureLog.info('checkout session already synced:', logIdPrefix(session.id));
     }
@@ -464,7 +467,10 @@ async function handleCheckoutCompleted(
       }
     }
   } catch (error: unknown) {
-    secureLog.error('❌ handleCheckoutCompleted exception:', sanitizeError(error));
+    secureLog.warn(
+      'handleCheckoutCompleted optional follow-up failed:',
+      sanitizeError(error),
+    );
   }
 }
 
@@ -716,9 +722,11 @@ async function updateTransactionStatus(
 
     if (error) {
       secureLog.error('Error updating transaction status:', sanitizeError(error));
+      throw new Error(`Transaction status update failed: ${error.message}`);
     }
   } catch (error) {
     secureLog.error('Error in updateTransactionStatus:', sanitizeError(error));
+    throw error;
   }
 }
 
@@ -885,11 +893,14 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
   let rows: Row[] = [];
 
   if (piId) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('payment_transactions')
       .update({ status: 'refunded', updated_at: nowIso })
       .eq('stripe_payment_intent_id', piId)
       .select('user_id');
+    if (error) {
+      throw new Error(`Refund transaction update failed: ${error.message}`);
+    }
     if (data?.length) rows = data as Row[];
   }
 
@@ -911,11 +922,14 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
     }
 
     if (subscriptionId) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('payment_transactions')
         .update({ status: 'refunded', updated_at: nowIso })
         .eq('stripe_subscription_id', subscriptionId)
         .select('user_id');
+      if (error) {
+        throw new Error(`Refund subscription update failed: ${error.message}`);
+      }
       if (data?.length) rows = data as Row[];
     }
   }
@@ -925,11 +939,14 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
     const csFromMeta =
       typeof pi.metadata?.checkout_session_id === 'string' ? pi.metadata.checkout_session_id : null;
     if (csFromMeta) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('payment_transactions')
         .update({ status: 'refunded', updated_at: nowIso })
         .eq('stripe_checkout_session_id', csFromMeta)
         .select('user_id');
+      if (error) {
+        throw new Error(`Refund checkout update failed: ${error.message}`);
+      }
       if (data?.length) rows = data as Row[];
     }
   }
@@ -940,11 +957,14 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
     const csFromInv =
       typeof inv.metadata?.checkout_session_id === 'string' ? inv.metadata.checkout_session_id : null;
     if (csFromInv) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('payment_transactions')
         .update({ status: 'refunded', updated_at: nowIso })
         .eq('stripe_checkout_session_id', csFromInv)
         .select('user_id');
+      if (error) {
+        throw new Error(`Refund invoice update failed: ${error.message}`);
+      }
       if (data?.length) rows = data as Row[];
     }
   }
@@ -974,6 +994,7 @@ async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, event
       .eq('user_id', userId);
     if (error) {
       secureLog.error('Refund: failed to revoke premium for user', logIdPrefix(userId), sanitizeError(error));
+      throw new Error(`Refund entitlement revocation failed: ${error.message}`);
     } else {
       secureLog.info('Refund: revoked premium for user', logIdPrefix(userId));
     }
@@ -1049,7 +1070,22 @@ async function handleInvoicePaid(
     const planTier = normalizePlanTier(plan ?? undefined);
     const interval = normalizeBillingInterval(subscription.metadata?.interval);
     const amountCents = inv.amount_paid ?? inv.total ?? 0;
-    if (amountCents > 0) {
+    const result = await reconcileCustomerBilling({
+      stripe,
+      supabase,
+      customerId,
+      userId: user.userId,
+      cancelDuplicates: plan === 'dedicated',
+    });
+
+    if (result.action === 'synced') {
+      secureLog.info(
+        `handleInvoicePaid: synced ${result.planTier} for customer ${logIdPrefix(customerId)}`,
+      );
+    }
+
+    try {
+      if (amountCents <= 0) return;
       await captureServerEvent(
         user.userId,
         'payment_succeeded',
@@ -1117,23 +1153,15 @@ async function handleInvoicePaid(
           secureLog.error('handleInvoicePaid receipt email:', receipt.error);
         }
       }
-    }
-
-    const result = await reconcileCustomerBilling({
-      stripe,
-      supabase,
-      customerId,
-      userId: user.userId,
-      cancelDuplicates: plan === 'dedicated',
-    });
-
-    if (result.action === 'synced') {
-      secureLog.info(
-        `handleInvoicePaid: synced ${result.planTier} for customer ${logIdPrefix(customerId)}`,
+    } catch (optionalError) {
+      secureLog.warn(
+        'handleInvoicePaid optional analytics/email failed:',
+        sanitizeError(optionalError),
       );
     }
   } catch (error: unknown) {
     secureLog.error('handleInvoicePaid:', sanitizeError(error));
+    throw error;
   }
 }
 
@@ -1156,45 +1184,63 @@ async function handleSubscriptionUpdated(
     // during temporary payment failures.
     const isTerminal = ['canceled', 'incomplete_expired'].includes(subscription.status);
 
-    if (subscription.cancel_at_period_end && ['active', 'trialing'].includes(subscription.status)) {
-      const user = await resolveUserForStripeCustomer(supabase, customerId);
-      if (user) {
-        const periodEnd = (subscription as unknown as { current_period_end?: number }).current_period_end;
-        const accessThroughDate = periodEnd
-          ? new Date(periodEnd * 1000).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            })
-          : 'the end of your current billing period';
-        const nextCharge =
-          subscription.status === 'trialing' && subscription.trial_end
-            ? new Date(subscription.trial_end * 1000).toLocaleDateString('en-US', {
+    if (
+      subscription.cancel_at_period_end &&
+      ['active', 'trialing'].includes(subscription.status)
+    ) {
+      try {
+        const user = await resolveUserForStripeCustomer(supabase, customerId);
+        if (user) {
+          const periodEnd = (
+            subscription as unknown as { current_period_end?: number }
+          ).current_period_end;
+          const accessThroughDate = periodEnd
+            ? new Date(periodEnd * 1000).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',
               })
-            : null;
+            : 'the end of your current billing period';
+          const nextCharge =
+            subscription.status === 'trialing' && subscription.trial_end
+              ? new Date(subscription.trial_end * 1000).toLocaleDateString(
+                  'en-US',
+                  {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  },
+                )
+              : null;
 
-        await recordBillingConsentEvent({
-          userId: user.userId,
-          eventType: 'subscription_cancel_initiated',
-          stripeSubscriptionId: subscription.id,
-          metadata: { cancel_at_period_end: true, initiated_by: 'stripe_portal_or_api' },
-        });
+          await recordBillingConsentEvent({
+            userId: user.userId,
+            eventType: 'subscription_cancel_initiated',
+            stripeSubscriptionId: subscription.id,
+            metadata: {
+              cancel_at_period_end: true,
+              initiated_by: 'stripe_portal_or_api',
+            },
+          });
 
-        const r = await sendCancellationConfirmedEmail({
-          supabase,
-          userId: user.userId,
-          toEmail: user.email,
-          firstName: user.firstName,
-          accessThroughDate,
-          nextChargeDate: nextCharge,
-          stripeEventId: `sub_cancel_confirm_${subscription.id}`,
-        });
-        if (!r.ok && 'error' in r && r.error) {
-          secureLog.error('cancellation_confirmed email:', r.error);
+          const r = await sendCancellationConfirmedEmail({
+            supabase,
+            userId: user.userId,
+            toEmail: user.email,
+            firstName: user.firstName,
+            accessThroughDate,
+            nextChargeDate: nextCharge,
+            stripeEventId: `sub_cancel_confirm_${subscription.id}`,
+          });
+          if (!r.ok && 'error' in r && r.error) {
+            secureLog.error('cancellation_confirmed email:', r.error);
+          }
         }
+      } catch (optionalError) {
+        secureLog.warn(
+          'subscription cancellation notification failed:',
+          sanitizeError(optionalError),
+        );
       }
     }
 
@@ -1236,6 +1282,7 @@ async function handleSubscriptionUpdated(
     }
   } catch (error: unknown) {
     secureLog.error('handleSubscriptionUpdated:', sanitizeError(error));
+    throw error;
   }
 }
 
@@ -1244,28 +1291,28 @@ async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription,
   eventId: string
 ) {
+  const customerId = subscription.customer as string;
+  const user = await resolveUserForStripeCustomer(supabase, customerId);
+  if (!user) return;
+
+  const result = await reconcileCustomerBilling({
+    stripe,
+    supabase,
+    customerId,
+    userId: user.userId,
+    excludeSubscriptionId: subscription.id,
+  });
+
+  if (result.action === 'synced') {
+    secureLog.info(
+      `handleSubscriptionDeleted: kept access on ${result.planTier} (${logIdPrefix(result.subscriptionId)})`,
+    );
+    return;
+  }
+
+  if (result.action !== 'revoked') return;
+
   try {
-    const customerId = subscription.customer as string;
-    const user = await resolveUserForStripeCustomer(supabase, customerId);
-    if (!user) return;
-
-    const result = await reconcileCustomerBilling({
-      stripe,
-      supabase,
-      customerId,
-      userId: user.userId,
-      excludeSubscriptionId: subscription.id,
-    });
-
-    if (result.action === 'synced') {
-      secureLog.info(
-        `handleSubscriptionDeleted: kept access on ${result.planTier} (${logIdPrefix(result.subscriptionId)})`,
-      );
-      return;
-    }
-
-    if (result.action !== 'revoked') return;
-
     const cancelDetails = (
       subscription as Stripe.Subscription & {
         cancellation_details?: { feedback?: string | null; comment?: string | null } | null;
@@ -1322,7 +1369,10 @@ async function handleSubscriptionDeleted(
       }
     }
   } catch (error: unknown) {
-    secureLog.error('handleSubscriptionDeleted:', sanitizeError(error));
+    secureLog.warn(
+      'handleSubscriptionDeleted optional analytics/email failed:',
+      sanitizeError(error),
+    );
   }
 }
 
@@ -1336,22 +1386,32 @@ async function handleSubscriptionPendingUpdateApplied(
     if (!user) return;
 
     const plan = getPlanFromSubscription(subscription);
-    await syncProfileFromSubscription({
+    const syncResult = await syncProfileFromSubscription({
       supabase,
       userId: user.userId,
       customerId,
       subscription,
     });
+    if (!syncResult.ok) {
+      throw new Error('Pending subscription update profile sync failed');
+    }
 
     if (plan === 'dedicated') {
-      await captureServerEvent(user.userId, 'subscription_upgraded', {
-        $insert_id: billingInsertId('subscription_upgraded', subscription.id),
-        from_plan: 'pro',
-        to_plan: 'dedicated',
-        plan_tier: 'dedicated',
-        interval: normalizeBillingInterval(subscription.metadata?.interval),
-        is_upgrade: true,
-      });
+      try {
+        await captureServerEvent(user.userId, 'subscription_upgraded', {
+          $insert_id: billingInsertId('subscription_upgraded', subscription.id),
+          from_plan: 'pro',
+          to_plan: 'dedicated',
+          plan_tier: 'dedicated',
+          interval: normalizeBillingInterval(subscription.metadata?.interval),
+          is_upgrade: true,
+        });
+      } catch (optionalError) {
+        secureLog.warn(
+          'pending update analytics failed:',
+          sanitizeError(optionalError),
+        );
+      }
       await cancelOtherCustomerSubscriptions({
         stripe,
         customerId,
@@ -1361,6 +1421,7 @@ async function handleSubscriptionPendingUpdateApplied(
     }
   } catch (error: unknown) {
     secureLog.error('handleSubscriptionPendingUpdateApplied:', sanitizeError(error));
+    throw error;
   }
 }
 
@@ -1385,6 +1446,7 @@ async function handleSubscriptionPendingUpdateExpired(
     );
   } catch (error: unknown) {
     secureLog.error('handleSubscriptionPendingUpdateExpired:', sanitizeError(error));
+    throw error;
   }
 }
 
@@ -1406,67 +1468,5 @@ async function handleInvoicePaymentActionRequired(stripe: Stripe, invoice: Strip
     );
   } catch (error: unknown) {
     secureLog.error('handleInvoicePaymentActionRequired:', sanitizeError(error));
-  }
-}
-
-async function revokePremiumAccess(stripeCustomerId: string): Promise<{
-  userId: string;
-  email: string;
-  firstName: string | null;
-} | null> {
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
-  try {
-    const { data: prof, error: fetchErr } = await supabaseAdmin
-      .from('profiles')
-      .select('user_id, email, first_name')
-      .eq('stripe_customer_id', stripeCustomerId)
-      .maybeSingle();
-
-    if (fetchErr) {
-      secureLog.error('revokePremiumAccess fetch:', sanitizeError(fetchErr));
-      return null;
-    }
-    if (!prof?.user_id) {
-      secureLog.warn(`revokePremiumAccess: no profile for customer ${logIdPrefix(stripeCustomerId)}`);
-      return null;
-    }
-
-    let email = prof.email?.trim() || '';
-    if (!email) {
-      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(prof.user_id);
-      email = authUser?.user?.email?.trim() || '';
-    }
-
-    const { error } = await supabaseAdmin
-      .from('profiles')
-      .update({
-        premium_status: false,
-        plan_tier: null,
-      })
-      .eq('stripe_customer_id', stripeCustomerId);
-
-    if (error) {
-      secureLog.error(
-        'Error revoking premium access for customer',
-        logIdPrefix(stripeCustomerId),
-        sanitizeError(error),
-      );
-      return null;
-    }
-    secureLog.info('Revoked premium access for customer', logIdPrefix(stripeCustomerId));
-
-    if (!email) {
-      secureLog.warn('revokePremiumAccess: no email for subscription email', logIdPrefix(prof.user_id));
-      return null;
-    }
-
-    return { userId: prof.user_id, email, firstName: prof.first_name };
-  } catch (error) {
-    secureLog.error('Error in revokePremiumAccess:', sanitizeError(error));
-    return null;
   }
 }

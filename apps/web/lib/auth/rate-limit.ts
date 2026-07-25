@@ -1,41 +1,29 @@
 import { NextRequest } from 'next/server';
+import { checkRateLimit } from './api-rate-limit';
 
 type Options = {
   interval?: number;
+  name?: string;
 };
 
 export default function rateLimit(options?: Options) {
   const interval = options?.interval || 60000;
-
-  const tokenCache = new Map<string, number[]>();
-  let lastCleanup = Date.now();
+  const windowSeconds = Math.max(1, Math.ceil(interval / 1000));
 
   return {
-    check: (req: NextRequest, limit: number, token: string) => {
-      const now = Date.now();
-
-      // Cleanup every interval
-      if (now - lastCleanup > interval) {
-        tokenCache.clear();
-        lastCleanup = now;
-      }
-
-      const tokenCount = tokenCache.get(token) || [0];
-      if (tokenCount[0] === 0) {
-        tokenCache.set(token, [1]);
-      } else {
-        tokenCount[0] += 1;
-        tokenCache.set(token, tokenCount);
-      }
-
-      const currentUsage = tokenCount[0];
-      const isRateLimited = currentUsage >= limit;
-
-      return {
-        isRateLimited,
-        currentUsage,
+    check: async (_req: NextRequest, limit: number, token: string) => {
+      const result = await checkRateLimit(token, {
         limit,
-        remaining: isRateLimited ? 0 : limit - currentUsage,
+        windowSeconds,
+        name: options?.name || 'legacy-api',
+      });
+      return {
+        isRateLimited: !result.success,
+        currentUsage: Math.max(0, result.limit - result.remaining),
+        limit,
+        remaining: result.remaining,
+        reset: result.reset,
+        unavailable: result.unavailable === true,
       };
     },
   };
@@ -117,4 +105,3 @@ export async function getRateLimitStatus(userId: string): Promise<{
     allowed: result.allowed,
   };
 }
-

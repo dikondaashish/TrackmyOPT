@@ -231,7 +231,6 @@ LEFT JOIN wage_stats w ON s.id = w.sponsor_id;
 COMMENT ON VIEW public.sponsor_intelligence_agg IS
   'Aggregated sponsor intel for LCA enrichment and get_sponsor_intelligence RPC';
 
-
 -- =============================================================================
 -- VERIFICATION
 -- =============================================================================

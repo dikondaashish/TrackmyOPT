@@ -19,6 +19,7 @@ import {
 // Rate Limiter: 10 requests per minute per IP
 const limiter = rateLimit({
     interval: 60 * 1000,
+    name: 'resume-regenerate',
 });
 
 // Input Validation Schema
@@ -71,12 +72,12 @@ export async function POST(req: NextRequest) {
 
         // 2. Rate Limiting
         const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-        const { isRateLimited } = limiter.check(req, 10, ip);
+        const { isRateLimited, unavailable } = await limiter.check(req, 10, ip);
 
         if (isRateLimited) {
             return NextResponse.json(
                 { error: 'Too many requests. Please try again later.' },
-                { status: 429 }
+                { status: unavailable ? 503 : 429 }
             );
         }
 
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { resumeText, jobDescription, templateId, previousLatex, userFeedback, atsAnalysis } = validation.data;
+        const { jobDescription, templateId, previousLatex, userFeedback, atsAnalysis } = validation.data;
 
         // 4. Load Template
         const possiblePaths = [

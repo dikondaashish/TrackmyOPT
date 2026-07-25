@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 /** Paths crawlers must not index (auth APIs, gated dashboard, login). */
 const CRAWL_DISALLOW = ["/api/", "/auth/", "/dashboard/", "/login"] as const;
 
-/** Public dashboard tool pages that remain crawlable (see middleware.ts). */
+/** Public dashboard tool pages that remain crawlable (see proxy.ts). */
 const PUBLIC_DASHBOARD_ALLOW = [
     "/dashboard/help",
     "/dashboard/opt-tools/opt-apply",

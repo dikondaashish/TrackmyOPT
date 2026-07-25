@@ -37,7 +37,7 @@ function isProxyAllowed(path: string, method: string): boolean {
   return false;
 }
 
-function buildOutboundHeaders(req: NextRequest): Headers {
+function buildOutboundHeaders(req: NextRequest, userId: string): Headers {
   const out = new Headers();
   const contentType = req.headers.get('content-type');
   if (contentType) {
@@ -54,7 +54,25 @@ function buildOutboundHeaders(req: NextRequest): Headers {
   if (API_SECRET_KEY) {
     out.set('x-api-key', API_SECRET_KEY);
   }
+  out.set('x-trackmyopt-user-id', userId);
   return out;
+}
+
+function buildTrustedSearchParams(req: NextRequest): string {
+  const searchParams = new URLSearchParams(req.nextUrl.searchParams);
+  searchParams.delete('userId');
+  return searchParams.toString();
+}
+
+function stripUntrustedUserId(value: unknown): unknown {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return value;
+  }
+  const { userId: _untrustedUserId, ...trustedBody } = value as Record<
+    string,
+    unknown
+  >;
+  return trustedBody;
 }
 
 export async function GET(
@@ -118,11 +136,11 @@ async function handleProxyRequest(req: NextRequest, pathArray: string[]) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const searchParams = req.nextUrl.searchParams.toString();
+    const searchParams = buildTrustedSearchParams(req);
     const query = searchParams ? `?${searchParams}` : '';
     const targetUrl = `${API_URL}/${path}${query}`;
 
-    const headers = buildOutboundHeaders(req);
+    const headers = buildOutboundHeaders(req, user.id);
 
     const fetchOptions: RequestInit = {
       method: req.method,
@@ -134,8 +152,12 @@ async function handleProxyRequest(req: NextRequest, pathArray: string[]) {
 
       if (contentType.includes('multipart/form-data')) {
         const formData = await req.formData();
+        formData.delete('userId');
         fetchOptions.body = formData;
         headers.delete('content-type');
+      } else if (contentType.includes('application/json')) {
+        const body = await req.json();
+        fetchOptions.body = JSON.stringify(stripUntrustedUserId(body));
       } else {
         const body = await req.text();
         if (body) fetchOptions.body = body;
@@ -152,9 +174,10 @@ async function handleProxyRequest(req: NextRequest, pathArray: string[]) {
     responseHeaders.delete('access-control-allow-origin');
     responseHeaders.delete('access-control-allow-credentials');
 
-    const data = await response.arrayBuffer();
-
-    return new Response(data, {
+    // Preserve backpressure and avoid buffering an unbounded backend response
+    // in the serverless worker. The allowlisted backend controls its own body
+    // limits; this proxy forwards the stream without copying it into memory.
+    return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: responseHeaders,

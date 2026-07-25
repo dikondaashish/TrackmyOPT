@@ -17,6 +17,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { Ratelimit, type Duration } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 // ============================================================================
 // TYPES
@@ -37,6 +39,8 @@ export interface RateLimitResult {
     remaining: number;
     reset: number; // Unix timestamp when the limit resets
     retryAfter?: number; // Seconds until retry allowed
+    /** Durable limiter was unavailable; callers should return 503, not 429. */
+    unavailable?: boolean;
 }
 
 // ============================================================================
@@ -82,36 +86,52 @@ export const EMAIL_RATE_LIMIT: RateLimitConfig = {
     name: 'email',
 };
 
-// ============================================================================
-// IN-MEMORY STORE
-// Note: For serverless (Vercel), this resets on cold starts
-// For production at scale, use Redis or similar
-// ============================================================================
+const durableLimiters: Record<string, Ratelimit> = {};
 
-interface RateLimitEntry {
-    count: number;
-    resetTime: number;
+function hasDurableRateLimitConfig(): boolean {
+    return Boolean(
+        process.env.UPSTASH_REDIS_REST_URL &&
+        process.env.UPSTASH_REDIS_REST_TOKEN
+    );
 }
 
-// Global store for rate limits (persists across requests in same instance)
-const rateLimitStore = new Map<string, RateLimitEntry>();
+function getDurableLimiter(config: RateLimitConfig): Ratelimit | null {
+    if (!hasDurableRateLimitConfig()) return null;
 
-// Clean up expired entries periodically (every 5 minutes)
-const CLEANUP_INTERVAL = 5 * 60 * 1000;
-let lastCleanup = Date.now();
-
-function cleanupExpiredEntries(): void {
-    const now = Date.now();
-    if (now - lastCleanup < CLEANUP_INTERVAL) return;
-
-    lastCleanup = now;
-    const nowSeconds = Math.floor(now / 1000);
-
-    for (const [key, entry] of rateLimitStore.entries()) {
-        if (entry.resetTime < nowSeconds) {
-            rateLimitStore.delete(key);
-        }
+    const key = `${config.name}:${config.limit}:${config.windowSeconds}`;
+    if (!durableLimiters[key]) {
+        durableLimiters[key] = new Ratelimit({
+            redis: Redis.fromEnv(),
+            limiter: Ratelimit.fixedWindow(
+                config.limit,
+                `${config.windowSeconds} s` as Duration
+            ),
+            prefix: `trackmyopt:rate-limit:${config.name}`,
+            analytics: true,
+        });
     }
+    return durableLimiters[key];
+}
+
+function unavailableResult(config: RateLimitConfig): RateLimitResult {
+    const now = Math.floor(Date.now() / 1000);
+    return {
+        success: false,
+        limit: config.limit,
+        remaining: 0,
+        reset: now + Math.min(config.windowSeconds, 60),
+        retryAfter: Math.min(config.windowSeconds, 60),
+        unavailable: true,
+    };
+}
+
+function developmentBypassResult(config: RateLimitConfig): RateLimitResult {
+    return {
+        success: true,
+        limit: config.limit,
+        remaining: config.limit,
+        reset: Math.floor(Date.now() / 1000) + config.windowSeconds,
+    };
 }
 
 // ============================================================================
@@ -143,49 +163,47 @@ export function getClientIP(request: NextRequest): string {
  * @param config - Rate limit configuration
  * @returns Result with success status and limit info
  */
-export function checkRateLimit(
+export async function checkRateLimit(
     identifier: string,
     config: RateLimitConfig
-): RateLimitResult {
-    // Cleanup old entries periodically
-    cleanupExpiredEntries();
-
-    const now = Math.floor(Date.now() / 1000);
-    const key = `${config.name}:${identifier}`;
-
-    let entry = rateLimitStore.get(key);
-
-    // If no entry or entry expired, create new one
-    if (!entry || entry.resetTime < now) {
-        entry = {
-            count: 0,
-            resetTime: now + config.windowSeconds,
-        };
+): Promise<RateLimitResult> {
+    const limiter = getDurableLimiter(config);
+    if (!limiter) {
+        return process.env.NODE_ENV === 'production'
+            ? unavailableResult(config)
+            : developmentBypassResult(config);
     }
 
-    // Increment count
-    entry.count++;
-    rateLimitStore.set(key, entry);
-
-    const remaining = Math.max(0, config.limit - entry.count);
-    const success = entry.count <= config.limit;
-
-    return {
-        success,
-        limit: config.limit,
-        remaining,
-        reset: entry.resetTime,
-        retryAfter: success ? undefined : entry.resetTime - now,
-    };
+    try {
+        const result = await limiter.limit(identifier);
+        const now = Math.floor(Date.now() / 1000);
+        const resetSeconds =
+            result.reset > 10_000_000_000
+                ? Math.ceil(result.reset / 1000)
+                : result.reset;
+        return {
+            success: result.success,
+            limit: result.limit,
+            remaining: result.remaining,
+            reset: resetSeconds,
+            retryAfter: result.success
+                ? undefined
+                : Math.max(1, resetSeconds - now),
+        };
+    } catch {
+        return process.env.NODE_ENV === 'production'
+            ? unavailableResult(config)
+            : developmentBypassResult(config);
+    }
 }
 
 /**
  * Check rate limit using IP address from request
  */
-export function checkRateLimitByIP(
+export async function checkRateLimitByIP(
     request: NextRequest,
     config: RateLimitConfig
-): RateLimitResult {
+): Promise<RateLimitResult> {
     const ip = getClientIP(request);
     return checkRateLimit(ip, config);
 }
@@ -193,11 +211,18 @@ export function checkRateLimitByIP(
 /**
  * Check rate limit using user ID
  */
-export function checkRateLimitByUser(
+export async function checkRateLimitByUser(
     userId: string,
     config: RateLimitConfig
-): RateLimitResult {
+): Promise<RateLimitResult> {
     return checkRateLimit(`user:${userId}`, config);
+}
+
+export async function checkRateLimitByAccount(
+    account: string,
+    config: RateLimitConfig
+): Promise<RateLimitResult> {
+    return checkRateLimit(`account:${account.trim().toLowerCase()}`, config);
 }
 
 // ============================================================================
@@ -218,11 +243,13 @@ export function rateLimitResponse(
     return NextResponse.json(
         {
             ok: false,
-            error: message,
+            error: result.unavailable
+                ? 'Authentication protection is temporarily unavailable. Please try again shortly.'
+                : message,
             retryAfter: result.retryAfter,
         },
         {
-            status: 429,
+            status: result.unavailable ? 503 : 429,
             headers: {
                 'Retry-After': String(result.retryAfter || 60),
                 'X-RateLimit-Limit': String(result.limit),
@@ -264,11 +291,11 @@ export function addRateLimitHeaders(
  * }
  * ```
  */
-export function withRateLimit(
+export async function withRateLimit(
     request: NextRequest,
     config: RateLimitConfig,
     userId?: string
-): RateLimitResult {
+): Promise<RateLimitResult> {
     // Use user ID if provided, otherwise use IP
     if (userId) {
         return checkRateLimitByUser(userId, config);

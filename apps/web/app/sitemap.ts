@@ -49,7 +49,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/features/health-insurance',
     ];
 
-    // Public dashboard tool pages — accessible without login (middleware.ts publicRoutes).
+    // Public dashboard tool pages — accessible without login (proxy.ts publicRoutes).
     // Each page exports robots:{index:true} to override the dashboard layout's noindex.
     const toolPages = [
         '/dashboard/help',
@@ -112,4 +112,3 @@ export default function sitemap(): MetadataRoute.Sitemap {
         })),
     ];
 }
-

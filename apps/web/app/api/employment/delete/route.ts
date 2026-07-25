@@ -37,9 +37,8 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Employment delete error:', error);
     return NextResponse.json(
-      { ok: false, error: error.message || 'Failed to delete employment span' },
+      { ok: false, error: 'Failed to delete employment span' },
       { status: 500 }
     );
   }
 }
-

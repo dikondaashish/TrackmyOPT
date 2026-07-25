@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkRateLimit } from "@/lib/auth/api-rate-limit";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -16,20 +17,11 @@ const corsHeaders = {
     "Access-Control-Allow-Headers": "Content-Type",
 };
 
-// Simple in-memory rate limit for click tracking (per IP + code)
-// Resets on deploy/restart — good enough for click dedup
-const clickCache = new Map<string, number>();
-const CLICK_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
-
-// Clean up old entries every 10 minutes
-setInterval(() => {
-    const now = Date.now();
-    for (const [key, timestamp] of clickCache.entries()) {
-        if (now - timestamp > CLICK_COOLDOWN_MS) {
-            clickCache.delete(key);
-        }
-    }
-}, 10 * 60 * 1000);
+const REFERRAL_CLICK_LIMIT = {
+    limit: 1,
+    windowSeconds: 24 * 60 * 60,
+    name: 'referral-click',
+};
 
 export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
@@ -57,10 +49,17 @@ export async function POST(req: NextRequest) {
             || req.headers.get('x-real-ip')
             || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
             || 'unknown';
-        const cacheKey = `${ip}:${code}`;
-        const lastClick = clickCache.get(cacheKey);
-
-        if (lastClick && Date.now() - lastClick < CLICK_COOLDOWN_MS) {
+        const rateLimit = await checkRateLimit(
+            `referral-click:${ip}:${code}`,
+            REFERRAL_CLICK_LIMIT,
+        );
+        if (rateLimit.unavailable) {
+            return NextResponse.json(
+                { ok: false, error: 'Click tracking is temporarily unavailable' },
+                { status: 503, headers: corsHeaders },
+            );
+        }
+        if (!rateLimit.success) {
             // Already counted this click — return success but don't increment
             return NextResponse.json({ ok: true, deduplicated: true }, { headers: corsHeaders });
         }
@@ -72,9 +71,6 @@ export async function POST(req: NextRequest) {
 
         // Increment clicks atomically via RPC
         await supabase.rpc("increment_referral_clicks", { ref_code: code });
-
-        // Record this click for dedup
-        clickCache.set(cacheKey, Date.now());
 
         return NextResponse.json({ ok: true }, { headers: corsHeaders });
     } catch (error) {

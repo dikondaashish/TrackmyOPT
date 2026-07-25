@@ -7,7 +7,7 @@ import { normalizeExtensionWidgetAnalytics } from '@/lib/extension/widget-analyt
 
 export const dynamic = 'force-dynamic';
 
-const widgetEventLimiter = rateLimit({ interval: 60_000 });
+const widgetEventLimiter = rateLimit({ interval: 60_000, name: 'extension-widget-event' });
 const MAX_BODY_LENGTH = 4_000;
 
 export async function OPTIONS(req: NextRequest) {
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { isRateLimited } = widgetEventLimiter.check(
+    const { isRateLimited, unavailable } = await widgetEventLimiter.check(
       req,
       120,
       `extension-widget:${userId}`
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     if (isRateLimited) {
       return NextResponse.json(
         { error: 'Too many events' },
-        { status: 429, headers }
+        { status: unavailable ? 503 : 429, headers }
       );
     }
 

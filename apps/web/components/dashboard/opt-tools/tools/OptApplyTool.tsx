@@ -9,6 +9,7 @@ import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { TickingClock, TickingClockCompact } from "../TickingClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
+import { daysBetween, getFilingWindow } from "@/lib/immigration/optCalculations";
 
 interface CalculatedDates {
   earliestFile: Date;
@@ -26,11 +27,6 @@ export function OptApplyTool() {
   const [results, setResults] = useState<CalculatedDates | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [syncStatus, setSyncStatus] = useState({
-    lastSynced: null as Date | null,
-    isSyncing: false,
-    error: null as string | null,
-  });
   const [isPremium, setIsPremium] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
 
@@ -76,7 +72,6 @@ export function OptApplyTool() {
             setDsoRecommendationDate(result.data.dso_recommendation_date);
           }
         }
-        setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
       }
 
       if (premiumRes.ok) {
@@ -88,13 +83,6 @@ export function OptApplyTool() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatDateForInput = (isoDate: string) => {
-    const date = new Date(isoDate);
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${month}/${day}/${date.getFullYear()}`;
   };
 
   const formatDateForDisplay = (date: Date) => {
@@ -113,17 +101,6 @@ export function OptApplyTool() {
     return null;
   };
 
-  const addDays = (date: Date, days: number): Date => {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
-  };
-
-  const daysBetween = (date1: Date, date2: Date): number => {
-    const diffTime = date2.getTime() - date1.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
-
   const calculate = () => {
     const programEnd = parseDate(programEndDate);
     if (!programEnd) {
@@ -131,18 +108,12 @@ export function OptApplyTool() {
       return;
     }
 
-    const dsoRec = parseDate(dsoRecommendationDate);
-
-    const earliestFile = addDays(programEnd, -90);
-
-    // NOTE: Synced with Chrome Extension logic (extension/src/pages/opt-apply.ts)
-    // The extension strictly treats the filing deadline as Program End Date + 60 days.
-    // It does NOT shorten the window based on the DSO recommendation date.
-    // We maintain this behavior for consistency across platforms.
-    const mustArriveBy = addDays(programEnd, 60);
+    const filingWindow = getFilingWindow(programEnd);
+    const earliestFile = new Date(`${filingWindow.earliestFile}T00:00:00`);
+    const mustArriveBy = new Date(`${filingWindow.hardDeadline}T00:00:00`);
 
     const optStartEarliest = programEnd;
-    const optStartLatest = addDays(programEnd, 60);
+    const optStartLatest = mustArriveBy;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -177,7 +148,7 @@ export function OptApplyTool() {
       } else {
         alert('Failed to save. Please try again.');
       }
-    } catch (error) {
+    } catch {
       alert('Failed to save. Please try again.');
     } finally {
       setIsSaving(false);

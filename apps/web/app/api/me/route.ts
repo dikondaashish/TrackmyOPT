@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from 'next/server';
 import { verifyToken } from '@/lib/auth/jwt';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
@@ -74,14 +74,14 @@ export async function GET(request: NextRequest) {
           set(name: string, value: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value, ...options });
-            } catch (error) {
+            } catch {
               // Cookie setting can fail in middleware
             }
           },
           remove(name: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value: '', ...options });
-            } catch (error) {
+            } catch {
               // Cookie removal can fail in middleware
             }
           },
@@ -89,9 +89,12 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     
     let userId: string;
+    let currentUser = user;
+    let dataClient: SupabaseClient = supabase;
+    let supabaseAdmin: SupabaseClient | null = null;
     
     if (user) {
       // Session found via cookies (primary method)
@@ -121,27 +124,50 @@ export async function GET(request: NextRequest) {
       }
 
       userId = decoded.userId || decoded.sub;
+
+      // A verified extension JWT identifies the user, but the cookie-backed
+      // Supabase client is still anonymous because extension requests omit
+      // cookies. Use the service-role client only after verification and keep
+      // every data query explicitly scoped to that verified user ID.
+      supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      const { data: authUserData, error: authUserError } =
+        await supabaseAdmin.auth.admin.getUserById(userId);
+      if (authUserError || !authUserData.user) {
+        secureLog.error('/api/me: bearer user no longer exists');
+        return NextResponse.json(
+          { error: 'Invalid or expired token', user: null },
+          { status: 401, headers: cors }
+        );
+      }
+      currentUser = authUserData.user;
+      dataClient = supabaseAdmin;
       
       // Record extension session (JWT means it's from extension)
-      // Fire and forget - don't await
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://trackmyopt.com'}/api/user/sessions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          device_type: 'extension',
-          device_info: 'Chrome Extension',
-        }),
-      }).catch(() => {}); // Silently fail
+      after(async () => {
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://trackmyopt.com'}/api/user/sessions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              device_type: 'extension',
+              device_info: 'Chrome Extension',
+            }),
+          });
+        } catch {
+          // Session telemetry must never prevent the profile response.
+        }
+      });
     }
-
-    // Supabase client already created above for user authentication
 
     // Query user profile
     // eslint-disable-next-line prefer-const -- `profile` is reassigned below for the create-on-first-login flow
-    let { data: profile, error: profileError } = await supabase
+    let { data: profile, error: profileError } = await dataClient
       .from('profiles')
       .select('timezone, is_stem_eligible, degree_level, major_name')
       .eq('user_id', userId)
@@ -151,12 +177,13 @@ export async function GET(request: NextRequest) {
     if (profileError && profileError.code === 'PGRST116') {
       
       // Use service role key to bypass RLS for initial profile creation
-      const supabaseAdmin = createClient(
+      const profileWriter = supabaseAdmin ?? createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
       );
+      supabaseAdmin = profileWriter;
       
-      const { data: newProfile, error: insertError } = await supabaseAdmin
+      const { data: newProfile, error: insertError } = await profileWriter
         .from('profiles')
         .insert({
           user_id: userId,
@@ -174,16 +201,15 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      const { data: sessionUserData } = await supabase.auth.getUser();
-      const sessionEmail = sessionUserData.user?.email?.trim();
-      const meta = sessionUserData.user?.user_metadata as { firstName?: string; first_name?: string } | undefined;
+      const sessionEmail = currentUser?.email?.trim();
+      const meta = currentUser?.user_metadata as { firstName?: string; first_name?: string } | undefined;
       const metaFirst = meta?.firstName || meta?.first_name || null;
       if (sessionEmail) {
         // Keep runtime alive until SMTP + email_queue update complete (Vercel / serverless)
         after(async () => {
           try {
             await sendFreeWelcomeEmail({
-              supabase: supabaseAdmin,
+              supabase: profileWriter,
               userId,
               toEmail: sessionEmail,
               firstName: metaFirst,
@@ -204,7 +230,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Query OPT status
-    const { data: status, error: statusError } = await supabase
+    const { data: status, error: statusError } = await dataClient
       .from('opt_status')
       .select(
         'program_end_date, dso_recommendation_date, opt_ead_end_date, opt_start_date, stem_start_date'
@@ -212,7 +238,7 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId)
       .single();
 
-    const { data: employmentSpans, error: spansError } = await supabase
+    const { data: employmentSpans, error: spansError } = await dataClient
       .from('employment_spans')
       .select('id, employer_name, start_date, end_date')
       .eq('user_id', userId)
@@ -223,7 +249,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Application profile (autofill data) — non-sensitive; null when not set yet.
-    const { data: applicationProfile } = await supabase
+    const { data: applicationProfile } = await dataClient
       .from('application_profile')
       .select('phone, city, state, years_experience, linkedin_url, portfolio_url')
       .eq('user_id', userId)
@@ -290,9 +316,6 @@ export async function GET(request: NextRequest) {
     if (statusError) {
       // OPT status might not exist yet for new users
       if (statusError.code === 'PGRST116') {
-        // Get user data from Supabase
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-        
         return NextResponse.json({
           user: currentUser,
           profile,
@@ -309,9 +332,6 @@ export async function GET(request: NextRequest) {
         { status: 500, headers: cors }
       );
     }
-
-    // Get user data from Supabase
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
 
     // Return combined data
     return NextResponse.json({
@@ -330,4 +350,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { middleware } from '@/middleware';
+import { proxy } from '@/proxy';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Mock Supabase
@@ -25,7 +25,7 @@ describe('Supabase Auth Middleware', () => {
 
   it('redirects unauthenticated users away from /dashboard to /login', async () => {
     const request = new NextRequest('http://localhost:3000/dashboard');
-    const response = await middleware(request);
+    const response = await proxy(request);
 
     expect(response?.status).toBe(307);
     expect(response?.headers.get('location')).toBe('http://localhost:3000/login?returnTo=%2Fdashboard');
@@ -33,7 +33,7 @@ describe('Supabase Auth Middleware', () => {
 
   it('allows unauthenticated users to access public static routes', async () => {
     const request = new NextRequest('http://localhost:3000/pricing');
-    const response = await middleware(request);
+    const response = await proxy(request);
 
     // Should return a standard response without redirect location
     expect(response?.status).toBe(200);
@@ -45,7 +45,7 @@ describe('Supabase Auth Middleware', () => {
     // Simulate valid auth cookie
     request.cookies.set('sb-mock-auth-token', 'valid-token');
 
-    const response = await middleware(request);
+    const response = await proxy(request);
 
     expect(response?.status).toBe(307);
     expect(response?.headers.get('location')).toBe('http://localhost:3000/dashboard/case-status');
@@ -55,7 +55,7 @@ describe('Supabase Auth Middleware', () => {
     const request = new NextRequest('http://localhost:3000/dashboard');
     request.cookies.set('sb-mock-auth-token', 'valid-token');
 
-    const response = await middleware(request);
+    const response = await proxy(request);
 
     // Should process without redirect
     expect(response?.status).toBe(200);

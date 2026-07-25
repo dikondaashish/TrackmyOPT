@@ -10,7 +10,7 @@ import {
 import rateLimit from "@/lib/auth/rate-limit";
 
 // 5 contact submissions per hour per IP
-const contactLimiter = rateLimit({ interval: 3_600_000 });
+const contactLimiter = rateLimit({ interval: 3_600_000, name: 'contact' });
 
 const bodySchema = z.object({
   name: z.string().min(1).max(120),
@@ -23,11 +23,11 @@ export async function POST(req: NextRequest) {
   try {
     // Rate limit: 5 submissions per hour per IP
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const { isRateLimited } = contactLimiter.check(req, 5, `contact:${ip}`);
+    const { isRateLimited, unavailable } = await contactLimiter.check(req, 5, `contact:${ip}`);
     if (isRateLimited) {
       return NextResponse.json(
         { success: false, error: 'Too many submissions. Please try again later.' },
-        { status: 429 }
+        { status: unavailable ? 503 : 429 }
       );
     }
 

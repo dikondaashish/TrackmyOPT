@@ -1,5 +1,5 @@
 /**
- * Next.js Middleware for Route Protection
+ * Next.js Proxy for Route Protection
  * 
  * Protects dashboard routes by checking for valid Supabase session.
  * Redirects unauthenticated users to login page with returnTo parameter.
@@ -19,7 +19,7 @@
  * - /dashboard/opt-tools/stem-apply
  * - /dashboard/opt-tools/stem-clock
  * 
- * This middleware runs at the edge before page rendering for optimal performance.
+ * This proxy runs before page rendering.
  */
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
@@ -43,7 +43,7 @@ const publicRoutes = [
 // Routes that should redirect authenticated users (optional)
 const authRoutes = ['/login'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get('host') || '';
 
@@ -107,7 +107,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          // Set cookie on request for subsequent middleware/pages
+          // Set cookie on request for subsequent proxy/pages
           request.cookies.set({
             name,
             value,
@@ -151,8 +151,6 @@ export async function middleware(request: NextRequest) {
 
   const isAuthenticated = !!user && !error;
 
-  // Log for debugging (remove in production)
-
   // Protected route + not authenticated = redirect to login page
   if (isProtectedRoute && !isAuthenticated) {
     // Redirect to login page with return URL so user can come back after login
@@ -172,7 +170,7 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
-// Configure which routes the middleware runs on
+// Configure which routes the proxy runs on
 export const config = {
   matcher: [
     '/api/:path*',

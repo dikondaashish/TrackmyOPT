@@ -267,9 +267,6 @@ const TIER_2_STATES: Record<string, StateEligibilityConfig> = {
 // Children/Pregnant only states (expansion states without F-1 adult programs)
 const CHILDREN_PREGNANT_STATES = ['IL', 'CT', 'NJ', 'ME', 'RI', 'UT', 'MD', 'DC', 'MN'];
 
-// Non-expansion states (NO coverage for F-1)
-const NON_EXPANSION_STATES = ['AL', 'FL', 'GA', 'KS', 'MS', 'SC', 'TN', 'TX', 'WI', 'WY'];
-
 // Default config for children/pregnant states
 const CHILDREN_PREGNANT_CONFIG: StateEligibilityConfig = {
     programName: "State Medicaid",

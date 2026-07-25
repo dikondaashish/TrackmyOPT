@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Lightbulb, X, ChevronRight, AlertTriangle, CheckCircle, Clock, Briefcase } from "lucide-react";
+import { Lightbulb, X, ChevronRight, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
+import { addDays, daysBetween } from "@/lib/immigration/optCalculations";
 
 interface Tip {
   id: string;
@@ -152,13 +153,11 @@ export function PersonalizedTips({
   let daysUntilFilingWindow: number | null = null;
 
   if (optStatus) {
-    const optEnd = new Date(optStatus.opt_ead_end_date);
-    daysUntilOPTEnd = Math.ceil((optEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-    const programEnd = new Date(optStatus.program_end_date);
-    const earliestFileDate = new Date(programEnd);
-    earliestFileDate.setDate(earliestFileDate.getDate() - 90);
-    daysUntilFilingWindow = Math.ceil((earliestFileDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    daysUntilOPTEnd = daysBetween(today, optStatus.opt_ead_end_date);
+    daysUntilFilingWindow = daysBetween(
+      today,
+      addDays(optStatus.program_end_date, -90),
+    );
   }
 
   const tipData: TipData = {

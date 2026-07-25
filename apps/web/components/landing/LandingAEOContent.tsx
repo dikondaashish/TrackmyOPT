@@ -116,14 +116,13 @@ const knowledgeBase = [
             {
                 question: "What is the STEM OPT unemployment limit?",
                 directAnswer:
-                    "According to 8 CFR § 214.16(f), STEM OPT provides a separate 60-day unemployment allowance on top of the 90-day initial OPT limit.",
+                    "USCIS states that a student approved for STEM OPT may not accrue more than 150 aggregate days of unemployment across the total initial OPT and STEM OPT periods.",
                 fullAnswer:
-                    "Per USCIS regulations, this 60-day allowance is specific to the STEM extension period. Unused days from your initial 90-day OPT allowance do not carry forward or combine with these days. The total maximum unemployment across the entire OPT + STEM OPT period is 150 days (90 + 60), not 150 consecutive days.",
+                    "Initial post-completion OPT has a 90-day aggregate unemployment limit. Once STEM OPT begins, unemployment used during initial OPT remains part of the calculation and the aggregate maximum across both periods is 150 days.",
                 keyFacts: [
-                    "STEM OPT allowance: 60 days (8 CFR § 214.16(f))",
                     "Initial OPT limit: 90 days maximum (8 CFR § 214.2(f)(10)(ii)(E))",
-                    "Combined maximum: 150 days across both periods",
-                    "Important: These are separate allowances, not combined into one",
+                    "STEM cumulative maximum: 150 aggregate days across both periods",
+                    "Initial OPT unemployment remains part of the STEM total",
                     "Reporting: Must report employment changes to DSO within 10 days",
                 ],
             },

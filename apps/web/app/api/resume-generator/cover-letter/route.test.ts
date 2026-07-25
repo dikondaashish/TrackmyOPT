@@ -38,6 +38,8 @@ const requestBody = {
     jobDescription: 'Build reliable TypeScript products.',
   },
 };
+const publishedExtensionOrigin =
+  'chrome-extension://hfljbefkccdmlnhclfojlafipjnjbajm';
 
 describe('cover-letter generation', () => {
   it('generates, compiles, hashes, and returns a real PDF attachment', async () => {
@@ -64,7 +66,7 @@ describe('cover-letter generation', () => {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
-            origin: 'chrome-extension://abcdefghijklmnop',
+            origin: publishedExtensionOrigin,
           },
           body: JSON.stringify(requestBody),
         }
@@ -73,7 +75,7 @@ describe('cover-letter generation', () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get('access-control-allow-origin')).toBe(
-      'chrome-extension://abcdefghijklmnop'
+      publishedExtensionOrigin
     );
     await expect(response.json()).resolves.toMatchObject({
       draftText:

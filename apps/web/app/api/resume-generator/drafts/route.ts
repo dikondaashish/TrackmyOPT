@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
                 .eq('user_id', user.id)
                 .order('updated_at', { ascending: false })
                 .limit(1);
-            if (error) return apiFail(error.message, { status: 500, code: 'db_error' });
+            if (error) return apiFail('Could not load resume draft', { status: 500, code: 'db_error' });
             return apiOk({ draft: data?.[0] ?? null });
         }
 
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
             .eq('user_id', user.id)
             .eq('draft_key', draftKey)
             .maybeSingle();
-        if (error) return apiFail(error.message, { status: 500, code: 'db_error' });
+        if (error) return apiFail('Could not load resume draft', { status: 500, code: 'db_error' });
         return apiOk({ draft: data ?? null });
     } catch (e) {
         return apiServerError(e);
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
                 { user_id: user.id, draft_key: draftKey, step, payload },
                 { onConflict: 'user_id,draft_key' },
             );
-        if (error) return apiFail(error.message, { status: 500, code: 'db_error' });
+        if (error) return apiFail('Could not save resume draft', { status: 500, code: 'db_error' });
         return apiOk({ saved: true });
     } catch (e) {
         return apiServerError(e);
@@ -107,7 +107,7 @@ export async function DELETE(req: NextRequest) {
             .delete()
             .eq('user_id', user.id)
             .eq('draft_key', draftKey);
-        if (error) return apiFail(error.message, { status: 500, code: 'db_error' });
+        if (error) return apiFail('Could not delete resume draft', { status: 500, code: 'db_error' });
         return apiOk({ deleted: true });
     } catch (e) {
         return apiServerError(e);

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fillRepeatableRecords } from '../../../extension/src/repeatable-record-engine';
-import type { ClassifiedControl } from '../../../extension/src/section-aware-classifier';
+import type { ClassifiedControl } from '../../../extension/src/ats-prefill-adapters';
 import type { ResumeAutofillSnapshotV1 } from '../../../extension/src/resume-autofill-contract';
 import { runPrefill } from '../../../extension/src/easy-apply-engine';
 

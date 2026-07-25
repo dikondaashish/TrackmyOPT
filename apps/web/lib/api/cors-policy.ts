@@ -5,6 +5,10 @@ const STATIC_SITE_ORIGINS = [
   'https://trackmyopt.com',
 ] as const;
 
+const PUBLISHED_EXTENSION_IDS = [
+  'hfljbefkccdmlnhclfojlafipjnjbajm',
+] as const;
+
 function normalizeOriginUrl(origin: string): string | null {
   try {
     return new URL(origin).origin;
@@ -13,9 +17,37 @@ function normalizeOriginUrl(origin: string): string | null {
   }
 }
 
+function configuredExtensionIds(): Set<string> {
+  const ids = new Set<string>(PUBLISHED_EXTENSION_IDS);
+  for (const value of [
+    process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID,
+    process.env.CHROME_EXTENSION_IDS,
+  ]) {
+    for (const id of (value || '').split(',')) {
+      const normalized = id.trim().toLowerCase();
+      if (/^[a-p]{32}$/.test(normalized)) ids.add(normalized);
+    }
+  }
+  return ids;
+}
+
+function isAllowedExtensionOrigin(origin: string): boolean {
+  try {
+    const url = new URL(origin);
+    return (
+      url.protocol === 'chrome-extension:' &&
+      url.pathname === '' &&
+      configuredExtensionIds().has(url.hostname.toLowerCase())
+    );
+  } catch {
+    return false;
+  }
+}
+
 /**
  * CORS for routes called from the TrackMyOPT web app and the Chrome extension
- * (extension sends `Origin: chrome-extension://…`). Does not use `*`.
+ * (extension sends `Origin: chrome-extension://…`). Only the published ID and
+ * explicitly configured development IDs are accepted. Does not use `*`.
  * Same-origin browser calls work without `Access-Control-Allow-Origin`.
  */
 export function corsHeadersWebAndExtension(req: NextRequest): Record<string, string> {
@@ -29,7 +61,7 @@ export function corsHeadersWebAndExtension(req: NextRequest): Record<string, str
     return base;
   }
 
-  if (origin.startsWith('chrome-extension://')) {
+  if (isAllowedExtensionOrigin(origin)) {
     return {
       ...base,
       'Access-Control-Allow-Origin': origin,

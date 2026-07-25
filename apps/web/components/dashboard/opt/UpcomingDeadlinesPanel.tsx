@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { Calendar, Clock, AlertTriangle, ChevronRight, FileText, Briefcase, Bell } from "lucide-react";
 import Link from "next/link";
+import {
+  addDays,
+  daysBetween,
+  getFilingWindow,
+} from "@/lib/immigration/optCalculations";
 
 interface Deadline {
   id: string;
@@ -28,29 +33,24 @@ interface UpcomingDeadlinesPanelProps {
 }
 
 export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDeadlinesPanelProps) {
-  const [deadlines, setDeadlines] = useState<Deadline[]>([]);
-
-  useEffect(() => {
-    if (!optStatus) return;
+  const deadlines = useMemo<Deadline[]>(() => {
+    if (!optStatus) return [];
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const calculatedDeadlines: Deadline[] = [];
 
     // Calculate filing window dates
-    const programEnd = new Date(optStatus.program_end_date);
-    const earliestFileDate = new Date(programEnd);
-    earliestFileDate.setDate(earliestFileDate.getDate() - 90);
-    
-    const mustArriveBy = new Date(programEnd);
-    mustArriveBy.setDate(mustArriveBy.getDate() + 60);
+    const filingWindow = getFilingWindow(optStatus.program_end_date);
+    const earliestFileDate = new Date(`${filingWindow.earliestFile}T00:00:00`);
+    const mustArriveBy = new Date(`${filingWindow.hardDeadline}T00:00:00`);
 
     // OPT EAD End Date
     const optEndDate = new Date(optStatus.opt_ead_end_date);
-    const optEndDaysLeft = Math.ceil((optEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const optEndDaysLeft = daysBetween(today, optEndDate);
 
     // Filing window open
-    const filingOpenDaysLeft = Math.ceil((earliestFileDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const filingOpenDaysLeft = daysBetween(today, earliestFileDate);
     if (filingOpenDaysLeft > 0) {
       calculatedDeadlines.push({
         id: "filing-open",
@@ -67,7 +67,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
     }
 
     // Filing deadline
-    const filingDeadlineDaysLeft = Math.ceil((mustArriveBy.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const filingDeadlineDaysLeft = daysBetween(today, mustArriveBy);
     if (filingDeadlineDaysLeft > 0) {
       calculatedDeadlines.push({
         id: "filing-deadline",
@@ -101,9 +101,8 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
 
     // STEM Extension deadline (if eligible and on OPT)
     if (isStemEligible && optEndDaysLeft > 0 && optEndDaysLeft <= 120) {
-      const stemDeadline = new Date(optEndDate);
-      stemDeadline.setDate(stemDeadline.getDate() - 90);
-      const stemDeadlineDaysLeft = Math.ceil((stemDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const stemDeadline = new Date(`${addDays(optStatus.opt_ead_end_date, -90)}T00:00:00`);
+      const stemDeadlineDaysLeft = daysBetween(today, stemDeadline);
       
       if (stemDeadlineDaysLeft > 0) {
         calculatedDeadlines.push({
@@ -150,7 +149,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
 
     // Sort by days left
     calculatedDeadlines.sort((a, b) => a.daysLeft - b.daysLeft);
-    setDeadlines(calculatedDeadlines.slice(0, 5));
+    return calculatedDeadlines.slice(0, 5);
   }, [optStatus, isStemEligible]);
 
   const getTypeIcon = (type: Deadline["type"]) => {

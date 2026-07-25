@@ -10,7 +10,7 @@ import { findSimilarApplication } from '@/lib/career/job-tracker/application-mat
 export const dynamic = 'force-dynamic';
 
 // 20 job saves per minute per user token
-const jobAddLimiter = rateLimit({ interval: 60_000 });
+const jobAddLimiter = rateLimit({ interval: 60_000, name: 'extension-job-application' });
 const MAX_REQUEST_BODY_CHARACTERS = 50_000;
 
 export async function OPTIONS(req: NextRequest) {
@@ -125,11 +125,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { isRateLimited } = jobAddLimiter.check(req, 20, `job-add:${userId}`);
+    const { isRateLimited, unavailable } = await jobAddLimiter.check(req, 20, `job-add:${userId}`);
     if (isRateLimited) {
       return NextResponse.json(
         { error: 'Too many requests. Please wait a moment before adding more jobs.' },
-        { status: 429, headers: corsHeaders }
+        { status: unavailable ? 503 : 429, headers: corsHeaders }
       );
     }
     const rawBody = await req.text();

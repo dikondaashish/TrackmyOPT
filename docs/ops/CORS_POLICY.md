@@ -2,7 +2,7 @@
 
 ## Shared helpers
 
-- **`corsHeadersWebAndExtension(req)`** (`lib/api/cors-policy.ts`) — Dashboard and Chrome extension callers. Reflects an allowed web origin (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_APP_URL`, production hosts, or localhost) or `chrome-extension://…`. Does **not** use `*`.
+- **`corsHeadersWebAndExtension(req)`** (`lib/api/cors-policy.ts`) — Dashboard and Chrome extension callers. Reflects an allowed web origin (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_APP_URL`, production hosts, or localhost), the published TrackMyOPT extension ID, or a development ID explicitly listed in `NEXT_PUBLIC_CHROME_EXTENSION_ID` / `CHROME_EXTENSION_IDS`. Arbitrary `chrome-extension://…` origins are rejected. Does **not** use `*`.
 - **`corsHeadersConfiguredWebApp()`** — Fixed site origin from `NEXT_PUBLIC_SITE_URL` (fallback `https://www.trackmyopt.com`). Used for same-site, cookie-authenticated APIs such as most `resume-generator` routes and **`/api/resume-generator/generate`** / **`/api/resume-generator/upload`**.
 
 User/session APIs tightened to the extension-aware helper include (non-exhaustive): `/api/me`, `/api/premium/status`, `/api/user/sessions`, `/api/user/tool-email`.

@@ -1,6 +1,6 @@
 # TrackMyOPT Web App
 
-Next.js 14 web application for TrackMyOPT - manage your OPT timeline from the web.
+Next.js 16 web application for TrackMyOPT - manage your OPT timeline from the web.
 
 ## 🚀 Quick Start
 
@@ -26,7 +26,7 @@ pnpm start
 
 ```
 web/
-├── app/                    # Next.js 14 App Router
+├── app/                    # Next.js 16 App Router
 │   ├── layout.tsx         # Root layout
 │   ├── page.tsx           # Landing page
 │   ├── globals.css        # Global styles
@@ -59,7 +59,7 @@ openssl rand -base64 32
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Database**: Supabase (PostgreSQL)
@@ -363,4 +363,3 @@ Expected response:
 ## 📄 License
 
 MIT
-

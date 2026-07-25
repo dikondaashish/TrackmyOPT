@@ -20,15 +20,22 @@ export function OptToolsSection() {
 
   const loadQuickStats = async () => {
     try {
-      const response = await fetch('/api/opt-status', { credentials: 'include' });
+      const response = await fetch('/api/opt/calculator', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
       if (response.ok) {
-        const data = await response.json();
-        if (data.status) {
+        const result = await response.json();
+        if (result.ok && result.data) {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
 
-          if (data.status.program_end_date) {
-            const programEnd = new Date(data.status.program_end_date);
+          if (result.data.program_end_date) {
+            const [month, day, year] = String(result.data.program_end_date)
+              .split('/')
+              .map(Number);
+            const programEnd = new Date(year, month - 1, day);
+            if (Number.isNaN(programEnd.getTime())) return;
             const mustArriveBy = new Date(programEnd);
             mustArriveBy.setDate(mustArriveBy.getDate() + 60);
 

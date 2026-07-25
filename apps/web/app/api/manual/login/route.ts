@@ -12,6 +12,7 @@ import { createClient } from "@supabase/supabase-js";
 import {
   AUTH_RATE_LIMIT,
   checkRateLimitByIP,
+  checkRateLimitByAccount,
   rateLimitResponse,
   addRateLimitHeaders
 } from "@/lib/auth/api-rate-limit";
@@ -19,7 +20,7 @@ import { loginRequestSchema, validateRequest } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   // SECURITY: Rate limit by IP to prevent brute force attacks
-  const rateLimitResult = checkRateLimitByIP(req, AUTH_RATE_LIMIT);
+  let rateLimitResult = await checkRateLimitByIP(req, AUTH_RATE_LIMIT);
   if (!rateLimitResult.success) {
     return rateLimitResponse(
       rateLimitResult,
@@ -49,6 +50,14 @@ export async function POST(req: NextRequest) {
   }
 
   const { email, password } = validation.data;
+
+  rateLimitResult = await checkRateLimitByAccount(email, AUTH_RATE_LIMIT);
+  if (!rateLimitResult.success) {
+    return rateLimitResponse(
+      rateLimitResult,
+      'Too many login attempts. Please try again later.'
+    );
+  }
 
   // Authenticate with Supabase
   const supabase = createClient(

@@ -46,7 +46,11 @@ export function OptimizationFeedbackModal({
     const toggleSuggestion = (label: string) => {
         setSelectedSuggestions(prev => {
             const next = new Set(prev);
-            next.has(label) ? next.delete(label) : next.add(label);
+            if (next.has(label)) {
+                next.delete(label);
+            } else {
+                next.add(label);
+            }
             return next;
         });
     };

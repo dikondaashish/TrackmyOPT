@@ -48,7 +48,7 @@ function toUTCDate(dateLike: string | Date): Date {
     return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }
 
-function addDays(dateLike: string | Date, days: number): string {
+export function addDays(dateLike: string | Date, days: number): string {
     const d = toUTCDate(dateLike);
     const next = new Date(d.getTime() + days * MS_PER_DAY);
     // Keep as ISO date string (yyyy-mm-dd) so other UI pieces can format consistently.
@@ -396,7 +396,7 @@ export function getUnemploymentStatus(used: number, max: number): UnemploymentSt
  * Hard deadline: 60 days after program end (USCIS must receive within 60 days
  * of the DSO recommendation, which is typically within 30 days of program end).
  */
-export function getFilingWindow(programEndDate: string): {
+export function getFilingWindow(programEndDate: string | Date): {
     earliestFile: string;
     recommendedTarget: string;
     hardDeadline: string;
@@ -416,4 +416,3 @@ export function daysBetween(a: string | Date, b: string | Date): number {
     const db = toUTCDate(b).getTime();
     return Math.ceil((db - da) / MS_PER_DAY);
 }
-

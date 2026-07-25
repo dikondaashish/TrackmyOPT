@@ -14,7 +14,6 @@ import {
   GraduationCap,
   Briefcase,
   AlertTriangle,
-  CheckCircle2,
   Info,
   Mail,
   ExternalLink,
@@ -35,7 +34,6 @@ import {
   Rocket,
   Gift,
   Timer,
-  Check,
   BadgeCheck,
 } from "lucide-react";
 import { EXTENSION_AUTOFILL_SUPPORT_NOTICE } from "@/lib/legal/legal-config";
@@ -1123,7 +1121,7 @@ export function HelpSection() {
                 />
                 <FAQItem
                   question="What happens if I exceed 90 days of unemployment?"
-                  answer="Exceeding the 90-day unemployment limit (or 60 days for STEM OPT) is a violation of your F-1 status. This can result in accruing unlawful presence and may affect future visa applications or immigration benefits."
+                  answer="The aggregate limit is 90 unemployment days during initial post-completion OPT and 150 days across initial OPT plus STEM OPT. Exceeding the applicable limit can violate F-1 status and may affect future immigration benefits; contact your DSO for case-specific guidance."
                 />
                 <FAQItem
                   question="Can I travel while my OPT application is pending?"

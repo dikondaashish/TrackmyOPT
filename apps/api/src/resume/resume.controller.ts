@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   Query,
+  Headers,
   HttpException,
   HttpStatus,
   UseGuards,
@@ -18,11 +19,22 @@ import { ApiKeyGuard } from '../common/guards/api-key.guard';
 export class ResumeController {
   constructor(private readonly resumeService: ResumeService) {}
 
+  private requireTrustedUserId(userId: string | undefined): string {
+    if (!userId) {
+      throw new HttpException(
+        'Authenticated user context is required',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    return userId;
+  }
+
   @Post('save')
   async saveResume(
+    @Headers('x-trackmyopt-user-id') trustedUserId: string | undefined,
     @Body()
     body: {
-      userId: string;
+      userId?: unknown;
       filename: string;
       content: string;
       structuredData: Record<string, unknown>;
@@ -30,8 +42,12 @@ export class ResumeController {
     },
   ) {
     try {
-      return await this.resumeService.saveResume(body.userId, body);
+      const userId = this.requireTrustedUserId(trustedUserId);
+      const resumeData = { ...body };
+      delete resumeData.userId;
+      return await this.resumeService.saveResume(userId, resumeData);
     } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -39,13 +55,18 @@ export class ResumeController {
   }
 
   @Post('download-url')
-  async getDownloadUrl(@Body() body: { s3Key: string }) {
+  async getDownloadUrl(
+    @Headers('x-trackmyopt-user-id') trustedUserId: string | undefined,
+    @Body() body: { s3Key: string },
+  ) {
     if (!body.s3Key)
       throw new HttpException('s3Key is required', HttpStatus.BAD_REQUEST);
     try {
-      const url = await this.resumeService.getDownloadUrl(body.s3Key);
+      const userId = this.requireTrustedUserId(trustedUserId);
+      const url = await this.resumeService.getDownloadUrl(userId, body.s3Key);
       return { url };
     } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -54,20 +75,20 @@ export class ResumeController {
 
   @Get('list')
   async listResumes(
-    @Query('userId') userId: string,
+    @Headers('x-trackmyopt-user-id') trustedUserId: string | undefined,
     @Query('limit') limit?: number,
     @Query('offset') offset?: number,
     @Query('search') search?: string,
   ) {
-    if (!userId)
-      throw new HttpException('userId is required', HttpStatus.BAD_REQUEST);
     try {
+      const userId = this.requireTrustedUserId(trustedUserId);
       return await this.resumeService.getResumes(userId, {
         limit: limit ? Number(limit) : undefined,
         offset: offset ? Number(offset) : undefined,
         search,
       });
     } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -75,10 +96,15 @@ export class ResumeController {
   }
 
   @Get(':id')
-  async getResume(@Param('id') id: string) {
+  async getResume(
+    @Headers('x-trackmyopt-user-id') trustedUserId: string | undefined,
+    @Param('id') id: string,
+  ) {
     try {
-      return await this.resumeService.getResumeById(id);
+      const userId = this.requireTrustedUserId(trustedUserId);
+      return await this.resumeService.getResumeById(id, userId);
     } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(errorMessage, HttpStatus.NOT_FOUND);
@@ -86,12 +112,15 @@ export class ResumeController {
   }
 
   @Delete(':id')
-  async deleteResume(@Param('id') id: string, @Query('userId') userId: string) {
-    if (!userId)
-      throw new HttpException('userId is required', HttpStatus.BAD_REQUEST);
+  async deleteResume(
+    @Headers('x-trackmyopt-user-id') trustedUserId: string | undefined,
+    @Param('id') id: string,
+  ) {
     try {
+      const userId = this.requireTrustedUserId(trustedUserId);
       return await this.resumeService.deleteResume(id, userId);
     } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);

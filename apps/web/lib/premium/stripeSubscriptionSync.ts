@@ -272,6 +272,7 @@ export async function reconcileCustomerBilling(args: {
 
     if (error) {
       secureLog.error("reconcileCustomerBilling revoke failed:", error.message);
+      throw new Error(`Billing revocation failed: ${error.message}`);
     }
     return { action: "revoked" };
   }
@@ -293,7 +294,7 @@ export async function reconcileCustomerBilling(args: {
   }
 
   if (!sync.ok) {
-    return { action: "unchanged" };
+    throw new Error("Billing profile synchronization failed");
   }
 
   return { action: "synced", planTier: sync.planTier, subscriptionId: best.id };
@@ -551,4 +552,3 @@ export async function downgradeDedicatedSubscriptionToPro(args: {
     planTier: "pro",
   };
 }
-

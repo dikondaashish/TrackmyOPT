@@ -170,7 +170,7 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json(
-        { error: `Failed to save notification email: ${upsertError.message || 'Unknown error'}` },
+        { error: 'Failed to save notification email' },
         { status: 500 }
       );
     }
@@ -230,4 +230,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
