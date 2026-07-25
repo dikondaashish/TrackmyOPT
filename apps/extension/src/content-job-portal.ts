@@ -1831,9 +1831,22 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     const motionStyle = document.createElement('style');
     motionStyle.id = 'tmo-minimized-motion-style';
     motionStyle.textContent = `
+      @keyframes tmo-prefill-chip-pulse {
+        0%,100% { transform:scale(1);box-shadow:0 2px 6px rgba(15,23,42,0.14); }
+        50% { transform:scale(1.08);box-shadow:0 0 0 6px rgba(37,99,235,0.13); }
+      }
+      #${WIDGET_ROOT_ID} .tmo-prefill-button.tmo-is-filling > span:first-child {
+        animation:tmo-prefill-chip-pulse 760ms ease-in-out infinite;
+      }
+      #${WIDGET_ROOT_ID} .tmo-prefill-button.tmo-is-filling {
+        background:var(--tmo-widget-info-surface) !important;
+      }
       @media (prefers-reduced-motion: reduce) {
         #${WIDGET_ROOT_ID} .tmo-minimized-tab,
-        #${WIDGET_ROOT_ID} .tmo-minimized-tab * { transition:none !important; }
+        #${WIDGET_ROOT_ID} .tmo-minimized-tab *,
+        #${WIDGET_ROOT_ID} .tmo-prefill-button.tmo-is-filling > span:first-child {
+          animation:none !important;transition:none !important;
+        }
       }
     `;
     document.head.appendChild(motionStyle);
@@ -2577,6 +2590,8 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
       const label = prefillBtn.querySelector<HTMLElement>('.tmo-action-label');
       let hasResume = false;
       prefillBtn.disabled = true;
+      prefillBtn.setAttribute('aria-busy', 'true');
+      prefillBtn.classList.add('tmo-is-filling');
       if (label) label.textContent = 'Prefilling…';
       try {
         const execution = await executeResolvedPrefill(job, 'step_by_step');
@@ -2596,6 +2611,8 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         trackPrefillRuntimeFailure('step_by_step', hasResume);
       } finally {
         prefillBtn.disabled = false;
+        prefillBtn.setAttribute('aria-busy', 'false');
+        prefillBtn.classList.remove('tmo-is-filling');
         if (label) {
           label.textContent = hasResume || generatedResumeFor(job)
             ? 'Prefill application + resume'

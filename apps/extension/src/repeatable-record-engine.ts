@@ -182,6 +182,7 @@ export function fillRepeatableRecords(
   section: RepeatableSection,
   controls: readonly ClassifiedControl[],
   snapshot: ResumeAutofillSnapshotV1,
+  onFieldFilled?: (element: HTMLElement) => void,
 ): RepeatableFillOutcome {
   const sourceRecords = section === 'experience' ? snapshot.experience : snapshot.education;
   const eligible = controls
@@ -202,8 +203,12 @@ export function fillRepeatableRecords(
       continue;
     }
     const value = valueForControl(control, record);
-    if (value === undefined || !setNativeValue(control.element, value)) skippedFields += 1;
-    else filledFields += 1;
+    if (value === undefined || !setNativeValue(control.element, value)) {
+      skippedFields += 1;
+    } else {
+      filledFields += 1;
+      onFieldFilled?.(control.element);
+    }
   }
 
   return {

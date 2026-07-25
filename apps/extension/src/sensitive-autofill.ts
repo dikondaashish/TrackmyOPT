@@ -1,3 +1,5 @@
+import { flashAutofillField } from './autofill-visual-feedback';
+
 export interface SensitiveAnswerSession {
   confirmed: boolean;
   workAuthorization?: 'yes' | 'no';
@@ -235,7 +237,10 @@ export function fillConfirmedSensitiveAnswers(
       control instanceof HTMLSelectElement
         ? fillSelect(control, answer)
         : fillInput(control, answer);
-    if (changed) filled += 1;
+    if (changed) {
+      filled += 1;
+      flashAutofillField(control, 'filled');
+    }
   }
   return { filled, unresolved: Array.from(unresolved) };
 }
