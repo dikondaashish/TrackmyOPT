@@ -58,4 +58,16 @@ describe('screening-answer sensitive-question boundary', () => {
       expect(consumeAiGeneration).not.toHaveBeenCalled();
     }
   );
+
+  it('returns 501 for a non-sensitive draft before auth or quota work', async () => {
+    const response = await POST(request('Why are you interested in this role?'));
+
+    expect(response.status).toBe(501);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: 'feature_disabled',
+    });
+    expect(getUserId).not.toHaveBeenCalled();
+    expect(consumeAiGeneration).not.toHaveBeenCalled();
+  });
 });

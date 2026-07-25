@@ -1,5 +1,9 @@
 import { validateArtifactForPrefill } from './resume-artifact-lifecycle';
 import { validateGeneratedResumeArtifactV1 } from './resume-artifact-validator';
+import {
+  AUTOFILL_FEATURE_FLAGS,
+  type AutofillFeatureFlags,
+} from './autofill-feature-flags';
 import type {
   BasicContactProfile,
   GeneratedResumeArtifactV1,
@@ -17,16 +21,30 @@ export async function resolveV1PrefillPayload(input: {
   artifact: GeneratedResumeArtifactV1 | null;
   request: V1PrefillPayloadRequest;
   fetchProfileFallback: () => Promise<ProfileFallbackResult>;
+  featureFlags?: Readonly<AutofillFeatureFlags>;
   onArtifactRejected?: (
     reason: 'expired' | 'job_changed' | 'invalid',
   ) => void | Promise<void>;
 }): Promise<V1PrefillPayloadResponse> {
-  let reason: 'missing' | 'expired' | 'job_changed' | 'invalid' | undefined;
+  const featureFlags = input.featureFlags ?? AUTOFILL_FEATURE_FLAGS;
+  let reason:
+    | 'missing'
+    | 'expired'
+    | 'job_changed'
+    | 'invalid'
+    | 'feature_disabled'
+    | undefined;
   let validArtifact: GeneratedResumeArtifactV1 | undefined;
 
-  if (!input.artifact) {
+  if (!featureFlags.artifactPrefill) {
+    reason = 'feature_disabled';
+  } else if (!input.artifact) {
     reason = 'missing';
-  } else if (!(await validateGeneratedResumeArtifactV1(input.artifact))) {
+  } else if (
+    !(await validateGeneratedResumeArtifactV1(input.artifact, {
+      validateCoverLetter: featureFlags.coverLetter,
+    }))
+  ) {
     reason = 'invalid';
   } else {
     const now = Date.parse(input.request.now);
@@ -43,7 +61,11 @@ export async function resolveV1PrefillPayload(input: {
     }
   }
 
-  if (reason && reason !== 'missing') {
+  if (
+    reason &&
+    reason !== 'missing' &&
+    reason !== 'feature_disabled'
+  ) {
     await input.onArtifactRejected?.(reason);
   }
 
@@ -72,11 +94,15 @@ export async function resolveV1PrefillPayload(input: {
     source: 'generated_resume',
     artifactId: validArtifact.artifactId,
     artifactLabel: `${validArtifact.sourceResumeFilename} · ${validArtifact.job.roleTitle}`,
+    generatedContentHash: validArtifact.generatedContentHash,
     snapshot: validArtifact.snapshot,
     resume: {
       pdfBase64: validArtifact.pdf.base64,
       filename: validArtifact.pdf.filename,
     },
+    ...(featureFlags.coverLetter && validArtifact.coverLetter
+      ? { coverLetter: validArtifact.coverLetter }
+      : {}),
     profileFallback: fallbackResult.profile,
   };
 }

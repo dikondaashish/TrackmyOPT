@@ -1,4 +1,5 @@
 import type {
+  GeneratedCoverLetterAttachment,
   ResumeAutofillSnapshotV1,
   ResumeDateValue,
 } from './resume-autofill-contract';
@@ -243,6 +244,36 @@ export function validateResumeAutofillSnapshotV1(
   return true;
 }
 
+export function validateGeneratedCoverLetterAttachment(
+  value: unknown,
+  expectedSourceContentHash: string
+): value is GeneratedCoverLetterAttachment {
+  if (!isRecord(value)) return false;
+  if (
+    !hasOnlyKeys(value, [
+      'filename',
+      'base64',
+      'sha256',
+      'generatedAt',
+      'sourceContentHash',
+    ])
+  )
+    return false;
+  if (!requiredString(value.filename, LIMITS.filename)) return false;
+  if (!validCanonicalBase64(value.base64)) return false;
+  if (typeof value.sha256 !== 'string' || !SHA256_RE.test(value.sha256))
+    return false;
+  if (
+    typeof value.generatedAt !== 'string' ||
+    !Number.isFinite(Date.parse(value.generatedAt))
+  )
+    return false;
+  return (
+    SHA256_RE.test(expectedSourceContentHash) &&
+    value.sourceContentHash === expectedSourceContentHash
+  );
+}
+
 function validCanonicalBase64(value: unknown): value is string {
   if (
     typeof value !== 'string' ||
@@ -290,7 +321,8 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
 }
 
 export async function validateGeneratedResumeArtifactV1(
-  value: unknown
+  value: unknown,
+  options: { validateCoverLetter?: boolean } = {}
 ): Promise<boolean> {
   if (!isRecord(value)) return false;
   if (
@@ -353,33 +385,16 @@ export async function validateGeneratedResumeArtifactV1(
     return false;
   if (!validateResumeAutofillSnapshotV1(value.snapshot)) return false;
 
-  if (value.coverLetter !== undefined) {
-    if (!isRecord(value.coverLetter)) return false;
+  if (
+    options.validateCoverLetter !== false &&
+    value.coverLetter !== undefined
+  ) {
     if (
-      !hasOnlyKeys(value.coverLetter, [
-        'filename',
-        'base64',
-        'sha256',
-        'generatedAt',
-        'sourceContentHash',
-      ])
+      !validateGeneratedCoverLetterAttachment(
+        value.coverLetter,
+        value.generatedContentHash
+      )
     )
-      return false;
-    if (!requiredString(value.coverLetter.filename, LIMITS.filename))
-      return false;
-    if (!validCanonicalBase64(value.coverLetter.base64)) return false;
-    if (
-      typeof value.coverLetter.sha256 !== 'string' ||
-      !SHA256_RE.test(value.coverLetter.sha256)
-    ) {
-      return false;
-    }
-    if (
-      typeof value.coverLetter.generatedAt !== 'string' ||
-      !Number.isFinite(Date.parse(value.coverLetter.generatedAt))
-    )
-      return false;
-    if (value.coverLetter.sourceContentHash !== value.generatedContentHash)
       return false;
   }
 

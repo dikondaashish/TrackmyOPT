@@ -5,6 +5,8 @@ const source = readFileSync('src/screening-question-review-ui.ts', 'utf8');
 
 assert.match(source, /button\('Generate draft'\)/);
 assert.match(source, /button\('Insert draft'\)/);
+assert.match(source, /button\('Confirm reviewed'\)/);
+assert.match(source, /confirmDraftReview\(/);
 assert.ok(
   source.indexOf("insert.addEventListener('click'") < source.indexOf('insertScreeningDraft('),
   'draft insertion is reachable only from the explicit Insert draft action',

@@ -124,6 +124,7 @@ export type V1PrefillPayloadResponse =
       source: 'generated_resume';
       artifactId: string;
       artifactLabel: string;
+      generatedContentHash: string;
       snapshot: ResumeAutofillSnapshotV1;
       resume: GeneratedResumeAttachment;
       coverLetter?: GeneratedCoverLetterAttachment;
@@ -132,7 +133,12 @@ export type V1PrefillPayloadResponse =
   | {
       ok: true;
       source: 'profile_only';
-      reason: 'missing' | 'expired' | 'job_changed' | 'invalid';
+      reason:
+        | 'missing'
+        | 'expired'
+        | 'job_changed'
+        | 'invalid'
+        | 'feature_disabled';
       profileFallback: BasicContactProfile;
     }
   | { ok: false; error: 'not_signed_in' | 'unavailable' };

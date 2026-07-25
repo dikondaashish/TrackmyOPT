@@ -78,6 +78,7 @@ import { shouldRunContinuousPrefill } from './continuous-prefill';
 import { mountCoverLetterReviewUi } from './cover-letter-review';
 import { detectScreeningQuestion } from './screening-question-drafts';
 import { createScreeningQuestionReviewUI } from './screening-question-review-ui';
+import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -352,17 +353,27 @@ async function executeResolvedPrefill(
     hasResume = true;
     prefill = {
       resume: resolved.resume,
+      coverLetter: resolved.coverLetter,
+      generatedContentHash: resolved.generatedContentHash,
       snapshot: resolved.snapshot,
       profileFallback: resolved.profileFallback,
-      autofillSkills: currentAutofillPreferences.autofillSkills,
+      autofillSkills:
+        AUTOFILL_FEATURE_FLAGS.skills &&
+        currentAutofillPreferences.autofillSkills,
       quietResultToast: mode === 'continuous',
     };
   } else {
-    markCurrentArtifactInvalid(
-      resolved.reason,
-      resolved.reason !== 'expired',
-    );
-    if (mode === 'continuous' && resolved.reason !== 'missing') {
+    if (resolved.reason !== 'feature_disabled') {
+      markCurrentArtifactInvalid(
+        resolved.reason,
+        resolved.reason !== 'expired',
+      );
+    }
+    if (
+      mode === 'continuous' &&
+      resolved.reason !== 'missing' &&
+      resolved.reason !== 'feature_disabled'
+    ) {
       return {
         result: emptyPrefillCoverage(),
         hasResume: false,
@@ -414,6 +425,7 @@ function paintPrefillCoverage(
 }
 
 async function mountScreeningQuestionReviews(card: HTMLElement, job: JobInfo): Promise<void> {
+  if (!AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) return;
   const artifact = generatedResumeArtifactForCurrentJob;
   if (!artifact) return;
   card.querySelector('.tmo-screening-review-list')?.remove();
@@ -2286,7 +2298,9 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         hasResume = execution.hasResume;
         const result = execution.result;
         paintPrefillCoverage(prefillResultLine, result);
-        await mountScreeningQuestionReviews(card, job);
+        if (AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
+          await mountScreeningQuestionReviews(card, job);
+        }
         trackWidgetAnalytics('extension_widget_prefill_completed', {
           outcome: 'success',
           filled: result.filled,
@@ -3620,7 +3634,7 @@ function renderResumeResult(
   row.appendChild(ed);
   panel.appendChild(row);
 
-  if (artifact) {
+  if (artifact && AUTOFILL_FEATURE_FLAGS.coverLetter) {
     mountCoverLetterReviewUi(panel, {
       artifact,
       jobDescription: lastResumeGenerationRequest?.jobDescription || '',
@@ -3993,6 +4007,7 @@ function stopContinuousPrefill(): void {
 
 async function runContinuousPrefill(): Promise<void> {
   continuousPrefillTimer = null;
+  if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
   const signature = getPrefillCandidateSignature();
   if (!shouldRunContinuousPrefill({
     mode: currentAutofillPreferences.mode,
@@ -4028,6 +4043,7 @@ async function runContinuousPrefill(): Promise<void> {
 }
 
 function scheduleContinuousPrefill(): void {
+  if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
   if (currentAutofillPreferences.mode !== 'continuous') return;
   if (continuousPrefillInFlight) {
     continuousMutationPending = true;
@@ -4042,6 +4058,7 @@ function scheduleContinuousPrefill(): void {
 
 function startContinuousPrefill(): void {
   stopContinuousPrefill();
+  if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
   if (currentAutofillPreferences.mode !== 'continuous') return;
   if (!document.body) {
     document.addEventListener('DOMContentLoaded', startContinuousPrefill, { once: true });
@@ -4067,7 +4084,11 @@ async function initializeAutofillPreferences(): Promise<void> {
   } catch {
     currentAutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
   }
-  if (currentAutofillPreferences.mode === 'continuous') startContinuousPrefill();
+  if (
+    AUTOFILL_FEATURE_FLAGS.continuousMode &&
+    currentAutofillPreferences.mode === 'continuous'
+  )
+    startContinuousPrefill();
 }
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -4075,7 +4096,11 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   currentAutofillPreferences = normalizeAutofillPreferences(
     changes[AUTOFILL_PREFERENCES_KEY].newValue,
   );
-  if (currentAutofillPreferences.mode === 'continuous') startContinuousPrefill();
+  if (
+    AUTOFILL_FEATURE_FLAGS.continuousMode &&
+    currentAutofillPreferences.mode === 'continuous'
+  )
+    startContinuousPrefill();
   else stopContinuousPrefill();
 });
 
@@ -4239,6 +4264,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME' || window.top === window.self) return false;
   const prefill = (message.prefill ?? {}) as {
     resume?: GeneratedResumeAttachment;
+    coverLetter?: PrefillOptions['coverLetter'];
+    generatedContentHash?: string;
     snapshot?: ResumeAutofillSnapshotV1;
     profileFallback?: BasicContactProfile;
     autofillSkills?: boolean;
@@ -4246,6 +4273,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   };
   void runPrefill({
     resume: prefill.resume,
+    coverLetter: prefill.coverLetter,
+    generatedContentHash: prefill.generatedContentHash,
     snapshot: prefill.snapshot,
     profileFallback: prefill.profileFallback,
     autofillSkills: prefill.autofillSkills === true,

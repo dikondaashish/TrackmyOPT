@@ -3,6 +3,10 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { classifyField, SENSITIVE_FIELD_RE } from '../src/easy-apply-matchers';
 import { detectScreeningQuestion, findExactSavedAnswer } from '../src/screening-question-drafts';
+import {
+  normalizeApplicationQuestion,
+  SCREENING_QUESTION_TEXT_MAX_CHARS,
+} from '../src/sensitive-question-policy';
 
 test('sensitive questions are rejected before any AI request', async () => {
   let aiCalls = 0;
@@ -30,10 +34,31 @@ test('exact reuse matches normalized identical text only', () => {
   assert.equal(findExactSavedAnswer('Why are you interested in this role?', saved), undefined);
 });
 
+test('screening question text is normalized and capped before the background POST', () => {
+  const value = normalizeApplicationQuestion(`  ${'question '.repeat(400)}  `);
+  assert.equal(value.length, SCREENING_QUESTION_TEXT_MAX_CHARS);
+  const background = readFileSync('src/background.ts', 'utf8');
+  const request = background.slice(
+    background.indexOf('async function requestScreeningDraft'),
+    background.indexOf('async function requestSavedScreeningAnswer'),
+  );
+  assert.match(
+    request,
+    /questionText:\s*normalizeQuestionText\(String\(input\.questionText/,
+  );
+});
+
 const engine = readFileSync('src/easy-apply-engine.ts', 'utf8');
 const coverFunction = engine.slice(engine.indexOf('export function attachGeneratedCoverLetter'), engine.indexOf('function showToast'));
 assert.ok(coverFunction.includes('cover\\s*letter|letter\\s*of\\s*interest'));
 assert.ok(coverFunction.includes('resume|cv|portfolio|transcript|photo|certificate'));
-assert.match(coverFunction, /if\(input\.files\?\.length\) return 'already_present'/);
+assert.match(
+  coverFunction,
+  /if\s*\(input\.files\?\.length\) return 'already_present'/,
+);
+assert.match(
+  coverFunction,
+  /attachment\.sourceContentHash !== generatedContentHash/,
+);
 
-console.log('phase1b1c-dedicated-safety: 7 screening and cover-letter invariants passed');
+console.log('phase1b1c-dedicated-safety: screening and cover-letter invariants passed');

@@ -1,4 +1,5 @@
 import { classifyField, SENSITIVE_FIELD_RE, normalizeFieldSignal, type FieldKind } from './easy-apply-matchers';
+import { normalizeApplicationQuestion } from './sensitive-question-policy';
 
 export interface ScreeningQuestionControl {
   label: string;
@@ -21,7 +22,7 @@ const NON_SCREENING = new Set<FieldKind>([
 ]);
 
 export function normalizeQuestionText(text: string): string {
-  return text.normalize('NFKC').trim().replace(/\s+/g, ' ');
+  return normalizeApplicationQuestion(text);
 }
 
 /** SHA-256 is intentionally async so the browser implementation uses WebCrypto. */

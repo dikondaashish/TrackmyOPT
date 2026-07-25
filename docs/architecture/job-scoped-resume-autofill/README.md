@@ -16,16 +16,16 @@
   prefill-mode core is implemented and tested. The unchecked items below are
   real blockers or incomplete acceptance criteria, not missing checkbox
   maintenance.
-- **AI screening-answer generation is NOT FUNCTIONAL — stub.** The route returns
-  a hard-coded template and does not use the job description as generation
-  evidence.
-- **Initial cover-letter generation is NOT FUNCTIONAL — stub.** The route emits
-  fake `%PDF-1.4` bytes instead of compiling a real PDF. It must remain
-  unreachable until replaced.
+- **AI screening-answer generation is NOT FUNCTIONAL — safely disabled.** The
+  UI/background path is off and the route returns `501`; real grounded
+  generation remains a later milestone.
+- **Initial cover-letter generation is NOT FUNCTIONAL — safely disabled.** The
+  UI/background path is off, the route returns `501`, and the fake PDF emitter
+  has been removed.
 - Stage 1 implements production-safe, atomic AI quotas and a shared
-  sensitive-question policy, pending migration/review. Independent rollout
-  feature flags still do not exist, so the deterministic core must ship
-  separately from the disabled AI features.
+  sensitive-question policy, pending migration/review. Stage 2 adds independent
+  safe-default rollout flags: artifact/history/adapters on; skills, Continuous,
+  AI drafts, and cover letters off.
 - The job-portal content script uses `all_frames: true` and
   `match_about_blank: true` without adding a Chrome permission. The Web Store
   release checklist must justify this frame access and verify the existing host
@@ -1271,8 +1271,8 @@ in-memory artifact.
 - [x] Add a separate sensitive-first screening-question detector.
 - [x] Add the authenticated route boundary and strict request/response schema.
 - [ ] **NOT FUNCTIONAL — stub:** ground a real AI-generated draft in the job
-      description, company, role, and snapshot. The current route returns a
-      hard-coded template and has no screening-answer prompt implementation.
+      description, company, role, and snapshot. The current route is safely
+      gated and returns `501`; no screening-answer prompt exists yet.
 - [x] Add visible preview, explicit insert, and needs-review/edit state.
 - [x] Detect trusted user edits without taking control of ATS submission.
 - [x] Add a user-scoped `screening_answer_library` with RLS and exact-question
@@ -1314,18 +1314,15 @@ from the same validated snapshot as the resume.
 
 - [x] Add a hash-locked cover-letter request and artifact contract.
 - [ ] **NOT FUNCTIONAL — stub:** generate and compile the initial cover letter.
-      The current route returns fake `%PDF-1.4` bytes and does not use the
-      existing compile/repair infrastructure.
+      The current route returns `501`; the fake PDF emitter was removed and the
+      existing compile/repair infrastructure is not wired yet.
 - [x] Add Download/Edit/Regenerate actions without blocking resume readiness.
 - [x] Store the reviewed PDF in optional `artifact.coverLetter`.
 - [x] Add a cover-letter-specific file-input classifier and attachment result.
-- [ ] Enforce empty-input, accepted-file-type, no-overwrite, and hash-match
-      checks.
-      **PARTIAL:** empty-input, type, and no-overwrite guards exist; hash
-      enforcement is missing at the attachment boundary.
-- [ ] Report resume and cover-letter attachment separately. The resolver/relay
-      does not carry `coverLetter`, and the engine currently discards
-      `coverLetterResult`.
+- [x] Enforce empty-input, accepted-file-type, no-overwrite, and hash-match
+      checks at the attachment boundary.
+- [x] Carry the optional cover letter through resolver/relay and report resume
+      and cover-letter attachment separately.
 
 #### Acceptance criteria
 
@@ -1443,7 +1440,7 @@ those sites.
 **Goal:** ship useful slices early and use real demand to choose the next
 investment.
 
-- [ ] Gate core artifact prefill, skills, Continuous mode, AI drafts, cover
+- [x] Gate core artifact prefill, skills, Continuous mode, AI drafts, cover
       letters, history fields, and ATS adapters independently.
 - [ ] Start with internal users and sanitized fixtures.
 - [ ] Add low-cardinality analytics only: feature flag, adapter ID, mode, source

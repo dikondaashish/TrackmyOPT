@@ -8,6 +8,7 @@ import {
   normalizeAutofillPreferences,
   type AutofillPreferences,
 } from './autofill-preferences';
+import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
 
 /** Escape untrusted values before interpolating them into innerHTML. */
 function escapeHtml(value: unknown): string {
@@ -312,7 +313,22 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   const stepModeBtn = root.querySelector<HTMLButtonElement>('#prefill-mode-step');
   const continuousModeBtn = root.querySelector<HTMLButtonElement>('#prefill-mode-continuous');
   const skillsToggle = root.querySelector<HTMLInputElement>('#autofill-skills-toggle');
+  const skillsToggleLabel = root.querySelector<HTMLElement>(
+    '.prefill-skills-toggle'
+  );
   const modeNote = root.querySelector<HTMLElement>('#prefill-mode-note');
+
+  if (!AUTOFILL_FEATURE_FLAGS.continuousMode && continuousModeBtn) {
+    continuousModeBtn.hidden = true;
+    continuousModeBtn.disabled = true;
+  }
+  if (!AUTOFILL_FEATURE_FLAGS.skills) {
+    if (skillsToggle) {
+      skillsToggle.checked = false;
+      skillsToggle.disabled = true;
+    }
+    if (skillsToggleLabel) skillsToggleLabel.hidden = true;
+  }
 
   const paintAutofillPreferences = () => {
     const continuous = autofillPreferences.mode === 'continuous';
@@ -338,9 +354,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     void saveAutofillPreferences({ ...autofillPreferences, mode: 'step_by_step' });
   });
   continuousModeBtn?.addEventListener('click', () => {
+    if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
     void saveAutofillPreferences({ ...autofillPreferences, mode: 'continuous' });
   });
   skillsToggle?.addEventListener('change', () => {
+    if (!AUTOFILL_FEATURE_FLAGS.skills) return;
     void saveAutofillPreferences({
       ...autofillPreferences,
       autofillSkills: skillsToggle.checked,

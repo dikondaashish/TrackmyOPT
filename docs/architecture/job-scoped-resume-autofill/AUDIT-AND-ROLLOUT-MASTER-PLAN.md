@@ -43,6 +43,10 @@ for releasing the working deterministic core.
   reconciliation, replaces the process-local quota with a fail-closed atomic
   Supabase RPC, returns UTC `resetsAt`, corrects initial/regeneration semantics,
   and shares one sensitive-question policy between extension and server.
+- Stage 2 adds independent safe-default rollout flags, contains both unfinished
+  AI routes behind `501`, removes fake PDF generation, wires hash-locked
+  cover-letter transport, adds explicit draft confirmation, caps question text,
+  and closes organization-trap classifier parity.
 - The matrix below is the frozen Stage 0 audit baseline. Completed remediation
   is tracked in the stage checklists and Git history instead of erasing the
   original findings.
@@ -230,41 +234,76 @@ questions fail closed on the server.
 
 ### Independent flags
 
-- [ ] Add one typed feature-flag module with defaults:
+- [x] Add one typed feature-flag module with defaults:
       `artifactPrefill=true`, `skills=false`, `continuousMode=false`,
       `aiScreeningDrafts=false`, `coverLetter=false`, `historyFields=true`,
       `atsAdapters=true`.
-- [ ] Gate UI, background message handlers, resolver, and engine paths at the
+- [x] Gate UI, background message handlers, resolver, and engine paths at the
       nearest safe boundary.
-- [ ] Keep profile-only prefill available when every new flag is off.
+- [x] Keep profile-only prefill available when every new flag is off.
+
+Evidence: `apps/extension/src/autofill-feature-flags.ts:16`,
+`apps/extension/src/autofill-preferences.ts:21`,
+`apps/extension/src/prefill-payload-resolver.ts:29`,
+`apps/extension/src/easy-apply-engine.ts:727`, and
+`apps/extension/tests/autofill-feature-flags.test.ts:59`.
 
 ### Stub containment
 
-- [ ] Return `501 Not Implemented` from initial cover-letter generation while
+- [x] Return `501 Not Implemented` from initial cover-letter generation while
       `coverLetter=false`; never emit fake PDF bytes.
-- [ ] Keep screening generation UI and route unreachable while
+- [x] Keep screening generation UI and route unreachable while
       `aiScreeningDrafts=false`.
-- [ ] Preserve the contracts so real generation can land later without
+- [x] Preserve the contracts so real generation can land later without
       weakening the deterministic release.
+
+Evidence: `apps/web/app/api/extension/screening-answer/route.ts:31`,
+`apps/web/app/api/resume-generator/cover-letter/route.ts:9`, and their route
+tests assert `501` occurs before authentication or quota work; the cover-letter
+test also asserts no fake PDF emitter remains.
 
 ### Cover-letter wiring
 
-- [ ] Populate `coverLetter` in the prefill resolver.
-- [ ] Validate and relay it through `PREFILL_CHILD_FRAMES`.
-- [ ] Pass parent `generatedContentHash` into attachment and reject mismatches at
+- [x] Populate `coverLetter` in the prefill resolver.
+- [x] Validate and relay it through `PREFILL_CHILD_FRAMES`.
+- [x] Pass parent `generatedContentHash` into attachment and reject mismatches at
       that boundary.
-- [ ] Consume `coverLetterResult`.
-- [ ] Add a `cover_letter` coverage group and report resume/cover-letter
+- [x] Consume `coverLetterResult`.
+- [x] Add a `cover_letter` coverage group and report resume/cover-letter
       attachment separately.
+
+Evidence: `apps/extension/src/easy-apply-engine.ts:444`,
+`apps/extension/src/easy-apply-engine.ts:750`,
+`apps/extension/tests/prefill-payload-resolver.test.ts:76`,
+`apps/extension/tests/prefill-payload-resolver.test.ts:106`,
+`apps/web/lib/extension/phase1b1c-widget-ui.test.ts:120`,
+`apps/web/lib/extension/phase1b1c-widget-ui.test.ts:141`, and
+`apps/extension/tests/prefill-coverage.test.ts:50`.
 
 ### Review and classifier gaps
 
-- [ ] Add an explicit Confirm action that calls `confirmDraftReview()`.
-- [ ] Cap normalized `questionText` client-side before POST.
-- [ ] Export `ORG_TRAP_RE` and reuse it in flat, section-aware, and ATS adapter
+- [x] Add an explicit Confirm action that calls `confirmDraftReview()`.
+- [x] Cap normalized `questionText` client-side before POST.
+- [x] Export `ORG_TRAP_RE` and reuse it in flat, section-aware, and ATS adapter
       classification.
-- [ ] Add regression tests for unedited confirmation, input cap, and
+- [x] Add regression tests for unedited confirmation, input cap, and
       manager/referral/company-website traps.
+
+Evidence: `apps/extension/src/screening-question-review-ui.ts:69`,
+`apps/extension/src/background.ts:789`,
+`apps/extension/src/easy-apply-matchers.ts:48`,
+`apps/web/lib/extension/phase1b1c-widget-ui.test.ts:188`,
+`apps/extension/tests/phase1b1c-dedicated-safety.test.ts:37`,
+`apps/extension/tests/ats-prefill-adapters.test.ts:103`, and
+`apps/web/lib/extension/section-aware-classifier.test.ts:25`.
+
+### Stage 2 validation
+
+- [x] Web: 86 test files, 418 tests passed.
+- [x] Extension: all scripted assertions and 28 Node tests passed.
+- [x] API: two suites, four tests passed.
+- [x] Web, extension, and API TypeScript checks passed.
+- [x] Production extension bundle built successfully.
 
 Stage 2 exit: disabled AI surfaces cannot be reached; no fake PDF can be
 produced; dormant cover-letter transport is safe for future enablement; review

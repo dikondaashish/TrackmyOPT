@@ -1,3 +1,5 @@
+import { ORG_TRAP_RE } from './easy-apply-matchers';
+
 export type FormSectionKind =
   | 'contact'
   | 'experience'
@@ -116,7 +118,11 @@ function classifyField(
   label: string,
 ): ClassifiedControl['field'] | null {
   if (section === 'experience') {
-    if (/\b(company|employer|organization)\b/.test(label) && !/website|email|referr|manager/.test(label)) return 'company';
+    if (
+      /\b(company|employer|organization)\b/.test(label) &&
+      !ORG_TRAP_RE.test(label)
+    )
+      return 'company';
     if (/\b(job\s*title|position\s*title|role\s*title|title)\b/.test(label)) return 'title';
     if (/\b(location|city)\b/.test(label)) return 'location';
     if (/\b(start|from).*(month)\b|\bstartmonth\b/.test(label)) return 'startMonth';

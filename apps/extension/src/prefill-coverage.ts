@@ -1,4 +1,10 @@
-export type PrefillFieldGroup = 'resume' | 'contact' | 'skills' | 'experience' | 'education';
+export type PrefillFieldGroup =
+  | 'resume'
+  | 'cover_letter'
+  | 'contact'
+  | 'skills'
+  | 'experience'
+  | 'education';
 
 export interface PrefillCoverageGroupResult {
   filled: number;
@@ -31,6 +37,7 @@ export function emptyPrefillCoverage(): PrefillCoverageResult {
     total: 0,
     groups: {
       resume: { filled: 0, skipped: 0, total: 0 },
+      cover_letter: { filled: 0, skipped: 0, total: 0 },
       contact: { filled: 0, skipped: 0, total: 0 },
       skills: { filled: 0, skipped: 0, total: 0 },
       experience: { filled: 0, skipped: 0, total: 0 },
@@ -43,6 +50,8 @@ export function emptyPrefillCoverage(): PrefillCoverageResult {
 export function formatPrefillCoverageSummary(result: PrefillCoverageResult): string {
   const parts: string[] = [];
   if (result.groups.resume.filled > 0) parts.push('Resume attached');
+  if (result.groups.cover_letter.filled > 0)
+    parts.push('Cover letter attached');
   if (result.groups.contact.filled > 0) {
     const count = result.groups.contact.filled;
     parts.push(`${count} contact field${count === 1 ? '' : 's'}`);

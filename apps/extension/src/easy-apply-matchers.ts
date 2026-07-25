@@ -45,8 +45,10 @@ const ESSAY_RE =
  * OTHER than the applicant. Skipped entirely (also stops "company website" etc.
  * from being treated as the applicant's own field).
  */
-const ORG_TRAP_RE =
-  /\b(company|employer|organization|organisation|school|university|college|institution|reference|referral|referrer|manager|supervisor)\b/i;
+export const ORG_TRAP_RE =
+  /\b(website|web\s*site|referr\w*|manager|supervisor|(?:company|employer|organization|organisation)\s+email)\b/i;
+const NON_APPLICANT_ORG_RE =
+  /\b(company|employer|organization|organisation|school|university|college|institution|reference)\b/i;
 
 /** Normalize machine-oriented ATS identifiers before applying human-label
  * matchers. This makes candidate[first_name], first_name and firstName behave
@@ -73,7 +75,7 @@ export function classifyField(labelText: string): FieldKind | null {
   // Order matters: exclusions first, then most-specific matches.
   if (SENSITIVE_FIELD_RE.test(t)) return null; // always left for the user
   if (ESSAY_RE.test(t)) return null;
-  if (ORG_TRAP_RE.test(t)) return null;
+  if (NON_APPLICANT_ORG_RE.test(t) || ORG_TRAP_RE.test(t)) return null;
 
   // Rule 8: only a dedicated, plainly labelled skills field. Qualifiers are
   // intentionally allowlisted so technology-specific or eligibility prompts

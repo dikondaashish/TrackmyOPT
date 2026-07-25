@@ -1,4 +1,5 @@
 import {
+  ORG_TRAP_RE,
   SENSITIVE_FIELD_RE,
   normalizeFieldSignal,
 } from './easy-apply-matchers';
@@ -115,7 +116,11 @@ function classifyRepeatableField(
     return /\bskills?\b/.test(signal) ? 'skills' : null;
   }
   if (section === 'experience') {
-    if (/\b(company|employer|organization|organisation)\b/.test(signal)) return 'company';
+    if (
+      /\b(company|employer|organization|organisation)\b/.test(signal) &&
+      !ORG_TRAP_RE.test(signal)
+    )
+      return 'company';
     if (/\b(job title|position title|role title|title|position)\b/.test(signal)) return 'title';
     if (/\b(start month|from month)\b/.test(signal)) return 'startMonth';
     if (/\b(start year|from year)\b/.test(signal)) return 'startYear';
@@ -232,6 +237,13 @@ export const ATS_PREFILL_ADAPTERS: readonly AtsPrefillAdapter[] = [
 ];
 
 /** Specific adapters win; the conservative generic adapter is the fallback. */
-export function selectAtsPrefillAdapter(document: Document): AtsPrefillAdapter {
-  return ATS_PREFILL_ADAPTERS.find((adapter) => adapter.matches(document)) || genericPrefillAdapter;
+export function selectAtsPrefillAdapter(
+  document: Document,
+  specificAdaptersEnabled = true
+): AtsPrefillAdapter {
+  if (!specificAdaptersEnabled) return genericPrefillAdapter;
+  return (
+    ATS_PREFILL_ADAPTERS.find((adapter) => adapter.matches(document)) ||
+    genericPrefillAdapter
+  );
 }

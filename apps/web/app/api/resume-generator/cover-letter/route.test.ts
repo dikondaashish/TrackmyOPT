@@ -1,6 +1,7 @@
-import { NextRequest } from 'next/server';
+import { readFileSync } from 'node:fs';
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextRequest } from 'next/server';
+import { describe, expect, it, vi } from 'vitest';
 
 import { getUserId } from '@/lib/auth/getUserId';
 import { consumeAiGeneration } from '@/lib/ai-generation-limits';
@@ -14,68 +15,27 @@ vi.mock('@/lib/ai-generation-limits', () => ({
   consumeAiGeneration: vi.fn(),
 }));
 
-const userId = '00000000-0000-4000-8000-000000000001';
-const snapshot = {
-  contact: { fullName: 'Ada Applicant' },
-  skills: ['TypeScript'],
-  experience: [],
-  education: [],
-  certifications: [],
-};
+describe('cover-letter generation containment', () => {
+  it('returns 501 before auth or quota work and contains no fake PDF emitter', async () => {
+    const response = await POST(
+      new NextRequest(
+        'https://www.trackmyopt.com/api/resume-generator/cover-letter',
+        { method: 'POST' }
+      )
+    );
 
-function request(isRegeneration: boolean): NextRequest {
-  return new NextRequest(
-    'https://www.trackmyopt.com/api/resume-generator/cover-letter',
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        snapshot,
-        sourceContentHash: 'a'.repeat(64),
-        isRegeneration,
-        job: {
-          companyName: 'Acme',
-          roleTitle: 'Engineer',
-          jobDescription: 'Build reliable software.',
-        },
-      }),
-    }
-  );
-}
-
-describe('cover-letter generation quota semantics', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(getUserId).mockResolvedValue(userId);
-    vi.mocked(consumeAiGeneration).mockResolvedValue({
-      allowed: true,
-      dailyLimit: 25,
-      dailyRemaining: 24,
-      itemRegenerationLimit: 3,
-      itemRegenerationsRemaining: 3,
-      resetsAt: '2026-07-26T00:00:00.000Z',
+    expect(response.status).toBe(501);
+    await expect(response.json()).resolves.toEqual({
+      error: 'feature_disabled',
     });
-  });
+    expect(getUserId).not.toHaveBeenCalled();
+    expect(consumeAiGeneration).not.toHaveBeenCalled();
 
-  it('does not mark the first generation as a regeneration', async () => {
-    const response = await POST(request(false));
-
-    expect(response.status).toBe(200);
-    expect(consumeAiGeneration).toHaveBeenCalledWith(
-      userId,
-      `Acme|Engineer|${'a'.repeat(64)}`,
-      false
+    const source = readFileSync(
+      'app/api/resume-generator/cover-letter/route.ts',
+      'utf8'
     );
-  });
-
-  it('marks an explicit repeat generation as a regeneration', async () => {
-    const response = await POST(request(true));
-
-    expect(response.status).toBe(200);
-    expect(consumeAiGeneration).toHaveBeenCalledWith(
-      userId,
-      `Acme|Engineer|${'a'.repeat(64)}`,
-      true
-    );
+    expect(source).not.toContain('%PDF-1.4');
+    expect(source).not.toContain('Buffer.from');
   });
 });
